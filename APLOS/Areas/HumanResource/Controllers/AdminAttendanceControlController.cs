@@ -93,8 +93,8 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost]
         public ActionResult getAttendanceData(string employeeid, string fromdate, string todate,string PlantId)
         {
-            string sql = stringAttendanceData(employeeid, fromdate, todate,PlantId);
-
+            AdminAttendanceControlService app = new AdminAttendanceControlService();
+            string sql = app.stringAttendanceData(employeeid, fromdate, todate,PlantId);
 
             string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.PlantID='" + PlantId + @"'";
 
@@ -138,6 +138,24 @@ namespace Aplos.Areas.HumanResource.Controllers
             return jsondata;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetDayStatus(string PlantId)
+        {
+            try
+            {
+                AdminAttendanceControlService mau = new AdminAttendanceControlService();
+
+                return Json(mau.GetDayStatus(PlantId), JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+
         [HttpPost]
         public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data)
         {
@@ -154,78 +172,5 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }        
 
-        private string stringAttendanceData(string employeeid, string fromdate, string todate,string PlantId)
-        {
-           
-            if (string.IsNullOrEmpty(employeeid) == false)
-                employeeid = " AND emp.SystemId='" + employeeid + @"' ";
-            else
-            {
-                todate = fromdate;
-            }
-            return @" SELECT convert(bit, 0) AS Active,
-                            kk.Id,kk.EmployeeCode,E.UserName as Entity,
-                            emp.EmployeeName,isnull(s.UserName,'') AS Section,isnull(ss.UserName,'') AS SubSection,isnull(d.UserName,'') AS Designation,isnull(dept.UserName,'') AS Department,
-                            format(KK.WorkDate,'ddd') AS DayName, 
-                            format(KK.WorkDate,'dd-MMM-yyyy') AS WorkDate, 
-
-                            KK.ShiftSystemID,kk.ShiftName,KK.ShiftSystemID AS ShiftSystemIDOriginal,
-                            format(ShiftInTime,'dd-MMM-yyyy hh:mm tt') AS ShiftInTime,
-                     	    format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt') ShiftOutTime,
-
-
-                            format(isnull(KK.InTime,ShiftInTime),'dd-MMM-yyyy') AS  InDate,format(isnull(KK.InTime,ShiftInTime),'dd-MMM-yyyy') AS  InDateOriginal,
-                            format(KK.InTime,'hh:mm tt') AS  InTime, format(KK.InTime,'hh:mm tt') AS  InTimeOriginal, 
-
-                            KK.IsManualInTime, 
-
-
-						
-                            format(isnull(KK.OutTime,format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt')),'dd-MMM-yyyy') AS  OutDate,
-                            format(isnull(KK.OutTime,format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt')),'dd-MMM-yyyy') AS  OutDateOriginal,
-                            format(KK.OutTime,'hh:mm tt') AS  OutTime, format(KK.OutTime,'hh:mm tt') AS  OutTimeOriginal, 
-
-
-                            KK.IsManualOutTime,KK.DayStatusCode,
-
-                            format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
-                            format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
-
-                            KK.DayStatus, KK.OTHr,KK.plantid AS PlantID,
-                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,convert(bit,isnull(KK.IsLock,0)) AS IsLock
-
-                             FROM (
-								
-		                            SELECT Emp.SystemID AS Id,emp.EmployeeCode,O.WorkDate, O.ShiftSystemID,sd.UserName AS ShiftName,
-								    DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),O.WorkDate))  AS ShiftInTime,
-		                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),o.WorkDate))  AS ShiftOutTime,
-		                            O.InTime, O.IsManualInTime,
-		                            O.OutTime, O.IsManualOutTime, O.IsManualDayStatus,O.IsLock,
-       
-		                            O.PunchInTime,O.PunchOutTime,
-		                            O.DayStatus, O.OTHr, O.IsOTComfirm,O.DayStatusCode,
-		                            O.IsOTEntitled,emp.plantid
-
-		                            FROM EmployeeInformation EMP
-		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
-		                            LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=o.ShiftSystemID
-		                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON o.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-                       
-                            WHERE o.WorkDate BETWEEN '" + fromdate + @"' AND '" + todate + @"'" + employeeid + @"
-                        ) AS KK
-                        LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=kk.ShiftSystemID
-                        LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON kk.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-						    LEFT OUTER JOIN EmployeeInformation EMP ON KK.Id=EMP.SystemID
-                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                            LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-                            LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id	
-                        where emp.plantid='" + PlantId + @"'
-                        ORDER BY kk.EmployeeCode,CONVERT(DATE, WorkDate) ASC ";
-
-        }
     }
 }
