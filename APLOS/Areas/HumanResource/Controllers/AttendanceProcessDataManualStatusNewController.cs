@@ -260,6 +260,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+      
         private string stringAttendanceData(string employeeid, string fromdate, string todate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

@@ -210,7 +210,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
             try
             {
-               
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                 bplib.clsGenID objId = new bplib.clsGenID();
 
                
@@ -239,7 +240,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["ShiftHalfDayDuration"] = data[i].ShiftHalfDayDuration;
                             shiftchange.Tables[0].Rows[0]["ShiftOutTime"] = data[i].ShiftOutTime;
                             shiftchange.Tables[0].Rows[0]["ShiftInTime"] = data[i].ShiftInTime;
-                            shiftchange.Tables[0].Rows[0]["ManualByWhom"] = "SuperUser";
+                            shiftchange.Tables[0].Rows[0]["ManualByWhom"] = identity.Name;
                             shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
                             shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
                             shiftchange.Tables[0].Rows[0].EndEdit();
@@ -262,7 +263,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["ManualDayStatus"] = data[i].DayStatusNew;
                                 dr["DayStatus"] = data[i].DayStatusNew;
                                 dr["IsManualDayStatus"] = true;
-                                dr["ManualByWhom"] = "Superuser";
+                                dr["ManualByWhom"] = identity.Name;
                                 dr["ManualEntryTime"] = DateTime.Now;
                                 dr["ManualFlag"] = true;
                             }
@@ -316,7 +317,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     }
                                 }
 
-                                dr["ManualByWhom"] = "Superuser";
+                                dr["ManualByWhom"] = identity.Name;
                                 dr["ManualEntryTime"] = DateTime.Now;
                                 dr["ManualFlag"] = true;
 
