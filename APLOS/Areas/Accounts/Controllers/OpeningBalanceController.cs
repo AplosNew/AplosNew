@@ -370,6 +370,24 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
+        public JsonResult PostOpeningBalanceJournal(VoucherViewModel voucherVM,decimal DrAmount, decimal CrAmount)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            
+            if (!voucherVM.IsPark)
+                throw new CustomException("Update or Delete is not allowed.");
+            if (DrAmount != CrAmount)
+                throw new CustomException("Dr Cr not match!");
+            voucherVM.IsPosted = true;
+            voucherVM.IsPark = false;
+            return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _openingBalanceService.PostOpeningBalanceJournal(voucherVM)) });
+        }
+
+
+        [HttpPost]
         public JsonResult DeleteOBDetailRow(OpeningBalanceDetail OBDetailVM)
         {
             return Json(new { Message = string.Format(AplosMessage.Deleted, _openingBalanceService.DeleteOBDetailRow(OBDetailVM)) });

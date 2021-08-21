@@ -34,7 +34,7 @@ namespace Library.Accounting.Accounts
             _sqlRepository = sqlRepository;
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity,string plantId)
+        public List<Dictionary<string, object>> GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
 
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
@@ -88,7 +88,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='"+ plantId + @"'
+                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1 " + wcEmpStatus + @"
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         UNION
@@ -149,7 +149,7 @@ namespace Library.Accounting.Accounts
 
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity,string plantId)
+        public List<Dictionary<string, object>> GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
 
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
@@ -201,13 +201,13 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 AND SPL.PlantId='"+ plantId+ @"'
+                        AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @"
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						ORDER BY sh.[Sequence],sh.SalaryHead";
             return _sqlRepository.GetDataCollection(sql);
         }
-        
+
         public List<Dictionary<string, object>> GetSalaryLockDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
@@ -431,7 +431,7 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
         }
 
-      
+
         public List<Dictionary<string, object>> GetSalaryLockInDirectCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
@@ -491,7 +491,7 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        
+
         public List<Dictionary<string, object>> GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
@@ -659,7 +659,7 @@ namespace Library.Accounting.Accounts
 						JOIN TRN.Advance A ON A.VoucherId=EA.VoucherId
 						JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
 						WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  ) ESA ON ESA.EmployeeId=SL.EmpSystemId
-                        WHERE sl.MonthNo='"+ monthNo + "' and sl.YearNo='"+yearNo+@"' AND sl.PayableVoucherId IS NULL 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
                         AND ISNULL(sh.SalaryHead,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='D' 
                         ) x
@@ -765,30 +765,29 @@ namespace Library.Accounting.Accounts
                     salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
                 }
             }
-            string wcEmpStatus = " AND (1=0 ";
+            string empStatus = " and (1=0 ";
 
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
-                wcEmpStatus = " AND (1=1 ";
+                empStatus = " and (1=1 ";
             }
             else
             {
                 if (isActive == true)
                 {
-                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='Regular'";
+                    empStatus += " OR case when  ISNULL(SalaryProcFlag,'Regular') ='' then 'Regular' else ISNULL(SalaryProcFlag,'Regular') end = 'Regular' ";
                 }
                 if (isSeperated == true)
                 {
-                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='SEPARATED'";
+                    empStatus += " OR ISNULL(SalaryProcFlag,'Regular') ='SEPARATED'";
                 }
                 if (isMaternity == true)
                 {
-                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='MLV_PRE'";
+                    empStatus += " OR ISNULL(SalaryProcFlag,'Regular') ='MLV_PRE'";
 
                 }
             }
-
-            wcEmpStatus += ")";
+            empStatus += ")";
 
             try
             {
@@ -816,8 +815,8 @@ namespace Library.Accounting.Accounts
                                     ,ISNULL(spld.IFSCCode,'') IFSCCode
                                     ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
                                     ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
-
-                            			, sl.PayableVoucherId
+                                    ,SalaryProcFlag
+                            		, sl.PayableVoucherId
                                      FROM  dbo.SalaryLock sl
 									join EmployeeInformation E on sl.EmpSystemId=E.SystemId
 
@@ -901,7 +900,7 @@ namespace Library.Accounting.Accounts
 						                               MMDSA.YearNo = YEAR('" + fromDate + @"') AND MMDSA.PlantID = '" + plantId + @"' 
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
                                             WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"'  AND EmpBasic.PlantId ='" + plantId + @"' 
-		                                                                                    and EmpBasic.PayableVoucherId <>''  ";
+		                                                                " + empStatus + @"                    and EmpBasic.PayableVoucherId <>''  ";
                 try
                 {
                     if (parameters.Count > 0)
@@ -1237,7 +1236,7 @@ namespace Library.Accounting.Accounts
             //}
         }
 
-        public IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId)
+        public IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId, string Mode, string EmpBank)
         {
             #region Variable
             clsReport objRpt = null;
@@ -1319,7 +1318,8 @@ namespace Library.Accounting.Accounts
 
                 GetEmployeeInfoDetailSalaryLogWiseSalaryPayable(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, out dsEmpLoyeeInfo, voucherId);//Sql Query For Salary  Data
                 Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, out dtSalaryHeadSheet);
-
+                if (dsEmpLoyeeInfo.Tables[0].Rows.Count == 0)
+                    throw new Exception("No Data Found..");
                 if (dicEmpSalry.First().Value[0].Table.Rows.Count > 0)
                 {
                     listdsSlrProc = dicEmpSalry.First().Value[0].Table.ToList<SalarySheetReportDisbursement>();
@@ -1678,11 +1678,34 @@ namespace Library.Accounting.Accounts
                         sheet1.Range[xlsRow, cPaymentMode].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, cPaymentMode].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-
+                        
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["BankName"].ToString()) == false)
                             sheet1.Range[xlsRow, colBank].Text = dtEmployees.Rows[i]["BankName"].ToString();
                         sheet1.Range[xlsRow, colBank].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, colBank].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (!string.IsNullOrEmpty(Mode) && Mode == dtEmployees.Rows[i]["PaymentMode"].ToString())
+                        {
+                            if (!string.IsNullOrEmpty(EmpBank)/* && EmpBank == dtEmployees.Rows[i]["BankName"].ToString()*/)
+                            {
+                                if (EmpBank == dtEmployees.Rows[i]["BankName"].ToString())
+                                {
+                                    sheet1.Range[xlsRow, colBank].CellStyle.Interior.Color = System.Drawing.Color.Green;
+                                }
+                                else
+                                {
+                                    //sheet1.Range[xlsRow, cPaymentMode].CellStyle.Interior.Color = System.Drawing.Color.White;
+                                }
+                            }
+                            else
+                            {
+                                sheet1.Range[xlsRow, cPaymentMode].CellStyle.Interior.Color = System.Drawing.Color.Green;
+                            }
+                        }
+                        else
+                        {
+                            //sheet1.Range[xlsRow, colBank].CellStyle.Interior.Color = System.Drawing.Color.White;
+                        }
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["BankAccNo"].ToString()) == false)
                             sheet1.Range[xlsRow, colBankAccountNo].Text = dtEmployees.Rows[i]["BankAccNo"].ToString();

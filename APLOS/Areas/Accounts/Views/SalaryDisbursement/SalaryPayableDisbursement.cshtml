@@ -36,7 +36,7 @@
                         @*<div class="col-sm-2" style="padding-left:0px;">
                              <input type="checkbox" ej-checkbox class="nodetext" e-value="isActive" e-checked="isActive" e-model="vouchcer.IsActive" />
                             </div>*@
-                        <div class="col-sm-2" style="padding-left:0px;">
+                        <div class="col-sm-2" style="padding-left: 0px; margin-top: 2px;">
                             <div class="checkbox-site">
                                 <label>
                                     <input tabindex="8" type="checkbox" ng-model="voucher.IsActive">
@@ -46,7 +46,7 @@
                         </div>
 
                         <label class="col-sm-3" style="font-weight:normal; ">Seperated<sup></sup></label>
-                        <div class="col-sm-1" style="padding-left:0px;">
+                        <div class="col-sm-1" style="padding-left: 0px; margin-top: 2px;">
                             <div class="checkbox-site">
                                 <label>
                                     <input tabindex="8" type="checkbox" ng-model="voucher.IsSeperated">
@@ -61,7 +61,7 @@
                         @*<div class="col-sm-1" style="padding-left:0px;">
                                 <input type="checkbox" ej-checkbox class="nodetext" e-value="isMaternity" e-checked="isMaternity" e-model="voucher.IsMaternity" />
                             </div>*@
-                        <div class="col-sm-1" style="padding-left:0px;">
+                        <div class="col-sm-1" style="padding-left: 0px; margin-top: 2px;">
                             <div class="checkbox-site">
                                 <label>
                                     <input tabindex="8" type="checkbox" ng-model="voucher.IsMaternity">
@@ -78,9 +78,9 @@
                         </div>
                     </div>*@
 
-                <div class="col-sm-1 " style="padding-left:0px;">
+                <div class="col-sm-1 ">
                     <div class="common-btn">
-                        <button ng-click="getSalaryLockPayableGL();" class="btn"> <i class="glyphicon glyphicon-circle-arrow-down"></i>Go</button>
+                        <button ng-click="getSalaryLockPayableGL();" class="btn"> <i class="glyphicon glyphicon-download"></i> Go</button>
 
                     </div>
                 </div>
@@ -101,9 +101,9 @@
                     </div>
                 </div>
                 <label class="col-sm-1 control-label" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">Employee Bank<sup>*</sup></label>
-                <div class="col-sm-3" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
+                <div class="col-sm-3" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'" style="padding-left:50px;">
                     <div class="select-style">
-                        <select id="PaymentModeId" class="form-control" name="Payment Mode" ng-change="changeBank()" ng-model="voucher.BankId" tabindex="5">
+                        <select id="PaymentModeIds" class="form-control" name="Payment Mode" ng-change="changeBank()" ng-model="voucher.BankId" tabindex="5">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in bankList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
@@ -205,13 +205,27 @@
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="PayableVoucherNo" e-headertext="Payable Voucher No" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="IsLock" e-headertext="Lock" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="PaymentMode" e-headertext="PaymentMode" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="DisbursementVoucherNo" e-headertext="Disbursement Voucher No" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="IsDisburse" e-headertext="Disbursed" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="Bank" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="BankAccNo" e-headertext="BankAccNo" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="DirectManpowerCost" e-headertext="DirectManpowerCost" e-allowediting="false" e-width="80"></div>
                                     @*<div e-column e-field="Amount" e-headertext="Amount" e-allowediting="false" e-width="80"></div>*@
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
 
                                 </div>
                             </div>
