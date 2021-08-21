@@ -441,7 +441,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         and sl.IsDisbursed=1
                         and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 
                         " + wcEmpStatus + @"
-                        AND sh.PartOfNetPay=1 
+                        --AND sh.PartOfNetPay=1 
 
                         group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
                         ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId

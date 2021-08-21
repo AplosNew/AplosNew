@@ -261,6 +261,10 @@
                     <th>Doc Ref</th>
                     <th>Doc Date</th>
                     <th>Posting Date</th>
+                    <th>Month No</th>
+                    <th>Year No</th>
+                    <th>Employee Bank</th>
+                    <th>Payment Bank</th>
                     <th>Amount</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -272,6 +276,10 @@
                     <td>{{x.DocRefNo}}</td>
                     <td>{{x.DocDate | dateFiltering}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.MonthNo}}</td>
+                    <td>{{x.YearNo}}</td>
+                    <td>{{x.EmployeeBank}}</td>
+                    <td>{{x.PaymentBank}}</td>
                     <td class="text-right">{{x.DrAmount | number:2}}</td>
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">

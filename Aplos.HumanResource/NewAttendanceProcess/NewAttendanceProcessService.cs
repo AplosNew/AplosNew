@@ -2732,7 +2732,8 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 SUM(dt.LeaveValueLP)TotalLv,SUM(dt.MaternityLeaveValueMLV)TotalMlv,SUM(dt.CompAssignLv)TotalCompAssignLv,
                 SUM(dt.WeeklyOffWO)TotalWeekOff,SUM(dt.HolidayH)TotalHoliDay,SUM(dt.WeekOffHoliDayWOH)TotalWeekOffHoliDay,
                 SUM(ISNULL(p.OTHr, 0)) TotalOTHr,SUM(dt.LeaveValueLWP)TotalLWP,SUM(dt.CasualLeaveValueCV)TotalCasualLeave,
-                SUM(dt.PriviledgeLeavePL)TotalPriviledgeLeave,SUM(dt.MedicalLeaveValueMV)TotalMedicalLeave
+                SUM(dt.PriviledgeLeavePL)TotalPriviledgeLeave,SUM(dt.MedicalLeaveValueMV)TotalMedicalLeave,SUM(dt.TotalWorkingDay)TotalWorkingDay,
+				SUM(dt.ActualWorkingDay)ActualWorkingDay,SUM(dt.PayDay)TotalPayDay,SUM(dt.NonPayDay)TotalNonPayDay
                         from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                         left join mst.DesignationMasterLegalDesignation ddm on
@@ -2743,9 +2744,10 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         left join DayStatusHeader dh on dh.Id=dc.headerId
                         left join DayTypeWithValues dt on dt.HeaderId=dh.Id                                          
                         where dt.DayType=p.DayStatus AND  isnull(p.DayStatus,'')!='' and		
-                        MONTH(WorkDate) = MONTH('" + Date + @"') AND 
-						YEAR(WorkDate) = YEAR('" + Date + @"')                       					
+                        MONTH(WorkDate) = MONTH('"+Date+@"') AND 
+						YEAR(WorkDate) = YEAR('"+Date+@"')                       					
                         GROUP BY EmpSystemID) as dd";
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -4192,6 +4194,10 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         string TotalCasualLeave = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalCasualLeave"]).ToString();
                         string TotalPriviledgeLeave = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalPriviledgeLeave"]).ToString();
                         string TotalMedicalLeave = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalMedicalLeave"]).ToString();
+                        string TotalPayDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalPayDay"]).ToString();
+                        string TotalNonPayDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalNonPayDay"]).ToString();
+                        string TotalWorkingDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalWorkingDay"]).ToString();
+                        string ActualWorkingDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
 
                         dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
 
@@ -4221,6 +4227,10 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                             dr["TotalCasualLeave"] = TotalCasualLeave;
                             dr["TotalPriviledgeLeave"] = TotalPriviledgeLeave;
                             dr["TotalMedicalLeave"] = TotalMedicalLeave;
+                            dr["TotalPayDay"] = TotalPayDay;
+                            dr["TotalNonPayDay"] = TotalNonPayDay;
+                            dr["TotalWorkingDay"] = TotalWorkingDay;
+                            dr["ActualWorkingDay"] = ActualWorkingDay;
                             dr["TotalNormalOTHr"] = 0;
                             dr["TotalExtraOTHr"] = 0;
                             dr["IsDisbusted"] = false;
@@ -4249,9 +4259,13 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                             dr["TotalWeekOffHoliDay"] = TotalWeekOffHoliDay;
                             dr["TotalHoliDay"] = TotalHoliDay;
                             dr["TotalOTHr"] = TotalOTHr;
+                            dr["TotalNonPayDay"] = TotalNonPayDay;
                             dr["TotalLWP"] = TotalLWP;
+                            dr["TotalWorkingDay"] = TotalWorkingDay;
+                            dr["TotalPayDay"] = TotalPayDay;
                             dr["TotalCasualLeave"] = TotalCasualLeave;
-                            dr["TotalPriviledgeLeave"] = TotalPriviledgeLeave;
+                            dr["TotalPriviledgeLeave"] = TotalPriviledgeLeave; 
+                            dr["ActualWorkingDay"] = ActualWorkingDay;
                             dr["TotalMedicalLeave"] = TotalMedicalLeave;
                             dr["TotalNormalOTHr"] = 0;
                             dr["TotalExtraOTHr"] = 0;
@@ -4619,7 +4633,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
             string ErrorlineNo, Errormsg, extype, ErrorLocation;
 
-            ErrorlineNo = ex.StackTrace.Substring(ex.StackTrace.Length - 7, 7);
+            ErrorlineNo = ex.StackTrace.ToString();
             Errormsg = ex.GetType().Name.ToString();
             extype = ex.GetType().ToString();
             ErrorLocation = ex.Message.ToString();
