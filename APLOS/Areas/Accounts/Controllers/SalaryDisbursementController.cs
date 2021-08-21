@@ -238,7 +238,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string voucherId)
+        public ActionResult GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string voucherId,string Mode,string EmpBank)
         {
             try
             {
@@ -251,7 +251,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
                // var workbook = _salaryDisbursementService.GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, voucherId);
-                var workbook = accountsSalaryPayableService.GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, voucherId);
+                var workbook = accountsSalaryPayableService.GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, voucherId,Mode,EmpBank);
 
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
@@ -275,38 +275,29 @@ namespace Aplos.Areas.Accounts.Controllers
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
 
+            string empStatus = " and (1=0 ";
+
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
-            else if (isActive == true && isSeperated == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
-            }
-            else if (isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
-            }
-            else if (isActive == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+                empStatus = " and (1=1 ";
             }
             else
             {
                 if (isActive == true)
                 {
-                    wcEmpStatus = " AND spm.SalaryProcFlag =''";
+                    empStatus += " OR case when  ISNULL(SalaryProcFlag,'Regular') ='' then 'Regular' else ISNULL(SalaryProcFlag,'Regular') end = 'Regular' ";
                 }
                 if (isSeperated == true)
                 {
-                    wcEmpStatus = " AND spm.SalaryProcFlag ='SEPARATED'";
+                    empStatus += " OR ISNULL(SalaryProcFlag,'Regular') ='SEPARATED'";
                 }
                 if (isMaternity == true)
                 {
-                    wcEmpStatus = " AND spm.SalaryProcFlag ='MLV_PRE'";
+                    empStatus += " OR ISNULL(SalaryProcFlag,'Regular') ='MLV_PRE'";
 
                 }
             }
+            empStatus += ")";
 
             string sql = null;
             if (!string.IsNullOrEmpty(pMode))
@@ -344,7 +335,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         where sl.MonthNo = '" + monthNo + "' and sl.YearNo = '" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
                         and sl.IsDisbursed=1 and spd.PaymentMode='" + pMode + @"'
                         and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 
-                        " + wcEmpStatus + @" and spd.BankSystemID='" + bankId + @"'
+                        " + empStatus + @" and spd.BankSystemID='" + bankId + @"'
                        
                         group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
                         ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
@@ -389,7 +380,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         where sl.MonthNo = '" + monthNo + "' and sl.YearNo = '" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
                         and sl.IsDisbursed=1 and spd.PaymentMode='" + pMode + @"'
                         and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 
-                        " + wcEmpStatus + @"
+                        " + empStatus + @"
                         AND sh.PartOfNetPay=1 
 
                         group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
@@ -440,7 +431,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         where sl.MonthNo = '" + monthNo + "' and sl.YearNo = '" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
                         and sl.IsDisbursed=1
                         and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 
-                        " + wcEmpStatus + @"
+                        " + empStatus + @"
                         --AND sh.PartOfNetPay=1 
 
                         group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
@@ -461,11 +452,25 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = null;
-            if (bankId == null)
+            if (string.IsNullOrEmpty(bankId))
             {
                  sql = @" select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
                         ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
                         ,spc.DisbusmentAmount Amount,spd.Id
+						,Department.UserName Department,Department.Id DepartmentId
+						,EmpC.UserName EmployeeCategory, EmpC.Id EmpCategoryId
+						,Section.UserName Section,Section.Id SectionId
+						,SubSection.UserName SubSection,SubSection.Id SubSectionId
+						,isnull(L.Id,'') LineId,isnull(L.UserName,'') Line
+						,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
+						,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
+						,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end
+						,ISNULL(REPLACE(CONVERT(VARCHAR(11), ei.DOJ, 106), ' ', '-'),'') DOJ
+						,ISNULL(PG.UserName,'') PayRollGroup
+						,ISNULL(jl.JobLocation, '') JobLocation
+                        ,ISNULL(REPLACE(CONVERT(VARCHAR(11), ei.DOS, 106), ' ', '-'),'') DOS
+						,Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
+                        ,ISNULL(Division.UserName,'') Division ,ISNULL(Division.Id,'') DivisionId
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
@@ -473,10 +478,22 @@ namespace Aplos.Areas.Accounts.Controllers
                         left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                        LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                        LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                        LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+						LEFT JOIN ORG.Line AS L ON L.Id= MPB.LineId
 						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
 						left join hkp.Designation d on d.Id=spd.DesignationId
+						Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = ei.SystemId
+						Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+						Left Join [dbo].[JobLocation] jl on jl.SystemID = ei.JobLocationID
 						left join hkp.Bank b on spd.BankSystemID=b.Id
 						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+                        LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + "'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 and spd.PaymentMode='" + pMode + @"'
                          and spc.DisbusmentAmount!=0  
                         and spd.PlantId='" + identity.PlantId + @"' 
@@ -487,6 +504,20 @@ namespace Aplos.Areas.Accounts.Controllers
                  sql = @" select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
                         ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
                         ,spc.DisbusmentAmount Amount,spd.Id
+						,Department.UserName Department,Department.Id DepartmentId
+						,EmpC.UserName EmployeeCategory, EmpC.Id EmpCategoryId
+						,Section.UserName Section,Section.Id SectionId
+						,SubSection.UserName SubSection,SubSection.Id SubSectionId
+						,isnull(L.Id,'') LineId,isnull(L.UserName,'') Line
+						,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
+						,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
+						,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end
+						,ISNULL(REPLACE(CONVERT(VARCHAR(11), ei.DOJ, 106), ' ', '-'),'') DOJ
+						,ISNULL(PG.UserName,'') PayRollGroup
+						,ISNULL(jl.JobLocation, '') JobLocation
+                        ,ISNULL(REPLACE(CONVERT(VARCHAR(11), ei.DOS, 106), ' ', '-'),'') DOS
+						,Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
+                        ,ISNULL(Division.UserName,'') Division ,ISNULL(Division.Id,'') DivisionId
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
@@ -494,10 +525,22 @@ namespace Aplos.Areas.Accounts.Controllers
                         left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                        LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                        LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+						LEFT JOIN ORG.Line AS L ON L.Id= MPB.LineId
+                        LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
 						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
 						left join hkp.Designation d on d.Id=spd.DesignationId
+						Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = ei.SystemId
+						Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+						Left Join [dbo].[JobLocation] jl on jl.SystemID = ei.JobLocationID
 						left join hkp.Bank b on spd.BankSystemID=b.Id
 						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+                        LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
                         and spd.PaymentMode='" + pMode + "' and spd.BankSystemID='"+bankId+@"'
                          and spc.DisbusmentAmount!=0  
