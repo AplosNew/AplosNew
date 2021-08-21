@@ -10,11 +10,11 @@
                     <div class="form-group" show-errors>
                         <div class="col-sm-12 radio">
                             <label>
-                                <input type="radio" name="source2" ng-model="LCGrid.Type" value="Search" @*ng-change="typeChange('AsOnDate')"*@>
+                                <input type="radio" name="source2" ng-model="LCGrid.Type" value="Search" ng-change="EmptyGrid()">
                                 <span class="cr" tabindex="1"><i class="cr-icon"></i></span>Search
                             </label>
                             <label>
-                                <input type="radio" name="source2" ng-model="LCGrid.Type" value=SearchByDate @*ng-change="viewChange('ForThePeriod')"*@>
+                                <input type="radio" name="source2" ng-model="LCGrid.Type" value=SearchByDate ng-change="EmptyGrid()">
                                 <span class="cr" tabindex="2"><i class="cr-icon"></i></span>Search by Date
                             </label>
                         </div>
@@ -71,7 +71,8 @@
         <div class="form-elements form-horizontal" ng-form id="formpop" name="formPopUp">
             <div style="color:black;" id="GridPurchaseLC" ej-grid e-datasource="PurchaseLCList"
                  e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                 e-filtersettings-filterType="excel" e-enabletouch="false"
+                 e-showsummary="true" e-summaryrows="summaryGrid" e-allowselection="false">
                 <div e-columns>
                     <div e-column e-type="string" e-field="LCNo" e-headertext="LC No." e-width="150"></div>
                     <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="120"></div>
@@ -85,13 +86,10 @@
                     <div e-column e-type="string" e-field="BenificiaryBank" e-headertext="Benificiary Bank" e-width="80"></div>
                     <div e-column e-template="#templatePOValue" e-headertext="PO Value" e-width="80"></div>
                     <div e-column e-template="#templateAcceptanceValue" e-headertext="Acceptance Value" e-width="80"></div>
+                    <div e-column e-template="#templateSetoff" e-headertext="Set off" e-width="80"></div>
                     <div e-column e-template="#templateGRNValue" e-headertext="GRN Value" e-width="80"></div>
                     <div e-column e-template="#templateLoadValue" e-headertext="Loan" e-width="80"></div>
-                    @*<div e-column e-type="number" e-field="POValue" e-textalign="right" e-format="{0:N2}" e-headertext="PO Value" e-width="100"></div>*@
-                    @*<div e-column e-type="number" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="Acceptance Value" e-width="120"></div>
-                        <div e-column e-type="number" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="100"></div>*@
-                    @*<div e-column e-type="number" e-field="PaymentMade" e-textalign="right" e-format="{0:N2}" e-headertext="Payment Made" e-width="100"></div>*@
-                    @*<div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="200"></div>*@
+                    <div e-column e-template="#templateLoadSettle" e-headertext="Loan Settle" e-width="80"></div>
 
                     <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="220"></div>
                     <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="90"></div>
@@ -100,7 +98,8 @@
                     <div e-column e-type="string" e-field="POCount" e-headertext="PO Count" e-width="90"></div>
                     <div e-column e-type="string" e-field="AcceptanceCount" e-headertext="Acceptance Count" e-width="90"></div>
                     <div e-column e-type="string" e-field="GRNCount" e-headertext="GRN Count" e-width="90"></div>
-                    <div e-column e-type="string" e-field="Status" e-headertext="LC Status" e-width="90"></div>
+                    <div e-column e-type="string" e-field="IsClosed" e-headertext="Is Closed" e-width="90"></div>
+                    <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="90"></div>
                     <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="90"></div>
                     @*<div e-column e-type="string" e-field="LCId" e-headertext="LC" e-width="90"></div>*@
                 </div>
@@ -128,11 +127,16 @@
                 <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadLoanList(data);">{{data.Loan |number:2}}</a>
             </div>
         </script>
-        @*<ul>
-                <li>
-                    <button class="btn" ng-click="getPurcheseLcReport();" style="background-color:cornflowerblue;"><i class="glyphicon glyphicon-file"></i>Purchase LC Report</button>
-                </li>
-            </ul>*@
+        <script type="text/template" id="templateSetoff">
+            <div class="text-right" style="width:100%">
+                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadSetoffList(data);">{{data.SetOff |number:2}}</a>
+            </div>
+        </script>
+        <script type="text/template" id="templateLoadSettle">
+            <div class="text-right" style="width:100%">
+                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadLoanSetOff(data);">{{data.LoanSetOff |number:2}}</a>
+            </div>
+        </script>
     </div>
 </div>
 
@@ -164,7 +168,7 @@
                 </div>
                 <div class="row">
                     <div style="color:black;" id="GridPurchaseLCPO" ej-grid e-datasource="PurchaseLCPOList"
-                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryRows"
                          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
                             <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
@@ -210,7 +214,7 @@
                 </div>
                         <div class="row">
                             <div style="color:black;" id="GridPurchaseLCGRN" ej-grid e-datasource="PurchaseLCGRNList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryGRN"
                                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                                 <div e-columns>
                                     <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="50"></div>
@@ -256,7 +260,7 @@
                 </div>
                 <div class="row">
                     <div style="color:black;" id="GridPurchaseLCAC" ej-grid e-datasource="PurchaseLCACList"
-                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryAC"
                          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
                             <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
@@ -302,6 +306,7 @@
                 </div>
                 <div class="row">
                     <div style="color:black;" id="GridPurchaseLCLoan" ej-grid e-datasource="PurchaseLCLoanList"
+                         e-showsummary="true" e-summaryrows="summaryLoan"
                          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
                          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
@@ -320,5 +325,93 @@
             </div>
         </div>
     </div>
+
+<div class="modal fade site-modal in" id="SetOffPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Set Off<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div class="col-md-12 col-md-2 col-md-2">Vendor</div>
+                        <div class="col-md-12 col-md-10 col-md-10">:{{SelectedLCRow.Vendor}}</div>
+                        <div class="col-md-12 col-md-2 col-md-2">LC No.</div>
+                        <div class="col-md-12 col-md-4 col-md-4">:{{SelectedLCRow.LCNo}}</div>
+                        <div class="col-md-12 col-md-2 col-md-2">Opening Date</div>
+                        <div class="col-md-12 col-md-4 col-md-4">
+                            <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
+                        </div>
+                        <div class="col-md-12 col-md-2  col-md-2">Value</div>
+                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Loan|number:2}}</div>
+                        <div class="col-md-12 col-md-2  col-md-2">Currency</div>
+                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div style="color:black;" id="GridPurchaseLCSetOff" ej-grid e-datasource="PurchaseLCSetOffList"
+                         e-showsummary="true" e-summaryrows="summaryLoan"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="LoanNo" e-headertext="Loan No." e-width="50"></div>
+                            <div e-column e-type="date" e-field="LoanDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Loan Date" e-width="50"></div>
+                            <div e-column e-type="string" e-field="Amount" e-format="{0:N2}" e-headertext="Loan" e-width="50"></div>
+                            <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="Acceptance No." e-width="50"></div>
+                            <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Acceptance Date" e-width="50"></div>
+                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No." e-width="50"></div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="LoanSetOffPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Loan Settle<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div class="col-md-12 col-md-2 col-md-2">Vendor</div>
+                        <div class="col-md-12 col-md-10 col-md-10">:{{SelectedLCRow.Vendor}}</div>
+                        <div class="col-md-12 col-md-2 col-md-2">LC No.</div>
+                        <div class="col-md-12 col-md-4 col-md-4">:{{SelectedLCRow.LCNo}}</div>
+                        <div class="col-md-12 col-md-2 col-md-2">Opening Date</div>
+                        <div class="col-md-12 col-md-4 col-md-4">
+                            <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
+                        </div>
+                        <div class="col-md-12 col-md-2  col-md-2">Value</div>
+                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Loan|number:2}}</div>
+                        <div class="col-md-12 col-md-2  col-md-2">Currency</div>
+                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div style="color:black;" id="GridPurchaseLCLoanSetOff" ej-grid e-datasource="PurchaseLCLoanSetoffList"
+                         e-showsummary="true" e-summaryrows="summaryLoan"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="LoanNo" e-headertext="Loan No." e-width="50"></div>
+                            <div e-column e-type="date" e-field="LoanDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Loan Date" e-width="50"></div>
+                            <div e-column e-type="string" e-field="LoanSetOff" e-format="{0:N2}" e-headertext="Loan Settle" e-width="50"></div>
+                            <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="Acceptance No." e-width="50"></div>
+                            <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Acceptance Date" e-width="50"></div>
+                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No." e-width="50"></div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 

@@ -913,6 +913,7 @@ var upanelApp = angular
     .controller("NewAttdnDashboardController", NewAttdnDashboardController)
     .controller("EmployeeBudgetUpdateController", EmployeeBudgetUpdateController)
     .controller("AttendanceDashboardController", AttendanceDashboardController)
+    .controller("NewAttdnProcessLockController", NewAttdnProcessLockController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)

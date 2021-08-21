@@ -964,7 +964,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
 						b.BOMQty,C.Id
 						,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-						,Isnull(POMAP.TransactionQty,0) PORaisedQry,ISNULL(OtherPOData.TransactionQty,0) OtherPOQty,ISNULL(OtherPOData.TransactionQty,0) OtherPOQtyOrginal
+						,Isnull(POMAP.TransactionQty,0) PORaisedQry--,ISNULL(OtherPOData.TransactionQty,0) OtherPOQty
+                        ,ISNULL(OtherPOData.TransactionQty,0) OtherPOQtyOrginal
 						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
 						,ISNULL(cpo.PONumber,'') PONumber
 					    --,AUOM.AlternativeUOMId,AUOM.BaseUOMId,AUOM.BaseUOMFactor,AUOM.AlternativeUOMFactor
@@ -980,7 +981,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,b.RequiredQtyPO RequiredQtyPOOrginal
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
 						,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
-						,mm.BaseUOMId,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
+						,mm.BaseUOMId--,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
+                        ,BalanceQuantity=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
+                        ,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQty
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -1015,6 +1018,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									WHERE POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
+                                    left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+                                          ,B.ThirdCharacteristicsValueId
+                                          from dbo.JWPOBOQMAP boqmap --left join dbo.JobWorkTransformationContractChild om on om.Id=boqmap.JWPODetailId
+                                          left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
+                                          left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
+                                          group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+                                          ,B.ThirdCharacteristicsValueId)
+										  kk on kk.SalesOrderId=so.Id
                         LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						--LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
 						WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
@@ -1442,10 +1453,13 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						, IsEditMode=1
 						,POMAP.ServiceId
 						,Sum(Isnull(POMAP.TransactionQty,0)) PORaisedQry
-						,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQty
-						,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQtyOrginal
+						--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQty
+						--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQtyOrginal
 						--,Sum(JWPOBOQMAP.TransactionQty) TransactionQty
-                        ,POMAP.TransactionQty,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
+                        ,POMAP.TransactionQty--,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
+                        ,BalanceQuantity=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
+						,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQty
+                        ,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQtyOrginal
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -1480,8 +1494,16 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									where POM.Id !='"+ JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
+                                          left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+                                          ,B.ThirdCharacteristicsValueId
+                                          from dbo.JWPOBOQMAP boqmap --left join dbo.JobWorkTransformationContractChild om on om.Id=boqmap.JWPODetailId
+                                          left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
+                                          left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
+                                          group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+                                          ,B.ThirdCharacteristicsValueId)
+										  kk on kk.SalesOrderId=so.Id
                         LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
-                          LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JobWorkTransformationContractChild where JobWorkTransformationContractMasterId='"+ JWPOId + @"')
+                          LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JobWorkTransformationContractChild where JobWorkTransformationContractMasterId='" + JWPOId + @"')
 						WHERE moi.ContractId='"+ ContractId + @"' AND (b.VendorId='"+ VendorId + @"' OR b.VendorId is null)
                          AND  b.id in(select ParentId from BOQ where ISNULL(ParentId,'')<>'' 
 						) 
@@ -1532,7 +1554,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 					
 						,POMAP.ServiceId
                         ,POMAP.TransactionQty
-                        ,OtherPOData.TransactionQty";
+                        --,OtherPOData.TransactionQty
+                        ,kk.OtherPOQuantity";
 
 
                     var Data = _sqlRepository.GetDataCollection(sql);
@@ -6223,7 +6246,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 ,mm.UserName as Material, mm.Code as MaterialCode
                                 , mma.StandardName as Article, mma.Code as ArticleCode
                                 ,uom.UserName as MatBaseUoM,mm.BaseUOMId
-                                ,CurrentReqQty=(om.Quantity * KK.NetConsumption) * (1 + (KK.ValueLoss/100))
+                                --,CurrentReqQty=(om.Quantity * KK.NetConsumption) * (1 + (KK.ValueLoss/100))
+                                ,CurrentReqQty=(om.Quantity * mi.NetConsumption) * (1 + (mi.ValueLoss/100))
 								,KK.BOQReqQty,KK.NetConsumption,kk.Rejection,KK.ValueLoss,KK.GrossConsumption
                                 from dbo.JobWorkTransformationContractChild3 mi 
                                 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId

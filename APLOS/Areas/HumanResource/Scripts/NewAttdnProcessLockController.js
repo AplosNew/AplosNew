@@ -1,11 +1,10 @@
 ﻿'use strict';
-AdminAttendanceControlController.$inject = ['fileReader', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$window', '$filter'];
-function AdminAttendanceControlController(fileReader, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $window, $filter) {
-    $rootScope.title = 'Admin Attendance Control';
+NewAttdnProcessLockController.$inject = ['fileReader', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$window', '$filter'];
+function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $window, $filter) {
+    $rootScope.title = 'Attendance Lock/UnLock';
     $scope.Action = 'Save';
     $scope.index = -1;
-    $scope.preRecruitmentEmployees = [];
-    $scope.path = 'HumanResource/AdminAttendanceControl/';
+    $scope.path = 'HumanResource/NewAttdnProcessLock/';
 
 
     $scope.ModelNew = {

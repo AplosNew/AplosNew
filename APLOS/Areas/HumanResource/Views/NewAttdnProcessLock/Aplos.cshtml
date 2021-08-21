@@ -1,0 +1,362 @@
+﻿<style>
+    .e-grid .e-gridcontent { /* grid content color*/
+        /*min-height:500px*/
+        font-size: 10px;
+        width: 100%;
+    }
+
+
+
+    .e-grid .e-headercelldiv {
+        /*font-weight: bold;*/
+        font-size: 11px;
+        /*display: block;
+        border: 0 none;*/
+        overflow-wrap: break-word;
+        /*height: 60px;*/
+        /*line-height: 29px;
+        margin: -7px;
+        padding: 0 .7em;
+        text-align: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;*/
+    }
+</style>
+
+
+
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Attendance Lock/UnLock </h3>
+<div class="row form-horizontal form-elements">
+
+  
+</div>
+<br />
+<div class="row form-horizontal form-elements">
+    <div class="col-xs-12 col-sm-6 col-md-7 ">
+        <div class="form-group">
+            <label class="col-sm-3 control-label"> Date<sup>*</sup></label>
+            <div class="col-sm-4">
+                <div class="select-style">
+                    <input class="form-control" autocomplete="off" datepicker ng-change="getEmpListData()" id="txtLockDate" ng-model="customPara.lockDate" placeholder="dd-MM-yyyy" type="text" />
+                   
+                </div>
+
+            </div>
+          
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-3 ">
+        <div class="common-btn">
+
+            <ul class="list-inline text-right">
+
+                <li style="float:left"> <button ng-click="SaveLockData()"  class="btn"><i class="glyphicon glyphicon-check"></i> Lock</button></li>
+               
+                <li style="float:right"> <button ng-click="getEmpListData()" class="btn"><i class="glyphicon glyphicon-check"></i> UnLock</button></li>
+            </ul>
+        </div>
+
+    </div>
+   
+
+</div>
+
+<br />
+<div class="tab-design" id="tab_show">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            @*<li role="presentation" ng-class="{ active: isSet1(1) }"><a ng-click="setTab1(1)" href="" aria-controls="aria1" role="tab" data-toggle="tab">Lock</a></li>*@
+            <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2)" href="" aria-controls="aria2" role="tab" data-toggle="tab">Un-Approved Employee ({{UnApprovedEmployeesCount}})</a></li>
+            <li role="presentation" ng-class="{ active: isSet3(3) }" ng-show="ShowOTConfirmationTab==true"><a ng-click="setTab3(3)" href="" aria-controls="aria3" role="tab" data-toggle="tab">OT Un-Confirmed Employee  ({{OTUnConfirmedEmployeesCount}})</a></li>
+            <li role="presentation" ng-class="{ active: isSet4(4) }"><a ng-click="setTab4(4)" href="" aria-controls="aria4" role="tab" data-toggle="tab">Attdence Not Proc Employee  ({{AttdencenotNotProcEmployeesCount}})</a></li>
+            <li role="presentation" ng-class="{ active: isSet5(5) }"><a ng-click="setTab5(5)" href="" aria-controls="aria5" role="tab" data-toggle="tab">Shift Not Assign Employee  ({{ShiftNotAssignEmployeesCount}})</a></li>
+            <li role="presentation" ng-class="{ active: isSet6(6) }" ng-show="IsOutMissingValidationRequired==true"><a ng-click="setTab6(6)" href="" aria-controls="aria5" role="tab" data-toggle="tab">Out Punch Missing ({{OutPunchMissingDataCount}})</a></li>
+        </ul>
+    </div>
+    <div class="tab-content" id="tabpaneldiv">
+
+        @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet1(1), active: isSet1(1) }">
+
+                <h4>Lock</h4>
+
+
+
+            </div>*@
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
+
+
+
+            <div id="GridUnApprovedEmployeeList" ej-grid
+                 e-datasource="UnApprovedEmployees"
+                 e-recorddoubleclick="Get"
+                 e-allowscrolling="true"
+                 e-actioncomplete="actionCompleteSelected"
+                 e-templaterefresh="refreshTemplateemployee"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="110"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="150"></div>
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="100"></div>
+                    <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="100"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="PayRollGroupName" e-headertext="Pay Roll Group" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="PositionName" e-headertext="PositionName" e-allowediting="false" e-width="150"></div>
+
+
+                </div>
+            </div>
+
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(3), active: isSet3(3) }">
+
+
+
+            <div id="GridOTUnConfirmedEmployeeList" ej-grid
+                 e-datasource="OTUnConfirmedEmployees"
+                 e-recorddoubleclick="Get"
+                 e-allowscrolling="true"
+                 e-actioncomplete="actionCompleteSelected1"
+                 e-templaterefresh="refreshTemplateemployee"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-width="100%"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="WorkDate" e-headertext="Date" e-allowediting="false" e-width="110"></div>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="110"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="230"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="PayRollGroupName" e-headertext="Pay Roll Group" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="PositionName" e-headertext="PositionName" e-allowediting="false" e-width="250"></div>
+
+
+                </div>
+            </div>
+
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet4(4), active: isSet4(4) }">
+
+
+
+            <div id="GridAttdencenotNotProcEmployeeList" ej-grid
+                 e-datasource="AttdencenotNotProcEmployees"
+                 e-recorddoubleclick="Get"
+                 e-allowscrolling="true"
+                 e-actioncomplete="actionCompleteSelected2"
+                 e-templaterefresh="refreshTemplateemployee"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    @*<div e-column e-field="WorkDate" e-headertext="Date" e-allowediting="false" e-width="110"></div>*@
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="110"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="230"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="130"></div>
+                    @*<div e-column e-field="PayRollGroupName" e-headertext="Pay Roll Group" e-allowediting="false" e-width="130"></div>*@
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="150"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="150"></div>
+
+
+                </div>
+            </div>
+
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet5(5), active: isSet5(5) }">
+
+
+
+            <div id="GridShiftNotAssignEmployeeList" ej-grid
+                 e-datasource="ShiftNotAssignEmployees"
+                 e-recorddoubleclick="Get"
+                 e-allowscrolling="true"
+                 e-actioncomplete="actionCompleteSelected3"
+                 e-templaterefresh="refreshTemplateemployee"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    @*<div e-column e-field="WorkDate" e-headertext="Date" e-allowediting="false" e-width="110"></div>*@
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="110"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="130"></div>
+
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="150"></div>
+
+
+                </div>
+            </div>
+
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet6(6), active: isSet6(6) }">
+
+
+
+            <div id="GridOutPunchMissingData" ej-grid
+                 e-datasource="OutPunchMissingData"
+                 e-recorddoubleclick="Get"
+                 e-allowscrolling="true"
+                 e-actioncomplete="actionCompleteSelected6"
+                 e-templaterefresh="refreshTemplateemployee6"
+                 e-endedit="updatedata"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-width="100%"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="WorkDate" e-headertext="Date" e-allowediting="false" e-width="110"></div>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="110"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="230"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="PayRollGroupName" e-headertext="Pay Roll Group" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="PositionName" e-headertext="PositionName" e-allowediting="false" e-width="250"></div>
+
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="row form-horizontal form-elements">
+    <div class="col-xs-12 col-sm-10 col-md-10">
+
+    </div>
+    <div class="col-xs-12 col-sm-2 col-md-2">
+
+    </div>
+
+
+
+</div>
+
+
+<ej-dialog id="dialogMessage" title="{{messageTitle}}" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target=".site-heading" e-close="onDialogClose" e-minwidth="50%" e-minheight="50" e-open="enableBtn">
+
+    @*<div>
+            {{messageText}}
+        </div>*@
+    <h6>Miss Punch List</h6>
+    <div id="GridMissPunch"
+         ej-grid
+         e-datasource="MissPunchEmployeeListAuto"
+         e-allowfiltering="true"
+         e-allowpaging="true"
+         e-allowsorting="true"
+         e-enabletouch="false"
+         e-responsive="true"
+         @*e-minheight="500"*@
+         e-allowselection="true"
+         e-pagesettings-pagesize="17"
+         e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-field="EmployeeCode" e-isprimarykey="true" e-allowediting="false" e-headertext="Employee Code" e-width="150"></div>
+            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="250"></div>
+            <div e-column e-field="ShiftInTime" e-headertext="Shift In Time" e-allowediting="false" e-width="200"></div>
+            <div e-column e-field="ShiftOutTime" e-headertext="Shift Out Time" e-allowediting="false" e-width="200"></div>
+            <div e-column e-field="InTime" e-headertext="In Time" e-allowediting="false" e-width="100"></div>
+            <div e-column e-field="DayStatus" e-allowediting="false" e-headertext="DayStatus" e-width="100"></div>
+            <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+            <div e-column e-field="DepartmentName" e-headertext="DepartmentName" e-width="100"></div>
+            <div e-column e-field="EmpCategoryName" e-headertext="EmpCategoryName" e-width="100"></div>
+            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+            <div e-column e-field="Unit" e-headertext="Unit" e-width="100"></div>
+            <div e-column e-field="Line" e-headertext="Line" e-width="100"></div>
+        </div>
+    </div>
+
+
+</ej-dialog>
+
+
+<ej-dialog id="dialogMessageAlert" title="Miss Punch Employee List" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target=".site-heading" e-close="onDialogClose" e-minwidth="90%" e-minheight="50" e-open="enableBtn">
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+
+            <div id="GridOutPunchMissingDataForAlert" ej-grid
+                 e-datasource="OutPunchMissingDataForAlert"
+                 e-recorddoubleclick="Get"
+                 e-allowscrolling="true"
+                 @*e-actioncomplete="actionCompleteSelected"
+         e-templaterefresh="refreshTemplateemployee"*@
+                 @*e-endedit="updatedata"*@
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-allowsorting="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="110"></div>
+                    <div e-column e-field="WorkDate" e-headertext="Work Date" e-allowediting="false" e-width="150"></div>
+                    <div e-column e-field="InTime" e-headertext="InTime" e-allowediting="false" e-width="150"></div>
+                    <div e-column e-field="OutTime" e-headertext="OutTime" e-allowediting="false" e-width="150"></div>
+                    <div e-column e-field="DayStatus" e-headertext="DayStatus" e-allowediting="false" e-width="150"></div>
+                    @*<div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="100"></div>
+                        <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="100"></div>*@
+                    <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="130"></div>
+
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="130"></div>
+                    <div e-column e-field="PositionName" e-headertext="PositionName" e-allowediting="false" e-width="150"></div>
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="common-btn">
+
+        <ul class="list-inline text-right">
+
+            <li> <button ng-click="DownloadOutPunchMissingDataForAlert()" class="btn"><i class="glyphicon glyphicon-check"></i> Download Data</button></li>
+            <li> <button ng-click="SaveData()" class="btn"><i class="glyphicon glyphicon-check"></i> Force Lock </button></li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+
+
+
+        </div>
+    </div>
+

@@ -157,8 +157,8 @@ namespace Library.HumanResource.Payroll.SalaryProcess
          --                           ,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
          --                           ,v.VoucherNo as PayableVoucherNo
          --                           ,vl.VoucherNo as DisbursementVoucherNo
-                                    ,v.VoucherNo as PayableVoucherNo
-                                    ,vl.VoucherNo as DisbursementVoucherNo
+                                    ,ISNULL(v.VoucherNo,'') as PayableVoucherNo
+                                    ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
 									,ISNULL(e.PaymentMode,'') PaymentMode
 									, Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
                                     --,SPC.SalaryID as SalaryStructureId

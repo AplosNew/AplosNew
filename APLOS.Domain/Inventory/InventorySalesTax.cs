@@ -12,6 +12,7 @@ namespace Library.Model.Inventory
         public string Id { get; set; }
         public string InventorySalesHistoryId { get; set; }
         public string InventoryReceiveDetailId { get; set; }
+        public string InventorySalesDetailId { get; set; } 
         public string TaxCategoryId { get; set; }
 
         public string HSNCodeId { get; set; }

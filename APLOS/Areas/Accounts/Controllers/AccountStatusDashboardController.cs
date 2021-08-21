@@ -211,42 +211,9 @@ namespace Aplos.Areas.Accounts.Controllers
         #endregion 
         //Payable Tab Master Gride Data
 
-        [HttpPost, Authorize]
-        public ActionResult GetDateRangeWisePayableData()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
-            //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-            return Json(new { DATA = accountsStatusDashboardService.GetDateRangeWisePayableData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-
-        }
-
+       
         //Payable report date range wise
-        [HttpGet, Authorize]
-        public ActionResult GetDateRangeWiseReport(string fromDate, string toDate)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
-
-            //AccountsInvoiceReportService accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
-            try
-            {
-                ExcelEngine excelEngine = new ExcelEngine();
-                //IWorkbook workbook = IssueReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, checkbox);
-                // IWorkbook workbook = OperationReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
-                IWorkbook workbook = accountsStatusDashboardService.GetDateRangeWiseReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate);
-
-                string strFileName = "DateRangePayableList.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                workbook.Close();
-            }
-            catch (CustomException ex)
-            {
-                return Json(ex.Message, JsonRequestBehavior.AllowGet);
-
-            }
-            return null;
-        }
+    
 
         //Payment Tab for Master Gride Data 
         [HttpPost, Authorize]
@@ -333,7 +300,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #region Fixed assets
-       
+
         [HttpPost, Authorize]
         public ActionResult GetFixedAssetsList()
         {
@@ -352,17 +319,57 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { DATA = accountsStatusDashboardService.GetFixedArticalListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult MaterialMasterReport2(string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string isMachine, string process, string skillId, string faCount)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            try
+            {
+                string fileName = "";
+                fileName = accountsStatusDashboardService.MaterialMasterReport2(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, faCount);
+                //return null;
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+        //[HttpGet, Authorize]
+        //public ActionResult MaterialMasterReport2(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
+        //{
+
+
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+
+        //    try
+        //    {
+        //        accountsStatusDashboardService.MaterialMasterReport2( /*MaterialTypeId,  materialMasterId,  materialGroupMasterId,  materialCategoryId,  materialSubCategoryId,  materialGroup1Id*/);
+
+
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+
+        //    }
+        //}
+
         [HttpGet, Authorize]
-        public ActionResult MaterialMasterReport2(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
+        public ActionResult MaterialMasterFilteringReport(string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string machine, string process, string skillId, string fACount)
         {
 
-      
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
             try
             {
-                accountsStatusDashboardService.MaterialMasterReport2( /*MaterialTypeId,  materialMasterId,  materialGroupMasterId,  materialCategoryId,  materialSubCategoryId,  materialGroup1Id*/);
+                accountsStatusDashboardService.MaterialMasterFilteringReport(identity.CompanyGroupId,identity.CompanyId,identity.PlantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, machine, process, skillId, fACount);
 
 
                 return null;
@@ -373,19 +380,72 @@ namespace Aplos.Areas.Accounts.Controllers
 
             }
         }
+        
 
         [HttpGet, Authorize]
-        public ActionResult MaterialMasterArticalReport(/*string MaterialTypeId, bool Article*/)
+        public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
+        {
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+                //string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(FullPath);
+                try
+                {
+                    System.IO.File.Delete(FullPath);
+                }
+                catch (Exception)
+                {
+                }
+
+                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return null;
+        }
+
+        //[HttpGet, Authorize]
+        //public ActionResult MaterialMasterArticalReport(/*string MaterialTypeId, bool Article*/)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+
+        //    try
+        //    {
+        //        accountsStatusDashboardService.MaterialMasterArticalReport(/*MaterialTypeId, Article*/);
+
+
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+
+        //    }
+        //}
+
+        [HttpPost, Authorize]
+        public ActionResult MaterialMasterArticalReport(string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string isMachine, string process, string skillId, string fACount)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
             try
             {
-                accountsStatusDashboardService.MaterialMasterArticalReport(/*MaterialTypeId, Article*/);
+                //accountsStatusDashboardService.MaterialMasterArticalReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, fACount);
+                //return null;
 
+                string fileName = "";
+                fileName = accountsStatusDashboardService.MaterialMasterArticalReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, fACount);
+                //return null;
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
-                return null;
             }
             catch (Exception ex)
             {
@@ -405,17 +465,20 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
-        [HttpGet, Authorize]
-        public ActionResult GetFixedAssetRegisterReport(/*string MaterialTypeId, bool Article*/)
+        [HttpPost, Authorize]
+        public ActionResult GetFixedAssetRegisterReport(string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string isMachine, string process, string skillId, string fACount)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
-
             try
             {
-                accountsStatusDashboardService.GetFixedAssetRegisterReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                //accountsStatusDashboardService.GetFixedAssetRegisterReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                //return null;
 
-                return null;
+                string fileName = "";
+                fileName = accountsStatusDashboardService.GetFixedAssetRegisterReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, fACount);
+                //return null;
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -1035,6 +1098,8 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             return null;
         }
+
+        
 
         [HttpGet, Authorize]
         public ActionResult getLedgerAllLevelDRPoPUpListData(string particulars, string gLInfoId, string budgetMasterId,  string activityId,  string toDate)
