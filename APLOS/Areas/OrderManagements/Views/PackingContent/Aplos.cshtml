@@ -154,7 +154,7 @@
                     </div>
                 </div>
                 <script type="text/template" id="CurrentAccept">
-                    <div class="col-sm-10" style="padding:0px; width:100%;">
+                    <div class="col-sm-12" style="width:70px;padding-left:0px">
                         <input type="text" class="input ejinputtext form-control" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.Qty" />
                     </div>
                 </script>
@@ -267,7 +267,7 @@
 <div class="row" style="width:890px!important;">
     <ej-dialog id="dialogSOItemsForProductionOrder" title=" Sales Order Detail" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#POItem" e-minheight="200" e-width="900" e-open="enableBtn">
         <div id="GridSOItemsForProductionOrder" ng-init="chkinit()" ej-grid e-datasource="SalesOrderListForProductionOrderId"
-             e-allowscrolling="true" e-summaryrows="summaryRows" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
              e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel">
             <div e-columns>
                 <div e-column e-field="MasterOrderNo" e-headertext="M. Order No" e-width="120"></div>
@@ -357,7 +357,7 @@
             <input type="checkbox" id="headchk" />
         </script>
         <script type="text/template" id="CurrentAcceptance">
-            <div class="col-sm-10" style="padding:0px; width:100%;">
+            <div class="col-sm-12" style="padding:0px; width:100%;">
                 <input type="text" class="input ejinputtext form-control" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.Qty"/>
             </div>
         </script>

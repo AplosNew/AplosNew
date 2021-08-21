@@ -29,8 +29,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
         #endregion
 
-       
-
         #region Aplos
         [Authorize]
         public ActionResult Aplos()
@@ -40,6 +38,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #endregion
 
         #region -- Operations
+
+        [HttpGet, Authorize]
+        public ActionResult GetDispatchEntityProcessSettingData(string EntityId)
+        {
+            return Json(_productionSummaryData.GetDispatchEntityProcessSettingData(EntityId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost]
         public JsonResult Insert(Dictionary<string, object> data,List<Dictionary<string, object>> selectedSalesOrderList)
@@ -213,24 +217,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSOList(string customerId)
         {
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
             try
             {
-                string sql = @"Select 0 AS Active,SO.Id SalesOrderId,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, D.UserName Destination,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy') CommitmentDate
-                            ,ISNULL(SO.CustomerPOId,CPO.PONumber) PONumber,SM.UserName ShipMode
-                            from TRN.SalesOrder SO
-                            LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
-                            LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
-                            LEFT JOIN MST.Destination D ON D.Id=SO.DestinationId
-                            LEFT JOIN MST.ShipMode SM ON SM.Id=SO.ShipmentModeId
-                            LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id=SO.CustomerPOId
-                            LEFT JOIN HKP.OrderStatus OS ON OS.Id=SO.OrderStatusId
-                            LEFT JOIN HKP.OrderCategory OC ON OC.Id=SO.OrderCategoryId
-                            Where MO.PartyId='"+ customerId + "'";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(_productionSummaryData.GetSOList(customerId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -241,24 +230,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetDispatchDetailSOList(string masterId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                     string sql = @"Select DSO.Id,DSO.DispatchDetailId,SO.Id SalesOrderId,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, D.UserName Destination,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy') CommitmentDate
-                    ,ISNULL(SO.CustomerPOId,CPO.PONumber) PONumber,SM.UserName ShipMode
-                    from TRN.SalesOrder SO
-                    LEFT JOIN [dbo].[DispatchDetailSO] DSO ON DSO.SalesOrderId=SO.Id
-                    LEFT JOIN [dbo].[DispatchDetail] DD ON DD.Id=DSO.DispatchDetailId
-                    LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
-                    LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
-                    LEFT JOIN MST.Destination D ON D.Id=SO.DestinationId
-                    LEFT JOIN MST.ShipMode SM ON SM.Id=SO.ShipmentModeId
-                    LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id=SO.CustomerPOId
-                    LEFT JOIN HKP.OrderStatus OS ON OS.Id=SO.OrderStatusId
-                    LEFT JOIN HKP.OrderCategory OC ON OC.Id=SO.OrderCategoryId
-                    Where DD.DispatchMasterId='" + masterId + "'";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(_productionSummaryData.GetDispatchDetailSOList(masterId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -272,14 +246,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                string sql = @"Select DM.*,P.UserName PartyName,INP.UserName InvoicingPartyPlant,DLP.UserName DeliveryPartyPlant 
-                                from [dbo].[DispatchMaster] DM
-                                LEFT JOIN HKP.Party P ON P.Id=DM.PartyId
-                                LEFT JOIN HKP.PartyPlant INP ON INP.Id=DM.InvoicingPartyPlantId
-                                LEFT JOIN HKP.PartyPlant DLP ON DLP.Id=DM.DeliveryPartyPlantId
-                                Where DM.PlantId='" + identity.PlantId + "'";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(_productionSummaryData.GetDispatchMasterList(identity.PlantId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -292,7 +259,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return Json(_productionSummaryData.GetAllConfirmedPackingContentData(), JsonRequestBehavior.AllowGet);
         }
-
         
 
         [HttpGet, Authorize]
@@ -304,15 +270,5 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         #endregion
     }
-    //public class DispatchDetail
-    //{
-    //    public string  Id { get; set; }
-    //    public string DispatchMasterId { get; set; }
-    //    public string AddedBy { get; set; }
-    //    public DateTime AddedDate { get; set; }
-    //    public string AddedFromIP { get; set; }
-    //    public string UpdatedBy { get; set; }
-    //    public DateTime UpdatedDate { get; set; }
-    //    public string UpdatedFromIP { get; set; }
-    //}
+    
 }

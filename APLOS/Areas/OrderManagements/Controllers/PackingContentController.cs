@@ -733,7 +733,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public ActionResult GetPackingContentDetailDataList(string MasterId)
         {
             string sql = @"SELECT  PCD.*,MM.UserName AS MaterialMasterName,MMA.StandardName AS ArticleName,CV1.UserName as FirstCharacteristicsValue
-                           ,CV2.UserName as SecondCharacteristicsValue, CV3.UserName as ThirdCharacteristicsValue,A.TotalQty,A.SalesOrderId
+                           ,CV2.UserName as SecondCharacteristicsValue, CV3.UserName as ThirdCharacteristicsValue,A.TotalQty,A.ProductionOrderId
 
                            FROM [dbo].[PackingContentDetail] PCD
                            left join MSt.MaterialMaster MM on MM.id= PCD.MaterialMasterId
@@ -777,7 +777,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetPackingChildDataList(string MasterId)
         {
-            string sql = @"SELECT P.*, [State]=CASE WHEN P.IsConfirmed=1 THEN 1 ELSE 0 END FROM [dbo].[PackingChild] P WHERE PackingContentMasterId='" + MasterId + "'";
+            string sql = @"SELECT P.*, [State]=CASE WHEN P.IsConfirmed=1 THEN 1 ELSE 0 END FROM [dbo].[PackingChild] P WHERE PackingContentMasterId='" + MasterId + "'  ORDER BY [Sequence]";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
