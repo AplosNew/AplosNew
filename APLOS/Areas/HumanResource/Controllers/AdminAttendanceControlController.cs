@@ -44,7 +44,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion Constructor
         #region -- Pages
 
-        [Authorize]
+       
         public ActionResult Aplos()
         {
             return View();

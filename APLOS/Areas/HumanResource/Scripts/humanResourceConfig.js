@@ -595,6 +595,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/employee-budget-update', {
             templateUrl: 'humanresource/EmployeeBudgetUpdate/Aplos',
             controller: 'EmployeeBudgetUpdateController'
-        });
+        })
+        .when('/new-attdnprocess-lock', {
+            templateUrl: 'humanresource/NewAttdnProcessLock/Aplos',
+            controller: 'NewAttdnProcessLockController'
+        });     
+
 
 }

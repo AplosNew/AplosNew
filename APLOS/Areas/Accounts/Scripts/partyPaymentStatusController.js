@@ -1391,113 +1391,109 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         return string;
     }
 
-    $scope.getMasterReport2 = function () {
-        try {
-
-            var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
-
-            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-                filtered = $scope.FixedAssetsList;
-
-                var file_src = $scope.path + 'MaterialMasterReport2';
-                $rootScope.report(file_src);
-            }
-            else {
-
-                
-
-                //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
-                var MaterialMasterId = getString(filtered, "MaterialMasterId");
-                var MaterialTypeId = getString(filtered, "MaterialTypeId");
-                var AssetMasterId = getString(filtered, "AssetMasterId");
-
-                var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
-                var BaseUOMId = getString(filtered, "BaseUOMId");
-                var IsAsset = getString(filtered, "IsAsset");
-                var Machine = getString(filtered, "Machine");
-                var Process = getString(filtered, "ProcessId");
-                var SkillId = getString(filtered, "SkillId");
-                var FACount = getString(filtered, "FACount");
-
-
-                var file_src = $scope.path + 'MaterialMasterFilteringReport?materialMasterId=' + MaterialMasterId + '&materialTypeId=' + MaterialTypeId + '&assetMasterId=' + AssetMasterId +
-                    '&materialGroup1Id=' + MaterialGroup1Id +
-                    '&baseUOMId=' + BaseUOMId +
-                    '&isAsset=' + IsAsset + '&machine=' + Machine +
-                    '&process=' + Process + '&skillId=' + SkillId + '&fACount=' + FACount;
-
-                //var file_src = $scope.path + 'MaterialMasterReport2';
-                $rootScope.report(file_src);
-
-               
-            }
-        }
-        catch (e) {
-
-        }
-    }
-
-    //$scope.exportgriddataUrl = 'Accounts/AccountStatusDashboard/MaterialMasterReport2';
-    //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
-    //$scope.downloadgriddataUrlPath = 'AccountStatusDashboard/DownloadUsingFullPath';//DownloadUsingPath
     //$scope.getMasterReport2 = function () {
     //    try {
+
     //        var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
+
     //        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
     //            filtered = $scope.FixedAssetsList;
+
+    //            var file_src = $scope.path + 'MaterialMasterReport2';
+    //            $rootScope.report(file_src);
     //        }
-    //        //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
-    //        var MaterialMasterId = getString(filtered, "MaterialMasterId");
-    //        var MaterialTypeId = getString(filtered, "MaterialTypeId");
-    //        var AssetMasterId = getString(filtered, "AssetMasterId");
+    //        else {
 
-    //        var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
-    //        var BaseUOMId = getString(filtered, "BaseUOMId");
-    //        var IsAsset = getString(filtered, "IsAsset");
-    //        var Machine = getString(filtered, "Machine");
-    //        var Process = getString(filtered, "ProcessId");
-    //        var SkillId = getString(filtered, "SkillId");
-    //        var FACount = getString(filtered, "FACount");
+    //            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+    //            var MaterialMasterId = getString(filtered, "MaterialMasterId");
+    //            var MaterialTypeId = getString(filtered, "MaterialTypeId");
+    //            var AssetMasterId = getString(filtered, "AssetMasterId");
 
-    //        //$scope.fileName = $scope.report.AssetsLiability + ".xls";
-    //        $scope.fileName = "MaterialMasterReport.xls";
-
-    //        $http({
-    //            method: 'POST',
-    //            // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
-    //            url: $scope.exportgriddataUrl,
-    //            data: {
-    //                'materialMasterId': MaterialMasterId
-    //                //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
-    //                , 'materialTypeId': MaterialTypeId
-    //                , 'assetMasterId': AssetMasterId
-    //                , 'materialGroup1Id': MaterialGroup1Id
-    //                , 'baseUOMId': BaseUOMId
-    //                , 'isAsset': IsAsset
-    //                , 'isMachine': Machine
-    //                , 'process': Process
-    //                , 'skillId': SkillId
-    //                , 'fACount': FACount
+    //            var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
+    //            var BaseUOMId = getString(filtered, "BaseUOMId");
+    //            var IsAsset = getString(filtered, "IsAsset");
+    //            var Machine = getString(filtered, "Machine");
+    //            var Process = getString(filtered, "ProcessId");
+    //            var SkillId = getString(filtered, "SkillId");
+    //            var FACount = getString(filtered, "FACount");
 
 
-    //            },
-    //            dataType: 'JSON'
-    //            , contentType: "application/json charset=utf-8"
+    //            var file_src = $scope.path + 'MaterialMasterFilteringReport?materialMasterId=' + MaterialMasterId + '&materialTypeId=' + MaterialTypeId + '&assetMasterId=' + AssetMasterId +
+    //                '&materialGroup1Id=' + MaterialGroup1Id +
+    //                '&baseUOMId=' + BaseUOMId +
+    //                '&isAsset=' + IsAsset + '&machine=' + Machine +
+    //                '&process=' + Process + '&skillId=' + SkillId + '&fACount=' + FACount;
 
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-    //                // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-    //                //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
-    //            }
-    //        });
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
+    //            //var file_src = $scope.path + 'MaterialMasterReport2';
+    //            $rootScope.report(file_src);
+
+               
+    //        }
     //    }
-    //};
+    //    catch (e) {
+
+    //    }
+    //}
+
+    $scope.exportMaterialgriddataUrl = 'Accounts/AccountStatusDashboard/MaterialMasterReport2';
+    //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
+    $scope.downloadgriddataUrlPath = 'AccountStatusDashboard/DownloadUsingFullPath';//DownloadUsingPath
+    $scope.getMasterReport2 = function () {
+        try {
+            var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
+            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+                filtered = $scope.FixedAssetsList;
+            }
+            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+            var MaterialMasterId = getString(filtered, "MaterialMasterId");
+            var MaterialTypeId = getString(filtered, "MaterialTypeId");
+            var AssetMasterId = getString(filtered, "AssetMasterId");
+            var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
+            var BaseUOMId = getString(filtered, "BaseUOMId");
+            var IsAsset = getString(filtered, "IsAsset");
+            var Machine = getString(filtered, "Machine");
+            var Process = getString(filtered, "ProcessId");
+            var SkillId = getString(filtered, "SkillId");
+            var FACount = getString(filtered, "FACount");
+
+            //$scope.fileName = $scope.report.AssetsLiability + ".xls";
+            $scope.fileName = "MaterialMasterReport.xls";
+
+            $http({
+                method: 'POST',
+                // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
+                url: $scope.exportMaterialgriddataUrl,
+                data: {
+                    'materialMasterId': MaterialMasterId
+                    //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+                    , 'materialTypeId': MaterialTypeId
+                    , 'assetMasterId': AssetMasterId
+                    , 'materialGroup1Id': MaterialGroup1Id
+                    , 'baseUOMId': BaseUOMId
+                    , 'isAsset': IsAsset
+                    , 'isMachine': Machine
+                    , 'process': Process
+                    , 'skillId': SkillId
+                    , 'fACount': FACount
+
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                    // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                    //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
    // $scope.exportgriddataUrl = 'Accounts/AccountStatusDashboard/MaterialMasterReport2';
     //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
@@ -1682,7 +1678,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //    }
     //}
 
-    $scope.exportgriddataUrl = 'Accounts/AccountStatusDashboard/GetFixedAssetRegisterReport';
+    $scope.exportRegistergriddataUrl = 'Accounts/AccountStatusDashboard/GetFixedAssetRegisterReport';
     //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
     $scope.downloadgriddataUrlPath = 'AccountStatusDashboard/DownloadUsingFullPath';//DownloadUsingPath
     $scope.getFixedAssetRegisterReport = function () {
@@ -1710,7 +1706,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
-                url: $scope.exportgriddataUrl,
+                url: $scope.exportRegistergriddataUrl,
                 data: {
                     'materialMasterId': MaterialMasterId
                     //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)

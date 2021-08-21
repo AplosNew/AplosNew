@@ -1454,11 +1454,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,POMAP.ServiceId
 						,Sum(Isnull(POMAP.TransactionQty,0)) PORaisedQry
 						--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQty
-						,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQtyOrginal
+						--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQtyOrginal
 						--,Sum(JWPOBOQMAP.TransactionQty) TransactionQty
                         ,POMAP.TransactionQty--,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
                         ,BalanceQuantity=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
 						,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQty
+                        ,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQtyOrginal
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -1553,7 +1554,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 					
 						,POMAP.ServiceId
                         ,POMAP.TransactionQty
-                        ,OtherPOData.TransactionQty
+                        --,OtherPOData.TransactionQty
                         ,kk.OtherPOQuantity";
 
 

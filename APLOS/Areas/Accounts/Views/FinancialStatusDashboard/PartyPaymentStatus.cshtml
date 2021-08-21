@@ -608,7 +608,11 @@
                                  e-gridlines="vertical" e-allowfiltering="true" e-rowdatabound="preparedByrowcolor" e-allowpaging="true" e-allowsorting="true"
                                  e-allowselection="false" e-filtersettings-filterType="excel">
                                 <div e-columns>
-                                    <div e-column e-type="string" e-field="Bank" e-headertext="Bank" e-width="40"></div>
+                                    
+                                    <div e-column e-type="string" e-field="Bank\AccountDetails" e-headertext="Bank Master" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Bank" e-headertext="Bank Name" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="Branch" e-headertext="Branch" e-width="40"></div>
+                                    <div e-column e-type="string" e-field="AccountNumber" e-headertext="Account Number" e-width="40"></div>
                                     <div e-column e-type="string" e-field="BankCurrency" e-headertext="Bank Currency" e-width="10"></div>
                                     <div e-column e-type="numeric" e-format="{0:N2}" e-field="BankAmount" e-textalign="right" e-headertext="Bank Amount" e-width="20"></div>
                                     <div e-column e-type="numeric" e-format="{0:N2}" e-field="BooksBankBalance" e-textalign="right" e-headertext="Books Bank Balance" e-width="20"></div>

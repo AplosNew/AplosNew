@@ -191,7 +191,7 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
         }
     }
     $scope.summaryRows = [{
-        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N0}" }],
+        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];
