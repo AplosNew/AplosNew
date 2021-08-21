@@ -736,8 +736,8 @@ namespace Aplos.Areas.Accounts.Controllers
                                     ,ISNULL(v.VoucherNo,'' ) VoucherNo
                                     ,ISNULL(sl.PayableVoucherId,'') PayableVoucherId
                                     ,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
-                                    ,v.VoucherNo as PayableVoucherNo
-                                    ,vl.VoucherNo as DisbursementVoucherNo
+                                    ,ISNULL(v.VoucherNo,'') as PayableVoucherNo
+                                    ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
                                     ,sl.IsDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
                                   ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end
