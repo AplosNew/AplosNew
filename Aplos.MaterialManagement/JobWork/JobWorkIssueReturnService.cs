@@ -97,21 +97,48 @@ namespace Library.MaterialManagement.JobWork
 
         //}
 
-        public IEnumerable<object> GetMaterialInputData(IEnumerable<MaterialPlanning> SelectedMaterialPlanningData)
+        public IEnumerable<object> GetMaterialInputData(IEnumerable<MaterialPlanning> SelectedMaterialPlanningData, string OrderSpecific)
         {
             try
             {
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var MPId = "' '";
-
+                string sql = "";
                 foreach (var get in SelectedMaterialPlanningData)
                 {
                     MPId += ",'" + get.Id + "' ";
 
                 }
 
-                string sql = @"select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                if (OrderSpecific == "Yes")
+                {
+                    sql = @"select mi.Id,mi.JobWorkTransformationContractChildMasterId
+                            ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
+                            ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
+                            ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
+                            --,SUM(tirc.Quantity) as TIRCQty
+                            ,Sum(kk.TotalQuantity) as TIRCTotalQty
+                            ,0 PlannedQty,0 IssuedQty,0 BalanceQty
+                            ,0 TotalQty
+							,0 PostingQty
+							,0 PostingQuantity
+							,0 ApprovedQty
+							,0 UnApprovedQty,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
+                             from dbo.JobWorkTransformationContractChild3 mi
+							left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
+							left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
+							 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
+                             left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                             left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
+                             on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                             where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
+							 group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId
+							 ,uom.UserName,mm.Code ";
+                }
+                else
+                {
+                    sql = @"select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                             ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
                             ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                             ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -134,6 +161,10 @@ namespace Library.MaterialManagement.JobWork
                              on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
                              where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
 							 group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code  ";
+
+                }
+
+               
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -220,6 +251,40 @@ namespace Library.MaterialManagement.JobWork
                                left join dbo.JobWorkTransformationContractChild mp on mp.MaterialLocationId=JL.Id
 							   left join HKP.MaterialStorage MS on MS.Id=JL.StoreLocationId
                                where mp.JobWorkTransformationContractMasterId='" + TId + @"' order by JL.LocationName ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<object> getalljobworklocation()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select Id as Value, LocationName as Text
+                               from HKP.JobWorkLocation order by LocationName ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<object> getStoragloc(string JLId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select MS.Id as Value, JL.LocationName as Text, MS.UserName as StorageLocation 
+                               from 
+							   HKP.MaterialStorage MS left join HKP.JobWorkLocation JL on MS.Id=JL.StoreLocationId
+                               where JL.Id='"+ JLId + @"' ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
