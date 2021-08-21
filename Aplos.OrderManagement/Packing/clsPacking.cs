@@ -373,7 +373,7 @@ namespace Library.OrderManagement.Packing
 
 
             string sql = @"SELECT
-                                so.Id SalesOrderId,moi.MaterialMasterId,moi.ArticleId,MM.UserName AS MaterialMasterName,MMA.StandardName AS ArticleName,
+                                pod.ProductionOrderId,so.Id SalesOrderId,moi.MaterialMasterId,moi.ArticleId,MM.UserName AS MaterialMasterName,MMA.StandardName AS ArticleName,
                                 WithSKU=CASE WHEN MM.WithSKU=1 THEN 'Yes' WHEN MM.WithSKU=0 THEN 'No' END,
                                 fc.CharacteristicsValueId FirstCharacteristicsValueId,sc.CharacteristicsValueId SecondCharacteristicsValueId,tc.CharacteristicsValueId ThirdCharacteristicsValueId,
                                 c1.UserName AS FirstCharacteristics,cv1.UserName AS FirstCharacteristicsValue,
@@ -405,7 +405,7 @@ namespace Library.OrderManagement.Packing
                                 LEFT JOIN hkp.CharacteristicsValue AS cv3 ON cv3.Id=tc.CharacteristicsValueId
                                 LEFT JOIN hkp.Characteristics AS c3 ON c3.Id=cv3.CharacteristicsId
                                 WHERE pod.ProductionOrderId " + productionorderid + @"
-                                GROUP BY so.Id,moi.MaterialMasterId,moi.ArticleId,MM.UserName,MMA.StandardName,fc.CharacteristicsValueId,sc.CharacteristicsValueId,tc.CharacteristicsValueId
+                                GROUP BY pod.ProductionOrderId,so.Id,moi.MaterialMasterId,moi.ArticleId,MM.UserName,MMA.StandardName,fc.CharacteristicsValueId,sc.CharacteristicsValueId,tc.CharacteristicsValueId
                                 ,c1.UserName,cv1.UserName,c2.UserName,cv2.UserName,c3.UserName,cv3.UserName,WithSKU";
 
             return _sqlRepository.GetDataCollection(sql, null);
