@@ -1644,20 +1644,21 @@ namespace Library.OrderManagement.Production
         {
             string sql = @"SELECT A.*,
                                 ProcessNature=(Select EPT.ProcessNature FROM TRN.ProductionOrder PO 
-							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=A.ProductionOrderId AND EPT.ProcessNature='Packing') 
+							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=PPO.ProductionOrderId AND EPT.ProcessNature='Packing') 
 							  ,IsPackingSKURequired=(Select EPT.IsPackingSKURequired FROM TRN.ProductionOrder PO 
-							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=A.ProductionOrderId AND EPT.ProcessNature='Packing') 
+							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=PPO.ProductionOrderId AND EPT.ProcessNature='Packing') 
                               ,PackingForm=(Select EPT.PackingForm FROM TRN.ProductionOrder PO 
-							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=A.ProductionOrderId AND EPT.ProcessNature='Packing')
+							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=PPO.ProductionOrderId AND EPT.ProcessNature='Packing')
                             ,B.NoOfQty,C.NoOfLine,TQ=B.NoOfQty*C.NoOfLine, ISNULL(D.Confirmed,0) Confirmed, Balance=C.NoOfLine- ISNULL(D.Confirmed,0),0 RecvQty 
                             FROM [dbo].[PackingContentMaster] A 
 							LEFT JOIN (select SUM(Qty) NoOfQty,PackingContentMasterId FROM [dbo].[PackingContentDetail] GROUP BY PackingContentMasterId) B ON B.PackingContentMasterId=A.Id 
 							LEFT JOIN (select COUNT(Id) NoOfLine,PackingContentMasterId FROM [dbo].[PackingChild] GROUP BY PackingContentMasterId) C ON C.PackingContentMasterId=A.Id 
-                            LEFT JOIN (SELECT Count(Id) Confirmed,PackingContentMasterId FROM [dbo].[PackingChild] WHERE  IsConfirmed=1 GROUP BY PackingContentMasterId) D ON D.PackingContentMasterId=A.Id";
+                            LEFT JOIN (SELECT Count(Id) Confirmed,PackingContentMasterId FROM [dbo].[PackingChild] WHERE  IsConfirmed=1 GROUP BY PackingContentMasterId) D ON D.PackingContentMasterId=A.Id
+							LEFT JOIN(Select top(1) * from  dbo.PackingProductionOrder) PPO ON PPO.PackingContentMasterId=A.Id";
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetPackingProductionOrderData()
+        public IEnumerable<object> GetPackingProductionOrderData(string MasterId)
         {
             try
             {
@@ -1743,7 +1744,7 @@ namespace Library.OrderManagement.Production
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								  
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								   WHERE PS.UserName = 'Running' AND PPO.PackingContentMasterId='PB2112'";
+								   WHERE PS.UserName = 'Running' AND PPO.PackingContentMasterId='"+ MasterId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
