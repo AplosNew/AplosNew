@@ -1511,7 +1511,8 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        #region PackingContent
+        #region Packing Content & Dispatch
+
         public IEnumerable<object> GetProductionOrderDataList()
         {
             string CmdText = @"SELECT Flag=Convert(bit,0),PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
@@ -1605,6 +1606,12 @@ namespace Library.OrderManagement.Production
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetDispatchEntityProcessSettingData(string EntityId)
+        {
+            string sql = @"Select ProcessNature,EntityId,IsDispatchSKURequired,DispatchForm,DispatchType from HKP.EntityProcessTag Where ProcessNature= 'Dispatch' AND EntityId='" + EntityId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public IEnumerable<object> GetPackingContentDataByPRId(string PRId)
         {
             string sql = @"SELECT A.*,
@@ -1644,20 +1651,21 @@ namespace Library.OrderManagement.Production
         {
             string sql = @"SELECT A.*,
                                 ProcessNature=(Select EPT.ProcessNature FROM TRN.ProductionOrder PO 
-							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=A.ProductionOrderId AND EPT.ProcessNature='Packing') 
+							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=PPO.ProductionOrderId AND EPT.ProcessNature='Packing') 
 							  ,IsPackingSKURequired=(Select EPT.IsPackingSKURequired FROM TRN.ProductionOrder PO 
-							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=A.ProductionOrderId AND EPT.ProcessNature='Packing') 
+							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=PPO.ProductionOrderId AND EPT.ProcessNature='Packing') 
                               ,PackingForm=(Select EPT.PackingForm FROM TRN.ProductionOrder PO 
-							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=A.ProductionOrderId AND EPT.ProcessNature='Packing')
+							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=PPO.ProductionOrderId AND EPT.ProcessNature='Packing')
                             ,B.NoOfQty,C.NoOfLine,TQ=B.NoOfQty*C.NoOfLine, ISNULL(D.Confirmed,0) Confirmed, Balance=C.NoOfLine- ISNULL(D.Confirmed,0),0 RecvQty 
                             FROM [dbo].[PackingContentMaster] A 
 							LEFT JOIN (select SUM(Qty) NoOfQty,PackingContentMasterId FROM [dbo].[PackingContentDetail] GROUP BY PackingContentMasterId) B ON B.PackingContentMasterId=A.Id 
 							LEFT JOIN (select COUNT(Id) NoOfLine,PackingContentMasterId FROM [dbo].[PackingChild] GROUP BY PackingContentMasterId) C ON C.PackingContentMasterId=A.Id 
-                            LEFT JOIN (SELECT Count(Id) Confirmed,PackingContentMasterId FROM [dbo].[PackingChild] WHERE  IsConfirmed=1 GROUP BY PackingContentMasterId) D ON D.PackingContentMasterId=A.Id";
+                            LEFT JOIN (SELECT Count(Id) Confirmed,PackingContentMasterId FROM [dbo].[PackingChild] WHERE  IsConfirmed=1 GROUP BY PackingContentMasterId) D ON D.PackingContentMasterId=A.Id
+							LEFT JOIN(Select top(1) * from  dbo.PackingProductionOrder) PPO ON PPO.PackingContentMasterId=A.Id";
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetPackingProductionOrderData()
+        public IEnumerable<object> GetPackingProductionOrderData(string MasterId)
         {
             try
             {
@@ -1743,7 +1751,7 @@ namespace Library.OrderManagement.Production
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								  
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								   WHERE PS.UserName = 'Running' AND PPO.PackingContentMasterId='PB2112'";
+								   WHERE PS.UserName = 'Running' AND PPO.PackingContentMasterId='"+ MasterId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1752,6 +1760,69 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public IEnumerable<object> GetSOList(string customerId)
+        {
+            string sql = @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,POD.ProductionOrderId
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
+	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , Active = CAST(0 AS BIT),SO.DestinationDescription
+								,CN.ContractNo,MLC.LCRef MasterLCNo
+                       FROM [TRN].[SalesOrder] AS SO 
+                        left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+                       LEFT JOIN dbo.[Contract] AS CN ON CN.Id=MOI.ContractId
+                       LEFT JOIN dbo.MasterLC AS MLC ON MLC.Id=CN.MasterLCId
+                       Where MO.PartyId='" + customerId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetDispatchDetailSOList(string masterId)
+        {
+            string sql = @"Select DSO.Id,DSO.DispatchDetailId,SO.Id SalesOrderId,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, D.UserName Destination,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy') CommitmentDate
+                    ,ISNULL(SO.CustomerPOId,CPO.PONumber) PONumber,SM.UserName ShipMode
+                    from TRN.SalesOrder SO
+                    LEFT JOIN [dbo].[DispatchDetailSO] DSO ON DSO.SalesOrderId=SO.Id
+                    LEFT JOIN [dbo].[DispatchDetail] DD ON DD.Id=DSO.DispatchDetailId
+                    LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+                    LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
+                    LEFT JOIN MST.Destination D ON D.Id=SO.DestinationId
+                    LEFT JOIN MST.ShipMode SM ON SM.Id=SO.ShipmentModeId
+                    LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id=SO.CustomerPOId
+                    LEFT JOIN HKP.OrderStatus OS ON OS.Id=SO.OrderStatusId
+                    LEFT JOIN HKP.OrderCategory OC ON OC.Id=SO.OrderCategoryId
+                    Where DD.DispatchMasterId='" + masterId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetDispatchMasterList(string PlantId)
+        {
+            string sql = @"Select DM.*,P.UserName PartyName,INP.UserName InvoicingPartyPlant,DLP.UserName DeliveryPartyPlant 
+                                from [dbo].[DispatchMaster] DM
+                                LEFT JOIN HKP.Party P ON P.Id=DM.PartyId
+                                LEFT JOIN HKP.PartyPlant INP ON INP.Id=DM.InvoicingPartyPlantId
+                                LEFT JOIN HKP.PartyPlant DLP ON DLP.Id=DM.DeliveryPartyPlantId
+                                Where DM.PlantId='" + PlantId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
 
         #endregion PackingContent
 

@@ -85,9 +85,16 @@ namespace Aplos.Areas.OrderManagements.Controllers
                               ,PackingForm=(Select EPT.PackingForm FROM TRN.ProductionOrder PO 
 							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=PPO.ProductionOrderId AND EPT.ProcessNature='Packing')
                             FROM [dbo].[PackingContentMaster] A
-                            LEFT JOIN dbo.PackingProductionOrder PPO ON PPO.PackingContentMasterId=A.Id";
+                            LEFT JOIN(Select top(1) * from  dbo.PackingProductionOrder) PPO ON PPO.PackingContentMasterId=A.Id";
             return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetPackingProductionOrderData(string MasterId)
+        {
+            return Json(_productionSummaryData.GetPackingProductionOrderData(MasterId), JsonRequestBehavior.AllowGet);
+        }
+
         private bool CheckCombination(Dictionary<string, object> data)
         {
             try
@@ -157,12 +164,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                         dvProductionOrder = new DataView(dsProductionOrder.Tables[0]);
                         
-                        dvProductionOrder.RowFilter = "PackingContentMasterId='" + _Id + "'";
+                       // dvProductionOrder.RowFilter = "Id='" + item["Id"].ToString() + "'";
+                        dvProductionOrder.RowFilter = "PackingContentMasterId='" + _Id + "' AND ProductionOrderId='"+ item["ProductionOrderId"].ToString() + "'";
 
                         if (dvProductionOrder.Count == 0)
                         {
                             count++;
-                            string pk = _Id + "_" + count;
+                            string pk = _Id + "-" + count;
                             drProductionOrder = dsProductionOrder.Tables[0].NewRow();
                             drProductionOrder["Id"] = pk;
                             drProductionOrder["PackingContentMasterId"] = _Id;
@@ -264,7 +272,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                         dvProductionOrder = new DataView(dsProductionOrder.Tables[0]);
 
-                        dvProductionOrder.RowFilter = "PackingContentMasterId='" + _Id + "'";
+                        dvProductionOrder.RowFilter = "PackingContentMasterId='" + _Id + "' AND ProductionOrderId='" + item["ProductionOrderId"].ToString() + "'";
 
                         if (dvProductionOrder.Count == 0)
                         {
@@ -505,11 +513,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     if (dvBp.Count == 0)
                     {
                         count++;
-                        string pk = BPId + "_" + count;
+                        string pk = BPId + "-" + count;
                         drBp = dsBp.Tables[0].NewRow();
                         drBp["Id"] = pk;
                         drBp["PackingContentMasterId"] = PackingContentMasterId;
                         drBp["MaterialMasterId"] = item.MaterialMasterId;
+                        drBp["SalesOrderId"] = item.SalesOrderId;
                         drBp["ArticleId"] = item.ArticleId;
                         drBp["Qty"] = item.Qty;
                         drBp["FirstCharacteristicsValueId"] = item.FirstCharacteristicsValueId;
@@ -528,6 +537,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         drBp.BeginEdit();
                         drBp["PackingContentMasterId"] = PackingContentMasterId;
                         drBp["MaterialMasterId"] = item.MaterialMasterId;
+                        drBp["SalesOrderId"] = item.SalesOrderId;
                         drBp["ArticleId"] = item.ArticleId;
                         drBp["Qty"] = item.Qty;
                         drBp["FirstCharacteristicsValueId"] = item.FirstCharacteristicsValueId;
@@ -587,7 +597,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     if (dvBp.Count == 0)
                     {
                         count++;
-                        string pk = BPId + "_" + count;
+                        string pk = BPId + "-" + count;
                         drBp = dsPC.Tables[0].NewRow();
                         drBp["Id"] = pk;
                         drBp["PackingContentMasterId"] = PackingContentMasterId;
@@ -722,9 +732,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetPackingContentDetailDataList(string MasterId)
         {
-            string sql = @"
-                           SELECT PCD.*,MM.UserName AS MaterialMasterName,MMA.StandardName AS ArticleName,CV1.UserName as FirstCharacteristicsValue
-                           ,CV2.UserName as SecondCharacteristicsValue, CV3.UserName as ThirdCharacteristicsValue,A.TotalQty,A.SalesOrderId
+            string sql = @"SELECT  PCD.*,MM.UserName AS MaterialMasterName,MMA.StandardName AS ArticleName,CV1.UserName as FirstCharacteristicsValue
+                           ,CV2.UserName as SecondCharacteristicsValue, CV3.UserName as ThirdCharacteristicsValue,A.TotalQty,A.ProductionOrderId
 
                            FROM [dbo].[PackingContentDetail] PCD
                            left join MSt.MaterialMaster MM on MM.id= PCD.MaterialMasterId
@@ -732,8 +741,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
                            left join HKP.CharacteristicsValue CV1 on cv1.id= PCD.FirstCharacteristicsValueId
                            left join HKP.CharacteristicsValue CV2 on cv2.id= PCD.SecondCharacteristicsValueId
                            left join HKP.CharacteristicsValue CV3 on CV3.id= PCD.ThirdCharacteristicsValueId
-                           JOIN [dbo].[PackingContentMaster] PCM ON PCM.Id=PCD.PackingContentMasterId
-                           LEFT JOIN [dbo].PackingProductionOrder PPO ON PCM.Id=PPO.PackingContentMasterId
                            LEFT JOIN (
                            SELECT
                          SO.Id SalesOrderId,SUM(
@@ -762,10 +769,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         LEFT JOIN hkp.Characteristics AS c3 ON c3.Id=cv3.CharacteristicsId
 
                         GROUP BY pod.ProductionOrderId,SO.Id
-                        --moi.MaterialMasterId,moi.ArticleId,
-                        --fc.CharacteristicsValueId,sc.CharacteristicsValueId,tc.CharacteristicsValueId
-                        --,c1.UserName,cv1.UserName,c2.UserName,cv2.UserName,c3.UserName,cv3.UserName
-                           ) A ON A.ProductionOrderId=PPO.ProductionOrderId --AND A.CharacteristicsValueId
+                           ) A ON A.SalesOrderId=PCD.SalesOrderId
                            WHERE PCD.PackingContentMasterId='" + MasterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -773,7 +777,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetPackingChildDataList(string MasterId)
         {
-            string sql = @"SELECT P.*, [State]=CASE WHEN P.IsConfirmed=1 THEN 1 ELSE 0 END FROM [dbo].[PackingChild] P WHERE PackingContentMasterId='" + MasterId + "'";
+            string sql = @"SELECT P.*, [State]=CASE WHEN P.IsConfirmed=1 THEN 1 ELSE 0 END FROM [dbo].[PackingChild] P WHERE PackingContentMasterId='" + MasterId + "'  ORDER BY [Sequence]";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

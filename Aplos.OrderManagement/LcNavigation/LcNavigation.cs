@@ -51,16 +51,20 @@ namespace Library.OrderManagement.LcNavigation
                         po.POAmount as POValue
 						,PO.POCount
                         ,ac.AcceptanceValue
+						,SetOff=Loan.Amount -- todo acceptance payment other than loan
+						,Loan.Amount Loan
+						,Loan.LoanSetOff
 						,ac.AcceptanceCount
 						,grn.GRNTotalAmount as GRNValue
                         ,grn.GRNCount
+	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
+						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END
                         
                         ,case when PM.PaymentMade = 0 then null else PM.PaymentMade end as PaymentMade,
                         con.ContractNo,
                         cus.Customer,
                         PL.Id as LCId
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
-						,Loan.Amount Loan
 
 						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
                         from PurchaseLC as PL
@@ -86,14 +90,18 @@ namespace Library.OrderManagement.LcNavigation
 									group by A.PurchaseLCId
                         ) as ac on ac.PurchaseLCId = PL.Id
 
-						left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount from TRN.LoanAgainstAcceptance LAA 
+						left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount,SUM(FDW.Amount) LoanSetOff 
+										from TRN.LoanAgainstAcceptance LAA 
 											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId
+											LEFT JOIN TRN.Financing F ON F.LoanAgainstAcceptanceId=LAA.Id --and LAA.IsPark=0
+											LEFT JOIN TRN.FinancingDetailWriteOff FDW ON FDW.FinancingId=F.Id
 											group by PDA.PurchaseLCId												
 						) Loan on Loan.PurchaseLCId=PL.Id
 
                         left outer join (
 										 select con.Id as Id, customer.UserName as Customer from Contract as con 
-										inner join HKP.Party as customer on con.CustomerId=customer.Id)
+										inner join HKP.Party as customer on con.CustomerId=customer.Id
+										)
 										as cus on cus.Id=PL.ContractId
                          left join (
 										 select Ac.PurchaseLCId,sum(i.WrittenOffAmount) AS PaymentMade from TRN.PurchaseDocAcceptance AC
@@ -260,7 +268,7 @@ namespace Library.OrderManagement.LcNavigation
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"select 
 						
-						PL.Id as PurchaseLCId,
+						PL.Id as PurchaseLCId,PO.Id PONo,
 						sum(IRD.TotalMaterialTranAmount) as GRNValue,IRD.InventoryReceiveId as GRNNo,
 					FORMAT( IR.GRNDate,'dd-MMM-yyyy') as GRNDate,po.DocRefNo as VendorRefNo,
                     c.Code as Currency
@@ -273,8 +281,8 @@ namespace Library.OrderManagement.LcNavigation
 					   left outer join trn.GateEntry as G on IR.GateEntryNo = g.id
                     left outer join dbo.PlantWiseGate as  gate on gate.Id=g.PlantWiseGateId
 					 left join SCS.Currency as c on c.id=PL.CurrencyId
-                    where PurchaseLCId='" + PurchaseLCId + @"'
-					  group by PL.Id,IRD.InventoryReceiveId ,IR.GRNDate,po.DocRefNo,c.Code,gate.UserName,ir.GateEntryNo";
+                    where PurchaseLCId='"+PurchaseLCId+@"'
+					  group by PL.Id,IRD.InventoryReceiveId ,IR.GRNDate,po.DocRefNo,c.Code,gate.UserName,ir.GateEntryNo,PO.Id ";
 
         }
         public List<Dictionary<string, object>> GetPurchaseLCACList(string PurchaseLCId)
@@ -319,6 +327,19 @@ PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' )
 
         }
 
+        public List<Dictionary<string, object>> GetPurchaseLCLoanSetOff(string PurchaseLCId)
+        {
+            try
+            {
+                string sql = PurchaseLCLoanSetOffSql(PurchaseLCId);
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public List<Dictionary<string, object>> GetPurchaseLCLoanList(string PurchaseLCId)
         {
             try
@@ -330,6 +351,35 @@ PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' )
             {
                 throw ex;
             }
+        }
+
+
+        public List<Dictionary<string, object>> GetPurchaseLCSetOff(string PurchaseLCId)
+        {
+            try
+            {
+                string sql = PurchaseLCSetoffSql(PurchaseLCId);
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private string PurchaseLCSetoffSql(string PurchaseLCId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"select laa.Id as LoanId,laa.PurchaseDocAcceptanceId,pda.AcceptanceNo,Format(pda.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate
+						,Format(LoanDate,'dd-MMM-yyyy') LoanDate,laa.LoanNo,laa.Amount,v.VoucherNo
+						from PurchaseLC Pl 
+						left outer join trn.PurchaseDocAcceptance pda on pda.PurchaseLCId=pl.Id
+						left outer join trn.LoanAgainstAcceptance laa on laa.PurchaseDocAcceptanceId=pda.Id
+					    LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
+						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
+						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
+						LEFT JOIN trn.Voucher v on v.Id=laa.VoucherId
+						where pl.Id='" + PurchaseLCId + @"'";
         }
         private string PurchaseLCLoanSql(string PurchaseLCId)
         {
@@ -344,6 +394,25 @@ PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' )
 						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
 						LEFT JOIN trn.Voucher v on v.Id=laa.VoucherId
 						where pl.Id='" + PurchaseLCId+@"'";
+        }
+
+        private string PurchaseLCLoanSetOffSql(string PurchaseLCId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"select laa.Id as LoanId,laa.PurchaseDocAcceptanceId,pda.AcceptanceNo,Format(pda.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate,AW.Id
+						,Format(LoanDate,'dd-MMM-yyyy') LoanDate,laa.LoanNo,laa.Amount,v.VoucherNo
+						,SUM(AW.Amount) LoanSetOff 
+						from PurchaseLC Pl 
+						left outer join trn.PurchaseDocAcceptance pda on pda.PurchaseLCId=pl.Id
+						left outer join trn.LoanAgainstAcceptance laa on laa.PurchaseDocAcceptanceId=pda.Id
+						LEFT JOIN trn.Voucher v on v.Id=laa.VoucherId
+                                    left join trn.Financing F on F.LoanAgainstAcceptanceId=laa.Id
+						 LEFT JOIN [TRN].[FinancingWriteOff] AS AW ON F.Id=AW.FinancingId
+                                   
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+						where pl.Id='" + PurchaseLCId + @"'
+group by laa.Id,laa.PurchaseDocAcceptanceId,pda.AcceptanceNo,pda.AcceptanceDate
+						,LoanDate,laa.LoanNo,laa.Amount,v.VoucherNo,AW.Id";
         }
 
     }

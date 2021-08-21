@@ -59,6 +59,12 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.SelectedProductionOrderList = response.data;
+
+                        for (var i = 0; i < $scope.SelectedProductionOrderList.length; i++) {
+                            $scope.packingContenNew.EntityId = $scope.SelectedProductionOrderList[i].EntityId;
+                            break;
+                        }
+                        $scope.GetEntityProcessSettingData($scope.packingContenNew.EntityId);
                     }
                 },
                 function errorCallback(response) {
@@ -119,7 +125,8 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
     $scope.ClosePOPopUp = function () {
         try {
             MakeData();
-            angular.element(document.querySelector('#POItemPopup')).modal('hide');
+            $scope.selectSOItem();
+            
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -147,6 +154,8 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
                     ob.Buyer = $scope.ProductionOrderList[i].Buyer;
                     ob.PONumber = $scope.ProductionOrderList[i].PONumber;
                     ob.RequiredTimeUnit = $scope.ProductionOrderList[i].RequiredTimeUnit;
+                    ob.EntityId = $scope.ProductionOrderList[i].EntityId;
+                    ob.Entity = $scope.ProductionOrderList[i].Entity;
                     $scope.SelectedProductionOrderList.push(ob);
                 }
                 else {
@@ -182,7 +191,7 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
         }
     }
     $scope.summaryRows = [{
-        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N0}" }],
+        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];
@@ -231,11 +240,13 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
         });
     };
 
-    $scope.selectSOItem = function ($event) {
+    $scope.selectSOItem = function () {
         try {
-            var soitem = $event.data;
-            $scope.packingContenNew.EntityId = soitem.EntityId;
-            //$scope.GetEntityProcessSettingData($scope.packingContenNew.EntityId);
+
+            for (var i = 0; i < $scope.SelectedProductionOrderList.length; i++) {
+                $scope.packingContenNew.EntityId = $scope.SelectedProductionOrderList[i].EntityId;
+                break;
+            }
 
             $http({
                 method: 'GET',
@@ -253,19 +264,20 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
                     for (var i = 0; i < $scope.EntityProcessSettingList.length; i++) {
                         $scope.packingContenNew.IsPackingSKURequired = $scope.EntityProcessSettingList[i].IsPackingSKURequired;
                         $scope.packingContenNew.PackingForm = $scope.EntityProcessSettingList[i].PackingForm;
+                        angular.element(document.querySelector('#POItemPopup')).modal('hide');
                     }
                     if ($scope.packingContenNew.IsPackingSKURequired == false) {
                         ShowResult("SKU not applicable for the " + $scope.packingContenNew.PackingForm + " (Entity Process)", 'failure', 'POItemPopup');
                     }
-                    else {
-                        angular.element(document.querySelector('#POItemPopup')).modal('hide');
-                        $scope.packingContenNew.ProductionOrderId = soitem.POId;
-                    }
+                    //else {
+                    //    angular.element(document.querySelector('#POItemPopup')).modal('hide');
+                    //    $scope.packingContenNew.ProductionOrderId = soitem.POId;
+                    //}
                 }
-                else {
-                    angular.element(document.querySelector('#POItemPopup')).modal('hide');
-                    $scope.packingContenNew.ProductionOrderId = soitem.POId;
-                }
+                //else {
+                //    angular.element(document.querySelector('#POItemPopup')).modal('hide');
+                //    $scope.packingContenNew.ProductionOrderId = soitem.POId;
+                //}
             });
 
         } catch (ex) {
@@ -528,7 +540,7 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
 
 
             if (baseService.arrayLength($scope.recipeMaterialListSelected) <= 0) {
-                throw "Select Material."
+                throw "Add Material."
             }
 
 
@@ -556,6 +568,7 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
                             ShowResult(response.data.Message, 'success');
                             $scope.packingContenNew = response.data.Data;
                             $scope.getmasterData();
+                            $scope.GetPackingProductionOrderData($scope.packingContenNew.Id);
                             $scope.getDetailData($scope.packingContenNew.Id);
                             $scope.getPackingChildData($scope.packingContenNew.Id);
                             $scope.OpenNoRowsPopUp();
@@ -580,6 +593,7 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
 
                             $scope.packingContenNew = response.data.Data;
                             $scope.getmasterData();
+                            $scope.GetPackingProductionOrderData($scope.packingContenNew.Id);
                             $scope.getDetailData($scope.packingContenNew.Id);
                             $scope.getPackingChildData($scope.packingContenNew.Id);
                             //$scope.OpenNoRowsPopUp();
