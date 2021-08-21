@@ -293,6 +293,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(_productionSummaryData.GetAllConfirmedPackingContentData(), JsonRequestBehavior.AllowGet);
         }
 
+        
+
         [HttpGet, Authorize]
         public ActionResult GetPackingChildDataList(string MasterId)
         {

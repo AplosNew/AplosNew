@@ -43,6 +43,88 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
         })
     }
 
+    $scope.PlantListx = [];
+    $scope.getPlantsx = function () {
+        $http({
+            method: 'GET',
+            url: 'HumanResource/RosterPattern/getPlants',
+            params: { 'cmp': $scope.ModelNewx.CompanyId }
+        }).then(function success(response) {
+            $scope.PlantListx = response.data;
+        })
+    }
+
+    $scope.selectedStatus = [];
+    $scope.getDayStatus = function (data) {
+
+        angular.element(document.querySelector('#StatusModal')).modal('show');
+        for (var i = 0; i < $scope.employeeAttendance.length; i++) {
+            if (data.data.Id == $scope.employeeAttendance[i].Id &&
+                data.data.WorkDate == $scope.employeeAttendance[i].WorkDate) {
+
+               
+                $scope.A = i;
+            }
+
+        }
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'PlantId': $scope.ModelNew.PlantId },
+            url: $scope.path + 'GetDayStatus'
+
+        }).then(function successCallback(response) {
+            $scope.selectedStatus = response.data;
+
+        });
+    };
+
+
+    $scope.doubleStatus = function (e) {
+
+        $scope.changestatus = e.data.DayType;
+        var x = $scope.A;
+        $scope.employeeAttendance[x].DayStatusNew = $scope.changestatus;
+        angular.element(document.querySelector('#StatusModal')).modal('hide');
+        $scope.lastIndex = 0;
+    }
+
+
+    $scope.selectedStatusx = [];
+    $scope.getDayStatusx = function (data) {
+
+        angular.element(document.querySelector('#StatusModalx')).modal('show');
+        for (var i = 0; i < $scope.employeeAttendanceBySingleDate.length; i++) {
+            if (data.data.Id == $scope.employeeAttendanceBySingleDate[i].Id &&
+                data.data.WorkDate == $scope.employeeAttendanceBySingleDate[i].WorkDate) {
+
+                $scope.Ax = i;
+            }
+
+        }
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'PlantId': $scope.ModelNewx.PlantId },
+            url: $scope.path + 'GetDayStatus'
+
+        }).then(function successCallback(response) {
+            $scope.selectedStatusx = response.data;
+
+        });
+    };
+
+
+    $scope.doubleStatusx = function (e) {
+
+        $scope.changestatusx = e.data.DayType;
+        var x = $scope.Ax;
+        $scope.employeeAttendanceBySingleDate[x].DayStatusNew = $scope.changestatusx;
+        angular.element(document.querySelector('#StatusModalx')).modal('hide');
+        $scope.lastIndex = 0;
+    }
+
+
     $scope.FromDateSingleDate = '';
     $scope.FromDate = '';
     $scope.ToDate = '';
@@ -372,7 +454,9 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
                     || nullrecorder($scope.employeeAttendance[i].InTime) != nullrecorder($scope.employeeAttendance[i].InTimeOriginal)
                     || nullrecorder($scope.employeeAttendance[i].OutDate) != nullrecorder($scope.employeeAttendance[i].OutDateOriginal)
                     || nullrecorder($scope.employeeAttendance[i].OutTime) != nullrecorder($scope.employeeAttendance[i].OutTimeOriginal)
-                ) {
+                    || nullrecorder($scope.employeeAttendance[i].DayStatus) !=nullrecorder($scope.employeeAttendance[i].DayStatusNew)
+                )
+                {
                     DataToBeSaved.push($scope.employeeAttendance[i]);
 
                 }
@@ -498,6 +582,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
                     || nullrecorder($scope.employeeAttendanceBySingleDate[i].InTime) != nullrecorder($scope.employeeAttendanceBySingleDate[i].InTimeOriginal)
                     || nullrecorder($scope.employeeAttendanceBySingleDate[i].OutDate) != nullrecorder($scope.employeeAttendanceBySingleDate[i].OutDateOriginal)
                     || nullrecorder($scope.employeeAttendanceBySingleDate[i].OutTime) != nullrecorder($scope.employeeAttendanceBySingleDate[i].OutTimeOriginal)
+                    || nullrecorder($scope.employeeAttendanceBySingleDate[i].DayStatus) !=nullrecorder($scope.employeeAttendanceBySingleDate[i].DayStatusNew)
                 ) {
                     DataToBeSaved.push($scope.employeeAttendanceBySingleDate[i]);
                 }

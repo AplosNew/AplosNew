@@ -2,10 +2,10 @@
 <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list">{{FormTitle}}</span> &nbsp; As of {{hrDate  }}</h3>
 <div class="container-fluid" id="MainDiv">
     <div class="col-xs-12 form-elements form-horizontal">
-        <div class="col-md-12">
-            <div class="col-md-4" style="text-align:center">
-                <div class="col-md-10" @*style="margin-left: -15%;"*@>
-                    <div class="form-group form-element-ctrl" style="margin-top:-10px" ;>
+        <div class="row">
+            <div class="col-md-4" >
+                <div class="col-md-10" >
+                    <div class="form-group form-element-ctrl" style="margin-top: -10px; margin-left: -31px;" ;>
                         <div class="show-message">
                             <p>
                                 <input type="text" name="Date" ng-model="hrDate" datepicker class="form-control datepicker" required tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
@@ -14,13 +14,17 @@
                     </div>
                 </div>
                 <div class="col-md-1">
-                    <button ng-click="dFunction()" class="btn" style="margin-top:-4px;"><i class="glyphicon glyphicon-refresh"></i></button>
+                    <div class="form-group">
+                        <div class="common-btn">
+                            <button ng-click="dFunction();" class="btn" style=" margin-top: -3px; padding-bottom: 5px;"> <i class="glyphicon glyphicon-refresh"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
-                <div class="container" id="headerNav" style="margin-left: -1.5%; margin-top:.5%;">
+            <div class="col-md-12" id="headerNav" style="margin-left: -1.5%; margin-top:.5%;">
+                
                     <div id="wizard-container">
                         <ul style="cursor:pointer; margin-bottom:-22px;">
                             <li hidden ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence < index">
@@ -30,12 +34,12 @@
                             </li>
                         </ul>
                     </div>
-                </div>
+                
             </div>
         </div>
         <br />
-        <div class="row" style="margin-top:.5%;">
-            <div class="col-md-4" style="margin-left:1%;">
+        <div class="row" style="">
+            <div class="col-md-4">
                 <div class="row table-responsive modal-table" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
                     <label class="chart-title-hrD">On Role Employees<br><span>{{OnRoleEmployee}}</span></label>
                     <canvas id="attnPieChart" width="400" height="400"></canvas>
@@ -82,7 +86,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-8" style="margin-left: 2.5%;padding:0%; width:43%">
+            <div class="col-md-8" style="padding-left: 25px;">
                 <div class="row table-responsive modal-table" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
                     <table class="table table-hover " style="border:0px !important;">
                         <tbody style="cursor:pointer; ">
@@ -193,3 +197,314 @@
 </style>
 
 
+<ej-dialog id="empOnRole" title="List of On Role Employees" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDiv" e-width="900" e-open="enableBtn">
+    <div class="form-element-ctrl form-horizontal">
+        <div class="tab-design" id="tab_show">
+            <div class="tab-design" id="tab_show">
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="assign" role="tab" data-toggle="tab">Designation Summary</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="assign" role="tab" data-toggle="tab">Operation Activity Summary</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Detail</a></li>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row">
+                        <div class="col-md-4"> </div>
+                        <div class="col-md-4">
+                            <b> Designation wise total</b>
+                            <div id="GridResultDesigGrpOnRole"></div>
+                            <div class="col-md-4"></div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row">
+                        <div class="col-md-4"> </div>
+                        <div class="col-md-4">
+                            <b> Operation Activity wise total</b>
+                            <div id="GridResultOpActOnRole"></div>
+                            <div class="col-md-4"></div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div id="onRoleEmpGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer common-btn">
+        <button type="button" class="btn glyphicon-arrow-down" ng-click="PrintGRDes();">Download</button>
+    </div>
+</ej-dialog>
+
+
+
+<ej-dialog id="OthersSummaryStatus" title="Other" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDiv" e-width="900" e-open="enableBtn">
+    <div class="form-element-ctrl form-horizontal">
+        <table class="table">
+
+            <tbody style="border-top:1px solid gray">
+                <tr style="border-top:1px solid gray">
+                    <td style="border-right:1px solid gray">
+                        Shift Not Assigned Employee
+                    </td>
+                    <td>{{totalOthersShiftNotAssignedEmployee ? (totalOthersShiftNotAssignedEmployee | number:0) : '-'}}</td>
+                </tr>
+                <tr style="border-top:1px solid gray">
+                    <td style="border-right:1px solid gray">
+                        Attendance Not Processed
+                    </td>
+                    <td>{{totalAttdnNotProcessedToday ? (totalAttdnNotProcessedToday | number:0) : '-'}}</td>
+                </tr>
+                <tr style="border-top:1px solid gray">
+                    <td style="border-right:1px solid gray">
+                        Off Day
+                    </td>
+                    <td>{{totalWeekoffEmployee ? (totalWeekoffEmployee | number:0) : '-'}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</ej-dialog>
+
+<div class="row">
+    <ej-dialog id="empPrsntStatus" title="List of Present Employees" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDiv" e-width="900" e-open="enableBtn">
+        <div class="form-element-ctrl form-horizontal">
+            <div class="tab-design" id="tab_show">
+                <div class="tab-design" id="tab_show">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="assign" role="tab" data-toggle="tab">Designation Summary</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="assign" role="tab" data-toggle="tab">Operation Activity Summary</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Detail</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                        <div class="row">
+                            <div class="col-md-4"> </div>
+                            <div class="col-md-4">
+                                <b> Designation wise total</b>
+
+                                <div id="GridResultDesigGrp"></div>
+
+                                <div class="col-md-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div class="row">
+                            <div class="col-md-4"> </div>
+                            <div class="col-md-4">
+                                <b> Operation Activity wise total</b>
+                                <div id="GridResultOpActPresent"></div>
+                                <div class="col-md-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                        <div id="presentEmpGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer common-btn">
+            <button type="button" class="btn glyphicon-arrow-down" ng-click="PrintGRDes();">Download</button>
+        </div>
+    </ej-dialog>
+</div>
+
+<ej-dialog id="empLateStatus" title="List of Late Employees" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDiv" e-width="900" e-open="enableBtn">
+    <div class="form-element-ctrl form-horizontal">
+        <div class="tab-design" id="tab_show">
+            <div class="tab-design" id="tab_show">
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="assign" role="tab" data-toggle="tab">Designation Summary</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="assign" role="tab" data-toggle="tab">Operation Activity Summary</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Detail</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row">
+                        <div class="col-md-4"> </div>
+                        <div class="col-md-4">
+                            <b> Designation wise total</b>
+
+                            <div id="GridResultDesigGrpLate"></div>
+
+                            <div class="col-md-4"></div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row">
+                        <div class="col-md-4"> </div>
+                        <div class="col-md-4">
+                            <b> Opeartion Activity group wise total</b>
+
+                            <div id="GridResultOpActLate"></div>
+
+                            <div class="col-md-4"></div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div id="lateEmpGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer common-btn">
+        <button type="button" class="btn glyphicon-arrow-down" ng-click="PrintGRDes();">Download</button>
+    </div>
+</ej-dialog>
+
+<div class="row">
+    <ej-dialog id="empAbsentStatus" title="List of Absent Employees" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDiv" e-width="900" e-open="enableBtn">
+        <div class="form-element-ctrl form-horizontal">
+            <div class="tab-design" id="tab_show">
+                <div class="tab-design" id="tab_show">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="assign" role="tab" data-toggle="tab">Designation Summary</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="assign" role="tab" data-toggle="tab">Operation Summary</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Detail</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                        <div class="row">
+                            <div class="col-md-4"> </div>
+                            <div class="col-md-4">
+                                <b> Designation wise total</b>
+
+                                <div id="GridResultDesigGrpAbsent"></div>
+
+                            </div>
+                            <div class="col-md-4"></div>
+
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div class="row">
+                            <div class="col-md-4"> </div>
+                            <div class="col-md-4">
+                                <b> Operation wise total</b>
+
+                                <div id="GridResultOpActAbsent"></div>
+
+                            </div>
+                            <div class="col-md-4"></div>
+
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                        <div id="absentEmpGrid"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer common-btn">
+            <button type="button" class="btn glyphicon-arrow-down" ng-click="PrintGRDes();">Download</button>
+        </div>
+    </ej-dialog>
+</div>
+<ej-dialog id="OthersDetailStatus" title="Other" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDiv" e-width="350" e-open="enableBtn">
+    <div class="form-element-ctrl form-horizontal">
+        <table class="table">
+
+            <tbody style="border-top:1px solid gray">
+                <tr ng-repeat="x in OthersList" style="border-top:1px solid gray" ng-click="GetModalHRDailyShiftNotAssignedStatusList(0,x)">
+                    <td style="border-right:1px solid gray">
+                        Shift Not Assigned
+                    </td>
+                    <td class="hoverItem">{{x.totalShiftNotAssignedEmployee ? (x.totalShiftNotAssignedEmployee | number:0) : '-'}}</td>
+                </tr>
+                <tr ng-repeat="x in OthersList" style="border-top:1px solid gray" ng-click="GetModalHRDailyAttdnNotProcessedStatusList(0,x)">
+                    <td style="border-right:1px solid gray">
+                        Attendance Not Processed
+                    </td>
+                    <td class="hoverItem">{{x.totalAttdnNotProcessedAsofToday ? (x.totalAttdnNotProcessedAsofToday | number:0) : '-'}}</td>
+                </tr>
+                <tr ng-repeat="x in OthersList" style="border-top:1px solid gray" ng-click="GetModalWeekOffList(0,x)">
+                    <td style="border-right:1px solid gray">
+                        Off Day
+                    </td>
+                    <td class="hoverItem">{{x.totalWeekoffEmployee ? (x.totalWeekoffEmployee | number:0) : '-'}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</ej-dialog>
+
+<div class="row">
+    <ej-dialog id="empLeaveStatus" title="List of Leave Employees" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDiv" e-width="900" e-open="enableBtn">
+        <div class="form-element-ctrl form-horizontal">
+            <div class="tab-design" id="tab_show">
+                <div class="tab-design" id="tab_show">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="assign" role="tab" data-toggle="tab">Designation  Summary</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="assign" role="tab" data-toggle="tab">Operation Activity Summary</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="assign" role="tab" data-toggle="tab">Leave Summary</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Detail</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                        <div class="row">
+                            <div class="col-md-4"> </div>
+                            <div class="col-md-4">
+                                <b> Designation wise total</b>
+
+                                <div id="GridResultDesigGrpLeave"></div>
+
+                                <div class="col-md-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div class="row">
+                            <div class="col-md-4"> </div>
+                            <div class="col-md-4">
+                                <b> Operation Code wise total</b>
+                                <div id="GridResultOpActLeave"></div>
+                                <div class="col-md-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                        <div class="row">
+                            <div class="col-md-4"> </div>
+                            <div class="col-md-4">
+                                <b> Leave Type wise total</b>
+                                <div id="GridResultLeaveCode"></div>
+                                <div class="col-md-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                        <div id="leaveEmpGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer common-btn">
+            <button type="button" class="btn glyphicon-arrow-down" ng-click="PrintGRDes();">Download</button>
+        </div>
+    </ej-dialog>
+</div>

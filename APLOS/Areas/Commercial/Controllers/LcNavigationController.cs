@@ -404,7 +404,43 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-          [HttpPost, Authorize]
+        [HttpPost, Authorize]
+        public ActionResult GetPurchaseLCSetOff(string PurchaseLCId)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.GetPurchaseLCSetOff(PurchaseLCId);
+
+                return Json(new { SetOffDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetPurchaseLCLoanSetOff(string PurchaseLCId)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.GetPurchaseLCLoanSetOff(PurchaseLCId);
+
+                return Json(new { LoanSetOffDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";
@@ -423,15 +459,24 @@ namespace Aplos.Areas.Commercial.Controllers
                         PL.Tenure,
                         PL.BenificiaryBank,                       
                         po.POAmount as POValue
-                        ,ac.AcceptanceValue,
-                        grn.GRNCount
-                        ,grn.GRNTotalAmount as GRNValue,
-                        case when PM.PaymentMade = 0 then null else PM.PaymentMade end as PaymentMade,
+						,PO.POCount
+                        ,ac.AcceptanceValue
+						,SetOff=Loan.Amount -- todo acceptance payment other than loan
+						,Loan.Amount Loan
+						,Loan.LoanSetOff
+						,ac.AcceptanceCount
+						,grn.GRNTotalAmount as GRNValue
+                        ,grn.GRNCount
+	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
+						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END
+                        
+                        ,case when PM.PaymentMade = 0 then null else PM.PaymentMade end as PaymentMade,
                         con.ContractNo,
                         cus.Customer,
                         PL.Id as LCId
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
-						,Loan.Amount Loan
+
+						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
                         left outer join HKP.Bank as B on OBank.BankId=b.Id
@@ -449,21 +494,24 @@ namespace Aplos.Areas.Commercial.Controllers
 									inner join TRN.InventoryReceiveDetail as g on g.POId=po.Id
 									group by po.PurchaseLCId
                         ) as grn on grn.LCId = PL.Id 
-                left join (
-									select sum(PDAD.TotalMaterialTranAmount) as AcceptanceValue,PO.PurchaseLCId from TRN.PurchaseOrder  PO
-									Inner join trn.PurchaseDocAcceptanceDetail PDAD on PDAD.POId=PO.Id
-									group by PO.PurchaseLCId 
+                        left join (
+									select sum(AD.TotalMaterialTranAmount) as AcceptanceValue,A.PurchaseLCId,count(distinct A.Id) AcceptanceCount  from TRN.PurchaseDocAcceptanceDetail as AD
+									 inner join trn.PurchaseDocAcceptance as A on A.Id=AD.PurchaseDocAcceptanceId
+									group by A.PurchaseLCId
                         ) as ac on ac.PurchaseLCId = PL.Id
-						left outer join TRN.PurchaseDocAcceptance PDA on PDA.PurchaseLCId=PL.Id
-						left join(   
-						            select LAA.PurchaseDocAcceptanceId,sum(LAA.Amount) Amount from TRN.LoanAgainstAcceptance LAA 
+
+						left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount,SUM(FDW.Amount) LoanSetOff 
+										from TRN.LoanAgainstAcceptance LAA 
 											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId
-											group by LAA.PurchaseDocAcceptanceId														
-						) Loan on Loan.PurchaseDocAcceptanceId=PDA.Id
+											LEFT JOIN TRN.Financing F ON F.LoanAgainstAcceptanceId=LAA.Id --and LAA.IsPark=0
+											LEFT JOIN TRN.FinancingDetailWriteOff FDW ON FDW.FinancingId=F.Id
+											group by PDA.PurchaseLCId												
+						) Loan on Loan.PurchaseLCId=PL.Id
 
                         left outer join (
 										 select con.Id as Id, customer.UserName as Customer from Contract as con 
-										inner join HKP.Party as customer on con.CustomerId=customer.Id)
+										inner join HKP.Party as customer on con.CustomerId=customer.Id
+										)
 										as cus on cus.Id=PL.ContractId
                          left join (
 										 select Ac.PurchaseLCId,sum(i.WrittenOffAmount) AS PaymentMade from TRN.PurchaseDocAcceptance AC
@@ -471,8 +519,6 @@ namespace Aplos.Areas.Commercial.Controllers
 										 group by Ac.PurchaseLCId
 						 ) as PM on PM.PurchaseLCId=PL.Id
                          where pl.plantId='" + identity.PlantId +@"') AS TEMP WHERE " + strkey;
-
-      
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
