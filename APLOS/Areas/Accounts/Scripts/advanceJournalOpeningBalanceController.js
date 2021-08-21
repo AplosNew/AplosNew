@@ -543,7 +543,6 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
             $scope.currencyExchangeRate = [];
         }
     };
-
     $scope.Clear = function () {
         $scope.Action = "Save";
         $scope.voucher.Active = true;
@@ -1302,6 +1301,13 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
         $scope.message_confirmation = "Are you sure to Post?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
+    $scope.confirmPostNew = function (data,dramount,cramount) {
+        $scope.OB = data;
+        $scope.DrAmount = dramount;
+        $scope.CrAmount = cramount;
+        $scope.message_confirmation = "Are you sure to Post?";
+        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
+    };
 
     $scope.post = function () {
         $http({
@@ -1327,6 +1333,33 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
         });
         return true;
     };
+
+    $scope.postOB = function (data,dramount,cramount) {
+        $http({
+            method: "POST",
+            url: "accounts/OpeningBalance/PostOpeningBalanceJournal",
+            data: {
+                "voucherVM": data,
+                "DrAmount": dramount,
+                "CrAmount": cramount
+            },
+            dataType: 'JSON'
+            , contentType: "application/json charset=utf-8"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                //$scope.getData();
+                $scope.clear();
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
 
     // #region
 
