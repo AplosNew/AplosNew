@@ -107,7 +107,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         BankGL: null,
         BankGLGeneralInfoId: null,
         PaymentMode: '',
-        IsActive: false,
+        IsActive: true,
         IsSeperated: false,
         IsMaternity: false
 
@@ -736,7 +736,10 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
             //$scope.month = p.MonthNo;
             //$scope.year = p.YearNo;
             //$scope.payableVoucherId = p.PayableVoucherId;
-
+            var EmpBank = $("#PaymentModeIds option:selected").text();
+            if (EmpBank == '--Select--') {
+                EmpBank = '';
+            }
             $http({
                 method: 'POST',
                 url: 'Accounts/SalaryDisbursement/GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher',
@@ -749,7 +752,9 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
                     'isActive': $scope.voucher.IsActive,
                     'isSeperated': $scope.voucher.IsSeperated,
                     'isMaternity': $scope.voucher.IsMaternity,
-                    'voucherId': null
+                    'voucherId': null,
+                    'Mode': $scope.voucher.PaymentMode,
+                    'EmpBank': EmpBank
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

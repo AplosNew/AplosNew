@@ -7153,543 +7153,51 @@ group by Id) O60 ON O60.Id=IV.Id
 
         }
 
-        //    private string MaterialMasterType(string  companyGroupId,string companyId,string plantId,string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string isMachine, string process, string skillId, string faCount)
-        //    {
-
-        //        //int tempIsAsset = 0;
-        //        //if (isAsset == "Yes")
-        //        //{
-        //        //    tempIsAsset = 1;
-        //        //}
-        //        //else
-        //        //{
-        //        //    tempIsAsset = 0;
-        //        //}
-        //        //if (isMachine == "Yes")
-        //        //{
-        //        //    isMachine= "MachineDefinition";
-        //        //}
-        //        //else
-        //        //{
-        //        //    isMachine = "";
-        //        //}
-
-        //        return @" 
-        //  		 select X.* from (
-
-        //            SELECT T.Id MaterialTypeId
-        //            ,ISNULL(T.UserName,'') MaterialType
-        //            ,ISNULL (MGM.Id,'') MaterialGroupMasterId
-        //,ISNULL (MGM.UserName,'') MaterialGroupMaster
-        //            , M.Id MaterialMasterId
-        //,ISNULL (M.Code,'')Code
-        //,ISNULL(M.ShortName,'')ShortName
-        //,ISNULL( M.UserName,'' ) MaterialMaster
-        //,M.BudgetMasterId
-        //,fam.Id AssetMasterId
-        //,ISNULL (fam.UserName,'') AssetMaster
-        //            ,MC.Id MaterialCategoryId
-        //,ISNULL( MC.UserName,'') MaterialCategory
-        //,SC.Id MaterialSubCategoryId
-        //,isnull(SC.UserName,'') MaterialSubCategory
-        //            ,MG.Id [MaterialGroup1Id]
-        //,Isnull (MG.UserName,'' )MaterialGroup1
-        //,uom.Id BaseUOMId
-        //,Isnull (uom.UserName,'') BaseUOM
-        //             ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
-        // , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
-
-        // ,ISNULL(FA.FACount,0) FACount
-        //            , ISNULL(FA.FABaseAmount,0)FABaseAmount
-        //  , isnull(FA.SubAssetAmount,0)SubAssetAmount
-        //  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
-        // , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-        // ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
-        // ,s.Id SkillId
-        //            ,isnull (S.UserName,'') Skill
-
-
-        //            ,ProcessId = ISNULL(STUFF((select distinct ',' + P.Id from[MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id = MMP.ProcessId
-        //            where MMP.MaterialMasterId = M.Id for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-        //            ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
-        //			 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-        //             ,gl.UserName GL,b.UserName Budget, a.UserName Activity
-
-        //            FROM MST.MaterialMaster M
-        //            LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
-        //            LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
-        //            LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
-        //            LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
-        //            LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
-        //            LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
-        //      left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
-        //left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
-        //left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
-
-
-        //                      left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
-        //                      left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
-        //                    left join HKP.Budget b on b.Id=bm.BudgetId
-        //                    left join HKP.Activity a on a.Id=M.ActivityId
-
-        //LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
-        //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-        //            WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
-
-        //        	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
-        //          	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
-        //,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
-        //,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
-        //,FAR.MaterialMasterId ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
-        //   FROM TRN.FixedAssetRegister FAR
-
-        //left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
-        //group by FixedAssetRegisterId
-        //) sar on sar.FixedAssetRegisterId=FAR.Id
-
-        //where DisposedVoucherId IS NULL
-        //            GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
-        //)FA ON FA.MaterialMasterId=M.Id
-
-
-        //            WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
-        //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-        //            WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1)
-        //  -- and FA.CompanyGroupId='CG20171'and FA.CompanyId='C20171' AND FA.PlantId='20171'
-        //   and M.Id in (" + materialMasterId + ") and T.Id  in (" + materialTypeId + ") and fam.Id  in (" + assetMasterId + @")
-        //and MG.Id  in (" + materialGroup1Id + @")
-        //            and uom.Id  in (" + baseUOMId + @") 
-        //            --and M.IsAsset  in () and MBP.BusinessProcessName  in ()
-        //and S.Id in ("+skillId+") and FA.FACount in ("+faCount+ @") 
-        //            --and x.ProcessId in ()
-
-
-
-
-        //            union ALL
-        //            SELECT T.Id MaterialTypeId, ISNULL(T.UserName, '') MaterialType
-        //,ISNULL(MGM.Id, '') MaterialGroupMasterId
-        //,ISNULL(MGM.UserName, '') MaterialGroupMaster
-        //            , M.Id MaterialMasterId, ISNULL (M.Code, '')Code
-        //,ISNULL(M.ShortName, '')ShortName ,ISNULL(M.UserName, '') MaterialMaster
-        //  ,M.BudgetMasterId
-        //,fam.Id AssetMasterId
-        //            , ISNULL (fam.UserName, '') AssetMaster
-        //            ,MC.Id MaterialCategoryId, ISNULL( MC.UserName, '') MaterialCategory,SC.Id MaterialSubCategoryId
-        //              , isnull(SC.UserName, '') MaterialSubCategory
-        //            ,MG.Id[MaterialGroup1Id],Isnull(MG.UserName, '')MaterialGroup1
-        //,uom.Id BaseUOMId, Isnull (uom.UserName, '') BaseUOM
-        //             ,IsAsset =case when M.IsAsset = 1 then 'Yes' else 'No'  end
-        // , Machine =case when MBP.BusinessProcessName = 'MachineDefinition' Then 'Yes' else 'No' end
-
-        // ,Count(ISNULL(FAR.Id, 0)) FACount
-        //            , SUM(ISNULL(FAR.FABaseAmount, 0))FABaseAmount
-        //  , SUM(isnull(SAR.SubAssetAmount, 0))SubAssetAmount
-        //  ,SUM(ISNULL(FAR.FABaseAmount, 0) + isnull(SAR.SubAssetAmount, 0))  TotalBaseAmount
-        // , SUM(ISNULL(FAR.ADBaseAmount, 0)) ADBaseAmount
-        // ,SUM(ISNULL(FAR.FABaseAmount, 0) + isnull(SAR.SubAssetAmount, 0) - ISNULL(FAR.ADBaseAmount, 0))  NetFixedAssetsAmount
-        //  ,s.Id SkillId
-        //            , isnull (S.UserName, '') Skill
-
-
-        //            ,ProcessId = ISNULL(STUFF((select distinct ',' + P.Id from[MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id = MMP.ProcessId
-        //            where MMP.MaterialMasterId = M.Id for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-        //            ,Process = ISNULL(STUFF((select distinct ',' + P.UserName from[MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id = MMP.ProcessId
-        //            where MMP.MaterialMasterId = M.Id for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-        //            ,gl.UserName GL,b.UserName Budget, a.UserName Activity
-        //            FROM TRN.FixedAssetRegister FAR
-
-
-        //            left join(select sum(Amount* CapitalizationRate) SubAssetAmount, FixedAssetRegisterId from  trn.SubFixedAssetRegister
-        //            group by FixedAssetRegisterId
-        //            ) sar on sar.FixedAssetRegisterId = FAR.Id
-
-
-        //            left join MST.MaterialMaster M ON FAR.MaterialMasterId = M.Id
-        //            LEFT JOIN[MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid = MGM.id
-        //            LEFT JOIN[HKP].[MaterialType] T ON T.Id = MGM.MaterialTypeId
-        //            LEFT JOIN[HKP].[MaterialCategory] MC ON MC.Id = M.MaterialCategoryId
-        //            LEFT JOIN[HKP].[MaterialSubCategory] SC ON SC.Id = M.MaterialSubCategoryId
-        //            LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id = MGM.MaterialGroup1Id
-        //            LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id = M.BaseUOMId
-        //            left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId = M.BudgetMasterId
-        //            left join mst.FixedAssetMaster fam on fam.Id = FAMBT.FixedAssetMasterId
-        //            left JOIN[HKP].[Skill] S ON S.Id = M.SkillId
-
-
-        //                      left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
-        //                      left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
-        //                    left join HKP.Budget b on b.Id=bm.BudgetId
-        //                    left join HKP.Activity a on a.Id=M.ActivityId
-
-        //            LEFT JOIN(SELECT MBP.MaterialMasterId, BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
-        //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-        //            WHERE BP.BusinessProcessName = 'MachineDefinition') AS MBP ON MBP.MaterialMasterId = M.Id
-
-        //             WHERE M.IsAsset = 0
-        //            --and FAR.CompanyGroupId = 'CG20171'and FAR.CompanyId = 'C20171' AND FAR.PlantId = '20171'
-
-        //            and FAR.CompanyGroupId = '" + companyGroupId + "'and FAR.CompanyId = '" + companyId + "' AND FAR.PlantId = '" + plantId + @"'
-        //            and M.Id in (" + materialMasterId + ") and T.Id  in (" + materialTypeId + ") and fam.Id  in (" + assetMasterId + @")
-
-        //            and MG.Id  in (" + materialGroup1Id + @")
-        //            and uom.Id  in (" + baseUOMId + @")
-        //            --and M.IsAsset  in () and MBP.BusinessProcessName  in ()
-
-        //            and S.Id in ("+skillId+") and FAR.Id in ("+faCount+ @")
-        //            --and x.ProcessId in ()
-
-        //            group by
-        //            T.Id ,T.UserName,MGM.Id,MGM.UserName
-        //            , M.Id,M.Code,M.ShortName, M.UserName
-        //            ,MC.Id,MC.UserName,SC.Id,SC.UserName
-        //            ,MG.Id,MG.UserName
-        //,uom.Id,uom.UserName
-        //             ,M.IsAsset,fam.Id ,s.Id
-        //             ,gl.UserName ,b.UserName , a.UserName
-        //            -- ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
-        // ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
-        // ) x
-        //             where x.IsAsset in ('Yes', 'No') and x.Machine in ('Yes', 'No')
-        //            ORDER BY x.MaterialMaster";
-        //        //sql += temp;
-        //    }
-
-        //public string MaterialMasterReport2(string companyGroupId, string companyId, string plantId ,string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string isMachine, string process, string skillId, string faCount)
-        //{
-
-        //    //if (MaterialTypeId == null) MaterialTypeId = null;
-        //    //if (MaterialTypeId == "undefined") MaterialTypeId = null;
-        //    //if (MaterialTypeId == "") MaterialTypeId = null;
-        //    //if (MaterialTypeId == "null") MaterialTypeId = null;
-
-        //    var filePath = "";
-        //    string fileName = "";
-        //    try
-        //    {
-        //        //    string sql = "";
-
-        //        //    if (MaterialTypeId == null && Article == false)
-        //        //    {
-        //        //        sql = MaterialMasterSql2();
-        //        //    }
-        //        //    if (MaterialTypeId == null && Article == true)
-        //        //    {
-        //        //        sql = MaterialMasterArticle();
-        //        //    }
-        //        //    if (MaterialTypeId != null && Article == true)
-        //        //    {
-        //        //        sql = MaterialMasterArticleType(MaterialTypeId);
-        //        //    }
-        //        //    if (MaterialTypeId != null && Article == false)
-        //        //    //if (!string.IsNullOrEmpty(MaterialTypeId) && Article == false)
-        //        //    {
-        //        //        sql = MaterialMasterType(MaterialTypeId);
-        //        //    }
-
-        //        string sql = "";
-        //        sql = MaterialMasterType( companyGroupId,companyId,plantId,materialMasterId,  materialTypeId,  assetMasterId,  materialGroup1Id,  baseUOMId, isAsset, isMachine, process, skillId,  faCount);
-        //        DataTable dtMaterialMaster = _sqlRepository.GetDataTable(sql);
-
-        //        ExcelEngine excelEngine = new ExcelEngine();
-        //        //Instantiate the Excel application object
-        //        IApplication application = excelEngine.Excel;
-
-        //        //Set the default application version
-        //        application.DefaultVersion = ExcelVersion.Excel2013;
-        //        IWorkbook workbook = application.Workbooks.Create(1);
-        //        IWorksheet sheet = workbook.Worksheets[0];
-
-        //        sheet.Name = "Material Master Report";
-
-
-        //        int ROW = 6;
-        //        int COL = 1;
-
-        //        sheet[ROW, COL].Text = "SL No.";
-        //        sheet[ROW, COL].ColumnWidth = 6;
-        //        int colSlNo = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Material Master";
-        //        sheet[ROW, COL].ColumnWidth = 20;
-        //        int colMaterial = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Material Type";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        int colMaterialType = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Asset Master";
-        //        sheet[ROW, COL].ColumnWidth = 18;
-        //        int colAssetMaster = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Material Group";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        int colMaterialGroup = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Base UoM";
-        //        sheet[ROW, COL].ColumnWidth = 5;
-        //        int colBaseUOM = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Machine";
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        int colMachine = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "IsAsset";
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        int colIsAsset = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Process";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        int colProcess = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Skill";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        int colSkill = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Total Quantity";
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
-        //        int colFACount = COL;
-        //        COL++;
-
-
-        //        sheet[ROW, COL].Text = "FA Base Amount";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
-        //        int colFABaseAmount = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Sub Asset Amount";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
-        //        int colSubAssetAmount = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Total Base Amount";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
-        //        int colTotalBaseAmount = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Acc.Dep.Amount";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
-        //        int colADBaseAmount = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Net Amount";
-        //        sheet[ROW, COL].ColumnWidth = 15;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
-        //        int colNetFixedAssetsAmount = COL;
-        //        COL++;
-
-        //        //if (MaterialTypeId == null && Article == true)
-        //        //{
-        //        //    sheet[ROW, COL].Text = "ArticleCode";
-        //        //    sheet[ROW, COL].ColumnWidth = 20;
-        //        //    colArticleCode = COL;
-        //        //    COL++;
-        //        //    sheet[ROW, COL].Text = "ArticleName";
-        //        //    sheet[ROW, COL].ColumnWidth = 20;
-        //        //    colArticleName = COL;
-        //        //    COL++;
-
-        //        //}
-
-        //        //if (MaterialTypeId != null && Article == true)
-        //        //{
-        //        //    sheet[ROW, COL].Text = "ArticleCode";
-        //        //    sheet[ROW, COL].ColumnWidth = 20;
-        //        //    colArticleCode = COL;
-        //        //    COL++;
-        //        //    sheet[ROW, COL].Text = "ArticleName";
-        //        //    sheet[ROW, COL].ColumnWidth = 20;
-        //        //    colArticleName = COL;
-        //        //    COL++;
-
-        //        //}
-
-
-        //        sheet[ROW, COL].Text = "GL";
-        //        sheet[ROW, COL].ColumnWidth = 20;
-        //        int colGLName = COL;
-        //        COL++;
-
-
-        //        sheet[ROW, COL].Text = "Budget";
-        //        sheet[ROW, COL].ColumnWidth = 20;
-        //        int colBudgetName = COL;
-        //        COL++;
-
-
-        //        sheet[ROW, COL].Text = "Acitivty";
-        //        sheet[ROW, COL].ColumnWidth = 20;
-        //        int colAcitivtyName = COL;
-        //       // COL++;
-
-        //        int endCol = COL;
-        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-        //        ROW++;
-
-        //        int StartRow = ROW; //row 20
-        //        for (int i = 0; i < dtMaterialMaster.Rows.Count; i++)
-        //        {
-
-
-        //            sheet[ROW, colSlNo].Number = (i + 1);
-
-        //            sheet[ROW, colMaterialType].Text = dtMaterialMaster.Rows[i]["MaterialType"].ToString();
-        //            sheet[ROW, colMaterialGroup].Text = dtMaterialMaster.Rows[i]["MaterialGroupMaster"].ToString();
-        //            //sheet[ROW, colCode].Text = dtMaterialMaster.Rows[i]["Code"].ToString();
-        //            sheet[ROW, colMaterial].Text = dtMaterialMaster.Rows[i]["MaterialMaster"].ToString();
-        //            //sheet[ROW, colMaterialCategory].Text = dtMaterialMaster.Rows[i]["MaterialCategory"].ToString();
-        //            sheet[ROW, colBaseUOM].Text = dtMaterialMaster.Rows[i]["BaseUOM"].ToString();
-        //            sheet[ROW, colIsAsset].Text = dtMaterialMaster.Rows[i]["IsAsset"].ToString();
-        //            sheet[ROW, colMachine].Text = dtMaterialMaster.Rows[i]["Machine"].ToString();
-        //            sheet[ROW, colFACount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FACount"].ToString());
-
-
-
-        //            sheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FABaseAmount"].ToString());
-        //            sheet[ROW, colFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            sheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl (dtMaterialMaster.Rows[i]["SubAssetAmount"].ToString());
-        //            sheet[ROW, colSubAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            sheet[ROW, colTotalBaseAmount].Number =clsStaticInfo.dbl( dtMaterialMaster.Rows[i]["TotalBaseAmount"].ToString());
-        //            sheet[ROW, colTotalBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            sheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["ADBaseAmount"].ToString());
-        //            sheet[ROW, colADBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            sheet[ROW, colNetFixedAssetsAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["NetFixedAssetsAmount"].ToString());
-        //            sheet[ROW, colNetFixedAssetsAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-        //            sheet[ROW, colSkill].Text = dtMaterialMaster.Rows[i]["Skill"].ToString();
-        //            sheet[ROW, colProcess].Text = dtMaterialMaster.Rows[i]["Process"].ToString();
-        //            sheet[ROW, colAssetMaster].Text = dtMaterialMaster.Rows[i]["AssetMaster"].ToString();
-        //            //sheet[ROW, colGLCode].Text = dtMaterialMaster.Rows[i]["GLCode"].ToString();
-
-        //            sheet[ROW, colGLName].Text = dtMaterialMaster.Rows[i]["GL"].ToString();
-        //            sheet[ROW, colBudgetName].Text = dtMaterialMaster.Rows[i]["Budget"].ToString();
-        //            sheet[ROW, colAcitivtyName].Text = dtMaterialMaster.Rows[i]["Activity"].ToString();
-
-
-
-        //            //if (MaterialTypeId == null && Article == true)
-        //            //{
-        //            //    sheet[ROW, colArticleCode].Text = dtMaterialMaster.Rows[i]["ArticleCode"].ToString();
-        //            //    sheet[ROW, colArticleName].Text = dtMaterialMaster.Rows[i]["MaterialArticle"].ToString();
-        //            //}
-        //            //if (MaterialTypeId != null && Article == true)
-        //            //{
-        //            //    sheet[ROW, colArticleCode].Text = dtMaterialMaster.Rows[i]["ArticleCode"].ToString();
-        //            //    sheet[ROW, colArticleName].Text = dtMaterialMaster.Rows[i]["MaterialArticle"].ToString();
-        //            //}
-
-
-
-        //            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-        //            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-
-        //            ROW++;
-
-        //        }
-
-
-        //        sheet[ROW, colFACount - 1].Text = "Total";
-        //        sheet[ROW, colFACount - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet[ROW, colFACount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFACount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFACount) + (ROW - 1) + ")";
-        //        sheet[ROW, colFACount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-        //        sheet[ROW, colFABaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1).ToString() + ")";
-        //        sheet[ROW, colFABaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-        //        sheet[ROW, colSubAssetAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + (ROW - 1).ToString() + ")";
-        //        sheet[ROW, colSubAssetAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-        //        sheet[ROW, colTotalBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + (ROW - 1).ToString() + ")";
-        //        sheet[ROW, colTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-
-        //        sheet[ROW, colADBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colADBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colADBaseAmount) + (ROW - 1).ToString() + ")";
-        //        sheet[ROW, colADBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-        //        sheet[ROW, colNetFixedAssetsAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + (ROW - 1).ToString() + ")";
-        //        sheet[ROW, colNetFixedAssetsAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-        //        sheet.Range[ROW, colFACount, ROW, colNetFixedAssetsAmount].CellStyle.Font.Bold = true;
-
-        //        //formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1) + ")";
-        //        //sheet[ROW, colFABaseAmount, ROW, colFABaseAmount].Formula = formula;
-        //        //sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-
-
-        //        sheet.IsGridLinesVisible = false;
-        //        sheet.UsedRange.WrapText = true;
-        //        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-        //        sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-
-        //        sheet["A" + StartRow.ToString()].FreezePanes();
-
-        //        sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
-        //        sheet.Range[StartRow, colSlNo, ROW, colSlNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        ReportUtility reportUtility = new ReportUtility();
-        //        reportUtility.PlantHeader(ref sheet, endCol, "Material Master Report", identity.PlantId);
-        //        reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-        //        //string strFileName = "Material Master Report.xlsx";
-        //        //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-        //        //workbook.Close();
-
-        //        workbook.Version = ExcelVersion.Excel97to2003;
-        //        filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName + ".xls");
-        //        workbook.SaveAs(filePath);
-        //        workbook.Close();
-        //        excelEngine.Dispose();
-        //        return filePath;
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw ex;
-        //    }
-
-
-        //}
-
-        private string MaterialMasterType(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
+        private string MaterialMasterType(string companyGroupId, string companyId, string plantId, string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string isMachine, string process, string skillId, string faCount)
         {
 
+            //int tempIsAsset = 0;
+            //if (isAsset == "Yes")
+            //{
+            //    tempIsAsset = 1;
+            //}
+            //else
+            //{
+            //    tempIsAsset = 0;
+            //}
+            //if (isMachine == "Yes")
+            //{
+            //    isMachine= "MachineDefinition";
+            //}
+            //else
+            //{
+            //    isMachine = "";
+            //}
+
             return @" 
-	     		 
-	     		select X.* from (
-                SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+          		  select X.* from (
+
+                SELECT T.Id MaterialTypeId
+                ,ISNULL(T.UserName,'') MaterialType
+                ,ISNULL (MGM.Id,'') MaterialGroupMasterId
 				,ISNULL (MGM.UserName,'') MaterialGroupMaster
-                , M.Id MaterialMasterId,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName
+                ,isnull( M.Id,'') MaterialMasterId
+				,ISNULL (M.Code,'')Code
+				,ISNULL(M.ShortName,'')ShortName
 				,ISNULL( M.UserName,'' ) MaterialMaster
-                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+				,isnull( M.BudgetMasterId,'')BudgetMasterId
+				,isnull(fam.Id ,'')AssetMasterId
+				,ISNULL (fam.UserName,'') AssetMaster
+                ,isnull( MC.Id,'') MaterialCategoryId
+				,ISNULL( MC.UserName,'') MaterialCategory
+				,isnull( SC.Id ,'')MaterialSubCategoryId
 				,isnull(SC.UserName,'') MaterialSubCategory
-                ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
-				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
-                 ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
-				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+                ,isnull( MG.Id,'') [MaterialGroup1Id]
+				,Isnull (MG.UserName,'' )MaterialGroup1
+				,isnull( uom.Id,'') BaseUOMId
+				,Isnull (uom.UserName,'') BaseUOM
+                 , IsAsset =isnull( case when M.IsAsset =1 then 'Yes' else  'No'  end,'')
+				 , Machine=isnull( case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end,'' )
 
 				 ,ISNULL(FA.FACount,0) FACount
                 , ISNULL(FA.FABaseAmount,0)FABaseAmount
@@ -7697,13 +7205,17 @@ group by Id) O60 ON O60.Id=IV.Id
 				  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
 				 , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
 				 ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
+				 ,isnull( s.Id,'') SkillId
                 ,isnull (S.UserName,'') Skill
 
+								
+                ,ProcessId = ISNULL(STUFF((select distinct ',' + P.Id from[MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id = MMP.ProcessId
+                where MMP.MaterialMasterId = M.Id for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+				
                 ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
 							 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
-				    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
+                ,isnull( gl.UserName ,'')GL,isnull( b.UserName,'') Budget,isnull( a.UserName,'') Activity
+                ,isnull( FA.CompanyGroupId,'')CompanyGroupId,isnull( FA.CompanyId,'')CompanyId,isnull( FA.PlantId,'')PlantId
                 FROM MST.MaterialMaster M
                 LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
                 LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
@@ -7715,11 +7227,10 @@ group by Id) O60 ON O60.Id=IV.Id
 				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
 				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
 
-				  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+		                         left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
 			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
 				                    left join HKP.Budget b on b.Id=bm.BudgetId
 				                    left join HKP.Activity a on a.Id=M.ActivityId
-
 
 				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
@@ -7729,7 +7240,7 @@ group by Id) O60 ON O60.Id=IV.Id
               	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
 				,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
 				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
-				,FAR.MaterialMasterId
+				,FAR.MaterialMasterId ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
 			    FROM TRN.FixedAssetRegister FAR
 
 				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
@@ -7737,93 +7248,123 @@ group by Id) O60 ON O60.Id=IV.Id
 				) sar on sar.FixedAssetRegisterId=FAR.Id
                 
 				where DisposedVoucherId IS NULL
-                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId
+                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
 				)FA ON FA.MaterialMasterId=M.Id
 
 
                 WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-                WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1)  
-                --ORDER BY M.UserName
-
-
-
-				union ALL
-				SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
-				,ISNULL (MGM.UserName,'') MaterialGroupMaster
-                , M.Id MaterialMasterId,ISNULL (M.Code,'')Code
-				,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
-                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
-				,isnull(SC.UserName,'') MaterialSubCategory
-                ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
-				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
-                 ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
-				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
-
-				 ,Count(ISNULL(FAR.Id,0)) FACount
-                , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
-				  , SUM(isnull(SAR.SubAssetAmount,0))SubAssetAmount
-				  ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0))  TotalBaseAmount
-				 , SUM(ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
-				 ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0))  NetFixedAssetsAmount
-                ,isnull (S.UserName,'') Skill
-
-                ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
-                where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
-					    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
-                FROM  TRN.FixedAssetRegister FAR
-
-				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
-				group by FixedAssetRegisterId
-				) sar on sar.FixedAssetRegisterId=FAR.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') or  M.IsAsset=1) 
 				
-				left join MST.MaterialMaster M ON FAR.MaterialMasterId=M.Id
-                LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
-                LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
-                LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
-                LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
-                LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
-                LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
-		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
-				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
-				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+			 --   and FA.CompanyGroupId='CG20171'and FA.CompanyId='C20171' AND FA.PlantId='20171'
+				--and M.Id in ('','129','1605','555','112','1295') and T.Id  in ('','201910','20199','MAT-201712','MAT-20177') and fam.Id  in ('','20202-1','20184','20188','20187') and MG.Id   in ('','20182','20199','201825','20197')
 
-				  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+    --            and uom.Id  in ('','UM70','UM76') 
+    
+
+                union ALL
+                SELECT isnull( T.Id,'') MaterialTypeId, ISNULL(T.UserName, '') MaterialType
+				,ISNULL(MGM.Id, '') MaterialGroupMasterId
+				,ISNULL(MGM.UserName, '') MaterialGroupMaster
+                , M.Id MaterialMasterId, ISNULL (M.Code, '')Code
+				,ISNULL(M.ShortName, '')ShortName ,ISNULL(M.UserName, '') MaterialMaster
+				  ,isnull( M.BudgetMasterId,'')BudgetMasterId
+				,isnull( fam.Id,'') AssetMasterId
+                , ISNULL (fam.UserName, '') AssetMaster
+                ,isnull( MC.Id,'') MaterialCategoryId
+				, ISNULL( MC.UserName, '') MaterialCategory
+				,isnull( SC.Id,'') MaterialSubCategoryId
+                  , isnull(SC.UserName, '') MaterialSubCategory
+                ,isnull( MG.Id,'')[MaterialGroup1Id]
+				,Isnull(MG.UserName, '')MaterialGroup1
+				,isnull( uom.Id ,'')BaseUOMId
+				, Isnull (uom.UserName, '') BaseUOM
+                 ,IsAsset =isnull( case when M.IsAsset = 1 then 'Yes' else 'No'  end,'')
+				 , Machine =isnull( case when MBP.BusinessProcessName = 'MachineDefinition' Then 'Yes' else 'No' end,'')
+
+				 ,Count(ISNULL(FAR.Id, 0)) FACount
+                , SUM(ISNULL(FAR.FABaseAmount, 0))FABaseAmount
+				  , SUM(isnull(SAR.SubAssetAmount, 0))SubAssetAmount
+				  ,SUM(ISNULL(FAR.FABaseAmount, 0) + isnull(SAR.SubAssetAmount, 0))  TotalBaseAmount
+				 , SUM(ISNULL(FAR.ADBaseAmount, 0)) ADBaseAmount
+				 ,SUM(ISNULL(FAR.FABaseAmount, 0) + isnull(SAR.SubAssetAmount, 0) - ISNULL(FAR.ADBaseAmount, 0))  NetFixedAssetsAmount
+				  ,isnull( s.Id,'') SkillId
+                , isnull (S.UserName, '') Skill
+
+				
+                ,ProcessId = ISNULL(STUFF((select distinct ',' + P.Id from[MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id = MMP.ProcessId
+                where MMP.MaterialMasterId = M.Id for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                ,Process = ISNULL(STUFF((select distinct ',' + P.UserName from[MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id = MMP.ProcessId
+                where MMP.MaterialMasterId = M.Id for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+                ,isnull( gl.UserName,'') GL ,isnull( b.UserName,'') Budget, isnull( a.UserName,'') Activity
+				 ,isnull( FAR.CompanyGroupId,'')CompanyGroupId,isnull( FAR.CompanyId,'')CompanyId,isnull( FAR.PlantId,'')PlantId
+                FROM TRN.FixedAssetRegister FAR
+
+
+                left join(select sum(Amount* CapitalizationRate) SubAssetAmount, FixedAssetRegisterId from  trn.SubFixedAssetRegister
+                group by FixedAssetRegisterId
+                ) sar on sar.FixedAssetRegisterId = FAR.Id
+
+
+                left join MST.MaterialMaster M ON FAR.MaterialMasterId = M.Id
+                LEFT JOIN[MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid = MGM.id
+                LEFT JOIN[HKP].[MaterialType] T ON T.Id = MGM.MaterialTypeId
+                LEFT JOIN[HKP].[MaterialCategory] MC ON MC.Id = M.MaterialCategoryId
+                LEFT JOIN[HKP].[MaterialSubCategory] SC ON SC.Id = M.MaterialSubCategoryId
+                LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id = MGM.MaterialGroup1Id
+                LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id = M.BaseUOMId
+                left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId = M.BudgetMasterId
+                left join mst.FixedAssetMaster fam on fam.Id = FAMBT.FixedAssetMasterId
+                left JOIN[HKP].[Skill] S ON S.Id = M.SkillId
+
+		                        left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
 			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
 				                    left join HKP.Budget b on b.Id=bm.BudgetId
 				                    left join HKP.Activity a on a.Id=M.ActivityId
 
-
-				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN(SELECT MBP.MaterialMasterId, BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+                WHERE BP.BusinessProcessName = 'MachineDefinition') AS MBP ON MBP.MaterialMasterId = M.Id
 
+                 WHERE M.IsAsset = 0 
+				 --and FAR.CompanyGroupId = 'CG20171'and FAR.CompanyId = 'C20171' AND FAR.PlantId = '20171'
+                --and M.Id in ('','129','1605','555','112','1295') and T.Id  in ('','201910','20199','MAT-201712','MAT-20177') and fam.Id  in ('','20202-1','20184','20188','20187') and MG.Id  in ('','20182','20199','201825','20197')
+                --and uom.Id  in ('','UM70','UM76') 
+             
 
-
-                WHERE  M.IsAsset=0 
-				group by
-				T.Id ,T.UserName,MGM.Id,MGM.UserName
+                group by
+                T.Id ,T.UserName,MGM.Id,MGM.UserName
                 , M.Id,M.Code,M.ShortName, M.UserName
                 ,MC.Id,MC.UserName,SC.Id,SC.UserName
                 ,MG.Id,MG.UserName
 				,uom.Id,uom.UserName
-                 ,M.IsAsset
+                 ,M.IsAsset,fam.Id ,s.Id
+                ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
 				 ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
-				 	    ,gl.UserName ,b.UserName , a.UserName 
+                 ,gl.UserName ,b.UserName , a.UserName
 				 ) x
-                ORDER BY x.MaterialMaster";
 
+				where x.IsAsset in (" + isAsset + ") and x.Machine in (" + isMachine + @")
+				and X.CompanyGroupId = '" + companyGroupId + "'and X.CompanyId = '" + companyId + "' AND X.PlantId = '" + plantId + @"'
+                and X.MaterialMasterId in (" + materialMasterId + ") and X.MaterialTypeId  in (" + materialTypeId + ") and x.AssetMasterId  in (" + assetMasterId + ") and x.MaterialGroup1Id  in (" + materialGroup1Id + @")
+                and x.BaseUOMId  in (" + baseUOMId + ")  and x.SkillId in (" + skillId + @")
+                and x.FACount in (" + faCount + @") 
+                and x.ProcessId in (" + process + @")
+                ORDER BY x.MaterialMaster";
+            //sql += temp;
         }
 
-        public void MaterialMasterReport2( /*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
+        public string MaterialMasterReport2(string companyGroupId, string companyId, string plantId, string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string isMachine, string process, string skillId, string faCount)
         {
 
             //if (MaterialTypeId == null) MaterialTypeId = null;
             //if (MaterialTypeId == "undefined") MaterialTypeId = null;
             //if (MaterialTypeId == "") MaterialTypeId = null;
             //if (MaterialTypeId == "null") MaterialTypeId = null;
+
+            var filePath = "";
+            string fileName = "";
             try
             {
                 //    string sql = "";
@@ -7847,7 +7388,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 //    }
 
                 string sql = "";
-                sql = MaterialMasterType( /*MaterialTypeId,  materialMasterId,  materialGroupMasterId,  materialCategoryId,  materialSubCategoryId,  materialGroup1Id*/);
+                sql = MaterialMasterType(companyGroupId, companyId, plantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, faCount);
                 DataTable dtMaterialMaster = _sqlRepository.GetDataTable(sql);
 
                 ExcelEngine excelEngine = new ExcelEngine();
@@ -7952,16 +7493,6 @@ group by Id) O60 ON O60.Id=IV.Id
                 int colNetFixedAssetsAmount = COL;
                 COL++;
 
-
-                //sheet[ROW, COL].Text = "Code";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //int colCode = COL;
-                //COL++;
-
-
-                // int colArticleCode = 0;
-                // int colArticleName = 0;
-
                 //if (MaterialTypeId == null && Article == true)
                 //{
                 //    sheet[ROW, COL].Text = "ArticleCode";
@@ -7988,54 +7519,23 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 //}
 
-                //sheet[ROW, COL].Text = "Material Category";
-                //sheet[ROW, COL].ColumnWidth = 17;
-                //sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colMaterialCategory = COL;
-                //COL++;
-
-
-                //sheet[ROW, COL].Text = "GL Code";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //int colGLCode = COL;
-                //COL++;
 
                 sheet[ROW, COL].Text = "GL";
                 sheet[ROW, COL].ColumnWidth = 20;
                 int colGLName = COL;
                 COL++;
 
-                //sheet[ROW, COL].Text = "Budget Ref No.";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //int colBudgetRefNo = COL;
-                //COL++;
 
                 sheet[ROW, COL].Text = "Budget";
                 sheet[ROW, COL].ColumnWidth = 20;
                 int colBudgetName = COL;
                 COL++;
 
-                //sheet[ROW, COL].Text = "Activity Code";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //int colActivityCode = COL;
-                //COL++;
 
                 sheet[ROW, COL].Text = "Acitivty";
                 sheet[ROW, COL].ColumnWidth = 20;
                 int colAcitivtyName = COL;
                 // COL++;
-
-                //sheet[ROW, COL].Text = "Fixed Asset Master";
-                //sheet[ROW, COL].ColumnWidth = 20;
-                //int colFixedAssetMaster = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Active";
-                //sheet[ROW, COL].ColumnWidth = 20;
-                //int colActive = COL;
-
-
-
 
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
@@ -8059,10 +7559,9 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, colBaseUOM].Text = dtMaterialMaster.Rows[i]["BaseUOM"].ToString();
                     sheet[ROW, colIsAsset].Text = dtMaterialMaster.Rows[i]["IsAsset"].ToString();
                     sheet[ROW, colMachine].Text = dtMaterialMaster.Rows[i]["Machine"].ToString();
-                    //sheet[ROW, colFACount].Text = dtMaterialMaster.Rows[i]["FACount"].ToString();
-
                     sheet[ROW, colFACount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FACount"].ToString());
-                    sheet[ROW, colFACount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+
 
                     sheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FABaseAmount"].ToString());
                     sheet[ROW, colFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
@@ -8107,11 +7606,10 @@ group by Id) O60 ON O60.Id=IV.Id
                 }
 
 
-
                 sheet[ROW, colFACount - 1].Text = "Total";
                 sheet[ROW, colFACount - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                sheet[ROW, colFACount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFACount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFACount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colFACount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFACount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFACount) + (ROW - 1) + ")";
                 sheet[ROW, colFACount].NumberFormat = "#,##0.00;(#,##0.00)";
 
                 sheet[ROW, colFABaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1).ToString() + ")";
@@ -8153,13 +7651,16 @@ group by Id) O60 ON O60.Id=IV.Id
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                string strFileName = "Material Master Report.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //string strFileName = "Material Master Report.xlsx";
+                //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //workbook.Close();
+
+                workbook.Version = ExcelVersion.Excel97to2003;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName + ".xls");
+                workbook.SaveAs(filePath);
                 workbook.Close();
-
-
-
-
+                excelEngine.Dispose();
+                return filePath;
 
             }
             catch (Exception ex)
@@ -8171,12 +7672,509 @@ group by Id) O60 ON O60.Id=IV.Id
 
         }
 
+    //    private string MaterialMasterType(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
+    //    {
+
+    //        return @" 
+	     		 
+	   //  		select X.* from (
+    //            SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+				//,ISNULL (MGM.UserName,'') MaterialGroupMaster
+    //            , M.Id MaterialMasterId,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName
+				//,ISNULL( M.UserName,'' ) MaterialMaster
+    //            ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+				//,isnull(SC.UserName,'') MaterialSubCategory
+    //            ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
+				//,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
+    //             ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
+				// , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+
+				// ,ISNULL(FA.FACount,0) FACount
+    //            , ISNULL(FA.FABaseAmount,0)FABaseAmount
+				//  , isnull(FA.SubAssetAmount,0)SubAssetAmount
+				//  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
+				// , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+				// ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
+    //            ,isnull (S.UserName,'') Skill
+
+    //            ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+				//			 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+    //            ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
+				//    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
+    //            FROM MST.MaterialMaster M
+    //            LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+    //            LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
+    //            LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
+    //            LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+    //            LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
+    //            LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
+		  //      left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+				//left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
+				//left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+
+				//  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+			 //                      left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+				//                    left join HKP.Budget b on b.Id=bm.BudgetId
+				//                    left join HKP.Activity a on a.Id=M.ActivityId
+
+
+				//LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+    //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+    //            WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+
+    //        	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
+    //          	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
+				//,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
+				//,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
+				//,FAR.MaterialMasterId
+			 //   FROM TRN.FixedAssetRegister FAR
+
+				//left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				//group by FixedAssetRegisterId
+				//) sar on sar.FixedAssetRegisterId=FAR.Id
+                
+				//where DisposedVoucherId IS NULL
+    //            GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId
+				//)FA ON FA.MaterialMasterId=M.Id
+
+
+    //            WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+    //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+    //            WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1)  
+    //            --ORDER BY M.UserName
+
+
+
+				//union ALL
+				//SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+				//,ISNULL (MGM.UserName,'') MaterialGroupMaster
+    //            , M.Id MaterialMasterId,ISNULL (M.Code,'')Code
+				//,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
+    //            ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+				//,isnull(SC.UserName,'') MaterialSubCategory
+    //            ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
+				//,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
+    //             ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
+				// , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+
+				// ,Count(ISNULL(FAR.Id,0)) FACount
+    //            , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				//  , SUM(isnull(SAR.SubAssetAmount,0))SubAssetAmount
+				//  ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0))  TotalBaseAmount
+				// , SUM(ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				// ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0))  NetFixedAssetsAmount
+    //            ,isnull (S.UserName,'') Skill
+
+    //            ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+    //            where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+    //            ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
+				//	    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
+    //            FROM  TRN.FixedAssetRegister FAR
+
+				//left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				//group by FixedAssetRegisterId
+				//) sar on sar.FixedAssetRegisterId=FAR.Id
+				
+				//left join MST.MaterialMaster M ON FAR.MaterialMasterId=M.Id
+    //            LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+    //            LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
+    //            LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
+    //            LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+    //            LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
+    //            LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
+		  //      left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+				//left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
+				//left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+
+				//  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+			 //                      left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+				//                    left join HKP.Budget b on b.Id=bm.BudgetId
+				//                    left join HKP.Activity a on a.Id=M.ActivityId
+
+
+				//LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+    //            LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+    //            WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+
+
+
+    //            WHERE  M.IsAsset=0 
+				//group by
+				//T.Id ,T.UserName,MGM.Id,MGM.UserName
+    //            , M.Id,M.Code,M.ShortName, M.UserName
+    //            ,MC.Id,MC.UserName,SC.Id,SC.UserName
+    //            ,MG.Id,MG.UserName
+				//,uom.Id,uom.UserName
+    //             ,M.IsAsset
+				// ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
+				// 	    ,gl.UserName ,b.UserName , a.UserName 
+				// ) x
+    //            ORDER BY x.MaterialMaster";
+
+    //    }
+
+        //public void MaterialMasterReport2( /*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
+        //{
+
+        //    //if (MaterialTypeId == null) MaterialTypeId = null;
+        //    //if (MaterialTypeId == "undefined") MaterialTypeId = null;
+        //    //if (MaterialTypeId == "") MaterialTypeId = null;
+        //    //if (MaterialTypeId == "null") MaterialTypeId = null;
+        //    try
+        //    {
+        //        //    string sql = "";
+
+        //        //    if (MaterialTypeId == null && Article == false)
+        //        //    {
+        //        //        sql = MaterialMasterSql2();
+        //        //    }
+        //        //    if (MaterialTypeId == null && Article == true)
+        //        //    {
+        //        //        sql = MaterialMasterArticle();
+        //        //    }
+        //        //    if (MaterialTypeId != null && Article == true)
+        //        //    {
+        //        //        sql = MaterialMasterArticleType(MaterialTypeId);
+        //        //    }
+        //        //    if (MaterialTypeId != null && Article == false)
+        //        //    //if (!string.IsNullOrEmpty(MaterialTypeId) && Article == false)
+        //        //    {
+        //        //        sql = MaterialMasterType(MaterialTypeId);
+        //        //    }
+
+        //        string sql = "";
+        //        sql = MaterialMasterType( /*MaterialTypeId,  materialMasterId,  materialGroupMasterId,  materialCategoryId,  materialSubCategoryId,  materialGroup1Id*/);
+        //        DataTable dtMaterialMaster = _sqlRepository.GetDataTable(sql);
+
+        //        ExcelEngine excelEngine = new ExcelEngine();
+        //        //Instantiate the Excel application object
+        //        IApplication application = excelEngine.Excel;
+
+        //        //Set the default application version
+        //        application.DefaultVersion = ExcelVersion.Excel2013;
+        //        IWorkbook workbook = application.Workbooks.Create(1);
+        //        IWorksheet sheet = workbook.Worksheets[0];
+
+        //        sheet.Name = "Material Master Report";
+
+
+        //        int ROW = 6;
+        //        int COL = 1;
+
+        //        sheet[ROW, COL].Text = "SL No.";
+        //        sheet[ROW, COL].ColumnWidth = 6;
+        //        int colSlNo = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Material Master";
+        //        sheet[ROW, COL].ColumnWidth = 20;
+        //        int colMaterial = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Material Type";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        int colMaterialType = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Asset Master";
+        //        sheet[ROW, COL].ColumnWidth = 18;
+        //        int colAssetMaster = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Material Group";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        int colMaterialGroup = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Base UoM";
+        //        sheet[ROW, COL].ColumnWidth = 5;
+        //        int colBaseUOM = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Machine";
+        //        sheet[ROW, COL].ColumnWidth = 10;
+        //        int colMachine = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "IsAsset";
+        //        sheet[ROW, COL].ColumnWidth = 10;
+        //        int colIsAsset = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Process";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        int colProcess = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Skill";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        int colSkill = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Total Quantity";
+        //        sheet[ROW, COL].ColumnWidth = 10;
+        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+        //        int colFACount = COL;
+        //        COL++;
+
+
+        //        sheet[ROW, COL].Text = "FA Base Amount";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+        //        int colFABaseAmount = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Sub Asset Amount";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+        //        int colSubAssetAmount = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Total Base Amount";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+        //        int colTotalBaseAmount = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Acc.Dep.Amount";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+        //        int colADBaseAmount = COL;
+        //        COL++;
+
+        //        sheet[ROW, COL].Text = "Net Amount";
+        //        sheet[ROW, COL].ColumnWidth = 15;
+        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+        //        int colNetFixedAssetsAmount = COL;
+        //        COL++;
+
+
+        //        //sheet[ROW, COL].Text = "Code";
+        //        //sheet[ROW, COL].ColumnWidth = 10;
+        //        //int colCode = COL;
+        //        //COL++;
+
+
+        //        // int colArticleCode = 0;
+        //        // int colArticleName = 0;
+
+        //        //if (MaterialTypeId == null && Article == true)
+        //        //{
+        //        //    sheet[ROW, COL].Text = "ArticleCode";
+        //        //    sheet[ROW, COL].ColumnWidth = 20;
+        //        //    colArticleCode = COL;
+        //        //    COL++;
+        //        //    sheet[ROW, COL].Text = "ArticleName";
+        //        //    sheet[ROW, COL].ColumnWidth = 20;
+        //        //    colArticleName = COL;
+        //        //    COL++;
+
+        //        //}
+
+        //        //if (MaterialTypeId != null && Article == true)
+        //        //{
+        //        //    sheet[ROW, COL].Text = "ArticleCode";
+        //        //    sheet[ROW, COL].ColumnWidth = 20;
+        //        //    colArticleCode = COL;
+        //        //    COL++;
+        //        //    sheet[ROW, COL].Text = "ArticleName";
+        //        //    sheet[ROW, COL].ColumnWidth = 20;
+        //        //    colArticleName = COL;
+        //        //    COL++;
+
+        //        //}
+
+        //        //sheet[ROW, COL].Text = "Material Category";
+        //        //sheet[ROW, COL].ColumnWidth = 17;
+        //        //sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+        //        //int colMaterialCategory = COL;
+        //        //COL++;
+
+
+        //        //sheet[ROW, COL].Text = "GL Code";
+        //        //sheet[ROW, COL].ColumnWidth = 10;
+        //        //int colGLCode = COL;
+        //        //COL++;
+
+        //        sheet[ROW, COL].Text = "GL";
+        //        sheet[ROW, COL].ColumnWidth = 20;
+        //        int colGLName = COL;
+        //        COL++;
+
+        //        //sheet[ROW, COL].Text = "Budget Ref No.";
+        //        //sheet[ROW, COL].ColumnWidth = 10;
+        //        //int colBudgetRefNo = COL;
+        //        //COL++;
+
+        //        sheet[ROW, COL].Text = "Budget";
+        //        sheet[ROW, COL].ColumnWidth = 20;
+        //        int colBudgetName = COL;
+        //        COL++;
+
+        //        //sheet[ROW, COL].Text = "Activity Code";
+        //        //sheet[ROW, COL].ColumnWidth = 10;
+        //        //int colActivityCode = COL;
+        //        //COL++;
+
+        //        sheet[ROW, COL].Text = "Acitivty";
+        //        sheet[ROW, COL].ColumnWidth = 20;
+        //        int colAcitivtyName = COL;
+        //        // COL++;
+
+        //        //sheet[ROW, COL].Text = "Fixed Asset Master";
+        //        //sheet[ROW, COL].ColumnWidth = 20;
+        //        //int colFixedAssetMaster = COL;
+        //        //COL++;
+
+        //        //sheet[ROW, COL].Text = "Active";
+        //        //sheet[ROW, COL].ColumnWidth = 20;
+        //        //int colActive = COL;
+
+
+
+
+        //        int endCol = COL;
+        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+        //        ROW++;
+
+        //        int StartRow = ROW; //row 20
+        //        for (int i = 0; i < dtMaterialMaster.Rows.Count; i++)
+        //        {
+
+
+        //            sheet[ROW, colSlNo].Number = (i + 1);
+
+        //            sheet[ROW, colMaterialType].Text = dtMaterialMaster.Rows[i]["MaterialType"].ToString();
+        //            sheet[ROW, colMaterialGroup].Text = dtMaterialMaster.Rows[i]["MaterialGroupMaster"].ToString();
+        //            //sheet[ROW, colCode].Text = dtMaterialMaster.Rows[i]["Code"].ToString();
+        //            sheet[ROW, colMaterial].Text = dtMaterialMaster.Rows[i]["MaterialMaster"].ToString();
+        //            //sheet[ROW, colMaterialCategory].Text = dtMaterialMaster.Rows[i]["MaterialCategory"].ToString();
+        //            sheet[ROW, colBaseUOM].Text = dtMaterialMaster.Rows[i]["BaseUOM"].ToString();
+        //            sheet[ROW, colIsAsset].Text = dtMaterialMaster.Rows[i]["IsAsset"].ToString();
+        //            sheet[ROW, colMachine].Text = dtMaterialMaster.Rows[i]["Machine"].ToString();
+        //            //sheet[ROW, colFACount].Text = dtMaterialMaster.Rows[i]["FACount"].ToString();
+
+        //            sheet[ROW, colFACount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FACount"].ToString());
+        //            sheet[ROW, colFACount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+        //            sheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FABaseAmount"].ToString());
+        //            sheet[ROW, colFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+        //            sheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["SubAssetAmount"].ToString());
+        //            sheet[ROW, colSubAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+        //            sheet[ROW, colTotalBaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["TotalBaseAmount"].ToString());
+        //            sheet[ROW, colTotalBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+        //            sheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["ADBaseAmount"].ToString());
+        //            sheet[ROW, colADBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+        //            sheet[ROW, colNetFixedAssetsAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["NetFixedAssetsAmount"].ToString());
+        //            sheet[ROW, colNetFixedAssetsAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+        //            sheet[ROW, colSkill].Text = dtMaterialMaster.Rows[i]["Skill"].ToString();
+        //            sheet[ROW, colProcess].Text = dtMaterialMaster.Rows[i]["Process"].ToString();
+        //            sheet[ROW, colAssetMaster].Text = dtMaterialMaster.Rows[i]["AssetMaster"].ToString();
+        //            //sheet[ROW, colGLCode].Text = dtMaterialMaster.Rows[i]["GLCode"].ToString();
+
+        //            sheet[ROW, colGLName].Text = dtMaterialMaster.Rows[i]["GL"].ToString();
+        //            sheet[ROW, colBudgetName].Text = dtMaterialMaster.Rows[i]["Budget"].ToString();
+        //            sheet[ROW, colAcitivtyName].Text = dtMaterialMaster.Rows[i]["Activity"].ToString();
+
+
+
+        //            //if (MaterialTypeId == null && Article == true)
+        //            //{
+        //            //    sheet[ROW, colArticleCode].Text = dtMaterialMaster.Rows[i]["ArticleCode"].ToString();
+        //            //    sheet[ROW, colArticleName].Text = dtMaterialMaster.Rows[i]["MaterialArticle"].ToString();
+        //            //}
+        //            //if (MaterialTypeId != null && Article == true)
+        //            //{
+        //            //    sheet[ROW, colArticleCode].Text = dtMaterialMaster.Rows[i]["ArticleCode"].ToString();
+        //            //    sheet[ROW, colArticleName].Text = dtMaterialMaster.Rows[i]["MaterialArticle"].ToString();
+        //            //}
+
+
+
+        //            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+        //            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+        //            ROW++;
+
+        //        }
+
+
+
+        //        sheet[ROW, colFACount - 1].Text = "Total";
+        //        sheet[ROW, colFACount - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+        //        sheet[ROW, colFACount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFACount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFACount) + (ROW - 1).ToString() + ")";
+        //        sheet[ROW, colFACount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+        //        sheet[ROW, colFABaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1).ToString() + ")";
+        //        sheet[ROW, colFABaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+        //        sheet[ROW, colSubAssetAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + (ROW - 1).ToString() + ")";
+        //        sheet[ROW, colSubAssetAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+        //        sheet[ROW, colTotalBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + (ROW - 1).ToString() + ")";
+        //        sheet[ROW, colTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+        //        sheet[ROW, colADBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colADBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colADBaseAmount) + (ROW - 1).ToString() + ")";
+        //        sheet[ROW, colADBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+        //        sheet[ROW, colNetFixedAssetsAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + (ROW - 1).ToString() + ")";
+        //        sheet[ROW, colNetFixedAssetsAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+        //        sheet.Range[ROW, colFACount, ROW, colNetFixedAssetsAmount].CellStyle.Font.Bold = true;
+
+        //        //formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1) + ")";
+        //        //sheet[ROW, colFABaseAmount, ROW, colFABaseAmount].Formula = formula;
+        //        //sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+
+
+        //        sheet.IsGridLinesVisible = false;
+        //        sheet.UsedRange.WrapText = true;
+        //        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+        //        sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+        //        sheet["A" + StartRow.ToString()].FreezePanes();
+
+        //        sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
+        //        sheet.Range[StartRow, colSlNo, ROW, colSlNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        ReportUtility reportUtility = new ReportUtility();
+        //        reportUtility.PlantHeader(ref sheet, endCol, "Material Master Report", identity.PlantId);
+        //        reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+        //        sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+        //        string strFileName = "Material Master Report.xlsx";
+        //        workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+        //        workbook.Close();
+
+
+
+
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        throw ex;
+        //    }
+
+
+        //}
+
         private string MaterialMasterTypeFiltering(string CompanyGroupId, string CompanyId, string PlantId, string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string machine, string process, string skillId, string fACount)
         {
 
             return @" 
 	     		 
-	     		 		     		select X.* from (
+	     		 select X.* from (
 
                 SELECT T.Id MaterialTypeId
                 ,ISNULL(T.UserName,'') MaterialType
@@ -10090,11 +10088,11 @@ group by Id) O60 ON O60.Id=IV.Id
         #region  Bank Tab
         public List<Dictionary<string, object>> GetBankMasterListData(string companyGroupId, string companyId, string plantId/*, string fromDate */, string toDate)
         {
-            var sql = @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"'
-                        DECLARE @companyId VARCHAR(10)='" + companyId + @"';
-                        DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+            var sql = @"DECLARE @companyGroupId VARCHAR(10)='CG20171'
+                        DECLARE @companyId VARCHAR(10)='C20171';
+                        DECLARE @plantId VARCHAR(10)='20171';
                         --DECLARE @cashMasterId VARCHAR(10)='1';
-                        SELECT BM.AccountTitle Bank,BM.Id,C.Code BankCurrency
+                        SELECT B.UserName Bank,BB.UserName Branch,BM.AccountNumber,[Bank\AccountDetails]= BM.AccountTitle  ,BM.Id,C.Code BankCurrency
                           ,SUM(ISNULL(GLTD.DrAmount,0)) DrAmount 
                         , SUM(ISNULL(GLTD.CrAmount,0)) CrAmount 
 						 , SUM(ISNULL(GLTD.DrAmount,0))  -  SUM(ISNULL(GLTD.CrAmount,0)) BankAmount 
@@ -10105,6 +10103,8 @@ group by Id) O60 ON O60.Id=IV.Id
 						JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLTD.VoucherDetailId
                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId 
+						LEFT JOIN HKP.Bank B ON B.Id=BM.BankId
+						left join hkp.BankBranch BB ON BB.Id=BM.BankBranchId
                       --  LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId and vd.CashMasterId<>''
 						LEFT JOIN SCS.Currency C ON C.Id=BM.CurrencyId
                         LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
@@ -10114,10 +10114,11 @@ group by Id) O60 ON O60.Id=IV.Id
                         ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId --AND VD.CashMasterId=@cashMasterId 
 						AND V.SourceType!='OpeningBalance'
-						 AND V.PostingDate <= '" + toDate + @"' and vd.BankMasterId<>''
-						 GROUP BY BM.AccountTitle ,BM.Id,c.Code
+						 AND V.PostingDate <= '19-Aug-2021' and vd.BankMasterId<>''
+                         and BM.AccountType='HouseBank'
+						 GROUP BY BM.AccountTitle ,BM.Id,c.Code,B.UserName,BB.UserName,BM.AccountNumber
                         UNION ALL
-                        SELECT BM.AccountTitle Bank,BM.Id,C.Code CashCurrency,
+                        SELECT B.UserName Bank,BB.UserName Branch,BM.AccountNumber,[Bank\AccountDetails]= BM.AccountTitle,BM.Id,C.Code CashCurrency,
                           SUM(ISNULL(GLTD.DrAmount,0)) DrAmount ,
                          SUM(ISNULL(GLTD.CrAmount,0)) CrAmount 
 						 , SUM(ISNULL(GLTD.DrAmount,0)) - SUM(ISNULL(GLTD.CrAmount,0)) BankAmount 
@@ -10128,6 +10129,8 @@ group by Id) O60 ON O60.Id=IV.Id
 						JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLTD.VoucherDetailId
                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId 
+						LEFT JOIN HKP.Bank B ON B.Id=BM.BankId
+						left join hkp.BankBranch BB ON BB.Id=BM.BankBranchId
                        -- LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId 
 						LEFT JOIN SCS.Currency C ON C.Id=BM.CurrencyId
                         LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
@@ -10137,8 +10140,9 @@ group by Id) O60 ON O60.Id=IV.Id
                         ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId --AND VD.CashMasterId=@cashMasterId 
 						AND V.SourceType='OpeningBalance'
-						 AND V.PostingDate > '" + toDate + @"' and vd.BankMasterId<>''
-						 GROUP BY BM.AccountTitle ,BM.Id,c.Code
+						 AND V.PostingDate > '" + toDate+@"' and vd.BankMasterId<>''
+						 and BM.AccountType='HouseBank'
+						 GROUP BY BM.AccountTitle ,BM.Id,c.Code,B.UserName,BB.UserName,BM.AccountNumber
                        -- ORDER BY V.PostingDate ASC";
             return _sqlRepository.GetDataCollection(sql);
 

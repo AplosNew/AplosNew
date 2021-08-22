@@ -319,39 +319,17 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { DATA = accountsStatusDashboardService.GetFixedArticalListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
-        //[HttpPost, Authorize]
-        //public ActionResult MaterialMasterReport2(string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string isMachine, string process, string skillId, string faCount)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
-        //    try
-        //    {
-        //        string fileName = "";
-        //        fileName = accountsStatusDashboardService.MaterialMasterReport2(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, faCount);
-        //        //return null;
-        //        return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-
-        //    }
-        //}
-
-        [HttpGet, Authorize]
-        public ActionResult MaterialMasterReport2(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
+        [HttpPost, Authorize]
+        public ActionResult MaterialMasterReport2(string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string isMachine, string process, string skillId, string faCount)
         {
-
-
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
-
             try
             {
-                accountsStatusDashboardService.MaterialMasterReport2( /*MaterialTypeId,  materialMasterId,  materialGroupMasterId,  materialCategoryId,  materialSubCategoryId,  materialGroup1Id*/);
-
-
-                return null;
+                string fileName = "";
+                fileName = accountsStatusDashboardService.MaterialMasterReport2(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, faCount);
+                //return null;
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -359,6 +337,28 @@ namespace Aplos.Areas.Accounts.Controllers
 
             }
         }
+
+        //[HttpGet, Authorize]
+        //public ActionResult MaterialMasterReport2(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
+        //{
+
+
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+
+        //    try
+        //    {
+        //        accountsStatusDashboardService.MaterialMasterReport2( /*MaterialTypeId,  materialMasterId,  materialGroupMasterId,  materialCategoryId,  materialSubCategoryId,  materialGroup1Id*/);
+
+
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+
+        //    }
+        //}
 
         [HttpGet, Authorize]
         public ActionResult MaterialMasterFilteringReport(string materialMasterId, string materialTypeId, string assetMasterId, string materialGroup1Id, string baseUOMId, string isAsset, string machine, string process, string skillId, string fACount)

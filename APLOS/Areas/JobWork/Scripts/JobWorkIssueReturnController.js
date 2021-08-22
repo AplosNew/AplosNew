@@ -444,14 +444,45 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
 
     $scope.SelectedTConMaterialStorage = function () {
+        if ($scope.Transformation.OrderSpecific == "Yes") {
+            $http({
+                method: 'GET',
+                url: 'JobWork/JobWorkIssueReturn/getalljobworklocation/',
+            }).then(function successCallback(response) {
+                $scope.JobWorkLocList = response.data;
+                //if ($scope.JobWorkLocList.length > 0) {
+                //    $scope.IssueTransformation.MaterialStorageId = $scope.JobWorkLocList[0].Value;
+                //    $scope.IssueTransformation.StorageLocation = $scope.JobWorkLocList[0].StorageLocation;
+                //}
+            });
+        }
+        else {
+            $http({
+                method: 'GET',
+                url: 'JobWork/JobWorkIssueReturn/gejobworklocation?TId=' + $scope.Transformation.Id,
+            }).then(function successCallback(response) {
+                $scope.JobWorkLocList = response.data;
+                if ($scope.JobWorkLocList.length > 0) {
+                    $scope.IssueTransformation.MaterialStorageId = $scope.JobWorkLocList[0].Value;
+                    $scope.IssueTransformation.StorageLocation = $scope.JobWorkLocList[0].StorageLocation;
+                }
+            });
+        }
+    }
+
+    $scope.SelectedMaterialStorage = [];
+    $scope.GetSelectedMaterialStorage = function () {
         $http({
             method: 'GET',
-            url: 'JobWork/JobWorkIssueReturn/gejobworklocation?TId=' + $scope.Transformation.Id,
+            url: 'JobWork/JobWorkIssueReturn/getStoragloc?JLId=' + $scope.IssueTransformation.MaterialStorageId,
         }).then(function successCallback(response) {
-            $scope.JobWorkLocList = response.data;
-            if ($scope.JobWorkLocList.length > 0) {
-                $scope.IssueTransformation.MaterialStorageId = $scope.JobWorkLocList[0].Value;
-                $scope.IssueTransformation.StorageLocation = $scope.JobWorkLocList[0].StorageLocation;
+            $scope.SelectedMaterialStorage = response.data;
+            if ($scope.SelectedMaterialStorage.length > 0) {
+                //      $scope.IssueTransformation.MaterialStorageId = $scope.SelectedMaterialStorage[0].Value;
+                $scope.IssueTransformation.StorageLocation = $scope.SelectedMaterialStorage[0].StorageLocation;
+            }
+            else {
+                $scope.IssueTransformation.StorageLocation = null;
             }
         });
     }
@@ -662,7 +693,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
         $http({
             method: 'POST',
-            data: { SelectedMaterialPlanningData: SelectedData },
+            data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific },
             url: $scope.path + 'GetMaterialInputData'
         }).then(function successCallback(response) {
             $scope.MaterialInputList = response.data;
@@ -1674,5 +1705,38 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
      $scope.GetPopUpShowStorageLocationClosed=function() {
       angular.element(document.querySelector('#ShowLOcationWiseStock')).modal('hide');
 
-      }
+    }
+
+    // Print Template
+    $scope.AllTabPrint = function (z) {
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+        $scope.getalldata();
+    };
+
+    //#region start Reports
+    $scope.ConfirmPrintTab = function (z) {
+        try {
+            var x = "#" + z;
+            var gridObj = $(x).data("ejGrid");
+            var data = gridObj.getSelectedRecords()[0];
+            //        location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+
+            $scope.PrintTabId = data.Id;
+
+            var reportFormat = "Excel";
+            if (data.POType == "OSTransformationPO") {
+                window.open('JobWork/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+            }
+
+            if (data.POType == "OSValueAddedPO") {
+                window.open('JobWork/JobWorkValueAddedContract/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+            }
+
+        } catch (e) {
+
+        }
+    };
 }

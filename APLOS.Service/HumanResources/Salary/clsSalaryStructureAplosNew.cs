@@ -9434,7 +9434,7 @@ public class clsSalaryStructureAplosNew
             objsi.GetMBAllowance(_para.BudgetCodeId, _para.EffectiveDate, out dsMBAllowance);
             objsi.GetEntityAllowance(_para.EffectiveDate, _para.BudgetCodeId, _para.DesignationGroupId, _para.CompanyGroupId, out dsEntityAllowance);
             ///----kabir temp off
-            CheckAllowanceIsFoundInSalaryrule(_para.SalaryRuleId, dsLocal, dsMBAllowance, dsEntityAllowance, _para.EmployeeName);
+            //CheckAllowanceIsFoundInSalaryrule(_para.SalaryRuleId, dsLocal, dsMBAllowance, dsEntityAllowance, _para.EmployeeName);
             DataTable dtValue = new DataTable();
             dtValue.TableName = "TempTable";
             dtValue.Columns.Add("SalaryHeadID");
@@ -11627,7 +11627,7 @@ public class clsSalaryStructureAplosNew
             objsi.GetMBAllowance(_para.BudgetCodeId, _para.EffectiveDate, out dsMBAllowance);
             objsi.GetEntityAllowance(_para.EffectiveDate, _para.BudgetCodeId, _para.DesignationGroupId, _para.CompanyGroupId, out dsEntityAllowance);
 
-            CheckAllowanceIsFoundInSalaryrule(_para.SalaryRuleId, dsLocal, dsMBAllowance, dsEntityAllowance, _para.EmployeeName);
+            //CheckAllowanceIsFoundInSalaryrule(_para.SalaryRuleId, dsLocal, dsMBAllowance, dsEntityAllowance, _para.EmployeeName);
 
 
             GetSalarySlabWiseValue(_para.PlantId, out dsSalarySlabWiseValue);
@@ -16749,14 +16749,14 @@ public class clsSalaryStructureAplosNew
                         bplib.clsWebLib.Throw(bplib.clsWebLib.MSG_Salary_Calculate("Skill Allowance", lblEmpName));
                     }
                 }
-                else
-                {
-                    dvLocal.RowFilter = "HeadCategory='Skill Allowance'";
-                    if (dvLocal.Count == 0)
-                    {
-                        bplib.clsWebLib.Throw(bplib.clsWebLib.MSG_Salary_Calculate("Skill Allowance", lblEmpName));
-                    }
-                }
+                //else
+                //{
+                //    dvLocal.RowFilter = "HeadCategory='Skill Allowance'";
+                //    if (dvLocal.Count == 0)
+                //    {
+                //        bplib.clsWebLib.Throw(bplib.clsWebLib.MSG_Salary_Calculate("Skill Allowance", lblEmpName));
+                //    }
+                //}
 
                 //ResponsibilityAllowance
                 dvLocal.RowFilter = null;
@@ -16768,14 +16768,14 @@ public class clsSalaryStructureAplosNew
                         bplib.clsWebLib.Throw(bplib.clsWebLib.MSG_Salary_Calculate("Responsibility Allowance", lblEmpName));
                     }
                 }
-                else
-                {
-                    dvLocal.RowFilter = "HeadCategory='Responsibility Allowance'";
-                    if (dvLocal.Count == 0)
-                    {
-                        bplib.clsWebLib.Throw(bplib.clsWebLib.MSG_Salary_Calculate("Responsibility Allowance", lblEmpName));
-                    }
-                }
+                //else
+                //{
+                //    dvLocal.RowFilter = "HeadCategory='Responsibility Allowance'";
+                //    if (dvLocal.Count == 0)
+                //    {
+                //        bplib.clsWebLib.Throw(bplib.clsWebLib.MSG_Salary_Calculate("Responsibility Allowance", lblEmpName));
+                //    }
+                //}
 
                 //SpecialAllowance
                 //dvLocal.RowFilter = null;

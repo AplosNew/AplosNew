@@ -2028,22 +2028,28 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                 var sqlx = @"SELECT * FROM ( select a.LogDownLoadNum as EmpId,               
                 (
-                select  min(convert (varchar(30), format(b.PTime,'yyyyMMddHHmmss'))+'.'+convert(varchar(30),b.RowID)
-				)
+                select  min(convert (varchar(30), format(b.PTime,'yyyyMMddHHmmss'))+'.'+convert(varchar(30),b.RowID))
                 from AttdnRawData b left join OutPunchConfigurationHeader oh on oh.PlantId=b.PlantID
                 where b.LogDownLoadNum=a.LogDownLoadNum and b.ProcessedFlag!=1
-                and (isnull(b.PType,'')='IN') and  b.PlantId='" + Plant + @"'  
+                and isnull(b.PType,'')='IN' and  b.PlantId='" + Plant + @"'  
                 and convert(date,b.PTime)='" + PrevDay + @"'   
                 and CAST(oh.InPunchStartTime AS TIME) <= Cast ((b.ptime) AS TIME)
                 group by b.LogDownLoadNum
                 ) as MinTime,
+
                 (
                 select top 1 Format(oc.InPunchLimit,'yyyy-MMM-dd HH:mm:ss')  
                 from
                 dbo.OutPunchConfigurationHeader oh
                 left join dbo.OutPunchConfigurationChild oc on oc.MasterId = oh.Id
                 left join org.Plant p on p.Id = oh.PlantId
-                where CAST(oc.InPunchLimit AS TIME) >= Cast (min(a.ptime)
+                where CAST(oc.InPunchLimit AS TIME) >= Cast ((select  min(b.PTime)
+                from AttdnRawData b left join OutPunchConfigurationHeader oh on oh.PlantId=b.PlantID
+                where b.LogDownLoadNum=a.LogDownLoadNum and b.ProcessedFlag!=1
+                and isnull(b.PType,'')='IN' and  b.PlantId='" + Plant + @"'  
+                and convert(date,b.PTime)='" + PrevDay + @"'   
+                and CAST(oh.InPunchStartTime AS TIME) <= Cast ((b.ptime) AS TIME)
+                group by b.LogDownLoadNum  )
                 AS TIME) 
                 and p.Id='" + Plant + @"'
                 ) as InPunchLimit,
@@ -2053,15 +2059,22 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 dbo.OutPunchConfigurationHeader oh
                 left join dbo.OutPunchConfigurationChild oc on oc.MasterId = oh.Id
                 left join org.Plant p on p.Id = oh.PlantId
-                where CAST(oc.InPunchLimit AS TIME) >= Cast (min(a.ptime) AS TIME) and p.Id='" + Plant + @"'
+                where CAST(oc.InPunchLimit AS TIME) >= Cast ((select  min(b.PTime)
+                from AttdnRawData b left join OutPunchConfigurationHeader oh on oh.PlantId=b.PlantID
+                where b.LogDownLoadNum=a.LogDownLoadNum and b.ProcessedFlag!=1
+                and isnull(b.PType,'')='IN' and  b.PlantId='" + Plant + @"'  
+                and convert(date,b.PTime)='" + PrevDay + @"'   
+                and CAST(oh.InPunchStartTime AS TIME) <= Cast ((b.ptime) AS TIME)
+                group by b.LogDownLoadNum  ) AS TIME) and 
+				p.Id='" + Plant + @"'
                 ) as OutPunchLimit
                 from
                 AttdnRawData a 
-				left join AttdnProcessData p on p.EmpSystemID=a.LogDownLoadNum
-				where isnull(p.PunchInTime,'')='' and isnull(p.PunchOutTime,'')=''
-                and a.PlantId='" + Plant + "' and convert(date,a.PTime)='" + PrevDay + @"'
-                and (a.PType='IN') and a.ProcessedFlag!=1
-				GROUP BY 
+                left join AttdnProcessData p on p.EmpSystemID=a.LogDownLoadNum
+                where isnull(p.PunchInTime,'')='' and isnull(p.PunchOutTime,'')='' 
+                and a.PlantId='" + Plant + @"' and convert(date,a.PTime)='" + PrevDay + @"'
+                and (a.PType='IN') and a.ProcessedFlag!=1               
+                GROUP BY 
                 a.LogDownLoadNum,a.PDate,a.PlantID
 				) AS dd where dd.MinTime!=''";
                 objCon = new ConnectionManager.DAL.ConManager("1");

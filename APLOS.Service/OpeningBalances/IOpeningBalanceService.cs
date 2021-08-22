@@ -30,6 +30,7 @@ namespace Library.Service.OpeningBalances
         string UpdateAdvanceJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
         string InsertGLAdvanceJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
         string PostAdvanceJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
+        string PostOpeningBalanceJournal(VoucherViewModel voucherVM);
         string PostInsertAdvanceJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
         List<Dictionary<string, object>> GetMaterialMasterOBGL(string openingBalanceId, string companyGroupId, string companyId, string plantId);
         string DeleteOBDetailRow(OpeningBalanceDetail OBDetailVM);
