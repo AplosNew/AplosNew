@@ -58,15 +58,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             try
             {
-
-                DataSet dsMaster, dsDispatchDetail, dsDispatchDetailSO;
+                DataSet dsMaster, dsDispatchDetail, dsDispatchDetailSO, dsDispatchSKUMaster, dsDispatchSKUDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[DispatchMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id, _DispatchDetailId = "";
                 string masterId = "";
                 string dispatchDetailId = "";
-
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
@@ -86,9 +84,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                  masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DispatchDetail WHERE DispatchMasterId ='" + data["Id"] + "'", out dsDispatchDetail, false, "1");
-
 
                 if (dsDispatchDetail.Tables[0].Rows.Count == 0)
                 {
@@ -99,7 +95,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                     dr["Id"] = "DD" + _DispatchDetailId;
                     dr["DispatchMasterId"] = masterId;
-                   
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -121,6 +116,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 }
                 dispatchDetailId = dsDispatchDetail.Tables[0].Rows[0]["Id"].ToString();
 
+                // DispatchDetailSO
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DispatchDetailSO WHERE DispatchDetailId ='" + dispatchDetailId + "'", out dsDispatchDetailSO, false, "1");
 
                 foreach (var item in selectedSalesOrderList)
@@ -140,12 +136,49 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         DataRow drmo = dv[0].Row;
                         EditRow(drmo, item);
                     }
+                }
+
+                // DispatchSKUMaster & DispatchSKUDetail
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DispatchSKUMaster WHERE DispatchDetailId ='" + dispatchDetailId + "'", out dsDispatchSKUMaster, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DispatchSKUDetail WHERE 1=2", out dsDispatchSKUDetail, false, "1");
+               
+                DataTable Detail = _sqlRepository.GetDataTable("SELECT * FROM [dbo].[PackingContentMaster] where Id IN(SELECT PackingContentMasterId FROM [dbo].[PackingChild] Where IsConfirmed=1 AND ISNULL(DispatchSKUMasterId,'')='')");
+
+                for (int i = 0; i < Detail.Rows.Count; i++)
+                {
+                    DataRow drDetailDestination = dsDispatchSKUMaster.Tables[0].NewRow();
+                    CopyRow(Detail.Rows[i], ref drDetailDestination);
+                    drDetailDestination["Id"] = dispatchDetailId + "-" + (i + 1);
+                    drDetailDestination["DispatchDetailId"] = dispatchDetailId;
+                    dsDispatchSKUMaster.Tables[0].Rows.Add(drDetailDestination);
+
+                    //Process.DefaultView.RowFilter = "ProductionBulletinTemplateMasterId='" + Detail.Rows[i]["Id"].ToString() + "'";
+                    //for (int K = 0; K < Process.DefaultView.Count; K++)
+                    //{
+                    //    GetOperationMasterByOperationVariation(Process.DefaultView[K].Row["OperationVariationId"].ToString(), out DataSet dsOperationMaster);
+
+                    //    DataRow drDetailSKUDestination = ProductionBulletinTemplateDetail.Tables[0].NewRow();
+                    //    CopyRow(Process.DefaultView[K].Row, ref drDetailSKUDestination);
+                    //    drDetailSKUDestination["Id"] = NewId + "-" + (i + 1) + "-" + (K + 1);
+                    //    drDetailSKUDestination["ProductionBulletinTemplateMasterId"] = NewId + "-" + (i + 1);
+
+                    //    if (string.IsNullOrEmpty(dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString()))
+                    //    {
+                    //        drDetailSKUDestination["OperationMasterId"] = DBNull.Value;
+                    //    }
+                    //    else
+                    //    {
+                    //        drDetailSKUDestination["OperationMasterId"] = dsOperationMaster.Tables[0].Rows[0]["OperationMasterId"].ToString();
+                    //    }
+
+                    //    ProductionBulletinTemplateDetail.Tables[0].Rows.Add(drDetailSKUDestination);
+                    //}
 
                 }
-                
+
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsDispatchDetail, dsDispatchDetailSO);
+                obj.SaveDataSets(dsMaster, dsDispatchDetail, dsDispatchDetailSO, dsDispatchSKUMaster);
 
             }
             catch (Exception ex)
@@ -153,6 +186,37 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 throw (ex);
             }
         }
+
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+            {
+                try
+                {
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+
+                }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                    drDestination["AddedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedBy"] = identity.Name;
+                    drDestination["UpdatedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedDate"] = DateTime.Now;
+
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+        }
+
         private string GetDispatchMaterialPK()
         {
             string sID = string.Empty;
@@ -259,7 +323,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return Json(_productionSummaryData.GetAllConfirmedPackingContentData(), JsonRequestBehavior.AllowGet);
         }
-        
 
         [HttpGet, Authorize]
         public ActionResult GetPackingChildDataList(string MasterId)

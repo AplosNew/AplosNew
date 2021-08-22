@@ -196,7 +196,7 @@ function POLCMapController(accountService, addressService, $window, cboService, 
 
 		$http({
 			method: 'GET',//?id=' + id+' & name='+name
-			url: "Products/PurchaseOrder/GetLCListByCotract?ContractId=" + $scope.data.ContractId + "&VendorId=" + $scope.data.PartyId + "&CurrencyId=" + $scope.data.CurrencyId
+			url: "Products/PurchaseOrder/GetLCListByContract?ContractId=" + $scope.data.ContractId + "&VendorId=" + $scope.data.PartyId + "&CurrencyId=" + $scope.data.CurrencyId
 		}).then(function successCallback(response) {
 			$scope.LcList = response.data;
 			angular.element(document.querySelector('#ContractPopUp')).modal('show');
@@ -206,7 +206,7 @@ function POLCMapController(accountService, addressService, $window, cboService, 
 	}
 
 	$scope.CurrencyId = null;
-	$scope.a = function (args) {
+	$scope.SearchLCData = function (args) {
 		var gridObj = $("#Grid123").data("ejGrid");
 		$scope.data = gridObj.getSelectedRecords()[0];
 		$scope.rowID = $scope.data.Id;
