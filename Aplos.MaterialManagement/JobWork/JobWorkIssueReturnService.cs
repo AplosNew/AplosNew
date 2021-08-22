@@ -114,7 +114,7 @@ namespace Library.MaterialManagement.JobWork
                 if (OrderSpecific == "Yes")
                 {
                     sql = @"select mi.Id,mi.JobWorkTransformationContractChildMasterId
-                            ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
+                            ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit
                             ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                             ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
                             --,SUM(tirc.Quantity) as TIRCQty
@@ -134,7 +134,7 @@ namespace Library.MaterialManagement.JobWork
                              on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
                              where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
 							 group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId
-							 ,uom.UserName,mm.Code ";
+							 ,uom.UserName,mm.Code ,mma.StandardName ,mma.Id  ";
                 }
                 else
                 {
