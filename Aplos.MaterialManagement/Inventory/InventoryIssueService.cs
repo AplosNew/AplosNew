@@ -200,7 +200,7 @@ namespace Library.MaterialManagement.Inventory
         {
             return base.GetAutoNumber(nameof(IssueDetailAndIssueRequestMap), PKGeneratorEnum.Yearly, null, DateTime.Now);
         }
-        public void InsertGraph(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus)
+        public void InsertGraph(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll)
         {
             var flag = false;
             bool FlagIsAsset = false;
@@ -602,96 +602,101 @@ namespace Library.MaterialManagement.Inventory
                                 AuditService.AddedLog(detail);
                                 _issueDetailService.InsertGraph(detail);
 
-                                //Mapping Data=========================================================
-                                var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
+								foreach (var itemAll in entitiesAll)
+								{
+                                    //Mapping Data=========================================================
+                                    var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
 															from [TRN].[IssueRequestBOQMap] IRBM
 															Left Join (Select IssueRequestBOQMapId, sum(Qty) Qty from [TRN].[IssueDetailAndIssueRequestMap]  group by IssueRequestBOQMapId) IDRM ON IDRM.IssueRequestBOQMapId=IRBM.BOQID
-															where IssueRequestDetailId='" + issue.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
-                                if (receiveDetailList1.IsNotNull())
-                                {
-                                    bool isQtyAlocated = true;
-                                    decimal temp = 0;
-                                    int count = 0;
-                                    foreach (var receiveDetailListNew in receiveDetailList1)
+															where IssueRequestDetailId='" + itemAll.IssueRequest + @"' Order By IRBM.Qty ASC").ToList(); 
+                                    if (receiveDetailList1.IsNotNull())
                                     {
-
-
-                                        count++;
-                                        if (count == 1)
+                                        bool isQtyAlocated = true;
+                                        decimal temp = 0;
+                                        int count = 0;
+                                        foreach (var receiveDetailListNew in receiveDetailList1)
                                         {
-                                            if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > detail.TransactionQty)
-                                            {
 
-                                                detail.TransactionQty = detail.TransactionQty;
-                                                //temp += itemDetail.TransactionQty;
-                                                isQtyAlocated = false;
 
-                                            }
-                                            else if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < detail.TransactionQty)
+                                            count++;
+                                            if (count == 1)
                                             {
-                                                //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                temp = (detail.TransactionQty - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
-                                                detail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
-                                                isQtyAlocated = true;
-
-                                            }
-                                            else
-                                            {
-                                                //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                detail.TransactionQty = detail.TransactionQty;
-                                                isQtyAlocated = true;
-
-                                            }
-                                        }
-                                        if (count > 1)
-                                        {
-                                            if (isQtyAlocated == true)
-                                            {
-                                                if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > temp)
+                                                if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > detail.TransactionQty)
                                                 {
-                                                    //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+
                                                     detail.TransactionQty = detail.TransactionQty;
+                                                    //temp += itemDetail.TransactionQty;
                                                     isQtyAlocated = false;
+
                                                 }
-                                                if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < temp)
+                                                else if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < detail.TransactionQty)
                                                 {
-                                                    //temp = temp - issue.TransactionQtyForPO;
-                                                    temp = (temp - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
-                                                    //itemDetail.TransactionQty = issue.TransactionQtyForPO;
+                                                    //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                    temp = (detail.TransactionQty - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
                                                     detail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
                                                     isQtyAlocated = true;
+
                                                 }
                                                 else
                                                 {
                                                     //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                    detail.TransactionQty = temp;
+                                                    detail.TransactionQty = detail.TransactionQty;
                                                     isQtyAlocated = true;
 
                                                 }
-
                                             }
-                                            else
+                                            if (count > 1)
                                             {
-                                                detail.TransactionQty = 0;
+                                                if (isQtyAlocated == true)
+                                                {
+                                                    if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > temp)
+                                                    {
+                                                        //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+                                                        detail.TransactionQty = detail.TransactionQty;
+                                                        isQtyAlocated = false;
+                                                    }
+                                                    if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < temp)
+                                                    {
+                                                        //temp = temp - issue.TransactionQtyForPO;
+                                                        temp = (temp - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
+                                                        //itemDetail.TransactionQty = issue.TransactionQtyForPO;
+                                                        detail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
+                                                        isQtyAlocated = true;
+                                                    }
+                                                    else
+                                                    {
+                                                        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                        detail.TransactionQty = temp;
+                                                        isQtyAlocated = true;
+
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    detail.TransactionQty = 0;
+                                                }
                                             }
+
+
+                                            var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
+                                            {
+                                                Id = GetIssueDetailAndIssueRequestMapPK(),
+                                                InventoryIssueDetailId = detail.Id,
+                                                IssueRequestBOQMapId = receiveDetailListNew.Id,
+                                                Qty = detail.TransactionQty
+                                                //AutoAllocate = true
+
+                                            };
+                                            AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
+                                            _IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
                                         }
-
-
-                                        var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
-                                        {
-                                            Id = GetIssueDetailAndIssueRequestMapPK(),
-                                            InventoryIssueDetailId = detail.Id,
-                                            IssueRequestBOQMapId = receiveDetailListNew.Id,
-                                            Qty = detail.TransactionQty
-                                            //AutoAllocate = true
-
-                                        };
-                                        AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
-                                        _IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
                                     }
+
+                                    //===================
+
                                 }
 
-                                //===================
 
 
                             }
@@ -910,7 +915,7 @@ namespace Library.MaterialManagement.Inventory
                                         IssueRequestDetailId = item.IssueRequest,
                                         IssueReturnQty = 0,
                                         BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
-                                        TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(totalReqQty  * item.BooksCurrencyBaseRate), 2)//totalReqQty item.RequisitionQty
+                                        TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(totalReqQty  * Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4)), 2)//totalReqQty item.RequisitionQty
                                     };
                                     //policyAmmount += history.Qty * history.Rate;
 
@@ -922,95 +927,100 @@ namespace Library.MaterialManagement.Inventory
                                     rdBuilder.Append(builderSql);
                                     AuditService.AddedLog(history);
                                     _issueHistoryRepository.Insert(history);
-
-
-
                                     //Mapping Data=========================================================
-                                    var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
+                                    if (entitiesAll.IsNotNull())
+                                    {
+                                        foreach (var itemall in entitiesAll)
+                                        {
+                                            var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
 															from [TRN].[IssueRequestBOQMap] IRBM
 															Left Join (Select IssueRequestBOQMapId, sum(Qty) Qty from [TRN].[IssueDetailAndIssueRequestMap]  group by IssueRequestBOQMapId) IDRM ON IDRM.IssueRequestBOQMapId=IRBM.BOQID
-															where IssueRequestDetailId='" + item.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
-                                    if (receiveDetailList1.IsNotNull())
-                                    {
-                                        bool isQtyAlocated = true;
-                                        decimal temp = 0;
-                                        int count = 0;
-                                        foreach (var receiveDetailListNew in receiveDetailList1)
-                                        {
-
-
-                                            count++;
-                                            if (count == 1)
+															where IssueRequestDetailId='" + itemall.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
+                                            if (receiveDetailList1.IsNotNull())
                                             {
-                                                if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > issueDetail.TransactionQty)
+                                                bool isQtyAlocated = true;
+                                                decimal temp = 0;
+                                                int count = 0;
+                                                foreach (var receiveDetailListNew in receiveDetailList1)
                                                 {
 
-                                                    issueDetail.TransactionQty = issueDetail.TransactionQty;
-                                                    //temp += itemDetail.TransactionQty;
-                                                    isQtyAlocated = false;
 
-                                                }
-                                                else if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < issueDetail.TransactionQty)
-                                                {
-                                                    //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                    temp = receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty;
-                                                    issueDetail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
-                                                    isQtyAlocated = true;
+                                                    //count++;
+                                                    //if (count == 1)
+                                                    //{
+                                                    //    if (((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) > issueDetail.TransactionQty)
+                                                    //    {
 
-                                                }
-                                                else
-                                                {
-                                                    //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                    issueDetail.TransactionQty = issueDetail.TransactionQty;
-                                                    isQtyAlocated = true;
+                                                    //        issueDetail.TransactionQty =Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
+                                                    //        //temp += itemDetail.TransactionQty;
+                                                    //        isQtyAlocated = false;
 
+                                                    //    }
+                                                    //    else if (((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) < issueDetail.TransactionQty)
+                                                    //    {
+                                                    //        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                    //        temp = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
+                                                    //        issueDetail.TransactionQty = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
+                                                    //        isQtyAlocated = true;
+
+                                                    //    }
+                                                    //    else
+                                                    //    {
+                                                    //        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                    //        issueDetail.TransactionQty = Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
+                                                    //        isQtyAlocated = true;
+
+                                                    //    }
+                                                    //}
+                                                    //if (count > 1)
+                                                    //{
+                                                    //    if (isQtyAlocated == true)
+                                                    //    {
+                                                    //        if ((Convert.ToDecimal(receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) > temp)
+                                                    //        {
+                                                    //            //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+                                                    //            issueDetail.TransactionQty = Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
+                                                    //            isQtyAlocated = false;
+                                                    //        }
+                                                    //        if ((Convert.ToDecimal(receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) < temp)
+                                                    //        {
+                                                    //            //temp = temp - issue.TransactionQtyForPO;
+                                                    //            temp = Convert.ToDecimal(temp - ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor));
+                                                    //            //itemDetail.TransactionQty = issue.TransactionQtyForPO;
+                                                    //            issueDetail.TransactionQty = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
+                                                    //            isQtyAlocated = true;
+                                                    //        }
+                                                    //        else
+                                                    //        {
+                                                    //            //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                    //            issueDetail.TransactionQty = temp;
+                                                    //            isQtyAlocated = true;
+
+                                                    //        }
+
+                                                    //    }
+                                                    //    else
+                                                    //    {
+                                                    //        issueDetail.TransactionQty = 0;
+                                                    //    }
+                                                    //}
+
+
+                                                    var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
+                                                    {
+                                                        Id = GetIssueDetailAndIssueRequestMapPK(),
+                                                        InventoryIssueDetailId = issueDetail.Id,
+                                                        IssueRequestBOQMapId = receiveDetailListNew.Id,
+                                                        Qty = receiveDetailListNew.IssueRequestBOQMapQty,
+                                                        //AutoAllocate = true
+
+                                                    };
+                                                    AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
+                                                    _IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
                                                 }
                                             }
-                                            if (count > 1)
-                                            {
-                                                if (isQtyAlocated == true)
-                                                {
-                                                    if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > temp)
-                                                    {
-                                                        //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
-                                                        issueDetail.TransactionQty = issueDetail.TransactionQty;
-                                                        isQtyAlocated = false;
-                                                    }
-                                                    if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < temp)
-                                                    {
-                                                        //temp = temp - issue.TransactionQtyForPO;
-                                                        temp = (temp - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
-                                                        //itemDetail.TransactionQty = issue.TransactionQtyForPO;
-                                                        issueDetail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
-                                                        isQtyAlocated = true;
-                                                    }
-                                                    else
-                                                    {
-                                                        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                        issueDetail.TransactionQty = temp;
-                                                        isQtyAlocated = true;
-
-                                                    }
-
-                                                }
-                                                else
-                                                {
-                                                    issueDetail.TransactionQty = 0;
-                                                }
-                                            }
 
 
-                                            var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
-                                            {
-                                                Id = GetIssueDetailAndIssueRequestMapPK(),
-                                                InventoryIssueDetailId = issueDetail.Id,
-                                                IssueRequestBOQMapId = receiveDetailListNew.Id,
-                                                Qty = issueDetail.TransactionQty
-                                                //AutoAllocate = true
-
-                                            };
-                                            AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
-                                            _IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
                                         }
                                     }
 
