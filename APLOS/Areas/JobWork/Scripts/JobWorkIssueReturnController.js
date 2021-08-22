@@ -480,6 +480,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             if ($scope.SelectedMaterialStorage.length > 0) {
                 //      $scope.IssueTransformation.MaterialStorageId = $scope.SelectedMaterialStorage[0].Value;
                 $scope.IssueTransformation.StorageLocation = $scope.SelectedMaterialStorage[0].StorageLocation;
+                $scope.IssueTransformation.MaterialStorageIdInventory = $scope.SelectedMaterialStorage[0].Value;
             }
             else {
                 $scope.IssueTransformation.StorageLocation = null;
@@ -517,7 +518,8 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         EntityId: null,
         IssueType: 'Revenue',
         JWContractId: null,
-        ContractType:null
+        ContractType: null,
+        MaterialStorageIdInventory: null
 
     };
     $scope.IssueTransformation = Object.assign({}, $scope.IssueTransformationModelTemp);
@@ -693,7 +695,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
         $http({
             method: 'POST',
-            data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific },
+            data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific, MaterialStorageIdInventory: $scope.IssueTransformation.MaterialStorageIdInventory, IssueDate: $scope.IssueTransformation.IssueDate},
             url: $scope.path + 'GetMaterialInputData'
         }).then(function successCallback(response) {
             $scope.MaterialInputList = response.data;
@@ -1185,7 +1187,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         }
 
         $scope.index = index;
-        data.MaterialStorageId = $scope.IssueTransformation.MaterialStorageId;
+        //data.MaterialStorageId = $scope.IssueTransformation.MaterialStorageId;
         $http({
             method: 'POST'
             , url: 'Products/InventoryIssue/GetSpecificMaterialStock/'
@@ -1514,6 +1516,11 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         angular.element(document.querySelector('#stockPopUp')).modal('hide');
     };
     $scope.SaveSlipIssue = function () {
+
+        if ($scope.materialStockList.length === 0) {
+                ShowResult('Please select Specific GRN');
+                return false;
+            }
         var UIStatus = $("#SlipAssetIssueUI").val();
         //if (UIStatus === 'Asset') {
         //    if ($scope.materialStockList.length === 0) {
@@ -1688,7 +1695,8 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         for (var i = 0; i < $scope.detailList.length > 0; i++) {
             if ($scope.detailList[i].Id === RowData.Id) {
                 $scope.MatMstId = $scope.detailList[i].InputMaterialId;
-                $scope.SelectedArticleId = $scope.detailList[i].MaterialMasterArticleId;
+               // $scope.SelectedArticleId = $scope.detailList[i].MaterialMasterArticleId;
+                $scope.SelectedArticleId = $scope.detailList[i].ArticleId;
                 $scope.a = i;
             }
         }

@@ -1212,12 +1212,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetMaterialInputData(IEnumerable<MaterialPlanning> SelectedMaterialPlanningData, string OrderSpecific)
+        public JsonResult GetMaterialInputData(IEnumerable<MaterialPlanning> SelectedMaterialPlanningData, string OrderSpecific,string MaterialStorageIdInventory, string IssueDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(JWTIR.GetMaterialInputData(SelectedMaterialPlanningData, OrderSpecific), JsonRequestBehavior.AllowGet);
+                return Json(JWTIR.GetMaterialInputData(SelectedMaterialPlanningData, OrderSpecific, MaterialStorageIdInventory, IssueDate), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
