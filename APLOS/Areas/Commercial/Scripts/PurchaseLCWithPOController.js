@@ -297,18 +297,6 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         $scope.GetCurrencyExchangeRateList();
     });
 
-   
-
-    //$scope.destinationList = [];
-    //$scope.getDestination = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'OrderManagements/destination/GetCbo/'
-    //    }).then(function successCallback(response) {
-    //        $scope.destinationList = response.data;
-    //    });
-    //};
-    //$scope.getDestination();
 
     // #region PO     
 
@@ -560,6 +548,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
     $scope.Save = function () {
         $scope.materialPoList = [];
         $scope.servcePoList = [];
+        $scope.jwOutSourcePoList = [];
         try {
             Validation();
 
@@ -580,8 +569,12 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                 for (var i = 0; i < $scope.selectedPOList.length; i++) {
                     if ($scope.selectedPOList[i].Flag =='MaterialPO') {
                         $scope.materialPoList.push($scope.selectedPOList[i]);
-                    } else {
+                    }
+                    else if ($scope.selectedPOList[i].Flag == 'ServicePO') {
                         $scope.servcePoList.push($scope.selectedPOList[i]);
+                    }
+                    else {
+                        $scope.jwOutSourcePoList.push($scope.selectedPOList[i]);
                     }
                 }
             }
@@ -599,9 +592,10 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                         formData.append("Charges", angular.toJson(data.Charges));
                         formData.append("POList", angular.toJson(data.POList));
                         formData.append("SPOList", angular.toJson(data.SPOList));
+                        formData.append("JWPOList", angular.toJson(data.JWPOList));
                         return formData;
                     },
-                    data: { 'model': $scope.purchaseLCNew, 'file': $scope.filedata, 'Charges': $scope.purchaseLCChargesList, 'POList': $scope.materialPoList, 'SPOList': $scope.servcePoList }
+                    data: { 'model': $scope.purchaseLCNew, 'file': $scope.filedata, 'Charges': $scope.purchaseLCChargesList, 'POList': $scope.materialPoList, 'SPOList': $scope.servcePoList, 'JWPOList': $scope.jwOutSourcePoList }
 
 
                 }).then(function successCallback(response) {
@@ -615,6 +609,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                         $scope.getSavedData();
                         getPurchaseLCChargesData($scope.purchaseLCNew.Id);
                         GetAlldataPOWithLCMap($scope.purchaseLCNew.Id);
+                        $scope.getalldataPOWithOutLC();
                         $scope.Action = 'Update';
                         angular.element(document.querySelector("#confirmPostPopUp")).modal("hide");
                     }
