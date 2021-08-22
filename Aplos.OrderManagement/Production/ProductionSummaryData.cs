@@ -1797,18 +1797,37 @@ namespace Library.OrderManagement.Production
 
         public IEnumerable<object> GetDispatchDetailSOList(string masterId)
         {
-            string sql = @"Select DSO.Id,DSO.DispatchDetailId,SO.Id SalesOrderId,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate, D.UserName Destination,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy') CommitmentDate
-                    ,ISNULL(SO.CustomerPOId,CPO.PONumber) PONumber,SM.UserName ShipMode
-                    from TRN.SalesOrder SO
-                    LEFT JOIN [dbo].[DispatchDetailSO] DSO ON DSO.SalesOrderId=SO.Id
-                    LEFT JOIN [dbo].[DispatchDetail] DD ON DD.Id=DSO.DispatchDetailId
-                    LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
-                    LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
-                    LEFT JOIN MST.Destination D ON D.Id=SO.DestinationId
-                    LEFT JOIN MST.ShipMode SM ON SM.Id=SO.ShipmentModeId
-                    LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id=SO.CustomerPOId
-                    LEFT JOIN HKP.OrderStatus OS ON OS.Id=SO.OrderStatusId
-                    LEFT JOIN HKP.OrderCategory OC ON OC.Id=SO.OrderCategoryId
+            string sql = @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,DSO.*,POD.ProductionOrderId
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
+	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            ,SO.DestinationDescription
+								,CN.ContractNo,MLC.LCRef MasterLCNo
+                       FROM [TRN].[SalesOrder] AS SO 
+					   LEFT JOIN [dbo].[DispatchDetailSO] DSO ON DSO.SalesOrderId=SO.Id
+                      LEFT JOIN [dbo].[DispatchDetail] DD ON DD.Id=DSO.DispatchDetailId
+                        left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+                       LEFT JOIN dbo.[Contract] AS CN ON CN.Id=MOI.ContractId
+                       LEFT JOIN dbo.MasterLC AS MLC ON MLC.Id=CN.MasterLCId
                     Where DD.DispatchMasterId='" + masterId + "'";
             return _sqlRepository.GetDataCollection(sql);
         }
