@@ -145,18 +145,6 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         }
     }
 
-
-    $scope.summaryGrid = [{
-        title: "Total :", summaryColumns: [
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Value", dataMember: "Value", format: "{0:N2}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "#templatePOValue", dataMember: "templatePOValue", format: "{0:N2}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "#templateGRNValue", dataMember: "templateGRNValue", format: "{0:N2}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "#templateLoadValue", dataMember: "templateLoadValue", format: "{0:N2}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "#templateAcceptanceValue", dataMember: "templateAcceptanceValue", format: "{0:N2}" }],
-        showCaptionSummary: true
-
-    }];
-
     $scope.PurchaseLCPOList = [];
     $scope.SelectedLCRow = {};
     $scope.LoadPOList = function (LCData) {
@@ -321,6 +309,13 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         $rootScope.openPopupAngular('SetOffPopup');
     }
 
+        $scope.summarySetoff = [{
+        title: "Total :", summaryColumns: [
+                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
+           ],
+        showCaptionSummary: true
+
+    }];
 
     $scope.PurchaseLCLoanSetoffList = [];
     $scope.LoadLoanSetOff = function (LCLoanSetOffData) {
