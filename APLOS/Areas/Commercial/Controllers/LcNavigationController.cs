@@ -461,7 +461,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         po.POAmount as POValue
 						,PO.POCount
                         ,ac.AcceptanceValue
-						,SetOff=Loan.Amount -- todo acceptance payment other than loan
+						,invpy.InvPayment SetOff 
 						,Loan.Amount Loan
 						,LoanSetOff.LoanSetOff
 						,ac.AcceptanceCount
@@ -515,6 +515,13 @@ namespace Aplos.Areas.Commercial.Controllers
 											LEFT JOIN TRN.FinancingDetailWriteOff FDW ON FDW.FinancingId=F.Id
 											group by PDA.PurchaseLCId												
 						) LoanSetOff on LoanSetOff.PurchaseLCId=PL.Id
+						left join(select PDA1.PurchaseLCId,sum(isnull(FDW.Amount,0)) InvPayment
+										from TRN.PurchaseDocAcceptance PDA1 
+											LEFT JOIN TRN.Invoice F ON F.PurchaseDocAcceptanceId=PDA1.Id 
+											LEFT JOIN TRN.InvoiceWriteOffDetail FDW ON FDW.InvoiceId=F.Id
+											where FDW.Amount>0 and PDA1.PurchaseLCId<>''
+											group by PDA1.PurchaseLCId												
+						) invpy on invpy.PurchaseLCId=PL.Id
 
                         left outer join (
 										 select con.Id as Id, customer.UserName as Customer from Contract as con 
