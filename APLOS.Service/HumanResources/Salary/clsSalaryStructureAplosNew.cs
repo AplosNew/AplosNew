@@ -11627,7 +11627,7 @@ public class clsSalaryStructureAplosNew
             objsi.GetMBAllowance(_para.BudgetCodeId, _para.EffectiveDate, out dsMBAllowance);
             objsi.GetEntityAllowance(_para.EffectiveDate, _para.BudgetCodeId, _para.DesignationGroupId, _para.CompanyGroupId, out dsEntityAllowance);
 
-            //CheckAllowanceIsFoundInSalaryrule(_para.SalaryRuleId, dsLocal, dsMBAllowance, dsEntityAllowance, _para.EmployeeName);
+            CheckAllowanceIsFoundInSalaryrule(_para.SalaryRuleId, dsLocal, dsMBAllowance, dsEntityAllowance, _para.EmployeeName);
 
 
             GetSalarySlabWiseValue(_para.PlantId, out dsSalarySlabWiseValue);
