@@ -534,6 +534,7 @@ namespace Aplos.Areas.Commercial.Controllers
 										 group by Ac.PurchaseLCId
 						 ) as PM on PM.PurchaseLCId=PL.Id
                          where pl.plantId='" + identity.PlantId +@"') AS TEMP WHERE " + strkey;
+            
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
