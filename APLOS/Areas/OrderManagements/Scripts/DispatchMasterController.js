@@ -692,25 +692,27 @@ function DispatchMasterController(commonMessage, $scope, $rootScope, baseService
                     if ($scope.SalesOrderDataList[i].Active == true) {
                         var ob = {};
                         ob.SalesOrderId = $scope.SalesOrderDataList[i].SalesOrderId;
-                       
 
-                        if (checkExistCustomer($scope.selectedSalesOrderDataList, ob.SalesOrderId)) {
+                        if (checkExistSalesOrder($scope.selectedSalesOrderDataList, ob.SalesOrderId)) {
                             ob.Id = null;
                             ob.Active = $scope.SalesOrderDataList[i].Active;
                             ob.DeliveryDate = $scope.SalesOrderDataList[i].DeliveryDate;
-                            ob.Destination = $scope.SalesOrderDataList[i].Destination;
+                            ob.DestinationName = $scope.SalesOrderDataList[i].DestinationName;
                             ob.CommitmentDate = $scope.SalesOrderDataList[i].CommitmentDate;
                             ob.PONumber = $scope.SalesOrderDataList[i].PONumber;
-                            ob.ShipMode = $scope.SalesOrderDataList[i].ShipMode;
-
-
+                            ob.ShipmentModeName = $scope.SalesOrderDataList[i].ShipmentModeName;
+                            ob.BuyerItem = $scope.SalesOrderDataList[i].BuyerItem;
+                            ob.BuyerOrder = $scope.SalesOrderDataList[i].BuyerOrder;
+                            ob.OwnOrder = $scope.SalesOrderDataList[i].OwnOrder;
+                            ob.OwnItem = $scope.SalesOrderDataList[i].OwnItem;
+                            ob.ProductionOrderId = $scope.SalesOrderDataList[i].ProductionOrderId;
+                            
                             $scope.selectedSalesOrderDataList.push(ob);
-
                             $scope.hasError = false;
                         }
                         else {
                             $scope.hasError = true;
-                            throw 'Select same Customer.';
+                            //throw 'Select same Customer.';
                         }
                     }
 
@@ -723,7 +725,7 @@ function DispatchMasterController(commonMessage, $scope, $rootScope, baseService
         }
     }
 
-    function checkExistCustomer(list, SalesOrderId) {
+    function checkExistSalesOrder(list, SalesOrderId) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].SalesOrderId == SalesOrderId) {
                 return false;

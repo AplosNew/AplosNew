@@ -678,14 +678,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     ConnectionManager.DAL.ConManager objCon;
                     DataSet dsMaster;
 
-
                     foreach (var item in data)
                     {
-
                         string sql = "SELECT * FROM [dbo].[PackingChild] WHERE Id='" + item.Id + "'";
                         objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
 
                         if (dsMaster.Tables[0].Rows.Count == 0)
                         {
@@ -696,6 +693,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                             dr["PackingContentMasterId"] = item.PackingContentMasterId;
                             dr["Sequence"] = item.Sequence;
+                            dr["IsConfirmed"] = false;
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = DateTime.Now;
                             dr["AddedFromIp"] = identity.IPAddress;
@@ -711,7 +709,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                             dr["PackingContentMasterId"] = item.PackingContentMasterId;
                             dr["Sequence"] = item.Sequence;
-
+                            dr["IsConfirmed"] = false;
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"] = DateTime.Now.ToString();
                             dr["UpdatedFromIp"] = identity.IPAddress;

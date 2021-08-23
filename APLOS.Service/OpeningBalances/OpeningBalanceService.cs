@@ -1418,7 +1418,7 @@ namespace Library.Service.OpeningBalances
                     AddedDate = voucherVM.AddedDate,
                     AddedFromIP = voucherVM.AddedFromIP
                 };
-                AuditService.UpdatedLog(openingBalance);
+                
                 if (voucherVM.Id == null)
                 {
                     openingBalance.Id = GetOpeningBalancePK(openingBalance);
@@ -1426,8 +1426,8 @@ namespace Library.Service.OpeningBalances
                 }
                 else
                 {
-
-                Update(openingBalance);
+                    AuditService.UpdatedLog(openingBalance);
+                    Update(openingBalance);
                 }
 
                 var currentRecord = _openingBalanceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.OpeningBalanceDetail WHERE OpeningBalanceId='{openingBalance.Id}'").First();
@@ -1843,7 +1843,8 @@ namespace Library.Service.OpeningBalances
                 var securityDepositPk = _securityDepositService.GetMaxNumber(nameof(SecurityDeposit), PKGeneratorEnum.Yearly, null, voucherVM.VoucherDate);
                 var employeePayablePk = _employeePayableService.GetMaxNumber();
                 var financingPk = _financingService.GetMaxNumber();
-
+                 
+                
                 var currentRecord = 0;
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
@@ -2474,6 +2475,832 @@ namespace Library.Service.OpeningBalances
                             ToCurrencyRate = voucherDetailVM.CompanyGroupCurrencyRate
                         });
                     }
+                }
+
+                // Update OpeningBalance IsPark flag
+                var openingBalanceIds = voucherDetailVMList.Where(r => r.OpeningBalanceId != null).Select(r => r.OpeningBalanceId).Distinct();
+
+                foreach (var openingBalanceId in openingBalanceIds)
+                {
+                    var openingBalance = Find(openingBalanceId);
+                    openingBalance.IsPark = false;
+                    openingBalance.VoucherId = voucher.Id;
+                    AuditService.UpdatedLog(openingBalance);
+                    UpdateGraph(openingBalance);
+
+
+                }
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return voucher.VoucherNo;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, voucherVM.AddedBy,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+        private List<Dictionary<string, object>> GeOBPartyType(string OpeningBalanceId)
+        {
+            var CmdText = @" select distinct PartyType from trn.OpeningBalanceDetail ob where ob.OpeningBalanceid='"+ OpeningBalanceId + "'";
+            return _sqlRepository.GetDataCollection(CmdText);
+        }
+
+        private List<Dictionary<string, object>> GeOBVendorInvoice(string OpeningBalanceId)
+        {
+            var CmdText = @" select * from trn.OpeningBalanceDetail OB where OB.OpeningBalanceid='" + OpeningBalanceId + "' and OB.PartyType='" + PartyType.Vendor.ToString()+ "' AND OB.CrAmount>0 ";
+            return _sqlRepository.GetDataCollection(CmdText);
+        }
+
+        public Dictionary<string, object> CheckingFiscalYearPeriod(string companyId, DateTime postingDate)
+        {
+            var sql = @"SELECT CFY.FiscalYearId, FY.FiscalYearName, CFYP.FiscalYearPeriodId, FYP.PeriodName, FYP.StartDate, FYP.EndDate, CFYP.IsBudgetLocked
+                        , CFYP.IsTransationLocked, CFYP.IsExchangeRateConfirmed, FY.YearPrefix
+                        FROM [SCS].[CompanyFiscalYearPeriod] AS CFYP
+                        INNER JOIN [SCS].[FiscalYearPeriod] AS FYP ON FYP.Id=CFYP.FiscalYearPeriodId
+                        INNER JOIN [SCS].[CompanyFiscalYear] AS CFY ON CFY.Id=CFYP.CompanyFiscalYearId
+                        INNER JOIN [SCS].[FiscalYear] AS FY ON FY.Id=CFY.FiscalYearId
+                        WHERE CFY.CompanyId='" + companyId + "' AND FYP.StartDate <= '" + postingDate.ToDbDate() + "' AND FYP.EndDate >= '" + postingDate.ToDbDate() + "' ";
+            var data = _sqlRepository.GetData(sql);
+            if (null == data || data.Count == 0)
+                throw new CustomException(ResourcesCore.FYNotFound);
+            if (Convert.ToBoolean(data["IsTransationLocked"].ToString()))
+                throw new CustomException($"This period ({data["PeriodName"]}) transation is locked! Please contact with Administrator.");
+            if (!Convert.ToBoolean(data["IsExchangeRateConfirmed"].ToString()))
+                throw new CustomException($"This period ({data["PeriodName"]}) exchange rate is not confirmed! Please contact with Administrator.");
+            return data;
+        }
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+            {
+                try
+                {
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+
+                }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                    drDestination["AddedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedBy"] = identity.Name;
+                    drDestination["UpdatedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedDate"] = DateTime.Now;
+
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+        }
+        
+        public string PostOpeningBalanceJournal(VoucherViewModel voucherVM)
+        {
+            var flag = false;
+            
+            var fiscalYear = _fiscalYearService.Find("5");
+            try
+            {
+
+                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode, out string companyGroupCurrencyId, out string companyGroupCurrencyCode, out string hardCurrencyId, out string hardCurrencyCode);
+                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                // INSERT INTO Voucher TABLE
+                voucherVM.IsPark = false;
+
+                var voucher = new Voucher
+                {
+                    IsPark = false,
+                    VoucherDate = DateTime.Now,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    EntityId = voucherVM.EntityId,
+                    VoucherTypeId = voucherVM.VoucherTypeId,
+                    CurrencyId = voucherVM.CurrencyId,
+                    PostingDate = voucherVM.PostingDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    DocDate = voucherVM.DocDate,
+                    Narration = voucherVM.Narration
+                };
+                voucher.CurrencyId = voucherVM.CurrencyId;
+                voucher.SourceType = SourceType.OpeningBalance.ToString();
+                _voucherService.InsertVoucher(voucher, fiscalYear.YearPrefix);
+
+                var advancePk = _advanceService.GetMaxNumber(nameof(Advance), PKGeneratorEnum.Yearly, null, voucherVM.VoucherDate);
+                var invoicePk = _invoiceService.GetMaxNumber(nameof(Invoice), PKGeneratorEnum.Yearly, null, voucherVM.VoucherDate);
+                var securityDepositPk = _securityDepositService.GetMaxNumber(nameof(SecurityDeposit), PKGeneratorEnum.Yearly, null, voucherVM.VoucherDate);
+                var employeePayablePk = _employeePayableService.GetMaxNumber();
+                var financingPk = _financingService.GetMaxNumber();
+
+                var currentRecord = 0;
+                //DataView dvopeningBalanceDetailData;
+                //DataSet voucherdetailTemp;
+                //DataSet voucherDetailCurrencyTemp;
+                //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                //con.OpenDataSetThroughAdapter("select * from [TRN].[VoucherDetail] where 1=2", out voucherdetailTemp, false, "1");
+                //con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionBulletinTemplateMaster] where 1=2", out voucherDetailCurrencyTemp, false, "1");
+
+                DataTable openingBalanceDetailData = _sqlRepository.GetDataTable("SELECT obd.*,NULL ModelState,NULL GLGeneralInfo,NULL OpeningBalance,NULL OpeningBalanceDetailCurrency,NULL MaterialMasterOpeningBalanceDetail FROM [TRN].OpeningBalanceDetail obd left join trn.VoucherDetail vd on vd.OpeningBalanceDetailId=obd.id WHERE obd.OpeningBalanceid='" + voucherVM.Id + "' ");
+                List<OpeningBalanceDetail> voucherDetailVMList1 = openingBalanceDetailData.ToList<OpeningBalanceDetail>();
+
+                //List<OpeningBalanceDetail> objBList = voucherDetailVMList1.Select(x => x.Copy()).ToList();
+
+                List<VoucherDetailViewModel> voucherDetailVMList = voucherDetailVMList1.Select(s => new VoucherDetailViewModel
+                {
+                    VoucherId = s.Id,
+                    PlantId = s.PlantId,
+                    OpeningBalanceDetailId = s.Id,
+                    OpeningBalanceId = s.OpeningBalanceId,
+                    Id = s.Id,
+                    EntityId = s.EntityId,
+                    PartyType = s.PartyType,
+                    EmployeeId = s.EmployeeId,
+                    PartyId = s.PartyId,
+                    PartyPlantId = s.PartyPlantId,
+                    GLGeneralInfoId = s.GLGeneralInfoId,
+                    BudgetMasterId = s.BudgetMasterId,
+                    CashMasterId = s.CashMasterId,
+                    BankMasterId = s.BankMasterId,
+                    ActivityId = s.ActivityId,
+                    CurrencyId = s.CurrencyId,
+                    DrAmount = s.DrAmount,
+                    CrAmount = s.CrAmount,
+                    DocDate = s.DocDate,
+                    DocRefNo = s.DocRefNo,
+                    Narration = s.Narration,
+                    FAType = s.FAType,
+                    MaterialMasterOpeningBalanceDetailId = s.MaterialMasterOpeningBalanceDetailId,
+                    CompanyId=s.CompanyId,
+                    RefId=s.RefId,
+                    BaseOnDueDate=s.BaseOnDueDate,
+                    BaseNoOfDays=s.BaseNoOfDays,
+                    RepaymentStartDate=s.RepaymentStartDate,
+                    LifeOfYear=s.LifeOfYear,
+                    NoOfInstallmentPerYear=s.NoOfInstallmentPerYear,
+                    TransactionTypeId=s.TransactionTypeId,
+                    FixedAssetMasterId=s.FixedAssetMasterId,
+                    LoanOpeningBalanceDetailId=s.LoanOpeningBalanceDetailId,
+                    SecurityDepositDetailId=s.LoanOpeningBalanceDetailId,
+                    InvestmentOpeningBalanceDetailId=s.InvestmentOpeningBalanceDetailId,
+                    EquityOpeningBalanceDetailId=s.EquityOpeningBalanceDetailId,
+                    BankCurrencyId=s.BankCurrencyId,
+                    CashCurrencyId=s.CashCurrencyId,
+                    BankAmount=s.BankAmount,
+                    MaterialMasterId=s.MaterialMasterId
+                }).ToList();
+
+                // name_list2.AddRange(name_list1.ToArray());
+
+                //List<VoucherDetailViewModel> clonedList = voucherDetailVMList1.GetClone();
+
+                //List<VoucherDetailViewModel> voucherDetailVMList = new List<VoucherDetailViewModel>();
+
+                //var voucherDetailVMList = _sqlRepository.GetModelCollection<VoucherDetailViewModel>(@"SELECT * FROM [TRN].OpeningBalanceDetail WHERE OpeningBalanceid='"+voucherVM.Id+ "' ");
+
+                //for (int i = 0; i < openingBalanceDetailData.Rows.Count; i++)
+                //{
+                //    DataRow drDetailDestination = voucherdetailTemp.Tables[0].NewRow();
+                //    CopyRow(openingBalanceDetailData.Rows[i], ref drDetailDestination);
+                //    drDetailDestination["Id"] = voucher.Id + "-" + (i + 1);
+                //    drDetailDestination["VoucherId"] = voucher.Id;
+                //    voucherdetailTemp.Tables[0].Rows.Add(drDetailDestination);
+
+
+                //    dvopeningBalanceDetailData = new DataView(openingBalanceDetailData);
+
+                //    dvopeningBalanceDetailData.RowFilter = "MaterialMasterOpeningBalanceDetailId='" + openingBalanceDetailData.Rows[i]["MaterialMasterOpeningBalanceDetailId"].ToString() + "'";
+
+                //    if (dvopeningBalanceDetailData.Count>0)
+                //    {
+                //        DataTable openingBalanceMaterialData = _sqlRepository.GetDataTable("SELECT * FROM [TRN].MaterialMasterOpeningBalanceDetail WHERE Id in ('"+ openingBalanceDetailData.Rows[i]["MaterialMasterOpeningBalanceDetailId"].ToString() +"')");
+
+                //        if (openingBalanceMaterialData.Rows.Count>0)
+                //        {
+                //            var ob = _openingBalanceRepository.Find(materialOB.OpeningBalanceId);
+                //            ob.IsPark = false;
+                //            ob.IsPosted = true;
+                //            _openingBalanceRepository.Update(ob);
+                //            var grn = _inventoryReceiveRepository.Query(r => r.OpeningBalanceId == materialOB.OpeningBalanceId).Select().FirstOrDefault();
+                //            if (grn != null)
+                //            {
+                //                grn.Status = "Posting";
+                //                grn.IsApproved = true;
+                //                //grn.CheckedBy = "";
+                //                grn.CheckedByStatus = "Checked";
+                //                //grn.AuthorizedBy = "";
+                //                grn.AuthorizedByStatus = "Approval";
+                //                _inventoryReceiveRepository.Update(grn);
+                //            }
+                //        }
+                //    }
+                //}
+
+
+
+
+
+
+                foreach (var voucherDetailVM in voucherDetailVMList)
+                {
+                    // Set to currency
+                    voucherDetailVM.ToCurrencyId = companyCurrencyId;
+
+                    // INSERT INTO VOUCHER DETAIL
+                    var voucherDetail = new VoucherDetail
+                    {
+                        VoucherId = voucherVM.Id,
+                        PlantId = voucherDetailVM.PlantId,
+                        OpeningBalanceDetailId = voucherDetailVM.Id,
+                        EntityId = voucherDetailVM.IsOB ? voucherDetailVM.EntityId : voucherVM.EntityId,
+                        FiscalYearId = voucherVM.FiscalYearId,
+                        FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                        PartyType = voucherDetailVM.PartyType,
+                        EmployeeId = voucherDetailVM.EmployeeId,
+                        PartyId = voucherDetailVM.PartyId,
+                        PartyPlantId = voucherDetailVM.PartyPlantId,
+                        GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                        BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                        CashMasterId = voucherDetailVM.CashMasterId,
+                        BankMasterId = voucherDetailVM.BankMasterId,
+                        ActivityId = voucherDetailVM.ActivityId,
+                        CurrencyId = voucherDetailVM.CurrencyId,
+                        DrAmount = voucherDetailVM.DrAmount,
+                        CrAmount = voucherDetailVM.CrAmount,
+                        DocDate = voucherDetailVM.DocDate,
+                        DocRefNo = voucherDetailVM.DocRefNo,
+                        Narration = voucherDetailVM.Narration,
+                        AddedBy = voucherVM.AddedBy,
+                        AddedDate = voucherVM.AddedDate,
+                        AddedFromIP = voucherVM.AddedFromIP,
+                        //FixedAssetMasterId= voucherDetailVM.FixedAssetMasterId,
+                        FAType = voucherDetailVM.FAType,
+                    };
+                    currentRecord++;
+                    _voucherService.InsertVoucherDetail(voucher, voucherDetail, currentRecord);
+
+                    if (voucherDetailVM.MaterialMasterOpeningBalanceDetailId != null)
+                    {
+                        var materialOB = _materialMasterOpeningBalanceDetailRepository.Find(voucherDetailVM.MaterialMasterOpeningBalanceDetailId);
+                        if (materialOB != null)
+                        {
+                            var ob = _openingBalanceRepository.Find(materialOB.OpeningBalanceId);
+                            ob.IsPark = false;
+                            ob.IsPosted = true;
+                            _openingBalanceRepository.Update(ob);
+                            var grn = _inventoryReceiveRepository.Query(r => r.OpeningBalanceId == materialOB.OpeningBalanceId).Select().FirstOrDefault();
+                            if (grn != null)
+                            {
+                                grn.Status = "Posting";
+                                grn.IsApproved = true;
+                                //grn.CheckedBy = "";
+                                grn.CheckedByStatus = "Checked";
+                                //grn.AuthorizedBy = "";
+                                grn.AuthorizedByStatus = "Approval";
+                                _inventoryReceiveRepository.Update(grn);
+                            }
+                        }
+                    }
+                    if (voucherDetailVM.LoanOpeningBalanceDetailId != null)
+                    {
+                        var loanOB = _openingBalanceDetailRepository.Find(voucherDetailVM.LoanOpeningBalanceDetailId);
+                        if (loanOB != null)
+                        {
+                            var ob = _openingBalanceRepository.Query(r => r.Id == loanOB.OpeningBalanceId).Select().FirstOrDefault();
+                            var financing = _financingRepository.Query(r => r.OpeningBalanceId == ob.Id).Select().FirstOrDefault();
+                            var financingDetail = _financingDetailRepository.Query(r => r.FinancingId == financing.Id).Select().FirstOrDefault();
+                            if (ob != null)
+                            {
+                                ob.VoucherId = voucher.Id;
+                                ob.ModelState = ModelState.Modified;
+                                _openingBalanceRepository.Update(ob);
+                            }
+                            if (financing != null)
+                            {
+                                financing.VoucherId = voucher.Id;
+                                financing.IsPosted = true;
+                                financing.IsPark = false;
+                                financing.ModelState = ModelState.Modified;
+                                _financingRepository.Update(financing);
+                            }
+                            if (financingDetail != null)
+                            {
+                                voucherDetail.FinancingDetailId = financingDetail.Id;
+                                voucherDetail.BankMasterId = financing.BankMasterId;
+                                if (voucherDetail.BankMasterId != null)
+                                {
+                                    var glTransactionDetail = new GLTransactionDetail
+                                    {
+                                        VoucherDetailId = voucherDetail.Id,
+                                        BankMasterId = voucherDetail.BankMasterId,
+                                        CashMasterId = voucherDetail.CashMasterId,
+                                        SourceType = voucher.SourceType,
+                                        DrAmount = voucherDetail.DrAmount,
+                                        CrAmount = voucherDetail.CrAmount,
+                                    };
+                                    _voucherService.InsertGLTransactionDetail(voucherDetail, glTransactionDetail);
+                                }
+                            }
+                        }
+                    }
+                    if (voucherDetailVM.SecurityOpeningBalanceDetailId != null)
+                    {
+                        var securityOB = _openingBalanceDetailRepository.Find(voucherDetailVM.SecurityOpeningBalanceDetailId);
+                        if (securityOB != null)
+                        {
+                            var ob = _openingBalanceRepository.Query(r => r.Id == securityOB.OpeningBalanceId).Select().FirstOrDefault();
+                            var securityDeposit = _securityDepositRepository.Query(r => r.OpeningBalanceId == securityOB.OpeningBalanceId).Select().FirstOrDefault();
+                            var securityDepositDetail = _securityDepositDetailRepository.Query(r => r.SecurityDepositId == securityDeposit.Id).Select().FirstOrDefault();
+
+                            if (ob != null)
+                            {
+                                ob.VoucherId = voucher.Id;
+                                ob.ModelState = ModelState.Modified;
+                                _openingBalanceRepository.Update(ob);
+                            }
+                            if (securityDeposit != null)
+                            {
+                                securityDeposit.VoucherId = voucher.Id;
+                                securityDeposit.IsPark = false;
+                                securityDeposit.ModelState = ModelState.Modified;
+                                _securityDepositRepository.Update(securityDeposit);
+                            }
+                            if (securityDepositDetail != null)
+                            {
+                                voucherDetail.SecurityDepositDetailId = securityDepositDetail.Id;
+                                voucherDetail.BankMasterId = securityDeposit.BankMasterId;
+                                if (voucherDetail.BankMasterId != null)
+                                {
+                                    var glTransactionDetail = new GLTransactionDetail
+                                    {
+                                        VoucherDetailId = voucherDetail.Id,
+                                        BankMasterId = voucherDetail.BankMasterId,
+                                        CashMasterId = voucherDetail.CashMasterId,
+                                        SourceType = voucher.SourceType,
+                                        DrAmount = voucherDetail.DrAmount,
+                                        CrAmount = voucherDetail.CrAmount,
+                                    };
+                                    _voucherService.InsertGLTransactionDetail(voucherDetail, glTransactionDetail);
+                                }
+                            }
+                        }
+                    }
+                    if (voucherDetailVM.EquityOpeningBalanceDetailId != null)
+                    {
+                        var equityOB = _openingBalanceDetailRepository.Find(voucherDetailVM.EquityOpeningBalanceDetailId);
+                        if (equityOB != null)
+                        {
+                            var ob = _openingBalanceRepository.Query(r => r.Id == equityOB.OpeningBalanceId).Select().FirstOrDefault();
+                            var financing = _financingRepository.Query(r => r.Id == equityOB.OpeningBalanceId).Select().FirstOrDefault();
+                            var financingDetail = _financingDetailRepository.Query(r => r.Id == financing.Id).Select().FirstOrDefault();
+                            if (ob != null)
+                            {
+                                ob.VoucherId = voucher.Id;
+                                ob.ModelState = ModelState.Modified;
+                                _openingBalanceRepository.Update(ob);
+                            }
+                            if (financing != null)
+                            {
+                                financing.VoucherId = voucher.Id;
+                                financing.IsPosted = true;
+                                financing.IsPark = false;
+                                financing.ModelState = ModelState.Modified;
+                                _financingRepository.Update(financing);
+                            }
+                            if (financingDetail != null)
+                            {
+                                voucherDetail.FinancingDetailId = financingDetail.Id;
+                            }
+                        }
+                    }
+                    if (voucherDetailVM.InvestmentOpeningBalanceDetailId != null)
+                    {
+                        var investmentiOB = _openingBalanceDetailRepository.Find(voucherDetailVM.InvestmentOpeningBalanceDetailId);
+                        if (investmentiOB != null)
+                        {
+                            var ob = _openingBalanceRepository.Query(r => r.Id == investmentiOB.OpeningBalanceId).Select().FirstOrDefault();
+                            var financing = _financingRepository.Query(r => r.Id == investmentiOB.OpeningBalanceId).Select().FirstOrDefault();
+                            var financingDetail = _financingDetailRepository.Query(r => r.Id == financing.Id).Select().FirstOrDefault();
+                            if (ob != null)
+                            {
+                                ob.VoucherId = voucher.Id;
+                                ob.ModelState = ModelState.Modified;
+                                _openingBalanceRepository.Update(ob);
+                            }
+                            if (financing != null)
+                            {
+                                financing.VoucherId = voucher.Id;
+                                financing.IsPosted = true;
+                                financing.IsPark = false;
+                                financing.ModelState = ModelState.Modified;
+                                _financingRepository.Update(financing);
+                            }
+                            if (financingDetail != null)
+                            {
+                                voucherDetail.FinancingDetailId = financingDetail.Id;
+                                voucherDetail.BankMasterId = financing.BankMasterId;
+                                if (voucherDetail.BankMasterId != null)
+                                {
+                                    var glTransactionDetail = new GLTransactionDetail
+                                    {
+                                        VoucherDetailId = voucherDetail.Id,
+                                        BankMasterId = voucherDetail.BankMasterId,
+                                        CashMasterId = voucherDetail.CashMasterId,
+                                        SourceType = voucher.SourceType,
+                                        DrAmount = voucherDetail.DrAmount,
+                                        CrAmount = voucherDetail.CrAmount,
+                                    };
+                                    _voucherService.InsertGLTransactionDetail(voucherDetail, glTransactionDetail);
+                                }
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(voucherDetailVM.OpeningBalanceId))
+                    {
+                        //Customer/Vendor invoice
+                        if ((voucherDetailVM.PartyType == PartyType.Customer.ToString() && voucherDetailVM.TransactionTypeId == null && voucherDetailVM.CrAmount == 0) ||
+                           voucherDetailVM.PartyType == PartyType.Vendor.ToString() && voucherDetailVM.TransactionTypeId == null && voucherDetailVM.DrAmount == 0)
+                        {
+                            var invoice = new Invoice
+                            {
+                                CompanyGroupId = voucher.CompanyGroupId,
+                                CompanyId = voucher.CompanyId,
+                                PlantId = voucher.PlantId,
+                                EntityId = voucher.EntityId,
+                                FiscalYearId = voucher.FiscalYearId,
+                                FiscalYearPeriodId = voucher.FiscalYearPeriodId,
+                                TaxYearId = voucher.TaxYearId,
+                                TaxYearPeriodId = voucher.TaxYearPeriodId,
+                                CurrencyId = voucherDetailVM.CurrencyId,
+                                VoucherId = voucher.Id,
+                                VoucherTypeId = voucher.VoucherTypeId,
+                                PartyType = voucherDetailVM.PartyType,
+                                PartyId = voucherDetailVM.PartyId,
+                                PartyPlantId = voucherDetailVM.PartyPlantId,
+                                EmployeeId = voucherDetailVM.EmployeeId,
+                                OpeningBalanceId = voucherDetailVM.OpeningBalanceId,
+                                VoucherDate = voucher.VoucherDate,
+                                PostingDate = voucher.PostingDate,
+                                DocDate = voucherDetailVM.DocDate,
+                                DocRefNo = voucherDetailVM.DocRefNo,
+                                Narration = voucher.Narration,
+                                BaseNoOfDays = voucherDetailVM.BaseNoOfDays,
+                                BaseOnDueDate = voucherDetailVM.BaseOnDueDate,
+                                Amount = voucherDetailVM.Amount,
+                                SourceType = voucher.SourceType,
+                                AddedBy = voucher.AddedBy,
+                                AddedDate = voucher.AddedDate,
+                                AddedFromIP = voucher.AddedFromIP
+                            };
+                            if (voucherDetailVM.PartyType == PartyType.Customer.ToString())
+                            {
+                                invoice.SourceType = SourceType.CustomerInvoice.ToString();
+                                invoice.Amount = voucherDetailVM.DrAmount;
+                            }
+                            if (voucherDetailVM.PartyType == PartyType.Vendor.ToString())
+                            {
+                                invoice.SourceType = SourceType.VendorInvoice.ToString();
+                                invoice.Amount = voucherDetailVM.CrAmount;
+                            }
+                            invoicePk.MaxNumber++;
+                            _invoiceService.InsertInvoice(invoice, invoicePk.MaxNumber);
+
+                            var invoiceDetail = new InvoiceDetail
+                            {
+                                GLGeneralInfoId = voucherDetail.GLGeneralInfoId,
+                                BudgetMasterId = voucherDetail.BudgetMasterId,
+                                ActivityId = voucherDetail.ActivityId,
+                                Amount = invoice.Amount,
+                                NetAmount = invoice.Amount
+                            };
+                            _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, 1);
+                            // Set InvoiceDetail Id to voucher detail.
+                            voucherDetail.InvoiceDetailId = invoiceDetail.Id;
+                        }
+                        //Customer/Vendor Advance
+                        if ((voucherDetailVM.PartyType == PartyType.Customer.ToString() && voucherDetailVM.TransactionTypeId == null && voucherDetailVM.DrAmount == 0) ||
+                         voucherDetailVM.PartyType == PartyType.Vendor.ToString() && voucherDetailVM.TransactionTypeId == null && voucherDetailVM.CrAmount == 0)
+                        {
+                            advancePk.MaxNumber++;
+                            var advance = new Advance
+                            {
+                                Id = voucher.VoucherDate.Year + advancePk.MaxNumber.ToString(),
+                                CompanyGroupId = voucher.CompanyGroupId,
+                                CompanyId = voucher.CompanyId,
+                                PlantId = voucher.PlantId,
+                                EntityId = voucherDetailVM.EntityId,
+                                FiscalYearId = voucher.FiscalYearId,
+                                FiscalYearPeriodId = voucher.FiscalYearPeriodId,
+                                TaxYearId = voucher.TaxYearId,
+                                TaxYearPeriodId = voucher.TaxYearPeriodId,
+                                CurrencyId = voucherDetailVM.CurrencyId,
+                                VoucherId = voucher.Id,
+                                VoucherTypeId = voucher.VoucherTypeId,
+                                PartyType = voucherDetailVM.PartyType,
+                                PartyId = voucherDetailVM.PartyId,
+                                PartyPlantId = voucherDetailVM.PartyPlantId,
+                                EmployeeId = voucherDetailVM.EmployeeId,
+                                OpeningBalanceId = voucherDetailVM.OpeningBalanceId,
+                                EmployeeTransactionTypeId = voucherDetailVM.EmployeeTransactionTypeId,
+                                FinancingTypeId = voucherDetailVM.FinancingTypeId,
+                                VoucherDate = voucher.VoucherDate,
+                                PostingDate = voucher.PostingDate,
+                                DocDate = voucherDetailVM.DocDate,
+                                DocRefNo = voucherDetailVM.DocRefNo,
+                                Narration = voucher.Narration,
+                                Amount = voucherDetailVM.Amount,
+                                SourceType = voucherDetailVM.SourceType,
+                                PaymentSource = voucherDetailVM.PaymentSource,
+                                AddedBy = voucher.AddedBy,
+                                AddedDate = voucher.AddedDate,
+                                AddedFromIP = voucher.AddedFromIP,
+                                IsPosted = true,
+                                AdvanceNo = voucher.VoucherNo
+                            };
+
+
+                            if (voucherDetailVM.PartyType == PartyType.Customer.ToString())
+                            {
+                                advance.SourceType = SourceType.CustomerAdvance.ToString();
+                                advance.Amount = voucherDetailVM.CrAmount;
+
+                            }
+                            if (voucherDetailVM.PartyType == PartyType.Vendor.ToString())
+                            {
+                                advance.SourceType = SourceType.VendorAdvance.ToString();
+                                advance.Amount = voucherDetailVM.DrAmount;
+                            }
+                            _advanceService.InsertGraph(advance);
+
+
+                            var advanceDetail = new AdvanceDetail
+                            {
+                                Id = _advanceService.MakeAdvanceDetailPK(advance.Id, 1),
+                                AdvanceId = advance.Id,
+                                CompanyId = advance.CompanyId,
+                                PlantId = advance.PlantId,
+                                EmployeeId = advance.EmployeeId,
+                                Archive = advance.Archive,
+                                IsWrittenOff = advance.IsWrittenOff,
+                                ModelState = advance.ModelState,
+                                Narration = advance.Narration,
+                                NetAmount = advance.Amount,
+                                PartyId = advance.PartyId,
+                                PartyPlantId = advance.PartyPlantId,
+                                PartyType = advance.PartyType,
+                                GLGeneralInfoId = voucherDetail.GLGeneralInfoId,
+                                BudgetMasterId = voucherDetail.BudgetMasterId,
+                                ActivityId = voucherDetail.ActivityId,
+                                Amount = advance.Amount,
+                                AddedBy = advance.AddedBy,
+                                AddedDate = advance.AddedDate,
+                                AddedFromIP = advance.AddedFromIP
+                            };
+                            _advanceService.InsertAdvanceDetail(advanceDetail);
+                            // Set Advance detail to voucher detail.
+                            voucherDetail.AdvanceDetailId = advanceDetail.Id;
+                        }
+                        //Bank/Cash
+                       else if (voucherDetailVM.PartyType == PartyType.Bank.ToString() || voucherDetailVM.PartyType == PartyType.Cash.ToString())
+                        {
+                            var glTransactionDetail = new GLTransactionDetail
+                            {
+                                VoucherDetailId = voucherDetail.Id,
+                                BankMasterId = voucherDetail.BankMasterId,
+                                CashMasterId = voucherDetail.CashMasterId,
+                                SourceType = voucher.SourceType,
+                                DrAmount = voucherDetail.DrAmount,
+                                CrAmount = voucherDetail.CrAmount,
+                            };
+                            // Set BankMasterId/CashMasterId in voucher detail.
+                            voucherDetail.BankMasterId = voucherDetailVM.BankMasterId;
+                            voucherDetail.CashMasterId = voucherDetailVM.CashMasterId;
+                            _voucherService.InsertGLTransactionDetail(voucherDetail, glTransactionDetail);
+                        }
+                        //Employee Payable
+                        else if (voucherDetailVM.PartyType == PartyType.Employee.ToString() && voucherDetailVM.TransactionTypeId != null && voucherDetailVM.DrAmount == 0)
+                        {
+                            employeePayablePk.MaxNumber++;
+                            var employeePayable = new EmployeePayable
+                            {
+                                Id = voucher.VoucherDate.Year + employeePayablePk.MaxNumber.ToString(),
+                                CompanyGroupId = voucher.CompanyGroupId,
+                                CompanyId = voucher.CompanyId,
+                                PlantId = voucher.PlantId,
+                                EntityId = voucherDetailVM.EntityId,
+                                FiscalYearId = voucher.FiscalYearId,
+                                FiscalYearPeriodId = voucher.FiscalYearPeriodId,
+                                TaxYearId = voucher.TaxYearId,
+                                TaxYearPeriodId = voucher.TaxYearPeriodId,
+                                CurrencyId = voucherDetailVM.CurrencyId,
+                                VoucherId = voucher.Id,
+                                VoucherTypeId = voucher.VoucherTypeId,
+                                OpeningBalanceId = voucherDetailVM.OpeningBalanceId,
+                                EmployeeTransactionTypeId = voucherDetailVM.TransactionTypeId,
+                                EmployeeId = voucherDetailVM.EmployeeId,
+                                Amount = voucherDetailVM.CrAmount,
+                                PostingDate = voucher.PostingDate,
+                                DocDate = voucherDetailVM.DocDate,
+                                DocRefNo = voucherDetailVM.DocRefNo,
+                                Narration = voucherDetailVM.Narration,
+                                SourceType = SourceType.EmployeePayable.ToString(),
+                                PartyType = PartyType.Employee.ToString(),
+                                VoucherDate = voucher.VoucherDate
+                            };
+                            _employeePayableService.InsertEmployeePayable(employeePayable);
+
+                            var employeePayableDetail = new EmployeePayableDetail
+                            {
+                                EmployeePayableId = employeePayable.Id,
+                                GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                                BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                                ActivityId = voucherDetailVM.ActivityId,
+                                Amount = voucherDetailVM.Amount,
+                                NetAmount = employeePayable.Amount
+                            };
+                            _employeePayableService.InsertEmployeePayableDetail(employeePayable, employeePayableDetail, 1);
+
+                            // Set InvoiceDetail Id to voucher detail.
+                            voucherDetail.EmployeePayableDetailId = employeePayableDetail.Id;
+                            voucherDetail.PartyType = employeePayable.PartyType;
+                        }
+                        //Employee Advance
+                        else if (voucherDetailVM.PartyType == PartyType.Employee.ToString() && voucherDetailVM.TransactionTypeId != null && voucherDetailVM.CrAmount == 0)
+                        {
+                            advancePk.MaxNumber++;
+                            var advance = new Advance
+                            {
+                                Id = voucher.VoucherDate.Year + advancePk.MaxNumber.ToString(),
+                                CompanyGroupId = voucher.CompanyGroupId,
+                                CompanyId = voucher.CompanyId,
+                                PlantId = voucher.PlantId,
+                                EntityId = voucherDetailVM.EntityId,
+                                FiscalYearId = voucher.FiscalYearId,
+                                FiscalYearPeriodId = voucher.FiscalYearPeriodId,
+                                TaxYearId = voucher.TaxYearId,
+                                TaxYearPeriodId = voucher.TaxYearPeriodId,
+                                CurrencyId = voucherDetailVM.CurrencyId,
+                                VoucherId = voucher.Id,
+                                VoucherTypeId = voucher.VoucherTypeId,
+                                PartyType = voucherDetailVM.PartyType,
+                                PartyId = voucherDetailVM.PartyId,
+                                PartyPlantId = voucherDetailVM.PartyPlantId,
+                                EmployeeId = voucherDetailVM.EmployeeId,
+                                OpeningBalanceId = voucherDetailVM.OpeningBalanceId,
+                                EmployeeTransactionTypeId = voucherDetailVM.TransactionTypeId,
+                                FinancingTypeId = voucherDetailVM.FinancingTypeId,
+                                VoucherDate = voucher.VoucherDate,
+                                PostingDate = voucher.PostingDate,
+                                DocDate = voucherDetailVM.DocDate,
+                                DocRefNo = voucherDetailVM.DocRefNo,
+                                Narration = voucher.Narration,
+                                Amount = voucherDetailVM.DrAmount,
+                                SourceType = voucher.SourceType,
+                                PaymentSource = voucherDetailVM.PaymentSource,
+                                AddedBy = voucher.AddedBy,
+                                AddedDate = voucher.AddedDate,
+                                AddedFromIP = voucher.AddedFromIP,
+                                IsPosted = true,
+                                AdvanceNo = voucher.VoucherNo
+                            };
+                            if (voucherDetailVM.PartyType == PartyType.Employee.ToString())
+                                advance.SourceType = SourceType.EmployeeAdvance.ToString();
+                            _advanceService.InsertGraph(advance);
+
+                            // INSERT INTO AdvanceDetail
+                            var advanceDetail = new AdvanceDetail
+                            {
+                                Id = _advanceService.MakeAdvanceDetailPK(advance.Id, 1),
+                                AdvanceId = advance.Id,
+                                CompanyId = advance.CompanyId,
+                                PlantId = advance.PlantId,
+                                EmployeeId = advance.EmployeeId,
+                                Archive = advance.Archive,
+                                IsWrittenOff = advance.IsWrittenOff,
+                                ModelState = advance.ModelState,
+                                Narration = advance.Narration,
+                                NetAmount = advance.Amount,
+                                PartyId = advance.PartyId,
+                                PartyPlantId = advance.PartyPlantId,
+                                PartyType = advance.PartyType,
+                                GLGeneralInfoId = voucherDetail.GLGeneralInfoId,
+                                BudgetMasterId = voucherDetail.BudgetMasterId,
+                                ActivityId = voucherDetail.ActivityId,
+                                Amount = advance.Amount,
+                                AddedBy = advance.AddedBy,
+                                AddedDate = advance.AddedDate,
+                                AddedFromIP = advance.AddedFromIP
+                            };
+                            _advanceService.InsertAdvanceDetail(advanceDetail);
+                            // Set Advance detail to voucher detail.
+                            voucherDetail.AdvanceDetailId = advanceDetail.Id;
+                        }
+                        //Inter Transaction
+                        else if (voucherDetailVM.PartyType == PartyType.InterTransaction.ToString())
+                        {
+                            advancePk.MaxNumber++;
+                            var interTransaction = new Advance
+                            {
+                                Id = voucher.VoucherDate.Year + advancePk.MaxNumber.ToString(),
+                                AddedBy = voucherDetail.AddedBy,
+                                AddedDate = voucherDetail.AddedDate,
+                                AddedFromIP = voucherDetail.AddedFromIP,
+                                Amount = voucherDetailVM.Amount,
+                                CompanyGroupId = voucher.CompanyGroupId,
+                                CompanyId = voucher.CompanyId,
+                                PlantId = voucher.PlantId,
+                                CurrencyId = voucherDetailVM.CurrencyId,
+                                DocDate = voucherDetailVM.DocDate,
+                                DocRefNo = voucherDetailVM.DocRefNo,
+                                EntityId = voucherDetailVM.EntityId,
+                                FinancingTypeId = voucherDetailVM.FinancingTypeId,
+                                FiscalYearId = voucher.FiscalYearId,
+                                FiscalYearPeriodId = voucher.FiscalYearPeriodId,
+                                VoucherId = voucher.Id,
+                                VoucherDate = voucher.VoucherDate,
+                                IsInterTransaction = true,
+                                Narration = voucherDetailVM.Narration,
+                                OpeningBalanceId = voucherDetailVM.OpeningBalanceId,
+                                PartyId = voucherDetailVM.PartyId,
+                                PartyPlantId = voucherDetailVM.PartyPlantId,
+                                PartyType = voucherDetailVM.PartyType,
+                                SourceType = voucher.SourceType,
+                                PostingDate = voucher.PostingDate,
+                                TaxYearId = voucher.TaxYearId,
+                                TaxYearPeriodId = voucher.TaxYearPeriodId,
+                                VoucherTypeId = voucher.VoucherTypeId,
+                                IsPosted = true
+                            };
+                            // _interTransactionService.InsertGraph(interTransaction);
+
+                            // INSERT INTO AdvanceDetail
+                            var interTransactionDetail = new AdvanceDetail
+                            {
+                                AdvanceId = interTransaction.Id,
+                                CompanyId = interTransaction.CompanyId,
+                                PlantId = interTransaction.PlantId,
+                                Archive = interTransaction.Archive,
+                                IsWrittenOff = interTransaction.IsWrittenOff,
+                                ModelState = interTransaction.ModelState,
+                                Narration = interTransaction.Narration,
+                                NetAmount = interTransaction.Amount,
+                                PartyId = interTransaction.PartyId,
+                                PartyPlantId = interTransaction.PartyPlantId,
+                                PartyType = interTransaction.PartyType,
+                                GLGeneralInfoId = voucherDetail.GLGeneralInfoId,
+                                BudgetMasterId = voucherDetail.BudgetMasterId,
+                                ActivityId = voucherDetail.ActivityId,
+                                Amount = interTransaction.Amount,
+                                AddedBy = interTransaction.AddedBy,
+                                AddedDate = interTransaction.AddedDate,
+                                AddedFromIP = interTransaction.AddedFromIP
+                            };
+                            //_interTransactionService.InsertInterTransactionDetail(interTransaction, interTransactionDetail, 1);
+                            // Set InterTransaction detail to voucher detail.
+                            voucherDetail.InterTransactionDetailId = interTransactionDetail.Id;
+                        }
+                    }
+
+                    
+                    // Set company currency.
+                    if (!string.IsNullOrEmpty(companyCurrencyId))
+                    {
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetail, new VoucherDetailCurrency
+                        {
+                            DrAmount = voucherDetailVM.DrAmount,
+                            CrAmount = voucherDetailVM.CrAmount,
+                            FromCurrencyId = voucherDetailVM.ToCurrencyId,
+                            ParallelCurrencyId = companyCurrencyId,
+                            ToCurrencyId = voucherDetailVM.ToCurrencyId,
+                            ToCurrencyConversion = 1 ,
+                            ToCurrencyRate = 1
+                        });
+                    }
+
                 }
 
                 // Update OpeningBalance IsPark flag

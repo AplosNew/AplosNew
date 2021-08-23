@@ -7978,30 +7978,44 @@ ORDER BY IR.ID DESC";
             {
                 // Edit by Mizan
                 var Sql = @"SELECT 
-                            distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
-                            InvPP.StandardName ,ISNULL(PO.OrderSpecific,'') OrderSpec,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='MaterialPO',PLC.LCRef,ISNULL(C.ContractNo,'')ContractNo,ISNULL(PO.DocRefNo,'')DocRefNo
-                            FROM TRN.PurchaseOrder PO
-                            INNER JOIN (SELECT SUM(TransactionAmount) TransactionAmount, InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.Id
-                            LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
-                            LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-                            LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.VendorId=PO.PartyId 
-                            LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
-							LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
-                            WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')<>'' AND PO.IsClosed=0
-                    UNION
-                    SELECT 
-                            distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
-                            InvPP.StandardName,ISNULL(PO.OrderSpecific,'') OrderSpec,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='ServicePO',PLC.LCRef,ISNULL(C.ContractNo,'')ContractNo,ISNULL(PO.DocRefNo,'')DocRefNo
-                            FROM TRN.[ServicePOMaster] PO
-                            INNER JOIN (SELECT SUM(Amount) TransactionAmount, ServicePOMasterId FROM [TRN].[ServicePODetail] GROUP BY ServicePOMasterId) POD ON POD.ServicePOMasterId=PO.Id
-                            LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
-                            LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-                            LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.VendorId=PO.PartyId 
-                            LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
-							LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
-                            WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')<>'' AND PO.IsClosed=0";
+                                distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
+                                InvPP.StandardName ,ISNULL(PO.OrderSpecific,'') OrderSpec,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
+                                ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='MaterialPO',PLC.LCRef,ISNULL(C.ContractNo,'')ContractNo,ISNULL(PO.DocRefNo,'')DocRefNo
+                                FROM TRN.PurchaseOrder PO
+                                INNER JOIN (SELECT SUM(TransactionAmount) TransactionAmount, InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.Id
+                                LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
+                                LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
+                                LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId 
+                                LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
+	                            LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
+                                WHERE PO.PlantId='"+ plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')<>'' AND PO.IsClosed=0
+                            UNION
+                            SELECT 
+                                distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
+                                InvPP.StandardName,ISNULL(PO.OrderSpecific,'') OrderSpec,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
+                                ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='ServicePO',PLC.LCRef,ISNULL(C.ContractNo,'')ContractNo,ISNULL(PO.DocRefNo,'')DocRefNo
+                                FROM TRN.[ServicePOMaster] PO
+                                INNER JOIN (SELECT SUM(Amount) TransactionAmount, ServicePOMasterId FROM [TRN].[ServicePODetail] GROUP BY ServicePOMasterId) POD ON POD.ServicePOMasterId=PO.Id
+                                LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
+                                LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
+                                LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId 
+                                LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
+	                            LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
+                                WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')<>'' AND PO.IsClosed=0
+
+                            UNION
+                            SELECT 
+                                distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
+                                InvPP.StandardName,ISNULL(PO.OrderSpecific,'') OrderSpec,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
+                                ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='OutSourcePO',PLC.LCRef,ISNULL(C.ContractNo,'')ContractNo,ISNULL(PO.DocRefNo,'')DocRefNo
+                                FROM [dbo].[JWTransformationPurchaseOrder] PO
+                                INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, JobWorkTransformationContractMasterId FROM [dbo].[JobWorkTransformationContractChild] GROUP BY JobWorkTransformationContractMasterId) POD ON POD.JobWorkTransformationContractMasterId=PO.Id
+                                LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
+                                LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
+                                LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId 
+                                LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
+	                            LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
+                                WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')<>'' AND ISNULL(PO.IsClosed,0)=0";
                 return _sqlRepository.GetDataCollection(Sql);
             }
             catch (Exception ex)
@@ -8045,7 +8059,23 @@ ORDER BY IR.ID DESC";
                                     LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
                                     LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
                                     LEFT JOIN (Select ServicePoId,COUNT(ServiceAckId) GRNId from tRN.ServivePOAcknowledgementMap GROUP BY ServicePoId) GRN ON GRN.ServicePoId=PO.Id
-                                    WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsClosed=0  
+                                    WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsClosed=0
+                        UNION 
+                        SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
+                            PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
+                            InvPP.StandardName ,ISNULL(PO.OrderSpecific,'')OS,PO.ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
+                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,ISNULL(C.ContractNo,'')ContractNo,Flag='OutSourcePO',ISNULL(PO.DocRefNo,'')DocRefNo
+                            --,IsFirst=case when GRN.GRNId>0 then 0 else 1 end
+	                        ,0 IsFirst
+                            FROM [dbo].[JWTransformationPurchaseOrder] PO
+                            INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, JobWorkTransformationContractMasterId 
+	                        FROM [dbo].[JobWorkTransformationContractChild] GROUP BY JobWorkTransformationContractMasterId) POD ON POD.JobWorkTransformationContractMasterId=PO.Id
+                            LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
+                            LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
+                            LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
+                            LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
+                            --LEFT JOIN (Select ServicePoId,COUNT(ServiceAckId) GRNId from TRN.ServivePOAcknowledgementMap GROUP BY ServicePoId) GRN ON GRN.ServicePoId=PO.Id
+                            WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND ISNULL(PO.IsClosed,0)=0 
                                     ";
 
                 return _sqlRepository.GetDataCollection(Sql);
@@ -8057,7 +8087,7 @@ ORDER BY IR.ID DESC";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-        public IEnumerable<object> GetLCListByCotract(string ContractId, string VendorId, string CurrencyId)
+        public IEnumerable<object> GetLCListByContract(string ContractId, string VendorId, string CurrencyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -8120,9 +8150,14 @@ ORDER BY IR.ID DESC";
                     var Sql = @"Update trn.purchaseOrder set PurchaseLCId='" + PurchaseLCId + "'  WHERE Id='" + POId + "'";
                     return _sqlRepository.GetDataCollection(Sql);
                 }
-                else
+                else if (flag == "ServicePO")
                 {
                     var Sql = @"Update trn.ServicePOMaster set PurchaseLCId='" + PurchaseLCId + "'  WHERE Id='" + POId + "'";
+                    return _sqlRepository.GetDataCollection(Sql);
+                }
+                else
+                {
+                    var Sql = @"Update [dbo].[JWTransformationPurchaseOrder] set PurchaseLCId='" + PurchaseLCId + "'  WHERE Id='" + POId + "'";
                     return _sqlRepository.GetDataCollection(Sql);
                 }
             }

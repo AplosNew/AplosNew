@@ -103,7 +103,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             $scope.employeeAttendance = response.data.data;
             $scope.allShift = response.data.shift;
 
-            var gridObj = $("#GridChangeAttendance").data("ejGrid");
+            var gridObj = $("#GridChangeAttendances").data("ejGrid");
             gridObj.refreshContent();
         });
     }
@@ -113,7 +113,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             if (baseService.isUndefinedOrNull($scope.SetTime)) {
                 throw "Select Time..";
             }
-            var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+            var gridObj = $("#GridChangeAttendanceBySingleDates").data("ejGrid");
             var filteredRecords = gridObj.getFilteredRecords();
             if (filteredRecords.length == 0) {
                 filteredRecords = $scope.employeeAttendanceBySingleDate
@@ -135,7 +135,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             if (baseService.isUndefinedOrNull($scope.SetTime)) {
                 throw "Select Time..";
             }
-            var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+            var gridObj = $("#GridChangeAttendanceBySingleDates").data("ejGrid");
             var filteredRecords = gridObj.getFilteredRecords();
             if (filteredRecords.length == 0) {
                 filteredRecords = $scope.employeeAttendanceBySingleDate
@@ -202,7 +202,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                             row[0].ErrorMessage = response.data.Data[i].ErrorMessage;
                         }
                     }
-                    var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+                    var gridObj = $("#GridChangeAttendanceBySingleDates").data("ejGrid");
                     gridObj.refreshContent();
                 }
                 else {
@@ -255,7 +255,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                         row[0].ErrorMessage = response.data.Data[i].ErrorMessage;
                     }
                 }
-                var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+                var gridObj = $("#GridChangeAttendanceBySingleDates").data("ejGrid");
                 gridObj.refreshContent();
             }
             else {
