@@ -348,6 +348,12 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         $rootScope.openPopupAngular('LoanSetOffPopup');
     }
 
+    $scope.summaryLoanSetOff = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LoanSetOff", dataMember: "LoanSetOff", format: "{0:N2}" }],
+        showCaptionSummary: true
+
+    }];
 
     $scope.searchCol = "";
     $scope.searchVal = "";

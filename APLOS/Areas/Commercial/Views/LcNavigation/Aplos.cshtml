@@ -269,8 +269,8 @@
                             <div e-column e-type="date" e-field="AcceptanceDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Acceptance Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="Acceptence Value" e-width="100"></div>
                             <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
-                            <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="50"></div>
-                            <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="50"></div>
+                            @*<div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="50"></div>
+                            <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="50"></div>*@
                         </div>
                     </div>
                 </div>
@@ -387,17 +387,18 @@
                             <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
                         </div>
                         <div class="col-md-12 col-md-2  col-md-2">Value</div>
-                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Loan|number:2}}</div>
+                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.LoanSetOff|number:2}}</div>
                         <div class="col-md-12 col-md-2  col-md-2">Currency</div>
                         <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
                     </div>
                 </div>
                 <div class="row">
                     <div style="color:black;" id="GridPurchaseLCLoanSetOff" ej-grid e-datasource="PurchaseLCLoanSetoffList"
-                         e-showsummary="true" e-summaryrows="summaryLoan"
+                         e-showsummary="true" e-summaryrows="summaryLoanSetOff"
                          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
                          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Loan Settle Id" e-width="50"></div>
                             <div e-column e-type="string" e-field="LoanNo" e-headertext="Loan No." e-width="50"></div>
                             <div e-column e-type="date" e-field="LoanDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Loan Date" e-width="50"></div>
                             <div e-column e-type="string" e-field="LoanSetOff" e-format="{0:N2}" e-headertext="Loan Settle" e-width="50"></div>
