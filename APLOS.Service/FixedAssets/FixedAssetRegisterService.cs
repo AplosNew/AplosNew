@@ -2804,7 +2804,7 @@ namespace Library.Service.FixedAssets
 									  ,IIH.Qty TransactionQty
 									  ,IIH.Qty BaseQty
 									  ,IIH.Rate BaseCurrencyRate
-									  ,ROUND(IIH.Qty*IIH.Rate,4) Amount
+									  ,ROUND(IIH.TotalMaterialBooksCurrencyAmount,4) Amount
 						,IRD.BaseUOMId,IRD.TransactionUoMId
 							, IM.MaterialMasterId, MM.UserName
                             , IM.ArticleId, ART.StandardName
@@ -3222,7 +3222,7 @@ namespace Library.Service.FixedAssets
                                     ,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
                                     , BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, B.UserName AssetBudgetName, AC.UserName AS ActivityName
                                     , BM.GLGeneralInfoId AS AssetGLId, FAMT.BudgetMasterId, BM.BudgetId,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName
-                                    , FAM.UserName AS AssetMasterName,FAM.Id FixedAssetMasterId, FAM.AssetType,Round((IIH.Qty*IIH.Rate),4) Amount
+                                    , FAM.UserName AS AssetMasterName,FAM.Id FixedAssetMasterId, FAM.AssetType,Round((IIH.TotalMaterialBooksCurrencyAmount),4) Amount
                                     ,IIH.Qty,II.CurrencyId,TUoM.UserName AS TransactionUoM,CU.Code CurrencyCode,V.CurrencyId
                                     , AC.Id ActivityId, BM.RefNo, FAC.UserName FixedAssetCategory, FASC.UserName AS FixedAssetSubCategory
                                     ,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,IR.PartyId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId

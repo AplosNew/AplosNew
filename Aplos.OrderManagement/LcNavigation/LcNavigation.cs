@@ -302,7 +302,8 @@ namespace Library.OrderManagement.LcNavigation
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"select
 PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' ) as AcceptanceDate
-,Format(A.PODate,'dd-MMM-yyyy') PODate,A.POAmount,A.PurchaseOrderId PONo,A.GRNAmount,A.InventoryReceiveId GRNNo,FORMAT(A.GRNDate,'dd-MMM-yyyy')GRNDate
+,Format(A.PODate,'dd-MMM-yyyy') PODate,A.PurchaseOrderId PONo
+--,A.InventoryReceiveId GRNNo,FORMAT(A.GRNDate,'dd-MMM-yyyy')GRNDate
                         ,c.Code as Currency,A.AcceptanceValue
 						from PurchaseLC as PL
 						join SCS.Currency as c on PL.CurrencyId=c.Id
@@ -310,20 +311,35 @@ PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' )
 						left join (
 						select 
 						PA.PurchaseDocAcceptanceId,PA.POId PurchaseOrderId,PO.PODate,PO.DocRefNo
-						,sum(pd.TransactionAmount) AS POAmount,sum(GRN.GRNAmount)AS GRNAmount,GRN.InventoryReceiveId,GRN.GRNDate,sum(PA.MaterialTranAmount) AcceptanceValue
+						,sum(pd.TransactionAmount) AS POAmount
+						--,sum(GRN.GRNAmount)AS GRNAmount,GRN.InventoryReceiveId,GRN.GRNDate
+						,sum(PA.MaterialTranAmount) AcceptanceValue
 						from trn.PurchaseDocAcceptanceDetail PA
 						join trn.PurchaseOrderDetail PD on PD.Id=PA.PODetailId
 						join trn.PurchaseOrder PO ON PO.Id=PA.POId
-						left join (
-						select RD.PODetailsId,sum(rd.GRNTotalAmount) AS GRNAmount,RD.InventoryReceiveId,IR.GRNDate from trn.InventoryReceive IR 
-						join trn.InventoryReceiveDetail RD on rd.InventoryReceiveId=Ir.Id
-						group by RD.PODetailsId,RD.InventoryReceiveId,IR.GRNDate
-						) AS GRN ON GRN.PODetailsId=PD.Id
-						group by PA.PurchaseDocAcceptanceId,PA.POId ,PO.PODate,PO.DocRefNo,GRN.InventoryReceiveId,GRN.GRNDate
+						--left join (
+						--select RD.PODetailsId,sum(rd.GRNTotalAmount) AS GRNAmount,RD.InventoryReceiveId,IR.GRNDate from trn.InventoryReceive IR 
+						--join trn.InventoryReceiveDetail RD on rd.InventoryReceiveId=Ir.Id
+						--group by RD.PODetailsId,RD.InventoryReceiveId,IR.GRNDate
+						--) AS GRN ON GRN.PODetailsId=PD.Id
+						group by PA.PurchaseDocAcceptanceId,PA.POId ,PO.PODate,PO.DocRefNo
+						--,GRN.InventoryReceiveId,GRN.GRNDate
 						)						
-						A on A.PurchaseDocAcceptanceId=PA.Id						
-                        where PL.Id ='" + PurchaseLCId+ @"'
-						group by PL.Id,PA.AcceptanceNo,PA.AcceptanceDate,c.Code,A.PODate,A.POAmount,A.PurchaseOrderId,A.GRNAmount,A.InventoryReceiveId,A.GRNDate,A.AcceptanceValue";
+						A on A.PurchaseDocAcceptanceId=PA.Id	
+			
+
+						--left join (
+						--select RD.PODetailsId,sum(rd.GRNTotalAmount) AS GRNAmount,RD.InventoryReceiveId,IR.GRNDate 
+						--from trn.InventoryReceive IR 
+						--join trn.InventoryReceiveDetail RD on rd.InventoryReceiveId=Ir.Id
+						--group by RD.PODetailsId,RD.InventoryReceiveId,IR.GRNDate
+						--) AS GRN ON GRN.PODetailsId=PD.Id
+
+                        where PL.Id ='"+PurchaseLCId+@"'
+						group by PL.Id,PA.AcceptanceNo,PA.AcceptanceDate,c.Code,A.PODate,A.POAmount,A.PurchaseOrderId
+						--,A.GRNAmount,A.InventoryReceiveId,A.GRNDate
+						,A.AcceptanceValue
+";
 
         }
 
@@ -410,7 +426,7 @@ PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' )
 						 LEFT JOIN [TRN].[FinancingWriteOff] AS AW ON F.Id=AW.FinancingId
                                    
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
-						where pl.Id='" + PurchaseLCId + @"'
+						where pl.Id='" + PurchaseLCId + @"' and AW.Id<>''
 group by laa.Id,laa.PurchaseDocAcceptanceId,pda.AcceptanceNo,pda.AcceptanceDate
 						,LoanDate,laa.LoanNo,laa.Amount,v.VoucherNo,AW.Id";
         }

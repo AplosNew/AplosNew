@@ -26,18 +26,18 @@
 
 
 <h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Attendance Lock/UnLock </h3>
-<div class="row form-horizontal form-elements">
+<div class="row form-horizontal form-elements" ng-form name="LockUnLockForm">
 
   
 </div>
 <br />
-<div class="row form-horizontal form-elements">
+<div class="row form-horizontal form-elements" ng-form name="General">
     <div class="col-xs-12 col-sm-6 col-md-7 ">
         <div class="form-group">
             <label class="col-sm-3 control-label"> Date<sup>*</sup></label>
             <div class="col-sm-4">
                 <div class="select-style">
-                    <input class="form-control" autocomplete="off" datepicker ng-change="getEmpListData()" id="txtLockDate" ng-model="customPara.lockDate" placeholder="dd-MM-yyyy" type="text" />
+                    <input class="form-control" autocomplete="off" datepicker ng-change="GetEmpData()" id="txtLockDate" required ng-model="ModelNew.lockDate" placeholder="dd-MM-yyyy" type="text" />
                    
                 </div>
 
@@ -74,14 +74,6 @@
         </ul>
     </div>
     <div class="tab-content" id="tabpaneldiv">
-
-        @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet1(1), active: isSet1(1) }">
-
-                <h4>Lock</h4>
-
-
-
-            </div>*@
 
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
 
@@ -184,6 +176,7 @@
             </div>
 
         </div>
+        
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet5(5), active: isSet5(5) }">
 
 
@@ -216,6 +209,7 @@
             </div>
 
         </div>
+       
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet6(6), active: isSet6(6) }">
 
 
