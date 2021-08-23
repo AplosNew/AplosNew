@@ -22,12 +22,10 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
-        public IEnumerable<object> GetUnLockedEmployees(string Date)
+        public string GetUnLockedEmployees(string Date,string PlantId)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
                 var sql = @"select e.EmployeeCode,e.EmployeeName,a.EmpSystemID,format(a.WorkDate,'yyyy-MMM-dd')WorkDate,
                 a.DayStatus,a.IsLock,a.LockedBy,
                 ent.UserName as Entity,u.UserName as Unit,format(e.DOJ,'yyyy-MMM-dd')DOJ,
@@ -41,9 +39,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                 LEFT JOIN [ORG].[Section] s ON s.Id = POS.SectionId
                 LEFT JOIN [ORG].[SubSection] ss ON ss.Id = POS.SubSectionId                           
                 where WorkDate='" + Date + @"' and e.EmployeeStatus='Active'
-                and IsLock=0 AND a.PlantID='" + identity.PlantId + "'";
+                and IsLock=0 AND a.PlantID='" + PlantId + "'";
                
-                return _sqlRepository.GetDataCollection(sql);
+                return sql;
             }
             catch (Exception ex)
             {
@@ -51,12 +49,11 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public IEnumerable<object> GetLockedEmployees(string Date)
+        public string GetLockedEmployees(string Date,string PlantId)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
+             
                 var sql = @"select e.EmployeeCode,e.EmployeeName,a.EmpSystemID,format(a.WorkDate,'yyyy-MMM-dd')WorkDate,
                 a.DayStatus,a.IsLock,a.LockedBy,
                 ent.UserName as Entity,u.UserName as Unit,format(e.DOJ,'yyyy-MMM-dd')DOJ,
@@ -70,9 +67,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                 LEFT JOIN [ORG].[Section] s ON s.Id = POS.SectionId
                 LEFT JOIN [ORG].[SubSection] ss ON ss.Id = POS.SubSectionId                           
                 where WorkDate='"+Date+@"' and e.EmployeeStatus='Active'
-                and IsLock=1 AND a.PlantID='"+identity.PlantId+"'";
+                and IsLock=1 AND a.PlantID='"+PlantId+"'";
                
-                return _sqlRepository.GetDataCollection(sql);
+                return sql;
             }
             catch (Exception ex)
             {

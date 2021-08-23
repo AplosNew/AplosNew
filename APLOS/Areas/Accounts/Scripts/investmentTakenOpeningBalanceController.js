@@ -25,6 +25,33 @@ function investmentTakenOpeningBalanceController(cboService, commonMessage, $sco
         }
     });
 
+    $scope.showPartyPopUpNew = function () {
+        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+        }
+        else if ($scope.partyType === 'Party') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+        }
+        else if ($scope.partyType === 'Director') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+        }
+        else if ($scope.partyType === 'Other') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+        }
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#partyPopUp')).modal('show');
+    };
+    $scope.closePartyPopUpNew = function () {
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+    };
+
     $scope.advanceCA = null;
     $scope.getTransactionTypeGL = function (id) {
         if (!baseService.isUndefinedOrNull(id)) {

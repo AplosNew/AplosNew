@@ -13899,6 +13899,10 @@ INNER JOIN
                 DataTable dtSalaryHeadSheet;
                 List<SalarySheetReportUD> listdsSlrProc = new List<SalarySheetReportUD>();
                 GetEmployeeInfoDetailSalaryLogWiseDirectInDirect(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, out dsEmpLoyeeInfo, IsDirectInDirect);//Sql Query For Salary  Data
+                if (dsEmpLoyeeInfo.Tables[0].Rows.Count ==0)
+                {
+                    throw new Exception("No Data Found..");
+                }
                 Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetailDirectInDirect(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, out dtSalaryHeadSheet);
 
                 if (dicEmpSalry.First().Value[0].Table.Rows.Count > 0)
@@ -13924,7 +13928,7 @@ INNER JOIN
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
 
-                workbook = application.Workbooks.Create(2);
+                workbook = application.Workbooks.Create(1);
                 sheet1 = workbook.Worksheets[0];
                 sheet1.IsGridLinesVisible = true;
 

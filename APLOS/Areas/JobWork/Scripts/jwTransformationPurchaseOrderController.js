@@ -4563,8 +4563,21 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     // BOQ Material Input data
 
+    $scope.MaterialInputDisplayModelTemp = {
+        Material: null,
+        Article: null,
+        UoM: null,
+        Quantity: null,
+
+    };
+    $scope.MaterialInputDisplay = Object.assign({}, $scope.MaterialInputDisplayModelTemp);
+
     $scope.ConfirmMaterialInputPopUpBOQ = function (data) {
         $scope.OutputMatId = data.Id;
+        $scope.MaterialInputDisplay.Material = data.MaterialMasterName;
+        $scope.MaterialInputDisplay.Article = data.ArticleName;
+        $scope.MaterialInputDisplay.UoM = data.TransactionUoM;
+        $scope.MaterialInputDisplay.Quantity = data.Quantity;
         //$scope.JWInputId = data.JobWorkItemMasterId;
         //$scope.JWActivityId = data.JobActivityId;
         $scope.getMatInputListBOQData();
