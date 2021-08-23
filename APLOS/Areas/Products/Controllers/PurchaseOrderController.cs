@@ -1107,10 +1107,10 @@ namespace Aplos.Areas.Products.Controllers
 			return Json(_inventoryReveiveService.GetalldataPOWithoutLCMap(identity.PlantId), JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpGet]
-		public JsonResult GetLCListByCotract(string ContractId, string VendorId, string CurrencyId)
+		public JsonResult GetLCListByContract(string ContractId, string VendorId, string CurrencyId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.GetLCListByCotract(ContractId, VendorId, CurrencyId), JsonRequestBehavior.AllowGet);
+			return Json(_inventoryReveiveService.GetLCListByContract(ContractId, VendorId, CurrencyId), JsonRequestBehavior.AllowGet);
 		}
 
 

@@ -915,7 +915,7 @@ namespace Library.MaterialManagement.Inventory
                                         IssueRequestDetailId = item.IssueRequest,
                                         IssueReturnQty = 0,
                                         BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
-                                        TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(totalReqQty  * Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4)), 2)//totalReqQty item.RequisitionQty
+                                        TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(totalReqQty  * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2)//totalReqQty item.RequisitionQty
                                     };
                                     //policyAmmount += history.Qty * history.Rate;
 

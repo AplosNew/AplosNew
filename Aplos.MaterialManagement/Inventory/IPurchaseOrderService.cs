@@ -125,7 +125,7 @@ namespace Library.MaterialManagement.Inventory
 
 		IEnumerable<object> GetalldataPOWithoutLCMap(string plantId);
 
-		IEnumerable<object> GetLCListByCotract(string ContractId, string VendorId, string CurrencyId);
+		IEnumerable<object> GetLCListByContract(string ContractId, string VendorId, string CurrencyId);
 
 
 		IEnumerable<object> UpdatePOforLC(string POId, string PurchaseLCId, string flag);
