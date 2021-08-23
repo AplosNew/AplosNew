@@ -72,6 +72,7 @@ function PlantWiseHRMSSettingController(cboService, commonMessage, $scope, $root
         EmployeeCodeStart: null,
         EmployeeCodeCheckLevel: null,
         DateAdded: new Date(),
+        ResultendOT:null
     }
     $scope.PlantWiseHRMSSetting = Object.assign({}, $scope.PlantWiseHRMSSettingMain);
     $scope.MasterList = [];

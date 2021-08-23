@@ -813,7 +813,7 @@ namespace Aplos.Areas.Commercial.Controllers
                                     LEFT JOIN [HKP].[Party] AS CC ON CC.Id=C.CustomerId
                                     LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
                                     LEFT JOIN (Select PoId,COUNT(GRNId) GRNId from TRN.POGGRNMap GROUP BY PoId) GRN ON GRN.PoId=PO.Id
-                                    WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND AuthorizedByStatus='Approved'
+                                    WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsClosed=0  AND AuthorizedByStatus='Approved' 
                             UNION 
                             SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
                                     PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
@@ -829,7 +829,7 @@ namespace Aplos.Areas.Commercial.Controllers
                                     LEFT JOIN [HKP].[Party] AS CC ON CC.Id=C.CustomerId
                                     LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
                                     LEFT JOIN (Select ServicePoId,COUNT(ServiceAckId) GRNId from TRN.ServivePOAcknowledgementMap GROUP BY ServicePoId) GRN ON GRN.ServicePoId=PO.Id
-                                    WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND ApprovedByStatus='Approved'
+                                    WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsClosed=0  AND ApprovedByStatus='Approved'
                                      UNION 
                             SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
                                     PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
@@ -845,7 +845,7 @@ namespace Aplos.Areas.Commercial.Controllers
                                     LEFT JOIN [HKP].[Party] AS CC ON CC.Id=C.CustomerId
                                     LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
                                     --LEFT JOIN (Select ServicePoId,COUNT(ServiceAckId) GRNId from TRN.ServivePOAcknowledgementMap GROUP BY ServicePoId) GRN ON GRN.ServicePoId=PO.Id
-                                    WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsApproved=1";
+                                    WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND ISNULL(PO.IsClosed,0)=0 AND PO.IsApproved=1";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

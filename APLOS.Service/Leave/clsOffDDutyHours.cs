@@ -558,8 +558,13 @@ namespace Library.Service.Leave
         //public DateTime? EffectiveDate { get; set; }
 
         public string EmpSystemId { get; set; }
-        public int MinimumOT { get; set; }
-        public bool IsExcessAllowed { get; set; }
+        //public int MaximumOT { get; set; }
+        public decimal MaximumOTLimitPerWeekDay { get; set; }
+        public decimal MaximumOTLimitPerHoliDay { get; set; }
+        public decimal MaximumOTLimitPerWeekend { get; set; }
+        public decimal MaximumOTLimitPerMonth { get; set; }
+        //public bool IsExcessAllowed { get; set; }
+        public bool IsMinimumOTLimit { get; set; }
 
 
         public string AddedBy { get; set; }

@@ -28,8 +28,13 @@ function employeeWiseFixedOTSettingController(commonMessage, $scope, $rootScope,
         Id: null,
         EmpSystemId: null,
        // EffectiveDate: null,
-        MinimumOT: null,
-        IsExcessAllowed: null        
+        //MaximumOT: null,
+        //IsExcessAllowed: false,
+        MaximumOTLimitPerMonth: null,//
+        MaximumOTLimitPerWeekDay: null,//
+        MaximumOTLimitPerWeekend: null,//
+        MaximumOTLimitPerHoliDay: null,//
+        IsMinimumOTLimit: false,
     }
     $scope.EmployeeWiseFixedOtSettingModel = Object.assign({}, $scope.EmployeeWiseFixedOtSetting);
     
@@ -81,7 +86,7 @@ function employeeWiseFixedOTSettingController(commonMessage, $scope, $rootScope,
     function ValidationMaster() {
         try {
             //CheckField("From Date", $scope.EmployeeWiseFixedOtSetting.EffectiveDate);
-            CheckField("Minimum OT", $scope.EmployeeWiseFixedOtSetting.MinimumOT);
+            //CheckField("Maximum OT", $scope.EmployeeWiseFixedOtSetting.MaximumOT);
 
         } catch (ex) {
             throw ex;
