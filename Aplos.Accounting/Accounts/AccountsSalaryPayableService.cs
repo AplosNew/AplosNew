@@ -34,45 +34,32 @@ namespace Library.Accounting.Accounts
             _sqlRepository = sqlRepository;
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity,string plantId)
+        public List<Dictionary<string, object>> GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
-
-            string wcEmpStatus = " AND spm.SalaryProcFlag=''";
-
-
+            string wcEmpStatus = " and (1=0 ";
 
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
-            else if (isActive == true && isSeperated == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
-            }
-            else if (isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
-            }
-            else if (isActive == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+                wcEmpStatus = " and (1=1 ";
             }
             else
             {
                 if (isActive == true)
                 {
-                    wcEmpStatus = " AND spm.SalaryProcFlag =''";
+                    wcEmpStatus += " OR case when  ISNULL(SalaryProcFlag,'Regular') ='' then 'Regular' else ISNULL(SalaryProcFlag,'Regular') end = 'Regular' ";
                 }
                 if (isSeperated == true)
                 {
-                    wcEmpStatus = " AND spm.SalaryProcFlag ='SEPARATED'";
+                    wcEmpStatus += " OR ISNULL(SalaryProcFlag,'Regular') ='SEPARATED'";
                 }
                 if (isMaternity == true)
                 {
-                    wcEmpStatus = " AND spm.SalaryProcFlag ='MLV_PRE'";
+                    wcEmpStatus += " OR ISNULL(SalaryProcFlag,'Regular') ='MLV_PRE'";
 
                 }
             }
+            wcEmpStatus += ")";
+
             string sql = @"
             select x.* from (
             SELECT sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
@@ -88,7 +75,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='"+ plantId + @"'
+                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1 " + wcEmpStatus + @"
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         UNION
@@ -149,7 +136,7 @@ namespace Library.Accounting.Accounts
 
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity,string plantId)
+        public List<Dictionary<string, object>> GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
 
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
@@ -201,13 +188,13 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 AND SPL.PlantId='"+ plantId+ @"'
+                        AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @"
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						ORDER BY sh.[Sequence],sh.SalaryHead";
             return _sqlRepository.GetDataCollection(sql);
         }
-        
+
         public List<Dictionary<string, object>> GetSalaryLockDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
@@ -431,7 +418,7 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
         }
 
-      
+
         public List<Dictionary<string, object>> GetSalaryLockInDirectCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
@@ -491,7 +478,7 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        
+
         public List<Dictionary<string, object>> GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
@@ -659,7 +646,7 @@ namespace Library.Accounting.Accounts
 						JOIN TRN.Advance A ON A.VoucherId=EA.VoucherId
 						JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
 						WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  ) ESA ON ESA.EmployeeId=SL.EmpSystemId
-                        WHERE sl.MonthNo='"+ monthNo + "' and sl.YearNo='"+yearNo+@"' AND sl.PayableVoucherId IS NULL 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
                         AND ISNULL(sh.SalaryHead,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='D' 
                         ) x
@@ -765,30 +752,29 @@ namespace Library.Accounting.Accounts
                     salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
                 }
             }
-            string wcEmpStatus = " AND (1=0 ";
+            string empStatus = " and (1=0 ";
 
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
-                wcEmpStatus = " AND (1=1 ";
+                empStatus = " and (1=1 ";
             }
             else
             {
                 if (isActive == true)
                 {
-                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='Regular'";
+                    empStatus += " OR case when  ISNULL(SalaryProcFlag,'Regular') ='' then 'Regular' else ISNULL(SalaryProcFlag,'Regular') end = 'Regular' ";
                 }
                 if (isSeperated == true)
                 {
-                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='SEPARATED'";
+                    empStatus += " OR ISNULL(SalaryProcFlag,'Regular') ='SEPARATED'";
                 }
                 if (isMaternity == true)
                 {
-                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='MLV_PRE'";
+                    empStatus += " OR ISNULL(SalaryProcFlag,'Regular') ='MLV_PRE'";
 
                 }
             }
-
-            wcEmpStatus += ")";
+            empStatus += ")";
 
             try
             {
@@ -816,8 +802,11 @@ namespace Library.Accounting.Accounts
                                     ,ISNULL(spld.IFSCCode,'') IFSCCode
                                     ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
                                     ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
-
-                            			, sl.PayableVoucherId
+                                    ,SalaryProcFlag
+                            		,IsLock = case when sl.IsLocked = 1 then 'Yes' else 'No' end
+                            		, sl.PayableVoucherId
+									,IsDisburse = case when sl.IsDisbursed = 1 then 'Yes' else 'No' end
+									,sl.DisbursementVoucherId
                                      FROM  dbo.SalaryLock sl
 									join EmployeeInformation E on sl.EmpSystemId=E.SystemId
 
@@ -901,7 +890,7 @@ namespace Library.Accounting.Accounts
 						                               MMDSA.YearNo = YEAR('" + fromDate + @"') AND MMDSA.PlantID = '" + plantId + @"' 
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
                                             WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"'  AND EmpBasic.PlantId ='" + plantId + @"' 
-		                                                                                    and EmpBasic.PayableVoucherId <>''  ";
+		                                                                " + empStatus + @"                    and EmpBasic.PayableVoucherId <>''  ";
                 try
                 {
                     if (parameters.Count > 0)
@@ -1237,7 +1226,7 @@ namespace Library.Accounting.Accounts
             //}
         }
 
-        public IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId)
+        public IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId, string Mode, string EmpBank)
         {
             #region Variable
             clsReport objRpt = null;
@@ -1319,7 +1308,8 @@ namespace Library.Accounting.Accounts
 
                 GetEmployeeInfoDetailSalaryLogWiseSalaryPayable(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, out dsEmpLoyeeInfo, voucherId);//Sql Query For Salary  Data
                 Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetail(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, out dtSalaryHeadSheet);
-
+                if (dsEmpLoyeeInfo.Tables[0].Rows.Count == 0)
+                    throw new Exception("No Data Found..");
                 if (dicEmpSalry.First().Value[0].Table.Rows.Count > 0)
                 {
                     listdsSlrProc = dicEmpSalry.First().Value[0].Table.ToList<SalarySheetReportDisbursement>();
@@ -1351,39 +1341,7 @@ namespace Library.Accounting.Accounts
                 xlsRow = 6;
                 xlsCol = 1;
 
-                //var header = GetSalaryPayableSheetheader(companyGroupId, companyId, plantId, voucherId, SourceType.SalaryPayable);
-
-                //reportUtility.SetMasterHeaderText(ref sheet1, xlsRow, 1, "Voucher No");
-                //reportUtility.SetText(ref sheet1, xlsRow, 2, header["VoucherNo"].ToString(), ExcelHAlign.HAlignLeft);
-                //reportUtility.SetMasterHeaderText(ref sheet1, xlsRow, 4, "Entry Date");
-                //reportUtility.SetText(ref sheet1, xlsRow, 5, header["VoucherDate"].ToString(), ExcelHAlign.HAlignLeft);
-
-                //sheet1[reportUtility.GetColumnNameForXls(2) + xlsRow + ":" + reportUtility.GetColumnNameForXls(3) + xlsRow].Merge();
-
-                //xlsRow++;
-
-                //reportUtility.SetMasterHeaderText(ref sheet1, xlsRow, 1, "Posting Date");
-                //reportUtility.SetText(ref sheet1, xlsRow, 2, header["PostingDate"].ToString(), ExcelHAlign.HAlignLeft);
-                //reportUtility.SetMasterHeaderText(ref sheet1, xlsRow, 4, "DocDate");
-                //reportUtility.SetText(ref sheet1, xlsRow, 5, header["DocDate"].ToString(), ExcelHAlign.HAlignLeft);
-
-                //sheet1[reportUtility.GetColumnNameForXls(2) + xlsRow + ":" + reportUtility.GetColumnNameForXls(3) + xlsRow].Merge();
-
-                //xlsRow++;
-
-                //reportUtility.SetMasterHeaderText(ref sheet1, xlsRow, 1, "Status");
-                //reportUtility.SetText(ref sheet1, xlsRow, 2, header["Status"].ToString(), ExcelHAlign.HAlignLeft);
-                //reportUtility.SetMasterHeaderText(ref sheet1, xlsRow, 4, "Doc Ref");
-                //reportUtility.SetText(ref sheet1, xlsRow, 5, header["DocRefNo"].ToString(), ExcelHAlign.HAlignLeft);
-
-                //sheet1[reportUtility.GetColumnNameForXls(2) + xlsRow + ":" + reportUtility.GetColumnNameForXls(3) + xlsRow].Merge();
-
-                //xlsRow++;
-
-                ////colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
-                //reportUtility.SetMasterHeaderText(ref sheet1, xlsRow, 1, "Narration");
-                //reportUtility.SetText(ref sheet1, xlsRow, 2, header["Narration"].ToString(), ExcelHAlign.HAlignLeft);
-                //sheet1[reportUtility.GetColumnNameForXls(2) + xlsRow + ":" + reportUtility.GetColumnNameForXls(3) + xlsRow].Merge();
+                
 
                 #region Column Variables
                 //xlsRow++;
@@ -1435,13 +1393,17 @@ namespace Library.Accounting.Accounts
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("Maternity Leave", sheet1, xlsRow, ref xlsCol, out ColMLv, 20);
                 SetCellValue("Total Ot Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
+                SetCellValue("Payable", sheet1, xlsRow, ref xlsCol, out int ColPayable, 11);
+                SetCellValue("Payable Voucher No", sheet1, xlsRow, ref xlsCol, out int ColPayableVoucherNo, 11);
+                SetCellValue("Disbursement", sheet1, xlsRow, ref xlsCol, out int ColDisbursement, 11);
+                SetCellValue("Disbursement Voucher No", sheet1, xlsRow, ref xlsCol, out int ColDisbursementVoucherNo, 11);
                 endGenericColumn = xlsCol;
 
                 //SR to
                 sheet1.Range[xlsRow, ColSr].Text = "Employee Information";
-                sheet1.Range[xlsRow, ColSr, xlsRow, ColTotalOTHR].Merge();
+                sheet1.Range[xlsRow, ColSr, xlsRow, ColDisbursementVoucherNo].Merge();
                 //xlsCol += 1;
-                ColGrs = ColTotalOTHR;
+                ColGrs = ColDisbursementVoucherNo;
                 // 9
 
                 var _count_earning_head = 0;
@@ -1678,11 +1640,36 @@ namespace Library.Accounting.Accounts
                         sheet1.Range[xlsRow, cPaymentMode].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, cPaymentMode].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-
+                        
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["BankName"].ToString()) == false)
                             sheet1.Range[xlsRow, colBank].Text = dtEmployees.Rows[i]["BankName"].ToString();
                         sheet1.Range[xlsRow, colBank].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, colBank].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (!string.IsNullOrEmpty(Mode) && Mode == dtEmployees.Rows[i]["PaymentMode"].ToString())
+                        {
+                            if (!string.IsNullOrEmpty(EmpBank)/* && EmpBank == dtEmployees.Rows[i]["BankName"].ToString()*/)
+                            {
+                                if (EmpBank == dtEmployees.Rows[i]["BankName"].ToString())
+                                {
+                                    //sheet1.Range[xlsRow, colBank].CellStyle.ColorIndex = ExcelKnownColors.Green;
+                                    sheet1.Range[xlsRow, 1, xlsRow , npstruct].CellStyle.FillBackground = ExcelKnownColors.Light_green;
+                                }
+                                else
+                                {
+                                    
+                                }
+                            }
+                            else
+                            {
+                                //sheet1.Range[xlsRow, cPaymentMode].CellStyle.ColorIndex = ExcelKnownColors.Green;
+                                sheet1.Range[xlsRow, 1, xlsRow , npstruct].CellStyle.FillBackground = ExcelKnownColors.Light_green;
+                            }
+                        }
+                        else
+                        {
+                            
+                        }
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["BankAccNo"].ToString()) == false)
                             sheet1.Range[xlsRow, colBankAccountNo].Text = dtEmployees.Rows[i]["BankAccNo"].ToString();
@@ -1732,6 +1719,18 @@ namespace Library.Accounting.Accounts
                             sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
                         sheet1.Range[xlsRow, cGender].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, cGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["IsLock"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColPayable].Text = dtEmployees.Rows[i]["IsLock"].ToString();
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["PayableVoucherId"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColPayableVoucherNo].Text = dtEmployees.Rows[i]["PayableVoucherId"].ToString();
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["IsDisburse"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColDisbursement].Text = dtEmployees.Rows[i]["IsDisburse"].ToString();
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DisbursementVoucherId"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColDisbursementVoucherNo].Text = dtEmployees.Rows[i]["DisbursementVoucherId"].ToString();
 
                         //5 "Section", "SubSection", 
 

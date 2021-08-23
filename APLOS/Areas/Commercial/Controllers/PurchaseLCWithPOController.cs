@@ -23,6 +23,7 @@ using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using System.Xml.Serialization;
 
 #endregion
 
@@ -171,6 +172,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 IEnumerable<PurchaseLCCharges> Charges = JsonConvert.DeserializeObject<IEnumerable<PurchaseLCCharges>>(form["Charges"], settings);
                 IEnumerable<PurchaseOrder> POList = JsonConvert.DeserializeObject<IEnumerable<PurchaseOrder>>(form["POList"], settings);
                 IEnumerable<ServicePOMaster> SPOList = JsonConvert.DeserializeObject<IEnumerable<ServicePOMaster>>(form["SPOList"], settings);
+                IEnumerable<JWTransformationPurchaseOrder> JWPOList = JsonConvert.DeserializeObject<IEnumerable<JWTransformationPurchaseOrder>>(form["JWPOList"], settings);
 
 
                 var directory = ResourcesPathReader.GetLCDocPath();
@@ -202,6 +204,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 SaveChargeData(Charges, masterId, version);
                 UpdatePurchaseOrder(POList, masterId, model);
                 UpdateServiceOrderPO(SPOList, masterId, model);
+                UpdateJWPO(JWPOList, masterId, model);
                 if (file.IsNotNull())
                 {
                     foreach (var item in file)
@@ -399,6 +402,52 @@ namespace Aplos.Areas.Commercial.Controllers
                 else
                 {
                     string _sql = "Update TRN.ServicePOMaster SET PurchaseLCId=NULL WHERE PurchaseLCId='" + masterId + "'";
+                    _sqlRepository.ExecuteSqlCommand(_sql);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void UpdateJWPO(IEnumerable<JWTransformationPurchaseOrder> SPOList, string masterId, PurchaseLC model)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                if (SPOList.Any())
+                {
+                    ConnectionManager.DAL.ConManager objCon;
+                    DataSet dsMaster;
+                    foreach (var item in SPOList)
+                    {
+                        string sql = "SELECT * FROM [dbo].[JWTransformationPurchaseOrder] WHERE Id='" + item.Id + "'";
+                        objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                        if (dsMaster.Tables[0].Rows.Count > 0)
+                        {
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            //dr["ContractId"] = model.ContractId;
+                            dr["PurchaseLCId"] = masterId;
+                            dr["OrderSpecific"] = model.OrderSpecific;
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+                            dr.EndEdit();
+                        }
+
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsMaster);
+                    }
+                }
+                else
+                {
+                    string _sql = "Update [dbo].[JWTransformationPurchaseOrder] SET PurchaseLCId=NULL WHERE PurchaseLCId='" + masterId + "'";
                     _sqlRepository.ExecuteSqlCommand(_sql);
                 }
             }
@@ -749,21 +798,6 @@ namespace Aplos.Areas.Commercial.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                //var sql = @"SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
-                //            PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
-                //            --InvPP.StandardName ,ISNULL(PLC.OrderSpecific,PO.OrderSpecific) OrderSpecific,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                //            InvPP.StandardName ,PO.OrderSpecific,PO.ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                //            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,C.ContractNo
-                //            FROM TRN.PurchaseOrder PO
-                //            INNER JOIN (SELECT SUM(TransactionAmount) TransactionAmount, InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.Id
-                //            LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
-                //            LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
-                //            LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
-                //            LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
-                //            WHERE PO.PlantId='" + identity.PlantId + @"' 
-                //            AND PO.POType='PO'
-                //            AND PT.PaymentMode = 'LC' 
-                //            AND PO.PurchaseLCId IS NULL";
 
                 var sql = @"SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
                                     PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
@@ -778,7 +812,7 @@ namespace Aplos.Areas.Commercial.Controllers
                                     LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
                                     LEFT JOIN [HKP].[Party] AS CC ON CC.Id=C.CustomerId
                                     LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
-                                    LEFT JOIN (Select PoId,COUNT(GRNId) GRNId from tRN.POGGRNMap GROUP BY PoId) GRN ON GRN.PoId=PO.Id
+                                    LEFT JOIN (Select PoId,COUNT(GRNId) GRNId from TRN.POGGRNMap GROUP BY PoId) GRN ON GRN.PoId=PO.Id
                                     WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND AuthorizedByStatus='Approved'
                             UNION 
                             SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
@@ -794,9 +828,24 @@ namespace Aplos.Areas.Commercial.Controllers
                                     LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
                                     LEFT JOIN [HKP].[Party] AS CC ON CC.Id=C.CustomerId
                                     LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
-                                    LEFT JOIN (Select ServicePoId,COUNT(ServiceAckId) GRNId from tRN.ServivePOAcknowledgementMap GROUP BY ServicePoId) GRN ON GRN.ServicePoId=PO.Id
+                                    LEFT JOIN (Select ServicePoId,COUNT(ServiceAckId) GRNId from TRN.ServivePOAcknowledgementMap GROUP BY ServicePoId) GRN ON GRN.ServicePoId=PO.Id
                                     WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND ApprovedByStatus='Approved'
-                                    ";
+                                     UNION 
+                            SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
+                                    PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
+                                    InvPP.StandardName ,ISNULL(PO.OrderSpecific,'')OrderSpecifi,PO.ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
+                                    ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,ISNULL(C.ContractNo,'')ContractNo,Flag='OutSourcePO',CC.UserName CustomerName
+                                    ,IsFirst=0
+                                    FROM [dbo].[JWTransformationPurchaseOrder] PO
+                                    INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, JobWorkTransformationContractMasterId 
+							        FROM [dbo].[JobWorkTransformationContractChild] GROUP BY JobWorkTransformationContractMasterId) POD ON POD.JobWorkTransformationContractMasterId=PO.Id
+                                    LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
+                                    LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
+                                    LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
+                                    LEFT JOIN [HKP].[Party] AS CC ON CC.Id=C.CustomerId
+                                    LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
+                                    --LEFT JOIN (Select ServicePoId,COUNT(ServiceAckId) GRNId from TRN.ServivePOAcknowledgementMap GROUP BY ServicePoId) GRN ON GRN.ServicePoId=PO.Id
+                                    WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsApproved=1";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -834,7 +883,18 @@ namespace Aplos.Areas.Commercial.Controllers
                             LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId 
                             LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
                             WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC'  AND PO.PurchaseLCId='" + purchaseLCId + @"'
-";
+                    UNION
+                    SELECT 
+                            distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
+                            InvPP.StandardName ,ISNULL(PLC.OrderSpecific,PO.OrderSpecific) OrderSpecific,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
+                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='OutSourcePO',PLC.LCRef
+                            FROM [dbo].[JWTransformationPurchaseOrder] PO
+                            INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, JobWorkTransformationContractMasterId FROM [dbo].[JobWorkTransformationContractChild] GROUP BY JobWorkTransformationContractMasterId) POD ON POD.JobWorkTransformationContractMasterId=PO.Id
+                            LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
+                            LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
+                            LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId 
+                            LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
+                            WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC'  AND PO.PurchaseLCId='"+ purchaseLCId + "'";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -917,6 +977,109 @@ namespace Aplos.Areas.Commercial.Controllers
 
 
     }
+    public class JWTransformationPurchaseOrder
+    {
 
+        #region Scalar Properties
+
+        public string Id { get; set; }
+        public string DocRefNo { get; set; }
+        public DateTime DocDate { get; set; }
+        public string FixedAssetOrInventory { get; set; }
+        public bool PODepended { get; set; }
+        public DateTime? BaseOnDueDate { get; set; }
+        public int BaseNoOfDays { get; set; }
+        public DateTime? MatureDate { get; set; }
+        public bool IsNonCreditable { get; set; }
+        public string Status { get; set; }
+        public string InvoicingByAddress { get; set; }
+        public string DeliveryByAddress { get; set; }
+        public DateTime PODate { get; set; }
+        public decimal ToCurrencyRate { get; set; }
+        public bool IsTaxApplicable { get; set; }
+        public bool IsApproved { get; set; }
+        public bool IsPaymentHold { get; set; }
+        public string PartyType { get; set; }
+        public string POType { get; set; }
+        public string MasterOrderId { get; set; }
+
+        public string DeliveryInstruction { get; set; }
+
+        public string SpecialInstruction { get; set; }
+        public string CheckedBy { get; set; }
+
+        public string ApprovedBy { get; set; }
+        public string CheckedByStatus { get; set; }
+
+        public string ApprovedByStatus { get; set; }
+
+        public string RequisitionId { get; set; }
+
+        public string CheckedHoldRejectReason { get; set; }
+
+        public string ApprovedHoldRejectReason { get; set; }
+
+        public string FileName { get; set; }
+
+
+        public string ContractId { get; set; }
+
+        public string PurchaseLCId { get; set; }
+        public string OrderSpecific { get; set; }
+
+        #endregion Scalar Properties
+
+        #region Audit Properties
+        [NeverUpdate]
+        public string AddedBy { get; set; }
+       
+        [NeverUpdate]
+        public DateTime AddedDate { get; set; }
+
+        [NeverUpdate]
+        public string AddedFromIP { get; set; }
+
+        public string UpdatedBy { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
+
+        public string UpdatedFromIP { get; set; }
+
+        #endregion Audit Properties
+
+        #region Navigation Properties
+
+        [NeverUpdate, XmlIgnore]
+        public string CompanyGroupId { get; set; }
+
+        [NeverUpdate]
+        public string CompanyId { get; set; }
+
+        [NeverUpdate]
+        public string EntityId { get; set; }
+
+        [NeverUpdate]
+        public string PlantId { get; set; }
+
+        public string PartyId { get; set; }
+
+        public string MaterialStorageId { get; set; }
+
+        public string CurrencyId { get; set; }
+
+        public string PaymentTermId { get; set; }
+
+        public string BaseCurrencyId { get; set; }
+
+        public string InvoicingPartyPlantId { get; set; }
+
+        public string DeliveryPartyPlantId { get; set; }
+
+        public string EmployeeId { get; set; }
+        public bool IsClosed { get; set; }
+
+
+        #endregion Navigation Properties
+    }
 
 }

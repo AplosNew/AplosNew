@@ -164,6 +164,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			ShowResult('You can not select issue type Capital');
 			return false;
 		}
+		
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		if ($scope.Action === "Save") {
@@ -210,19 +211,21 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			return false;
 		}
 		$scope.detailListNew = [];
+		$scope.detailListNewAll = [];
+		
 		//debugger;
 		for (var i = 0; i < $scope.detailList.length; i++) {
 			if ($scope.detailList[i].check === true) {
 
 
-				if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
+				if ($scope.detailList[i].TransactionQty > Math.round(($scope.detailList[i].PostingQty + $scope.detailList[i].IssuedQty) * 100 + Number.EPSILON) / 100) {
 					ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
 					return false;
 				}
-				if ($scope.detailList[i].TransactionQty > $scope.detailList[i].BalanceQty) {
-					ShowResult("Issue qty can not gaterthen  Balance Qty");
-					return false;
-				}
+				//if ($scope.detailList[i].TransactionQty > $scope.detailList[i].BalanceQty) {
+				//	ShowResult("Issue qty can not gaterthen  Balance Qty");
+				//	return false;
+				//}
 				if ($scope.detailList[i].check === true && baseService.isUndefinedOrNull($scope.detailList[i].TransactionQty)) {
 					ShowResult("Enter the Qty");
 					return false;
@@ -239,7 +242,39 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 					ShowResult("Enter the Qty");
 					return false;
 				}
-				$scope.detailListNew.push($scope.detailList[i]);
+				$scope.detailListNewAll.push($scope.detailList[i]);
+				if ($scope.detailList[i].check === true) {
+					$scope.detailList[i].TransactionQty = Math.round($scope.detailList[i].TransactionQty * 100 + Number.EPSILON) / 100;
+					var getRow1 = $filter("filter")($scope.detailListNew, { "MaterialMasterId": $scope.detailList[i].MaterialMasterId, "ArticleId": $scope.detailList[i].ArticleId, "FirstCharacteristicsValueId": $scope.detailList[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.detailList[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.detailList[i].ThirdCharacteristicsValueId, "check": true });
+
+
+					if (getRow1.length === 0) {
+
+						$scope.detailListNew.push($scope.detailList[i])
+						$scope.detailListNew.RequisitionQty = Math.round($scope.detailList[i].TransactionQty * 100 + Number.EPSILON) / 100;
+					}
+					else {
+						for (var i1 = 0; i1 < $scope.detailListNew.length; i1++) {
+
+							if ($scope.detailListNew[i1].MaterialMasterId === $scope.detailList[i].MaterialMasterId
+								&& $scope.detailListNew[i1].ArticleId === $scope.detailList[i].ArticleId
+								&& $scope.detailListNew[i1].FirstCharacteristicsValueId === $scope.detailList[i].FirstCharacteristicsValueId
+								&& $scope.detailListNew[i1].SecondCharacteristicsValueId === $scope.detailList[i].SecondCharacteristicsValueId
+								&& $scope.detailListNew[i1].ThirdCharacteristicsValueId === $scope.detailList[i].ThirdCharacteristicsValueId
+							) {
+								$scope.detailListNew[i1].RequisitionQty += Math.round($scope.detailList[i].RequisitionQty * 100 + Number.EPSILON) / 100;;
+
+
+							}
+
+						}
+
+					}
+
+					
+				}	
+
+				//$scope.detailListNew.push($scope.detailList[i]);
 			}
 
 		}
@@ -260,6 +295,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 					, specificStockList: $scope.specificStockList
 					, inventoryIssue: $scope.productNew
 					, IssueTypeStatus: UIStatus
+					, entitiesAll: $scope.detailListNewAll
 
 				}
 				, dataType: 'JSON'
@@ -874,7 +910,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			for (var n = 0; n < baseService.arrayLength($scope.materialStockList); n++) { // add
 				var nRow = $scope.materialStockList[n];
 				nRow.BaseQty = $scope.materialStockList[n].BaseQty;
-				nRow.BaseIssueQty = $scope.materialStockList[n].BaseIssueQty;
+				nRow.BaseIssueQty =$scope.materialStockList[n].BaseIssueQty;
 				if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag)
 					//$scope.detailModel.IsSpecific = true;
 					$scope.specificStockList.push(nRow);
@@ -888,8 +924,8 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	};
 
 	$scope.calculateBaseQty = function (data) {
-		data.BaseIssueQty = parseFloat(data.BaseUoMFactor * data.RequisitionQty).toFixed(4);
-		if (data.BaseIssueQty > data.BalanceStock) {
+		var BaseIssueQtynew = parseFloat(data.BaseUoMFactor * data.RequisitionQty).toFixed(4);
+		if (BaseIssueQtynew > data.BalanceStock) {
 			ShowResult('Issue Qty can not grater than Balance Qty', 'failure', 'stockPopUp');
 			data.RequisitionQty = 0;
 			data.Flag = 0;
@@ -1504,17 +1540,27 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		for (var i = 0; i < $scope.detailList.length; i++) {
 			if ($scope.detailList[index].IssueRequest === $scope.detailList[i].IssueRequest) {
 
-				if ($scope.detailList[index].TransactionQty > $scope.detailList[i].PostingQty) {
+				if ((Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].IssuedQty) * 100 + Number.EPSILON) / 100)> Math.round(($scope.detailList[i].PostingQty) * 100 + Number.EPSILON) / 100) {
 					ShowResult("Issue qty must be less than or equal Ready for Issue Qty");
+					$scope.detailList[index].TransactionQty = 0;
+					$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].IssuedQty) * 100 + Number.EPSILON) / 100));
 					return false;
 					//throw 'Issue qty must be less than or equal Ready for Issue Qty.';
 				}
-				if ($scope.detailList[index].TransactionQty > $scope.detailList[i].BalanceQty) {
-					ShowResult("Issue qty must be less than or equal BalanceQty Qty");
+
+				if ($scope.detailList[index].TransactionQty > Math.round(($scope.detailList[i].RequestedQty) * 100 + Number.EPSILON) / 100) {
+					ShowResult("Transaction Qty cannot grater than Requested qty");
+					$scope.detailList[index].TransactionQty = 0;
+					$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].IssuedQty) * 100 + Number.EPSILON) / 100));
 					return false;
 					//throw 'Issue qty must be less than or equal Ready for Issue Qty.';
 				}
-				$scope.detailList[i].BalanceQty = $scope.detailList[i].BalanceQty - $scope.detailList[i].TransactionQty;
+				//if ($scope.detailList[index].TransactionQty > $scope.detailList[i].BalanceQty) {
+				//	ShowResult("Issue qty must be less than or equal BalanceQty Qty");
+				//	return false;
+				//	//throw 'Issue qty must be less than or equal Ready for Issue Qty.';
+				//}
+				$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].IssuedQty) * 100 + Number.EPSILON) / 100));
 			}
 
 		}
@@ -1668,7 +1714,10 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	$scope.specificStockList = [];
 	//debugger;
 	$scope.getSpecificMaterialStockForSlipIssue = function (data, index) {
+		//$scope.selectedRowQty = data.TransactionQty;
+		
 		for (var i = 0; i < $scope.detailList.length; i++) {
+			$scope.selectedRowQty = $filter('sumByKey')($filter('filter')($scope.detailList, { MaterialMasterId: data.MaterialMasterId, ArticleId: data.ArticleId, FirstCharacteristicsValueId: data.FirstCharacteristicsValueId, SecondCharacteristicsValueId: data.SecondCharacteristicsValueId, ThirdCharacteristicsValueId: data.ThirdCharacteristicsValueId }), 'TransactionQty');
 			if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
 				ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
 				return false;

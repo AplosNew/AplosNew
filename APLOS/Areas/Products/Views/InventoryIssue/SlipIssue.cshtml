@@ -269,7 +269,7 @@
 						@*<input type="checkbox" ng-click="Change($index)" ng-model=x.chk>*@
 						<div class="checkbox-site">
 							<label>
-								<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.BalanceQty===0">
+								<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.RequestedQty===x.IssuedQty">
 								<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
 							</label>
 						</div>

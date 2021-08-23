@@ -52,7 +52,7 @@ namespace Library.Service.Payrolls.Setting
                 }
                 if (DATA_OK == true)
                 {
-                    #region Save S a v e Currency Rule Master
+                    #region  S a v e Currency Rule Master
                     #endregion
                     GetCurrencyRuleMaster(identity.CompanyGroupId, identity.PlantId, CurrencyId, out dsCurrencyRuleMst);
                     dtCurrencyRuleMst = dsCurrencyRuleMst.Tables[0];
@@ -76,8 +76,8 @@ namespace Library.Service.Payrolls.Setting
                         drCurrencyRuleMst.EndEdit();
                     }
 
-                    #endregion Save S a v e Currency Rule Master
-                    #region Save S a v e Over Time Pmt Policy Details
+                    #endregion  S a v e Currency Rule Master
+                    #region  S a v e Currency Policy Details
 
                     //  LoadDataSetFromDataGrid(ref dgOTPolicy, out dsGrd);
 

@@ -2223,5 +2223,89 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 
 	}
 
-	
+
+	$scope.ApprovedStockList = [];
+	$scope.getApprovedStock = function (data) {
+		$http({
+			method: 'POST'
+			, url: $scope.path + 'GetApprovedStockDetail'
+			, data: { entity: data, issueDate: $scope.productNew.SalesDate }
+			, dataType: 'JSON'
+		}).then(function (response) {
+			$scope.ApprovedStockList = response.data;
+			angular.element(document.querySelector('#ApprovedStockPopUp')).modal('show');
+		}), function (response) {
+			ShowResult(response.data.Message, 'failure');
+		};
+	};
+
+	$scope.UnApprovedStockList = [];
+	$scope.getUnApprovedStock = function (data) {
+		$http({
+			method: 'POST'
+			, url: $scope.path + 'GetUnApprovedStockDetail'
+			, data: { entity: data, issueDate: $scope.productNew.SalesDate }
+			, dataType: 'JSON'
+		}).then(function (response) {
+			$scope.UnApprovedStockList = response.data;
+			angular.element(document.querySelector('#UnApprovedStockPopUp')).modal('show');
+		}), function (response) {
+			ShowResult(response.data.Message, 'failure');
+		};
+	};
+	$scope.closeUnApprovedStockPopUp = function () {
+		angular.element(document.querySelector('#UnApprovedStockPopUp')).modal('hide');
+	};
+
+	$scope.PostingStockList = [];
+	$scope.getPostingStock = function (data) {
+		$http({
+			method: "POST",
+			dataType: 'JSON',
+			//url: $scope.getSearchListUrl,
+			url: 'Products/InventoryIssue/GetPostingStockDetail',
+			data: { entity: data, issueDate: $scope.productNew.SalesDate }
+
+		}).then(function successCallback(response) {
+			$scope.PostingStockList = response.data;
+			angular.element(document.querySelector('#PostingStockPopUp')).modal('show');
+			//entrydata = copy(searchdata);
+		});
+	};
+
+	$scope.tab = 1;
+	$scope.setTab = function (newTab) {
+		$scope.tab = newTab;
+	};
+
+	$scope.isSet = function (tabNum) {
+		return $scope.tab === tabNum;
+	};
+
+	$scope.tabU = 1;
+	$scope.setTabU = function (newTab) {
+		$scope.tabU = newTab;
+	};
+
+	$scope.isSetU = function (tabNum) {
+		return $scope.tabU === tabNum;
+	};
+
+	$scope.tabP = 1;
+	$scope.setTabP = function (newTab) {
+		$scope.tabP = newTab;
+	};
+
+	$scope.isSetP = function (tabNum) {
+		return $scope.tabP === tabNum;
+	};
+
+
+
+	$scope.closePostingStockPopUp = function () {
+		angular.element(document.querySelector('#PostingStockPopUp')).modal('hide');
+	};
+	$scope.closeApprovedStockPopUp = function () {
+		angular.element(document.querySelector('#ApprovedStockPopUp')).modal('hide');
+	};
 }
