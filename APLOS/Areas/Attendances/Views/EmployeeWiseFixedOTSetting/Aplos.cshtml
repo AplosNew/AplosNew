@@ -60,32 +60,47 @@
             </div>
 
             @*<div class="form-group">
-            <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
-            <div class="col-sm-8">
-                <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="EmployeeWiseFixedOtSetting.EffectiveDate" e-width="60%" />
-            </div>
-        </div>*@
-
-
+                    <label class="col-sm-6 control-label">Maximum OT Hour<sup>*</sup></label>
+                    <div class="col-sm-4 show-message">
+                        <input type="text" ng-model="EmployeeWiseFixedOtSetting.MaximumOT" class="form-control" name="Leave End Day" tabindex="2" only-numbers>
+                    </div>
+                </div>*@
             <div class="form-group">
-                <label class="col-sm-4 control-label">Minimum OT Hour<sup>*</sup></label>
+                <label class="col-sm-6 control-label">Maximum OT Limit Per month<sup>*</sup></label>
                 <div class="col-sm-4 show-message">
-                    <input type="text" ng-model="EmployeeWiseFixedOtSetting.MinimumOT" class="form-control" name="Leave End Day" tabindex="2" only-numbers>
+                    <input type="text" ng-model="EmployeeWiseFixedOtSetting.MaximumOTLimitPerMonth" class="form-control" name="Leave End Day" tabindex="2" only-numbers>
                 </div>
             </div>
 
+
+            @*<div class="form-group">
+                    <label class="col-sm-6 control-label">Excess Allowed<sup>*</sup> </label>
+                    <div class="col-sm-4" style="margin-top: 10px;">
+                        <div class="checkbox-site">
+                            <label>
+                                <input tabindex="8" type="checkbox" ng-model="EmployeeWiseFixedOtSetting.IsExcessAllowed">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>*@
             <div class="form-group">
-                <label class="col-sm-4 control-label">Excess Allowed<sup>*</sup> </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label">Maximum OT Limit per day (on weekdays)<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <input type="text" ng-model="EmployeeWiseFixedOtSetting.MaximumOTLimitPerWeekDay" class="form-control" name="Leave End Day" tabindex="2" only-numbers>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Is OT Minimum Limit (which has to be met)<sup>*</sup> </label>
+                <div class="col-sm-4" style="margin-top: 10px;">
                     <div class="checkbox-site">
                         <label>
-                            <input tabindex="8" type="checkbox" ng-model="EmployeeWiseFixedOtSetting.IsExcessAllowed">
+                            <input tabindex="8" type="checkbox" ng-model="EmployeeWiseFixedOtSetting.IsMinimumOTLimit">
                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                         </label>
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -102,6 +117,19 @@
                 <br />
                 <br />
             </div>
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Maximum OT Limit per day (on Holiday)<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <input type="text" ng-model="EmployeeWiseFixedOtSetting.MaximumOTLimitPerHoliDay" class="form-control" name="Leave End Day" tabindex="2" only-numbers>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Maximum OT Limit per day (on Weekends)<sup>*</sup></label>
+                <div class="col-sm-4 show-message">
+                    <input type="text" ng-model="EmployeeWiseFixedOtSetting.MaximumOTLimitPerWeekend" class="form-control" name="Leave End Day" tabindex="2" only-numbers>
+                </div>
+            </div>
+
 
         </div>
 
@@ -124,8 +152,13 @@
                     <div e-columns>
 
                         @*<div e-column e-field="EffectiveDate" e-headertext="Effective Date" e-width="60"></div>*@
-                        <div e-column e-field="MinimumOT" e-headertext="Minimum OT Hour" e-width="80"></div>
-                        <div e-column e-field="ExcessAllowed" e-headertext="Excess Allowed" e-width="60"></div>
+                        @*<div e-column e-field="MaximumOT" e-headertext="Maximum OT Hour" e-width="80"></div>*@
+                        <div e-column e-field="MaximumOTLimitPerWeekDay" e-headertext="Maximum OT Limit Per WeekDay" e-width="80"></div>
+                        <div e-column e-field="MaximumOTLimitPerHoliDay" e-headertext="Maximum OT Limit Per HoliDay" e-width="80"></div>
+                        <div e-column e-field="MaximumOTLimitPerWeekend" e-headertext="Maximum OT Limit Per Weekend" e-width="80"></div>
+                        <div e-column e-field="MaximumOTLimitPerMonth" e-headertext="Maximum OT Limit Per Month" e-width="80"></div>
+                        <div e-column e-field="MinimumOTLimit" e-headertext="Minimum OT Limit" e-width="60"></div>
+                        @*<div e-column e-field="ExcessAllowed" e-headertext="Excess Allowed" e-width="60"></div>*@
 
                     </div>
                 </div>
