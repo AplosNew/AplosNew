@@ -13560,7 +13560,7 @@ INNER JOIN
             {
                 if (isActive == true)
                 {
-                    wcEmpStatus += " OR EmpBasic.EmployeeStatus ='Regular'";
+                    wcEmpStatus += " OR case when  ISNULL(SalaryProcFlag,'Regular') ='' then 'Regular' else ISNULL(SalaryProcFlag,'Regular') end = 'Regular' "; 
                 }
                 if (isSeperated == true)
                 {
@@ -13600,7 +13600,11 @@ INNER JOIN
                                     ,ISNULL(spld.IFSCCode,'') IFSCCode
                                     ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
                                     ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
-
+                                    ,IsLock = case when sl.IsLocked = 1 then 'Yes' else 'No' end
+                            		,sl.PayableVoucherId
+									,IsDisburse = case when sl.IsDisbursed = 1 then 'Yes' else 'No' end
+									,sl.DisbursementVoucherId                                    
+									,SalaryProcFlag	
                                      FROM EmployeeInformation E
                                           Left JOIN (
                                     SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
@@ -13609,8 +13613,8 @@ INNER JOIN
                                     WHERE SlrProcMstSystemID IN(" + salaryProcessId + @") 
                                     ) SPM ON spm.EmpInfoSystemID=e.SystemId
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
-                         
-									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
+                                    left join SalaryLock sl on sl.EmpSystemId = e.SystemId and MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + @"')
+                                                 LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
 												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
 												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
 												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
@@ -13975,13 +13979,17 @@ INNER JOIN
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("Maternity Leave", sheet1, xlsRow, ref xlsCol, out ColMLv, 20);
                 SetCellValue("Total Ot Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
+                SetCellValue("Payable", sheet1, xlsRow, ref xlsCol, out int ColPayable, 11);
+                SetCellValue("Payable Voucher No", sheet1, xlsRow, ref xlsCol, out int ColPayableVoucherNo, 11);
+                SetCellValue("Disbursement", sheet1, xlsRow, ref xlsCol, out int ColDisbursement, 11);
+                SetCellValue("Disbursement Voucher No", sheet1, xlsRow, ref xlsCol, out int ColDisbursementVoucherNo, 11);
                 endGenericColumn = xlsCol;
 
                 //SR to
                 sheet1.Range[xlsRow, ColSr].Text = "Employee Information";
-                sheet1.Range[xlsRow, ColSr, xlsRow, ColTotalOTHR].Merge();
+                sheet1.Range[xlsRow, ColSr, xlsRow, ColDisbursementVoucherNo].Merge();
                 //xlsCol += 1;
-                ColGrs = ColTotalOTHR;
+                ColGrs = ColDisbursementVoucherNo;
                 // 9
 
                 var _count_earning_head = 0;
@@ -14272,6 +14280,16 @@ INNER JOIN
                             sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
                         sheet1.Range[xlsRow, cGender].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, cGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        sheet1.Range[xlsRow, ColPayable].Text = dtEmployees.Rows[i]["IsLock"].ToString();
+                        sheet1.Range[xlsRow, ColPayableVoucherNo].Text = dtEmployees.Rows[i]["PayableVoucherId"].ToString();
+                        sheet1.Range[xlsRow, ColDisbursement].Text = dtEmployees.Rows[i]["IsDisburse"].ToString();
+                        sheet1.Range[xlsRow, ColDisbursementVoucherNo].Text = dtEmployees.Rows[i]["DisbursementVoucherId"].ToString();
+
+                        if (dtEmployees.Rows[i]["IsLock"].ToString().ToUpper() == "NO")
+                        {
+                            sheet1.Range[xlsRow, 1, xlsRow, npstruct].CellStyle.FillBackground = ExcelKnownColors.Red;
+                        }
 
                         //5 "Section", "SubSection", 
 
