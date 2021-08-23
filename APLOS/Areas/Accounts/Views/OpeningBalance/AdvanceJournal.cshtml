@@ -332,7 +332,7 @@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li ng-show="x.IsPark"><a ng-click="confirmPostNew(x,x.DrAmount,x.CrAmount);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmPostNew(x,x.DrAmount,x.CrAmount);getFiscalYearPeriod(x.PostingDate)" href="" class="btn btn-action tooltip-here">Post</a></li>
                             <li><a class="btn btn-action" href="Accounts/OpeningBalance/GetJournalVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&openingBalanceId={{x.Id}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         </ul>
                     </td>

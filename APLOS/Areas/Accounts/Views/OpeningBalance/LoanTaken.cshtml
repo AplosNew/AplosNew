@@ -73,7 +73,7 @@
         <div class="common-btn">
             <ul class="list-inline text-left">
                 <li class="col-md-8"><button ng-show="openingBalance.PartyType=='@Library.Model.Parties.PartyType.Director.ToString()'" ng-disabled="advanceCA==null" ng-click="showDirectorPopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Add Line Items</button></li>
-                <li class="col-md-8"><button ng-show="openingBalance.PartyType=='@Library.Model.Parties.PartyType.Party.ToString()'" ng-disabled="advanceCA==null" ng-click="showPartyPopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Add Line Items</button></li>
+                <li class="col-md-8"><button ng-show="openingBalance.PartyType=='@Library.Model.Parties.PartyType.Party.ToString()'" ng-disabled="advanceCA==null" ng-click="showPartyPopUpNew();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Add Line Items</button></li>
                 <li class="col-md-8"><button ng-show="openingBalance.PartyType=='@Library.Model.Parties.PartyType.Bank.ToString()'" ng-disabled="advanceCA==null" ng-click="showBankPopUp();" class="btn" tabindex="11"><i class="glyphicon glyphicon-plus-sign"></i> Add Line Items</button></li>
             </ul>
         </div>
@@ -210,8 +210,9 @@
     <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
 </div>
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
-@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_DirectorPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="clearDetail(openingBalance.PartyType)" data-ng-click-left-button="clearDetailNo()"></confirm-archive-generic>
