@@ -7175,8 +7175,8 @@ group by Id) O60 ON O60.Id=IV.Id
             //}
 
             return @" 
-          		  select X.* from (
-
+          	   		 --********************************REGISTER******************************************
+       select X.* from (
                 SELECT T.Id MaterialTypeId
                 ,ISNULL(T.UserName,'') MaterialType
                 ,ISNULL (MGM.Id,'') MaterialGroupMasterId
@@ -7214,7 +7214,121 @@ group by Id) O60 ON O60.Id=IV.Id
 				
                 ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
 							 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-                ,isnull( gl.UserName ,'')GL,isnull( b.UserName,'') Budget,isnull( a.UserName,'') Activity
+
+                ,isnull( gl.UserName ,'')GL
+				,isnull( b.UserName,'') Budget
+				,isnull( a.UserName,'') Activity
+                ,isnull( FA.CompanyGroupId,'')CompanyGroupId,isnull( FA.CompanyId,'')CompanyId,isnull( FA.PlantId,'')PlantId
+                FROM MST.MaterialMaster M
+                LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+                LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
+                LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
+                LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+                LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
+                LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
+		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
+				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+
+		                         left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+				                    left join HKP.Budget b on b.Id=bm.BudgetId
+				                    left join HKP.Activity a on a.Id=M.ActivityId
+
+				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+
+            	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
+              	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
+				,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
+				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
+				,FAR.MaterialMasterId ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
+			    FROM TRN.FixedAssetRegister FAR
+
+				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				group by FixedAssetRegisterId
+				) sar on sar.FixedAssetRegisterId=FAR.Id
+                
+				where DisposedVoucherId IS NULL
+                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
+				)FA ON FA.MaterialMasterId=M.Id
+
+
+                WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') or  M.IsAsset=1) 
+			    and FA.FABaseAmount>0
+				
+              --  and x.ProcessId in ('','PRO20172','PRO20173','201811','','20181','20182','PRO20171','20196,PRO20173','PRO20172,PRO20173','201910,PRO20174','201811,PRO20174','PRO20176','PRO20171,PRO20172')
+			 --  and M.IsAsset in ('','No','Yes') and MBP.BusinessProcessName in ('','Yes','No')
+				 -- and M.Id in ('','76','84','86','96','71','82','103','74','186','97','75','79','1357','1354','1350','1355','1351','1352','1353','1349','1358','157','1356','1578','1603','123','126','548','462','1394','1396','1395','1397','697','1332','662','589','1104','908','1619','907','1618','1044','1056','1055','134','1034','1040','1041','1054','1058','1038','1048','1042','1035','1067','1043','1045','1980','1053','1507','137','927','1032','1057','1194','1324','806','1046','1047','1036','154','1037','1052','1039','1360','1361','1366','1370','1367','1364','1371','1362','1359','1373','1372','1365','1363','1369','1193','129','132','144','1097','1460','1068','1452','1459','1454','1070','689','1063','1392','1713','1466','163','1088','1444','1453','1071','698','694','811','1341','1310','1620','1608','1606','1616','1607','1065','1617','1605','1927','1308','1342','1346','1345','1344','1343','980','1321','1073','1080','1083','1077','1389','1704','1388','1074','1049','1099','1084','1470','1387','1085','1091','1090','940','1654','1126','1127','1722','1928','1131','1427','1642','1128','794','785','1233','1653','945','1142','1714','788','1650','1178','192','191','795','1144','1610','1135','1651','792','1086','181','787','94','1720','1644','1149','1137','963','1143','793','1668','783','1461','1671','1741','1652','1428','1736','1134','1737','1640','1368','803','1307','772','1112','1146','1064','1643','1641','1111','1147','1723','786','1859','1726','1727','1724','1721','1132','1123','784','1136','1739','782','1118','120','121','265','1599','1638','1601','1273','1497','95','1022','1851','1634','902','1738','1637','1021','1633','1600','702','1705','1715','700','1100','1101','690','1384','1393','1309','1381','1383','1382','1098','1122','1378','36','1937','48','45','570','1379','1019','35','46','1509','1510','1526','1531','1529','1522','1518','1525','1517','1516','1527','1534','1535','1533','1532','1523','1530','1528','1521','1514','1515','1511','1512','1513','1519','1524','1467','1549','136','593','139','1472','1508','1520','140','1547','1560','1629','1553','1543','1536','1542','1540','1541','1544','143','1485','1672','596','1538','1537','138','145','1552','1627','1709','850','1471','1554','1555','1550','1551','1548','1539','1546','1545','591','590','1561','1562','664','101','1563','51','918','80','1500','98','1197','MM-201822','100','1602','54','39','556','555','176','1130','1129','195','1504','1502','1050','1711','1505','174','1399','172','175','1119','1503','1204','1060','1203','583','1115','1114','1398','168','1403','1401','189','1402','177','90','625','1116','584','581','613','592','568','1501','164','171','621','1405','1577','1061','1569','1094','178','1202','614','612','1860','1095','582','1113','160','1404','158','159','1059','114','104','564','68','1282','105','1287','87','92','1291','558','552','1027','89','1290','65','62','559','917','565','69','60','571','66','111','1288','88','55','1289','560','63','99','MM-201812','67','574','85','109','167','845','110','569','106','57','1499','59','563','575','576','1286','56','1301','53','561','116','107','MM-201811','557','49','93','553','572','91','165','1302','1303','61','1285','102','72','562','1284','58','52','117','166','MM-201817','550','MM-20185','MM-201813','108','77','113','MM-20184','551','70','549','554','MM-20186','64','50','1347','78','73','112','1295','1484','1252','1268','1254','1265','1257','577','1266','1256','1487','1117','1249','1251','1488','1255','1253','1306','578','1489','1490','1483','1267','1486','1250','579','1248','1626','1331','1330','1623','1625','1328','1803','1622','1339','1877','1621','1329','1338','1572','1576','148','146','1493','1556','580','1066','317','1930','1934','1082','1087','701','1673','1092','983','1465','1096','1340','1075','1076','1380','1031','1719','1079','1078','1390','1712','693','1089','1081','1611','155','1323','156','153','1433','1598','152','1437','1628','147','1614','1568','151','1476','1765','1475','1436','1440','1612') 
+				 -- and T.Id  in ('','MAT-20177','20191','20196','20181','MAT-20173','20193','201910','20199','20197','MAT-20176','20198','MAT-201712','MAT-20171') 
+				 -- and fam.Id  in ('','','201826','201815','201817','201823','201819','20186','20185','201818','20202-1','201821','201822','20203-1','20181','20182','20184','201830','201824','201829','201828','201820','201827','201812','201813','20188','201810','20187','20189','20183','201814','201811','20201-1','201825','201816') 
+				 -- and MG.Id  in ('','201825','20183','20182','20181','201924','201915','201911','20196','20197','201810','201816','20199','20201','20192')
+				 --and uom.Id  in ('','UM70','UM76','UM10','UM91','UM107','UM101','UM12','UM94','UM89','UM96') 
+				 --and S.Id in ('','null','201943','201995','201948','201989','20214','20178','20192','201986','201915','201992','201942','201985','201982','201996','201935','201998','202111','20195','2019142','201962','201950','201927','201955','202110','201947','20219','20218','201931','201933','201940','20217','20216','201997','201914','201920','201934','201932','201913','2019123','201721','201936','201928','2019132','2019126','201929','20213','20212','20211','201956','201945','201949','201946')
+     --           and FA.FACount  in ('','0','1','3','6','10','53','20','21','50','9','58','87','15','5','61','37','982','2','159','4','18','234','14','19','38','11','7','8','65','216','41','52','13','43','28','31','283','12','46','71','114','64','26','17','76','22','112','23','247','2200','1528','48','248','2600','32','98','68','16','180','30','210','483','33','100','56','44','79') 
+				)X
+				WHERE
+				 ISNULL( X.CompanyGroupId,'')='" + companyGroupId + "' and ISNULL( X.CompanyId,'')='" + companyId + "' AND ISNULL( X.PlantId,'')='" + plantId + @"'
+				
+                 and x.ProcessId in (" + process + @")
+			     and X.IsAsset in (" + isAsset + @") 
+				 and X.Machine in (" + isMachine + @")
+
+                  and X.MaterialMasterId in (" + materialMasterId + @") 
+				  and X.MaterialTypeId  in (" + materialTypeId + @") 
+				  and X.AssetMasterId  in (" + assetMasterId + @") 
+				  and X.MaterialGroup1Id  in (" + materialGroup1Id + @")
+				 and X.BaseUOMId  in (" + baseUOMId + @")
+                 and X.FACount  in (" + faCount + @") 
+
+
+--*************************************NON REGISTER******************************************************
+union ALL
+ select X.* from (
+                SELECT T.Id MaterialTypeId
+                ,ISNULL(T.UserName,'') MaterialType
+                ,ISNULL (MGM.Id,'') MaterialGroupMasterId
+				,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                ,isnull( M.Id,'') MaterialMasterId
+				,ISNULL (M.Code,'')Code
+				,ISNULL(M.ShortName,'')ShortName
+				,ISNULL( M.UserName,'' ) MaterialMaster
+				,isnull( M.BudgetMasterId,'')BudgetMasterId
+				,isnull(fam.Id ,'')AssetMasterId
+				,ISNULL (fam.UserName,'') AssetMaster
+                ,isnull( MC.Id,'') MaterialCategoryId
+				,ISNULL( MC.UserName,'') MaterialCategory
+				,isnull( SC.Id ,'')MaterialSubCategoryId
+				,isnull(SC.UserName,'') MaterialSubCategory
+                ,isnull( MG.Id,'') [MaterialGroup1Id]
+				,Isnull (MG.UserName,'' )MaterialGroup1
+				,isnull( uom.Id,'') BaseUOMId
+				,Isnull (uom.UserName,'') BaseUOM
+                 , IsAsset =isnull( case when M.IsAsset =1 then 'Yes' else  'No'  end,'')
+				 , Machine=isnull( case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end,'' )
+
+				 ,ISNULL(FA.FACount,0) FACount
+                , ISNULL(FA.FABaseAmount,0)FABaseAmount
+				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
+				  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
+				 , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+				 ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
+				 ,isnull( s.Id,'') SkillId
+                ,isnull (S.UserName,'') Skill
+
+								
+                ,ProcessId = ISNULL(STUFF((select distinct ',' + P.Id from[MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id = MMP.ProcessId
+                where MMP.MaterialMasterId = M.Id for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+				
+                ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+							 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                ,isnull( gl.UserName ,'')GL
+				,isnull( b.UserName,'') Budget
+				,isnull( a.UserName,'') Activity
                 ,isnull( FA.CompanyGroupId,'')CompanyGroupId,isnull( FA.CompanyId,'')CompanyId,isnull( FA.PlantId,'')PlantId
                 FROM MST.MaterialMaster M
                 LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
@@ -7256,13 +7370,36 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') or  M.IsAsset=1) 
 				
-			 --   and FA.CompanyGroupId='CG20171'and FA.CompanyId='C20171' AND FA.PlantId='20171'
-				--and M.Id in ('','129','1605','555','112','1295') and T.Id  in ('','201910','20199','MAT-201712','MAT-20177') and fam.Id  in ('','20202-1','20184','20188','20187') and MG.Id   in ('','20182','20199','201825','20197')
+			   -- and FA.CompanyGroupId='CG20171'and FA.CompanyId='C20171' AND FA.PlantId='20171'
+				
+              --  and x.ProcessId in ('','PRO20172','PRO20173','201811','','20181','20182','PRO20171','20196,PRO20173','PRO20172,PRO20173','201910,PRO20174','201811,PRO20174','PRO20176','PRO20171,PRO20172')
+			 --  and M.IsAsset in ('','No','Yes') and MBP.BusinessProcessName in ('','Yes','No')
+				 -- and M.Id in ('','76','84','86','96','71','82','103','74','186','97','75','79','1357','1354','1350','1355','1351','1352','1353','1349','1358','157','1356','1578','1603','123','126','548','462','1394','1396','1395','1397','697','1332','662','589','1104','908','1619','907','1618','1044','1056','1055','134','1034','1040','1041','1054','1058','1038','1048','1042','1035','1067','1043','1045','1980','1053','1507','137','927','1032','1057','1194','1324','806','1046','1047','1036','154','1037','1052','1039','1360','1361','1366','1370','1367','1364','1371','1362','1359','1373','1372','1365','1363','1369','1193','129','132','144','1097','1460','1068','1452','1459','1454','1070','689','1063','1392','1713','1466','163','1088','1444','1453','1071','698','694','811','1341','1310','1620','1608','1606','1616','1607','1065','1617','1605','1927','1308','1342','1346','1345','1344','1343','980','1321','1073','1080','1083','1077','1389','1704','1388','1074','1049','1099','1084','1470','1387','1085','1091','1090','940','1654','1126','1127','1722','1928','1131','1427','1642','1128','794','785','1233','1653','945','1142','1714','788','1650','1178','192','191','795','1144','1610','1135','1651','792','1086','181','787','94','1720','1644','1149','1137','963','1143','793','1668','783','1461','1671','1741','1652','1428','1736','1134','1737','1640','1368','803','1307','772','1112','1146','1064','1643','1641','1111','1147','1723','786','1859','1726','1727','1724','1721','1132','1123','784','1136','1739','782','1118','120','121','265','1599','1638','1601','1273','1497','95','1022','1851','1634','902','1738','1637','1021','1633','1600','702','1705','1715','700','1100','1101','690','1384','1393','1309','1381','1383','1382','1098','1122','1378','36','1937','48','45','570','1379','1019','35','46','1509','1510','1526','1531','1529','1522','1518','1525','1517','1516','1527','1534','1535','1533','1532','1523','1530','1528','1521','1514','1515','1511','1512','1513','1519','1524','1467','1549','136','593','139','1472','1508','1520','140','1547','1560','1629','1553','1543','1536','1542','1540','1541','1544','143','1485','1672','596','1538','1537','138','145','1552','1627','1709','850','1471','1554','1555','1550','1551','1548','1539','1546','1545','591','590','1561','1562','664','101','1563','51','918','80','1500','98','1197','MM-201822','100','1602','54','39','556','555','176','1130','1129','195','1504','1502','1050','1711','1505','174','1399','172','175','1119','1503','1204','1060','1203','583','1115','1114','1398','168','1403','1401','189','1402','177','90','625','1116','584','581','613','592','568','1501','164','171','621','1405','1577','1061','1569','1094','178','1202','614','612','1860','1095','582','1113','160','1404','158','159','1059','114','104','564','68','1282','105','1287','87','92','1291','558','552','1027','89','1290','65','62','559','917','565','69','60','571','66','111','1288','88','55','1289','560','63','99','MM-201812','67','574','85','109','167','845','110','569','106','57','1499','59','563','575','576','1286','56','1301','53','561','116','107','MM-201811','557','49','93','553','572','91','165','1302','1303','61','1285','102','72','562','1284','58','52','117','166','MM-201817','550','MM-20185','MM-201813','108','77','113','MM-20184','551','70','549','554','MM-20186','64','50','1347','78','73','112','1295','1484','1252','1268','1254','1265','1257','577','1266','1256','1487','1117','1249','1251','1488','1255','1253','1306','578','1489','1490','1483','1267','1486','1250','579','1248','1626','1331','1330','1623','1625','1328','1803','1622','1339','1877','1621','1329','1338','1572','1576','148','146','1493','1556','580','1066','317','1930','1934','1082','1087','701','1673','1092','983','1465','1096','1340','1075','1076','1380','1031','1719','1079','1078','1390','1712','693','1089','1081','1611','155','1323','156','153','1433','1598','152','1437','1628','147','1614','1568','151','1476','1765','1475','1436','1440','1612') 
+				 -- and T.Id  in ('','MAT-20177','20191','20196','20181','MAT-20173','20193','201910','20199','20197','MAT-20176','20198','MAT-201712','MAT-20171') 
+				 -- and fam.Id  in ('','','201826','201815','201817','201823','201819','20186','20185','201818','20202-1','201821','201822','20203-1','20181','20182','20184','201830','201824','201829','201828','201820','201827','201812','201813','20188','201810','20187','20189','20183','201814','201811','20201-1','201825','201816') 
+				 -- and MG.Id  in ('','201825','20183','20182','20181','201924','201915','201911','20196','20197','201810','201816','20199','20201','20192')
+				 --and uom.Id  in ('','UM70','UM76','UM10','UM91','UM107','UM101','UM12','UM94','UM89','UM96') 
+				 --and S.Id in ('','null','201943','201995','201948','201989','20214','20178','20192','201986','201915','201992','201942','201985','201982','201996','201935','201998','202111','20195','2019142','201962','201950','201927','201955','202110','201947','20219','20218','201931','201933','201940','20217','20216','201997','201914','201920','201934','201932','201913','2019123','201721','201936','201928','2019132','2019126','201929','20213','20212','20211','201956','201945','201949','201946')
+     --           and FA.FACount  in ('','0','1','3','6','10','53','20','21','50','9','58','87','15','5','61','37','982','2','159','4','18','234','14','19','38','11','7','8','65','216','41','52','13','43','28','31','283','12','46','71','114','64','26','17','76','22','112','23','247','2200','1528','48','248','2600','32','98','68','16','180','30','210','483','33','100','56','44','79') 
+				)X
+				WHERE X.FABaseAmount=0 
 
-    --            and uom.Id  in ('','UM70','UM76') 
-    
+		     	--AND	ISNULL( X.CompanyGroupId,'')='" + companyGroupId + "' and ISNULL( X.CompanyId,'')='" + companyId + "' AND ISNULL( X.PlantId,'')='" + plantId + @"'
+				
+                 and x.ProcessId in (" + process + @")
+			     and X.IsAsset in (" + isAsset + @") 
+				 and X.Machine in (" + isMachine + @")
 
-                union ALL
+                  and X.MaterialMasterId in (" + materialMasterId + @") 
+				  and X.MaterialTypeId  in (" + materialTypeId + @") 
+				  and X.AssetMasterId  in (" + assetMasterId + @") 
+				  and X.MaterialGroup1Id  in (" + materialGroup1Id + @")
+				 and X.BaseUOMId  in (" + baseUOMId + @")
+                 and X.FACount  in (" + faCount + @") 
+			
+--***************************************
+    union ALL
+	SELECT  X.* FROM (
                 SELECT isnull( T.Id,'') MaterialTypeId, ISNULL(T.UserName, '') MaterialType
 				,ISNULL(MGM.Id, '') MaterialGroupMasterId
 				,ISNULL(MGM.UserName, '') MaterialGroupMaster
@@ -7297,16 +7434,16 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 ,Process = ISNULL(STUFF((select distinct ',' + P.UserName from[MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id = MMP.ProcessId
                 where MMP.MaterialMasterId = M.Id for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-                ,isnull( gl.UserName,'') GL ,isnull( b.UserName,'') Budget, isnull( a.UserName,'') Activity
+
+                ,isnull( gl.UserName,'') GL 
+				,isnull( b.UserName,'') Budget
+				, isnull( a.UserName,'') Activity
 				 ,isnull( FAR.CompanyGroupId,'')CompanyGroupId,isnull( FAR.CompanyId,'')CompanyId,isnull( FAR.PlantId,'')PlantId
+
                 FROM TRN.FixedAssetRegister FAR
-
-
                 left join(select sum(Amount* CapitalizationRate) SubAssetAmount, FixedAssetRegisterId from  trn.SubFixedAssetRegister
                 group by FixedAssetRegisterId
                 ) sar on sar.FixedAssetRegisterId = FAR.Id
-
-
                 left join MST.MaterialMaster M ON FAR.MaterialMasterId = M.Id
                 LEFT JOIN[MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid = MGM.id
                 LEFT JOIN[HKP].[MaterialType] T ON T.Id = MGM.MaterialTypeId
@@ -7328,11 +7465,17 @@ group by Id) O60 ON O60.Id=IV.Id
                 WHERE BP.BusinessProcessName = 'MachineDefinition') AS MBP ON MBP.MaterialMasterId = M.Id
 
                  WHERE M.IsAsset = 0 
-				 --and FAR.CompanyGroupId = 'CG20171'and FAR.CompanyId = 'C20171' AND FAR.PlantId = '20171'
-                --and M.Id in ('','129','1605','555','112','1295') and T.Id  in ('','201910','20199','MAT-201712','MAT-20177') and fam.Id  in ('','20202-1','20184','20188','20187') and MG.Id  in ('','20182','20199','201825','20197')
-                --and uom.Id  in ('','UM70','UM76') 
-             
-
+				---- and FAR.CompanyGroupId = 'CG20171'and FAR.CompanyId = 'C20171' AND FAR.PlantId = '20171'
+				-- and M.IsAsset in ('','No','Yes') and MBP.BusinessProcessName in ('','Yes','No')
+				--  and M.Id in ('','76','84','86','96','71','82','103','74','186','97','75','79','1357','1354','1350','1355','1351','1352','1353','1349','1358','157','1356','1578','1603','123','126','548','462','1394','1396','1395','1397','697','1332','662','589','1104','908','1619','907','1618','1044','1056','1055','134','1034','1040','1041','1054','1058','1038','1048','1042','1035','1067','1043','1045','1980','1053','1507','137','927','1032','1057','1194','1324','806','1046','1047','1036','154','1037','1052','1039','1360','1361','1366','1370','1367','1364','1371','1362','1359','1373','1372','1365','1363','1369','1193','129','132','144','1097','1460','1068','1452','1459','1454','1070','689','1063','1392','1713','1466','163','1088','1444','1453','1071','698','694','811','1341','1310','1620','1608','1606','1616','1607','1065','1617','1605','1927','1308','1342','1346','1345','1344','1343','980','1321','1073','1080','1083','1077','1389','1704','1388','1074','1049','1099','1084','1470','1387','1085','1091','1090','940','1654','1126','1127','1722','1928','1131','1427','1642','1128','794','785','1233','1653','945','1142','1714','788','1650','1178','192','191','795','1144','1610','1135','1651','792','1086','181','787','94','1720','1644','1149','1137','963','1143','793','1668','783','1461','1671','1741','1652','1428','1736','1134','1737','1640','1368','803','1307','772','1112','1146','1064','1643','1641','1111','1147','1723','786','1859','1726','1727','1724','1721','1132','1123','784','1136','1739','782','1118','120','121','265','1599','1638','1601','1273','1497','95','1022','1851','1634','902','1738','1637','1021','1633','1600','702','1705','1715','700','1100','1101','690','1384','1393','1309','1381','1383','1382','1098','1122','1378','36','1937','48','45','570','1379','1019','35','46','1509','1510','1526','1531','1529','1522','1518','1525','1517','1516','1527','1534','1535','1533','1532','1523','1530','1528','1521','1514','1515','1511','1512','1513','1519','1524','1467','1549','136','593','139','1472','1508','1520','140','1547','1560','1629','1553','1543','1536','1542','1540','1541','1544','143','1485','1672','596','1538','1537','138','145','1552','1627','1709','850','1471','1554','1555','1550','1551','1548','1539','1546','1545','591','590','1561','1562','664','101','1563','51','918','80','1500','98','1197','MM-201822','100','1602','54','39','556','555','176','1130','1129','195','1504','1502','1050','1711','1505','174','1399','172','175','1119','1503','1204','1060','1203','583','1115','1114','1398','168','1403','1401','189','1402','177','90','625','1116','584','581','613','592','568','1501','164','171','621','1405','1577','1061','1569','1094','178','1202','614','612','1860','1095','582','1113','160','1404','158','159','1059','114','104','564','68','1282','105','1287','87','92','1291','558','552','1027','89','1290','65','62','559','917','565','69','60','571','66','111','1288','88','55','1289','560','63','99','MM-201812','67','574','85','109','167','845','110','569','106','57','1499','59','563','575','576','1286','56','1301','53','561','116','107','MM-201811','557','49','93','553','572','91','165','1302','1303','61','1285','102','72','562','1284','58','52','117','166','MM-201817','550','MM-20185','MM-201813','108','77','113','MM-20184','551','70','549','554','MM-20186','64','50','1347','78','73','112','1295','1484','1252','1268','1254','1265','1257','577','1266','1256','1487','1117','1249','1251','1488','1255','1253','1306','578','1489','1490','1483','1267','1486','1250','579','1248','1626','1331','1330','1623','1625','1328','1803','1622','1339','1877','1621','1329','1338','1572','1576','148','146','1493','1556','580','1066','317','1930','1934','1082','1087','701','1673','1092','983','1465','1096','1340','1075','1076','1380','1031','1719','1079','1078','1390','1712','693','1089','1081','1611','155','1323','156','153','1433','1598','152','1437','1628','147','1614','1568','151','1476','1765','1475','1436','1440','1612') 
+				--  and T.Id  in ('','MAT-20177','20191','20196','20181','MAT-20173','20193','201910','20199','20197','MAT-20176','20198','MAT-201712','MAT-20171') 
+				--  and fam.Id  in ('','','201826','201815','201817','201823','201819','20186','20185','201818','20202-1','201821','201822','20203-1','20181','20182','20184','201830','201824','201829','201828','201820','201827','201812','201813','20188','201810','20187','20189','20183','201814','201811','20201-1','201825','201816') 
+				--  and MG.Id  in ('','201825','20183','20182','20181','201924','201915','201911','20196','20197','201810','201816','20199','20201','20192')
+				-- and uom.Id  in ('','UM70','UM76','UM10','UM91','UM107','UM101','UM12','UM94','UM89','UM96') 
+				-- and S.Id in ('','null','201943','201995','201948','201989','20214','20178','20192','201986','201915','201992','201942','201985','201982','201996','201935','201998','202111','20195','2019142','201962','201950','201927','201955','202110','201947','20219','20218','201931','201933','201940','20217','20216','201997','201914','201920','201934','201932','201913','2019123','201721','201936','201928','2019132','2019126','201929','20213','20212','20211','201956','201945','201949','201946')
+    --            and FAR.Id in ('','0','1','3','6','10','53','20','21','50','9','58','87','15','5','61','37','982','2','159','4','18','234','14','19','38','11','7','8','65','216','41','52','13','43','28','31','283','12','46','71','114','64','26','17','76','22','112','23','247','2200','1528','48','248','2600','32','98','68','16','180','30','210','483','33','100','56','44','79') 
+              --  and x.ProcessId in ('','PRO20172','PRO20173','201811','','20181','20182','PRO20171','20196,PRO20173','PRO20172,PRO20173','201910,PRO20174','201811,PRO20174','PRO20176','PRO20171,PRO20172')
+			    
                 group by
                 T.Id ,T.UserName,MGM.Id,MGM.UserName
                 , M.Id,M.Code,M.ShortName, M.UserName
@@ -7345,12 +7488,17 @@ group by Id) O60 ON O60.Id=IV.Id
                  ,gl.UserName ,b.UserName , a.UserName
 				 ) x
 
-				where x.IsAsset in (" + isAsset + ") and x.Machine in (" + isMachine + @")
-				and X.CompanyGroupId = '" + companyGroupId + "'and X.CompanyId = '" + companyId + "' AND X.PlantId = '" + plantId + @"'
-                and X.MaterialMasterId in (" + materialMasterId + ") and X.MaterialTypeId  in (" + materialTypeId + ") and x.AssetMasterId  in (" + assetMasterId + ") and x.MaterialGroup1Id  in (" + materialGroup1Id + @")
-                and x.BaseUOMId  in (" + baseUOMId + ")  and x.SkillId in (" + skillId + @")
-                and x.FACount in (" + faCount + @") 
-                and x.ProcessId in (" + process + @")
+				where x.IsAsset in ('','No','Yes') and x.Machine in ('','Yes','No')
+				AND	ISNULL( X.CompanyGroupId,'')='" + companyGroupId + "' and ISNULL( X.CompanyId,'')='" + companyId + "' AND ISNULL( X.PlantId,'')='" + plantId + @"'
+                 and x.ProcessId in (" + process + @")
+			     and X.IsAsset in (" + isAsset + @") 
+				 and X.Machine in (" + isMachine + @")
+                  and X.MaterialMasterId in (" + materialMasterId + @") 
+				  and X.MaterialTypeId  in (" + materialTypeId + @") 
+				  and X.AssetMasterId  in (" + assetMasterId + @") 
+				  and X.MaterialGroup1Id  in (" + materialGroup1Id + @")
+				 and X.BaseUOMId  in (" + baseUOMId + @")
+                 and X.FACount  in (" + faCount + @") 
                 ORDER BY x.MaterialMaster";
             //sql += temp;
         }
@@ -7390,7 +7538,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 string sql = "";
                 sql = MaterialMasterType(companyGroupId, companyId, plantId, materialMasterId, materialTypeId, assetMasterId, materialGroup1Id, baseUOMId, isAsset, isMachine, process, skillId, faCount);
                 DataTable dtMaterialMaster = _sqlRepository.GetDataTable(sql);
-
+                //MaterialMasterTypeFiltering MaterialMasterType
                 ExcelEngine excelEngine = new ExcelEngine();
                 //Instantiate the Excel application object
                 IApplication application = excelEngine.Excel;
@@ -8345,7 +8493,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				 ) x
 
 				where x.IsAsset in (" + isAsset+") and x.Machine in ("+ machine + @")
-				--and X.CompanyGroupId = '" + CompanyGroupId + "'and X.CompanyId = '" + CompanyId + "' AND X.PlantId = '" + PlantId + @"'
+				and ISNULL( X.CompanyGroupId,'') = '" + CompanyGroupId + "'and ISNULL( X.CompanyId,'') = '" + CompanyId + "' AND ISNULL( X.PlantId,'') = '" + PlantId + @"'
                 and X.MaterialMasterId in (" + materialMasterId + ") and X.MaterialTypeId  in (" + materialTypeId + ") and x.AssetMasterId  in (" + assetMasterId + ") and x.MaterialGroup1Id  in (" + materialGroup1Id + @")
                 and x.BaseUOMId  in (" + baseUOMId + ")  and x.SkillId in ("+skillId+@")
                 and x.FACount in ("+fACount+@") 
@@ -8713,7 +8861,129 @@ group by Id) O60 ON O60.Id=IV.Id
         {
 
             return @" 
-	     	select X.* FROM (
+	    
+          	   		 --********************************REGISTER******************************************
+       select X.* from (
+               SELECT isnull( T.Id,'') MaterialTypeId
+				,ISNULL(T.UserName,'') MaterialType
+				,ISNULL (MGM.Id,'') MaterialGroupMasterId
+                ,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                ,isnull( M.Id,'') MaterialMasterId
+				,isnull( mma.MachineAllowance,0) MachineAllowance
+
+				,isnull( mma.Id ,'')MaterialMasterArticleId
+				,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName 
+				,ISNULL( M.UserName,'' ) MaterialMaster
+				-- ,mma.Id MaterialMasterArticleId 
+				 ,isnull(mma.StandardName,'') Article
+                ,isnull(MC.Id,'' )MaterialCategoryId
+				,ISNULL( MC.UserName,'') MaterialCategory
+				,isnull( SC.Id ,'')MaterialSubCategoryId
+				,isnull(SC.UserName,'') MaterialSubCategory
+                ,isnull(MG.Id,'' )[MaterialGroup1Id]
+				,Isnull (MG.UserName,'' )MaterialGroup1
+				,isnull( uom.Id,'') BaseUOMId
+				,Isnull (uom.UserName,'') BaseUOM
+                 ,IsAsset=isnull (case when M.IsAsset =1 then 'Yes' else  'No'  end,'')
+				 , Machine=isnull( case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end,'')
+
+				 ,ISNULL(FA.FACount,0) FACount
+                , ISNULL(FA.FABaseAmount,0)FABaseAmount
+				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
+				  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
+				 , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+				 ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
+				,isnull( s.Id,'') SkillId
+                ,isnull (S.UserName,'') Skill
+				,isnull( SCode.UserName,'') StitchCode
+				,isnull( mma.RPM,'')RPM
+
+				 ,ProcessId= ISNULL(STUFF((select distinct ','+P.Id from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+                    where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+                 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                ,isnull( M.BudgetMasterId,'')BudgetMasterId
+	            ,isnull(fam.Id ,'')AssetMasterId
+				,ISNULL (fam.UserName,'') AssetMaster
+				  ,isnull(gl.UserName,'') GL
+				  ,isnull(b.UserName,'') Budget
+				  ,isnull(a.UserName,'') Activity
+				 ,isnull( FA.CompanyGroupId,'')CompanyGroupId
+				,isnull( FA.CompanyId,'')CompanyId
+				,isnull( FA.PlantId,'')PlantId
+               
+                FROM MST.MaterialMaster M
+				left join mst.MaterialMasterArticle mma on mma.MaterialMasterId = m.Id
+                LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+                LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
+                LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
+                LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+                LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
+                LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
+		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
+				 LEFT JOIN HKP.StitchCode SCode ON SCode.Id=MMA.StitchCodeId
+				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+
+		                         left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+				                    left join HKP.Budget b on b.Id=bm.BudgetId
+				                    left join HKP.Activity a on a.Id=M.ActivityId
+
+				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+
+            	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
+              	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
+				,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
+				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
+				,FAR.MaterialMasterId ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
+			    FROM TRN.FixedAssetRegister FAR
+
+				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				group by FixedAssetRegisterId
+				) sar on sar.FixedAssetRegisterId=FAR.Id
+                
+				where DisposedVoucherId IS NULL
+                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
+				)FA ON FA.MaterialMasterId=M.Id
+
+
+                WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') or  M.IsAsset=1) 
+			    and FA.FABaseAmount>0
+				
+              --  and x.ProcessId in ('','PRO20172','PRO20173','201811','','20181','20182','PRO20171','20196,PRO20173','PRO20172,PRO20173','201910,PRO20174','201811,PRO20174','PRO20176','PRO20171,PRO20172')
+			 --  and M.IsAsset in ('','No','Yes') and MBP.BusinessProcessName in ('','Yes','No')
+				 -- and M.Id in ('','76','84','86','96','71','82','103','74','186','97','75','79','1357','1354','1350','1355','1351','1352','1353','1349','1358','157','1356','1578','1603','123','126','548','462','1394','1396','1395','1397','697','1332','662','589','1104','908','1619','907','1618','1044','1056','1055','134','1034','1040','1041','1054','1058','1038','1048','1042','1035','1067','1043','1045','1980','1053','1507','137','927','1032','1057','1194','1324','806','1046','1047','1036','154','1037','1052','1039','1360','1361','1366','1370','1367','1364','1371','1362','1359','1373','1372','1365','1363','1369','1193','129','132','144','1097','1460','1068','1452','1459','1454','1070','689','1063','1392','1713','1466','163','1088','1444','1453','1071','698','694','811','1341','1310','1620','1608','1606','1616','1607','1065','1617','1605','1927','1308','1342','1346','1345','1344','1343','980','1321','1073','1080','1083','1077','1389','1704','1388','1074','1049','1099','1084','1470','1387','1085','1091','1090','940','1654','1126','1127','1722','1928','1131','1427','1642','1128','794','785','1233','1653','945','1142','1714','788','1650','1178','192','191','795','1144','1610','1135','1651','792','1086','181','787','94','1720','1644','1149','1137','963','1143','793','1668','783','1461','1671','1741','1652','1428','1736','1134','1737','1640','1368','803','1307','772','1112','1146','1064','1643','1641','1111','1147','1723','786','1859','1726','1727','1724','1721','1132','1123','784','1136','1739','782','1118','120','121','265','1599','1638','1601','1273','1497','95','1022','1851','1634','902','1738','1637','1021','1633','1600','702','1705','1715','700','1100','1101','690','1384','1393','1309','1381','1383','1382','1098','1122','1378','36','1937','48','45','570','1379','1019','35','46','1509','1510','1526','1531','1529','1522','1518','1525','1517','1516','1527','1534','1535','1533','1532','1523','1530','1528','1521','1514','1515','1511','1512','1513','1519','1524','1467','1549','136','593','139','1472','1508','1520','140','1547','1560','1629','1553','1543','1536','1542','1540','1541','1544','143','1485','1672','596','1538','1537','138','145','1552','1627','1709','850','1471','1554','1555','1550','1551','1548','1539','1546','1545','591','590','1561','1562','664','101','1563','51','918','80','1500','98','1197','MM-201822','100','1602','54','39','556','555','176','1130','1129','195','1504','1502','1050','1711','1505','174','1399','172','175','1119','1503','1204','1060','1203','583','1115','1114','1398','168','1403','1401','189','1402','177','90','625','1116','584','581','613','592','568','1501','164','171','621','1405','1577','1061','1569','1094','178','1202','614','612','1860','1095','582','1113','160','1404','158','159','1059','114','104','564','68','1282','105','1287','87','92','1291','558','552','1027','89','1290','65','62','559','917','565','69','60','571','66','111','1288','88','55','1289','560','63','99','MM-201812','67','574','85','109','167','845','110','569','106','57','1499','59','563','575','576','1286','56','1301','53','561','116','107','MM-201811','557','49','93','553','572','91','165','1302','1303','61','1285','102','72','562','1284','58','52','117','166','MM-201817','550','MM-20185','MM-201813','108','77','113','MM-20184','551','70','549','554','MM-20186','64','50','1347','78','73','112','1295','1484','1252','1268','1254','1265','1257','577','1266','1256','1487','1117','1249','1251','1488','1255','1253','1306','578','1489','1490','1483','1267','1486','1250','579','1248','1626','1331','1330','1623','1625','1328','1803','1622','1339','1877','1621','1329','1338','1572','1576','148','146','1493','1556','580','1066','317','1930','1934','1082','1087','701','1673','1092','983','1465','1096','1340','1075','1076','1380','1031','1719','1079','1078','1390','1712','693','1089','1081','1611','155','1323','156','153','1433','1598','152','1437','1628','147','1614','1568','151','1476','1765','1475','1436','1440','1612') 
+				 -- and T.Id  in ('','MAT-20177','20191','20196','20181','MAT-20173','20193','201910','20199','20197','MAT-20176','20198','MAT-201712','MAT-20171') 
+				 -- and fam.Id  in ('','','201826','201815','201817','201823','201819','20186','20185','201818','20202-1','201821','201822','20203-1','20181','20182','20184','201830','201824','201829','201828','201820','201827','201812','201813','20188','201810','20187','20189','20183','201814','201811','20201-1','201825','201816') 
+				 -- and MG.Id  in ('','201825','20183','20182','20181','201924','201915','201911','20196','20197','201810','201816','20199','20201','20192')
+				 --and uom.Id  in ('','UM70','UM76','UM10','UM91','UM107','UM101','UM12','UM94','UM89','UM96') 
+				 --and S.Id in ('','null','201943','201995','201948','201989','20214','20178','20192','201986','201915','201992','201942','201985','201982','201996','201935','201998','202111','20195','2019142','201962','201950','201927','201955','202110','201947','20219','20218','201931','201933','201940','20217','20216','201997','201914','201920','201934','201932','201913','2019123','201721','201936','201928','2019132','2019126','201929','20213','20212','20211','201956','201945','201949','201946')
+     --           and FA.FACount  in ('','0','1','3','6','10','53','20','21','50','9','58','87','15','5','61','37','982','2','159','4','18','234','14','19','38','11','7','8','65','216','41','52','13','43','28','31','283','12','46','71','114','64','26','17','76','22','112','23','247','2200','1528','48','248','2600','32','98','68','16','180','30','210','483','33','100','56','44','79') 
+				)X
+				WHERE
+				 ISNULL( X.CompanyGroupId,'')='" + companyGroupId + "' and ISNULL( X.CompanyId,'')='" + companyId + "' AND ISNULL( X.PlantId,'')='" + plantId + @"'
+				
+                 and x.ProcessId in (" + process + @")
+			     and X.IsAsset in (" + isAsset + @") 
+				 and X.Machine in (" + isMachine + @")
+
+                  and X.MaterialMasterId in (" + materialMasterId + @") 
+				  and X.MaterialTypeId  in (" + materialTypeId + @") 
+				  and X.AssetMasterId  in (" + assetMasterId + @") 
+				  and X.MaterialGroup1Id  in (" + materialGroup1Id + @")
+				 and X.BaseUOMId  in (" + baseUOMId + @")
+                 and X.FACount  in (" + fACount + @") 
+
+--*************************************NON REGISTER******************************************************
+union ALL
+ select X.* from (
                 SELECT isnull( T.Id,'') MaterialTypeId
 				,ISNULL(T.UserName,'') MaterialType
 				,ISNULL (MGM.Id,'') MaterialGroupMasterId
@@ -8763,21 +9033,19 @@ group by Id) O60 ON O60.Id=IV.Id
 				 ,isnull( FA.CompanyGroupId,'')CompanyGroupId
 				,isnull( FA.CompanyId,'')CompanyId
 				,isnull( FA.PlantId,'')PlantId
-
                 FROM MST.MaterialMaster M
+				left join mst.MaterialMasterArticle mma on mma.MaterialMasterId = m.Id
                 LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
                 LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
                 LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
                 LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
                 LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
                 LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
-				left join mst.MaterialMasterArticle mma on mma.MaterialMasterId = m.Id
 		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
 				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
 				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
-				 LEFT JOIN HKP.StitchCode SCode ON SCode.Id=MMA.StitchCodeId
-
-							  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+				LEFT JOIN HKP.StitchCode SCode ON SCode.Id=MMA.StitchCodeId
+		                         left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
 			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
 				                    left join HKP.Budget b on b.Id=bm.BudgetId
 				                    left join HKP.Activity a on a.Id=M.ActivityId
@@ -8790,126 +9058,163 @@ group by Id) O60 ON O60.Id=IV.Id
               	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
 				,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
 				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
-				,FAR.MaterialMasterId,far.MaterialMasterArticleId
-				,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
+				,FAR.MaterialMasterId ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
 			    FROM TRN.FixedAssetRegister FAR
 
 				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
-                where DisposedVoucherId IS NULL
-                GROUP BY FAR.MaterialMasterId,FAR.MaterialMasterArticleId 	,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
-				)FA ON FA.MaterialMasterId=M.Id and fa.MaterialMasterArticleId = mma.Id
+                
+				where DisposedVoucherId IS NULL
+                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
+				)FA ON FA.MaterialMasterId=M.Id
 
 
-                WHERE( M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-                WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1 ) 
-                --ORDER BY M.UserName
+                WHERE BP.BusinessProcessName ='MachineDefinition') or  M.IsAsset=1) 
+				
+			   -- and FA.CompanyGroupId='CG20171'and FA.CompanyId='C20171' AND FA.PlantId='20171'
+				
+              --  and x.ProcessId in ('','PRO20172','PRO20173','201811','','20181','20182','PRO20171','20196,PRO20173','PRO20172,PRO20173','201910,PRO20174','201811,PRO20174','PRO20176','PRO20171,PRO20172')
+			 --  and M.IsAsset in ('','No','Yes') and MBP.BusinessProcessName in ('','Yes','No')
+				 -- and M.Id in ('','76','84','86','96','71','82','103','74','186','97','75','79','1357','1354','1350','1355','1351','1352','1353','1349','1358','157','1356','1578','1603','123','126','548','462','1394','1396','1395','1397','697','1332','662','589','1104','908','1619','907','1618','1044','1056','1055','134','1034','1040','1041','1054','1058','1038','1048','1042','1035','1067','1043','1045','1980','1053','1507','137','927','1032','1057','1194','1324','806','1046','1047','1036','154','1037','1052','1039','1360','1361','1366','1370','1367','1364','1371','1362','1359','1373','1372','1365','1363','1369','1193','129','132','144','1097','1460','1068','1452','1459','1454','1070','689','1063','1392','1713','1466','163','1088','1444','1453','1071','698','694','811','1341','1310','1620','1608','1606','1616','1607','1065','1617','1605','1927','1308','1342','1346','1345','1344','1343','980','1321','1073','1080','1083','1077','1389','1704','1388','1074','1049','1099','1084','1470','1387','1085','1091','1090','940','1654','1126','1127','1722','1928','1131','1427','1642','1128','794','785','1233','1653','945','1142','1714','788','1650','1178','192','191','795','1144','1610','1135','1651','792','1086','181','787','94','1720','1644','1149','1137','963','1143','793','1668','783','1461','1671','1741','1652','1428','1736','1134','1737','1640','1368','803','1307','772','1112','1146','1064','1643','1641','1111','1147','1723','786','1859','1726','1727','1724','1721','1132','1123','784','1136','1739','782','1118','120','121','265','1599','1638','1601','1273','1497','95','1022','1851','1634','902','1738','1637','1021','1633','1600','702','1705','1715','700','1100','1101','690','1384','1393','1309','1381','1383','1382','1098','1122','1378','36','1937','48','45','570','1379','1019','35','46','1509','1510','1526','1531','1529','1522','1518','1525','1517','1516','1527','1534','1535','1533','1532','1523','1530','1528','1521','1514','1515','1511','1512','1513','1519','1524','1467','1549','136','593','139','1472','1508','1520','140','1547','1560','1629','1553','1543','1536','1542','1540','1541','1544','143','1485','1672','596','1538','1537','138','145','1552','1627','1709','850','1471','1554','1555','1550','1551','1548','1539','1546','1545','591','590','1561','1562','664','101','1563','51','918','80','1500','98','1197','MM-201822','100','1602','54','39','556','555','176','1130','1129','195','1504','1502','1050','1711','1505','174','1399','172','175','1119','1503','1204','1060','1203','583','1115','1114','1398','168','1403','1401','189','1402','177','90','625','1116','584','581','613','592','568','1501','164','171','621','1405','1577','1061','1569','1094','178','1202','614','612','1860','1095','582','1113','160','1404','158','159','1059','114','104','564','68','1282','105','1287','87','92','1291','558','552','1027','89','1290','65','62','559','917','565','69','60','571','66','111','1288','88','55','1289','560','63','99','MM-201812','67','574','85','109','167','845','110','569','106','57','1499','59','563','575','576','1286','56','1301','53','561','116','107','MM-201811','557','49','93','553','572','91','165','1302','1303','61','1285','102','72','562','1284','58','52','117','166','MM-201817','550','MM-20185','MM-201813','108','77','113','MM-20184','551','70','549','554','MM-20186','64','50','1347','78','73','112','1295','1484','1252','1268','1254','1265','1257','577','1266','1256','1487','1117','1249','1251','1488','1255','1253','1306','578','1489','1490','1483','1267','1486','1250','579','1248','1626','1331','1330','1623','1625','1328','1803','1622','1339','1877','1621','1329','1338','1572','1576','148','146','1493','1556','580','1066','317','1930','1934','1082','1087','701','1673','1092','983','1465','1096','1340','1075','1076','1380','1031','1719','1079','1078','1390','1712','693','1089','1081','1611','155','1323','156','153','1433','1598','152','1437','1628','147','1614','1568','151','1476','1765','1475','1436','1440','1612') 
+				 -- and T.Id  in ('','MAT-20177','20191','20196','20181','MAT-20173','20193','201910','20199','20197','MAT-20176','20198','MAT-201712','MAT-20171') 
+				 -- and fam.Id  in ('','','201826','201815','201817','201823','201819','20186','20185','201818','20202-1','201821','201822','20203-1','20181','20182','20184','201830','201824','201829','201828','201820','201827','201812','201813','20188','201810','20187','20189','20183','201814','201811','20201-1','201825','201816') 
+				 -- and MG.Id  in ('','201825','20183','20182','20181','201924','201915','201911','20196','20197','201810','201816','20199','20201','20192')
+				 --and uom.Id  in ('','UM70','UM76','UM10','UM91','UM107','UM101','UM12','UM94','UM89','UM96') 
+				 --and S.Id in ('','null','201943','201995','201948','201989','20214','20178','20192','201986','201915','201992','201942','201985','201982','201996','201935','201998','202111','20195','2019142','201962','201950','201927','201955','202110','201947','20219','20218','201931','201933','201940','20217','20216','201997','201914','201920','201934','201932','201913','2019123','201721','201936','201928','2019132','2019126','201929','20213','20212','20211','201956','201945','201949','201946')
+     --           and FA.FACount  in ('','0','1','3','6','10','53','20','21','50','9','58','87','15','5','61','37','982','2','159','4','18','234','14','19','38','11','7','8','65','216','41','52','13','43','28','31','283','12','46','71','114','64','26','17','76','22','112','23','247','2200','1528','48','248','2600','32','98','68','16','180','30','210','483','33','100','56','44','79') 
+				)X
+				WHERE X.FABaseAmount=0 
 
+		     	--AND	ISNULL( X.CompanyGroupId,'')='" + companyGroupId + "' and ISNULL( X.CompanyId,'')='" + companyId + "' AND ISNULL( X.PlantId,'')='" + plantId + @"'
+				
+                 and x.ProcessId in (" + process + @")
+			     and X.IsAsset in (" + isAsset + @") 
+				 and X.Machine in (" + isMachine + @")
 
-				UNION ALL
-				SELECT  isnull( T.Id,'') MaterialTypeId
+                  and X.MaterialMasterId in (" + materialMasterId + @") 
+				  and X.MaterialTypeId  in (" + materialTypeId + @") 
+				  and X.AssetMasterId  in (" + assetMasterId + @") 
+				  and X.MaterialGroup1Id  in (" + materialGroup1Id + @")
+				 and X.BaseUOMId  in (" + baseUOMId + @")
+                 and X.FACount  in (" + fACount + @") 
+--***************************************
+    union ALL
+	SELECT  X.* FROM (
+               SELECT isnull( T.Id,'') MaterialTypeId
 				,ISNULL(T.UserName,'') MaterialType
 				,ISNULL (MGM.Id,'') MaterialGroupMasterId
-				,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                ,ISNULL (MGM.UserName,'') MaterialGroupMaster
                 ,isnull( M.Id,'') MaterialMasterId
-			    ,isnull(mma.MachineAllowance,0)MachineAllowance
-				,isnull( mma.Id,'') MaterialMasterArticleId
-				,ISNULL (M.Code,'')Code
-				,ISNULL(M.ShortName,'')ShortName 
+				,isnull( mma.MachineAllowance,0) MachineAllowance
+
+				,isnull( mma.Id ,'')MaterialMasterArticleId
+				,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName 
 				,ISNULL( M.UserName,'' ) MaterialMaster
-				--,mma.Id MaterialMasterArticleId 
-				,isnull( mma.StandardName,'') Article
-                ,isnull(MC.Id,'') MaterialCategoryId
+				-- ,mma.Id MaterialMasterArticleId 
+				 ,isnull(mma.StandardName,'') Article
+                ,isnull(MC.Id,'' )MaterialCategoryId
 				,ISNULL( MC.UserName,'') MaterialCategory
-				,isnull(SC.Id,'') MaterialSubCategoryId
+				,isnull( SC.Id ,'')MaterialSubCategoryId
 				,isnull(SC.UserName,'') MaterialSubCategory
-                ,isnull( MG.Id ,'')[MaterialGroup1Id]
+                ,isnull(MG.Id,'' )[MaterialGroup1Id]
 				,Isnull (MG.UserName,'' )MaterialGroup1
-				,isnull(uom.Id,'') BaseUOMId
+				,isnull( uom.Id,'') BaseUOMId
 				,Isnull (uom.UserName,'') BaseUOM
-                 ,IsAsset = isnull(case when M.IsAsset =1 then 'Yes' else  'No'  end,'')
-				 , Machine=isnull( case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end ,'')
+                 ,IsAsset=isnull (case when M.IsAsset =1 then 'Yes' else  'No'  end,'')
+				 , Machine=isnull( case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end,'')
 
-				 ,Count(ISNULL(FAR.Id,0)) FACount
-
-                , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
-				  , SUM(isnull(SAR.SubAssetAmount,0))SubAssetAmount
-				  ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0))  TotalBaseAmount
-				 , SUM(ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
-				 ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0))  NetFixedAssetsAmount
-
-				 ,isnull( s.Id,'') SkillId
+				 ,count(FAR.Id) FACount
+                , sum(FAR.FABaseAmount)FABaseAmount
+				  , sum(sar.SubAssetAmount)SubAssetAmount
+				  ,sum(FAR.FABaseAmount) + sum(sar.SubAssetAmount)  TotalBaseAmount
+				 , sum(FAR.ADBaseAmount) ADBaseAmount
+				 ,sum(FAR.FABaseAmount) + sum(sar.SubAssetAmount) - sum(FAR.ADBaseAmount)  NetFixedAssetsAmount
+				,isnull( s.Id,'') SkillId
                 ,isnull (S.UserName,'') Skill
 				,isnull( SCode.UserName,'') StitchCode
-				,isnull(mma.RPM,'')RPM
+				,isnull( mma.RPM,'')RPM
 
 				 ,ProcessId= ISNULL(STUFF((select distinct ','+P.Id from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
                     where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
                 ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
-                where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+                 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
                 ,isnull( M.BudgetMasterId,'')BudgetMasterId
 	            ,isnull(fam.Id ,'')AssetMasterId
 				,ISNULL (fam.UserName,'') AssetMaster
-			   ,isnull( gl.UserName,'') GL
-			   ,isnull( b.UserName,'') Budget
-			   ,isnull( a.UserName,'') Activity
-			   	 ,isnull( FAR.CompanyGroupId,'')CompanyGroupId
-				 ,isnull( FAR.CompanyId,'')CompanyId
-				 ,isnull( FAR.PlantId,'')PlantId
+				  ,isnull(gl.UserName,'') GL
+				  ,isnull(b.UserName,'') Budget
+				  ,isnull(a.UserName,'') Activity
+				 ,isnull( FAR.CompanyGroupId,'')CompanyGroupId
+				,isnull( FAR.CompanyId,'')CompanyId
+				,isnull( FAR.PlantId,'')PlantId
 
-                FROM  TRN.FixedAssetRegister FAR
-				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
-				group by FixedAssetRegisterId
-				) sar on sar.FixedAssetRegisterId=FAR.Id
-				
-				left join MST.MaterialMaster M ON FAR.MaterialMasterId=M.Id
-                LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
-                LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
-                LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
-                LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+                FROM TRN.FixedAssetRegister FAR
+                left join(select sum(Amount* CapitalizationRate) SubAssetAmount, FixedAssetRegisterId from  trn.SubFixedAssetRegister
+                group by FixedAssetRegisterId
+                ) sar on sar.FixedAssetRegisterId = FAR.Id
+                left join MST.MaterialMaster M ON FAR.MaterialMasterId = M.Id
 				left join mst.MaterialMasterArticle mma on FAR.MaterialMasterArticleId = mma.Id
-                LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
-                LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
-		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
-				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
-				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+                LEFT JOIN[MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid = MGM.id
+                LEFT JOIN[HKP].[MaterialType] T ON T.Id = MGM.MaterialTypeId
+                LEFT JOIN[HKP].[MaterialCategory] MC ON MC.Id = M.MaterialCategoryId
+                LEFT JOIN[HKP].[MaterialSubCategory] SC ON SC.Id = M.MaterialSubCategoryId
+                LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id = MGM.MaterialGroup1Id
+                LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id = M.BaseUOMId
+                left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId = M.BudgetMasterId
+                left join mst.FixedAssetMaster fam on fam.Id = FAMBT.FixedAssetMasterId
+                left JOIN[HKP].[Skill] S ON S.Id = M.SkillId
 			    LEFT JOIN HKP.StitchCode SCode ON SCode.Id=MMA.StitchCodeId
 
-							  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+		                        left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
 			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
 				                    left join HKP.Budget b on b.Id=bm.BudgetId
 				                    left join HKP.Activity a on a.Id=M.ActivityId
 
-				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN(SELECT MBP.MaterialMasterId, BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+                WHERE BP.BusinessProcessName = 'MachineDefinition') AS MBP ON MBP.MaterialMasterId = M.Id
 
-                WHERE  M.IsAsset=0 
-				group by
-				T.Id ,T.UserName,MGM.Id,MGM.UserName
+                 WHERE M.IsAsset = 0 
+				---- and FAR.CompanyGroupId = 'CG20171'and FAR.CompanyId = 'C20171' AND FAR.PlantId = '20171'
+				-- and M.IsAsset in ('','No','Yes') and MBP.BusinessProcessName in ('','Yes','No')
+				--  and M.Id in ('','76','84','86','96','71','82','103','74','186','97','75','79','1357','1354','1350','1355','1351','1352','1353','1349','1358','157','1356','1578','1603','123','126','548','462','1394','1396','1395','1397','697','1332','662','589','1104','908','1619','907','1618','1044','1056','1055','134','1034','1040','1041','1054','1058','1038','1048','1042','1035','1067','1043','1045','1980','1053','1507','137','927','1032','1057','1194','1324','806','1046','1047','1036','154','1037','1052','1039','1360','1361','1366','1370','1367','1364','1371','1362','1359','1373','1372','1365','1363','1369','1193','129','132','144','1097','1460','1068','1452','1459','1454','1070','689','1063','1392','1713','1466','163','1088','1444','1453','1071','698','694','811','1341','1310','1620','1608','1606','1616','1607','1065','1617','1605','1927','1308','1342','1346','1345','1344','1343','980','1321','1073','1080','1083','1077','1389','1704','1388','1074','1049','1099','1084','1470','1387','1085','1091','1090','940','1654','1126','1127','1722','1928','1131','1427','1642','1128','794','785','1233','1653','945','1142','1714','788','1650','1178','192','191','795','1144','1610','1135','1651','792','1086','181','787','94','1720','1644','1149','1137','963','1143','793','1668','783','1461','1671','1741','1652','1428','1736','1134','1737','1640','1368','803','1307','772','1112','1146','1064','1643','1641','1111','1147','1723','786','1859','1726','1727','1724','1721','1132','1123','784','1136','1739','782','1118','120','121','265','1599','1638','1601','1273','1497','95','1022','1851','1634','902','1738','1637','1021','1633','1600','702','1705','1715','700','1100','1101','690','1384','1393','1309','1381','1383','1382','1098','1122','1378','36','1937','48','45','570','1379','1019','35','46','1509','1510','1526','1531','1529','1522','1518','1525','1517','1516','1527','1534','1535','1533','1532','1523','1530','1528','1521','1514','1515','1511','1512','1513','1519','1524','1467','1549','136','593','139','1472','1508','1520','140','1547','1560','1629','1553','1543','1536','1542','1540','1541','1544','143','1485','1672','596','1538','1537','138','145','1552','1627','1709','850','1471','1554','1555','1550','1551','1548','1539','1546','1545','591','590','1561','1562','664','101','1563','51','918','80','1500','98','1197','MM-201822','100','1602','54','39','556','555','176','1130','1129','195','1504','1502','1050','1711','1505','174','1399','172','175','1119','1503','1204','1060','1203','583','1115','1114','1398','168','1403','1401','189','1402','177','90','625','1116','584','581','613','592','568','1501','164','171','621','1405','1577','1061','1569','1094','178','1202','614','612','1860','1095','582','1113','160','1404','158','159','1059','114','104','564','68','1282','105','1287','87','92','1291','558','552','1027','89','1290','65','62','559','917','565','69','60','571','66','111','1288','88','55','1289','560','63','99','MM-201812','67','574','85','109','167','845','110','569','106','57','1499','59','563','575','576','1286','56','1301','53','561','116','107','MM-201811','557','49','93','553','572','91','165','1302','1303','61','1285','102','72','562','1284','58','52','117','166','MM-201817','550','MM-20185','MM-201813','108','77','113','MM-20184','551','70','549','554','MM-20186','64','50','1347','78','73','112','1295','1484','1252','1268','1254','1265','1257','577','1266','1256','1487','1117','1249','1251','1488','1255','1253','1306','578','1489','1490','1483','1267','1486','1250','579','1248','1626','1331','1330','1623','1625','1328','1803','1622','1339','1877','1621','1329','1338','1572','1576','148','146','1493','1556','580','1066','317','1930','1934','1082','1087','701','1673','1092','983','1465','1096','1340','1075','1076','1380','1031','1719','1079','1078','1390','1712','693','1089','1081','1611','155','1323','156','153','1433','1598','152','1437','1628','147','1614','1568','151','1476','1765','1475','1436','1440','1612') 
+				--  and T.Id  in ('','MAT-20177','20191','20196','20181','MAT-20173','20193','201910','20199','20197','MAT-20176','20198','MAT-201712','MAT-20171') 
+				--  and fam.Id  in ('','','201826','201815','201817','201823','201819','20186','20185','201818','20202-1','201821','201822','20203-1','20181','20182','20184','201830','201824','201829','201828','201820','201827','201812','201813','20188','201810','20187','20189','20183','201814','201811','20201-1','201825','201816') 
+				--  and MG.Id  in ('','201825','20183','20182','20181','201924','201915','201911','20196','20197','201810','201816','20199','20201','20192')
+				-- and uom.Id  in ('','UM70','UM76','UM10','UM91','UM107','UM101','UM12','UM94','UM89','UM96') 
+				-- and S.Id in ('','null','201943','201995','201948','201989','20214','20178','20192','201986','201915','201992','201942','201985','201982','201996','201935','201998','202111','20195','2019142','201962','201950','201927','201955','202110','201947','20219','20218','201931','201933','201940','20217','20216','201997','201914','201920','201934','201932','201913','2019123','201721','201936','201928','2019132','2019126','201929','20213','20212','20211','201956','201945','201949','201946')
+    --            and FAR.Id in ('','0','1','3','6','10','53','20','21','50','9','58','87','15','5','61','37','982','2','159','4','18','234','14','19','38','11','7','8','65','216','41','52','13','43','28','31','283','12','46','71','114','64','26','17','76','22','112','23','247','2200','1528','48','248','2600','32','98','68','16','180','30','210','483','33','100','56','44','79') 
+              --  and x.ProcessId in ('','PRO20172','PRO20173','201811','','20181','20182','PRO20171','20196,PRO20173','PRO20172,PRO20173','201910,PRO20174','201811,PRO20174','PRO20176','PRO20171,PRO20172')
+			    
+                group by
+                T.Id ,T.UserName,MGM.Id,MGM.UserName
                 , M.Id,M.Code,M.ShortName, M.UserName
-				,mma.Id,mma.StandardName,	mma.MachineAllowance,SCode.UserName ,mma.RPM
                 ,MC.Id,MC.UserName,SC.Id,SC.UserName
                 ,MG.Id,MG.UserName
-				,uom.Id,uom.UserName
-                 ,M.IsAsset,s.Id,fam.Id 
+				,uom.Id,uom.UserName, mma.MachineAllowance,mma.Id,mma.StandardName,SCode.UserName
+                 ,M.IsAsset,fam.Id ,s.Id,mma.RPM
+                ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
 				 ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
-				  ,gl.UserName ,b.UserName , a.UserName 
-				     ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
-				  )
-				  X
-				  where x.IsAsset in (" + isAsset + ") and x.Machine in (" + isMachine + @")
-				--and X.CompanyGroupId = '" + companyGroupId + "'and X.CompanyId = '" + companyId + "' AND X.PlantId = '" + plantId + @"'
-                and X.MaterialMasterId in (" + materialMasterId + ") and X.MaterialTypeId  in (" + materialTypeId + @") 
-				and x.AssetMasterId  in (" + assetMasterId + ") and x.MaterialGroup1Id  in (" + materialGroup1Id + @")
-                and x.BaseUOMId  in (" + baseUOMId + ")  and x.SkillId in (" + skillId + @")
-               -- and x.FACount in (" + fACount + @") 
-                and x.ProcessId in (" + process + @")
-                ORDER BY x.MaterialMaster ";
+                 ,gl.UserName ,b.UserName , a.UserName
+				 ) x
+
+				where x.IsAsset in ('','No','Yes') and x.Machine in ('','Yes','No')
+				AND	ISNULL( X.CompanyGroupId,'')='" + companyGroupId + "' and ISNULL( X.CompanyId,'')='" + companyId + "' AND ISNULL( X.PlantId,'')='" + plantId + @"'
+                 and x.ProcessId in (" + process + @")
+			     and X.IsAsset in (" + isAsset + @") 
+				 and X.Machine in (" + isMachine + @")
+                  and X.MaterialMasterId in (" + materialMasterId + @") 
+				  and X.MaterialTypeId  in (" + materialTypeId + @") 
+				  and X.AssetMasterId  in (" + assetMasterId + @") 
+				  and X.MaterialGroup1Id  in (" + materialGroup1Id + @")
+				 and X.BaseUOMId  in (" + baseUOMId + @")
+                 and X.FACount  in (" + fACount + @") 
+                ORDER BY x.MaterialMaster";
 
         }
 
@@ -9726,7 +10031,7 @@ group by Id) O60 ON O60.Id=IV.Id
 								X
 
                                 WHERE
-								X.CompanyGroupId='" + CompanyGroupId + "' and  X.CompanyId='" + CompanyId + "' and X.PlantId='" + PlantId + @"' 
+							ISNULL(	X.CompanyGroupId,'')='" + CompanyGroupId + "' and ISNULL(  X.CompanyId,'')='" + CompanyId + "' and ISNULL( X.PlantId,'')='" + PlantId + @"' 
 						    	--	and X.Archive=0  
 							   -- and	X.DisposedVoucherId IS NULL
                                 and isnull(X.DisposedVoucherId,'')= ''

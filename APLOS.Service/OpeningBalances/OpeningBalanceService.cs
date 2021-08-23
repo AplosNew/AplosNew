@@ -1418,7 +1418,7 @@ namespace Library.Service.OpeningBalances
                     AddedDate = voucherVM.AddedDate,
                     AddedFromIP = voucherVM.AddedFromIP
                 };
-                AuditService.UpdatedLog(openingBalance);
+                
                 if (voucherVM.Id == null)
                 {
                     openingBalance.Id = GetOpeningBalancePK(openingBalance);
@@ -1426,8 +1426,8 @@ namespace Library.Service.OpeningBalances
                 }
                 else
                 {
-
-                Update(openingBalance);
+                    AuditService.UpdatedLog(openingBalance);
+                    Update(openingBalance);
                 }
 
                 var currentRecord = _openingBalanceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.OpeningBalanceDetail WHERE OpeningBalanceId='{openingBalance.Id}'").First();
@@ -2541,11 +2541,41 @@ namespace Library.Service.OpeningBalances
                 throw new CustomException($"This period ({data["PeriodName"]}) exchange rate is not confirmed! Please contact with Administrator.");
             return data;
         }
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+            {
+                try
+                {
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+
+                }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                    drDestination["AddedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedBy"] = identity.Name;
+                    drDestination["UpdatedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedDate"] = DateTime.Now;
+
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+        }
+        
         public string PostOpeningBalanceJournal(VoucherViewModel voucherVM)
         {
             var flag = false;
             
-            var fiscalYear = _fiscalYearService.Find(5);
+            var fiscalYear = _fiscalYearService.Find("5");
             try
             {
 
@@ -2587,8 +2617,113 @@ namespace Library.Service.OpeningBalances
                 var financingPk = _financingService.GetMaxNumber();
 
                 var currentRecord = 0;
+                //DataView dvopeningBalanceDetailData;
+                //DataSet voucherdetailTemp;
+                //DataSet voucherDetailCurrencyTemp;
+                //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                var voucherDetailVMList = _sqlRepository.GetModelCollection<VoucherDetailViewModel>(@"SELECT * FROM [TRN].OpeningBalanceDetail WHERE OpeningBalanceid='"+voucherVM.Id+ "' ").ToList();
+                //con.OpenDataSetThroughAdapter("select * from [TRN].[VoucherDetail] where 1=2", out voucherdetailTemp, false, "1");
+                //con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionBulletinTemplateMaster] where 1=2", out voucherDetailCurrencyTemp, false, "1");
+
+                DataTable openingBalanceDetailData = _sqlRepository.GetDataTable("SELECT obd.*,NULL ModelState,NULL GLGeneralInfo,NULL OpeningBalance,NULL OpeningBalanceDetailCurrency,NULL MaterialMasterOpeningBalanceDetail FROM [TRN].OpeningBalanceDetail obd left join trn.VoucherDetail vd on vd.OpeningBalanceDetailId=obd.id WHERE obd.OpeningBalanceid='" + voucherVM.Id + "' ");
+                List<OpeningBalanceDetail> voucherDetailVMList1 = openingBalanceDetailData.ToList<OpeningBalanceDetail>();
+
+                //List<OpeningBalanceDetail> objBList = voucherDetailVMList1.Select(x => x.Copy()).ToList();
+
+                List<VoucherDetailViewModel> voucherDetailVMList = voucherDetailVMList1.Select(s => new VoucherDetailViewModel
+                {
+                    VoucherId = s.Id,
+                    PlantId = s.PlantId,
+                    OpeningBalanceDetailId = s.Id,
+                    OpeningBalanceId = s.OpeningBalanceId,
+                    Id = s.Id,
+                    EntityId = s.EntityId,
+                    PartyType = s.PartyType,
+                    EmployeeId = s.EmployeeId,
+                    PartyId = s.PartyId,
+                    PartyPlantId = s.PartyPlantId,
+                    GLGeneralInfoId = s.GLGeneralInfoId,
+                    BudgetMasterId = s.BudgetMasterId,
+                    CashMasterId = s.CashMasterId,
+                    BankMasterId = s.BankMasterId,
+                    ActivityId = s.ActivityId,
+                    CurrencyId = s.CurrencyId,
+                    DrAmount = s.DrAmount,
+                    CrAmount = s.CrAmount,
+                    DocDate = s.DocDate,
+                    DocRefNo = s.DocRefNo,
+                    Narration = s.Narration,
+                    FAType = s.FAType,
+                    MaterialMasterOpeningBalanceDetailId = s.MaterialMasterOpeningBalanceDetailId,
+                    CompanyId=s.CompanyId,
+                    RefId=s.RefId,
+                    BaseOnDueDate=s.BaseOnDueDate,
+                    BaseNoOfDays=s.BaseNoOfDays,
+                    RepaymentStartDate=s.RepaymentStartDate,
+                    LifeOfYear=s.LifeOfYear,
+                    NoOfInstallmentPerYear=s.NoOfInstallmentPerYear,
+                    TransactionTypeId=s.TransactionTypeId,
+                    FixedAssetMasterId=s.FixedAssetMasterId,
+                    LoanOpeningBalanceDetailId=s.LoanOpeningBalanceDetailId,
+                    SecurityDepositDetailId=s.LoanOpeningBalanceDetailId,
+                    InvestmentOpeningBalanceDetailId=s.InvestmentOpeningBalanceDetailId,
+                    EquityOpeningBalanceDetailId=s.EquityOpeningBalanceDetailId,
+                    BankCurrencyId=s.BankCurrencyId,
+                    CashCurrencyId=s.CashCurrencyId,
+                    BankAmount=s.BankAmount,
+                    MaterialMasterId=s.MaterialMasterId
+                }).ToList();
+
+                // name_list2.AddRange(name_list1.ToArray());
+
+                //List<VoucherDetailViewModel> clonedList = voucherDetailVMList1.GetClone();
+
+                //List<VoucherDetailViewModel> voucherDetailVMList = new List<VoucherDetailViewModel>();
+
+                //var voucherDetailVMList = _sqlRepository.GetModelCollection<VoucherDetailViewModel>(@"SELECT * FROM [TRN].OpeningBalanceDetail WHERE OpeningBalanceid='"+voucherVM.Id+ "' ");
+
+                //for (int i = 0; i < openingBalanceDetailData.Rows.Count; i++)
+                //{
+                //    DataRow drDetailDestination = voucherdetailTemp.Tables[0].NewRow();
+                //    CopyRow(openingBalanceDetailData.Rows[i], ref drDetailDestination);
+                //    drDetailDestination["Id"] = voucher.Id + "-" + (i + 1);
+                //    drDetailDestination["VoucherId"] = voucher.Id;
+                //    voucherdetailTemp.Tables[0].Rows.Add(drDetailDestination);
+
+
+                //    dvopeningBalanceDetailData = new DataView(openingBalanceDetailData);
+
+                //    dvopeningBalanceDetailData.RowFilter = "MaterialMasterOpeningBalanceDetailId='" + openingBalanceDetailData.Rows[i]["MaterialMasterOpeningBalanceDetailId"].ToString() + "'";
+
+                //    if (dvopeningBalanceDetailData.Count>0)
+                //    {
+                //        DataTable openingBalanceMaterialData = _sqlRepository.GetDataTable("SELECT * FROM [TRN].MaterialMasterOpeningBalanceDetail WHERE Id in ('"+ openingBalanceDetailData.Rows[i]["MaterialMasterOpeningBalanceDetailId"].ToString() +"')");
+
+                //        if (openingBalanceMaterialData.Rows.Count>0)
+                //        {
+                //            var ob = _openingBalanceRepository.Find(materialOB.OpeningBalanceId);
+                //            ob.IsPark = false;
+                //            ob.IsPosted = true;
+                //            _openingBalanceRepository.Update(ob);
+                //            var grn = _inventoryReceiveRepository.Query(r => r.OpeningBalanceId == materialOB.OpeningBalanceId).Select().FirstOrDefault();
+                //            if (grn != null)
+                //            {
+                //                grn.Status = "Posting";
+                //                grn.IsApproved = true;
+                //                //grn.CheckedBy = "";
+                //                grn.CheckedByStatus = "Checked";
+                //                //grn.AuthorizedBy = "";
+                //                grn.AuthorizedByStatus = "Approval";
+                //                _inventoryReceiveRepository.Update(grn);
+                //            }
+                //        }
+                //    }
+                //}
+
+
+
+
+
 
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
@@ -2627,6 +2762,7 @@ namespace Library.Service.OpeningBalances
                     };
                     currentRecord++;
                     _voucherService.InsertVoucherDetail(voucher, voucherDetail, currentRecord);
+
                     if (voucherDetailVM.MaterialMasterOpeningBalanceDetailId != null)
                     {
                         var materialOB = _materialMasterOpeningBalanceDetailRepository.Find(voucherDetailVM.MaterialMasterOpeningBalanceDetailId);
@@ -2949,7 +3085,7 @@ namespace Library.Service.OpeningBalances
                             voucherDetail.AdvanceDetailId = advanceDetail.Id;
                         }
                         //Bank/Cash
-                        else if (voucherDetailVM.PartyType == PartyType.Bank.ToString() || voucherDetailVM.PartyType == PartyType.Cash.ToString())
+                       else if (voucherDetailVM.PartyType == PartyType.Bank.ToString() || voucherDetailVM.PartyType == PartyType.Cash.ToString())
                         {
                             var glTransactionDetail = new GLTransactionDetail
                             {
@@ -2984,7 +3120,7 @@ namespace Library.Service.OpeningBalances
                                 VoucherId = voucher.Id,
                                 VoucherTypeId = voucher.VoucherTypeId,
                                 OpeningBalanceId = voucherDetailVM.OpeningBalanceId,
-                                EmployeeTransactionTypeId = voucherDetailVM.EmployeeTransactionTypeId,
+                                EmployeeTransactionTypeId = voucherDetailVM.TransactionTypeId,
                                 EmployeeId = voucherDetailVM.EmployeeId,
                                 Amount = voucherDetailVM.CrAmount,
                                 PostingDate = voucher.PostingDate,
@@ -3149,38 +3285,7 @@ namespace Library.Service.OpeningBalances
                         }
                     }
 
-                    // Making currency exchange rate and conversion.
-                    if (!voucherDetailVM.IsOB)
-                    {
-                        if (voucherDetailVM.CurrencyId == companyCurrencyId)
-                        {
-                            voucherDetailVM.CompanyCurrencyRate = 1;
-                            voucherDetailVM.CompanyCurrencyConversion = 1;
-
-                            if (!string.IsNullOrEmpty(companyGroupCurrencyId))
-                            {
-                                voucherDetailVM.CompanyGroupCurrencyRate = voucherDetailVM.CompanyCurrencyAmount / voucherDetailVM.CompanyGroupCurrencyAmount;
-                                voucherDetailVM.CompanyGroupCurrencyConversion = voucherDetailVM.CompanyCurrencyConversion / voucherDetailVM.CompanyGroupCurrencyRate;
-                            }
-
-                        }
-                        else if (!string.IsNullOrEmpty(companyGroupCurrencyId) && voucherDetailVM.CurrencyId == companyGroupCurrencyId)
-                        {
-                            voucherDetailVM.CompanyGroupCurrencyRate = 1;
-                            voucherDetailVM.CompanyGroupCurrencyConversion = 1;
-                            voucherDetailVM.CompanyFromCurrencyId = voucherDetailVM.CurrencyId;
-
-                            voucherDetailVM.CompanyCurrencyRate = 1 / (voucherDetailVM.CompanyGroupCurrencyAmount / voucherDetailVM.CompanyCurrencyAmount);
-                            voucherDetailVM.CompanyCurrencyConversion = voucherDetailVM.CompanyGroupCurrencyConversion / voucherDetailVM.CompanyCurrencyRate;
-                        }
-                        else
-                        {
-                            voucherDetailVM.CompanyCurrencyRate = voucherDetailVM.CompanyCurrencyAmount / voucherDetailVM.Amount;
-                            voucherDetailVM.CompanyCurrencyConversion = 1 / voucherDetailVM.CompanyCurrencyRate;
-                            voucherDetailVM.CompanyFromCurrencyId = voucherDetailVM.CurrencyId;
-                        }
-                    }
-
+                    
                     // Set company currency.
                     if (!string.IsNullOrEmpty(companyCurrencyId))
                     {
@@ -3191,34 +3296,11 @@ namespace Library.Service.OpeningBalances
                             FromCurrencyId = voucherDetailVM.ToCurrencyId,
                             ParallelCurrencyId = companyCurrencyId,
                             ToCurrencyId = voucherDetailVM.ToCurrencyId,
-                            ToCurrencyConversion = 1 / voucherDetailVM.CompanyCurrencyRate,
-                            ToCurrencyRate = voucherDetailVM.CompanyCurrencyRate
+                            ToCurrencyConversion = 1 ,
+                            ToCurrencyRate = 1
                         });
                     }
 
-                    // Set company Group currency.
-                    if (!string.IsNullOrEmpty(companyGroupCurrencyId))
-                    {
-                        if (voucherDetailVM.CompanyGroupCurrencyAmount <= 0)
-                            throw new CustomException($"{voucherDetailVM.GLGeneralInfoName} GL {companyGroupCurrencyId} {voucherDetailVM.TrnType} amount must have to greater than zero!");
-                        else if (voucherDetailVM.CurrencyId == companyGroupCurrencyId && voucherDetailVM.Amount != voucherDetailVM.CompanyGroupCurrencyAmount)
-                            throw new CustomException($"{voucherDetailVM.GLGeneralInfoName} GL {companyGroupCurrencyId} {voucherDetailVM.TrnType} amount and Transaction amount is not equal!");
-                        _voucherService.InsertVoucherDetailCompanyGroupCurrency(voucherDetail, new VoucherDetailCurrency
-                        {
-                            VoucherId = voucher.Id,
-                            VoucherDetailId = voucherDetail.Id,
-                            AddedBy = voucherDetail.AddedBy,
-                            AddedDate = voucherDetail.AddedDate,
-                            AddedFromIP = voucherDetail.AddedFromIP,
-                            DrAmount = voucherDetailVM.DrAmount,
-                            CrAmount = voucherDetailVM.CrAmount,
-                            FromCurrencyId = voucherDetailVM.CompanyGroupFromCurrencyId,
-                            ParallelCurrencyId = voucherDetailVM.CompanyGroupCurrencyId,
-                            ToCurrencyId = voucherDetailVM.ToCurrencyId,
-                            ToCurrencyConversion = voucherDetailVM.CompanyGroupCurrencyConversion,
-                            ToCurrencyRate = voucherDetailVM.CompanyGroupCurrencyRate
-                        });
-                    }
                 }
 
                 // Update OpeningBalance IsPark flag
