@@ -530,7 +530,7 @@
                                                     <div class="col-sm-10" style="padding: 0px; width: 350px; height: 20px;">
 
                                                         <div class="input-group">
-                                                            <span class="input-group-addon">{{x.InputMaterialCode}}</span>
+                                                            @*<span class="input-group-addon">{{x.InputMaterialCode}}</span>*@
                                                             <input type="text" width="300" ng-model="x.MaterialMaster" name="Material Master" required class="form-control" readonly>
                                                             <input type="hidden" ng-model="x.InputMaterialId" />
                                                             <span class="input-group-btn">
@@ -545,12 +545,12 @@
                                                     <div class="col-sm-10" style="padding: 0px; width: 350px; height: 20px;">
 
                                                         <div class="input-group">
-                                                            <span class="input-group-addon">{{x.ArticleCode}}</span>
+                                                            @*<span class="input-group-addon">{{x.ArticleCode}}</span>*@
                                                             <input type="text" ng-model="x.ArticleName" name="Material Master" required class="form-control" readonly>
                                                             <input type="hidden" ng-model="x.MaterialMasterArticleId" />
                                                             <span class="input-group-btn">
-                                                                <button ng-click="MaterialMstArticlePopUp(x, $index)" ng-disabled="x.InputMaterialId==null" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                                <button ng-click="MaterialMstArticleClear(x, $index)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                                <button ng-click="MaterialMstArticlePopUp(x, $index)" @*ng-disabled="x.InputMaterialId==null"*@ ng-disabled="true" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                                <button ng-click="MaterialMstArticleClear(x, $index)" class="btn single-small-btn" ng-disabled="true"><i class="glyphicon glyphicon-refresh"></i></button>
                                                             </span>
                                                         </div>
                                                     </div>
