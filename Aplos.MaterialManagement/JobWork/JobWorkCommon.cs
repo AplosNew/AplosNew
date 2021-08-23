@@ -3559,6 +3559,21 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 DataSet JWBOQ;
                 DataSet JWOutMat;
+                DataSet DelJWMatInput;
+
+                if (!string.IsNullOrEmpty(JWOutId))
+                {
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + JWOutId + "' ", out DelJWMatInput, false, "1");
+                    if (DelJWMatInput.Tables[0].Rows.Count > 0)
+                    {
+                        // throw new Exception("First Delete Material Output Data");
+                        con.BeginTransaction();
+
+                        con.executeQuery("delete from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + JWOutId + @"' ");
+
+                        con.CommitTransaction();
+                    }
+                }
 
                 //con.OpenDataSetThroughAdapter("select * from BOQ where ParentId='"+ JWBOQId + @"'  ", out JWBOQ, false, "1");
                 //con.OpenDataSetThroughAdapter("select * from BOQ where ParentId IN ( " + JWBOQId + " )  ", out JWBOQ, false, "1");
