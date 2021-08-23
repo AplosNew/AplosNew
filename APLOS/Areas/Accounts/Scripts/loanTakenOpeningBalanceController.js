@@ -121,9 +121,8 @@ function loanTakenOpeningBalanceController(cboService, $scope, $rootScope, baseS
 
     }
 
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
+    $scope.closePartyPopUp = function (x) {
+            var party = x.data;
             $scope.getPartyPlantListWithCallBack(party.Id, function (result) {
                 if ($scope.partyGLType !== "DownPayment" && !baseService.isUndefinedOrNull($scope.partyGLType)) {
                     if (baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
@@ -206,7 +205,6 @@ function loanTakenOpeningBalanceController(cboService, $scope, $rootScope, baseS
                 $scope.openingBalanceDetailList.splice(0, 0, $scope.openingBalanceDetail);
                 $scope.clearOpeningBalanceDetail();
             });
-        }
         $scope.hidePartyPopUp();
     };
 

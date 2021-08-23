@@ -139,6 +139,16 @@ namespace Aplos.Areas.Accounts.Controllers
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                 }
+                if (sourceType == SourceType.FixedAssetCapitalizeJournal.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                }
+                if (sourceType == SourceType.ServicePayable.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                }
                 _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                 _unitOfWork.SaveChanges();
                 flag = false;
