@@ -4072,80 +4072,114 @@
                             <input type="hidden" ng-model="MaterialInput.Id">
 
                             @*<div class="col-md-12">
-                                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                                        <div style="color:black;" id="GridMatInput" ej-grid e-datasource="MatInputList"
-                                             e-allowfiltering="true" e-recorddoubleclick="setMatInputdata" e-allowpaging="true" e-allowscrolling="true"
-                                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplateMatInput">
-                                            <div e-columns>
-                                                <div e-column e-headertext="" e-headertemplateid="#MatInputheaderTemplate" e-template="#MatInputcheckboxTemplate" e-textalign="center" e-width="20"></div>
-                                                <div e-column e-type="string" e-field="JWInputItem" e-headertext="JW Input Item" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="InputMaterial" e-headertext="Input Material" e-width="100"></div>
-                                                <div e-column e-template="#InputArticle" e-headertext="Input Article" e-width="200" style="height: 200px;"></div>
-                                                <div e-column e-type="string" e-field="Unit" e-headertext="Unit" e-width="80"></div>
-                                                <div e-column e-template="#ItemSpecification" e-headertext="Item Specification" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Responsible Person" e-width="100"></div>
-                                                <div e-column e-template="#NetConsump" e-headertext="Net Consumption" e-width="100"></div>
-                                                <div e-column e-template="#Rejection" e-headertext="Rejection" e-width="100"></div>
-                                                <div e-column e-template="#ValLoss" e-headertext="Value Loss" e-width="100"></div>
-                                                <div e-column e-template="#GrossConsumption" e-headertext="GrossConsumption" e-width="100"></div>
-                                                <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="100"></div>
+            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                <div style="color:black;" id="GridMatInput" ej-grid e-datasource="MatInputList"
+                     e-allowfiltering="true" e-recorddoubleclick="setMatInputdata" e-allowpaging="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplateMatInput">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#MatInputheaderTemplate" e-template="#MatInputcheckboxTemplate" e-textalign="center" e-width="20"></div>
+                        <div e-column e-type="string" e-field="JWInputItem" e-headertext="JW Input Item" e-width="100"></div>
+                        <div e-column e-type="string" e-field="InputMaterial" e-headertext="Input Material" e-width="100"></div>
+                        <div e-column e-template="#InputArticle" e-headertext="Input Article" e-width="200" style="height: 200px;"></div>
+                        <div e-column e-type="string" e-field="Unit" e-headertext="Unit" e-width="80"></div>
+                        <div e-column e-template="#ItemSpecification" e-headertext="Item Specification" e-width="100"></div>
+                        <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                        <div e-column e-type="string" e-field="EmployeeName" e-headertext="Responsible Person" e-width="100"></div>
+                        <div e-column e-template="#NetConsump" e-headertext="Net Consumption" e-width="100"></div>
+                        <div e-column e-template="#Rejection" e-headertext="Rejection" e-width="100"></div>
+                        <div e-column e-template="#ValLoss" e-headertext="Value Loss" e-width="100"></div>
+                        <div e-column e-template="#GrossConsumption" e-headertext="GrossConsumption" e-width="100"></div>
+                        <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="100"></div>
 
-                                            </div>
-                                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/template" id="MatInputcheckboxTemplate">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isToBeSelect" e-value="data.isToBeSelect" />
+            </script>
+            <script type="text/x-jsrender" id="MatInputheaderTemplate">
+                <input type="checkbox" id="headchk" />
+            </script>
+            <script type="text/ng-template" id="ItemSpecification">
+                <input type="text" ng-model="data.ItemSpecification" class="form-control" maxlength="15" e-width="100">
+            </script>
+            <script type="text/ng-template" id="NetConsump">
+                <input type="text" ng-model="data.NetConsumption" class="form-control" maxlength="15" ng-change="$parent.GetGrossConsumption(data);" e-width="100" onkeypress="return OnlyNumber(event)">
+            </script>
+            <script type="text/ng-template" id="Rejection">
+                <input type="text" ng-model="data.Rejection" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
+            </script>
+            <script type="text/ng-template" id="ValLoss">
+                <input type="text" ng-model="data.ValueLoss" class="form-control" maxlength="15" ng-change="$parent.GetGrossConsumption(data);" e-width="100" onkeypress="return OnlyNumber(event)">
+            </script>
+            <script type="text/ng-template" id="GrossConsumption">
+                <input type="text" ng-model="data.GrossConsumption" class="form-control" maxlength="15" readonly e-width="100" onkeypress="return OnlyNumber(event)">
+            </script>
+            <script type="text/ng-template" id="Remarks">
+                <input type="text" ng-model="data.Remarks" class="form-control" maxlength="15" e-width="100">
+            </script>
+
+            <script type="text/template" id="InputArticle">
+
+                <div class="col-sm-10" style="padding:0px; width:200px;height:20px;">
+
+                    <div class="input-group">
+                        <span class="input-group-addon">{{data.InputArticleCode}}</span>
+                        <input type="text" ng-model="data.InputArticleName" name="Material Master" required class="form-control" readonly>
+                        <input type="hidden" ng-model="data.ArticleId" />
+                        <span class="input-group-btn">
+                            <button ng-click="$parent.InputArticlePopUp(data)" ng-disabled="data.InputMaterialId==null" tabindex="48" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="$parent.InputArticleClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </span>
+                    </div>
+                </div>
+
+            </script>
+
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li>
+                    <button ng-click="SaveMaterialInputTab();" class="btn"><i class=""></i> Save</button>
+                    <button ng-click="closeMaterialInputTabPopUp('MaterialInputPopUp');" class="btn"><i class=""></i> Close</button>
+                </li>
+            </ul>
+        </div>*@
+
+                            <div class="col-xs-4 col-sm-4 col-md-4">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Material<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" ng-model="MaterialInputDisplay.Material" readonly class="form-control" maxlength="50">
                                     </div>
-                                    <script type="text/template" id="MatInputcheckboxTemplate">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isToBeSelect" e-value="data.isToBeSelect" />
-                                    </script>
-                                    <script type="text/x-jsrender" id="MatInputheaderTemplate">
-                                        <input type="checkbox" id="headchk" />
-                                    </script>
-                                    <script type="text/ng-template" id="ItemSpecification">
-                                        <input type="text" ng-model="data.ItemSpecification" class="form-control" maxlength="15" e-width="100">
-                                    </script>
-                                    <script type="text/ng-template" id="NetConsump">
-                                        <input type="text" ng-model="data.NetConsumption" class="form-control" maxlength="15" ng-change="$parent.GetGrossConsumption(data);" e-width="100" onkeypress="return OnlyNumber(event)">
-                                    </script>
-                                    <script type="text/ng-template" id="Rejection">
-                                        <input type="text" ng-model="data.Rejection" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
-                                    </script>
-                                    <script type="text/ng-template" id="ValLoss">
-                                        <input type="text" ng-model="data.ValueLoss" class="form-control" maxlength="15" ng-change="$parent.GetGrossConsumption(data);" e-width="100" onkeypress="return OnlyNumber(event)">
-                                    </script>
-                                    <script type="text/ng-template" id="GrossConsumption">
-                                        <input type="text" ng-model="data.GrossConsumption" class="form-control" maxlength="15" readonly e-width="100" onkeypress="return OnlyNumber(event)">
-                                    </script>
-                                    <script type="text/ng-template" id="Remarks">
-                                        <input type="text" ng-model="data.Remarks" class="form-control" maxlength="15" e-width="100">
-                                    </script>
-
-                                    <script type="text/template" id="InputArticle">
-
-                                        <div class="col-sm-10" style="padding:0px; width:200px;height:20px;">
-
-                                            <div class="input-group">
-                                                <span class="input-group-addon">{{data.InputArticleCode}}</span>
-                                                <input type="text" ng-model="data.InputArticleName" name="Material Master" required class="form-control" readonly>
-                                                <input type="hidden" ng-model="data.ArticleId" />
-                                                <span class="input-group-btn">
-                                                    <button ng-click="$parent.InputArticlePopUp(data)" ng-disabled="data.InputMaterialId==null" tabindex="48" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="$parent.InputArticleClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                    </script>
-
                                 </div>
-
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li>
-                                            <button ng-click="SaveMaterialInputTab();" class="btn"><i class=""></i> Save</button>
-                                            <button ng-click="closeMaterialInputTabPopUp('MaterialInputPopUp');" class="btn"><i class=""></i> Close</button>
-                                        </li>
-                                    </ul>
-                                </div>*@
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Article<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" ng-model="MaterialInputDisplay.Article" readonly class="form-control" maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">UoM<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" ng-model="MaterialInputDisplay.UoM" readonly class="form-control" maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="col-xs-4 col-sm-4 col-md-4">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" ng-model="MaterialInputDisplay.Quantity" readonly class="form-control" maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="col-md-12">
                                 <div class="content-container-fluid" style="color:black;overflow:scroll">
@@ -4159,7 +4193,7 @@
                                             <div e-column e-type="string" e-field="MatBaseUoM" e-headertext="UoM" e-width="100"></div>
                                             @*<div e-column e-type="string" e-field="ItemSpecification" e-headertext="Item Specification" e-width="100"></div>*@
                                             @*<div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>*@
+                        <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>*@
                                             <div e-column e-type="string" e-field="NETCon" e-headertext="Net Consumption" e-width="100"></div>
                                             <div e-column e-type="string" e-field="Rej" e-headertext="Rejection" e-width="100"></div>
                                             <div e-column e-type="string" e-field="ValLoss" e-headertext="Value Loss" e-width="100"></div>
@@ -4172,19 +4206,19 @@
                                     </div>
                                 </div>
                                 @*<script type="text/template" id="BOQDeleteMaterialInputTab">
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-left">
-                                                <li><button ng-click="$parent.ConfirmDeleteMaterialInputTabBOQ(data.Id);" class="btn" tabindex="49"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
-                                            </ul>
-                                        </div>
-                                    </script>*@
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="$parent.ConfirmDeleteMaterialInputTabBOQ(data.Id);" class="btn" tabindex="49"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                    </ul>
+                </div>
+            </script>*@
                                 @*<script type="text/template" id="BOQPopUpByProduct">
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-left">
-                                                <li><button ng-click="$parent.ConfirmByProductPopUpBOQ(data);" ng-disabled="data.ByProductApplicable=='No' " class="btn" tabindex="50"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
-                                            </ul>
-                                        </div>
-                                    </script>*@
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="$parent.ConfirmByProductPopUpBOQ(data);" ng-disabled="data.ByProductApplicable=='No' " class="btn" tabindex="50"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                    </ul>
+                </div>
+            </script>*@
                             </div>
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
