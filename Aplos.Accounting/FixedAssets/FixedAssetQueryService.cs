@@ -933,7 +933,7 @@ namespace Library.Accounting.FixedAssets
 									  JOIN(SELECT SUM(TotalAmount) TotalAmount,CapitalizeVoucherDetailId FROM TRN.InventoryIssueHistory GROUP BY CapitalizeVoucherDetailId) IIH ON VD.Id=IIH.CapitalizeVoucherDetailId
 									LEFT JOIN  TRN.[Voucher] AS V ON V.Id=VD.VoucherId
                                     LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
-                                    WHERE V.ExchangeType IS NULL AND V.Archive=0  AND V.PlantId='" + plantId + "' AND V.SourceType='" + SourceType.FixedAssetCapitalizeJournal + @"' and vd.FAType='AssetCapatalized'";
+                                    WHERE V.ExchangeType IS NULL AND V.Archive=0  AND V.PlantId='" + plantId + "' AND V.SourceType='" + SourceType.FixedAssetCapitalizeJournal + @"' and vd.FAType in ('AssetCapatalized','AssetNonCapitalized')";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
