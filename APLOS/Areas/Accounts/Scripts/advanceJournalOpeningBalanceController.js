@@ -1334,12 +1334,18 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
         return true;
     };
 
-    $scope.postOB = function (data,dramount,cramount) {
+    $scope.postOB = function (data, dramount, cramount) {
+        $scope.voucher.Id = data.Id;
+        $scope.voucher.PostingDate = data.PostingDate;
+        $scope.voucher.DocDate = data.DocDate;
+        $scope.voucher.DocRefNo = data.DocRefNo;
+        $scope.voucher.IsPark = data.IsPark;
+        $scope.voucher.Narration = data.Narration;
         $http({
             method: "POST",
             url: "accounts/OpeningBalance/PostOpeningBalanceJournal",
             data: {
-                "voucherVM": data,
+                "voucherVM": $scope.voucher,
                 "DrAmount": dramount,
                 "CrAmount": cramount
             },

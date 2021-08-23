@@ -29,7 +29,6 @@ namespace Aplos.Areas.HumanResource.Controllers
     public class NewAttdnProcessLockController : BaseController
     {
 
-        #region Constructor
         NewAttdnProcessPlantLockService app = new NewAttdnProcessPlantLockService();
 
         public NewAttdnProcessLockController()
@@ -37,33 +36,24 @@ namespace Aplos.Areas.HumanResource.Controllers
             app = new NewAttdnProcessPlantLockService();
         }
 
-        #endregion Constructor
-        #region -- Pages
-
-       
         public ActionResult Aplos()
         {
             return View();
         }
 
-        #endregion -- Pages
-
-       
         [HttpPost, Authorize]
-        public ActionResult getShift(string systemid, string WorkDate)
+        public ActionResult GetEmpData(string Date)
         {
             try
             {
-
-                AdminAttendanceControlService mau = new AdminAttendanceControlService();
-
-                return Json(mau.GetShiftData(systemid, WorkDate), JsonRequestBehavior.AllowGet);
-
-
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;             
+               
+                var jsondata = Json(new { LockedEmp = app.GetLockedEmployees(Date, identity.PlantId), UnlockedEmp = app.GetUnLockedEmployees(Date, identity.PlantId) }, JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
 

@@ -463,7 +463,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         ,ac.AcceptanceValue
 						,SetOff=Loan.Amount -- todo acceptance payment other than loan
 						,Loan.Amount Loan
-						,Loan.LoanSetOff
+						,LoanSetOff.LoanSetOff
 						,ac.AcceptanceCount
 						,grn.GRNTotalAmount as GRNValue
                         ,grn.GRNCount
@@ -500,13 +500,21 @@ namespace Aplos.Areas.Commercial.Controllers
 									group by A.PurchaseLCId
                         ) as ac on ac.PurchaseLCId = PL.Id
 
-						left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount,SUM(FDW.Amount) LoanSetOff 
+											left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount
 										from TRN.LoanAgainstAcceptance LAA 
 											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId
-											LEFT JOIN TRN.Financing F ON F.LoanAgainstAcceptanceId=LAA.Id --and LAA.IsPark=0
-											LEFT JOIN TRN.FinancingDetailWriteOff FDW ON FDW.FinancingId=F.Id
+											--LEFT JOIN TRN.Financing F ON F.LoanAgainstAcceptanceId=LAA.Id 
+											--LEFT JOIN TRN.FinancingDetailWriteOff FDW ON FDW.FinancingId=F.Id
 											group by PDA.PurchaseLCId												
 						) Loan on Loan.PurchaseLCId=PL.Id
+
+					   left join(select PDA.PurchaseLCId,SUM(FDW.Amount) LoanSetOff 
+										from TRN.LoanAgainstAcceptance LAA 
+											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId
+											LEFT JOIN TRN.Financing F ON F.LoanAgainstAcceptanceId=LAA.Id 
+											LEFT JOIN TRN.FinancingDetailWriteOff FDW ON FDW.FinancingId=F.Id
+											group by PDA.PurchaseLCId												
+						) LoanSetOff on LoanSetOff.PurchaseLCId=PL.Id
 
                         left outer join (
 										 select con.Id as Id, customer.UserName as Customer from Contract as con 
