@@ -116,24 +116,511 @@ namespace Aplos.Areas.JobWork.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if(Type== "Value Added")
             {
-                sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
-                                           ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate
-                                           ,FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate
-                                           ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                           from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
-                                           left join HKP.Party p on p.Id=vac.PartyId
-                                           WHERE " + strkey + " and POType='OSValueAddedPO' order by ValueAddedDate desc ";
+                //sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
+                //                           ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate
+                //                           ,FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate
+                //                           ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
+                //                           from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
+                //                           left join HKP.Party p on p.Id=vac.PartyId
+                //                           WHERE " + strkey + " and POType='OSValueAddedPO' order by ValueAddedDate desc ";
 
+
+                sql = @"select * from(
+							SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Value Added'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(Cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                                  ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        
+                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='"+identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						WHERE " + strkey + @" and  IR.PlantId='" + identity.PlantId + @"' 
+                        --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
+                        --AND IR.CheckedBy IS NOT NULL 
+						AND IR.CheckedByStatus='Pending' 
+						AND isnull(IR.IsClosed,0)=0 
+						--Order by IR.PODate DESC
+						and IR.POType='OSValueAddedPO'
+
+						UNION All
+
+						--DECLARE @plantId VARCHAR(10)='20171';
+							SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Value Added'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                             ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        
+                        --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						Where " + strkey + @" and IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
+						AND IR.CheckedByStatus IS NULL 
+						AND IR.AuthorizedByStatus IS NULL						
+						 And IR.PlantId='" + identity.PlantId + @"' 
+                       --AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
+
+                        AND isnull(IR.IsClosed,0)=0 
+						--Order by IR.PODate DESC
+						and IR.POType='OSValueAddedPO'
+
+						UNION All
+
+						--DECLARE @plantId VARCHAR(10)='20171';
+							SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Value Added'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                                   ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+                        
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						Where " + strkey + @" and IR.CheckedByStatus is null				
+						AND IR.AuthorizedByStatus='For Approval'						
+						And IR.PlantId='" + identity.PlantId + @"' 
+                        --AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
+                        AND isnull(IR.IsClosed,0)=0 
+						and IR.POType='OSValueAddedPO'
+						) x
+						--Order by PODate DESC
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPurchaseOrder) BD ON BD.Id=x.Id 
+						ORDER BY CONVERT(int,Col) desc ";
             }
             if(Type == "Transformation")
             {
-                sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
-                                    ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                                    FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-                                    e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                    from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
-									left join HKP.Party p on p.Id=tc.PartyId
-                                    WHERE " + strkey + " and POType='OSTransformationPO' order by tc.PODate desc";
+                //       sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
+                //                           ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+                //                           FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
+                //                           e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
+                //                           from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
+                //left join HKP.Party p on p.Id=tc.PartyId
+                //                           WHERE " + strkey + " and POType='OSTransformationPO' order by tc.PODate desc";
+
+                sql = @"	
+						select * from(
+							SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Transformation'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(Cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                                  ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        
+                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						WHERE " + strkey + @" and  IR.PlantId='" + identity.PlantId + @"' 
+                        --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
+                        --AND IR.CheckedBy IS NOT NULL 
+						AND IR.CheckedByStatus='Pending' 
+						AND isnull(IR.IsClosed,0)=0 
+						--Order by IR.PODate DESC
+						and IR.POType='OSTransformationPO'
+
+						UNION All
+
+						--DECLARE @plantId VARCHAR(10)='20171';
+							SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Transformation'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                             ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        
+                        --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						Where " + strkey + @" and IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
+						AND IR.CheckedByStatus IS NULL 
+						AND IR.AuthorizedByStatus IS NULL						
+						 And IR.PlantId='" + identity.PlantId + @"' 
+                       --AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
+
+                        AND isnull(IR.IsClosed,0)=0 
+						--Order by IR.PODate DESC
+						and IR.POType='OSTransformationPO'
+
+						UNION All
+
+						--DECLARE @plantId VARCHAR(10)='20171';
+							SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Transformation'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                                   ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+                        
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						Where " + strkey + @" and IR.CheckedByStatus is null				
+						AND IR.AuthorizedByStatus='For Approval'						
+						And IR.PlantId='" + identity.PlantId + @"' 
+                        --AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
+                        AND isnull(IR.IsClosed,0)=0 
+						and IR.POType='OSTransformationPO'
+						) x
+						--Order by PODate DESC
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPurchaseOrder) BD ON BD.Id=x.Id 
+						ORDER BY CONVERT(int,Col) desc";
             }
            
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -147,22 +634,515 @@ namespace Aplos.Areas.JobWork.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (TabType == "Value Added")
             {
-                sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
-                                    ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                                    FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate
-                                    ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                    from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
-									left join HKP.Party p on p.Id=vac.PartyId
-                                    WHERE vac.Id='" + Id + "' order by ValueAddedDate desc ";
+                //       sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
+                //                           ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+                //                           FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate
+                //                           ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
+                //                           from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
+                //left join HKP.Party p on p.Id=vac.PartyId
+                //                           WHERE vac.Id='" + Id + "' order by ValueAddedDate desc ";
+
+                sql = @"select * from(
+							SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Value Added'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(Cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                                  ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        
+                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						WHERE IR.PlantId='" + identity.PlantId + @"' 
+                        --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
+                        --AND IR.CheckedBy IS NOT NULL 
+						AND IR.CheckedByStatus='Pending' 
+						AND isnull(IR.IsClosed,0)=0 
+						--Order by IR.PODate DESC
+						and IR.POType='OSValueAddedPO'
+                        And IR.Id='" + Id + @"'
+
+						UNION All
+
+						--DECLARE @plantId VARCHAR(10)='20171';
+							SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Value Added'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                             ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        
+                        --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						Where IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
+						AND IR.CheckedByStatus IS NULL 
+						AND IR.AuthorizedByStatus IS NULL						
+						 And IR.PlantId='" + identity.PlantId + @"' 
+                       --AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
+
+                        AND isnull(IR.IsClosed,0)=0 
+						--Order by IR.PODate DESC
+						and IR.POType='OSValueAddedPO'
+                        And IR.Id='" + Id + @"'
+
+						UNION All
+
+						--DECLARE @plantId VARCHAR(10)='20171';
+							SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Value Added'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                                   ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+                        
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						Where IR.CheckedByStatus is null				
+						AND IR.AuthorizedByStatus='For Approval'						
+						And IR.PlantId='" + identity.PlantId + @"' 
+                        --AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
+                        AND isnull(IR.IsClosed,0)=0 
+						and IR.POType='OSValueAddedPO'
+                        And IR.Id='" + Id + @"'
+						) x
+						--Order by PODate DESC
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPurchaseOrder) BD ON BD.Id=x.Id 
+						ORDER BY CONVERT(int,Col) desc ";
+
             }
             if (TabType == "Transformation")
             {
-                sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                                    FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-                                    e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                    from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
-									left join HKP.Party p on p.Id=tc.PartyId
-                                    WHERE tc.Id='"+ Id + @"' order by tc.PODate desc";
+         //       sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+         //                           FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
+         //                           e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
+         //                           from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
+									//left join HKP.Party p on p.Id=tc.PartyId
+         //                           WHERE tc.Id='"+ Id + @"' order by tc.PODate desc";
+
+                sql = @"select * from(
+							SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Transformation'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(Cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                                  ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        
+                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						WHERE IR.PlantId='" + identity.PlantId + @"' 
+                        --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
+                        --AND IR.CheckedBy IS NOT NULL 
+						AND IR.CheckedByStatus='Pending' 
+						AND isnull(IR.IsClosed,0)=0 
+						--Order by IR.PODate DESC
+						and IR.POType='OSTransformationPO'
+                        And IR.Id='" + Id + @"'
+
+						UNION All
+
+						--DECLARE @plantId VARCHAR(10)='20171';
+							SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Transformation'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                             ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        
+                        --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						Where IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
+						AND IR.CheckedByStatus IS NULL 
+						AND IR.AuthorizedByStatus IS NULL						
+						 And IR.PlantId='" + identity.PlantId + @"' 
+                       --AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
+
+                        AND isnull(IR.IsClosed,0)=0 
+						--Order by IR.PODate DESC
+						and IR.POType='OSTransformationPO'
+                        And IR.Id='" + Id + @"'
+
+						UNION All
+
+						--DECLARE @plantId VARCHAR(10)='20171';
+							SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Transformation'
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									--,IR.PODate
+									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									--, IR.GateEntryNo
+									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									--, IR.AlongwithInvoice
+									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount
+									, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(pgl.CtnId,0) CtnId
+									,IR.AddedBy
+                                    --,PLC.LCANo PurchaseLC
+									,ISNULL(cn.ContractNo,'') ContractNo
+									, ISNULL(MLC.Id,'') MasterLCNo
+							        ,ISNULL(MLC.LCRef,'') LCRef
+									--,Par1.UserName Customer
+									,IR.CheckedByStatus AS CheckedByStatus
+									,IR.AuthorizedByStatus AS AuthorizedByStatus
+                                   ,eI.EmployeeName CheckedBy
+									,eI1 .EmployeeName ApprovedBy
+									,IR.ContractId
+									,IR.OrderSpecific
+									--,IR.PurchaseLCId
+									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
+						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks,IR.POType
+						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+                        
+						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
+									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
+									WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
+						left join ORG.Entity E on E.Id=IR.EntityId
+						Where IR.CheckedByStatus is null				
+						AND IR.AuthorizedByStatus='For Approval'						
+						And IR.PlantId='" + identity.PlantId + @"' 
+                        --AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
+                        AND isnull(IR.IsClosed,0)=0 
+						and IR.POType='OSTransformationPO'
+                        And IR.Id='" + Id + @"'
+						) x
+						--Order by PODate DESC
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPurchaseOrder) BD ON BD.Id=x.Id 
+						ORDER BY CONVERT(int,Col) desc";
             }
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -212,16 +1192,19 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             string sql = "";
 
-            sql = @"select distinct mp.*, jwi.UserName as JobWorkItem,jwa.UserName as JobWorkActivity, uom.UserName as OutputUnit, mma.StandardName as ArticleCode
-                               ,c.Code as Currency, emp.EmployeeName as ResponsiblePerson, MS.UserName as MaterialLocation
+            sql = @"select distinct mp.*, jwi.UserName as JobWorkItem,jwa.UserName as JobWorkActivity, uom.UserName as OutputUnit
+                               ,mm.UserName as Material , mma.StandardName as Article
+                               ,c.Code as Currency, emp.EmployeeName as ResponsiblePerson, JL.LocationName as MaterialLocation
                                from dbo.JobWorkTransformationContractChild mp left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
         					   left join SCS.UnitOfMeasurement uom on uom.Id=mp.OutputMaterialUOMId
-        					   left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
+        					   left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
+							   left join MST.MaterialMaster mm on mm.Id=mp.MaterialMasterId
 							   left join scs.Currency c on c.Id=mp.CurrencyId
 							   left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
         					   left join dbo.EmployeeInformation emp on emp.SystemId=mp.ResponsiblePersonId
-							   left join HKP.MaterialStorage MS on MS.Id=mp.MaterialLocationId
-					   	   	   left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
+							   --left join HKP.MaterialStorage MS on MS.Id=mp.MaterialLocationId
+					   	   	   left join HKP.JobWorkLocation JL on JL.Id=mp.MaterialLocationId
+							   left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
         					   where tc.Id='" + PKId + "' ";
 
 
@@ -229,12 +1212,12 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetMaterialInputData(IEnumerable<MaterialPlanning> SelectedMaterialPlanningData)
+        public JsonResult GetMaterialInputData(IEnumerable<MaterialPlanning> SelectedMaterialPlanningData, string OrderSpecific,string MaterialStorageIdInventory, string IssueDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(JWTIR.GetMaterialInputData(SelectedMaterialPlanningData), JsonRequestBehavior.AllowGet);
+                return Json(JWTIR.GetMaterialInputData(SelectedMaterialPlanningData, OrderSpecific, MaterialStorageIdInventory, IssueDate), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -982,6 +1965,21 @@ namespace Aplos.Areas.JobWork.Controllers
 
         }
 
+        [Authorize, HttpGet]
+        public JsonResult getalljobworklocation()
+        {
+            try
+            {
+
+                return Json(JWTIR.getalljobworklocation(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
         //private string GetTransformationPK()
         //{
         //    string sID = string.Empty;
@@ -1600,6 +2598,21 @@ left join (select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId
             {
                 throw ex;
             }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult getStoragloc(string JLId)
+        {
+            try
+            {
+
+                return Json(JWTIR.getStoragloc(JLId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
 
     }

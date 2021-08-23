@@ -32,71 +32,29 @@
                 </li>
             </ul>
             <div class="clearfix"></div>
-            @*<div ng-show="selectedSalesOrderDataList.length>0">
-                <div id="GridSelectedSalesOrder" ej-grid e-datasource="selectedSalesOrderDataList"
-                     e-allowscrolling="true" e-minwidth="450" e-minheight="400"
-                     e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true">
+            <div ng-show="selectedSalesOrderDataList.length>0">
+                <div id="GridSelectedSalesOrder" ej-grid e-datasource="selectedSalesOrderDataList"  e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                     e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true">
                     <div e-columns>
-
-                        <div e-column e-field="SO No" e-headertext="SalesOrderId" e-width="50" e-textalign="left"></div>
-                        <div e-column e-field="PONumber" e-headertext="PONumber" e-width="150" e-textalign="left"></div>
+                        <div e-column e-field="ProductionOrderId" e-headertext="PrO" e-width="70" e></div>
+                        <div e-column e-field="SalesOrderId" e-headertext="SO No" e-width="50" e-textalign="left"></div>
+                        <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                        <div e-column e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
+                        <div e-column e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
+                        <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                        <div e-column e-field="PONumber" e-headertext="PONumber" e-width="50" e-textalign="left"></div>
                         <div e-column e-field="DeliveryDate" e-headertext="Delivery Date" e-width="50" e-textalign="left"></div>
                         <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="50" e-textalign="left"></div>
-                        <div e-column e-field="Destination" e-headertext="Destination" e-width="50" e-textalign="left"></div>
-                        <div e-column e-field="ShipMode" e-headertext="ShipMode" e-width="50" e-textalign="left"></div>
-
+                        <div e-column e-field="DestinationName" e-headertext="Destination" e-width="50" e-textalign="left"></div>
+                        <div e-column e-field="ShipmentModeName" e-headertext="ShipMode" e-width="50" e-textalign="left"></div>
                     </div>
                 </div>
-            </div>*@
-
-            <div class="table-responsive modal-table" ng-show="selectedSalesOrderDataList.length>0">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>SO No</th>
-                            <th>PONumber</th>
-                            <th>Delivery Date</th>
-                            <th>Commitment Date</th>
-                            <th>Destination</th>
-                            <th>Ship Mode</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in selectedSalesOrderDataList">
-                           
-
-                            <td>{{x.SalesOrderId}}</td>
-                            <td>{{x.PONumber}}</td>
-                            <td>{{x.DeliveryDate}}</td>
-                            <td>{{x.CommitmentDate}}</td>
-                            <td>{{x.Destination}}</td>
-                            <td>{{x.ShipMode}}</td>
-
-
-                        </tr>
-
-                    </tbody>
-                </table>
-
-
             </div>
             <ul class="common-btn list-inline text-left" ng-show="selectedSalesOrderDataList.length>0">
                 <li>
                     <button ng-click="Save();" ng-disabled="salesVM.PartyId==null" class="btn"><i class="glyphicon glyphicon-step-forward"></i> Next</button>
                 </li>
             </ul>
-            @*<div class="form-group">
-            <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <input type="text" name="ProductionOrder" ng-model="salesVM.ProductionOrderId" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>*@
         </div>
         <div class="col-xs-12"  ng-show="AllConfirmedPackingContentDataList.length>0">
             <div id="GridSOItemSelected" ej-grid e-datasource="AllConfirmedPackingContentDataList"
@@ -126,13 +84,11 @@
 
         <div class="clearfix"></div>
 
-        @*<div class="common-btn">
+        <div class="common-btn">
             <ul class="list-inline text-right">
-                <li> <button ng-click="Save()" class="btn single-small-btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNew.Id.length>0?'Update':'Save'}}</button></li>
-                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                 <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
-        </div>*@
+        </div>
 
     </div>
 </div>
@@ -156,7 +112,6 @@
         </script>*@
     </div>
 </div>
-@*@Html.Partial("~/Areas/SalesManagements/Views/_MasterOrderPopUp.cshtml")*@
 @Html.Partial("~/Areas/SalesManagements/Views/_MasterOrderItemPopUp.cshtml")
 <div class="modal fade site-modal in" id="partyPopUpNew" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg ">
@@ -210,7 +165,6 @@
     </div>
 </div>
 @Html.Partial("~/Areas/SalesManagements/Views/_BillToShipToPopUp.cshtml")
-
 
 <div class="modal site-modal in" id="MultiProductionPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -364,8 +318,6 @@
     </div>
 </div>
 
-
-
 <div class="modal site-modal in" id="PackingContentPopUp" role="dialog" data-backdrop="static">
     <div class="row">
         <div class="modal-dialog modal-lg">
@@ -431,9 +383,7 @@
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header"> Sales Order Item<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-
             <div class="modal-body form-elements form-horizontal">
-                @*<label style="color:cornflowerblue">Select Same Customer.</label>*@
                 <div class="col-md-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                         <div style="color:black;" id="GridOperation" ej-grid e-datasource="SalesOrderDataList"
@@ -442,28 +392,24 @@
                              e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
 
                             <div e-columns>
-                                @*<div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>*@
                                 <div e-column e-headertext="" e-headertemplateid="" e-template="#checkboxTemplateMO" e-textalign="center" e-width="30"></div>
-
+                                <div e-column e-field="ProductionOrderId" e-headertext="PrO" e-width="70" e></div>
                                 <div e-column e-field="SalesOrderId" e-headertext="SO No" e-width="80"></div>
-                                <div e-column e-field="PONumber" e-headertext="PONumber" e-width="50"></div>
+                                <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                                <div e-column e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
+                                <div e-column e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
+                                <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                                <div e-column e-field="PONumber" e-headertext="PO Number" e-width="50"></div>
                                 <div e-column e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>
                                 <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
-                                <div e-column e-field="Destination" e-headertext="Destination" e-width="150"></div>
-                                <div e-column e-field="ShipMode" e-headertext="ShipMode" e-width="80"></div>
+                                <div e-column e-field="DestinationName" e-headertext="Destination" e-width="150"></div>
+                                <div e-column e-field="ShipmentModeName" e-headertext="Ship Mode" e-width="80"></div>
                             </div>
                         </div>
-                        @*<script type="text/template" id="checkboxTemplateMaster">
-                                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
-                            </script>*@
 
                         <script type="text/template" id="checkboxTemplateMO">
                             <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
                         </script>
-                        @*<script type="text/x-jsrender" id="headerTemplateMO">
-                                <input type="checkbox" id="headchk" />
-                            </script>*@
-
                     </div>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">

@@ -10115,6 +10115,7 @@ group by Id) O60 ON O60.Id=IV.Id
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId --AND VD.CashMasterId=@cashMasterId 
 						AND V.SourceType!='OpeningBalance'
 						 AND V.PostingDate <= '19-Aug-2021' and vd.BankMasterId<>''
+                         and BM.AccountType='HouseBank'
 						 GROUP BY BM.AccountTitle ,BM.Id,c.Code,B.UserName,BB.UserName,BM.AccountNumber
                         UNION ALL
                         SELECT B.UserName Bank,BB.UserName Branch,BM.AccountNumber,[Bank\AccountDetails]= BM.AccountTitle,BM.Id,C.Code CashCurrency,
@@ -10139,7 +10140,7 @@ group by Id) O60 ON O60.Id=IV.Id
                         ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId --AND VD.CashMasterId=@cashMasterId 
 						AND V.SourceType='OpeningBalance'
-						 AND V.PostingDate > '"+toDate+@"' and vd.BankMasterId<>''
+						 AND V.PostingDate > '" + toDate+@"' and vd.BankMasterId<>''
 						 and BM.AccountType='HouseBank'
 						 GROUP BY BM.AccountTitle ,BM.Id,c.Code,B.UserName,BB.UserName,BM.AccountNumber
                        -- ORDER BY V.PostingDate ASC";

@@ -367,13 +367,13 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		[HttpPost]
-		public JsonResult Create(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus)
+		public JsonResult Create(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.PlantId = identity.PlantId;
-			_inventoryIssueService.InsertGraph(entities, specificStockList, inventoryIssue, IssueTypeStatus);
+			_inventoryIssueService.InsertGraph(entities, specificStockList, inventoryIssue, IssueTypeStatus, entitiesAll);
 			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 
