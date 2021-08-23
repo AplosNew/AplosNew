@@ -8044,7 +8044,7 @@ ORDER BY IR.ID DESC";
                                     LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
                                     LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
                                     LEFT JOIN (Select PoId,COUNT(GRNId) GRNId from tRN.POGGRNMap GROUP BY PoId) GRN ON GRN.PoId=PO.Id
-                                    WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsClosed=0  
+                                    WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsClosed=0  AND AuthorizedByStatus='Approved'
                             UNION 
                             SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
                                     PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
@@ -8059,7 +8059,7 @@ ORDER BY IR.ID DESC";
                                     LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
                                     LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
                                     LEFT JOIN (Select ServicePoId,COUNT(ServiceAckId) GRNId from tRN.ServivePOAcknowledgementMap GROUP BY ServicePoId) GRN ON GRN.ServicePoId=PO.Id
-                                    WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsClosed=0
+                                    WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsClosed=0  AND ApprovedByStatus='Approved'
                         UNION 
                         SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
                             PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
@@ -8075,7 +8075,7 @@ ORDER BY IR.ID DESC";
                             LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
                             LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
                             --LEFT JOIN (Select ServicePoId,COUNT(ServiceAckId) GRNId from TRN.ServivePOAcknowledgementMap GROUP BY ServicePoId) GRN ON GRN.ServicePoId=PO.Id
-                            WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND ISNULL(PO.IsClosed,0)=0 
+                            WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND ISNULL(PO.IsClosed,0)=0 AND PO.IsApproved=1
                                     ";
 
                 return _sqlRepository.GetDataCollection(Sql);
