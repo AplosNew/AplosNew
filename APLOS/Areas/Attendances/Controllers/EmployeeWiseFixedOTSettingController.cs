@@ -78,8 +78,9 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetEmpWiseFOT(string empId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"	 select MinimumOT,Id
-                                ,ExcessAllowed = case when IsExcessAllowed=1 then 'Yes' else 'No' End ,IsExcessAllowed
+            string sql = @"	 select MaximumOT,Id,MaximumOTLimitPerWeekDay,MaximumOTLimitPerHoliDay,MaximumOTLimitPerWeekend,MaximumOTLimitPerMonth
+                                    ,MinimumOTLimit = case when IsMinimumOTLimit=1 then 'Yes' else 'No' End ,IsMinimumOTLimit
+                                
                                 from EmployeeWiseFixedOTSetting 
                                 where PlantId='" + identity.PlantId+"' and CompanyId='"+identity.CompanyId+"' and EmpSystemId='"+empId+"'";
             var data = _sqlRepository.GetDataCollection(sql);
