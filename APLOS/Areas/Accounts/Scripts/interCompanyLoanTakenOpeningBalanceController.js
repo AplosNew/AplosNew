@@ -15,4 +15,5 @@ function interCompanyLoanTakenOpeningBalanceController(cboService, $scope, $root
     cboService.getCboInterCompanyFinancingType($scope.sourceType, function (result) {
         $scope.financingTypeList = result;
     });
+
 }
