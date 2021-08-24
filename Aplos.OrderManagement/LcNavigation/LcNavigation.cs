@@ -401,7 +401,7 @@ PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' )
         private string PurchaseLCSetoffSql(string PurchaseLCId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"SELECT pda.Id AcceptanceNo,laa.Id LoanId, V.VoucherNo, F.DocRefNo FinancingNo, 'Loan' TransactionType, P.Code AS PartyCode, P.UserName AS PartyName, F.PartyPlantId, PP.UserName AS PartyPlantName
+            return @"SELECT pda.AcceptanceNo ,laa.Id LoanId,laa.LoanNo, V.VoucherNo, F.DocRefNo FinancingNo, 'Loan' TransactionType, P.Code AS PartyCode, P.UserName AS PartyName, F.PartyPlantId, PP.UserName AS PartyPlantName
                                 , F.VoucherId,Format( F.PostingDate,'dd-MMM-yyyy') PostingDate,Format( F.DocDate,'dd-MMM-yyyy') DocDate, F.DocRefNo, C.Code AS CurrencyCode,
 								F.Amount
                                 FROM [TRN].[Financing] AS F
@@ -413,23 +413,23 @@ PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' )
 								left join trn.LoanAgainstAcceptance laa on laa.Id=f.LoanAgainstAcceptanceId
 								left join trn.PurchaseDocAcceptance pda on pda.Id=laa.PurchaseDocAcceptanceId
                                 WHERE F.OpeningBalanceId IS NULL AND F.Archive=0 And F.SourceType='AutoLoan'
-								and f.LoanAgainstAcceptanceId<>'' and pda.PurchaseLCId='"+PurchaseLCId+ @"'
+								and f.LoanAgainstAcceptanceId<>'' and pda.PurchaseLCId='" + PurchaseLCId+ @"'
 								Union
 
 
 								SELECT
-								IWD.AcceptanceNo ,''LoanId ,V.VoucherNo,'' FinancingNo, 'payment' TransactionType, P.Code AS PartyCode,P.UserName AS PartyName, AW.PartyPlantId, PP.UserName AS PartyPlantName, VD.VoucherId,Format(AW.PostingDate,'dd-MMM-yyyy') PostingDate, Format(AW.DocDate,'dd-MMM-yyyy') DocDate,
+								IWD.AcceptanceNo ,''LoanId,''LoanNo ,V.VoucherNo,'' FinancingNo, 'payment' TransactionType, P.Code AS PartyCode,P.UserName AS PartyName, AW.PartyPlantId, PP.UserName AS PartyPlantName, VD.VoucherId,Format(AW.PostingDate,'dd-MMM-yyyy') PostingDate, Format(AW.DocDate,'dd-MMM-yyyy') DocDate,
 								     AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
 									 --,AW.InvoiceWriteOffNo, V.VoucherNo, AW.Id
           -- , AW.BankJournalId,IWD.MultiplePaymentNo
                                     FROM [TRN].[InvoiceWriteOff] AS AW
-									LEFT JOIN (SELECT pda.id AcceptanceNo, WD.Id,WD.InvoiceWriteOffId,MPD.MultiplePaymentId MultiplePaymentNo,SUM(WD.Amount) Amount 
+									LEFT JOIN (SELECT pda.AcceptanceNo, WD.Id,WD.InvoiceWriteOffId,MPD.MultiplePaymentId MultiplePaymentNo,SUM(WD.Amount) Amount 
 											FROM [TRN].[InvoiceWriteOffDetail] WD 
 											LEFT JOIN TRN.Invoice IV ON WD.InvoiceId=IV.Id
 											LEFT JOIN TRN.MultiplePaymentDetail MPD ON MPD.InvoiceId=IV.Id
 											left join trn.PurchaseDocAcceptance pda on pda.Id=iv.PurchaseDocAcceptanceId
 											where iv.PurchaseDocAcceptanceId<>'' and pda.PurchaseLCId='" + PurchaseLCId + @"'
-											Group BY pda.id, WD.Id,WD.InvoiceWriteOffId,IV.Id ,MPD.MultiplePaymentId) AS IWD ON IWD.InvoiceWriteOffId=AW.Id
+											Group BY pda.AcceptanceNo, WD.Id,WD.InvoiceWriteOffId,IV.Id ,MPD.MultiplePaymentId) AS IWD ON IWD.InvoiceWriteOffId=AW.Id
 									LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceWriteOffDetailId=IWD.Id
                                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                                     LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId

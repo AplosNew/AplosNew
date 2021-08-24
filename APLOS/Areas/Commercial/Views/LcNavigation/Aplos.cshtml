@@ -113,33 +113,33 @@
         @*</div>*@
         <script type="text/template" id="templatePOValue">
             <div class="text-right" style="width:100%">
-                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadPOList(data);">{{data.POValue |number:2}}</a>
+                <a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.LoadPOList(data);">{{data.POValue |number:2}}</a>
             </div>
         </script>
 
         <script type="text/template" id="templateGRNValue">
             <div class="text-right" style="width:100%">
-                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadGRNList(data);">{{data.GRNValue |number:2}}</a>
+                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.LoadGRNList(data);">{{data.GRNValue |number:2}}</a>
             </div>
         </script>
         <script type="text/template" id="templateAcceptanceValue">
             <div class="text-right" style="width:100%">
-                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadACList(data);">{{data.AcceptanceValue |number:2}}</a>
+                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.LoadACList(data);">{{data.AcceptanceValue |number:2}}</a>
             </div>
         </script>
         <script type="text/template" id="templateLoadValue">
             <div class="text-right" style="width:100%">
-                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadLoanList(data);">{{data.Loan |number:2}}</a>
+                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.LoadLoanList(data);">{{data.Loan |number:2}}</a>
             </div>
         </script>
         <script type="text/template" id="templateSetoff">
             <div class="text-right" style="width:100%">
-                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadSetoffList(data);">{{data.SetOff |number:2}}</a>
+                <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.LoadSetoffList(data);">{{data.SetOff |number:2}}</a>
             </div>
         </script>
         <script type="text/template" id="templateLoadSettle">
             <div class="text-right" style="width:100%">
-                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadLoanSetOff(data);">{{data.LoanSetOff |number:2}}</a>
+                <a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.LoadLoanSetOff(data);">{{data.LoanSetOff |number:2}}</a>
             </div>
         </script>
     </div>
@@ -164,7 +164,7 @@
                             <div class="col-md-12 col-md-4 col-md-4">
                                 <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
                             </div>
-                            <div class="col-md-12 col-md-2  col-md-2">Value</div>
+                            <div class="col-md-12 col-md-2  col-md-2">LC Amount</div>
                             <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
                             <div class="col-md-12 col-md-2  col-md-2">Currency</div>
                             <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
@@ -211,7 +211,7 @@
                         <div class="col-md-12 col-md-4 col-md-4">
                             <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
                         </div>
-                        <div class="col-md-12 col-md-2  col-md-2">Value</div>
+                        <div class="col-md-12 col-md-2  col-md-2">LC Amount</div>
                         <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
                         <div class="col-md-12 col-md-2  col-md-2">Currency</div>
                         <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
@@ -255,7 +255,7 @@
                         <div class="col-md-12 col-md-4 col-md-4">
                             <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
                         </div>
-                        <div class="col-md-12 col-md-2  col-md-2">Value</div>
+                        <div class="col-md-12 col-md-2  col-md-2">LC Amount</div>
                         <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
                         <div class="col-md-12 col-md-2  col-md-2">Currency</div>
                         <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
@@ -300,8 +300,8 @@
                         <div class="col-md-12 col-md-4 col-md-4">
                             <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
                         </div>
-                        <div class="col-md-12 col-md-2  col-md-2">Value</div>
-                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Loan|number:2}}</div>
+                        <div class="col-md-12 col-md-2  col-md-2">LC Amount</div>
+                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
                         <div class="col-md-12 col-md-2  col-md-2">Currency</div>
                         <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
                     </div>
@@ -328,7 +328,53 @@
         </div>
     </div>
 
-<div class="modal fade site-modal in" id="SetOffPopup" role="dialog" data-backdrop="static">
+@*<div class="modal fade site-modal in" id="SetOffPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Set Off<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal">
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="col-md-12 col-md-2 col-md-2">Vendor</div>
+                            <div class="col-md-12 col-md-10 col-md-10">:{{SelectedLCRow.Vendor}}</div>
+                            <div class="col-md-12 col-md-2 col-md-2">LC No.</div>
+                            <div class="col-md-12 col-md-4 col-md-4">:{{SelectedLCRow.LCNo}}</div>
+                            <div class="col-md-12 col-md-2 col-md-2">Opening Date</div>
+                            <div class="col-md-12 col-md-4 col-md-4">
+                                <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
+                            </div>
+                            <div class="col-md-12 col-md-2  col-md-2">Value</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.SetOff|number:2}}</div>
+                            <div class="col-md-12 col-md-2  col-md-2">Currency</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div style="color:black;" id="GridPurchaseLCSetOff" ej-grid e-datasource="PurchaseLCSetoffList"
+                             e-showsummary="true" e-summaryrows="summarySetoff"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="DocDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Set Off Date" e-width="50"></div>
+                                <div e-column e-type="string" e-field="Amount" e-format="{0:N2}" e-headertext="Set Off" e-width="50"></div>
+                                <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-type="string" e-field="TransactionType" e-headertext="Transaction Type" e-width="50"></div>
+                                <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="Acceptance No." e-width="50"></div>
+                                <div e-column e-type="string" e-field="LoanNo" e-headertext="Loan No." e-width="50"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>*@
+
+<div class="modal fade site-modal in" id="SetOffPoP" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">Set Off<button type="button" class="close" data-dismiss="modal">&times;</button></div>
@@ -344,25 +390,25 @@
                         <div class="col-md-12 col-md-4 col-md-4">
                             <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
                         </div>
-                        <div class="col-md-12 col-md-2  col-md-2">Value</div>
-                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.SetOff|number:2}}</div>
+                        <div class="col-md-12 col-md-2  col-md-2">LC Amount</div>
+                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
                         <div class="col-md-12 col-md-2  col-md-2">Currency</div>
                         <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
                     </div>
                 </div>
                 <div class="row">
-                    <div style="color:black;" id="GridPurchaseLCSetOff" ej-grid e-datasource="PurchaseLCSetOffList"
-                         e-showsummary="true" e-summaryrows="summarySetoff"
+                    <div style="color:black;" id="SetOff" ej-grid e-datasource="SetoffList"
+                         e-showsummary="true" e-summaryrows="SetOff"
                          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
                          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
-                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No." e-width="50"></div>
+                            <div e-column e-type="string" e-field="LoanNo" e-headertext="Loan No." e-width="50"></div>
+                            <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="Acceptance No." e-width="50"></div>
                             <div e-column e-type="date" e-field="DocDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Set Off Date" e-width="50"></div>
                             <div e-column e-type="string" e-field="Amount" e-format="{0:N2}" e-headertext="Set Off" e-width="50"></div>
                             <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
                             <div e-column e-type="string" e-field="TransactionType" e-headertext="Transaction Type" e-width="50"></div>
-                            <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="Acceptance No." e-width="50"></div>
-                            <div e-column e-type="string" e-field="LoanId" e-headertext="Loan No." e-width="50"></div>
+                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No." e-width="50"></div>
 
                         </div>
                     </div>
@@ -389,8 +435,8 @@
                         <div class="col-md-12 col-md-4 col-md-4">
                             <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
                         </div>
-                        <div class="col-md-12 col-md-2  col-md-2">Value</div>
-                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.LoanSetOff|number:2}}</div>
+                        <div class="col-md-12 col-md-2  col-md-2">LC Amount</div>
+                        <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
                         <div class="col-md-12 col-md-2  col-md-2">Currency</div>
                         <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
                     </div>
