@@ -175,7 +175,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalValue", dataMember: "TotalValue", format: "{0:N2}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNValue", dataMember: "GRNValue", format: "{0:N2}" }],
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNValue", dataMember: "GRNValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "setOffValue", dataMember: "setOffValue", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];
@@ -238,7 +239,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
     }
     $scope.summaryAC= [{
         title: "Total :", summaryColumns: [
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }],
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOffValue", dataMember: "SetOffValue", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];
@@ -270,7 +272,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.summaryLoan = [{
         title: "Total :", summaryColumns: [
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }],
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LoanSetOff", dataMember: "LoanSetOff", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];
