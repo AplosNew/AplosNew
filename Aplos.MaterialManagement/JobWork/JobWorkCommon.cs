@@ -1019,13 +1019,13 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
                                     left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
-                                          ,B.ThirdCharacteristicsValueId
-                                          from dbo.JWPOBOQMAP boqmap --left join dbo.JobWorkTransformationContractChild om on om.Id=boqmap.JWPODetailId
+                                          ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId
+                                          from dbo.JWPOBOQMAP boqmap left join dbo.JobWorkTransformationContractChild om on om.Id=boqmap.JWPODetailId
                                           left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
                                           left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
                                           group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
-                                          ,B.ThirdCharacteristicsValueId)
-										  kk on kk.SalesOrderId=so.Id
+                                          ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId)
+										  kk on kk.SalesOrderId=so.Id and kk.BOQDetailId=b.Id
                         LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						--LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
 						WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
@@ -1411,151 +1411,332 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     //                  --and POMAP.Id='"+ JWPODId + @"'
                     //ORDER BY JWPOBOQMAP.BOQDetailId DESC, b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
 
-                    sql = @"SELECT NULL AS uoMList,NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
+      //              sql = @"SELECT NULL AS uoMList,NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
+						//,b.MasterOrderItemId
+						//,moi.MasterOrderId
+						//,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
+						//,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
+
+						//,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
+						//,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
+						//, b.VendorId
+						//,b.SalesOrderId
+						//,mm.Id MaterialMasterId,mma.Id ArticleId
+						//,IsNULL(mm.UserName,'') AS UserName
+						//,IsNULL(mma.StandardName,'') AS StandardName
+						//,IsNULL(p.UserName,'') AS Vendor
+						//,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
+						//,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
+						//,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
+
+						//,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
+						//,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+						//,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
+						//,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
+						//,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
+						//,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+						//b.BOMQty--,C.Id
+						//,CONVERT(BIT,CASE WHEN ISNULL(JWPOBOQMAP.Id,'')<>'' THEN 1 ELSE 0 END) CheckedStatus ,NULL TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
+						
+						//,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
+						//,ISNULL(cpo.PONumber,'') PONumber
+						//,b.RequiredQty
+						//,uom.UserName BOQUOM
+						//,b.POUoMId FromPoUomId
+					 //   ,b.POUoMId
+						//,b.RequiredQtyPO 
+						//,b.RequiredQtyPO RequiredQtyPOOrginal
+						//,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
+						//,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
+						//,mm.BaseUOMId
+						//,POMAP.RatePerUnit as TransactionRate
+						//, IsEditMode=1
+						//,POMAP.ServiceId
+						//,Sum(Isnull(POMAP.TransactionQty,0)) PORaisedQry
+						//--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQty
+						//--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQtyOrginal
+						//--,Sum(JWPOBOQMAP.TransactionQty) TransactionQty
+      //                  ,POMAP.TransactionQty--,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
+      //                  ,BalanceQuantity=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
+						//,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQty
+      //                  ,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQtyOrginal
+						//FROM BOQ AS b
+						//LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+						//LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+						//LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+						//LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+						//LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+						//LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+						//LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
+						//left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
+
+						//LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+						//LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+						//LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+
+						//LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
+						//LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
+						//LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
+
+						//LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						//LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.TransactionQty) TransactionQty,JWPPOD.RatePerUnit,JWPPOD.ServiceId
+						//					FROM JWPOBOQMAP POBOQMAP1
+
+      //                              LEFT JOIN dbo.JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
+						//			LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
+						//			where POM.Id ='" + JWPOId + @"'
+						//			GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit,JWPPOD.ServiceId					
+						//			)POMAP ON POMAP.BOQDetailId=b.Id
+						//LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.POBOQQty) TransactionQty,JWPPOD.RatePerUnit
+						//					FROM JWPOBOQMAP POBOQMAP1
+      //                              LEFT JOIN JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
+						//			LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
+						//			where POM.Id !='"+ JWPOId + @"'
+						//			GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit
+						//		) OtherPOData ON OtherPOData.BOQDetailId=b.Id
+      //                                    left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+      //                                    ,B.ThirdCharacteristicsValueId
+      //                                    from dbo.JWPOBOQMAP boqmap --left join dbo.JobWorkTransformationContractChild om on om.Id=boqmap.JWPODetailId
+      //                                    left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
+      //                                    left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
+      //                                    group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+      //                                    ,B.ThirdCharacteristicsValueId)
+						//				  kk on kk.SalesOrderId=so.Id
+      //                  LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
+      //                    LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JobWorkTransformationContractChild where JobWorkTransformationContractMasterId='" + JWPOId + @"')
+						//WHERE moi.ContractId='"+ ContractId + @"' AND (b.VendorId='"+ VendorId + @"' OR b.VendorId is null)
+      //                   AND  b.id in(select ParentId from BOQ where ISNULL(ParentId,'')<>'' 
+						//) 
+						//and b.MaterialMasterId='"+ MaterialId + @"' and b.ArticleId='"+ ArticleId + @"'
+      //                  --and POMAP.Id='JWPD49'
+						//--ORDER BY JWPOBOQMAP.BOQDetailId DESC, b.Sequence, b.SalesOrderId
+						//group by
+						// b.Id,b.Sequence 
+						//,b.MasterOrderItemId
+						//,moi.MasterOrderId
+						//,ISNULL(mo.OwnReferenceNo,'') 
+						//,ISNULL(mo.BuyerReferenceNo,'') 
+
+						//,ISNULL(moi.OwnReferenceNo,'') 
+						//,ISNULL(moi.BuyerReferenceNo,'') 
+						//, b.VendorId
+						//,b.SalesOrderId
+						//,mm.Id 
+						//,mma.Id 
+						//,IsNULL(mm.UserName,'')  
+						//,IsNULL(mma.StandardName,'')  
+						//,IsNULL(p.UserName,'')  
+						//,IsNULL(v1.UserName,'')  
+						//,IsNULL(v2.UserName,'')  
+						//,IsNULL(v3.UserName,'')  
+
+						//,b.FirstCharacteristicsValueId,FC.Id 
+						//,b.SecondCharacteristicsValueId,SC.Id 
+						//,b.ThirdCharacteristicsValueId,TC.Id 
+						//,b.RequiredQtyApproved
+						//,b.IncompleteMaterial
+						//,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+						//b.BOMQty--,C.Id
+						//,JWPOBOQMAP.Id  ,MM.HSNCodeId	,MM.IsOriginApplicable
+						
+						//,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-')   
+						//,ISNULL(cpo.PONumber,'') 
+						//,b.RequiredQty
+						//,uom.UserName 
+						//,b.POUoMId 
+					 //   ,b.POUoMId
+						//,b.RequiredQtyPO 
+						//,b.RequiredQtyPO 
+						//,b.POUoMId
+						//,mo.OwnReferenceNo
+						//,mm.BaseUOMId,b.POUoMId,b.UoMId
+						//,POMAP.RatePerUnit  
+					
+						//,POMAP.ServiceId
+      //                  ,POMAP.TransactionQty
+      //                  --,OtherPOData.TransactionQty
+      //                  ,kk.OtherPOQuantity";
+
+                    sql= @"SELECT NULL AS uoMList,NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
 						,b.MasterOrderItemId
 						,moi.MasterOrderId
-						,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
-						,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
+						,ISNULL(mo.OwnReferenceNo, '') OwnOrderReferenceNo
+						,ISNULL(mo.BuyerReferenceNo, '') BuyerOrderReferenceNo
 
-						,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
-						,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
+						,ISNULL(moi.OwnReferenceNo, '') OwnItemReferenceNo
+						,ISNULL(moi.BuyerReferenceNo, '') BuyerItemReferenceNo
 						, b.VendorId
 						,b.SalesOrderId
-						,mm.Id MaterialMasterId,mma.Id ArticleId
-						,IsNULL(mm.UserName,'') AS UserName
-						,IsNULL(mma.StandardName,'') AS StandardName
-						,IsNULL(p.UserName,'') AS Vendor
-						,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
-						,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
-						,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
+						,mm.Id MaterialMasterId, mma.Id ArticleId
+                         , IsNULL(mm.UserName, '') AS UserName
+                           , IsNULL(mma.StandardName, '') AS StandardName
+                             , IsNULL(p.UserName, '') AS Vendor
+                               , IsNULL(v1.UserName, '') AS FirstCharacteristicsValue
+                                 , IsNULL(v2.UserName, '') AS SecondCharacteristicsValue
+                                   , IsNULL(v3.UserName, '') AS ThirdCharacteristicsValue
 
-						,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
-						,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
-						,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
-						,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
-						,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
+                                     , b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
+                                      , b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+                                       , b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
+                                        , RequiredQtyApproved = Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))= 0 Then 'No' ELSE 'Yes' END
+						,IncompleteMaterial = CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))= 1 THEN 'Yes' ELSE 'No' END
 						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
 						b.BOMQty--,C.Id
-						,CONVERT(BIT,CASE WHEN ISNULL(JWPOBOQMAP.Id,'')<>'' THEN 1 ELSE 0 END) CheckedStatus ,NULL TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
+						,CONVERT(BIT, CASE WHEN ISNULL(JWPOBOQMAP.Id, '') <> '' THEN 1 ELSE 0 END) CheckedStatus ,NULL TaxList, MM.HSNCodeId ,MM.IsOriginApplicable
 						
-						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
-						,ISNULL(cpo.PONumber,'') PONumber
+						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106), ' ', '-') AS DeliveryDate
+                          , ISNULL(cpo.PONumber, '') PONumber
 						,b.RequiredQty
 						,uom.UserName BOQUOM
-						,b.POUoMId FromPoUomId
-					    ,b.POUoMId
-						,b.RequiredQtyPO 
+                        , b.POUoMId FromPoUomId
+                         , b.POUoMId
+						,b.RequiredQtyPO
 						,b.RequiredQtyPO RequiredQtyPOOrginal
-						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
-						,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
-						,mm.BaseUOMId
-						,POMAP.RatePerUnit as TransactionRate
-						, IsEditMode=1
-						,POMAP.ServiceId
-						,Sum(Isnull(POMAP.TransactionQty,0)) PORaisedQry
-						--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQty
-						--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQtyOrginal
-						--,Sum(JWPOBOQMAP.TransactionQty) TransactionQty
-                        ,POMAP.TransactionQty--,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
-                        ,BalanceQuantity=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
-						,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQty
-                        ,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQtyOrginal
-						FROM BOQ AS b
-						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
-						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
-						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
-						LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
-						LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
-						LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
-						LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
-						left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
+                        , TransactionUoMId = CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
+                           , RefferenceNo = ISNULL(mo.OwnReferenceNo, '') + '-' + ISNULL(mo.BuyerReferenceNo, '') + '-' + ISNULL(moi.OwnReferenceNo, '') + '-' + ISNULL(moi.BuyerReferenceNo, '')
+                           , mm.BaseUOMId
+                            --,POMAP.RatePerUnit as TransactionRate
+						, IsEditMode = 1
+                        --,POMAP.ServiceId
+						,Sum(Isnull(POMAP.TransactionQty, 0)) PORaisedQry
+                         --,Sum(ISNULL(OtherPOData.TransactionQty, 0)) OtherPOQty
+                          --,Sum(ISNULL(OtherPOData.TransactionQty, 0)) OtherPOQtyOrginal
+                           --,Sum(JWPOBOQMAP.TransactionQty) TransactionQty
+                        ,POMAP.TransactionQty--,BalanceQuantity = b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty, 0)
+                        ,BalanceQuantity = b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity, 0)
+						,ISNULL(kk.OtherPOQuantity, '0') as OtherPOQty
+                        ,ISNULL(kk.OtherPOQuantity, '0') as OtherPOQtyOrginal
+						,OtM.RatePerUnit as TransactionRate,OtM.ServiceId
+                        FROM BOQ AS b
+                        LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id = b.MaterialMasterId
 
-						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
-						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
-						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+                        LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id = b.ArticleId
 
-						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
-						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
-						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
+                        LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id = b.UoMId
 
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
-						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.TransactionQty) TransactionQty,JWPPOD.RatePerUnit,JWPPOD.ServiceId
-											FROM JWPOBOQMAP POBOQMAP1
+                        LEFT OUTER JOIN HKP.Party P ON p.Id = b.VendorId
 
-                                    LEFT JOIN dbo.JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
-									where POM.Id ='" + JWPOId + @"'
-									GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit,JWPPOD.ServiceId					
-									)POMAP ON POMAP.BOQDetailId=b.Id
-						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.POBOQQty) TransactionQty,JWPPOD.RatePerUnit
-											FROM JWPOBOQMAP POBOQMAP1
-                                    LEFT JOIN JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
-									where POM.Id !='"+ JWPOId + @"'
-									GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit
-								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
-                                          left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
-                                          ,B.ThirdCharacteristicsValueId
-                                          from dbo.JWPOBOQMAP boqmap --left join dbo.JobWorkTransformationContractChild om on om.Id=boqmap.JWPODetailId
-                                          left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
-                                          left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
+                        LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id = b.SalesOrderId
+
+                        LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id = b.MasterOrderItemId
+
+                        LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id = moi.MasterOrderId
+
+                        left outer join[TRN].[CustomerPO] cpo On cpo.Id = so.CustomerPOId
+
+
+                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = b.FirstCharacteristicsValueId
+
+                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = b.SecondCharacteristicsValueId
+
+                        LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = b.ThirdCharacteristicsValueId
+
+
+                        LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
+
+                        LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
+
+                        LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId
+
+
+                        LEFT JOIN[dbo].[Contract] C ON C.Id = moi.ContractId
+
+                        LEFT JOIN(SELECT POBOQMAP1.BOQDetailId--,JWPPOD.Id
+						,sum(POBOQMAP1.TransactionQty) TransactionQty--,JWPPOD.RatePerUnit,JWPPOD.ServiceId
+                                            FROM JWPOBOQMAP POBOQMAP1
+
+                                    LEFT JOIN dbo.JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id = POBOQMAP1.JWPODetailId
+
+                                    LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id = JWPPOD.JobWorkTransformationContractMasterId
+
+                                    where POM.Id = '" + JWPOId + @"'
+
+                                    GROUP by POBOQMAP1.BOQDetailId--,JWPPOD.Id,JWPPOD.RatePerUnit,JWPPOD.ServiceId
+									)POMAP ON POMAP.BOQDetailId = b.Id
+
+                        LEFT JOIN(SELECT POBOQMAP1.BOQDetailId--,JWPPOD.Id
+						,sum(POBOQMAP1.POBOQQty) TransactionQty--,JWPPOD.RatePerUnit
+                                            FROM JWPOBOQMAP POBOQMAP1
+                                    LEFT JOIN JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id = POBOQMAP1.JWPODetailId
+
+                                    LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id = JWPPOD.JobWorkTransformationContractMasterId
+
+                                    where POM.Id != '" + JWPOId + @"'
+
+                                    GROUP by POBOQMAP1.BOQDetailId--,JWPPOD.Id
+                                    --,JWPPOD.RatePerUnit
+								) OtherPOData ON OtherPOData.BOQDetailId = b.Id
+                                          left join(select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+                                          ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId
+                                          from dbo.JWPOBOQMAP boqmap left join dbo.JobWorkTransformationContractChild om on om.Id = boqmap.JWPODetailId
+                                          left join dbo.BOQ B on B.Id = boqmap.BOQDetailId
+                                          left join trn.SalesOrder SO on SO.Id = B.SalesOrderId
                                           group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
-                                          ,B.ThirdCharacteristicsValueId)
-										  kk on kk.SalesOrderId=so.Id
-                        LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
-                          LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JobWorkTransformationContractChild where JobWorkTransformationContractMasterId='" + JWPOId + @"')
-						WHERE moi.ContractId='"+ ContractId + @"' AND (b.VendorId='"+ VendorId + @"' OR b.VendorId is null)
-                         AND  b.id in(select ParentId from BOQ where ISNULL(ParentId,'')<>'' 
+                                          ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId)
+										  kk on kk.SalesOrderId = so.Id and kk.BOQDetailId = b.Id
+
+                                          left join(Select outm.RatePerUnit, outm.ServiceId, boqm.BOQDetailId from dbo.JobWorkTransformationContractChild outm
+
+                                          left join dbo.JWPOBOQMAP boqm on boqm.JWPODetailId= outm.Id  where outm.Id= '"+ JWPODId + @"')
+
+                                          OtM on OtM.BOQDetailId = b.Id
+                        LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId = mm.Id
+                          LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId = b.Id AND JWPOBOQMAP.JWPODetailId= '" + JWPODId + @"' --IN(select Id from JobWorkTransformationContractChild where JobWorkTransformationContractMasterId = '" + JWPOId + @"')
+
+                        WHERE moi.ContractId = '" + ContractId + @"' AND(b.VendorId = '"+VendorId + @"' OR b.VendorId is null)
+                         AND b.id in(select ParentId from BOQ where ISNULL(ParentId, '') <> ''
 						) 
-						and b.MaterialMasterId='"+ MaterialId + @"' and b.ArticleId='"+ ArticleId + @"'
-                        --and POMAP.Id='JWPD49'
-						--ORDER BY JWPOBOQMAP.BOQDetailId DESC, b.Sequence, b.SalesOrderId
-						group by
-						 b.Id,b.Sequence 
+						and b.MaterialMasterId = '" + MaterialId + @"' and b.ArticleId = '"+ArticleId +@"'
+                          --and POMAP.Id = 'JWPD49'
+                          --ORDER BY JWPOBOQMAP.BOQDetailId DESC, b.Sequence, b.SalesOrderId
+                          group by
+
+                         b.Id,b.Sequence
 						,b.MasterOrderItemId
 						,moi.MasterOrderId
-						,ISNULL(mo.OwnReferenceNo,'') 
-						,ISNULL(mo.BuyerReferenceNo,'') 
+						,ISNULL(mo.OwnReferenceNo, '')
+						,ISNULL(mo.BuyerReferenceNo, '')
 
-						,ISNULL(moi.OwnReferenceNo,'') 
-						,ISNULL(moi.BuyerReferenceNo,'') 
+						,ISNULL(moi.OwnReferenceNo, '')
+						,ISNULL(moi.BuyerReferenceNo, '')
 						, b.VendorId
 						,b.SalesOrderId
-						,mm.Id 
-						,mma.Id 
-						,IsNULL(mm.UserName,'')  
-						,IsNULL(mma.StandardName,'')  
-						,IsNULL(p.UserName,'')  
-						,IsNULL(v1.UserName,'')  
-						,IsNULL(v2.UserName,'')  
-						,IsNULL(v3.UserName,'')  
+						,mm.Id
+						,mma.Id
+						,IsNULL(mm.UserName, '')
+						,IsNULL(mma.StandardName, '')
+						,IsNULL(p.UserName, '')
+						,IsNULL(v1.UserName, '')
+						,IsNULL(v2.UserName, '')
+						,IsNULL(v3.UserName, '')
 
-						,b.FirstCharacteristicsValueId,FC.Id 
-						,b.SecondCharacteristicsValueId,SC.Id 
-						,b.ThirdCharacteristicsValueId,TC.Id 
+						,b.FirstCharacteristicsValueId,FC.Id
+						,b.SecondCharacteristicsValueId,SC.Id
+						,b.ThirdCharacteristicsValueId,TC.Id
 						,b.RequiredQtyApproved
 						,b.IncompleteMaterial
 						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
 						b.BOMQty--,C.Id
-						,JWPOBOQMAP.Id  ,MM.HSNCodeId	,MM.IsOriginApplicable
+						,JWPOBOQMAP.Id  ,MM.HSNCodeId   ,MM.IsOriginApplicable
 						
-						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-')   
-						,ISNULL(cpo.PONumber,'') 
+						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106), ' ', '-')
+						,ISNULL(cpo.PONumber, '')
 						,b.RequiredQty
-						,uom.UserName 
-						,b.POUoMId 
-					    ,b.POUoMId
-						,b.RequiredQtyPO 
-						,b.RequiredQtyPO 
+						,uom.UserName
 						,b.POUoMId
+                        --,b.POUoMId
+						,b.RequiredQtyPO
+                        --,b.RequiredQtyPO
+                        --,b.POUoMId
 						,mo.OwnReferenceNo
 						,mm.BaseUOMId,b.POUoMId,b.UoMId
-						,POMAP.RatePerUnit  
-					
-						,POMAP.ServiceId
+                        --,POMAP.RatePerUnit
+                        --,POMAP.ServiceId
                         ,POMAP.TransactionQty
                         --,OtherPOData.TransactionQty
-                        ,kk.OtherPOQuantity";
+                        ,kk.OtherPOQuantity
+						,OtM.RatePerUnit
+						,OtM.ServiceId";
 
 
                     var Data = _sqlRepository.GetDataCollection(sql);
@@ -2565,6 +2746,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
                         data["POType"] = data["POType"];
+                        data["IsApproved"] = false;
 
                     }
                     else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
@@ -2574,6 +2756,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
                         data["POType"] = data["POType"];
+                        data["IsApproved"] = true;
                     }
                     else
                     {
@@ -2583,10 +2766,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         data["AuthorizedBy"] = null;
                         data["AuthorizedByStatus"] = null;
                         data["POType"] = data["POType"];
+                        data["IsApproved"] = false;
 
                     }
 
-                    data["IsApproved"] = false;
+                    
                     data["IsClosed"] = false;
                     data["IsClosed"] = null;
 
@@ -3129,6 +3313,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             con.OpenDataSetThroughAdapter("SELECT * FROM JobWorkTransformationContractChild WHERE JobWorkTransformationContractMasterId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
 
             List<Dictionary<string, object>> dataBoq = new List<Dictionary<string, object>>();
+            List<Dictionary<string, object>> detailBoq = new List<Dictionary<string, object>>();
             //List<Dictionary<string, object>> dataDetail = new List<Dictionary<string, object>>();
 
             DataSet dsTax = null;
@@ -3144,6 +3329,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 if (OrderSpecific == "Yes")
                 {
                     dataBoq = data;
+                    detailBoq = data;
                     data = MakePodetail(data);
                     //dataBoq = new List<Dictionary<string, object>>(data);
                     #region Validation
@@ -3227,6 +3413,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             JWBOQReqQty = data[i]["RequiredQtyPO"].ToString();
                             TQty = data[i]["TransactionQty"].ToString();
                             TRate = data[i]["RatePerUnit"].ToString();
+                            dataBoq = data;
 
                             AddNewRow(dsMaster.Tables[0], data[i]);
 
@@ -3234,6 +3421,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             _info.SaveDataSets(dsMaster);
                             SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty, ABC);
                             SaveJWServiceTaxes(JWOutId, JWPurchaseOrderId, JWPODate, TQty, TRate, JWPOIsNonCreditable);
+                            JPOBOQMAPCreate(dataBoq, JWOutId, userName, IPAddress, out dsPOBOQMap, detailBoq);
 
                         }
                         else
@@ -3296,6 +3484,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 JWBOQReqQty = data[i]["RequiredQtyPO"].ToString();
                                 TQty = data[i]["TransactionQty"].ToString();
                                 TRate = data[i]["RatePerUnit"].ToString();
+                                dataBoq = data;
                             }
                             
 
@@ -3309,6 +3498,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 _info.SaveDataSets(dsMaster);
                                 SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty, ABC);
                                 SaveJWServiceTaxes(JWOutId, JWPurchaseOrderId, JWPODate, TQty, TRate, JWPOIsNonCreditable);
+                                JPOBOQMAPCreate(dataBoq, JWOutId, userName, IPAddress, out dsPOBOQMap, detailBoq);
                             }
                            
                         }
@@ -3506,7 +3696,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             {
                                 SaveJWTransformationPurchaseOrderChildMaterial(dataBoq, data[i]["Id"].ToString(), JWActivityId, Conversion, out dsJwChildMaterial);
 
-                                JPOBOQMAPCreate(dataBoq, data[i]["Id"].ToString(), userName, IPAddress, out dsPOBOQMap);
+                                //JPOBOQMAPCreate(dataBoq, data[i]["Id"].ToString(), userName, IPAddress, out dsPOBOQMap);
                             }
                             _info.SaveDataSets(dsMaster);
                             _info.SaveDataSets(dsPOBOQMap, dsJwChildMaterial);
@@ -4097,11 +4287,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
         #endregion
 
-        public void JPOBOQMAPCreate(List<Dictionary<string, object>> data, string JWPODetailId, string userName, string IPAddress, out DataSet dsPOboq)
+        public void JPOBOQMAPCreate(List<Dictionary<string, object>> data, string JWPODetailId, string userName, string IPAddress, out DataSet dsPOboq, List<Dictionary<string, object>> detailBoq)
         {
             try
             {
                 DataSet DelJWPOBOQMap;
+                DataSet DetailJWPOBOQ;
                 dsPOboq = new DataSet();
                 string sql = "";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -4121,6 +4312,15 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 }
 
                 string _poboqId = "";
+                string MaterialId = "";
+                string ArticleId = "";
+                string SKU1Id = "0";
+                string SKU2Id = "0";
+                string SKU3Id = "0";
+                string SOId = "";
+                string DetailSKU1Id = "0";
+                string DetailSKU2Id = "0";
+                string DetailSKU3Id = "0";
                 sql = "SELECT * FROM JWPOBOQMAP WHERE JWPODetailId='" + JWPODetailId + "'";
                 con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter(sql, out dsPOboq, false, "1");
@@ -4129,9 +4329,57 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                 for (int i = 0; i < data.Count; i++)
                 {
-                    dsPOboq.Tables[0].DefaultView.RowFilter = "BOQDetailId = '" + data[i]["BOQId"] + "'  ";
+                    if(data[i]["Id"].ToString()== JWPODetailId)
+                    {
+                        MaterialId = data[i]["MaterialMasterId"].ToString();
+                        ArticleId = data[i]["ArticleId"].ToString();
 
-                    if (dsPOboq.Tables[0].DefaultView.Count == 0)
+                        if (data[i]["FirstCharacteristicsValueId"] != null)
+                        {
+                            SKU1Id = data[i]["FirstCharacteristicsValueId"].ToString();
+                        }
+                        
+                        if (data[i]["SecondCharacteristicsValueId"] != null)
+                        {
+                            SKU2Id = data[i]["SecondCharacteristicsValueId"].ToString();
+                        }
+
+                        if (data[i]["ThirdCharacteristicsValueId"] != null)
+                        {
+                            SKU3Id = data[i]["ThirdCharacteristicsValueId"].ToString();
+                        }
+
+                        
+                        SOId = data[i]["SalesOrderId"].ToString();
+
+                    }
+                }
+
+                for (int a = 0; a < detailBoq.Count; a++)
+                        {
+
+                    if (detailBoq[a]["FirstCharacteristicsValueId"] != null)
+                    {
+                        DetailSKU1Id = detailBoq[a]["FirstCharacteristicsValueId"].ToString();
+                    }
+
+                    if (detailBoq[a]["SecondCharacteristicsValueId"] != null)
+                    {
+                        DetailSKU2Id = detailBoq[a]["SecondCharacteristicsValueId"].ToString();
+                    }
+
+                    if (detailBoq[a]["ThirdCharacteristicsValueId"] != null)
+                    {
+                        DetailSKU3Id = detailBoq[a]["ThirdCharacteristicsValueId"].ToString();
+                    }
+
+                    if (detailBoq[a]["MaterialMasterId"].ToString()== MaterialId && detailBoq[a]["ArticleId"].ToString() == ArticleId && DetailSKU1Id == SKU1Id && DetailSKU2Id == SKU2Id && DetailSKU3Id == SKU3Id)
+                            {
+
+                        dsPOboq.Tables[0].DefaultView.RowFilter = "BOQDetailId = '" + detailBoq[a]["BOQId"] + "'  ";
+                      //  dsPOboq.Tables[0].DefaultView.RowFilter = "BOQDetailId IN (" + BOQId + ") ";
+
+                        if (dsPOboq.Tables[0].DefaultView.Count == 0)
                     {
                         if (_poboqId == "")
                         {
@@ -4142,20 +4390,20 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         }
                         DataRow dr = dsPOboq.Tables[0].NewRow();
 
-                        double conversiongroupListData = conversion.Convert(data[i]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(data[i]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(data[i]["BaseUOMId"]).ToString(), clsStaticInfo.dbl(data[i]["TransactionQty"]));
+                        double conversiongroupListData = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
                         dr["BaseQty"] = Convert.ToDecimal(conversiongroupListData);
 
-                        dr["Id"] = _poboqId + "-" + (i + 1).ToString();
+                        dr["Id"] = _poboqId + "-" + (a + 1).ToString();
 
                         dr["JWPODetailId"] = JWPODetailId;
-                        dr["BOQDetailId"] = data[i]["BOQId"];
-                        dr["TransactionQty"] = data[i]["TransactionQty"];
-                        dr["TransactionUoMId"] = data[i]["TransactionUoMId"];
+                        dr["BOQDetailId"] = detailBoq[a]["BOQId"];
+                        dr["TransactionQty"] = detailBoq[a]["TransactionQty"];
+                        dr["TransactionUoMId"] = detailBoq[a]["TransactionUoMId"];
 
-                        dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(data[i]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(data[i]["BaseUOMId"]).ToString();
-                        dr["POBOQQty"] = conversion.Convert(data[i]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(data[i]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(data[i]["POUoMId"]).ToString(), clsStaticInfo.dbl(data[i]["TransactionQty"]));
+                        dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString();
+                        dr["POBOQQty"] = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["POUoMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
 
-                        dr["POUoMId"] = data[i]["POUoMId"];
+                        dr["POUoMId"] = detailBoq[a]["POUoMId"];
 
                         dr["AddedBy"] = userName;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -4168,20 +4416,25 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         DataRow dr = dsPOboq.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
                         dr["JWPODetailId"] = JWPODetailId;
-                        dr["BOQDetailId"] = data[i]["BOQId"];
-                        dr["TransactionQty"] = data[i]["TransactionQty"];
-                        dr["TransactionUoMId"] = data[i]["TransactionUoMId"];
-                        dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(data[i]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(data[i]["BaseUOMId"]).ToString();
-                        dr["POBOQQty"] = conversion.Convert(data[i]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(data[i]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(data[i]["POUoMId"]).ToString(), clsStaticInfo.dbl(data[i]["TransactionQty"]));
+                        dr["BOQDetailId"] = detailBoq[a]["BOQId"];
+                        dr["TransactionQty"] = detailBoq[a]["TransactionQty"];
+                        dr["TransactionUoMId"] = detailBoq[a]["TransactionUoMId"];
+                        dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString();
+                        dr["POBOQQty"] = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["POUoMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
 
-                        dr["POUoMId"] = data[i]["POUoMId"];
+                        dr["POUoMId"] = detailBoq[a]["POUoMId"];
                         dr["UpdatedBy"] = userName;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = IPAddress;
                         dr.EndEdit();
-                    }
+              
+                            }
+                        }
+             
 
                 }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsPOboq);
 
             }
             catch (Exception ex)

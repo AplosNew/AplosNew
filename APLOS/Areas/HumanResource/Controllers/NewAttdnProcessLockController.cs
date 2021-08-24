@@ -27,14 +27,15 @@ namespace Aplos.Areas.HumanResource.Controllers
     public class NewAttdnProcessLockController : BaseController
     {
 
+        private readonly ISqlRepository _sqlRepository;
         NewAttdnProcessPlantLockService app = new NewAttdnProcessPlantLockService();
 
-        public NewAttdnProcessLockController()
+        public NewAttdnProcessLockController(ISqlRepository R)
         {
             app = new NewAttdnProcessPlantLockService();
+            _sqlRepository = R;
         }
 
-        private readonly ISqlRepository _sqlRepository;
 
         public ActionResult Aplos()
         {
