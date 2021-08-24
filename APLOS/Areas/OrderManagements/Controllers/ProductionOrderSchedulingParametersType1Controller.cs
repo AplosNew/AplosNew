@@ -23,6 +23,9 @@ using System.Web;
 using System.IO;
 using Microsoft.AspNet.SignalR.Client;
 using Library.Service.TaskScheduler;
+using Library.Data;
+using Library.Service.Helpers;
+using Library.Model.Enums;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
@@ -4287,6 +4290,256 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
 
 
         #endregion OS2
+
+
+        #region PriorityUpdate
+        
+
+        [HttpPost, Authorize]
+        public ActionResult SaveFileList(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                Library.Planning.PlanningType1.PlanningType1Scheduler sch = new Library.Planning.PlanningType1.PlanningType1Scheduler();
+
+                sch.SaveFileList(data);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetSampleReports(ReportFormat reportFormat, string Entity)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string date = DateTime.Now.Date.ToString("dd-MMM");//.Substring(0, DateTime.Now.Date.ToString().Length - 12);
+            var reportFileName = "ProrityReport-" + date;
+            var workbook = GetPriorityReport(Entity);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        private IWorkbook GetPriorityReport(string Entity)
+        {
+
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var sheet = workbook.Worksheets[0];
+
+            var sheet2 = workbook.Worksheets[1];
+            Library.Planning.PlanningType1.PlanningType1Scheduler sch = new Library.Planning.PlanningType1.PlanningType1Scheduler();
+            /// Sheet 1 
+            DataTable data = sch.getCurrentPriority(Entity);
+
+            sheet.Name = "Current-Priority";
+
+
+
+            int ROW = 1;
+            int endCol = 1;
+            int COL = 1;
+
+            #region Headers
+            //report.SetHeaderText(ref sheet, ROW, COL, "Employee Id ", 12, ExcelHAlign.HAlignLeft);
+            //int ColEmpSystemId = COL;
+            //COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "ProductionId", 8, ExcelHAlign.HAlignLeft);
+            int ColProdId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Status", 8, ExcelHAlign.HAlignLeft);
+            int ColStat = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "ProductionPriority", 8, ExcelHAlign.HAlignLeft);
+            int ColPr = COL;
+            COL++;
+
+            endCol = COL;
+            #endregion Headers
+            ROW++;
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                //sheet[ROW, ColEmpSystemId].Text = data.Rows[i]["EmpSystemId"].ToString();
+                sheet[ROW, ColProdId].Text = data.Rows[i]["ProductionId"].ToString();
+                sheet[ROW, ColStat].Text = data.Rows[i]["Status"].ToString();
+                sheet[ROW, ColPr].Text = data.Rows[i]["ProductionPriority"].ToString();
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+            endRow = ROW - 1;
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+            report.PageSetup(ref sheet2, 5, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult ImportData()
+        {
+            string path;
+
+            try
+            {
+                var file = Request.Files["file"];
+                //string plantId = Request.Files["plantId"].ToString();
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SaveFile(out path);
+                var data = ReadData(path);
+
+                var json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        public List<PriorityUp> ReadData(string path)
+        {
+
+            DataSet dsExcel = null;
+            try
+            {
+                List<PriorityUp> data = new List<PriorityUp>();
+                List<PriorityUp> dataToUpdate = new List<PriorityUp>();
+                List<object> ret = new List<object>();
+                ReadFile(path, out dsExcel);
+
+                data = dsExcel.Tables[0].ToList<PriorityUp>();
+
+                if (data.Count > 0)
+                {
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        var isNumeric = double.TryParse(data[i].ProductionPriority, out double n);
+                        if(isNumeric == false)
+                        {
+                            throw new Exception("The Priority is not a number!! Please check - " + (i+2));
+                        }
+                    }
+
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void ReadFile(string path, out DataSet dsExcel)
+        {
+            FileInfo docFile;
+            dsExcel = null;
+            try
+            {
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = excelEngine.Excel.Workbooks.Open(path);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                dsExcel = new DataSet();
+                dsExcel.Tables.Add(dt);
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    //exception += "\r\nTrying to delete";
+                    docFile.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+                throw (ex);
+            }
+        }
+
+
+        public void SaveFile(out string path)
+        {
+            path = "";
+            try
+            {
+                var file = Request.Files["file"];
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetOTManualFile(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion PriorityUpdate
+
+
+    }
+
+    public class PriorityUp
+    {
+
+        public string ProductionId { get; set; }
+        public string Status { get; set; }
+        public string ProductionPriority { get; set; }
 
     }
     public class RunningOrderWorkCenter
