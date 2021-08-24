@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/parametersEntry.cshtml")
+    @*@Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/parametersEntry.cshtml")*@
 
 
 </div>
@@ -45,6 +45,7 @@
             <li><a href="#TabEdit">Production Orders</a></li>
             <li><a href="#TabSimulation">Production Plan Simulation</a></li>
             <li><a href="#TabPlanningSchedule">View Planning Schedule</a></li>
+            <li><a href="#TabPriorityUpdate">Priority Update</a></li>
         </ul>
         <div id="TabEdit">
             <div class="row text-right">
@@ -83,7 +84,7 @@
                 <div class="col-xs-12" style="color:black;">
                     <div id="Gridunassigned" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="modelList" e-recorddoubleclick="Get" e-rowdatabound="rowDataBoundOrder"
                          e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
-                         e-cellselected="cellSelected" e-selectiontype="single"  e-actioncomplete="syncfusiongriddatabound" 
+                         e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
                          e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                          e-allowselection="false" e-filtersettings-filterType="excel">
                         <div e-columns>
@@ -145,7 +146,7 @@
         <div id="TabSimulation">
 
             <div class="form-element-ctrl form-horizontal">
-                
+
                 <ul id="centermenu" class="ang-menu" ej-menu e-enablecenteralign="false">
 
                     <li>
@@ -181,11 +182,11 @@
                         </ul>
                     </li>
                     @*<li>
-                <a>Tools</a>
-                <ul>
-                    <li ng-click="openPopup('dialogresetpriority');loadDataForPriority();"><a>Reset Priority</a></li>
-                </ul>
-            </li>*@
+                        <a>Tools</a>
+                        <ul>
+                            <li ng-click="openPopup('dialogresetpriority');loadDataForPriority();"><a>Reset Priority</a></li>
+                        </ul>
+                    </li>*@
                 </ul>
                 <div class="row" style="padding:0px;margin:0px;position:relative;border:none;">
                     <div id="GridPlanFilter" ng-init="chkinit()" e-cssclass="wrap" e-allowtextwrap="true" e-load="getModelFilter" ej-grid e-datasource="ModelFilter"
@@ -335,6 +336,45 @@
                 </script>
             </div>
         </div>
+        <div id="TabPriorityUpdate" class="form-elements form-horizontal" ng-form name="HeaderForm">
+            <div class="row">
+                
+
+                    <div class="col-md-10">
+
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0 ; margin-right:8px;">
+                                <input id="uploadFile" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                            </label>
+                            <input type="button" style="margin-right: 8px;" value="Import Data" ng-disabled="enable" class="btn btn-success" ng-click="ImportData()" />
+                            <button ng-click="GetSample();" class="btn" style="margin-right: 8px;"><i class="glyphicon glyphicon-download"></i> Get Sample Report File </button>
+
+                        </div>
+                    </div>
+
+                
+
+            </div>
+            <div class="common-btn" style="margin-top:10px;">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="saveFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                    <li> <button ng-click="clearFileList();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
+
+                </ul>
+            </div>
+
+            <div id="RosterBudgetGrid" ej-grid e-datasource="ExcelUploadData" e-templaterefresh="refreshTemplate"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                <div e-columns>
+                    <div e-column e-field="ProductionId" e-type="string" e-headertext="Id" e-width="80"></div>
+                    <div e-column e-field="Status" e-type="string" e-headertext="Status" e-width="80"></div>
+                    <div e-column e-field="ProductionPriority" e-type="string" e-headertext="Priority" e-width="80"></div>
+                </div>
+            </div>
+
+        </div>
+
     </div>
 </div>
 
