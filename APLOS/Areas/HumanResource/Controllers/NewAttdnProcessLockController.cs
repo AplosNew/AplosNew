@@ -27,14 +27,15 @@ namespace Aplos.Areas.HumanResource.Controllers
     public class NewAttdnProcessLockController : BaseController
     {
 
+        private readonly ISqlRepository _sqlRepository;
         NewAttdnProcessPlantLockService app = new NewAttdnProcessPlantLockService();
 
-        public NewAttdnProcessLockController()
+        public NewAttdnProcessLockController(ISqlRepository R)
         {
             app = new NewAttdnProcessPlantLockService();
+            _sqlRepository = R;
         }
 
-        private readonly ISqlRepository _sqlRepository;
 
         public ActionResult Aplos()
         {
@@ -64,20 +65,36 @@ namespace Aplos.Areas.HumanResource.Controllers
         
 
         [HttpPost]
-        public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data)
-        {
-            AdminAttendanceControlService mau = new AdminAttendanceControlService();
-            RTx _rt = mau.Savex(data);
+        public ActionResult LockAttdn(string Date)
+        {          
 
-            if (_rt.IsError)
+            try
             {
-                return Json(new { Message = _rt.msg, Error = true, Data = _rt.data }, JsonRequestBehavior.AllowGet);
+                app.LockAttdn(Date);
+                return Json(new { Message = "Data Saved Successfully !!", Error = false }, JsonRequestBehavior.AllowGet);
             }
-            else
+            catch (Exception ex)
             {
-                return Json(new { Error = false, Message = _rt.msg, Data = _rt.data }, JsonRequestBehavior.AllowGet);
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
-        }        
+           
+        }
+
+        [HttpPost]
+        public ActionResult UnLockAttdn(string Date)
+        {
+
+            try
+            {
+                app.LockAttdn(Date);
+                return Json(new { Message = "Data Saved Successfully !!", Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
 
     }
 }

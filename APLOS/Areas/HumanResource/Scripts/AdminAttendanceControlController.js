@@ -301,7 +301,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
             $scope.employeeAttendance = response.data.data;
             $scope.allShift = response.data.shift;
 
-            var gridObj = $("#GridChangeAttendance").data("ejGrid");
+            var gridObj = $("#GridAttendanceControl").data("ejGrid");
             gridObj.refreshContent();
         });
 
@@ -322,7 +322,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
             $scope.employeeAttendanceBySingleDateSelection = response.data.data;
             $scope.allShiftSingleDay = response.data.shift;
 
-            var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+            var gridObj = $("#GridAttendanceControlBySingleDate").data("ejGrid");
             gridObj.refreshContent();
 
         });
@@ -344,7 +344,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
                 var scrollerwidth = 0;
                 var gridObj = null;
                 try {
-                    gridObj = $("#GridChangeAttendance").ejGrid("instance");
+                    gridObj = $("#GridAttendanceControl").ejGrid("instance");
                     scrollerwidth = $("#Tab").width();//Obtain the width of the container
                     gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth, height: 400 } });//pass the obtainer width and height to gridmodel options
                     gridObj.windowonresize();
@@ -364,7 +364,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
                 var gridObj = null;
 
                 try {
-                    gridObj = $("#GridChangeAttendanceBySingleDate").ejGrid("instance");
+                    gridObj = $("#GridAttendanceControlBySingleDate").ejGrid("instance");
                     scrollerwidth = $("#TabEmployee").width();//Obtain the width of the container
                     gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth, height: 400 } });//pass the obtainer width and height to gridmodel options
                     gridObj.windowonresize();
@@ -484,7 +484,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
                 }
 
 
-                var gridObj = $("#GridChangeAttendance").data("ejGrid");
+                var gridObj = $("#GridAttendanceControl").data("ejGrid");
                 gridObj.refreshContent();
             }
             else {
@@ -538,7 +538,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
             if (baseService.isUndefinedOrNull($scope.Intime)) {
                 throw "Select Time..";
             }
-            var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+            var gridObj = $("#GridAttendanceControlBySingleDate").data("ejGrid");
             var filteredRecords = gridObj.getFilteredRecords();
             if (filteredRecords.length == 0) {
                 filteredRecords = $scope.employeeAttendanceBySingleDate
@@ -557,7 +557,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
             if (baseService.isUndefinedOrNull($scope.Intime)) {
                 throw "Select Time..";
             }
-            var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+            var gridObj = $("#GridAttendanceControlBySingleDate").data("ejGrid");
             var filteredRecords = gridObj.getFilteredRecords();
             if (filteredRecords.length == 0) {
                 filteredRecords = $scope.employeeAttendanceBySingleDate
@@ -607,7 +607,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
                     }
                 }
 
-                var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+                var gridObj = $("#GridAttendanceControlBySingleDate").data("ejGrid");
                 gridObj.refreshContent();
             }
             else {
