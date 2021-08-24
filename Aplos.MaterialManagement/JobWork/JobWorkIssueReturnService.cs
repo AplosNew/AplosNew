@@ -138,13 +138,13 @@ namespace Library.MaterialManagement.JobWork
                     sql = @"SELECT -- t.Id,
                             t.JobWorkTransformationContractChildMasterId
                             ,t.InputMaterialId,t.MaterialMasterId,t.MaterialMaster,t.InputMaterialCode,t.ArticleName,t.ArticleId ,t.MMUnit
-                            ,t.RequiredQuantity,t.BalanceToIssue,t.TIRCTotalQty,t.PlannedQty,t.IssuedQty,t.BalanceQty,t.MaterialStorageId,t.TransactionUoMid TransactionUoMId,t.BaseUoMid BaseUoMId
-                            ,sum(t.TotalQty) TotalQty
-                            ,sum(t.PostingQty) PostingQty
-                            ,sum(t.PostingQty) PostingQuantity
-                            ,sum(t.ApprovedQty) ApprovedQty
-                            ,sum(t.UnApprovedQty) UnApprovedQty
-                            ,t.BaseUoMFactor,t.TransactionUoM  
+                            ,sum(t.RequiredQuantity) RequiredQuantity,t.BalanceToIssue,t.TIRCTotalQty,t.PlannedQty,t.IssuedQty,t.BalanceQty,t.MaterialStorageId,t.TransactionUoMid TransactionUoMId,t.BaseUoMid BaseUoMId
+                            ,t.TotalQty TotalQty
+                            ,t.PostingQty PostingQty
+                            ,t.PostingQty PostingQuantity
+                            ,t.ApprovedQty ApprovedQty
+                            ,t.UnApprovedQty UnApprovedQty
+                            ,t.BaseUoMFactor,t.TransactionUoM   
                             FROM(
                             SELECT mi.Id,mi.JobWorkTransformationContractChildMasterId,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit,
                             IRD.MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid,Sum(kk.TotalQuantity) as TIRCTotalQty,RequiredQuantity=Sum(ISNULL((mp.Quantity * mi.GrossConsumption),0))
@@ -315,11 +315,16 @@ namespace Library.MaterialManagement.JobWork
                             GROUP By mi.Id,mi.JobWorkTransformationContractChildMasterId
                             ,mm.Id  ,mm.Id ,mm.UserName  ,mm.Code  ,mma.StandardName ,mma.Id,uom.UserName 
                             ,IRD.MaterialStorageId,uom.Id  ,uom.Id ,IRD.BaseUoMFactor ,uom.UserName 
-                            ) AS t			
+                            ) AS t	where  t.PostingQty<>0 		
                             Group By --t.Id,
                             t.JobWorkTransformationContractChildMasterId
                             ,t.InputMaterialId,t.MaterialMasterId,t.MaterialMaster,t.InputMaterialCode,t.ArticleName,t.ArticleId ,t.MMUnit
-                            ,t.RequiredQuantity,t.BalanceToIssue,t.TIRCTotalQty,t.PlannedQty,t.IssuedQty,t.BalanceQty,t.MaterialStorageId,t.TransactionUoMid,t.BaseUoMid,t.BaseUoMFactor,t.TransactionUoM  ";
+                            ,t.RequiredQuantity,t.BalanceToIssue,t.TIRCTotalQty,t.PlannedQty,t.IssuedQty,t.BalanceQty,t.MaterialStorageId,t.TransactionUoMid,t.BaseUoMid,t.BaseUoMFactor,t.TransactionUoM  
+                            ,t.TotalQty 
+                            ,t.PostingQty 
+                            ,t.PostingQty                             
+                            ,t.UnApprovedQty 
+                            ,t.BaseUoMFactor, t.ApprovedQty";
 
                 }
                 else

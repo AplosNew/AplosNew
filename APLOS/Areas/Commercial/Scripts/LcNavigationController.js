@@ -163,12 +163,6 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
                 else {
                     ShowResult(response.data.Message, 'failure');
                 }
-
-                for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
-                if ($scope.SelectFGCharacteristicsValueList[i].Ratio != null) {
-                    $scope.TotalRatio = parseFloat($scope.SelectFGCharacteristicsValueList[i].Ratio) + parseFloat($scope.TotalRatio);
-                }
-            }
             }),
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -181,7 +175,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalValue", dataMember: "TotalValue", format: "{0:N2}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNValue", dataMember: "GRNValue", format: "{0:N2}" }],
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNValue", dataMember: "GRNValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "setOffValue", dataMember: "setOffValue", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];
@@ -244,7 +239,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
     }
     $scope.summaryAC= [{
         title: "Total :", summaryColumns: [
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }],
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOffValue", dataMember: "SetOffValue", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];
@@ -276,12 +272,12 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.summaryLoan = [{
         title: "Total :", summaryColumns: [
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }],
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LoanSetOff", dataMember: "LoanSetOff", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];
 
-    $scope.PurchaseLCSetOffList = [];
 
     $scope.PurchaseLCSetoffList = [];
     $scope.LoadSetoffList = function (LCSetOffData) {
@@ -316,6 +312,56 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         showCaptionSummary: true
 
     }];
+
+
+
+
+
+
+    $scope.SetoffList = [];
+    $scope.LoadSetoffList = function (SetOffData) {
+        $scope.SelectedLCRow = SetOffData;
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPurchaseLCSetOff",
+            data: { 'PurchaseLCId': SetOffData.LCId },
+            dataType: 'JSON'
+
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+
+                    $scope.SetoffList = response.data.SetOffDATA;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        $rootScope.openPopupAngular('SetOffPoP');
+    }
+
+    $scope.SetOff = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
+        ],
+        showCaptionSummary: true
+
+    }];
+
+
+
+
+
+
+
+
+
+
+
 
     $scope.PurchaseLCLoanSetoffList = [];
     $scope.LoadLoanSetOff = function (LCLoanSetOffData) {
