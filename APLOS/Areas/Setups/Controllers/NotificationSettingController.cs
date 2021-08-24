@@ -95,7 +95,7 @@ namespace Aplos.Areas.Setups.Controllers
 
                     foreach (var item in data)
                     {
-                        string sql = "SELECT * FROM [dbo].[NotificationSetting] WHERE Id='" + item.Id + "'";
+                        string sql = "SELECT * FROM [dbo].[NotificationSetting] WHERE BusinessFlow='" + item.BusinessFlow + "'";
                         objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 

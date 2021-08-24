@@ -3232,7 +3232,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                     PrePayrollDayStatus(PreviousDay, PlantValue);
                     #endregion
 
-                    #region Prev DayOT Calcualtion 
+                    #region Prev DayOT Calculation 
                     DataSet PrevOTCalculate;
                     PrevDayOTCalculation(PreviousDay, out PrevOTCalculate, PlantValue);
                     if (PrevOTCalculate.Tables[0].Rows.Count > 0)
@@ -3242,8 +3242,13 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where IsOTEntitled='1' and WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
-
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        var sqly = @"select * from PlantWiseHRMSSetting where PlantID='"+PlantValue+"'";
+                        objCon.OpenDataSetThroughAdapter(sqly, out DataSet OTMode, false, false, "", "1");
+
+                        string OTModeValue = clsWebLib.RetValidLen(OTMode.Tables[0].Rows[0][@"ResultendOT"]).ToString();
+                        // 0 means Punched Based 1 means Manual 2 means Mixed
 
 
                         for (int i = 0; i < PrevOTCalculate.Tables[0].Rows.Count; i++)
@@ -3258,16 +3263,54 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                 string PastManualOT = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ManualOt"]).ToString();
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
 
-                                if (Result != "")
+                                if (OTModeValue == "0")
                                 {
-                                    if (Convert.ToDouble(PastManualOT) > 0)
+                                    if (Result != "")
                                     {
-                                        if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
+                                        if (Convert.ToDouble(Result) > 0)
+                                        {
+                                            dr.BeginEdit();
+                                            dr["ProcessedOT"] = Result;
+                                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                            dr.EndEdit();
+                                        }
+                                    }
+
+                                }
+                                else if (OTModeValue == "1")
+                                {
+                                    if (PastManualOT != "")
+                                    {
+                                        if (Convert.ToDouble(PastManualOT) > 0)
                                         {
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = PastManualOT;
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (Result != "")
+                                    {
+                                        if (PastManualOT != "")
+                                        {
+                                            if (Convert.ToDouble(PastManualOT) > 0)
+                                            {
+                                                if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
+                                                {
+                                                    dr.BeginEdit();
+                                                    dr["ProcessedOT"] = PastManualOT;
+                                                    dr.EndEdit();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                dr.BeginEdit();
+                                                dr["ProcessedOT"] = Result;
+                                                dr.EndEdit();
+                                            }                                            
                                         }
                                         else
                                         {
@@ -3276,13 +3319,6 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
-                                    }
-                                    else
-                                    {
-                                        dr.BeginEdit();
-                                        dr["ProcessedOT"] = Result;
-                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                        dr.EndEdit();
                                     }
                                 }
                             }
@@ -3306,6 +3342,12 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
 
+                        var sqly = @"select * from PlantWiseHRMSSetting where PlantID='" + PlantValue + "'";
+                        objCon.OpenDataSetThroughAdapter(sqly, out DataSet OTMode, false, false, "", "1");
+
+                        string OTModeValue = clsWebLib.RetValidLen(OTMode.Tables[0].Rows[0][@"ResultendOT"]).ToString();
+                        // 0 means Punched Based 1 means Manual 2 means Mixed
+
                         for (int i = 0; i < PrevManualOT.Tables[0].Rows.Count; i++)
                         {
 
@@ -3316,15 +3358,38 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 string AutoOT = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"OTHr"]).ToString();
-
-                                if (Convert.ToDouble(ManualOT) < Convert.ToDouble(AutoOT))
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                
+                                if (OTModeValue == "1")
                                 {
-                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                    dr.BeginEdit();
-                                    dr["ProcessedOT"] = ManualOT;
-                                    dr["ManualOt"] = ManualOT;
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
+                                    if (ManualOT != "")
+                                    {
+                                        if (Convert.ToDouble(ManualOT) > 0)
+                                        {
+                                            dr.BeginEdit();
+                                            dr["ProcessedOT"] = ManualOT;
+                                            dr["ManualOt"] = ManualOT;
+                                            dr.EndEdit();
+                                        }
+                                    }
+                                }
+
+                                else if (OTModeValue == "2")
+                                {
+                                    if (ManualOT != "")
+                                    {
+                                        if (Convert.ToDouble(ManualOT) > 0)
+                                        {
+                                            if (Convert.ToDouble(ManualOT) < Convert.ToDouble(AutoOT))
+                                            {
+
+                                                dr.BeginEdit();
+                                                dr["ProcessedOT"] = ManualOT;
+                                                dr["ManualOt"] = ManualOT;
+                                                dr.EndEdit();
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -3348,7 +3413,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                         for (int i = 0; i < TodayDurn.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = TodayDurn.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            string EmpId = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                             string ProcessInTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"InTime"]).ToString();
                             string ProcessOutTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"OutTime"]).ToString();
                             string ShiftOutTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
@@ -4144,6 +4209,11 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
+                    var sqly = @"select * from PlantWiseHRMSSetting where PlantID='" + PlantValue + "'";
+                    objCon.OpenDataSetThroughAdapter(sqly, out DataSet OTMode, false, false, "", "1");
+
+                    string OTModeValue = clsWebLib.RetValidLen(OTMode.Tables[0].Rows[0][@"ResultendOT"]).ToString();
+                    // 0 means Punched Based 1 means Manual 2 means Mixed
 
                     for (int i = 0; i < ProcessOTCalculate.Tables[0].Rows.Count; i++)
                     {
@@ -4158,17 +4228,62 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                             string PastManualOT = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"ManualOt"]).ToString();
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
 
-                            if (Result != "")
+                            if (OTModeValue == "0")
                             {
-                                if (Convert.ToDouble(PastManualOT) > 0)
+                                if (Result != "")
                                 {
-                                    if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
+                                    if (Convert.ToDouble(Result) > 0)
+                                    {
+                                        dr.BeginEdit();
+                                        dr["ProcessedOT"] = Result;
+                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                        dr.EndEdit();
+                                        CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                                    }
+                                }
+
+                            }
+                            else if (OTModeValue == "1")
+                            {
+                                if (PastManualOT != "")
+                                {
+                                    if (Convert.ToDouble(PastManualOT) > 0)
                                     {
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = PastManualOT;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                                    }
+                                }
+                            }
+
+                            else 
+                            {
+                                if (Result != "")
+                                {
+                                    if (PastManualOT != "")
+                                    {
+                                        if (Convert.ToDouble(PastManualOT) > 0)
+                                        {
+                                            if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
+                                            {
+                                                dr.BeginEdit();
+                                                dr["ProcessedOT"] = PastManualOT;
+                                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                                dr.EndEdit();
+                                                CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dr.BeginEdit();
+                                            dr["ProcessedOT"] = Result;
+                                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                            dr.EndEdit();
+                                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                                        }
+                                        
                                     }
                                     else
                                     {
@@ -4178,14 +4293,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
                                     }
-                                }
-                                else
-                                {
-                                    dr.BeginEdit();
-                                    dr["ProcessedOT"] = Result;
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
-                                    CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+
                                 }
                             }
                         }

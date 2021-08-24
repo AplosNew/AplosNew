@@ -22,7 +22,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
-        public IEnumerable<object> GetUnLockedEmployees(string Date,string PlantId)
+        public string GetUnLockedEmployees(string Date,string PlantId)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 where WorkDate='" + Date + @"' and e.EmployeeStatus='Active'
                 and IsLock=0 AND a.PlantID='" + PlantId + "'";
                
-                return _sqlRepository.GetDataCollection(sql);
+                return sql;
             }
             catch (Exception ex)
             {
@@ -49,7 +49,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public IEnumerable<object> GetLockedEmployees(string Date,string PlantId)
+        public string GetLockedEmployees(string Date,string PlantId)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 where WorkDate='"+Date+@"' and e.EmployeeStatus='Active'
                 and IsLock=1 AND a.PlantID='"+PlantId+"'";
                
-                return _sqlRepository.GetDataCollection(sql);
+                return sql;
             }
             catch (Exception ex)
             {
