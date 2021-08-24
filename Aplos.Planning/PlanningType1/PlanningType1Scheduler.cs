@@ -1,11 +1,14 @@
 ﻿using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using OTSBD;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace Library.Planning.PlanningType1
 {
@@ -356,5 +359,57 @@ ORDER BY min(ppt.ProductionDate) ASC
             return sql;
         }
 
-    }
+		#region PriorityUpdate
+
+		public DataTable getCurrentPriority(string Entity)
+        {
+            try
+            {
+				var str = @"Select po.Id as ProductionId, pt.ProductionPriority , ps.StandardName as Status
+							from ProductionOrderSchedulingParametersType1 AS pt
+							left join trn.ProductionOrder po on po.Id = pt.ProductionOrderID
+							left join hkp.ProductionStatus ps on ps.Id = po.ProductionStatusId
+							where ps.StandardName in ('Active','Running') and po.EntityId = '"+Entity+@"'
+							";
+				return _sqlRepository.GetDataTable(str);
+            }
+			catch(Exception e)
+            {
+				throw e;
+            }
+        }
+
+		public void SaveFileList(List<Dictionary<string, object>> data)
+		{
+			try
+			{
+				ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+				var sqlx = "Select * From ProductionOrderSchedulingParametersType1";
+				objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+				for (int i = 0; i<data.Count;i++ )
+                {
+					dsRef.Tables[0].DefaultView.RowFilter = @"ProductionOrderID='"+data[i]["ProductionId"].ToString() +"'";
+					DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+					if(dr["ProductionPriority"].ToString() != data[i]["ProductionPriority"].ToString())
+                    {
+						dr.BeginEdit();
+						dr["ProductionPriority"] = clsStaticInfo.dbl(data[i]["ProductionPriority"].ToString());
+						dr["UpdatedDate"] = Convert.ToDateTime(DateTime.Now);
+						dr.EndEdit();
+					}
+
+				}
+
+				clsStaticInfo obj = new clsStaticInfo();
+				obj.SaveDataSets(dsRef);
+			}
+			catch (Exception e)
+			{
+				throw e;
+			}
+		}
+		#endregion PriorityUpdate
+
+	}
 }
