@@ -8862,8 +8862,9 @@ union ALL
 
             return @" 
 	    
+	    --MMA-----------
           	   		 --********************************REGISTER******************************************
-       select X.* from (
+                select X.* from (
                SELECT isnull( T.Id,'') MaterialTypeId
 				,ISNULL(T.UserName,'') MaterialType
 				,ISNULL (MGM.Id,'') MaterialGroupMasterId
@@ -8936,7 +8937,14 @@ union ALL
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
 
-            	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
+    --        	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
+    --          	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
+				--,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
+				--,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
+				--,FAR.MaterialMasterId ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
+			 --   FROM TRN.FixedAssetRegister FAR
+
+				 LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount,FAR.MaterialMasterArticleId
               	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
 				,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
 				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
@@ -8948,8 +8956,8 @@ union ALL
 				) sar on sar.FixedAssetRegisterId=FAR.Id
                 
 				where DisposedVoucherId IS NULL
-                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
-				)FA ON FA.MaterialMasterId=M.Id
+                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId,FAR.MaterialMasterArticleId
+				)FA ON FA.MaterialMasterId=M.Id and fa.MaterialMasterArticleId=mma.Id
 
 
                 WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
@@ -8979,7 +8987,7 @@ union ALL
 				  and X.AssetMasterId  in (" + assetMasterId + @") 
 				  and X.MaterialGroup1Id  in (" + materialGroup1Id + @")
 				 and X.BaseUOMId  in (" + baseUOMId + @")
-                 and X.FACount  in (" + fACount + @") 
+               --  and X.FACount  in (" + fACount + @") 
 
 --*************************************NON REGISTER******************************************************
 union ALL
@@ -9054,7 +9062,7 @@ union ALL
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
 
-            	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
+            	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount,FAR.MaterialMasterArticleId
               	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
 				,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
 				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
@@ -9063,16 +9071,17 @@ union ALL
 
 				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
-				) sar on sar.FixedAssetRegisterId=FAR.Id
+				) sar on sar.FixedAssetRegisterId=FAR.Id 
+
                 
-				where DisposedVoucherId IS NULL
-                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
-				)FA ON FA.MaterialMasterId=M.Id
+				where FAR.DisposedVoucherId IS NULL 
+                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId,FAR.MaterialMasterArticleId
+				)FA ON FA.MaterialMasterId=M.Id and fa.MaterialMasterArticleId =mma.Id 
 
 
                 WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-                WHERE BP.BusinessProcessName ='MachineDefinition') or  M.IsAsset=1) 
+                WHERE BP.BusinessProcessName ='MachineDefinition') or  M.IsAsset=1) and  isnull(fa.FABaseAmount,0)=0
 				
 			   -- and FA.CompanyGroupId='CG20171'and FA.CompanyId='C20171' AND FA.PlantId='20171'
 				
@@ -9086,7 +9095,7 @@ union ALL
 				 --and S.Id in ('','null','201943','201995','201948','201989','20214','20178','20192','201986','201915','201992','201942','201985','201982','201996','201935','201998','202111','20195','2019142','201962','201950','201927','201955','202110','201947','20219','20218','201931','201933','201940','20217','20216','201997','201914','201920','201934','201932','201913','2019123','201721','201936','201928','2019132','2019126','201929','20213','20212','20211','201956','201945','201949','201946')
      --           and FA.FACount  in ('','0','1','3','6','10','53','20','21','50','9','58','87','15','5','61','37','982','2','159','4','18','234','14','19','38','11','7','8','65','216','41','52','13','43','28','31','283','12','46','71','114','64','26','17','76','22','112','23','247','2200','1528','48','248','2600','32','98','68','16','180','30','210','483','33','100','56','44','79') 
 				)X
-				WHERE X.FABaseAmount=0 
+								WHERE X.FABaseAmount=0 
 
 		     	--AND	ISNULL( X.CompanyGroupId,'')='" + companyGroupId + "' and ISNULL( X.CompanyId,'')='" + companyId + "' AND ISNULL( X.PlantId,'')='" + plantId + @"'
 				
@@ -9099,7 +9108,8 @@ union ALL
 				  and X.AssetMasterId  in (" + assetMasterId + @") 
 				  and X.MaterialGroup1Id  in (" + materialGroup1Id + @")
 				 and X.BaseUOMId  in (" + baseUOMId + @")
-                 and X.FACount  in (" + fACount + @") 
+                -- and X.FACount  in (" + fACount + @") 
+
 --***************************************
     union ALL
 	SELECT  X.* FROM (
@@ -9127,11 +9137,11 @@ union ALL
 				 , Machine=isnull( case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end,'')
 
 				 ,count(FAR.Id) FACount
-                , sum(FAR.FABaseAmount)FABaseAmount
-				  , sum(sar.SubAssetAmount)SubAssetAmount
-				  ,sum(FAR.FABaseAmount) + sum(sar.SubAssetAmount)  TotalBaseAmount
-				 , sum(FAR.ADBaseAmount) ADBaseAmount
-				 ,sum(FAR.FABaseAmount) + sum(sar.SubAssetAmount) - sum(FAR.ADBaseAmount)  NetFixedAssetsAmount
+                , sum(isnull( FAR.FABaseAmount,0))FABaseAmount
+				  , sum(isnull( sar.SubAssetAmount,0))SubAssetAmount
+				  ,sum(isnull( FAR.FABaseAmount,0)) + sum(sar.SubAssetAmount)  TotalBaseAmount
+				 , sum(isnull(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,sum(isnull( FAR.FABaseAmount,0)) + sum(isnull( sar.SubAssetAmount,0)) - sum(isnull( FAR.ADBaseAmount,0))  NetFixedAssetsAmount
 				,isnull( s.Id,'') SkillId
                 ,isnull (S.UserName,'') Skill
 				,isnull( SCode.UserName,'') StitchCode
@@ -9201,6 +9211,7 @@ union ALL
                 ,far.CompanyGroupId,FAR.CompanyId,FAR.PlantId
 				 ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
                  ,gl.UserName ,b.UserName , a.UserName
+
 				 ) x
 
 				where x.IsAsset in ('','No','Yes') and x.Machine in ('','Yes','No')
@@ -9213,7 +9224,7 @@ union ALL
 				  and X.AssetMasterId  in (" + assetMasterId + @") 
 				  and X.MaterialGroup1Id  in (" + materialGroup1Id + @")
 				 and X.BaseUOMId  in (" + baseUOMId + @")
-                 and X.FACount  in (" + fACount + @") 
+                 --and X.FACount  in (" + fACount + @") 
                 ORDER BY x.MaterialMaster";
 
         }
