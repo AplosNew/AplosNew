@@ -2346,16 +2346,22 @@ namespace Library.MaterialManagement.Inventory
                 parameters.CmdText = @"SELECT II.Id,II.Id IssueNo, II.IssueDate,II.Remarks, MS.UserName AS MaterialStorage,II.EntityId,E.UserName  EntityName,II.IssueType
                                     ,EI.EmployeeCode+' - '+EI.EmployeeName EmployeeName,SUM(IID.TransactionQty) Qty,SUM(IID.PolicyAmount) Amount
                                     ,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
+									,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName 
                                     FROM [TRN].[InventoryIssue] AS II
                                     JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId=MS.Id 
 							        JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId=II.Id
 								    left join dbo.EmployeeInformation AS EI ON EI.SystemId=II.EmployeeId
                                     left join org.Entity E ON E.Id=II.EntityId
+									LEFT JOIN [dbo].[JWTransformationPurchaseOrder] JW ON JW.Id=II.JWContractId
+									left join dbo.[Contract] CN ON CN.Id=JW.ContractId
+									LEFT JOIN dbo.MasterLC LC ON LC.Id=CN.MasterLCId
+									LEFT JOIN HKP.Party P ON P.Id=LC.CustomerId
                             WHERE II.PlantId='" + plantId + @"' AND ISNULL(II.[Status],'')<>'Posting' 
                             AND IID.IsAsset=0
                             GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 	                                 , II.IssueDate, MS.UserName
-									 ,EI.EmployeeCode,EI.EmployeeName,II.Remarks,II.EntityId,E.UserName,II.IssueType, ii.OrderRefNo,II.[Types]";
+									 ,EI.EmployeeCode,EI.EmployeeName,II.Remarks,II.EntityId,E.UserName,II.IssueType
+									 , ii.OrderRefNo,II.[Types],II.JWContractId,JW.ContractId,LC.LCRef,P.Code,p.UserName";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
