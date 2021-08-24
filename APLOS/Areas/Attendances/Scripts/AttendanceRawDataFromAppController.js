@@ -27,7 +27,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             $scope.employeeAttendanceBySingleDate = response.data.data;
             $scope.employeeAttendanceBySingleDateSelection = response.data.data;
             $scope.allShiftSingleDay = response.data.shift;
-            var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+            var gridObj = $("#GridChangeAttendanceBySingleDates").data("ejGrid");
             gridObj.refreshContent();
 
         });
