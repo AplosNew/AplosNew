@@ -1192,11 +1192,13 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         {
             string sql = "";
 
-            sql = @"select distinct mp.*, jwi.UserName as JobWorkItem,jwa.UserName as JobWorkActivity, uom.UserName as OutputUnit
+            sql = @"select distinct mp.*, jwi.UserName as JobWorkItem,jwa.UserName as JobWorkActivity--, uom.UserName as OutputUnit
                                ,mm.UserName as Material , mma.StandardName as Article
                                ,c.Code as Currency, emp.EmployeeName as ResponsiblePerson, JL.LocationName as MaterialLocation
+                               ,OutputUnit=case when tc.OrderSpecific='Yes' then mmuom.UserName else uom.UserName End
                                from dbo.JobWorkTransformationContractChild mp left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
         					   left join SCS.UnitOfMeasurement uom on uom.Id=mp.OutputMaterialUOMId
+                               left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mp.BaseUOMId
         					   left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
 							   left join MST.MaterialMaster mm on mm.Id=mp.MaterialMasterId
 							   left join scs.Currency c on c.Id=mp.CurrencyId
