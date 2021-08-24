@@ -3313,6 +3313,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             con.OpenDataSetThroughAdapter("SELECT * FROM JobWorkTransformationContractChild WHERE JobWorkTransformationContractMasterId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
 
             List<Dictionary<string, object>> dataBoq = new List<Dictionary<string, object>>();
+            List<Dictionary<string, object>> detailBoq = new List<Dictionary<string, object>>();
             //List<Dictionary<string, object>> dataDetail = new List<Dictionary<string, object>>();
 
             DataSet dsTax = null;
@@ -3328,6 +3329,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 if (OrderSpecific == "Yes")
                 {
                     dataBoq = data;
+                    detailBoq = data;
                     data = MakePodetail(data);
                     //dataBoq = new List<Dictionary<string, object>>(data);
                     #region Validation
@@ -3411,6 +3413,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             JWBOQReqQty = data[i]["RequiredQtyPO"].ToString();
                             TQty = data[i]["TransactionQty"].ToString();
                             TRate = data[i]["RatePerUnit"].ToString();
+                            dataBoq = data;
 
                             AddNewRow(dsMaster.Tables[0], data[i]);
 
@@ -3418,6 +3421,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             _info.SaveDataSets(dsMaster);
                             SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty, ABC);
                             SaveJWServiceTaxes(JWOutId, JWPurchaseOrderId, JWPODate, TQty, TRate, JWPOIsNonCreditable);
+                            JPOBOQMAPCreate(dataBoq, JWOutId, userName, IPAddress, out dsPOBOQMap, detailBoq);
 
                         }
                         else
@@ -3480,6 +3484,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 JWBOQReqQty = data[i]["RequiredQtyPO"].ToString();
                                 TQty = data[i]["TransactionQty"].ToString();
                                 TRate = data[i]["RatePerUnit"].ToString();
+                                dataBoq = data;
                             }
                             
 
@@ -3493,6 +3498,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 _info.SaveDataSets(dsMaster);
                                 SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty, ABC);
                                 SaveJWServiceTaxes(JWOutId, JWPurchaseOrderId, JWPODate, TQty, TRate, JWPOIsNonCreditable);
+                                JPOBOQMAPCreate(dataBoq, JWOutId, userName, IPAddress, out dsPOBOQMap, detailBoq);
                             }
                            
                         }
@@ -3690,7 +3696,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             {
                                 SaveJWTransformationPurchaseOrderChildMaterial(dataBoq, data[i]["Id"].ToString(), JWActivityId, Conversion, out dsJwChildMaterial);
 
-                                JPOBOQMAPCreate(dataBoq, data[i]["Id"].ToString(), userName, IPAddress, out dsPOBOQMap);
+                                //JPOBOQMAPCreate(dataBoq, data[i]["Id"].ToString(), userName, IPAddress, out dsPOBOQMap);
                             }
                             _info.SaveDataSets(dsMaster);
                             _info.SaveDataSets(dsPOBOQMap, dsJwChildMaterial);
@@ -4281,11 +4287,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
         #endregion
 
-        public void JPOBOQMAPCreate(List<Dictionary<string, object>> data, string JWPODetailId, string userName, string IPAddress, out DataSet dsPOboq)
+        public void JPOBOQMAPCreate(List<Dictionary<string, object>> data, string JWPODetailId, string userName, string IPAddress, out DataSet dsPOboq, List<Dictionary<string, object>> detailBoq)
         {
             try
             {
                 DataSet DelJWPOBOQMap;
+                DataSet DetailJWPOBOQ;
                 dsPOboq = new DataSet();
                 string sql = "";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -4305,6 +4312,15 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 }
 
                 string _poboqId = "";
+                string MaterialId = "";
+                string ArticleId = "";
+                string SKU1Id = "0";
+                string SKU2Id = "0";
+                string SKU3Id = "0";
+                string SOId = "";
+                string DetailSKU1Id = "0";
+                string DetailSKU2Id = "0";
+                string DetailSKU3Id = "0";
                 sql = "SELECT * FROM JWPOBOQMAP WHERE JWPODetailId='" + JWPODetailId + "'";
                 con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter(sql, out dsPOboq, false, "1");
@@ -4313,9 +4329,57 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                 for (int i = 0; i < data.Count; i++)
                 {
-                    dsPOboq.Tables[0].DefaultView.RowFilter = "BOQDetailId = '" + data[i]["BOQId"] + "'  ";
+                    if(data[i]["Id"].ToString()== JWPODetailId)
+                    {
+                        MaterialId = data[i]["MaterialMasterId"].ToString();
+                        ArticleId = data[i]["ArticleId"].ToString();
 
-                    if (dsPOboq.Tables[0].DefaultView.Count == 0)
+                        if (data[i]["FirstCharacteristicsValueId"] != null)
+                        {
+                            SKU1Id = data[i]["FirstCharacteristicsValueId"].ToString();
+                        }
+                        
+                        if (data[i]["SecondCharacteristicsValueId"] != null)
+                        {
+                            SKU2Id = data[i]["SecondCharacteristicsValueId"].ToString();
+                        }
+
+                        if (data[i]["ThirdCharacteristicsValueId"] != null)
+                        {
+                            SKU3Id = data[i]["ThirdCharacteristicsValueId"].ToString();
+                        }
+
+                        
+                        SOId = data[i]["SalesOrderId"].ToString();
+
+                    }
+                }
+
+                for (int a = 0; a < detailBoq.Count; a++)
+                        {
+
+                    if (detailBoq[a]["FirstCharacteristicsValueId"] != null)
+                    {
+                        DetailSKU1Id = detailBoq[a]["FirstCharacteristicsValueId"].ToString();
+                    }
+
+                    if (detailBoq[a]["SecondCharacteristicsValueId"] != null)
+                    {
+                        DetailSKU2Id = detailBoq[a]["SecondCharacteristicsValueId"].ToString();
+                    }
+
+                    if (detailBoq[a]["ThirdCharacteristicsValueId"] != null)
+                    {
+                        DetailSKU3Id = detailBoq[a]["ThirdCharacteristicsValueId"].ToString();
+                    }
+
+                    if (detailBoq[a]["MaterialMasterId"].ToString()== MaterialId && detailBoq[a]["ArticleId"].ToString() == ArticleId && DetailSKU1Id == SKU1Id && DetailSKU2Id == SKU2Id && DetailSKU3Id == SKU3Id)
+                            {
+
+                        dsPOboq.Tables[0].DefaultView.RowFilter = "BOQDetailId = '" + detailBoq[a]["BOQId"] + "'  ";
+                      //  dsPOboq.Tables[0].DefaultView.RowFilter = "BOQDetailId IN (" + BOQId + ") ";
+
+                        if (dsPOboq.Tables[0].DefaultView.Count == 0)
                     {
                         if (_poboqId == "")
                         {
@@ -4326,20 +4390,20 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         }
                         DataRow dr = dsPOboq.Tables[0].NewRow();
 
-                        double conversiongroupListData = conversion.Convert(data[i]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(data[i]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(data[i]["BaseUOMId"]).ToString(), clsStaticInfo.dbl(data[i]["TransactionQty"]));
+                        double conversiongroupListData = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
                         dr["BaseQty"] = Convert.ToDecimal(conversiongroupListData);
 
-                        dr["Id"] = _poboqId + "-" + (i + 1).ToString();
+                        dr["Id"] = _poboqId + "-" + (a + 1).ToString();
 
                         dr["JWPODetailId"] = JWPODetailId;
-                        dr["BOQDetailId"] = data[i]["BOQId"];
-                        dr["TransactionQty"] = data[i]["TransactionQty"];
-                        dr["TransactionUoMId"] = data[i]["TransactionUoMId"];
+                        dr["BOQDetailId"] = detailBoq[a]["BOQId"];
+                        dr["TransactionQty"] = detailBoq[a]["TransactionQty"];
+                        dr["TransactionUoMId"] = detailBoq[a]["TransactionUoMId"];
 
-                        dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(data[i]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(data[i]["BaseUOMId"]).ToString();
-                        dr["POBOQQty"] = conversion.Convert(data[i]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(data[i]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(data[i]["POUoMId"]).ToString(), clsStaticInfo.dbl(data[i]["TransactionQty"]));
+                        dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString();
+                        dr["POBOQQty"] = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["POUoMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
 
-                        dr["POUoMId"] = data[i]["POUoMId"];
+                        dr["POUoMId"] = detailBoq[a]["POUoMId"];
 
                         dr["AddedBy"] = userName;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -4352,20 +4416,25 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         DataRow dr = dsPOboq.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
                         dr["JWPODetailId"] = JWPODetailId;
-                        dr["BOQDetailId"] = data[i]["BOQId"];
-                        dr["TransactionQty"] = data[i]["TransactionQty"];
-                        dr["TransactionUoMId"] = data[i]["TransactionUoMId"];
-                        dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(data[i]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(data[i]["BaseUOMId"]).ToString();
-                        dr["POBOQQty"] = conversion.Convert(data[i]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(data[i]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(data[i]["POUoMId"]).ToString(), clsStaticInfo.dbl(data[i]["TransactionQty"]));
+                        dr["BOQDetailId"] = detailBoq[a]["BOQId"];
+                        dr["TransactionQty"] = detailBoq[a]["TransactionQty"];
+                        dr["TransactionUoMId"] = detailBoq[a]["TransactionUoMId"];
+                        dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString();
+                        dr["POBOQQty"] = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["POUoMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
 
-                        dr["POUoMId"] = data[i]["POUoMId"];
+                        dr["POUoMId"] = detailBoq[a]["POUoMId"];
                         dr["UpdatedBy"] = userName;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = IPAddress;
                         dr.EndEdit();
-                    }
+              
+                            }
+                        }
+             
 
                 }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsPOboq);
 
             }
             catch (Exception ex)

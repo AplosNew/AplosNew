@@ -2412,4 +2412,117 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
         $scope.VROWDATA.ProductionOrderId = args.data.ProductionOrderID;
         $scope.GetProductionPlanningParametersData('dialogProductionOrderParameters', 'entrypop');
     }
+
+    // The functions for the priority Update
+    $scope.fileData = [];
+    $scope.GetSample = function () {
+        var reportFormat = "Excel";
+
+        if (angular.isUndefinedOrNull($scope.EntityId)) {
+            ShowResult("Please First Select the Entity!");
+            throw ("Invalid");
+        }
+
+        try {
+            window.open('OrderManagements/productionOrderSchedulingParametersType1/GetSampleReports?reportFormat=' + reportFormat+ '&Entity=' + $scope.EntityId,'_blank');
+
+        } catch (e) {
+
+        }
+    }
+
+    $("#uploadFile").change(function () {
+        $scope.fileData = this.files[0];
+    });
+    $scope.ExcelUploadData = [];
+    //IMporting The Data From the Excel File
+
+    $scope.ModelNew = {
+        FileName: null
+    }
+
+
+    $scope.ImportData = function () {
+        try {
+            $scope.ExcelUploadData = [];
+            $scope.msg = "";
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.fileData.length == 0) {
+
+                throw ("Please Select A File!!");
+            }
+
+
+            var fileData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.fileData)) {
+                $scope.ModelNew.FileName = $scope.fileData.name;
+            }
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'ImportData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    fileData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.fileData) === false) {
+                        fileData.append('file', data.file);
+
+                    }
+                    return fileData;
+                },
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.fileData }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+
+                }
+
+                else {
+                    try {
+                        $scope.ExcelUploadData = response.data;
+                    }
+
+                    catch (e) {
+
+                        ShowResult(e, "failure");
+                    }
+
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+
+    //Save the File Data
+    $scope.saveFileList = function () {
+
+
+
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveFileList',
+            data: { 'data': $scope.ExcelUploadData }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                try {
+                    ShowResult(response.data.Message, 'success')
+                }
+                catch (e) {
+
+                    ShowResult(e, "failure");
+                }
+            }
+        });
+    }
 }

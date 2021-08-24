@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ConnectionManager">
+      <HintPath>..\APLOS\Library\ConnectionManager.dll</HintPath>
+    </Reference>
     <Reference Include="Library.Core">
       <HintPath>..\APLOS\Library\Library.Core.dll</HintPath>
     </Reference>
