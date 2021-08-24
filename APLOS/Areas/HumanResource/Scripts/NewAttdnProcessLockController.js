@@ -78,4 +78,25 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
         }
     };
 
+    // Tab Region
+
+    $scope.tab = 1;
+
+    $scope.setTab1 = function (newTab) {
+        $scope.tab = newTab;
+      
+    };
+    $scope.isSet1 = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    $scope.setTab2 = function (newTab) {
+        $scope.tab = newTab;
+        
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+
 }
