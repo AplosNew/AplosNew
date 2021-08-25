@@ -11,6 +11,21 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
         lockDate: null        
     };
 
+
+    $scope.GetExpectedLockDate = function () {
+
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            url: $scope.path + 'GetExpectedLockDate'
+
+        }).then(function success(response) {
+            $scope.ModelNew.lockDate = response.data[0].ExpectedDate;
+        })
+    }
+    $scope.GetExpectedLockDate();
+
+
     function Validation() {
         try {
 
@@ -83,7 +98,6 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
 
         }
     };
-
 
     $scope.actionCompleteSelected2 = function (args) {
         try {
