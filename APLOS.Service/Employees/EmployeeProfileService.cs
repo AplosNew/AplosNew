@@ -38,6 +38,8 @@ using Library.Service.Payrolls;
 using System.Runtime.Serialization.Formatters.Binary;
 using Syncfusion.Presentation;
 using ConnectionManager.DAL;
+using Zen.Barcode;
+using System.Drawing.Imaging;
 //using Syncfusion.DocToPDFConverter;
 //using Syncfusion.JavaScript.Models;
 //using Syncfusion.OfficeChartToImageConverter;
@@ -521,9 +523,9 @@ namespace Library.Service.Employees
                         PlantId = entity.PlantID,
                         CompanyGroupId = entity.GroupID,
 
-                        AddedBy = entity.AddedBy,                       
+                        AddedBy = entity.AddedBy,
                         AddedFromIP = IP,
-                        UpdatedBy = entity.UpdatedBy,                        
+                        UpdatedBy = entity.UpdatedBy,
                         UpdatedFromIP = IP
                     };
 
@@ -540,10 +542,10 @@ namespace Library.Service.Employees
 
         public void InSertOrUpdateEmployeeAccountsGroup(EmployeeAccountsGroup entity)
         {
-           
+
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
-            if (entity!=null)
+            if (entity != null)
             {
                 string sql = "SELECT * FROM [dbo].[EmployeeAccountsGroup] WHERE EmployeeId='" + entity.EmployeeId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -557,7 +559,7 @@ namespace Library.Service.Employees
                     dr["PlantId"] = entity.PlantId;
                     dr["AccountsGroupId"] = entity.AccountsGroupId;
                     dr["CompanyGroupId"] = entity.CompanyGroupId;
-                    dr["EmployeeId"] = entity.EmployeeId;                    
+                    dr["EmployeeId"] = entity.EmployeeId;
 
                     dr["AddedBy"] = entity.AddedBy;
                     dr["AddedDate"] = DateTime.Now;
@@ -3072,7 +3074,7 @@ namespace Library.Service.Employees
                         string colName = foundText.Trim().Replace("{", "").Replace("}", "");
                         if (dtEmp.Columns.Contains(colName))
                         {
-           
+
                             value = dtEmp.Rows[0][dtEmp.Columns[colName].ColumnName].ToString();
 
                             if (bplib.clsWebLib.IsNumeric(value))
@@ -3105,7 +3107,7 @@ namespace Library.Service.Employees
                         int isReplaced = 0;
 
                         isReplaced = table1.Replace("{" + dtSalary.Rows[ROW]["SalaryHead"].ToString() + "}", cnDgt(dtSalary.Rows[ROW]["EntryAmount"].ToString(), language), false, false);
-             
+
                         if (isReplaced == 0
                             && dtSalary.Rows[ROW]["HeadCategory"].ToString().ToUpper() != ("Gross").ToUpper()
                             && dtSalary.Rows[ROW]["HeadCategory"].ToString().ToUpper() != ("TOTAL GROSS").ToUpper()
@@ -4396,10 +4398,13 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                     {
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dtEmp.Rows[0]["BloodGroup"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PermanentAddress", dtEmp.Rows[0]["ParmanentAddress"].ToString(), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "PresentAddress", dtEmp.Rows[0]["PresentAddress"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", cnDgt(dtEmp.Rows[0]["MobileNo"].ToString(), langName), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dtEmp.Rows[0]["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", cnDgt(dtEmp.Rows[0]["NationalID"].ToString(), langName), "Kalpurush", 8);
 
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Name", dtEmp.Rows[0]["EmployeeName"].ToString(), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherOrSpouse", dtEmp.Rows[0]["FatherOrSpouse"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "DESIG", dtEmp.Rows[0]["DesignationName"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", cnDgt(dtEmp.Rows[0]["EmployeeCode"].ToString(), langName), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Department", dtEmp.Rows[0]["Department"].ToString(), "Kalpurush", 8);
@@ -4408,6 +4413,9 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PLANTNAME", dtEmp.Rows[0]["PlantName"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Grade", dtEmp.Rows[0]["Grade"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Line", dtEmp.Rows[0]["Line"].ToString(), "Kalpurush", 8);
+
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "CompanyAddress", dtEmp.Rows[0]["CompanyAddress"].ToString(), "Kalpurush", 6);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "CompanyName", dtEmp.Rows[0]["CompanyName"].ToString(), "Kalpurush", 8);
 
 
                         var doj = GetFormatedDate(dtEmp.Rows[0]["DateOfJoin"].ToString(), langName);
@@ -4447,6 +4455,33 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         {
 
                         }
+                        try
+                        {
+
+                            var CompanyLogo = dtEmp.Rows[0]["CompanyLogo"].ToString();
+                            string CompanyLogos = ResourcesPathReader.GetLogoOrImagePath() + CompanyLogo;
+                            string CompanyLogofileLocation = CompanyLogos;
+                            Image authLogo = Image.FromFile(CompanyLogofileLocation);
+                            ConvertPresentationToPdf.SetPicture(presentation.Slides[i], "CompanyLogo", authLogo);
+
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                        try
+                        {
+
+                            //var BarCode = dtEmp.Rows[0]["BarCodeId"].ToString();
+                            CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+                            System.Drawing.Image barcodeImg = qrCode.Draw(dtEmp.Rows[0]["BarCodeId"].ToString(), 200, 2);
+                            ConvertPresentationToPdf.SetQRCode(presentation.Slides[i], "EmpQR", barcodeImg);
+
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
 
                     }
                 }
@@ -4471,6 +4506,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dr["BloodGroup"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PermanentAddress", dr["ParmanentAddress"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", cnDgt(dr["CellPhnNo"].ToString(), langName), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dr["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", cnDgt(dr["NationalID"].ToString(), langName), "Kalpurush", 8);
 
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Name", dr["EmployeeName"].ToString(), "Kalpurush", 8);
@@ -4916,6 +4952,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 							,UnMarriedEmpNomineeRelation=CASE WHEN CivilStatus!='Married' then NomineeRelation else '' end
 							,UnMarriedEmpNomineeAge=CASE WHEN CivilStatus!='Married' then NomineeAge else '' end
                             ,Salutation,EmployeeFingerPrint,CardHolderSignature,DOS,AuthorizedSignature,Contractor,ContractorAddress
+                            ,EmrCntPer1CellNo,FatherOrSpouse,CompanyLogo,BarCodeId
                                     FROM(SELECT TAB2.*, AM.Phone, AM.Email, AM.Website, AM.Address1 FROM 
 									--tab2
 									(SELECT TAB1.*, LAN.StandardName 
@@ -4956,6 +4993,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 										,PFDocument.docNumber PFAccountNumber  
                                         ,PL.UserName Plant,PLL.Name PlantLocal,ISNULL(LReligion.Name,Religion.UserName) Religion,S.UserName Salutation
                                         ,efp.FileName EmployeeFingerPrint,PRT.UserName Contractor,AD.ContractorAddress
+                                        ,E.EmrCntPer1CellNo,FatherOrSpouse = case when E.FatherName is null then e.SpouseName else E.FatherName  end
+                                        ,CONCAT(e.SystemId,'#',e.EmployeeCode,'#',e.EmployeeName)BarCodeId
 										from EmployeeInformation E
                                         LEFT JOIN HKP.Party PRT ON PRT.Id = E.VendorId
 									    LEFT JOIN(
@@ -6865,9 +6904,9 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
-       
 
-       
+
+
         public IWorkbook AttndReport(string companyGroupId, string employeeId, string plantId)
         {
             throw new NotImplementedException();
@@ -8860,15 +8899,50 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         k.Height = Height;
                         k.Width = Width;
                     }
+                }
+            }
+        }
+
+        public static void SetQRCode(ISlide Slide, string PictureBoxName, Image image)
+        {
+            for (int s = 0; s < Slide.Shapes.Count; s++)
+            {
+                var k = Slide.Shapes[s] as Syncfusion.Presentation.IPicture;
+                if (k == null)
+                    continue;
+                if (k.SlideItemType == SlideItemType.Picture)
+                {
+                    if (k.ShapeName.ToUpper().Trim() == PictureBoxName.ToUpper().Trim())
+                    {
+                        double Top = k.Top;
+                        double Left = k.Left;
+                        double Height = k.Height;
+                        double Width = k.Width;
+
+                        k.ImageData = QRCodeToByteArrays(image);
+                        k.Top = Top;
+                        k.Left = Left;
+                        k.Height = Height;
+                        k.Width = Width;
+                    }
 
                 }
             }
         }
+
         public static byte[] ImageToByteArray(System.Drawing.Image imageIn)
         {
             using (var ms = new MemoryStream())
             {
                 imageIn.Save(ms, imageIn.RawFormat);
+                return ms.ToArray();
+            }
+        }
+        public static byte[] QRCodeToByteArrays(System.Drawing.Image imageIn)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                imageIn.Save(ms, ImageFormat.Png);
                 return ms.ToArray();
             }
         }

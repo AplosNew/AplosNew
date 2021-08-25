@@ -91,7 +91,7 @@ namespace Library.MaterialManagement.JobWork
                         ,p.Id,GE.PartyId
                         FROM TRN.GateEntry GE
                         left Join hkp.Party p on p.Id=GE.PartyId
-                        Where GE.CompanyGroupId='" + CompanyGroupId + "' AND GE.CompanyId='" + CompanyId + "' AND GE.PlantId='" + PlantId + "' and p.Id='" + partyCode + "' and GE.GateEntryType='Vendor' AND isnull(GE.Id,'') not in (select isnull(GateEntryNoId, '') from dbo.JobWorkReceiptTransformation) Order By GE.EntryDate DESC ";
+                        Where GE.CompanyGroupId='" + CompanyGroupId + "' AND GE.CompanyId='" + CompanyId + "' AND GE.PlantId='" + PlantId + "' and p.Id='" + partyCode + "' and GE.GateEntryType='Vendor' and GE.GateEntryType='Vendor' AND isnull(GE.Id,'') not in (select isnull(GateEntryNo, '') from trn.InventoryReceive) Order By GE.EntryDate DESC";
                 //AND GE.Id not in(select GateEntryNo from trn.InventoryReceive)
                 return _sqlRepository.GetDataCollection(Sql);
             }
@@ -620,13 +620,13 @@ namespace Library.MaterialManagement.JobWork
                         --, SUM(mp.Quantity) as PlanQuantity
                         --,TotalReceivedQty=ISNULL( kk.TotalReceivedQuantity,'0')
                         --,ToReceive= Sum(mp.Quantity)- ISNULL( kk.TotalReceivedQuantity,'0')
-                        , SUM(mp.Quantity) AS PlanQuantity
-                         , Sum(ISNULL(rcvqty.TransactionQty,'0')) AS GRNRcvQty             
+                        , mp.Quantity AS PlanQuantity
+                         , ISNULL(rcvqty.TransactionQty,'0') AS GRNRcvQty             
                         ,0 AS TransactionQty
-                        ,Sum(mp.Quantity)- Sum(ISNULL(rcvqty.TransactionQty,'0')) As Balance
+                        ,ISNULL(mp.Quantity,0)- ISNULL(rcvqty.TransactionQty,'0') As Balance
                         ,null QtyStatus
-                        , TUoM.Id TransactionUoMId
-                        , TUoM.UserName TransactionUoM
+                         , TransactionUoMId=CASE when mp.OutputMaterialUOMId IS NULL THEN mp.TransactionUoMId ELSE mp.OutputMaterialUOMId END
+                        , TransactionUoM= CASE when mp.OutputMaterialUOMId  IS NULL then TUoM1.UserName ELSE TUoM.UserName END
                         , 0 TransactionRate
                         , null  CurrencyName
                         , 0 ToCurrencyRate
@@ -666,7 +666,7 @@ namespace Library.MaterialManagement.JobWork
                         left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
                         left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
                         left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
-                        left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
+                        left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
                         left JOIN MST.MaterialMaster AS MM ON MM.Id=mma.MaterialMasterId
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                         --LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId=ART.Id
@@ -677,6 +677,7 @@ namespace Library.MaterialManagement.JobWork
                         --LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId=SCV.Id
                         --LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId=TCV.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON mp.OutputMaterialUOMId=TUoM.Id
+                        	LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON mp.TransactionUoMId=TUoM1.Id
                         left join (select Sum(IRD.TransactionQty) as TotalReceivedQuantity,IR.TransformationContractId from TRN.InventoryReceiveDetail IRD left join TRN.InventoryReceive IR
                         on IRD.InventoryReceiveId=IR.Id where MaterialFor='JWOUTPUTMaterial' group by IR.TransformationContractId)kk on kk.TransformationContractId=mp.JobWorkTransformationContractMasterId
                         left join (select JobWorkTransformationContractChildMasterId, Sum(GrossConsumption) GrossConsumption  from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)CC3 ON CC3.JobWorkTransformationContractChildMasterId=mp.Id
@@ -691,7 +692,7 @@ namespace Library.MaterialManagement.JobWork
 								 left join dbo.JWTransformationPurchaseOrder tc on tc.Id=II.JWContractId
 								 left join dbo.JobWorkTransformationContractChild mp1 ON mp1.JobWorkTransformationContractMasterId=Tc.Id								
 								 group by  mp1.Id,II.JWContractId )vvvv ON vvvv.JWContractId=tc.Id 
-                        where tc.Id='" + PKId + @"' group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity, MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id";
+                        where tc.Id='" + PKId + @"' group by mp.Quantity ,ISNULL(rcvqty.TransactionQty,'0'),mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity, MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id,TUoM1.Id,TUoM1.UserName,mp.TransactionUoMId , mp.OutputMaterialUOMId";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }

@@ -175,11 +175,11 @@ namespace Aplos.Controllers
         }
         
         [HttpGet]
-        public IHttpActionResult GetROEmp(string Code, string Date, string Plant, string Entity)
+        public IHttpActionResult GetROEmp(string BudgetId, string Date)
         {
             try
             {
-                var result = _emp.GetROEmp(Code,Date,Plant,Entity);
+                var result = _emp.GetROEmp(BudgetId, Date);
                 return Json(result);
             }
             catch (Exception ex)
@@ -193,11 +193,11 @@ namespace Aplos.Controllers
         }
         
         [HttpGet]
-        public IHttpActionResult GetPREmp(string Code, string Date, string Plant, string Entity)
+        public IHttpActionResult GetPREmp(string BudgetId, string Date)
         {
             try
             {
-                var result = _emp.GetPREmp(Code, Date, Plant, Entity);
+                var result = _emp.GetPREmp(BudgetId, Date);
                 return Json(result);
             }
             catch (Exception ex)
