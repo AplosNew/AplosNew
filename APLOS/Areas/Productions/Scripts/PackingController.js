@@ -183,7 +183,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
                     ColumnList.push({ field: 'Available', width: 150, headerText: "Available", type: "number" });
                     ColumnList.push({ field: 'SoQty', width: 150, headerText: "Sales Order Qty", type: "number" });
                     ColumnList.push({ field: 'NoOfSo', width: 150, headerText: "NO Of Sales Order", type: "number" });
-                    ColumnList.push({ field: 'ItemId', width: 120, headerText: "ItemId", type: "string" });
+                    ColumnList.push({ field: 'ItemId', width: 120, headerText: "Item Id", type: "string" });
                     ColumnList.push({ field: 'ItemArticle', width: 150, headerText: "Item Article", type: "string" });
                     ColumnList.push({ field: 'Product', width: 150, headerText: "Product", type: "string" });
                     ColumnList.push({ field: 'MasterOrderNo', width: 150, headerText: "Master Order No", type: "string" });
@@ -1055,5 +1055,26 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             ShowResult(response.data.Message, 'failure');
         });
     }
-  
+
+    $scope.getStocksReport = function () {
+        $scope.validations();
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetStockReport",
+            data: {
+                'ToDate': $scope.selectedValues.ToDate, 'FromDate': $scope.selectedValues.FromDate,
+                'type': $rootScope.typeVal, 'group': $rootScope.groupVal, 'value': $scope.search, 'column': $scope.searchBy
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 }
