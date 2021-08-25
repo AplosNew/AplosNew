@@ -132,11 +132,58 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 DataTable NewShiftStandardTime = getDateWiseShift(DataToBeSaved);
                 //validations
+                string inDates = "";
+                string inEmployeeIds = "";
+
                 foreach (AttendanceProcessNewProcess item in DataToBeSaved)
                 {
 
+                    if (inDates == "")
+                    {
+                        inDates = "'" + item.WorkDate + "'";
+                    }
+                    else
+                    {
+                        inDates += ",'" + item.WorkDate + "'";
+                    }
 
-                    if (string.IsNullOrEmpty(item.InDate) == false)
+                    if (inEmployeeIds == "")
+                    {
+                        inEmployeeIds = "'" + item.Id + "'";
+                    }
+                    else
+                    {
+                        inEmployeeIds += ",'" + item.Id + "'";
+                    }
+                }
+
+                    
+                 foreach (AttendanceProcessNewProcess item in DataToBeSaved)
+                 {
+
+                    
+                    if (inDates != "")
+                    {
+                        DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE  isActive=1 AND pwal.LockedDate IN (" + inDates + ") AND pwal.PlantId='" +data[0].PlantID + "'");
+                        if (dtLock.Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dtLock.Rows.Count; i++)
+                            {
+                                var k = DataToBeSaved.Where(ee => ee.WorkDate.ToUpper() == Convert.ToDateTime(dtLock.Rows[i]["LockedDate"].ToString()).ToString("dd-MMM-yyyy").ToUpper());
+                                foreach (var itemx in k)
+                                {
+                                    dtLock.DefaultView.RowFilter = "LockedDate='" + itemx.WorkDate + "'";
+                                    if (dtLock.DefaultView.Count > 0)
+                                    {
+                                        itemx.IsError = true;
+                                        itemx.ErrorMessage = "Day locked";
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                        if (string.IsNullOrEmpty(item.InDate) == false)
                         if (bplib.clsWebLib.IsDateOK(item.InDate) == false)
                             item.ErrorMessage = "Invalid in date";
 

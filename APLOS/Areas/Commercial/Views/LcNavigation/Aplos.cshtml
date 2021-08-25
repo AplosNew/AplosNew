@@ -219,17 +219,17 @@
                     </div>
                 </div>
                         <div class="row">
-                            <div style="color:black;" id="GridPurchaseLCGRN" ej-grid e-datasource="PurchaseLCGRNList"
+                            <div style="color:black;" id="GridPurchaseLCGRN" ej-grid e-datasource="PurchaseLCGRNList" e-allowResizing="true"
                                  e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryGRN"
                                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                                 <div e-columns>
-                                    <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="50"></div>
-                                    <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor Ref No." e-width="100"></div>
-                                    <div e-column e-type="string" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="40"></div>
+                                    <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="vendorRefs" e-headertext="Vendor Ref No." e-width="100"></div>
+                                    <div e-column e-type="string" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="50"></div>
                                     
-                                    <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
-                                    <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="POIDs" e-headertext="PO No." e-width="100"></div>
+                                    <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
                                     <div e-column e-type="string" e-field="GateName" e-headertext="Gate Name" e-width="50"></div>
                                     <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No." e-width="50"></div>
                                 </div>
@@ -237,8 +237,8 @@
                         </div>
                    </div>    
         </div>
-        </div>
-    </div>
+   </div>
+</div>
 
 <div class="modal fade site-modal in" id="ACPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

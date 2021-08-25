@@ -313,6 +313,8 @@
     <Folder Include="POPResources\BoMDocument\" />
     <Folder Include="POPResources\BOQ\" />
     <Folder Include="POPResources\Costing\" />
+    <Folder Include="POPResources\EmployeeProfiles\AuthorizedSignature\" />
+    <Folder Include="POPResources\EmployeeProfiles\CardHolderSignature\" />
     <Folder Include="POPResources\EmployeeProfiles\Documents\" />
     <Folder Include="POPResources\EmployeeProfiles\ExperienceDoc\" />
     <Folder Include="POPResources\EmployeeProfiles\JoiningLetter\" />
@@ -2464,8 +2466,6 @@
     <Content Include="Library\Syncfusion.XlsIO.Base.dll" />
     <Content Include="Library\Syncfusion.XlsIO.Helper.MVC.dll" />
     <Content Include="Library\Zen.Barcode.Core.dll" />
-    <Content Include="POPResources\EmployeeProfiles\AuthorizedSignature\Zaman-Short-Signature.png" />
-    <Content Include="POPResources\EmployeeProfiles\CardHolderSignature\1801630.jpg" />
     <Content Include="POPResources\EmployeeProfiles\EmpPic\1800004.jpg" />
     <Content Include="POPResources\EmployeeProfiles\EmpPic\1800001.jpg" />
     <Content Include="POPResources\EmployeeProfiles\EmpPic\1801630.jpg" />

@@ -45,7 +45,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         InsuranceAttachment: null,
         PaymentBasedOn: null,
         IsAccepptanceFirst: 'true',
-        Status:'Active'
+        Status: 'Active'
     };
     $scope.purchaseLCNew = Object.assign({}, $scope.purchaseLC);
 
@@ -84,8 +84,6 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         { Value: "Closed", Text: "Closed" }
     ];
 
-
-
     $scope.Get = function (obj) {
         $scope.PurchaseLCUsedInAcceptance = false;
         $scope.purchaseLC = obj.data;
@@ -101,7 +99,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         GetAlldataPOWithLCMap($scope.purchaseLCNew.Id);
         //$scope.ChangeBankMaster();
 
-       
+
         $scope.GetPurchaseLCUsedInAcceptance($scope.purchaseLCNew.Id);
         if ($scope.purchaseLCNew.IsAccepptanceFirst) {
             $scope.purchaseLCNew.IsAccepptanceFirst = 'true';
@@ -112,7 +110,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
-       
+
     };
 
     $scope.PurchaseLCUsedInAcceptance = false;
@@ -181,9 +179,6 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         });
     };
 
-    //cboService.getPortCbo(function (result) {
-    //    $scope.portList = result;
-    //});
 
     $scope.getBackData = function () {
         $http({
@@ -427,6 +422,18 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         }
     };
 
+
+    $scope.summaryassignRows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionAmount", dataMember: "TransactionAmount", format: "{0:N2}" }],
+        showCaptionSummary: true
+    }];
+
+    $scope.summaryUnassignRows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionAmount", dataMember: "TransactionAmount", format: "{0:N2}" }],
+        showCaptionSummary: true
+    }];
+
+
     function checkSameVendor(list, vendorId, currencyId, ContractId) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].PartyId !== vendorId || list[i].CurrencyId !== currencyId || list[i].ContractId !== ContractId) {
@@ -567,7 +574,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
 
             if (baseService.arrayLength($scope.selectedPOList) > 0) {
                 for (var i = 0; i < $scope.selectedPOList.length; i++) {
-                    if ($scope.selectedPOList[i].Flag =='MaterialPO') {
+                    if ($scope.selectedPOList[i].Flag == 'MaterialPO') {
                         $scope.materialPoList.push($scope.selectedPOList[i]);
                     }
                     else if ($scope.selectedPOList[i].Flag == 'ServicePO') {
@@ -645,7 +652,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
             $scope.purchaseLCNew.BankCurrency = $.grep($scope.bankMasterList, function (item) {
                 return item.Id === $scope.purchaseLCNew.OpeningBankMasterId;
             })[0].CurrencyId;
-           // $scope.purchaseLCNew.CurrencyId = $scope.purchaseLCNew.BankCurrency;
+            // $scope.purchaseLCNew.CurrencyId = $scope.purchaseLCNew.BankCurrency;
             $scope.GetCurrencyExchangeRateList();
         }
     }
@@ -806,7 +813,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                             , BankAmountFlag: $scope.BankAmountFlag
                             , Type: a.Type
                         });
-                        
+
                     }
                 }
 
@@ -928,7 +935,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
 
     // #region Tax
 
-   
+
 
     $scope.addTax = function () {
         var data = {

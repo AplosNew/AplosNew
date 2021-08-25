@@ -534,7 +534,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         string OTEntitled = clsWebLib.GetBoolData(dsMaster.Tables[0].DefaultView[0][@"IsOTEntitled"]).ToString();
                         string PlantId= clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"PlantID"]).ToString();
                         
-                        if (Lock == "False")
+                        if (Lock == "False") 
                         {
                             #region To Save in Physical Verification
 

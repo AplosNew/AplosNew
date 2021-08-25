@@ -352,36 +352,19 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                DataSet dsRef;
-                clsStaticInfo objStatic = new clsStaticInfo();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                var sqlx = @"select * from AttdnProcessData where RowId In(" + RowId + ")";
+                var sql = @"update AttdnProcessData set LockedDate='" + DateTime.Now + "', LockedBy='" + identity.Name + "',IsLock='" + true + "'" +
+                                                "where RowId In(" + RowId + ")";
 
-                objCon.OpenDataSetThroughAdapter(sqlx, out dsRef, false, false, "", "1");
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                {
-                    string IsLock = clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i][@"IsLock"]).ToString();
-                    string RowxId = clsWebLib.RetValidLen(dsRef.Tables[0].Rows[i][@"RowId"]).ToString();
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
 
-                    dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowxId + "' ";
-                    if (dsRef.Tables[0].DefaultView.Count > 0)
-                    {
-                        if (IsLock == "False")
-                        {
-                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
 
-                            dr["IsLock"] = true;
-                            dr["LockedDate"] = DateTime.Now;
-                            dr["LockedBy"] = identity.Name;
-
-                            dr.EndEdit();
-                        }
-
-                    }
-                }
-                objStatic.SaveDataSets(dsRef);
                 return Json(new { Error = false, Message = "Attendance Locked Successfully" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

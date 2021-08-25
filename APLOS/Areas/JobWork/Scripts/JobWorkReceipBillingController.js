@@ -251,28 +251,38 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     // #endregion checkbox all
 
     $scope.SetOutSourcePO = function (args) {
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.Transformation = Object.assign({}, args.data);
-        $scope.ModelNew.JWTransformationPurchaseOrderId = $scope.ModelNew.JWTransformationPurchaseOrderId;
+        try {
+            $scope.ModelNew = Object.assign({}, args.data);
 
-        $scope.TabTypeNew = $scope.Transformation.TabType;
-        $scope.ReceiptTransformation.TransformationContractId = $scope.Transformation.Id;
+            if ($scope.ModelNew.PaymentMode == "LC") {
+                if (baseService.isUndefinedOrNull($scope.ModelNew.PurchaseLCId)) {
+                    throw "LC not tagged with this Out Source PO";
+                }
+            }
+
+            $scope.Transformation = Object.assign({}, args.data);
+            $scope.ModelNew.JWTransformationPurchaseOrderId = $scope.ModelNew.JWTransformationPurchaseOrderId;
+
+            $scope.TabTypeNew = $scope.Transformation.TabType;
+            $scope.ReceiptTransformation.TransformationContractId = $scope.Transformation.Id;
 
 
-        if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
-            $scope.ShowExCurrency = false;
+            if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
+                $scope.ShowExCurrency = false;
+            }
+
+            if ($scope.ModelNew.TabType == "Transformation") {
+                $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
+                $scope.ShowJWPOPopUp($scope.ModelNew.JWTransformationPurchaseOrderId);
+            }
+            else {
+                $scope.GetReceiptVAChildData();
+            }
+            $scope.GetCurrencyExchangeRateList($scope.ModelNew.CurrencyId);
+            angular.element(document.querySelector("#ContractPopUp")).modal("hide");
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-
-
-        if ($scope.ModelNew.TabType == "Transformation") {
-            $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
-            $scope.ShowJWPOPopUp($scope.ModelNew.JWTransformationPurchaseOrderId);
-        }
-        else {
-            $scope.GetReceiptVAChildData();
-        }
-        $scope.GetCurrencyExchangeRateList($scope.ModelNew.CurrencyId);
-        angular.element(document.querySelector("#ContractPopUp")).modal("hide");
     };
 
     $scope.GetJWGRNDataChecking = function (contractId) {

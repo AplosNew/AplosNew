@@ -486,44 +486,28 @@ namespace Library.Service.EmployeeServices
             }
         }
 
-        public IEnumerable<object> GetROEmp(string Code,string Date,string PlantId,string EntityId)
+        public IEnumerable<object> GetROEmp(string BudgetId,string Date)
         {
             try
             {
-                string value = "";
-                if(string.IsNullOrEmpty(EntityId) == false)
-                {
-                     value = @"EntityId='" + EntityId + "'";
-                }
-                else
-                {
-                     value = @"1=1";
-                }
-                var sql = @"select distinct emp.SystemId as EmpId,e.ID,emp.EmployeeCode,emp.EmployeeName,
+               
+                var sql = @"select distinct P.RowId,d.Category,format(p.WorkDate,'yyyy-MM-dd') as WorkDate,
+                emp.SystemId as EmpId,p.PlantId,emp.EmployeeCode,emp.EmployeeName,
                 p.DayStatus,dp.UserName as Department,s.UserName as SubSection,
                 ss.UserName as Section,p.OTHr,mb.ROBudgetCode,
                 sh.UserName as Shift,sh.SystemID as ShiftId,p.InTime,p.OutTime,
-				p.ShiftInTime,p.ShiftOutTime,P.PlantID,
-                format(p.WorkDate,'yyyy-MM-dd') as WorkDate,p.IsLock from
+				p.ShiftInTime,p.ShiftOutTime,
+                p.IsLock from
 				dbo.AttdnProcessData p left join EmployeeInformation emp on 
 				p.EmpSystemID =emp.SystemId
-				left join org.Entity e on e.PlantId=p.PlantID
-				left join mst.DesignationMasterLegalDesignation ddm on 
-                ddm.LegalDesignationId = emp.LegalDesignationId
-                left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId							    
-                left join mst.ManpowerBudget mb on emp.BudgetCode=mb.Id
+                left join DayType d on d.DayType=p.DayStatus			    
+				left join mst.ManpowerBudget mb on emp.BudgetCode=mb.Id
                 left join org.Department dp on dp.Id=emp.DepartmentId
                 left join Org.SubSection s on s.Id=emp.SubSectionId
                 left join org.section ss on ss.Id=emp.SectionId			    
 			    left join dbo.ShiftDefination sh on sh.SystemID=p.ShiftSystemID
-				left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-				and dc.PlantId=emp.PlantId
-			    left join DayStatusHeader dh on dh.Id=dc.headerId
-				left join DayStatus ds on ds.headerId=dh.Id
-				left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-                where ROBudgetCode='" + Code+@"' and dt.DayType=p.DayStatus AND p.PlantID='"+PlantId+@"'				
-    			and "+value+" and p.WorkDate='"+Date+@"' order by p.DayStatus";
-
+				where ROBudgetCode='" + BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
+				p.WorkDate='"+Date+"' order by p.DayStatus";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -551,43 +535,28 @@ namespace Library.Service.EmployeeServices
             }
         }
 
-        public IEnumerable<object> GetPREmp(string Code, string Date, string PlantId, string EntityId)
+        public IEnumerable<object> GetPREmp(string BudgetId, string Date)
         {
             try
             {
-                string value = "";
-                if (string.IsNullOrEmpty(EntityId) == false)
-                {
-                    value = @"EntityId='" + EntityId + "'";
-                }
-                else
-                {
-                    value = @"1=1";
-                }
-                var sql = @"select distinct emp.SystemId as EmpId,e.ID,emp.EmployeeCode,emp.EmployeeName,
+
+                var sql = @"select distinct P.RowId,d.Category,format(p.WorkDate,'yyyy-MM-dd') as WorkDate,
+                emp.SystemId as EmpId,p.PlantId,emp.EmployeeCode,emp.EmployeeName,
                 p.DayStatus,dp.UserName as Department,s.UserName as SubSection,
-                ss.UserName as Section,p.OTHr,mb.ROBudgetCode,
+                ss.UserName as Section,p.OTHr,mb.PRBudgetCode,
                 sh.UserName as Shift,sh.SystemID as ShiftId,p.InTime,p.OutTime,
-				p.ShiftInTime,p.ShiftOutTime,P.PlantID,
-                format(p.WorkDate,'yyyy-MM-dd') as WorkDate,p.IsLock from
+				p.ShiftInTime,p.ShiftOutTime,
+                p.IsLock from
 				dbo.AttdnProcessData p left join EmployeeInformation emp on 
 				p.EmpSystemID =emp.SystemId
-				left join org.Entity e on e.PlantId=p.PlantID
-				left join mst.DesignationMasterLegalDesignation ddm on 
-                ddm.LegalDesignationId = emp.LegalDesignationId
-                left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId							    
-                left join mst.ManpowerBudget mb on emp.BudgetCode=mb.Id
+                left join DayType d on d.DayType=p.DayStatus			    
+				left join mst.ManpowerBudget mb on emp.BudgetCode=mb.Id
                 left join org.Department dp on dp.Id=emp.DepartmentId
                 left join Org.SubSection s on s.Id=emp.SubSectionId
                 left join org.section ss on ss.Id=emp.SectionId			    
 			    left join dbo.ShiftDefination sh on sh.SystemID=p.ShiftSystemID
-				left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-				and dc.PlantId=emp.PlantId
-			    left join DayStatusHeader dh on dh.Id=dc.headerId
-				left join DayStatus ds on ds.headerId=dh.Id
-				left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-                where PRBudgetCode='" + Code + @"' and dt.DayType=p.DayStatus AND p.PlantID='" + PlantId + @"'				
-    			and " + value + " and p.WorkDate='" + Date + @"' order by p.DayStatus";
+				where PRBudgetCode='" + BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
+				p.WorkDate='"+Date+"' order by p.DayStatus";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
