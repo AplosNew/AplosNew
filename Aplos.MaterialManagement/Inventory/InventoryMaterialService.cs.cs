@@ -1370,14 +1370,14 @@ namespace Library.MaterialManagement.Inventory
                                 , ACode=IH.ACode
 								, AUserName=IH.AUserName
 								,JWGLGeneralInfoId=GADJW.GLGeneralInfoId
-								,JWGAccountCode=GGLJW.AccountCode
-							    ,JWGUserName=GGLJW.UserName
+								,JWGLGeneralInfoCode=GGLJW.AccountCode
+							    ,JWGLGeneralInfoName=GGLJW.UserName
 	                            , JWBudgetMasterId=GADJW.BudgetMasterId
 								, JWBCode=GBJW.Code
-								, JWBUserName=GBJW.UserName
+								, JWBudgetName=GBJW.UserName
                                 , JWActivityId=GADJW.ActivityId
                                 , JWACode=GAJW.Code
-								, JWAUserName=GAJW.UserName
+								, JWActivityName=GAJW.UserName
 
 
                                 ,IRD.BudgetMasterId IssueBudgetMasterId,IRD.ActivityId IssueActivityId
