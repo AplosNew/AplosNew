@@ -1062,7 +1062,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 		//debugger;
 		$http({
 			method: 'GET',
-			url: 'Products/InventoryReceive/NotificationSetting',
+			url: 'Products/InventoryReceive/JWNotificationSettingReceipt',
 			dataType: 'JSON'
 		}).then(function successCallback(response) {
 			$scope.NotificationSetting = response.data;
@@ -1362,7 +1362,9 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 						}
 					}
 				}
-
+				if ($scope.inventoryMaterialListPOnew1.length === 0) {
+					$scope.inventoryMaterialListPOnew1 = null;
+				}
 				//debugger;
 				$http({
 					method: 'POST',
