@@ -43,10 +43,17 @@
                 <label class="col-sm-8 control-label"><b>{{modelNew.EntityName}}</b></label>
             </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label"><b>OrderRefNo :</b></label>
+                <label class="col-sm-4 control-label"><b>Order Ref No :</b></label>
                 <label class="col-sm-8 control-label"><b>{{modelNew.OrderRefNo}}</b></label>
             </div>
-
+            <div class="form-group" ng-show="modelNew.IsOrderSpecificy">
+                <label class="col-sm-4 control-label"><b>Source No :</b></label>
+                <label class="col-sm-8 control-label"><b>{{modelNew.SourceNo}}</b></label>
+            </div>
+            <div class="form-group" ng-show="modelNew.IsOrderSpecificy">
+                <label class="col-sm-4 control-label"><b>Contract :</b></label>
+                <label class="col-sm-8 control-label"><b>{{modelNew.ContractId}}</b></label>
+            </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group" style="margin-bottom: 0px;">
@@ -62,6 +69,19 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label"><b>Remarks :</b></label>
                 <label class="col-sm-8 control-label"><b>{{modelNew.Remarks}}</b></label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label"><b> Type :</b></label>
+                <label class="col-sm-8 control-label"><b>{{modelNew.Types}}</b></label>
+            </div>
+
+            <div class="form-group" ng-show="modelNew.IsOrderSpecificy">
+                <label class="col-sm-4 control-label"><b> LC No :</b></label>
+                <label class="col-sm-8 control-label"><b>{{modelNew.LCRef}}</b></label>
+            </div>
+            <div class="form-group" ng-show="modelNew.IsOrderSpecificy">
+                <label class="col-sm-4 control-label"><b>Customer :</b></label>
+                <label class="col-sm-8 control-label"><b>{{modelNew.Customer}}</b></label>
             </div>
         </div>
 

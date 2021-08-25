@@ -160,6 +160,11 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.modelNew.VoucherTypeId = voucherTypeId;
         $scope.modelNew.OrderRefNo = data.OrderRefNo;
         $scope.modelNew.Types = data.Types;
+        $scope.modelNew.ContractId = data.ContractId;
+        $scope.modelNew.SourceNo = data.SourceNo;
+        $scope.modelNew.LCRef = data.LCRef;
+        $scope.modelNew.Customer = data.Customer;
+        $scope.modelNew.IsOrderSpecificy = data.IsOrderSpecificy;
 
         //getInventoryMaterialList();
         getIssueList()
