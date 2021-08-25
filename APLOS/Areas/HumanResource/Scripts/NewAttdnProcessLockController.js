@@ -78,4 +78,69 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
         }
     };
 
+    // Tab Region
+
+    $scope.tab = 1;
+
+    $scope.setTab1 = function (newTab) {
+        $scope.tab = newTab;
+      
+    };
+    $scope.isSet1 = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    $scope.setTab2 = function (newTab) {
+        $scope.tab = newTab;
+        
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    // Save Functions
+
+    $scope.LockFunc = function () {
+      
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: { 'Date': $scope.ModelNew.lockDate },
+                url: $scope.path + 'LockAttdn'
+
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                }
+
+            });
+        
+    }
+
+    $scope.UnLockFunc = function () {
+      
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: { 'Date': $scope.ModelNew.lockDate },
+                url: $scope.path + 'UnLockAttdn'
+
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                }
+
+            });
+       
+    }
+
+
 }

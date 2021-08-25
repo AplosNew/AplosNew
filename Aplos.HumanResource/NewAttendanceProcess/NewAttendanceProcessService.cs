@@ -4322,7 +4322,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
         {
             try
             {
-                string Day = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
+                string Day = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
                 DataSet MonthlyData;
                 MonthlySummarySource(Day, out MonthlyData);
                 if (MonthlyData.Tables[0].Rows.Count > 0)

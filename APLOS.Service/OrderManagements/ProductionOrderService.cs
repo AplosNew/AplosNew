@@ -384,11 +384,16 @@ namespace Library.Service.OrderManagements
                                 , LSD = REPLACE(CONVERT(CHAR(11), SO.LSD, 106),' ','-')
 	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.CM, SO.Rate,SO.Description
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
+	                            , SO.Qty, SO.CM, SO.Rate,ISNULL(SO.Description,'')Description
+	                            , Flag = CAST(0 AS BIT),ISNULL(SO.DestinationDescription,'')DestinationDescription
+								,ISNULL(fc.CharacteristicsValueId,'') FirstCharacteristicsValueId,ISNULL(sc.CharacteristicsValueId,'') SecondCharacteristicsValueId
+								,ISNULL(tc.CharacteristicsValueId,'') ThirdCharacteristicsValueId,
+                               ISNULL(c1.UserName,'') AS FirstCharacteristics,ISNULL(cv1.UserName,'') AS FirstCharacteristicsValue,
+                                ISNULL(c2.UserName,'') AS SecondCharacteristics,ISNULL(cv2.UserName,'') AS SecondCharacteristicsValue,
+                                ISNULL(c3.UserName,'') AS ThirdCharacteristics,ISNULL(cv3.UserName,'') AS ThirdCharacteristicsValue
                        FROM 
-                       [TRN].[ProductionOrderDetail] AS POD
-                       JOIN [TRN].[SalesOrder] AS SO ON pod.SalesOrderId=so.Id
+                       [TRN].[SalesOrder] AS SO 
+                       JOIN [TRN].[ProductionOrderDetail] AS POD ON pod.SalesOrderId=so.Id
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
                        LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
@@ -402,8 +407,22 @@ namespace Library.Service.OrderManagements
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                            WHERE POD.ProductionOrderId = '" + productionOrderId + "'" +
-                            "ORDER BY MOI.MATERIALMASTERID,MOI.ArticleID";
+					   LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
+
+                       LEFT JOIN trn.SecondCharacteristics AS sc ON sc.FirstCharacteristicsId=fc.Id AND sc.SalesOrderId=so.Id
+                       LEFT JOIN trn.ThirdCharacteristics AS tc ON tc.SecondCharacteristicsId=sc.Id AND tc.SalesOrderId=so.Id
+
+                       LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=fc.CharacteristicsValueId
+                       LEFT JOIN hkp.Characteristics AS c1 ON c1.Id=cv1.CharacteristicsId
+
+                       LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=sc.CharacteristicsValueId
+                       LEFT JOIN hkp.Characteristics AS c2 ON c2.Id=cv2.CharacteristicsId
+
+                       LEFT JOIN hkp.CharacteristicsValue AS cv3 ON cv3.Id=tc.CharacteristicsValueId
+                       LEFT JOIN hkp.Characteristics AS c3 ON c3.Id=cv3.CharacteristicsId
+
+                        WHERE POD.ProductionOrderId = '" + productionOrderId + "'" +
+                        "ORDER BY MOI.MATERIALMASTERID,MOI.ArticleID";
 
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
