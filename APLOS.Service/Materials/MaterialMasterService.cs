@@ -526,6 +526,7 @@ namespace Library.Service.Materials
 				parameters.CmdText = @"SELECT MT.UserName MaterialTypeName, MGP.UserName AS MaterialGroupMasterName, MM.Id, FAM.Id FixedAssetMasterId, MM.UserName, MM.ShortName, MM.StandardName, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId, FAMT.BudgetMasterId
                                     , BM.BudgetId, B.UserName AssetBudgetName, MM.Sequence, MM.Code, U.UserName AS BaseUOMName, FAM.UserName AS AssetMasterName, FAM.AssetType, MMA.CountId AS HasArticle, AC.UserName AS ActivityName
                                     , AC.Id ActivityId, BM.RefNo, FAC.UserName FixedAssetCategory, FASC.UserName AS FixedAssetSubCategory,MM.IsOriginApplicable
+									, MM.WithSKU, ISNULL(ART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
                                     FROM [MST].[MaterialMaster] AS MM
                                     LEFT JOIN [MST].[MaterialGroupMaster] AS MGP ON MGP.Id=MM.MaterialGroupMasterId
                                     LEFT JOIN [HKP].[MaterialType] AS MT ON MT.Id=MGP.MaterialTypeId
@@ -538,7 +539,10 @@ namespace Library.Service.Materials
                                     LEFT JOIN [HKP].[FixedAssetCategory] FAC ON FAM.FixedAssetCategoryId=FAC.Id
                                     LEFT JOIN [HKP].[FixedAssetSubCategory] FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
                                     LEFT JOIN [SCS].[UnitOfMeasurement] AS U ON MM.BaseUOMId=U.Id
-                                    LEFT JOIN (SELECT COUNT(Id) CountId, MaterialMasterId FROM [MST].[MaterialMasterArticle] GROUP BY MaterialMasterId) MMA ON MM.Id=MMA.MaterialMasterId  
+                                    LEFT JOIN (SELECT COUNT(Id) CountId, MaterialMasterId FROM [MST].[MaterialMasterArticle] GROUP BY MaterialMasterId) MMA ON MM.Id=MMA.MaterialMasterId 
+									LEFT JOIN (SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0THEN COUNT(MaterialMasterId) ELSE 0 END
+                                                , HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
+                                            FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS ART ON ART.MaterialMasterId=MM.Id
                                     WHERE MM.IsAsset=1 AND MM.Active=1";
 				return _sqlRepository.GetGridData(parameters);
 			}

@@ -956,7 +956,151 @@ left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
                 throw e;
             }
         }
+
+        public DataTable GetStockData(string ToDate, string FromDate, string type, string group, string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                {
+                    strkey = column + " like '%" + value + "%'";
+                }
+
+                string assign = "1=1";
+                if (type == "Assigned")
+                {
+                    assign = "Assigned = 'Assigned'";
+                }
+                else if (type == "Unassigned")
+                {
+                    assign = "Assigned = 'Unassigned'";
+                }
+                else
+                {
+                    assign = "1=1";
+                }
+
+                string stocks = "1=1";
+                if (group == "WithStock")
+                {
+                    stocks = "StockQty is not null";
+                }
+                else if (group == "SOStock")
+                {
+                    stocks = "StockQty is not null and SoQty is not null";
+                }
+                else if (group == "SONoStock")
+                {
+                    stocks = "StockQty is not null and SoQty is null";
+                }
+                else
+                {
+                    stocks = "1=1";
+                }
+
+                var _sql = @"Select * from 
+                    (Select (Case when Sos.SoQty is null or Scan.Available is null then 'Unassigned' else 'Assigned' end) as Assigned
+                    ,(Case when Scan.PC is null then sos.Code else scan.PC end) as ProductCode ,
+                    (Case when Scan.POId is null then sos.PONo else Scan.POId end) as PO , Scan.*
+                    , Sos.*
+                    from 
+                    (
+                    Select distinct sc.ProductCode as PC , sc.POId , sc.LotNo , isnull(plann.PlanQty,0) as PlannedQty , StockQty.StockQty , isnull(desp.Despatch,0) as Despatch , isnull(bb.BookQty,0) as BookedQty,
+                    (Case when bb.BookQty >plann.PlanQty then (StockQty.StockQty - isnull(bb.BookQty,0)) else (StockQty.StockQty - isnull(plann.PlanQty,0)) end) as Available,
+                    isnull(ud.ud,0) as ud , isnull(fd.fd,0) as fd , isnull(fp.fp,0) as fp
+                    from
+                    dbo.ItemScanChild sc
+                    left join trn.POLotReference pol  on pol.Id = sc.PackingId
+                    left join(
+                    Select isc.ProductCode , isc.POId , isc.LotNo ,sum(isc.NetWeight) as StockQty from
+                    dbo.ItemScanChild isc 
+                    left join dbo.ItemScan isch on isch.Id = isc.MasterId
+                    left join trn.POLotReference pol on pol.Id = isc.PackingId
+                    where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"' 
+                    and isc.IsDespatch = 0 
+                    group by isc.ProductCode , POId , isc.LotNo
+                    ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId and StockQty.LotNo = sc.LotNo
+                    left join(
+                    Select isc.ProductCode , isc.POId , isc.LotNo, isnull(sum(isc.NetWeight),0) as Despatch from
+                    dbo.ItemScanChild isc 
+                    left join dbo.ItemScan isch on isch.Id = isc.MasterId
+                    where isc.IsDespatch = 1 and isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
+                    group by ProductCode , POId , isc.LotNo
+                    ) desp on desp.ProductCode = sc.ProductCode and desp.POId = sc.POId and desp.LotNo = sc.LotNo
+                    left join (
+                    Select isc.ProductCode , isc.POId ,isc.LotNo, isnull(sum(isc.NetWeight),0) as BookQty from
+                    dbo.ItemScanChild isc 
+                    left join dbo.ItemScan isch on isch.Id = isc.MasterId
+                    where isc.Booked = 1 and isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
+                    group by ProductCode , POId , LotNo
+                    ) as bb on  bb.ProductCode = sc.ProductCode and bb.LotNo = sc.LotNo and bb.POId=sc.POId 
+                    left join(
+                    Select ProductCode , PONo , LotNo , sum(PlanQty) as PlanQty from trn.POLotReference
+                    where Status = 'Active'
+                    group by ProductCode , PONo , LotNo
+                    ) as plann on plann.ProductCode=sc.ProductCode and plann.PONo = sc.POId and plann.LotNo=sc.LotNo
+                    left join (
+                    Select isc.POId, isc.ProductCode , isc.LotNo ,(sum(isc.netweight)) as ud from dbo.ItemScanChild isc
+                    left join dbo.ItemScan isch on isch.Id = isc.MasterId
+                    where isch.WorkDate <= '" + ToDate + @"'  
+                    group by isc.POId, isc.ProductCode , isc.LotNo
+                    ) as ud on ud.ProductCode = sc.ProductCode and ud.POId = sc.POId and ud.LotNo = sc.LotNo
+                    left join (
+                    Select isc.POId, isc.ProductCode , isc.LotNo ,(sum(isc.netweight)) as fd from dbo.ItemScanChild isc
+                    left join dbo.ItemScan isch on isch.Id = isc.MasterId
+                    where isch.WorkDate = '" + FromDate + @"'  
+                    group by isc.POId, isc.ProductCode , isc.LotNo
+                    ) as fd on fd.ProductCode = sc.ProductCode and fd.POId = sc.POId and fd.LotNo = sc.LotNo
+                    left join (
+                    Select isc.POId, isc.ProductCode , isc.LotNo ,(sum(isc.netweight)) as fp from dbo.ItemScanChild isc
+                    left join dbo.ItemScan isch on isch.Id = isc.MasterId
+                    where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
+                    group by isc.POId, isc.ProductCode , isc.LotNo
+                    ) as fp on fp.ProductCode = sc.ProductCode and fp.POId = sc.POId and fp.LotNo = sc.LotNo
+                    group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty , ud.ud ,fd.fd, fp.fp
+
+                    ) as Scan
+
+
+                    full outer join 
+                    (Select pl.Code, po.id as PONo, Count(so.Id) as NoOfSo , sum(so.Qty) as SoQty, moi.Id as ItemId ,PM.UserName as Product,
+                    mo.Id as MasterOrderNo , p.Username as Customer, mma.StandardName as ItemArticle
+                    from
+                    trn.MasterOrder mo
+                    left join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
+                    left join trn.SalesOrder so on so.MasterOrderItemId = moi.Id
+                    left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
+                    left join trn.ProductionOrder po on po.Id = pod.ProductionOrderId
+                    left join dbo.ProductLibrary pl on pl.Id = moi.ProductLibraryId
+                    --left join dbo.ProductLibraryAttribute pla on pla.ProductLibraryId = pl.Id
+                    left join mst.MaterialMaster ma on ma.Id=moi.MaterialMasterId
+                    left join trn.ProductDefinition AS pd ON pd.MaterialMasterId=ma.Id
+                    left join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                    left join hkp.Party p on p.Id = mo.PartyId
+                    LEFT OUTER JOIN [MST].[MaterialMasterArticle] mma ON mma.Id=moi.ArticleId
+                    where pl.Code is not null and mo.OrderStatusId = 'Active'
+                    group by pl.Code, po.Id, moi.Id,PM.UserName ,mo.Id , p.UserName , mma.StandardName
+                    )
+                    as Sos on sos.PONo = scan.POId and sos.Code = scan.PC
+
+				                    ) ff 
+                    where " + strkey + @" and " + stocks + @" and " + assign + @"
+                    order by  Assigned, ProductCode , PO 
+				
+               ";
+                DataTable dt = _sqlRepository.GetDataTable(_sql);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
     }
+
+   
 
 }
 

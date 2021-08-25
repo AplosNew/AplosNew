@@ -1388,7 +1388,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
 
                            WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.CompanyId='" + identity.CompanyId + @"' and emp.EmployeeStatus='Active' and EMP.EmpType='Local'
-                      AND isnull(Emp.SystemID,'') not in (select isnull(ByWhomId,'') from dbo.JobWorkReceiptTransformation where Id='" + Id + @"')
+                           AND isnull(Emp.SystemID,'') not in (select isnull(ByWhomEmployeeId,'') from TRN.InventoryReceive where Id='" + Id + @"')
                      order by EMP.EmployeeCode";
 
 				var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

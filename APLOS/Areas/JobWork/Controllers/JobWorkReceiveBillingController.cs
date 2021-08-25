@@ -71,7 +71,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 sql = @"SELECT '' Id,tc.Id JWTransformationPurchaseOrderId,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate
 			            ,FORMAT(tc.[Time],'hh:mm tt')[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
 			            FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-			            e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency,TC.PurchaseLCId,LC.LCRef,PT.PaymentMode,CN.ContractNo
+			            e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency,TC.PurchaseLCId,ISNULL(LC.LCRef,'')LCRef,PT.PaymentMode,ISNULL(CN.ContractNo,'')ContractNo
 			            from [dbo].[JWTransformationPurchaseOrder] tc
 			            left join ORG.Entity e on e.Id=tc.EntityId
 			            left join HKP.Party p on p.Id=tc.PartyId
