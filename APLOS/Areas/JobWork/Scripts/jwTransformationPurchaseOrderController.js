@@ -3895,7 +3895,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     //Save Function 
     $scope.SaveMaterialInputTab = function () {
-        $scope.$broadcast('show-errors-check-validity');
+   //     $scope.$broadcast('show-errors-check-validity');
         var MatInputSelData = [];
         try {
         for (var i = 0; i < $scope.MatInputList.length; i++) {

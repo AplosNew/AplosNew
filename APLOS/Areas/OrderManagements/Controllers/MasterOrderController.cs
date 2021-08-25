@@ -1486,7 +1486,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     WHERE I.MasterOrderId='" + masterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateContract(Dictionary<string, object> model, List<Dictionary<string, object>> funds, List<MasterOrderItem> masterOrderItem)
         {
             try
