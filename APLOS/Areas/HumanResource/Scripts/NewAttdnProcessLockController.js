@@ -98,5 +98,49 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
         return $scope.tab === tabNum;
     };
 
+    // Save Functions
+
+    $scope.LockFunc = function () {
+      
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: { 'Date': $scope.ModelNew.lockDate },
+                url: $scope.path + 'LockAttdn'
+
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                }
+
+            });
+        
+    }
+
+    $scope.UnLockFunc = function () {
+      
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: { 'Date': $scope.ModelNew.lockDate },
+                url: $scope.path + 'UnLockAttdn'
+
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                }
+
+            });
+       
+    }
+
 
 }

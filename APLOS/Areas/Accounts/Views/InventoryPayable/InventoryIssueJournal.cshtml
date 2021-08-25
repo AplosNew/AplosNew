@@ -280,9 +280,15 @@
                                 <th>Storage Location</th>
                                 <th>Issue Date</th>
                                 <th>Employee</th>
+                                <th>Type</th>
+                                <th>Source No</th>
+
                                 <th>OrderRefNo</th>
                                 <th>Qty</th>
                                 <th>Amount</th>
+                                <th>Contract</th>
+                                <th>LC</th>
+                                <th>Customer</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -292,9 +298,15 @@
                                 <td>{{x.MaterialStorage}}</td>
                                 <td>{{x.IssueDate}}</td>
                                 <td>{{x.EmployeeName}}</td>
+                                <td>{{x.Types}}</td>
+                                <td>{{x.SourceNo}}</td>
                                 <td>{{x.OrderRefNo}}</td>
+
                                 <td>{{x.Qty}}</td>
                                 <td>{{x.Amount | number| setDecimal:2}}</td>
+                                <td>{{x.ContractId}}</td>
+                                <td>{{x.LCRef}}</td>
+                                <td>{{x.Customer}}</td>
                             </tr>
                         </tbody>
                     </table>

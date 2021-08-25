@@ -77,6 +77,46 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public void LockAttdn(string Date)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter("select * from PlantWiseAttendanceLock where LockedDate='" + Date + "' and PlantId='" + identity.PlantId + "'", out DataSet dsRef, false, false, "", "1");
+
+            dsRef.Tables[0].DefaultView.RowFilter = @"PlantId='" + identity.PlantId + "' ";
+            if (dsRef.Tables[0].DefaultView.Count == 0)
+            {
+
+                clsGenID genid = new clsGenID();
+                genid.GenID("PlantWiseAttendanceLock", out string _Id);
+
+                DataRow dr = dsRef.Tables[0].NewRow();
+                dr["Id"] ="AL"+ _Id;
+                dr["LockedDate"] = Date;
+                dr["IsActive"] = true;
+                dr["PlantId"] =identity.PlantId;
+                dr["AddedBy"] = "Schedule";
+                dr["AddedDate"] = Convert.ToDateTime(DateTime.Now);
+                dr["AddedFromIP"] = identity.IPAddress;
+
+                dsRef.Tables[0].Rows.Add(dr);
+
+            }
+            else
+            {
+                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                dr.BeginEdit();
+                dr["IsActive"] = true;
+                dr["UpdatedBy"] = "Schedule";
+                dr["UpdatedDate"] = Convert.ToDateTime(DateTime.Now);
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dr.EndEdit();
+            }
+
+            clsStaticInfo info = new clsStaticInfo();
+            info.SaveDataSets(dsRef);
+        }
     }
 
     

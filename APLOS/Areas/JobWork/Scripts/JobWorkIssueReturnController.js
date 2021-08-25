@@ -1023,6 +1023,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		$scope.TransformationTypeList = [];
 		$scope.IssueTransformationChildList = [];
 		$scope.MaterialInputList = [];
+		$scope.detailList = [];
 		$scope.getData();
 
 	}
