@@ -3775,7 +3775,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     // Select All Check Box 
 
     $scope.refreshTemplateMatInput = function () {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectMatInput });
+        $("#MIheadchk").ejCheckBox({ "change": CheckBoxSelectMatInput });
     };
 
     function CheckBoxSelectMatInput(e) {
