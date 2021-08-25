@@ -1744,9 +1744,94 @@ function nonAssetRegisterController(addressService, commonMessage, $scope, $root
         $scope.register.AssetActivityName = data.ActivityName;
         $scope.register.AssetActivityId = data.ActivityId;
 
-        angular.element(document.querySelector("#assetmodal")).modal("hide");
+        
+
+        $scope.register.ArticleId = null;
+        $scope.register.Article = null;
+        $scope.register.HasAttribute = data.HasAttribute;
+        $scope.register.WithSKU = data.WithSKU;
+
+        if ($scope.register.HasAttribute) {
+            $scope.materialType = null;
+            $scope.getArticleSearchList(data.Id);
+            angular.element(document.querySelector("#assetmodal")).modal("hide");
+        } else {
+           
+            return ShowResult('This material has no attribute', 'failure');
+        }
 
     };
+
+    $scope.getArticleSearchList = function (id) {
+        try {
+            CloseShowResult();
+            CloseModalShowResult();
+            $scope.articlePopUpParameters = {
+                limit: 10
+                , offset: 0
+                , order: 'asc'
+                , sort: 'StandardName'
+                , searchBy: "StandardName"
+                , pageSize: 10
+                , total_count: 0
+                , search: null
+                , serverPagination: true
+            };
+            $scope.searchList = [];
+            $scope.dataPlate = [];
+            $scope.materialType = null;
+            baseService.setCurrentPage('dataPlate');
+            $scope.articlePopUpParameters.materialMasterId = id;
+            $scope.articlePopUpParameters.materialType = JSON.stringify($scope.materialType);
+            $scope.loadArticleData = function (pageno) {
+                baseService.paginationBase('Materials/MaterialMasterArticle/GetMaterialArticle', pageno, $scope.articlePopUpParameters)
+                    .then(function (result) {
+                        $scope.dataPlate = result.Rows;
+                        $scope.articlePopUpParameters.total_count = result.Total;
+                        if (baseService.arrayLength($scope.searchList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchList);
+                        if ($scope.articlePopUpParameters.total_count == 0) {
+                            ShowResult("This material has no article ", 'failure');
+                        }
+                        else {
+                            angular.element(document.querySelector('#rarticleSearchPop')).modal('show');
+                        }
+
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            $scope.loadArticleData();
+        } catch (e) {
+            ShowResult(e, '');
+        }
+    };
+    $scope.closeMaterialArticlePopUp = function () {
+        $scope.searchList = [];
+        $scope.dataPlate = [];
+        $scope.popUpUrl = '';
+        CloseModalShowResult('rarticleSearchPop');
+        angular.element(document.querySelector('#rarticleSearchPop')).modal('hide');
+    };
+
+    $scope.selectRMarticle = function (ob) {
+        try {
+            $scope.register.MaterialMasterId = ob.MaterialMasterId;
+            $scope.register.MaterialMasterName = ob.MaterialMasterName;
+            $scope.register.MaterialMasterArticleId = ob.Id;
+            $scope.register.ArticleStandardName = ob.StandardName;
+            angular.element(document.querySelector('#rarticleSearchPop')).modal('hide');
+        } catch (e) {
+            ShowResult(e, '', 'rarticleSearchPop');
+        }
+    };
+
+    $scope.clearMaterialArticle = function () {
+        $scope.register.MaterialMasterArticleId = null;
+        $scope.register.ArticleStandardName = null;
+    };
+
     $scope.assetRegisterItemForSubAssetList = [];
     $scope.getAssetRegisterItemForSubAsset = function () {
         if (baseService.isUndefinedOrNull($scope.subAsseType.CapitalizationDate)) {
