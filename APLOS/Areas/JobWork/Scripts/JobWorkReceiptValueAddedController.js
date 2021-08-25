@@ -1014,11 +1014,24 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 	//}
 
-	// INDIVIDUAL RECEIPT REPORT
+	// PRINT JOB WORK TRANSFORMATION REPORT
 
-	$scope.ConfirmPrintTab = function (data) {
+	$scope.AllTabPrint = function (z) {
+		//debugger;
+		var x = "#" + z;
+		var gridObj = $(x).data("ejGrid");
+		var data = gridObj.getSelectedRecords()[0];
+		location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+
+	};
+
+	$scope.ConfirmPrintTab = function (p) {
 		try {
-			$scope.PrintTabId = data.ContractId;
+			var x = "#" + p;
+			var gridObj = $(x).data("ejGrid");
+			var data = gridObj.getSelectedRecords()[0];
+
+			$scope.PrintTabId = data.JWContractId;
 			$scope.IssueId = data.Id;
 			var reportFormat = "Excel";
 			window.open('JobWork/JobWorkReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
@@ -1028,6 +1041,21 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 		}
 	};
+
+	// INDIVIDUAL RECEIPT REPORT
+
+	//$scope.ConfirmPrintTab = function (data) {
+	//	try {
+	//		$scope.PrintTabId = data.ContractId;
+	//		$scope.IssueId = data.Id;
+	//		var reportFormat = "Excel";
+	//		window.open('JobWork/JobWorkReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+	//		//   $scope.getData();
+
+	//	} catch (e) {
+
+	//	}
+	//};
 
 
 	//region code by sk
