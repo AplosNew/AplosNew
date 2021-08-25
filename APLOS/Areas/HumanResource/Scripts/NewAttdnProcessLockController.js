@@ -11,11 +11,33 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
         lockDate: null        
     };
 
+    function Validation() {
+        try {
+
+            CheckField("Date", $scope.ModelNew.lockDate);
+
+        } catch (ex) {
+            throw ex;
+        }
+    }
+
+    function CheckField(fieldname, field) {
+        try {
+            if (baseService.isUndefinedOrNull(field)) {
+                ShowResult("" + fieldname + " can not be null...", 'failure');
+                throw "" + fieldname + " can not be null...";
+            }
+        } catch (ex) {
+            throw ex;
+        }
+    }
+
+
     $scope.UnlockedEmployees = [];
     $scope.LockedEmployees = [];
 
     $scope.GetEmpData = function () {
-
+        
         $http({
             method: "POST",
             dataType: 'JSON',
@@ -101,7 +123,11 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
     // Save Functions
 
     $scope.LockFunc = function () {
-      
+        Validation();
+        if ($scope.UnlockedEmployeesCount > 0) {
+            ShowResult("Please Lock Individual Employees before Locking Plant..", 'failure');
+            throw "Please Lock Individual Employees before Locking Plant..";
+        }
             $http({
                 method: "POST",
                 dataType: 'JSON',
@@ -122,7 +148,7 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
     }
 
     $scope.UnLockFunc = function () {
-      
+        Validation();
             $http({
                 method: "POST",
                 dataType: 'JSON',

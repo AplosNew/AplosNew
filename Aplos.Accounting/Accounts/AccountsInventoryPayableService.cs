@@ -3572,12 +3572,18 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 			{
 				parameters.CmdText =
 						@"SELECT  V.VoucherNo,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
+						,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
+						,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName 
                         FROM TRN.InventoryIssue II 
                         LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
                         LEFT JOIN (SELECT II.VoucherId,II.IssueDate,II.Id,SUM(TransactionQty) TransactionQty,SUM(PolicyAmount) PolicyAmount 
                         FROM TRN.InventoryIssueDetail ID JOIN TRN.InventoryIssue II ON II.Id=ID.InventoryIssueId
 						GROUP BY II.VoucherId,II.IssueDate,II.Id) AS IID ON IID.VoucherId=V.Id
 						LEFT JOIN HKP.MaterialStorage AS MS ON MS.Id=II.MaterialStorageId
+						LEFT JOIN [dbo].[JWTransformationPurchaseOrder] JW ON JW.Id=II.JWContractId
+						LEFT join dbo.[Contract] CN ON CN.Id=JW.ContractId
+						LEFT JOIN dbo.MasterLC LC ON LC.Id=CN.MasterLCId
+						LEFT JOIN HKP.Party P ON P.Id=LC.CustomerId
                         Where V.SourceType='" + SourceType.IssueJournal + @"' AND V.PlantId= '" + plantId + "'";
 				return _sqlRepository.GetGridData(parameters);
 			}
