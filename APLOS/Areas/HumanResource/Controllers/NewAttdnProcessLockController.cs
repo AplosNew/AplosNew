@@ -71,7 +71,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                 app.LockAttdn(Date);
-                return Json(new { Message = "Data Saved Successfully !!", Error = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { Message = "Plant Locked Successfully !!", Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -86,8 +86,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             try
             {
-                app.LockAttdn(Date);
-                return Json(new { Message = "Data Saved Successfully !!", Error = false }, JsonRequestBehavior.AllowGet);
+                app.UnLockAttdn(Date);
+                return Json(new { Message = "Plant UnLocked Successfully !!", Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
