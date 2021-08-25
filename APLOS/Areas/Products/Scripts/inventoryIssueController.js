@@ -172,11 +172,11 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				method: 'POST'
 				, url: $scope.saveUrl
 				, data: {
-					entities: $scope.detailList
-					, specificStockList: $scope.specificStockList
+					entities: JSON.stringify($scope.detailList)//$scope.detailList
+					, specificStockList: JSON.stringify($scope.specificStockList)// $scope.specificStockList
 					, inventoryIssue: $scope.productNew
 					, IssueTypeStatus: UIStatus
-				}
+				}				
 				, dataType: 'JSON'
 			}).then(function (response) {
 				if (response.data.Error === true)
