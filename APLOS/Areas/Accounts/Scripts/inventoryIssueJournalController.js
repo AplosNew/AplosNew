@@ -30,6 +30,26 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
             value: 'IssueDate'
             , name: 'Issue Date'
         }
+        ,
+        {
+            value: 'OrderRefNo'
+            , name: 'OrderRefNo'
+        }
+        ,
+        {
+            value: 'SourceNo'
+            , name: 'SourceNo'
+        }
+        ,
+        {
+            value: 'ContractId'
+            , name: 'ContractId'
+        }
+        ,
+        {
+            value: 'LCRef'
+            , name: 'LC No'
+        }
     ];
     $scope.parameters = {
         limit: 10,
@@ -160,6 +180,11 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.modelNew.VoucherTypeId = voucherTypeId;
         $scope.modelNew.OrderRefNo = data.OrderRefNo;
         $scope.modelNew.Types = data.Types;
+        $scope.modelNew.ContractId = data.ContractId;
+        $scope.modelNew.SourceNo = data.SourceNo;
+        $scope.modelNew.LCRef = data.LCRef;
+        $scope.modelNew.Customer = data.Customer;
+        $scope.modelNew.IsOrderSpecificy = data.IsOrderSpecificy;
 
         //getInventoryMaterialList();
         getIssueList()

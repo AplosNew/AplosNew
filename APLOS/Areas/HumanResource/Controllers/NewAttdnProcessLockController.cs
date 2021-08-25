@@ -17,7 +17,6 @@ using OTSBD;
 using System.Linq;
 using clsAttendance;
 using System.Web.Script.Serialization;
-using SetINOUT;
 using Library.HumanResource.NewAttendanceProcess;
 
 #endregion Using
@@ -61,8 +60,25 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
-      
-        
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetExpectedLockDate()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;                
+                return Json(app.GetExpectedLockedDate(identity.PlantId), JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
 
         [HttpPost]
         public ActionResult LockAttdn(string Date)
@@ -71,7 +87,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                 app.LockAttdn(Date);
-                return Json(new { Message = "Data Saved Successfully !!", Error = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { Message = "Plant Locked Successfully !!", Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -83,11 +99,16 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost]
         public ActionResult UnLockAttdn(string Date)
         {
-
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                app.LockAttdn(Date);
-                return Json(new { Message = "Data Saved Successfully !!", Error = false }, JsonRequestBehavior.AllowGet);
+                int i = app.UnLockAttdn(Date);
+                if (i==0)
+                {
+                    throw new Exception(identity.PlantName+ " is already UnLocked !!");
+                }
+                return Json(new { Message = "Plant UnLocked Successfully !!", Error = false }, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {

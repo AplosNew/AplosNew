@@ -11,11 +11,48 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
         lockDate: null        
     };
 
+
+    $scope.GetExpectedLockDate = function () {
+
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            url: $scope.path + 'GetExpectedLockDate'
+
+        }).then(function success(response) {
+            $scope.ModelNew.lockDate = response.data[0].ExpectedDate;
+        })
+    }
+    $scope.GetExpectedLockDate();
+
+
+    function Validation() {
+        try {
+
+            CheckField("Date", $scope.ModelNew.lockDate);
+
+        } catch (ex) {
+            throw ex;
+        }
+    }
+
+    function CheckField(fieldname, field) {
+        try {
+            if (baseService.isUndefinedOrNull(field)) {
+                ShowResult("" + fieldname + " can not be null...", 'failure');
+                throw "" + fieldname + " can not be null...";
+            }
+        } catch (ex) {
+            throw ex;
+        }
+    }
+
+
     $scope.UnlockedEmployees = [];
     $scope.LockedEmployees = [];
 
     $scope.GetEmpData = function () {
-
+        
         $http({
             method: "POST",
             dataType: 'JSON',
@@ -62,7 +99,6 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
         }
     };
 
-
     $scope.actionCompleteSelected2 = function (args) {
         try {
             if (args.requestType === "refresh") {
@@ -101,7 +137,11 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
     // Save Functions
 
     $scope.LockFunc = function () {
-      
+        Validation();
+        if ($scope.UnlockedEmployeesCount > 0) {
+            ShowResult("Please Lock Individual Employees before Locking Plant..", 'failure');
+            throw "Please Lock Individual Employees before Locking Plant..";
+        }
             $http({
                 method: "POST",
                 dataType: 'JSON',
@@ -122,7 +162,7 @@ function NewAttdnProcessLockController(fileReader, cboService, commonMessage, $s
     }
 
     $scope.UnLockFunc = function () {
-      
+        Validation();
             $http({
                 method: "POST",
                 dataType: 'JSON',
