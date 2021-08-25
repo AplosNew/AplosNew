@@ -120,11 +120,11 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
 
         
         if (angular.isUndefinedOrNull($scope.selectedValues.FromDate) == true) {
-            alert("Please select From Date");
+            ShowResult("Please select From Date");
             throw ("Please select From Date");
         }
         if (angular.isUndefinedOrNull($scope.selectedValues.ToDate) == true) {
-            alert("Please select To Date");
+            ShowResult("Please select To Date");
             throw ("Please select To Date");
         }
 
