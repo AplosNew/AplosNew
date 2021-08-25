@@ -29,6 +29,7 @@ using Syncfusion.ExcelToPdfConverter;
 using Syncfusion.Pdf;
 using Library.MaterialManagement.InventoryManagements;
 using Library.Accounting.Accounts;
+using Newtonsoft.Json;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -367,13 +368,19 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		[HttpPost]
-		public JsonResult Create(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll)
+		//public JsonResult Create(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll)
+		public JsonResult Create(string entities, string specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, string entitiesAll)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.PlantId = identity.PlantId;
-			_inventoryIssueService.InsertGraph(entities, specificStockList, inventoryIssue, IssueTypeStatus, entitiesAll);
+			List<InventoryMaterialViewModel> entitiesVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entities); 
+			List<InventoryMaterialViewModel> specificStockListVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(specificStockList); 
+			List<InventoryMaterialViewModel> entitiesAllVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entitiesAll); 
+
+
+			_inventoryIssueService.InsertGraph(entitiesVM, specificStockListVM, inventoryIssue, IssueTypeStatus, entitiesAllVM);
 			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 

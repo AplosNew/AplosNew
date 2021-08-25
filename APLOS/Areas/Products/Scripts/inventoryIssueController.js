@@ -249,9 +249,9 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 
 					if (getRow1.length === 0) {
-
+						$scope.detailList[i].RequisitionQty= Math.round($scope.detailList[i].TransactionQty * 100 + Number.EPSILON) / 100;
 						$scope.detailListNew.push($scope.detailList[i])
-						$scope.detailListNew.RequisitionQty = Math.round($scope.detailList[i].TransactionQty * 100 + Number.EPSILON) / 100;
+						//$scope.detailListNew.RequisitionQty = Math.round($scope.detailList[i].TransactionQty * 100 + Number.EPSILON) / 100;
 					}
 					else {
 						for (var i1 = 0; i1 < $scope.detailListNew.length; i1++) {
@@ -262,7 +262,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 								&& $scope.detailListNew[i1].SecondCharacteristicsValueId === $scope.detailList[i].SecondCharacteristicsValueId
 								&& $scope.detailListNew[i1].ThirdCharacteristicsValueId === $scope.detailList[i].ThirdCharacteristicsValueId
 							) {
-								$scope.detailListNew[i1].RequisitionQty += Math.round($scope.detailList[i].RequisitionQty * 100 + Number.EPSILON) / 100;;
+								$scope.detailListNew[i1].RequisitionQty += Math.round($scope.detailList[i].TransactionQty * 100 + Number.EPSILON) / 100;;
 
 
 							}
@@ -291,11 +291,11 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				method: 'POST'
 				, url: $scope.saveUrl
 				, data: {
-					entities: $scope.detailListNew
-					, specificStockList: $scope.specificStockList
+					entities: JSON.stringify($scope.detailListNew)//$scope.detailListNew
+					, specificStockList: JSON.stringify($scope.specificStockList)//$scope.specificStockList
 					, inventoryIssue: $scope.productNew
 					, IssueTypeStatus: UIStatus
-					, entitiesAll: $scope.detailListNewAll
+					, entitiesAll: JSON.stringify($scope.detailListNewAll)//$scope.detailListNewAll
 
 				}
 				, dataType: 'JSON'
@@ -1760,7 +1760,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				$scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
 
 				$scope.materialStockList[i1].TransactionUoMId = data.TransactionUoMId;
-				$scope.materialStockList[i1].BaseUoMFactor = data.BaseUoMFactor;
+				$scope.materialStockList[i1].BaseUoMFactor = data.BaseUOMFactor;
 			}
 			angular.element(document.querySelector('#stockPopUp')).modal('show');
 		}), function (response) {
