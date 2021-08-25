@@ -48,7 +48,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         #region -- Operations
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters, string entityId)
         {
             return Json(_commitmentService.Query(parameters, entityId), JsonRequestBehavior.AllowGet);
