@@ -234,30 +234,24 @@ namespace Library.OrderManagement.LcNavigation
 
                             from PurchaseLC as PL
 
-                            join trn.PurchaseOrder as PO 
-                            on po.PurchaseLCId = pl.Id
-                            inner join SCS.Currency as C on 
-                            PL.CurrencyId=c.Id
+                            join trn.PurchaseOrder as PO on po.PurchaseLCId = pl.Id
+                            inner join SCS.Currency as C on  PL.CurrencyId=c.Id
 
-                            inner join trn.PurchaseOrderDetail as POD 
-                            on POD.InventoryReceiveId=po.Id
+                            inner join trn.PurchaseOrderDetail as POD on POD.InventoryReceiveId=po.Id
 
                             left join
                              (
-                            select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from TRN.purchaseorder as po 
-									inner join TRN.InventoryReceiveDetail as g on g.POId=po.Id
-									group by po.PurchaseLCId
+                            select  IR.POId,sum(IR.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct IR.InventoryReceiveId) as GRNCount
+							from TRN.InventoryReceiveDetail IR 
+							group by IR.POId						
 
                             )
-                            as grn on grn.LCId=PL.Id
-
-                            
+                            as grn on grn.POId=PO.Id                            
 							left join (
                             select pa.PurchaseLCId,sum(pd.TotalMaterialTranAmount) as AcceptanceValue from TRN.PurchaseDocAcceptance as PA 
                             inner join TRN.PurchaseDocAcceptanceDetail as PD on PD.PurchaseDocAcceptanceId=PA.Id
                             group by pa.PurchaseLCId
                             ) as AC on ac.PurchaseLCId=PL.Id
-
 							Left join (
 							select PDA.PurchaseLCId,sum(isnull(IWD.Amount,0)) InvPayment
 							from TRN.PurchaseDocAcceptance PDA
@@ -266,8 +260,7 @@ namespace Library.OrderManagement.LcNavigation
 								where IWD.Amount>0 and PDA.PurchaseLCId<>''
 								group by PDA.PurchaseLCId
 							) setOff on setOff.PurchaseLCId=PL.Id
-
-                             where po.purchaseLcId='"+PurchaseLCId+@"'
+                             where po.purchaseLcId='" + PurchaseLCId+@"'
                             group by po.Id,pl.Id,c.Code,po.PODate,po.DocRefNo,grn.GRNTotalAmount,AC.AcceptanceValue,setOff.InvPayment";
         }
 
@@ -291,22 +284,45 @@ namespace Library.OrderManagement.LcNavigation
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"select 
-						
-						PL.Id as PurchaseLCId,PO.Id PONo,
-						sum(IRD.TotalMaterialTranAmount) as GRNValue,IRD.InventoryReceiveId as GRNNo,
-					FORMAT( IR.GRNDate,'dd-MMM-yyyy') as GRNDate,po.DocRefNo as VendorRefNo,
-                    c.Code as Currency
-					,gate.UserName as GateName, ir.GateEntryNo
+distinct gn.GRNNo,PL.Id as PurchaseLCId
+                    ,c.Code as Currency,Gn.GateEntryNo,Gn.GateName,gn.GRNDate,gn.GRNValue
+					
+,POIDs=STUFF((select distinct ','+xPO.Id from
+trn.PurchaseOrder AS xPO
+Left outer JOIN trn.InventoryReceiveDetail AS xIRD ON xIRD.POId=xPO.Id
+where xIRD.InventoryReceiveId=gn.GRNNo for xml path('') ), 1, 1, '')
+
+,vendorRefs=STUFF((select distinct ','+xPO.DocRefNo from
+trn.PurchaseOrder AS xPO
+Left outer JOIN trn.InventoryReceiveDetail AS xIRD ON xIRD.POId=xPO.Id
+where xIRD.InventoryReceiveId=gn.GRNNo for xml path('') ), 1, 1, '')
+
 					from PurchaseLC as PL 
-					 join TRN.PurchaseOrder as PO 
-						on po.PurchaseLCId=pl.Id
-						  left join TRN.InventoryReceiveDetail as IRD on IRD.POId=po.Id
+					 
+					 left outer join (
+					 select  
+					 po.PurchaseLCId, sum(IRD.TotalMaterialTranAmount) as GRNValue,IRD.InventoryReceiveId as GRNNo,
+					FORMAT( IR.GRNDate,'dd-MMM-yyyy') as GRNDate
+					,Gate.UserName GateName
+					,IR.GateEntryNo
+					from  TRN.PurchaseOrder as PO
+					left outer join TRN.InventoryReceiveDetail as IRD on IRD.POId=po.Id
                      join TRN.InventoryReceive as IR on IR.Id=IRD.InventoryReceiveId
-					   left outer join trn.GateEntry as G on IR.GateEntryNo = g.id
+					left outer join trn.GateEntry as G on G.Id=IR.GateEntryNo
                     left outer join dbo.PlantWiseGate as  gate on gate.Id=g.PlantWiseGateId
-					 left join SCS.Currency as c on c.id=PL.CurrencyId
-                    where PurchaseLCId='"+PurchaseLCId+@"'
-					  group by PL.Id,IRD.InventoryReceiveId ,IR.GRNDate,po.DocRefNo,c.Code,gate.UserName,ir.GateEntryNo,PO.Id ";
+					 group by  
+					 IRD.InventoryReceiveId ,po.PurchaseLCId
+					 ,IR.GRNDate,Gate.UserName,IR.GateEntryNo
+					 ) gn on gn.PurchaseLCId=PL.Id
+
+                    left join SCS.Currency as c on c.id=PL.CurrencyId
+					join TRN.PurchaseOrder as PO on po.PurchaseLCId=pl.Id
+                    where pl.Id='"+PurchaseLCId+@"'
+					  group by PL.Id,c.Code
+					  
+					  ,gn.GateEntryNo
+					  ,gn.GateName,gn.GRNDate
+					  ,gn.GRNNo,gn.GRNValue";
 
         }
         public List<Dictionary<string, object>> GetPurchaseLCACList(string PurchaseLCId)
