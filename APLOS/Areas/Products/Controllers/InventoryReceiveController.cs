@@ -952,7 +952,22 @@ namespace Aplos.Areas.Products.Controllers
 				throw ex;
 			}
 		}
+		[HttpGet, Authorize]
+		public JsonResult JWNotificationSettingReceipt()  
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+			try
+			{
+
+				var sql = @"select * from dbo.NotificationSetting  where BusinessFlow='OutSourceGoodsReceiptNote' and plantId='" + identity.PlantId + "'";
+				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
 		[Authorize, HttpGet]
 		public JsonResult GetCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy)
 		{
