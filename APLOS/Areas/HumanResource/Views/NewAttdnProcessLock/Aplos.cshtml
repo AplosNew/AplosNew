@@ -16,18 +16,18 @@
 
 
 <h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Attendance Lock/UnLock </h3>
-<div class="row form-horizontal form-elements" ng-form name="LockUnLockForm">
+<div class="row form-horizontal form-elements">
 
   
 </div>
 <br />
-<div class="row form-horizontal form-elements" ng-form name="General">
+<div class="row form-horizontal form-elements" >
     <div class="col-xs-12 col-sm-6 col-md-7 ">
         <div class="form-group">
             <label class="col-sm-3 control-label"> Date<sup>*</sup></label>
             <div class="col-sm-4">
                 <div class="select-style">
-                    <input type="text" class="form-control" datepicker ng-change="GetEmpData()" required ng-model="ModelNew.lockDate" placeholder="dd-MM-yyyy" />
+                    <input type="text" class="form-control" datepicker ng-change="GetEmpData()" required ng-model="ModelNew.lockDate" />
                    
                 </div>
 
@@ -40,9 +40,9 @@
 
             <ul class="list-inline text-right">
 
-                <li style="float:left"> <button ng-click="SaveLockData()"  class="btn"><i class="glyphicon glyphicon-check"></i> Lock</button></li>
+                <li style="float:left"> <button ng-click="LockFunc()"  class="btn"><i class="glyphicon glyphicon-check"></i> Lock</button></li>
             
-                <li style="float:right"> <button ng-click="getEmpListData()" class="btn"><i class="glyphicon glyphicon-check"></i> UnLock</button></li>
+                <li style="float:right"> <button ng-click="UnLockFunc()" class="btn"><i class="glyphicon glyphicon-check"></i> UnLock</button></li>
             </ul>
         </div>
 

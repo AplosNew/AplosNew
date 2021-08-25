@@ -30,6 +30,26 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
             value: 'IssueDate'
             , name: 'Issue Date'
         }
+        ,
+        {
+            value: 'OrderRefNo'
+            , name: 'OrderRefNo'
+        }
+        ,
+        {
+            value: 'SourceNo'
+            , name: 'SourceNo'
+        }
+        ,
+        {
+            value: 'ContractId'
+            , name: 'ContractId'
+        }
+        ,
+        {
+            value: 'LCRef'
+            , name: 'LC No'
+        }
     ];
     $scope.parameters = {
         limit: 10,
@@ -96,6 +116,31 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
             value: 'IssueDate'
             , name: 'Issue Date'
         }
+        ,
+        {
+            value: 'OrderRefNo'
+            , name: 'OrderRef No'
+        }
+        ,
+        {
+            value: 'SourceNo'
+            , name: 'Source No'
+        }
+        ,
+        {
+            value: 'ContractId'
+            , name: 'Contract'
+        }
+        ,
+        {
+            value: 'LCRef'
+            , name: 'LC'
+        }
+        ,
+        {
+            value: 'Customer'
+            , name: 'Customer'
+        }
     ];
 
     $scope.columnExcluedList = [];
@@ -105,7 +150,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
             offset: 0,
             order: 'DESC',
             sort: 'IssueDate',
-            searchBy: "IssueNo",
+            searchBy: "Id",
             pageSize: 10,
             total_count: 0,
             search: null,
@@ -133,7 +178,13 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.modelNew.IssueDate = $filter("dateFiltering")($scope.modelNew.IssueDate);
         $scope.modelNew.PostingDate = $filter("dateFiltering")($scope.modelNew.IssueDate);
         $scope.modelNew.VoucherTypeId = voucherTypeId;
-        //$scope.modelNew.OrderRefNo = data.OrderRefNo;
+        $scope.modelNew.OrderRefNo = data.OrderRefNo;
+        $scope.modelNew.Types = data.Types;
+        $scope.modelNew.ContractId = data.ContractId;
+        $scope.modelNew.SourceNo = data.SourceNo;
+        $scope.modelNew.LCRef = data.LCRef;
+        $scope.modelNew.Customer = data.Customer;
+        $scope.modelNew.IsOrderSpecificy = data.IsOrderSpecificy;
 
         //getInventoryMaterialList();
         getIssueList()
@@ -434,6 +485,37 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
                     }
                 }
             }
+            else if (!baseService.isUndefinedOrNull($scope.modelNew.OrderRefNo) && $scope.modelNew.Types =='InventoryJWIssue') {
+                var getRowDr = $filter("filter")($scope.inventoryMaterialList, { "BudgetMasterId": $scope.inventoryIssueGLList[d].JWGLGeneralInfoId, "ActivityId": $scope.inventoryIssueGLList[d].JWActivityId });
+                if (getRowDr.length == 0 && $scope.inventoryIssueGLList[d].JWBudgetMasterId != null) {
+                    $scope.invGLDr.GLGeneralInfoId = $scope.inventoryIssueGLList[d].JWGLGeneralInfoId;
+                    $scope.invGLDr.GLGeneralInfoCode = $scope.inventoryIssueGLList[d].JWGLGeneralInfoCode;
+                    $scope.invGLDr.GLGeneralInfoName = $scope.inventoryIssueGLList[d].JWGLGeneralInfoName;
+                    $scope.invGLDr.BudgetMasterId = $scope.inventoryIssueGLList[d].JWBudgetMasterId;
+                    $scope.invGLDr.BudgetName = $scope.inventoryIssueGLList[d].JWBudgetName;
+                    $scope.invGLDr.ActivityId = $scope.inventoryIssueGLList[d].JWActivityId;
+                    $scope.invGLDr.ActivityName = $scope.inventoryIssueGLList[d].JWActivityName;
+                    $scope.invGLDr.TrnType = "Dr";
+                    $scope.invGLDr.Dr = $scope.inventoryIssueGLList[d].TrnAmount;
+                    $scope.invGLDr.Amount = $scope.inventoryIssueGLList[d].TrnAmount;
+                    $scope.invGLDr.Cr = 0;
+                    $scope.inventoryMaterialList.push($scope.invGLDr);
+                    $scope.invGLDr = {};
+                }
+                else if ($scope.inventoryIssueGLList[d].BudgetMasterId != null) {
+                    for (var k = 0; k < $scope.inventoryMaterialList.length; k++) {
+                        if (getRowDr[0].BudgetMasterId == $scope.inventoryMaterialList[k].BudgetMasterId
+                            && getRowDr[0].ActivityId == $scope.inventoryMaterialList[k].ActivityId) {
+
+
+                            var dr = parseFloat($scope.inventoryMaterialList[k].Dr.toFixed(4)) + parseFloat($scope.inventoryIssueGLList[d].TrnAmount.toFixed(4));
+                            $scope.inventoryMaterialList[k].Dr = parseFloat(dr.toFixed(4));
+                            $scope.inventoryMaterialList[k].Amount = parseFloat(dr.toFixed(4));
+                            dr = 0;
+                        }
+                    }
+                }
+            }
             else {
                 var getRowDr = $filter("filter")($scope.inventoryMaterialList, { "BudgetMasterId": $scope.inventoryIssueGLList[d].WIPBudgetMasterId, "ActivityId": $scope.inventoryIssueGLList[d].ActivityId });
                 if (getRowDr.length == 0 && $scope.inventoryIssueGLList[d].BudgetMasterId != null) {
@@ -468,36 +550,68 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
             }
         }
         for (var i = 0; i < $scope.inventoryIssueGLList.length; i++) {
+            if (!baseService.isUndefinedOrNull($scope.modelNew.OrderRefNo) && $scope.modelNew.Types == 'InventoryJWIssue') {
+                var getRow = $filter("filter")($scope.inventoryMaterialList, { "BudgetMasterId": $scope.inventoryIssueGLList[i].PostDrBudgetMasterId, "ActivityId": $scope.inventoryIssueGLList[i].PostDrActivityId });
+                if (getRow.length == 0 && $scope.inventoryIssueGLList[i].PostDrBudgetMasterId != null) {
+                    $scope.invGL.GLGeneralInfoId = $scope.inventoryIssueGLList[i].PostDrGLGeneralInfoId;
+                    $scope.invGL.GLGeneralInfoCode = $scope.inventoryIssueGLList[i].GAccountCode;
+                    $scope.invGL.GLGeneralInfoName = $scope.inventoryIssueGLList[i].GUserName;
+                    $scope.invGL.BudgetMasterId = $scope.inventoryIssueGLList[i].PostDrBudgetMasterId;
+                    $scope.invGL.BudgetName = $scope.inventoryIssueGLList[i].BUserName;
+                    $scope.invGL.ActivityId = $scope.inventoryIssueGLList[i].PostDrActivityId;
+                    $scope.invGL.ActivityName = $scope.inventoryIssueGLList[i].AUserName;
+                    $scope.invGL.TrnType = "Cr";
+                    $scope.invGL.Cr = parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
+                    $scope.invGL.Amount = parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
+                    $scope.invGL.Dr = 0;
+                    $scope.inventoryMaterialList.push($scope.invGL);
+                    $scope.invGL = {};
 
-            var getRow = $filter("filter")($scope.inventoryMaterialList, { "BudgetMasterId": $scope.inventoryIssueGLList[i].PostDrBudgetMasterId, "ActivityId": $scope.inventoryIssueGLList[i].PostDrActivityId });
-            if (getRow.length == 0 && $scope.inventoryIssueGLList[i].PostDrBudgetMasterId != null) {
-                $scope.invGL.GLGeneralInfoId = $scope.inventoryIssueGLList[i].PostDrGLGeneralInfoId;
-                $scope.invGL.GLGeneralInfoCode = $scope.inventoryIssueGLList[i].GAccountCode;
-                $scope.invGL.GLGeneralInfoName = $scope.inventoryIssueGLList[i].GUserName;
-                $scope.invGL.BudgetMasterId = $scope.inventoryIssueGLList[i].PostDrBudgetMasterId;
-                $scope.invGL.BudgetName = $scope.inventoryIssueGLList[i].BUserName;
-                $scope.invGL.ActivityId = $scope.inventoryIssueGLList[i].PostDrActivityId;
-                $scope.invGL.ActivityName = $scope.inventoryIssueGLList[i].AUserName;
-                $scope.invGL.TrnType = "Cr";
-                $scope.invGL.Cr = parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
-                $scope.invGL.Amount = parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
-                $scope.invGL.Dr = 0;
-                $scope.inventoryMaterialList.push($scope.invGL);
-                $scope.invGL = {};
-
-            }
-            else if ($scope.inventoryIssueGLList[i].PostDrBudgetMasterId != null) {
-                for (var j = 0; j < $scope.inventoryMaterialList.length; j++) {
-                    if (getRow[0].BudgetMasterId == $scope.inventoryMaterialList[j].BudgetMasterId
-                        && getRow[0].ActivityId == $scope.inventoryMaterialList[j].ActivityId) {
-                        var cr = parseFloat($scope.inventoryMaterialList[j].Cr.toFixed(4)) + parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
-                        $scope.inventoryMaterialList[j].Cr = parseFloat(cr.toFixed(4));
-                        $scope.inventoryMaterialList[j].Amount = parseFloat(cr.toFixed(4));
-                        cr = 0;
+                }
+                else if ($scope.inventoryIssueGLList[i].PostDrBudgetMasterId != null) {
+                    for (var j = 0; j < $scope.inventoryMaterialList.length; j++) {
+                        if (getRow[0].BudgetMasterId == $scope.inventoryMaterialList[j].BudgetMasterId
+                            && getRow[0].ActivityId == $scope.inventoryMaterialList[j].ActivityId) {
+                            var cr = parseFloat($scope.inventoryMaterialList[j].Cr.toFixed(4)) + parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
+                            $scope.inventoryMaterialList[j].Cr = parseFloat(cr.toFixed(4));
+                            $scope.inventoryMaterialList[j].Amount = parseFloat(cr.toFixed(4));
+                            cr = 0;
+                        }
                     }
                 }
-            }
 
+            }
+            else {
+                var getRow = $filter("filter")($scope.inventoryMaterialList, { "BudgetMasterId": $scope.inventoryIssueGLList[i].PostDrBudgetMasterId, "ActivityId": $scope.inventoryIssueGLList[i].PostDrActivityId });
+                if (getRow.length == 0 && $scope.inventoryIssueGLList[i].PostDrBudgetMasterId != null) {
+                    $scope.invGL.GLGeneralInfoId = $scope.inventoryIssueGLList[i].PostDrGLGeneralInfoId;
+                    $scope.invGL.GLGeneralInfoCode = $scope.inventoryIssueGLList[i].GAccountCode;
+                    $scope.invGL.GLGeneralInfoName = $scope.inventoryIssueGLList[i].GUserName;
+                    $scope.invGL.BudgetMasterId = $scope.inventoryIssueGLList[i].PostDrBudgetMasterId;
+                    $scope.invGL.BudgetName = $scope.inventoryIssueGLList[i].BUserName;
+                    $scope.invGL.ActivityId = $scope.inventoryIssueGLList[i].PostDrActivityId;
+                    $scope.invGL.ActivityName = $scope.inventoryIssueGLList[i].AUserName;
+                    $scope.invGL.TrnType = "Cr";
+                    $scope.invGL.Cr = parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
+                    $scope.invGL.Amount = parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
+                    $scope.invGL.Dr = 0;
+                    $scope.inventoryMaterialList.push($scope.invGL);
+                    $scope.invGL = {};
+
+                }
+                else if ($scope.inventoryIssueGLList[i].PostDrBudgetMasterId != null) {
+                    for (var j = 0; j < $scope.inventoryMaterialList.length; j++) {
+                        if (getRow[0].BudgetMasterId == $scope.inventoryMaterialList[j].BudgetMasterId
+                            && getRow[0].ActivityId == $scope.inventoryMaterialList[j].ActivityId) {
+                            var cr = parseFloat($scope.inventoryMaterialList[j].Cr.toFixed(4)) + parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
+                            $scope.inventoryMaterialList[j].Cr = parseFloat(cr.toFixed(4));
+                            $scope.inventoryMaterialList[j].Amount = parseFloat(cr.toFixed(4));
+                            cr = 0;
+                        }
+                    }
+                }
+
+            }
         }
     }
     $scope.EditableissueJournal = function () {
