@@ -1095,5 +1095,181 @@ namespace Aplos.Areas.Productions.Controllers
             sheet.Range[row, col, row, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
         }
-    }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetStockReport(string ToDate, string FromDate, string type, string group, string column, string value)
+        {
+
+            try
+            {
+                var workbook = GetStockReportForm( ToDate,  FromDate,  type,  group,  column,  value);
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "StockReport.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        private IWorkbook GetStockReportForm(string ToDate, string FromDate, string type, string group, string column, string value)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var data = det.GetStockData(ToDate, FromDate, type, group, column, value);
+
+
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "Stock Report";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+            sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
+            sheet.Range[ROW, COL].ColumnWidth = 13;
+            sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
+            sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            ROW += 2;
+
+            #region Grid Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Assigned", 13, ExcelHAlign.HAlignCenter);
+            int ColAssigned = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Product Code", 13, ExcelHAlign.HAlignCenter);
+            int ColProdCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Production Order", 13, ExcelHAlign.HAlignCenter);
+            int ColPO = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Lot No", 13, ExcelHAlign.HAlignCenter);
+            int ColLotNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "From Date", 13, ExcelHAlign.HAlignCenter);
+            int ColFD = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "From Period", 13, ExcelHAlign.HAlignCenter);
+            int ColFP = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Upto Date", 13, ExcelHAlign.HAlignCenter);
+            int ColUD = COL;
+            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Despatch", 15, ExcelHAlign.HAlignCenter);
+            int ColDespatch = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Planned Qty", 13, ExcelHAlign.HAlignCenter);
+            int ColPlannedQty = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Booked Qty", 13, ExcelHAlign.HAlignCenter);
+            int ColcolBookedQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Stock Qty", 13, ExcelHAlign.HAlignCenter);
+            int ColStckQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SO Qty", 13, ExcelHAlign.HAlignCenter);
+            int ColSoQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "NO Of SO", 13, ExcelHAlign.HAlignCenter);
+            int ColNoOfSO = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "ItemId", 13, ExcelHAlign.HAlignCenter);
+            int ColItemId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Item Article", 13, ExcelHAlign.HAlignCenter);
+            int ColItemArticle = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Product", 13, ExcelHAlign.HAlignCenter);
+            int ColProd = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Master Order No", 13, ExcelHAlign.HAlignCenter);
+            int ColMasterOrderNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer", 13, ExcelHAlign.HAlignCenter);
+            int ColCustomer = COL;
+            COL++;
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+                sheet[ROW, ColAssigned].Text = data.Rows[i]["Assigned"].ToString();
+                sheet[ROW, ColProdCode].Text = data.Rows[i]["ProductCode"].ToString();
+                sheet[ROW, ColPO].Text = data.Rows[i]["PO"].ToString();
+                sheet[ROW, ColLotNo].Text = data.Rows[i]["LotNo"].ToString();
+                sheet[ROW, ColFD].Text = data.Rows[i]["fd"].ToString();
+                sheet[ROW, ColFP].Text = data.Rows[i]["fp"].ToString();
+                sheet[ROW, ColUD].Text = data.Rows[i]["ud"].ToString();
+                sheet[ROW, ColDespatch].Text = data.Rows[i]["Despatch"].ToString();
+                sheet[ROW, ColPlannedQty].Text = data.Rows[i]["PlannedQty"].ToString();
+                sheet[ROW, ColcolBookedQty].Text = data.Rows[i]["BookedQty"].ToString();
+                sheet[ROW, ColStckQty].Text = data.Rows[i]["StockQty"].ToString();
+                sheet[ROW, ColSoQty].Text = data.Rows[i]["SoQty"].ToString();
+                sheet[ROW, ColNoOfSO].Text = data.Rows[i]["NoOfSo"].ToString();
+                sheet[ROW, ColItemId].Text = data.Rows[i]["ItemId"].ToString();
+                sheet[ROW, ColItemArticle].Text = data.Rows[i]["ItemArticle"].ToString();
+                sheet[ROW, ColProd].Text = data.Rows[i]["Product"].ToString();
+                sheet[ROW, ColMasterOrderNo].Text = data.Rows[i]["MasterOrderNo"].ToString();
+                sheet[ROW, ColCustomer].Text = data.Rows[i]["Customer"].ToString();
+
+
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            ROW++;
+           
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref sheet, endCol, "Stock Report", identity.PlantId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+    }   
 }

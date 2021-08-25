@@ -220,16 +220,49 @@ namespace Library.OrderManagement.LcNavigation
 
         }
 
+
+        public List<Dictionary<string, object>> POBreakDownList(string POID)
+        {
+
+            try
+            {
+                string sql = POBreakDownSql(POID);
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public List<Dictionary<string, object>> GRNBreakDownList(string GRNID)
+        {
+
+            try
+            {
+                string sql = GRNBreakDownSql(GRNID);
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+
         private string PurchaseLCPOSql(string PurchaseLCId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"select
-
                             po.Id as PONo,
                             PL.Id as PurchaseLCID,sum(POD.TransactionAmount) as TotalValue,
                             c.Code as Currency,Ac.AcceptanceValue,
                             FORMAT( po.PODate,'dd-MMM-yyyy' ) as PODate  
-                            ,po.DocRefNo as VendorRefNo, grn.GRNTotalAmount as GRNValue
+                            ,po.DocRefNo as VendorRefNo, grn.GRNTotalAmount as GRNAmount
 							,setOff.InvPayment setOffValue
 
                             from PurchaseLC as PL
@@ -263,6 +296,31 @@ namespace Library.OrderManagement.LcNavigation
                              where po.purchaseLcId='" + PurchaseLCId+@"'
                             group by po.Id,pl.Id,c.Code,po.PODate,po.DocRefNo,grn.GRNTotalAmount,AC.AcceptanceValue,setOff.InvPayment";
         }
+
+        private string POBreakDownSql(string POID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"	select IRD.InventoryReceiveId,sum(IRD.TotalMaterialTranAmount) GRNValue,Format(IR.GRNDate,'dd-MMM-yyyy') GRNDate
+							from trn.PurchaseOrder PO 
+							left outer join trn.InventoryReceiveDetail IRD on IRD.POId=PO.Id			
+							left outer join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId			
+							
+							where PO.Id='"+POID+@"'
+							group by IRD.InventoryReceiveId,IR.GRNDate";
+        }
+
+        private string GRNBreakDownSql(string GRNID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"select IRD.POId,sum( IRD.TotalMaterialTranAmount ) GRNValue,Format(IR.GRNDate,'dd-MMM-yyyy') GRNDate
+from trn.InventoryReceive IR 
+							left outer join trn.InventoryReceiveDetail IRD on IRD.InventoryReceiveId=IR.Id
+							left outer join trn.PurchaseOrder PO on PO.id=IRD.POId
+							left outer join trn.PurchaseOrderDetail POD on POD.InventoryReceiveId=PO.Id
+							where IR.Id='" + GRNID + @"'
+							group by IRD.POId,IR.GRNDate";
+        }
+
 
         public List<Dictionary<string, object>> GetPurchaseLCGRNList(string PurchaseLCId)
         {
