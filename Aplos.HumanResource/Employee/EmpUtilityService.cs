@@ -491,7 +491,7 @@ namespace Library.Service.EmployeeServices
             try
             {
                
-                var sql = @"select distinct P.RowId,format(p.WorkDate,'yyyy-MM-dd') as WorkDate,
+                var sql = @"select distinct P.RowId,d.Category,format(p.WorkDate,'yyyy-MM-dd') as WorkDate,
                 emp.SystemId as EmpId,p.PlantId,emp.EmployeeCode,emp.EmployeeName,
                 p.DayStatus,dp.UserName as Department,s.UserName as SubSection,
                 ss.UserName as Section,p.OTHr,mb.ROBudgetCode,
@@ -500,12 +500,13 @@ namespace Library.Service.EmployeeServices
                 p.IsLock from
 				dbo.AttdnProcessData p left join EmployeeInformation emp on 
 				p.EmpSystemID =emp.SystemId
+                left join DayType d on d.DayType=p.DayStatus			    
 				left join mst.ManpowerBudget mb on emp.BudgetCode=mb.Id
                 left join org.Department dp on dp.Id=emp.DepartmentId
                 left join Org.SubSection s on s.Id=emp.SubSectionId
                 left join org.section ss on ss.Id=emp.SectionId			    
 			    left join dbo.ShiftDefination sh on sh.SystemID=p.ShiftSystemID
-				where ROBudgetCode='"+BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
+				where ROBudgetCode='" + BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
 				p.WorkDate='"+Date+"' order by p.DayStatus";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -539,7 +540,7 @@ namespace Library.Service.EmployeeServices
             try
             {
 
-                var sql = @"select distinct P.RowId,format(p.WorkDate,'yyyy-MM-dd') as WorkDate,
+                var sql = @"select distinct P.RowId,d.Category,format(p.WorkDate,'yyyy-MM-dd') as WorkDate,
                 emp.SystemId as EmpId,p.PlantId,emp.EmployeeCode,emp.EmployeeName,
                 p.DayStatus,dp.UserName as Department,s.UserName as SubSection,
                 ss.UserName as Section,p.OTHr,mb.PRBudgetCode,
@@ -548,12 +549,13 @@ namespace Library.Service.EmployeeServices
                 p.IsLock from
 				dbo.AttdnProcessData p left join EmployeeInformation emp on 
 				p.EmpSystemID =emp.SystemId
+                left join DayType d on d.DayType=p.DayStatus			    
 				left join mst.ManpowerBudget mb on emp.BudgetCode=mb.Id
                 left join org.Department dp on dp.Id=emp.DepartmentId
                 left join Org.SubSection s on s.Id=emp.SubSectionId
                 left join org.section ss on ss.Id=emp.SectionId			    
 			    left join dbo.ShiftDefination sh on sh.SystemID=p.ShiftSystemID
-				where PRBudgetCode='"+BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
+				where PRBudgetCode='" + BudgetId+@"' and ISNULL(p.DayStatus,'')!='' and
 				p.WorkDate='"+Date+"' order by p.DayStatus";
 
                 return _sqlRepository.GetDataCollection(sql, null);
