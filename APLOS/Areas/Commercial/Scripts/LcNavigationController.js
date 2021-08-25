@@ -170,16 +170,49 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
         $rootScope.openPopupAngular('POPopup');
     }
-
-    $scope.summaryRows = [{
+    $scope.summaryPO = [{
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalValue", dataMember: "TotalValue", format: "{0:N2}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNValue", dataMember: "GRNValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNAmount", dataMember: "GRNAmount", format: "{0:N2}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "setOffValue", dataMember: "setOffValue", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];
+
+
+    $scope.PurchaseLCPOBreakDownList = [];
+    $scope.LoadPOBreakDownList = function (POBreakDownData) {
+        $scope.SelectedLCRow = POBreakDownData;
+        $http({
+            method: 'POST',
+            url: $scope.path + "POBreakDownDataList",
+            data: { 'POID': POBreakDownData.PONo },
+            dataType: 'JSON'
+        })
+
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.PurchaseLCPOBreakDownList = response.data.POBrDATA;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        $rootScope.openPopupAngular('sdgfsdfs');
+    }
+    $scope.sumPO = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNValue", dataMember: "GRNValue", format: "{0:N2}" }
+            ],
+        showCaptionSummary: true
+
+    }];
+
 
     $scope.PurchaseLCGRNList = [];
     $scope.LoadGRNList = function (LCGRNData) {
@@ -211,6 +244,39 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         showCaptionSummary: true
 
     }];
+
+    $scope.PurchaseLCGRNBreakDownList = [];
+    $scope.LoadGRNBreakDownList = function (GRNBreakDownData) {
+        $scope.SelectedLCRow = GRNBreakDownData;
+        $http({
+            method: 'POST',
+            url: $scope.path + "GRNBreakDownDataList",
+            data: { 'GRNID': GRNBreakDownData.GRNNo },
+            dataType: 'JSON'
+        })
+
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.PurchaseLCGRNBreakDownList = response.data.GRNBrDATA;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        $rootScope.openPopupAngular('GRNBreakDownPopup');
+    }
+    $scope.sumGRN = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNValue", dataMember: "GRNValue", format: "{0:N2}" }
+        ],
+        showCaptionSummary: true
+
+    }];
+
 
     $scope.PurchaseLCACList = [];
     $scope.LoadACList = function (LCACData) {
@@ -244,6 +310,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         showCaptionSummary: true
 
     }];
+
     $scope.PurchaseLCLoanList = [];
     $scope.LoadLoanList = function (LCLoanData) {
         $scope.SelectedLCRow = LCLoanData;
@@ -269,7 +336,6 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }
         $rootScope.openPopupAngular('LoanPopup');
     }
-
     $scope.summaryLoan = [{
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
@@ -304,19 +370,13 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }
         $rootScope.openPopupAngular('SetOffPopup');
     }
-
-        $scope.summarySetoff = [{
+    $scope.summarySetoff = [{
         title: "Total :", summaryColumns: [
                 { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
            ],
         showCaptionSummary: true
 
     }];
-
-
-
-
-
 
     $scope.SetoffList = [];
     $scope.LoadSetoffList = function (SetOffData) {
@@ -343,7 +403,6 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }
         $rootScope.openPopupAngular('SetOffPoP');
     }
-
     $scope.SetOff = [{
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
@@ -351,16 +410,6 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         showCaptionSummary: true
 
     }];
-
-
-
-
-
-
-
-
-
-
 
 
     $scope.PurchaseLCLoanSetoffList = [];
@@ -388,7 +437,6 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }
         $rootScope.openPopupAngular('LoanSetOffPopup');
     }
-
     $scope.summaryLoanSetOff = [{
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LoanSetOff", dataMember: "LoanSetOff", format: "{0:N2}" }],
@@ -414,7 +462,6 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         { 'name': 'Benificiary Bank', 'value': 'BenificiaryBank' },
         { 'name': 'PO Value', 'value': 'POValue' },
         { 'name': 'Acceptance Value', 'value': 'AcceptanceValue' },
-        /*{ 'name': 'GRN Count', 'value': 'GRNCount' },*/
         { 'name': 'GRN Value', 'value': 'GRNValue' },
         { 'name': 'Is Closed', 'value': 'IsClosed' },
         { 'name': 'Contract No', 'value': 'ContractNo' },
