@@ -1744,7 +1744,7 @@ function nonAssetRegisterController(addressService, commonMessage, $scope, $root
         $scope.register.AssetActivityName = data.ActivityName;
         $scope.register.AssetActivityId = data.ActivityId;
 
-        angular.element(document.querySelector("#assetmodal")).modal("hide");
+        
 
         $scope.register.ArticleId = null;
         $scope.register.Article = null;
@@ -1754,6 +1754,7 @@ function nonAssetRegisterController(addressService, commonMessage, $scope, $root
         if ($scope.register.HasAttribute) {
             $scope.materialType = null;
             $scope.getArticleSearchList(data.Id);
+            angular.element(document.querySelector("#assetmodal")).modal("hide");
         } else {
            
             return ShowResult('This material has no attribute', 'failure');
@@ -1818,8 +1819,8 @@ function nonAssetRegisterController(addressService, commonMessage, $scope, $root
         try {
             $scope.register.MaterialMasterId = ob.MaterialMasterId;
             $scope.register.MaterialMasterName = ob.MaterialMasterName;
-            $scope.register.ArticleId = ob.Id;
-            $scope.register.Article = ob.StandardName;
+            $scope.register.MaterialMasterArticleId = ob.Id;
+            $scope.register.ArticleStandardName = ob.StandardName;
             angular.element(document.querySelector('#rarticleSearchPop')).modal('hide');
         } catch (e) {
             ShowResult(e, '', 'rarticleSearchPop');
@@ -1827,8 +1828,8 @@ function nonAssetRegisterController(addressService, commonMessage, $scope, $root
     };
 
     $scope.clearMaterialArticle = function () {
-        $scope.register.ArticleId = null;
-        $scope.register.Article = null;
+        $scope.register.MaterialMasterArticleId = null;
+        $scope.register.ArticleStandardName = null;
     };
 
     $scope.assetRegisterItemForSubAssetList = [];
