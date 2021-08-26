@@ -668,6 +668,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                             ReturnLockedEmp += ",'" + item.EmpSystemID + "'";
                         }
                     }
+                    else
+                    {
+                        ReturnLockedEmp += ",'" + item.EmpSystemID + "'";
+                    }
 
                 }
 
