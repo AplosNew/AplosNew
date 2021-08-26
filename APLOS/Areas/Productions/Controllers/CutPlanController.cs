@@ -58,5 +58,15 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(_productionOrderService.GetProductionRecipeMaterialList(productionOrderId), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetMarker(string MaterialId)
+        {
+            return Json(cp.getMarkerList(MaterialId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetMarkerDetails(string MarkerId)
+        {
+            return Json(cp.GetMarkerDetailList(MarkerId), JsonRequestBehavior.AllowGet);
+        }
     }   
 }
