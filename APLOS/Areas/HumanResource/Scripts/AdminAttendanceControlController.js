@@ -525,8 +525,8 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
     function CheckField(fieldname, field) {
         try {
             if (baseService.isUndefinedOrNull(field)) {
-                ShowResult("[" + fieldname + "] can not be null...", 'failure');
-                throw "[" + fieldname + "] can not be null...";
+                ShowResult("" + fieldname + " can not be null...", 'failure');
+                throw "" + fieldname + " can not be null...";
             }
         } catch (ex) {
             throw ex;

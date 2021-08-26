@@ -688,7 +688,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
-                SaveLog(ex.ToString(), "App", true);
+                SaveLog("Data:- "+data.Count().ToString()+" "+ ex.ToString(), "App", true);
                 return ex.ToString();
             }
         }
