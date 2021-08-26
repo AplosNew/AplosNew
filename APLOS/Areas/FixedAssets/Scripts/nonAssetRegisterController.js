@@ -698,6 +698,17 @@ function nonAssetRegisterController(addressService, commonMessage, $scope, $root
     $scope.clearAssetCode = function () {
         $scope.register.FixedAssetId = null;
         $scope.register.FixedAsset = null;
+        $scope.register.MaterialMasterId = null;
+        $scope.register.MaterialMasterName = null;
+        $scope.register.MaterialMasterArticleId = null;
+        $scope.register.ArticleStandardName = null;
+        $scope.register.AssetMasterName = null;
+        $scope.register.AssetGLName = null;
+        $scope.register.AssetBudgetName = null;
+        $scope.register.AssetActivityName = null;
+        $scope.register.AssetBudgetMasterId = null;
+        $scope.register.AssetGLId = null;
+        $scope.register.AssetActivityId = null;
     };
     $scope.getMaterialMasterAttribute = function () {
         $http.get("Machines/assetitem/GetMaterialMasterAttributeList?materialMaster=" + $scope.register.MaterialMasterId)

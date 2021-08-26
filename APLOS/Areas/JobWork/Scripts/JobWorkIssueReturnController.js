@@ -702,6 +702,10 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		}).then(function successCallback(response) {
 			$scope.MaterialInputList = response.data;
 			$scope.detailList = response.data;
+			for (var i = 0; i < $scope.detailList.length; i++) {
+				$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+			}
+			
 			if ($scope.MaterialInputList.length > 0 && $scope.detailList.length > 0) {
 				$scope.CostCenterLoadNew();
 			}
