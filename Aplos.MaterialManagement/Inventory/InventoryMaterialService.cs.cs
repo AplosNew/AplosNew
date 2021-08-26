@@ -2167,8 +2167,8 @@ namespace Library.MaterialManagement.Inventory
 			try
 			{
 				var sql = @"SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
-	                    , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 'NO' else 'YES' END
-						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 'NO' else 'YES' END
+	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
+						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
 						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor
                         , round(IRD.MaterialTranRate,4) MaterialTranRate, IRD.BooksCurrencyBaseRate, TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
                         , BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END

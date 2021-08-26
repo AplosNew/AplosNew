@@ -29,6 +29,7 @@ using Syncfusion.ExcelToPdfConverter;
 using Syncfusion.Pdf;
 using Library.MaterialManagement.InventoryManagements;
 using Library.Accounting.Accounts;
+using Newtonsoft.Json;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -367,13 +368,19 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		[HttpPost]
-		public JsonResult Create(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll)
+		//public JsonResult Create(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll)
+		public JsonResult Create(string entities, string specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, string entitiesAll)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.PlantId = identity.PlantId;
-			_inventoryIssueService.InsertGraph(entities, specificStockList, inventoryIssue, IssueTypeStatus, entitiesAll);
+			List<InventoryMaterialViewModel> entitiesVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entities); 
+			List<InventoryMaterialViewModel> specificStockListVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(specificStockList); 
+			List<InventoryMaterialViewModel> entitiesAllVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entitiesAll); 
+
+
+			_inventoryIssueService.InsertGraph(entitiesVM, specificStockListVM, inventoryIssue, IssueTypeStatus, entitiesAllVM);
 			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 
@@ -1644,7 +1651,7 @@ namespace Aplos.Areas.Products.Controllers
 						, SA.ToCurrencyRate
 						, SA.DocRefNo
 						,'' DocDate
-						, P.UserName AS PartyName
+						, P.UserName AS PartyName,p.Code
 						,MGM.UserName AS MaterialGroupMasterName
 						,MM.UserName MaterialMasterName
 						,ART.StandardName AS MaterialMasterArticleName
@@ -1795,7 +1802,7 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						, 0 ToCurrencyRate
 						, '' DocRefNo
 						,'' DocDate
-						, P.UserName AS PartyName
+						, P.UserName AS PartyName,p.Code
 						,'' AS MaterialGroupMasterName
 						,SM.UserName MaterialMasterName
 						,'' AS MaterialMasterArticleName
@@ -1932,7 +1939,7 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						,II.ToCurrencyRate
 						, II.DocRefNo
 						,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocDate
-						, P.UserName AS PartyName
+						, P.UserName AS PartyName,p.Code
 						,MGM.UserName AS MaterialGroupMasterName
 						,MM.UserName MaterialMasterName
 						,ART.StandardName AS MaterialMasterArticleName
@@ -2059,7 +2066,7 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
 						WHERE II.PlantId='" + identity.PlantId + "' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
-						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
+						GROUP BY p.Code	,II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.SalesDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo 
 						,PPI.UserName , AM.Address1,ST.UserName,PPI.GSTIN, PPI1.UserName,AM1.Address1,ST1.UserName,PPI1.GSTIN,II.ToCurrencyRate, II.DocRefNo, II.DocDate 
@@ -2091,7 +2098,7 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						, 0 ToCurrencyRate
 						, '' DocRefNo
 						,'' DocDate
-						, P.UserName AS PartyName
+						, P.UserName AS PartyName,p.Code
 						,'' AS MaterialGroupMasterName
 						,SM.UserName MaterialMasterName
 						,'' AS MaterialMasterArticleName
@@ -2811,7 +2818,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							, SA.ToCurrencyRate
 							, SA.DocRefNo
 							,'' DocDate
-							, P.UserName AS PartyName	
+							, P.UserName AS PartyName,p.Code	
 							--, '' HSNCode
 							--,SM.BaseRate
 							--,SM.BaseUoMFactor
@@ -2951,7 +2958,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 									)ServiceData on ServiceData.SalesId=SA.Id
 							LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
 							WHERE SA.PlantId='" + identity.PlantId+"' AND convert(Date,SA.InvoiceDate) BETWEEN  '"+fromDate+@"'AND '"+toDate+ @"'-- and sm.SalesId='202110'
-							Group By TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code
+							Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code
 						UNION ALL
 						SELECT 
 
@@ -2969,7 +2976,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						,II.ToCurrencyRate
 						, II.DocRefNo
 						,II.DocDate
-						, P.UserName AS PartyName
+						, P.UserName AS PartyName,p.Code
 						--,MGM.UserName AS MaterialGroupMasterName
 						--,MM.UserName MaterialMasterName
 						--,ART.StandardName AS MaterialMasterArticleName
@@ -3092,7 +3099,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						LEFT JOIN trn.Voucher V On V.Id=II.VoucherId
 						WHERE II.PlantId='" + identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '"+fromDate+@"' AND '"+toDate+ @"'
-						GROUP BY II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy";
+						GROUP BY p.Code	,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy";
 						return _sqlRepository.GetDataTable(sql);
 					}
 					else
@@ -3112,7 +3119,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							, SA.ToCurrencyRate
 							, SA.DocRefNo
 							,'' DocDate
-							, P.UserName AS PartyName	
+							, P.UserName AS PartyName,p.Code	
 							--, '' HSNCode
 							--,SM.BaseRate
 							--,SM.BaseUoMFactor
@@ -3252,7 +3259,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 									)ServiceData on ServiceData.SalesId=SA.Id
 							LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
 							WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'-- and sm.SalesId='202110'
-							Group By TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code
+							Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code
 						UNION ALL
 						SELECT 
 
@@ -3270,7 +3277,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						,II.ToCurrencyRate
 						, II.DocRefNo
 						,II.DocDate
-						, P.UserName AS PartyName
+						, P.UserName AS PartyName,p.Code
 						--,MGM.UserName AS MaterialGroupMasterName
 						--,MM.UserName MaterialMasterName
 						--,ART.StandardName AS MaterialMasterArticleName
@@ -3393,7 +3400,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						LEFT JOIN trn.Voucher V On V.Id=II.VoucherId
 						WHERE II.PlantId='" + identity.PlantId + @"' AND convert(Date,II.SalesDate) <= '" + toDate + @"'
-						GROUP BY II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy";
+						GROUP BY p.Code	,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy";
 						return _sqlRepository.GetDataTable(sql);
 					}
 				}
@@ -3709,6 +3716,13 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 
 
 
+					worksheet[ROW, COL].Text = "Customer Code";
+					int colPartyCode = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
 					//worksheet[ROW, COL].Text = "Material Storage";
 					//int colMaterialStorage = COL;
 					//worksheet[ROW, COL].ColumnWidth = 20;
@@ -4115,6 +4129,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet[ROW, colDocRefNo].Text = dtInventorySalesReportList.Rows[i]["DocRefNo"].ToString();
 								worksheet[ROW, colDocDate].Text = dtInventorySalesReportList.Rows[i]["DocDate"].ToString();
 								worksheet[ROW, colPartyName].Text = dtInventorySalesReportList.Rows[i]["PartyName"].ToString();
+								worksheet[ROW, colPartyCode].Text = dtInventorySalesReportList.Rows[i]["Code"].ToString();
 								worksheet[ROW, colMaterialGroupMasterName].Text = dtInventorySalesReportList.Rows[i]["MaterialGroupMasterName"].ToString();
 								worksheet[ROW, colMaterialMasterName].Text = dtInventorySalesReportList.Rows[i]["MaterialMasterName"].ToString();
 								//worksheet[ROW, colMaterialMasterId].Text = dtInventorySalesReportList.Rows[i]["MaterialMasterId"].ToString();
@@ -4296,6 +4311,14 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 
 					worksheet[ROW, COL].Text = "Customer Name";
 					int colPartyName = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Customer Code";
+					int colPartyCode = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -4564,7 +4587,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet[ROW, colSalesOrderNumber].Text = dtInventorySalesReportList.Rows[i]["SONumber"].ToString();
 								worksheet[ROW, colPartyName].Text = dtInventorySalesReportList.Rows[i]["PartyName"].ToString();
 
-
+								worksheet[ROW, colPartyCode].Text = dtInventorySalesReportList.Rows[i]["Code"].ToString();
 
 								worksheet[ROW, colCurrency].Text = dtInventorySalesReportList.Rows[i]["Currency"].ToString();
 								//worksheet[ROW, colMaterialGroupMasterName].Text = dtInventorySalesReportList.Rows[i]["MaterialGroupMasterName"].ToString();
