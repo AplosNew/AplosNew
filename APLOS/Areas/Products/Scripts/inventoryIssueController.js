@@ -176,6 +176,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 					, specificStockList: JSON.stringify($scope.specificStockList)// $scope.specificStockList
 					, inventoryIssue: $scope.productNew
 					, IssueTypeStatus: UIStatus
+					, entitiesAll: JSON.stringify($scope.detailList)//$scope.detailListNewAll
 				}				
 				, dataType: 'JSON'
 			}).then(function (response) {
@@ -365,21 +366,21 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				, ThirdCharacteristicsId: null
 				, ThirdCharacteristicsValueId: null
 
-				, TransactionQty: null
+				, TransactionQty: 0
 				, TransactionUoMId: null
 				, TransactionUoM: null
-				, BaseQty: null
+				, BaseQty: 0
 				, BaseUOMId: null
 				, BaseUoM: null
-				, BaseUoMFactor: null
-				, TransactionRate: null
+				, BaseUoMFactor: 0
+				, TransactionRate: 0
 				, TotalQty: 0
-				, AvgRate: null
+				, AvgRate: 0
 
 				, InventoryIssueId: $scope.productNew.Id
-				, AvgAmount: null
-				, PolicyRate: null
-				, PolicyAmount: null
+				, AvgAmount: 0
+				, PolicyRate: 0
+				, PolicyAmount: 0
 				, Policy: null
 				, ActivityName: null
 				, BudgetMasterId: null
@@ -641,6 +642,12 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			$scope.detailModel.IsSpecific = false;
 			$scope.detailModel.BaseUoMFactor = $.grep($scope.uoMList, function (item) { return item.Value === $scope.detailModel.TransactionUoMId; })[0].BaseUoMFactor;
 			$scope.detailModel.TransactionUoM = angular.element("#issueUoM :selected").text();
+			if (baseService.isUndefinedOrNull($scope.detailModel.AvgAmount)) {
+				$scope.detailModel.AvgAmount = 0;
+			}
+			if (baseService.isUndefinedOrNull($scope.detailModel.AvgRate)) {
+				$scope.detailModel.AvgRate = 0;
+			}
 			$http({
 				method: 'Post'
 				, url: $scope.path + 'getInvMaterialId'
