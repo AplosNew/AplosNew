@@ -630,7 +630,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 int colItem = COL;
                 sheet.Range[ROW, colItem, ROW + 1, colItem].Merge();
                 COL++;
-                sheet[ROW, COL].Text = "Buyer Item No.";
+                sheet[ROW, COL].Text = "Buyer Item Ref.";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colBuyerItemNo = COL;
                 sheet.Range[ROW, colBuyerItemNo, ROW + 1, colBuyerItemNo].Merge();                
