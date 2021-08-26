@@ -458,11 +458,7 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 
-            return @"  
-
-
-
-select ORD.CM,wc.Id as WorkCenterMasterId,
+            return @"select ORD.CM,wc.Id as WorkCenterMasterId,
   wc.UserName AS  [LineNo],  ps.ProcessId ,ps.ProductionOrderId ,ps.Quantity,''WorkHour ,dr.DaysRun,
   CASE WHEN ex.MachineCostPerHour*tr.TotalHour <ex.MinFixedCost THEN ex.MinFixedCost ELSE CASE WHEN ex.MachineCostPerHour*tr.TotalHour>EX.MaxFixedCost THEN ex.MaxFixedCost ELSE ex.MachineCostPerHour*tr.TotalHour END END AS MachineCostPerDay,
   buyer=STUFF((select distinct ','+XB.UserName from 
@@ -479,6 +475,13 @@ Item=STUFF((select distinct ','+XMM.UserName from
 		                               left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                               left outer join MST.MaterialMaster XMM on XMM.Id=XMOI.MaterialMasterId
 			                           where ps.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+	BuyerItemNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+                                   trn.MasterOrderItem XMOI 	  
+								        INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								        INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id 
+										where ps.ProductionOrderId=podx.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+  
+  
 									   
 									  p.UserName AS Process,
 									  
@@ -626,6 +629,11 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colItem = COL;
                 sheet.Range[ROW, colItem, ROW + 1, colItem].Merge();
+                COL++;
+                sheet[ROW, COL].Text = "Buyer Item No.";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colBuyerItemNo = COL;
+                sheet.Range[ROW, colBuyerItemNo, ROW + 1, colBuyerItemNo].Merge();                
 
                 COL++;
                 sheet[ROW, COL].Text = "SPT";
@@ -811,6 +819,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                     sheet[ROW, colProductionOrderID].Text = dtProductionInfo.Rows[i]["ProductionOrderId"].ToString();
                     sheet[ROW, colBuyer].Text = dtProductionInfo.Rows[i]["buyer"].ToString();
                     sheet[ROW, colItem].Text = dtProductionInfo.Rows[i]["Item"].ToString();
+                    sheet[ROW, colBuyerItemNo].Text = dtProductionInfo.Rows[i]["BuyerItemNo"].ToString();
                     sheet[ROW, colSPT].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["SPT"].ToString());
                     sheet[ROW, colWorkHour].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["PlannedHoursPerDay"].ToString());
                     sheet[ROW, colRUNmc].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["WithMachine"].ToString());
