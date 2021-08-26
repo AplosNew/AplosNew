@@ -8,27 +8,174 @@
         width: 1200px;
     }
 </style>
+
+<div class="row">
+    <div class="form-horizontal form-elements" ng-form="productNewForm">
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Order Specific</label>
+                <div class="col-sm-6">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" disabled value="No">
+                            <span class="cr"><i class="cr-icon"></i></span>No
+                        </label>
+                        <label>
+                            <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" disabled value="Yes">
+                            <span class="cr"><i class="cr-icon"></i></span>Yes
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" hidden id="masterId" />
+                        <span class="input-group-addon"> {{productNew.PartyCode}}</span>
+                        <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="showPartyPopUpNew()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="div_grnNo">
+                <label class="col-sm-4 control-label">PO No</label>
+                <div class="col-sm-8">
+                    <input type="text" name="PO No" ng-model="productNew.Id" class="form-control" maxlength="10" disabled>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Payment Term<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="paymentTermId" class="form-control" name="Payment Term" ng-model="productNew.PaymentTermId" ng-change="changePaymentTerm();PaymentModeByPaymentTerm();" tabindex="12" required>
+                            <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">LC No: {{LCRef}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">GRN Value: {{GRNValue}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Acpt. Value: {{AcptValue}}</label>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Customer Name">Customer Name</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" name="Customer Name" ng-model="productNew.CustomerName" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
+                </div>
+            </div>
+            <div class="form-group" id="div_docNo">
+                <label class="col-sm-4 control-label">Vendor Doc/PI RefNo<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="DocRefNo" ng-disabled="true" ng-model="productNew.DocRefNo" class="form-control" maxlength="100" tabindex="2" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group" id="div_PODate">
+                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="PO Date" disabled ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Payment Mode:{{productNew.PaymentMode}}</label>
+                <label class="col-sm-4 control-label">Total Amount</label>
+                <div class="col-sm-4">
+                    <input type="text" name="Total Amount" ng-model="productNew.TransactionAmount" class="form-control" maxlength="10" disabled>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Contract">Contract</label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" name="ContractId" ng-model="productNew.ContractId" class="form-control" maxlength="100" ng-hide="true">
+                    <input type="text" name="ContractNo" ng-model="productNew.ContractNo" ng-disabled="true" class="form-control" maxlength="100" ng-hide="productNew.OrderSpecific==='No'">
+                </div>
+            </div>
+            <div class="form-group" id="div_docDate">
+                <label class="col-sm-4  control-label">Date</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Date" disabled ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+                </div>
+            </div>
+            
+            <div class="form-group" id="div_currency">
+                <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                <div class="col-sm-5">
+                    <div class="select-style">
+                        <select class="form-control" id="currency" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList" disabled>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-3" style="padding-left: 0px;margin-left: -16px;width: 108px;">
+                    <input type="text" n-decimals="2" name="ToCurrencyRate" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{productNew.Id.length>0?'Update':'Save'}}</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
 <div class="table-responsive modal-table aplos-grid-toggle">
     <div class="content-container-fluid" style="color:black;overflow:scroll">
         <div style="color:black;" id="Grid" ej-grid e-datasource="POdataList"
              e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="true"
              @*e-detailstemplate="detailTemp"
              e-detailsdatabound="detailgrid"*@>
             <div e-columns>
+                <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
                 <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
                 <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
-                <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
-                <div e-column e-field="PODate1" e-headertext="PO Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                <div e-column e-field="PurchaseLC" e-headertext="Purchase LC Ref" e-width="170"></div>
-                <div e-column e-field="ContructNumber" e-headertext="Contact  Number" e-width="170"></div>
-                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="170"></div>
+                <div e-column e-field="PODate1" e-headertext="PO Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                 <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
+                <div e-column e-field="PurchaseLC" e-headertext="Purchase LC Ref" e-width="170"></div>
+                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="170"></div>
                 <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="120"></div>
                 <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
                 <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="CtnId" e-headertext="App.No" e-width="100"></div>
+                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="100"></div>
+                <div e-column e-field="POType" e-headertext="PO Type" e-width="100"></div>
                 <div e-column e-field="CheckedBy" e-headertext="To be Checked By" e-width="180"></div>
                 <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="180"></div>
                 <div e-column e-field="ApprovedBy" e-headertext="To be Approved By" e-width="180"></div>
@@ -38,19 +185,71 @@
 
     </div>
     @*<script id="tabGridContents" type="text/x-jsrender">
-        <div class="tabcontrol" id="Test">
-            <ul>
-                <li><a href="#gridTab{{:Id}}">Po Details</a></li>
-                <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-            </ul>
-            <div id="gridTab{{:Id}}">
-                <div id="detailGrid"></div>
-            </div>
+            <div class="tabcontrol" id="Test">
+                <ul>
+                    <li><a href="#gridTab{{:Id}}">Po Details</a></li>
+                    <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
+                </ul>
+                <div id="gridTab{{:Id}}">
+                    <div id="detailGrid"></div>
+                </div>
 
-            <div id="gridTab1{{:Id}}">
-                <div id="detailGrid1" style="width:800px;"></div>
-            </div>
+                <div id="gridTab1{{:Id}}">
+                    <div id="detailGrid1" style="width:800px;"></div>
+                </div>
 
+            </div>
+        </script>*@
+</div>
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+<div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Invoicing Party</div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 col-md-4 control-label">Invoicing by</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select ng-model="productNew.InvoicingPartyPlantId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in plantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(productNew.InvoicingPartyPlantId,'billTo')">
+                                </select>
+                            </div>
+                            <p ng-hide="productNew.InvoicingPartyPlantId==null">State :{{productNew.InvoicingState}}</p>
+                            <p ng-hide="productNew.InvoicingPartyPlantId==null">GSTIN :{{productNew.InvoicingGSTIN}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Invoicing by Address</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="productNew.InvoicingByAddress" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Delivery by</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="productNew.DeliveryPartyPlantId" ng-options="item.Value as item.Text for item in plantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(productNew.DeliveryPartyPlantId,'shipTo')">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <p ng-hide="productNew.InvoicingPartyPlantId==null">State :{{productNew.DeliveryState}}</p>
+                            <p ng-hide="productNew.InvoicingPartyPlantId==null">GSTIN :{{productNew.DeliveryGSTIN}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Delivery by Address</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="productNew.DeliveryByAddress" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeInvoicingPartyPopUp();" class="btn"> Done</button></li>
+                </ul>
+            </div>
         </div>
-    </script>*@
+    </div>
 </div>
