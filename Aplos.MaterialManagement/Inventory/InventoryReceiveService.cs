@@ -9723,10 +9723,10 @@ ORDER BY tg.[Sequence]";
                          LEFT JOIN (Select InventoryIssueDetailId,Sum(Qty) Qty,sum(qty*rate)/Sum(Qty) Rate, sum(qty*rate) TrnAmount from trn.InventoryIssueHistory group by InventoryIssueDetailId)IIH ON IIH.InventoryIssueDetailId = IRD.Id		
 						 				                                   
                          LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
-                         INNER JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
+                         LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
 						 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
-                         INNER JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
-                         INNER JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId
+                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
+                         LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId
                          LEFT JOIN HKP.Characteristics AS FC ON IOM.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IOM.SecondCharacteristicsId = SC.Id
                          LEFT JOIN HKP.Characteristics AS TC ON IOM.ThirdCharacteristicsId = TC.Id
@@ -9736,7 +9736,7 @@ ORDER BY tg.[Sequence]";
                          LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id=IR.CurrencyId
 						 Left JOIN [ORG].[Entity] E On E.id=IR.EntityId
 						 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
-                         JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
+                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
 						 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
 						 left join dbo.Contract Con On Con.Id=IR.ContractId
                          WHERE IR.Id ='" + OrderMasterID + "'";
