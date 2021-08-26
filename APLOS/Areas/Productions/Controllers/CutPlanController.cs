@@ -38,11 +38,14 @@ namespace Aplos.Areas.Productions.Controllers
 
         #endregion Constructor
 
+        #region Page
         public ActionResult Aplos()
         {
             return View();
         }
+        #endregion
 
+        #region Get 
         [HttpGet, Authorize]
         public JsonResult GetProductionOrderDataList(string entityId)
         {
@@ -68,5 +71,6 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(cp.GetMarkerDetailList(MarkerId), JsonRequestBehavior.AllowGet);
         }
-    }   
+        #endregion
+    }
 }
