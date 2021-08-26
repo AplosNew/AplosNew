@@ -465,6 +465,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 				if ($scope.JobWorkLocList.length > 0) {
 					$scope.IssueTransformation.MaterialStorageId = $scope.JobWorkLocList[0].Value;
 					$scope.IssueTransformation.StorageLocation = $scope.JobWorkLocList[0].StorageLocation;
+					$scope.IssueTransformation.MaterialStorageIdInventory = $scope.JobWorkLocList[0].Value;
 				}
 			});
 		}
@@ -692,6 +693,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			if ($scope.IssueTransformationChildList[i].isSelected == true)
 				SelectedData.push($scope.IssueTransformationChildList[i]);
 		}
+		
 
 		$http({
 			method: 'POST',
@@ -700,6 +702,10 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		}).then(function successCallback(response) {
 			$scope.MaterialInputList = response.data;
 			$scope.detailList = response.data;
+			for (var i = 0; i < $scope.detailList.length; i++) {
+				$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+			}
+			
 			if ($scope.MaterialInputList.length > 0 && $scope.detailList.length > 0) {
 				$scope.CostCenterLoadNew();
 			}
@@ -1209,7 +1215,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 				}
 			}
 			for (var i1 = 0; i1 < $scope.materialStockList.length; i1++) {
-				$scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / data.BaseUoMFactor;
+				//$scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / data.BaseUoMFactor;
 				$scope.materialStockList[i1].IssueTransactionUoMId = data.TransactionUoMId;
 				$scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
 
@@ -1671,31 +1677,31 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	// PRINT JOB WORK TRANSFORMATION REPORT
 
-	$scope.AllTabPrint = function (z) {
-		//debugger;
-		var x = "#" + z;
-		var gridObj = $(x).data("ejGrid");
-		var data = gridObj.getSelectedRecords()[0];
-		location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+	//$scope.AllTabPrint = function (z) {
+	//	//debugger;
+	//	var x = "#" + z;
+	//	var gridObj = $(x).data("ejGrid");
+	//	var data = gridObj.getSelectedRecords()[0];
+	//	location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
 
-	};
+	//};
 
-	$scope.ConfirmPrintTab = function (p) {
-		try {
-			var x = "#" + p;
-			var gridObj = $(x).data("ejGrid");
-			var data = gridObj.getSelectedRecords()[0];
+	//$scope.ConfirmPrintTab = function (p) {
+	//	try {
+	//		var x = "#" + p;
+	//		var gridObj = $(x).data("ejGrid");
+	//		var data = gridObj.getSelectedRecords()[0];
 
-			$scope.PrintTabId = data.JWContractId;
-			$scope.IssueId = data.Id;
-			var reportFormat = "Excel";
-			window.open('JobWork/JobWorkIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
-			//   $scope.getData();
+	//		$scope.PrintTabId = data.JWContractId;
+	//		$scope.IssueId = data.Id;
+	//		var reportFormat = "Excel";
+	//		window.open('JobWork/JobWorkIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+	//		//   $scope.getData();
 
-		} catch (e) {
+	//	} catch (e) {
 
-		}
-	};
+	//	}
+	//};
 
 	// Transformation Stock Wise Status
 
@@ -1728,20 +1734,21 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	}
 
 	// Print Template
-	$scope.AllTabPrint = function (z) {
-		var x = "#" + z;
-		var gridObj = $(x).data("ejGrid");
-		var data = gridObj.getSelectedRecords()[0];
+	$scope.AllTabPrint = function (data) {
+		//var x = "#" + z;
+		//var gridObj = $(x).data("ejGrid");
+		//var data = gridObj.getSelectedRecords()[0];
+
 		location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
 		$scope.getalldata();
 	};
 
 	//#region start Reports
-	$scope.ConfirmPrintTab = function (z) {
+	$scope.ConfirmPrintTab = function (data) {
 		try {
-			var x = "#" + z;
-			var gridObj = $(x).data("ejGrid");
-			var data = gridObj.getSelectedRecords()[0];
+			//var x = "#" + z;
+			//var gridObj = $(x).data("ejGrid");
+		//	var data = gridObj.getSelectedRecords()[0];
 			//        location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
 
 			$scope.PrintTabId = data.Id;

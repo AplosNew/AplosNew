@@ -3706,7 +3706,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 var sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
 				,UpdatedBy='Schedule',DateUpdated=GETDATE()
 								WHERE PlantID='" + Plant + @"'
-								AND ManualFlag=1 and IsLock=0";
+								AND ManualFlag=1";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -4205,7 +4205,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 if (ProcessOTCalculate.Tables[0].Rows.Count > 0)
                 {
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and IsLock=0 and IsOTEntitled='1' and PlantID='" + PlantValue + "'";
+                    var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and IsOTEntitled='1' and PlantID='" + PlantValue + "'";
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
