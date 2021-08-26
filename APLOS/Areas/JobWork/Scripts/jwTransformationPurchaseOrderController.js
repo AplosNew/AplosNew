@@ -4236,7 +4236,6 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     }
 
     $scope.getByProductData = function () {
-
         $http({
             method: 'GET',
             url: 'JobWork/JobWorkValueAddedContract/getByProductData?MaterialInputId=' + $scope.MatInputTabId

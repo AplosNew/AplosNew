@@ -426,18 +426,9 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.AddLineItem = function () {
         try {
             $scope.ShowDiv = true;
-            //var gridObj = $("#BPolicyId").data("ejGrid");
-            //var data = gridObj.getSelectedRecords()[0];
-            /*  $scope.TaxPolicyGeneralFormula.TaxPolicyGeneralId = data.SystemID;*/
             var eDialog = $("#General").data("ejDialog");
-            //if (data.IsExemption == true) {
-            //$scope.getGeneralTaxFormula($scope.TaxPolicyGeneralFormula.TaxPolicyGeneralId);
             $("#General").ejDialog("setTitle", $scope.HeaderName);
             eDialog.open();
-            //}
-            //else {
-            //    throw "Exemption Applicable is not checked for this Taxable Income";
-            //}
         } catch (e) {
             ShowResult(e, "failure");
         }

@@ -923,6 +923,7 @@
     <Compile Include="Areas\Products\Controllers\InventorySalesReturnController.cs" />
     <Compile Include="Areas\Products\Controllers\InventorySalesTransferScrapController.cs" />
     <Compile Include="Areas\Products\Controllers\PlantWiseGateController.cs" />
+    <Compile Include="Areas\Products\Controllers\POParameterChangeController.cs" />
     <Compile Include="Areas\Products\Controllers\PurchaseDocumentsAcceptanceController.cs" />
     <Compile Include="Areas\Products\Controllers\EntitySFGInventoryController.cs" />
     <Compile Include="Areas\Products\Controllers\GoodsReceiveNoteController.cs" />
@@ -2163,6 +2164,7 @@
     <Content Include="Areas\Products\Scripts\PendingGateoutListController.js" />
     <Content Include="Areas\Products\Scripts\POUncheckedAndUnApprovedController.js" />
     <Content Include="Areas\Products\Scripts\GRNUncheckedAndUnApprovedController.js" />
+    <Content Include="Areas\Products\Scripts\POParameterChangeController.js" />
     <Content Include="Areas\Products\Scripts\purchaseReturnPostController.js" />
     <Content Include="Areas\Products\Scripts\InOutGatePassController.js" />
     <Content Include="Areas\Products\Scripts\InventoryDashboardStatusController.js" />
@@ -3704,6 +3706,7 @@
     <Content Include="Areas\Products\Views\PurchaseOrder\PORollBack.cshtml" />
     <Content Include="Areas\Products\Views\InventorySalesReturn\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesPackingPost.cshtml" />
+    <Content Include="Areas\Products\Views\POParameterChange\Aplos.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />

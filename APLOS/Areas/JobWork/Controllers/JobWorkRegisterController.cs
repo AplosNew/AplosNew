@@ -373,7 +373,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 sheet[ROW, ColJobWorkItemMasterId].Text = data.Rows[i]["JobWorkItemMasterId"].ToString();
                 sheet[ROW, ColJWOutputItem].Text = data.Rows[i]["JWOutputItem"].ToString();
-                sheet[ROW, ColArticleCodeId].Text = data.Rows[i]["ArticleCodeId"].ToString();
+                sheet[ROW, ColArticleCodeId].Text = data.Rows[i]["ArticleId"].ToString();
                 sheet[ROW, ColJWOutputArticle].Text = data.Rows[i]["JWOutputArticle"].ToString();
                 sheet[ROW, ColOutUnit].Text = data.Rows[i]["OutputUnit"].ToString();
 

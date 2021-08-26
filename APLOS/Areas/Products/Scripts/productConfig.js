@@ -371,5 +371,9 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/InventorySalesReturn/Aplos',
             controller: 'InventorySalesReturnController'
         })
+        .when('/po-parameter', {
+            templateUrl: 'Products/POParameterChange/Aplos',
+            controller: 'POParameterChangeController'
+        })
         ;
 }

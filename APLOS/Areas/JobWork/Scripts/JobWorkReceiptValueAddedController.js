@@ -1014,20 +1014,56 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 	//}
 
-	// INDIVIDUAL RECEIPT REPORT
+	// PRINT JOB WORK TRANSFORMATION REPORT
 
+	// Print Template
+	$scope.AllTabPrint = function (data) {
+		//var x = "#" + z;
+		//var gridObj = $(x).data("ejGrid");
+		//var data = gridObj.getSelectedRecords()[0];
+
+		location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+		$scope.getalldata();
+	};
+
+	//#region start Reports
 	$scope.ConfirmPrintTab = function (data) {
 		try {
-			$scope.PrintTabId = data.ContractId;
-			$scope.IssueId = data.Id;
+			//var x = "#" + z;
+			//var gridObj = $(x).data("ejGrid");
+			//	var data = gridObj.getSelectedRecords()[0];
+			//        location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+
+			$scope.PrintTabId = data.Id;
+
 			var reportFormat = "Excel";
-			window.open('JobWork/JobWorkReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
-			//   $scope.getData();
+			if (data.POType == "OSTransformationPO") {
+				window.open('JobWork/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+			}
+
+			if (data.POType == "OSValueAddedPO") {
+				window.open('JobWork/JobWorkValueAddedContract/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+			}
 
 		} catch (e) {
 
 		}
 	};
+
+	// INDIVIDUAL RECEIPT REPORT
+
+	//$scope.ConfirmPrintTab = function (data) {
+	//	try {
+	//		$scope.PrintTabId = data.ContractId;
+	//		$scope.IssueId = data.Id;
+	//		var reportFormat = "Excel";
+	//		window.open('JobWork/JobWorkReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+	//		//   $scope.getData();
+
+	//	} catch (e) {
+
+	//	}
+	//};
 
 
 	//region code by sk
@@ -2152,13 +2188,13 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			$scope.inventoryMaterialListPO = response.data;
 		});
 	}
-	$scope.AllTabPrint = function (z) {
-		//debugger;
-		var x = "#" + z;
-		var gridObj = $(x).data("ejGrid");
-		var data = gridObj.getSelectedRecords()[0];
-		location.href = " GoodsReceiveNote/GRNReport?grnId=" + data.Id;
-	};
+	//$scope.AllTabPrint = function (z) {
+	//	//debugger;
+	//	var x = "#" + z;
+	//	var gridObj = $(x).data("ejGrid");
+	//	var data = gridObj.getSelectedRecords()[0];
+	//	location.href = " GoodsReceiveNote/GRNReport?grnId=" + data.Id;
+	//};
 
 	$scope.valuePassInDelModal = function (id) {
 		$scope.id = id;
