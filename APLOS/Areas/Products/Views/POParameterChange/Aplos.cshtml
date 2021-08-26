@@ -1,0 +1,56 @@
+﻿<togglable name="{{FormTitle}}"></togglable>
+<style>
+    .modellgModify {
+        width: 1400px;
+    }
+
+    .modellgModify1 {
+        width: 1200px;
+    }
+</style>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <div class="content-container-fluid" style="color:black;overflow:scroll">
+        <div style="color:black;" id="Grid" ej-grid e-datasource="POdataList"
+             e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+             @*e-detailstemplate="detailTemp"
+             e-detailsdatabound="detailgrid"*@>
+            <div e-columns>
+                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
+                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
+                <div e-column e-field="PODate1" e-headertext="PO Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="PurchaseLC" e-headertext="Purchase LC Ref" e-width="170"></div>
+                <div e-column e-field="ContructNumber" e-headertext="Contact  Number" e-width="170"></div>
+                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="170"></div>
+                <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
+                <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="120"></div>
+                <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
+                <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+                <div e-column e-field="CtnId" e-headertext="App.No" e-width="100"></div>
+                <div e-column e-field="CheckedBy" e-headertext="To be Checked By" e-width="180"></div>
+                <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="180"></div>
+                <div e-column e-field="ApprovedBy" e-headertext="To be Approved By" e-width="180"></div>
+                <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="180"></div>
+            </div>
+        </div>
+
+    </div>
+    @*<script id="tabGridContents" type="text/x-jsrender">
+        <div class="tabcontrol" id="Test">
+            <ul>
+                <li><a href="#gridTab{{:Id}}">Po Details</a></li>
+                <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
+            </ul>
+            <div id="gridTab{{:Id}}">
+                <div id="detailGrid"></div>
+            </div>
+
+            <div id="gridTab1{{:Id}}">
+                <div id="detailGrid1" style="width:800px;"></div>
+            </div>
+
+        </div>
+    </script>*@
+</div>
