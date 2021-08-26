@@ -177,7 +177,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/CustomerAdvanceWriteOff.cshtml");
         }
 
-        [HttpGet]
+        [Authorize, HttpGet]
         public JsonResult GetCustomerAdvanceWriteOffList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
