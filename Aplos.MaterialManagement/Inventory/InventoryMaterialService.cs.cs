@@ -2195,8 +2195,8 @@ namespace Library.MaterialManagement.Inventory
 						,IM.FirstCharacteristicsId
 						,IM.SecondCharacteristicsId
 						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
-                        --,((ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0))/BaseUoMFactor) TrasactopmUomQty
-						,0 TrasactopmUomQty
+                        ,TrasactopmUomQty=((ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0))/BaseUoMFactor) 
+						--,0 TrasactopmUomQty
 						,'' IssueTransactionUoMId
 						,'' IssueTransactionUoM
                     FROM [TRN].[InventoryReceiveDetail] AS IRD

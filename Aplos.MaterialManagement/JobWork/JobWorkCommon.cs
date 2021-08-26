@@ -2951,13 +2951,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                 con.CommitTransaction();
 
-                //return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-
             }
             catch (Exception ex)
             {
                 throw ex;
-                //return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
 
             }
 
@@ -4430,8 +4427,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
               
                             }
                         }
-             
-
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsPOboq);
