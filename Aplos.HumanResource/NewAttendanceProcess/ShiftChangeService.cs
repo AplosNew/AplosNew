@@ -630,10 +630,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                         drx.BeginEdit();
                                         drx["ManualInTime"] = DateTime.Now;
-                                        drx["IsManualInTime"] = true;
-                                        drx["ManualByWhom"] = item.AddedBy;
-                                        drx["ManualEntryTime"] = DateTime.Now.ToString();
-                                        drx["ManualFlag"] = true;
+                                        drx["IsManualInTime"] = true;                                       
                                         drx.EndEdit();
 
                                     }
@@ -646,10 +643,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                         drx.BeginEdit();
                                         drx["ManualOutTime"] = DateTime.Now;
-                                        drx["IsManualOutTime"] = true;
-                                        drx["ManualByWhom"] = item.AddedBy;
-                                        drx["ManualEntryTime"] = DateTime.Now.ToString();
-                                        drx["ManualFlag"] = true;
+                                        drx["IsManualOutTime"] = true;                                        
                                         drx.EndEdit();
 
                                     }
