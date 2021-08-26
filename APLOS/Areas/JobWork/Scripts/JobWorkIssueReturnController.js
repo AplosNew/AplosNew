@@ -1215,7 +1215,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 				}
 			}
 			for (var i1 = 0; i1 < $scope.materialStockList.length; i1++) {
-				$scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / data.BaseUoMFactor;
+				//$scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / data.BaseUoMFactor;
 				$scope.materialStockList[i1].IssueTransactionUoMId = data.TransactionUoMId;
 				$scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
 

@@ -783,7 +783,7 @@ namespace Library.MaterialManagement.JobWork
 ,Sum(kk.TotalQuantity) as TIRCTotalQty
 ,0 PlannedQty,0 IssuedQty,0 BalanceQty
 ,0 PostingQuantity
-,ab.MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
+,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid,uom.UserName as TransactionUoM
 ,Isnull(ab.TotalQty,0) TotalQty, Isnull(cd.PostingQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
 from dbo.JobWorkTransformationContractChild3 mi
 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
