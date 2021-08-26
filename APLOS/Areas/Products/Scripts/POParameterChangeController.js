@@ -301,6 +301,15 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
 
     $scope.Save = function () {
         try {
+            if (!baseService.isUndefinedOrNull($scope.LCRef)) {
+                throw "Data update is not possible as this PO has LC.";
+            }
+            if (!baseService.isUndefinedOrNull($scope.GRNValue)) {
+                throw "Data update is not possible as this PO has GRN value.";
+            }
+            if (!baseService.isUndefinedOrNull($scope.AcptValue)) {
+                throw "Data update is not possible as this PO has Acpt value.";
+            }
             $scope.product = Object.assign({}, $scope.productNew);
             if ($scope.Action == "Update") {
                 $http({
@@ -356,6 +365,9 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
         $scope.productNew.OrderSpecific = 'Yes';
         $scope.productNew.DiscountAmount = '0';
         $scope.productNew.Tolerance = '0';
+        $scope.LCRef = null;
+        $scope.GRNValue = 0;
+        $scope.AcptValue = 0;
     }
 
 
