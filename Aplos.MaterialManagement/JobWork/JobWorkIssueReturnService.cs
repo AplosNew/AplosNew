@@ -331,8 +331,8 @@ namespace Library.MaterialManagement.JobWork
 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit
 ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
-,Sum(kk.TotalQuantity) as TIRCTotalQty
-,0 PlannedQty,0 IssuedQty,0 BalanceQty
+,kk.TotalQuantity as TIRCTotalQty
+,Sum(0) PlannedQty,0 IssuedQty,0 BalanceQty
 ,null MaterialStorageId ,uom.Id as TransactionUoMId,uom.Id as BaseUoMId, uom.UserName as TransactionUoM
 ,Isnull(ab.TotalQty,0) TotalQty, Isnull(cd.PostingQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
 ,Isnull(cd.PostingQty,0) PostingQuantity--,IRD.BaseUoMFactor
@@ -344,8 +344,13 @@ left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 --left join TRN.InventoryReceiveDetail IRD on IRD.InventoryMaterialId=IM.Id
 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
-left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
-on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+left join(select iid.Id,iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId 
+			FROM TRN.InventoryIssueDetail iid 
+			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
+			--where II.JWContractId ='JWP75'
+			group by II.JWContractId,iid.Id,iid.InventoryMaterialId
+			
+) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
 
 Left join(select mi.Id,mi.JobWorkTransformationContractChildMasterId
 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
@@ -947,10 +952,10 @@ group by uom.Id --,mi.Id
 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
 ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
-,Sum(kk.TotalQuantity) as TIRCTotalQty
-,0 PlannedQty,0 IssuedQty,0 BalanceQty
+,kk.TotalQuantity as TIRCTotalQty
+,Sum(0) PlannedQty,0 IssuedQty,0 BalanceQty
 ,0 PostingQuantity
-,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid,uom.UserName as TransactionUoM
+,null MaterialStorageId,uom.Id as TransactionUoMId,uom.Id as BaseUoMId,uom.UserName as TransactionUoM
 ,Isnull(ab.TotalQty,0) TotalQty, Isnull(cd.PostingQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
 from dbo.JobWorkTransformationContractChild3 mi
 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
@@ -959,8 +964,12 @@ left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
 left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
-left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
-on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+left join(select iid.Id,iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId 
+			FROM TRN.InventoryIssueDetail iid 
+			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
+			--where II.JWContractId ='JWP75'
+			group by II.JWContractId,iid.Id,iid.InventoryMaterialId
+			) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
 
 Left join(select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
         ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
