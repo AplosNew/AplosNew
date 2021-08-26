@@ -1614,6 +1614,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		//}
 		//$scope.IssueTransformation.MaterialStorageIdInventory = $scope.SelectedMaterialStorage[0].Value;
 		$scope.IssueTransformation.MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+
 		//$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		if ($scope.Action === "Save") {
 			$http({
