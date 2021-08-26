@@ -909,6 +909,7 @@ var upanelApp = angular
     .controller("WeekOffUpdatesController", WeekOffUpdatesController)
     .controller("RosterUpdatesController", RosterUpdatesController)
     .controller("OrderController", OrderController)
+    .controller("POParameterChangeController", POParameterChangeController)
 
     .controller("NewAttdnDashboardController", NewAttdnDashboardController)
     .controller("EmployeeBudgetUpdateController", EmployeeBudgetUpdateController)

@@ -1,7 +1,6 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Commercial Dashboard</h3>
 <div class="row">
     <div class="col-md-12">
-
         @*<div class="row">*@
         <div class="form-elements form-horizontal" ng-form id="form" name="form">
 
@@ -61,11 +60,11 @@
                                 </div>
                             </div>
                         </div>
-                    <div class="common-btn"ng-show="LCGrid.Type=='SearchByDate'" >
-                        <ul class="list-inline text-right">
-                            <li><button ng-click="LoadLCGrid(); " class="btn"><i class="glyphicon glyphicon-circle-arrow-down"></i> View</button></li>
-                        </ul>
-                    </div>
+                        <div class="common-btn" ng-show="LCGrid.Type=='SearchByDate'">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="LoadLCGrid(); " class="btn"><i class="glyphicon glyphicon-circle-arrow-down"></i> View</button></li>
+                            </ul>
+                        </div>
                     </div>
                 </fieldset>
             </div>
@@ -106,7 +105,6 @@
                     <div e-column e-type="string" e-field="IsClosed" e-headertext="Is Closed" e-width="90"></div>
                     <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="90"></div>
                     <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="90"></div>
-                    @*<div e-column e-type="string" e-field="LCId" e-headertext="LC" e-width="90"></div>*@
                 </div>
             </div>
         </div>
@@ -145,16 +143,15 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="modal fade site-modal in" id="POPopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">PO<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
 
-<div class="modal fade site-modal in" id="POPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">PO<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body">
-
-                <div class="row">
-                    <div class="col-md-12">
-                       
                             <div class="col-md-12 col-md-2 col-md-2">Vendor</div>
                             <div class="col-md-12 col-md-10 col-md-10">:{{SelectedLCRow.Vendor}}</div>
                             <div class="col-md-12 col-md-2 col-md-2">LC No.</div>
@@ -169,24 +166,55 @@
                             <div class="col-md-12 col-md-2  col-md-2">Currency</div>
                             <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
                         </div>
-                   
+
+                    </div>
+                    <div class="row">
+                        <div style="color:black;" id="GridPurchaseLCPO" ej-grid e-datasource="PurchaseLCPOList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryPO"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor RefNo." e-width="100"></div>
+                                <div e-column e-type="string" e-field="TotalValue" e-textalign="right" e-format="{0:N2}" e-headertext="Total Value" e-width="100"></div>
+
+                                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-type="number" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="AcceptanceValue" e-width="100"></div>
+                                <div e-column e-template="#asasas" e-headertext="GRN Value" e-width="80"></div>
+                                @*<div e-column e-template="#GRNBreakDown" e-headertext="GRN Value" e-width="80"></div>*@
+                                @*<div e-column e-type="string" e-field="#sss" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="80"></div>
+        <div e-column e-type="string" e-field="GRNAmount" e-textalign="right" e-format="{0:N2}" e-headertext="GRNAmount" e-width="80"></div>*@
+                                <div e-column e-type="string" e-field="setOffValue" e-textalign="right" e-format="{0:N2}" e-headertext="Set Off Value" e-width="80"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="asasas">
+                        <div class="text-right" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.LoadPOBreakDownList(data);">{{data.GRNAmount |number:2}}</a>
+                        </div>
+                    </script>
                 </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<div class="modal fade site-modal in" id="sdgfsdfs" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">PO Break down.<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
                 <div class="row">
-                    <div style="color:black;" id="GridPurchaseLCPO" ej-grid e-datasource="PurchaseLCPOList"
-                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryRows"
+                    <div style="color:black;" id="POBreakDown" ej-grid e-datasource="PurchaseLCPOBreakDownList"  e-showsummary="true" e-summaryrows="sumPO"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" 
                          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
-                            <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
-                            <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="80"></div>
-                            <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor RefNo." e-width="100"></div>
-                            <div e-column e-type="string" e-field="TotalValue" e-textalign="right" e-format="{0:N2}" e-headertext="Total Value" e-width="100"></div>
-
-                            <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
-                            <div e-column e-type="number" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="AcceptanceValue" e-width="100"></div>
-
+                            <div e-column e-type="string" e-field="InventoryReceiveId" e-headertext="GRN No." e-width="50"></div>
+                            <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="80"></div>
-                            <div e-column e-type="string" e-field="setOffValue" e-textalign="right" e-format="{0:N2}" e-headertext="Set Off Value" e-width="80"></div>
-
                         </div>
                     </div>
                 </div>
@@ -218,27 +246,55 @@
                         <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
                     </div>
                 </div>
-                        <div class="row">
-                            <div style="color:black;" id="GridPurchaseLCGRN" ej-grid e-datasource="PurchaseLCGRNList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryGRN"
-                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                                <div e-columns>
-                                    <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="50"></div>
-                                    <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor Ref No." e-width="100"></div>
-                                    <div e-column e-type="string" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="100"></div>
-                                    
-                                    <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
-                                    <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
-                                    <div e-column e-type="string" e-field="GateName" e-headertext="Gate Name" e-width="50"></div>
-                                    <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No." e-width="50"></div>
-                                </div>
-                            </div>
+                <div class="row">
+                    <div style="color:black;" id="GridPurchaseLCGRN" ej-grid e-datasource="PurchaseLCGRNList" e-allowResizing="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryGRN"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="40"></div>
+                            <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="50"></div>
+                            <div e-column e-type="string" e-field="vendorRefs" e-headertext="Vendor Ref No." e-width="100"></div>
+                            @*<div e-column e-type="string" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="50"></div>*@
+                            <div e-column e-template="#GRNBreakDown" e-headertext="GRN Value" e-width="80"></div>
+
+                            <div e-column e-type="string" e-field="POIDs" e-headertext="PO No." e-width="100"></div>
+                            <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-type="string" e-field="GateName" e-headertext="Gate Name" e-width="50"></div>
+                            <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No." e-width="50"></div>
                         </div>
-                   </div>    
-        </div>
+                    </div>
+                </div>
+                <script type="text/template" id="GRNBreakDown">
+                    <div class="text-right" style="width:100%">
+                        <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.LoadGRNBreakDownList(data);">{{data.GRNValue |number:2}}</a>
+                    </div>
+                </script>
+            </div>
         </div>
     </div>
+</div>
+
+<div class="modal fade site-modal in" id="GRNBreakDownPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">GRN Break down.<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div style="color:black;" id="GridPurchaseLCGRNBreakDown" ej-grid e-datasource="PurchaseLCGRNBreakDownList"  e-showsummary="true" e-summaryrows="sumGRN"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" 
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="POId" e-headertext="PO No." e-width="50"></div>
+                            <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div class="modal fade site-modal in" id="ACPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -281,10 +337,10 @@
                 </div>
             </div>
 
-            </div>
-
-            </div>
         </div>
+
+    </div>
+</div>
 
 <div class="modal fade site-modal in" id="LoanPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -326,9 +382,10 @@
                 </div>
             </div>
 
-            </div>
         </div>
     </div>
+</div>
+
 <div class="modal fade site-modal in" id="SetOffPoP" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -408,7 +465,7 @@
                             <div e-column e-type="string" e-field="LoanSetOff" e-format="{0:N2}" e-headertext="Loan Settle" e-width="50"></div>
                             <div e-column e-type="date" e-field="SetOffDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Loan Settle Date" e-width="50"></div>
                             @*<div e-column e-type="string" e-field="AcceptanceNo" e-headertext="Acceptance No." e-width="50"></div>
-                            <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Acceptance Date" e-width="50"></div>*@
+                                <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Acceptance Date" e-width="50"></div>*@
                             <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No." e-width="50"></div>
 
                         </div>

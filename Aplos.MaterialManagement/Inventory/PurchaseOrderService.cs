@@ -12721,5 +12721,80 @@ ORDER BY IR.ID DESC";
                 throw (ex);
             }
         }
+
+        #region PO Parameter Change
+        public IEnumerable<object> GetAllPOList(string plantId)
+        {
+            try
+            {
+                var Sql = "";
+                Sql = @"SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
+									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate1
+                                    , REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
+									, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+									, CP.UserName AS PartyAccountGroupName
+									, IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.FixedAssetOrInventory, IR.PODepended
+									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
+									,ROUND(IRD.BaseAmount, 2) BaseAmount, IR.ToCurrencyRate
+									, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
+									,isnull(IR.AddedBy,'') AddedBy
+                                   ,isnull(PLC.LCRef,'') PurchaseLC
+									,isnull(Cn.ContractNo,'') ContructNumber
+									,isnull(Par1.UserName,'') Customer
+									,isnull(IR.CheckedByStatus,'') AS CheckedByStatus
+									,isnull(IR.AuthorizedByStatus,'') AS AuthorizedByStatus
+                                    ,isnull(eI.EmployeeName,'') CheckedBy
+									,isnull(eI1.EmployeeName,'') ApprovedBy
+									,isnull(IR.ContractId,'') ContractId
+									,isnull(IR.OrderSpecific,'') OrderSpecific
+									,isnull(IR.PurchaseLCId,'') PurchaseLCId
+									,isnull(Par.UserName,'') CustomerName 
+                                    ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,IR.AddedDate,IR.Tolerance,IR.POType
+						FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        
+                         LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
+						LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
+						LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
+						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
+
+						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+						JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+						LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+						LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+						LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+						LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+						LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+						LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
+						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
+						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
+						LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
+									JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='20171' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+						LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
+									WHERE B.PlantId='20171' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+						
+						WHERE  IR.PlantId='20171'";
+                return _sqlRepository.GetDataCollection(Sql);
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+        #endregion
+
     }
 }

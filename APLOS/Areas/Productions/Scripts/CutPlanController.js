@@ -10,6 +10,11 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
 
+    $scope.MarkerId = null;
+    $scope.CharacteristicsName = null;
+    $scope.CharacteristicsId = null;
+
+    $scope.FGCharacteristicsValueList = [];
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
@@ -62,7 +67,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             method: 'GET',
             url: 'Productions/CutPlan/GetLineItemData?entityId=' + $scope.modelNew.ProductionEntityId + '&processId=' + $scope.modelNew.ProcessId + '&productionOrderId=' + $scope.modelNew.ProductionOrderId + '&masterId=' + $scope.modelNew.Id
         }).then(function successCallback(response) {
-            $scope.SalesOrderLineItems = response.data;            
+            $scope.SalesOrderLineItems = response.data;
         });
     }
     function getProductionRecipeMaterialList() {
@@ -71,7 +76,36 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             url: $scope.path + 'GetProductionRecipeMaterialList?productionOrderId=' + $scope.modelNew.ProductionOrderId
         }).then(function successCallback(response) {
             $scope.recipeMaterialListSelected = response.data;
+            GetMarker(response.data[0].MaterialMasterId);
+        });
+    }
+
+    //#region MarkerList
+    $scope.MarkerList = [];
+    function GetMarker(MaterialId) {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetMarker?MaterialId=' + MaterialId
+        }).then(function successCallback(response) {
+            $scope.MarkerList = response.data;
             //getProductionProcessSetList();
         });
     }
+    $scope.getSKU = function () {
+        for (var i = 0; i < $scope.MarkerList.length; i++) {
+            if ($scope.MarkerList[i].Value == $scope.MarkerId) {
+                $scope.CharacteristicsName = $scope.MarkerList[i].SKU;
+                $scope.CharacteristicsId = $scope.MarkerList[i].SKUId;
+            }
+        }
+    };
+    $scope.getFGCharacteristics = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetMarkerDetails?MarkerId=' + $scope.MarkerId
+        }).then(function successCallback(response) {
+            $scope.FGCharacteristicsValueList = response.data;
+            //getProductionProcessSetList();
+        });
+    };
 }
