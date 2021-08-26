@@ -688,8 +688,27 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
+                SaveLog(ex.ToString(), "App", true);
                 return ex.ToString();
             }
+        }
+        public static void SaveLog(string Message, string UserName, bool isError = false)
+        {
+            if (Message.Length > 2000)
+                Message = Message.Substring(0, 2000);
+
+            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter("select * from SchedulerLog where 1=2", out DataSet dsRef, false, false, "", "1");
+
+            DataRow dr = dsRef.Tables[0].NewRow();
+            dr["ScheduleMessage"] = Message;
+            dr["UserName"] = UserName;
+            dr["isError"] = isError;
+            dr["AddedDate"] = DateTime.Now.ToString();
+            dsRef.Tables[0].Rows.Add(dr);
+
+            clsStaticInfo info = new clsStaticInfo();
+            info.SaveDataSets(dsRef);
         }
 
         public void CheckerFunction(ref string ManualFlagRowId, string Value)
