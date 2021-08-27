@@ -504,7 +504,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 foreach (AttendanceProcessNewProcess item in data)
                 {
                     EmpId += ",'" + item.EmpSystemID + "'";
-                    CheckerFunction(ref PlantData, item.PlantID);
+                    if (clsWebLib.RetValidLen(item.PlantID).ToString() != "")
+                    {
+                        CheckerFunction(ref PlantData, item.PlantID);
+                    }
                 }
 
                 string ReturnLockedEmp = "''";
