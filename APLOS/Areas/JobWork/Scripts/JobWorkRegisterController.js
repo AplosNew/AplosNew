@@ -149,7 +149,7 @@ function JobWorkRegisterController($window, addressService, cboService, commonMe
         $scope.ContractList = [];
         $http({
             method: 'GET',
-            url: $scope.path + 'LoadAllTransConForSelection?PartyVendorId=' + $scope.Register.PartyVendorId
+            url: $scope.path + 'LoadAllPOForSelection?JWPOPartyId=' + $scope.Register.PartyVendorId
         }).then(function successCallback(response) {
             $scope.ContractList = response.data;
         });
