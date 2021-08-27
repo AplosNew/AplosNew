@@ -47,8 +47,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         var GpId = UnProcessed.Tables[0].Rows[0][@"GroupID"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate='" + WkDate + "'", out DataSet dsRef, false, false, "", "1");
+                        objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate='" + WkDate + "'and PlantID='"+PlantValue+"'", out DataSet dsRef, false, false, "", "1");
 
+                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where WorkDate='" + WkDate + "' and PlantID='"+PlantValue+"'", out DataSet dsLeave, false, false, "", "1");
 
                         for (int i = 0; i < UnProcessed.Tables[0].Rows.Count; i++)
                         {
@@ -191,8 +192,22 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             }
 
+                            dsLeave.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+                            if (dsLeave.Tables[0].DefaultView.Count == 0)
+                            {
+                                DataRow drx = dsLeave.Tables[0].NewRow();
+                                drx["EmpSystemID"] = EmpId;
+                                drx["RowId"] = RowId;
+                                drx["WorkDate"] = WkDate;
+                                drx["GroupID"] = GpId;
+                                drx["PlantID"] = PlantId;
+                                drx["AddedBy"] = "Schedule";
+                                drx["DateAdded"] = Convert.ToDateTime(DateTime.Now);
+                                dsLeave.Tables[0].Rows.Add(drx);
+                            }
                         }
-                        SaveDataSets(dsRef);
+                        SaveDataSets(dsRef,dsLeave);
+                      
                     }
                     #endregion
 
@@ -4613,7 +4628,13 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 objCon.BeginTransaction();
                 IsTransactionStarted = true;
                 int i = 0;
-                objCon.SaveDataSetThroughAdapter(ref dsRef[i], true, "1");
+                foreach (DataSet value in dsRef)
+                {
+                    if (dsRef[i] != null)
+                        if (dsRef[i].Tables.Count > 0)
+                            objCon.SaveDataSetThroughAdapter(ref dsRef[i], true, "1");
+                    i++;
+                }
                 objCon.CommitTransaction();
                 IsTransactionStarted = false;
             }

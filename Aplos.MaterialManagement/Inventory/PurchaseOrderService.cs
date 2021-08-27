@@ -12723,12 +12723,16 @@ ORDER BY IR.ID DESC";
         }
 
         #region PO Parameter Change
-        public IEnumerable<object> GetAllPOList(string plantId)
+        public IEnumerable<object> GetAllPOList(string column, string value, string plantId)
         {
             try
             {
                 var Sql = "";
-                Sql = @"SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                Sql = @"SELECT * FROM(SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
 									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate1
                                     , REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
 									, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
@@ -12744,7 +12748,7 @@ ORDER BY IR.ID DESC";
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 									,isnull(IR.AddedBy,'') AddedBy
                                    ,isnull(PLC.LCRef,'') PurchaseLC
-									,isnull(Cn.ContractNo,'') ContructNumber
+									,isnull(Cn.ContractNo,'') ContractNo
 									,isnull(Par1.UserName,'') Customer
 									,isnull(IR.CheckedByStatus,'') AS CheckedByStatus
 									,isnull(IR.AuthorizedByStatus,'') AS AuthorizedByStatus
@@ -12779,12 +12783,11 @@ ORDER BY IR.ID DESC";
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 						LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A
-									JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='20171' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+									JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='"+ plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
-									WHERE B.PlantId='20171' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-						
-						WHERE  IR.PlantId='20171'";
+									WHERE B.PlantId='"+ plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id						
+						WHERE  IR.PlantId='" + plantId+@"') AS TEMP WHERE " + strkey + "";
                 return _sqlRepository.GetDataCollection(Sql);
             }
 
@@ -12794,6 +12797,51 @@ ORDER BY IR.ID DESC";
 
             }
         }
+
+        public IEnumerable<object> GetLCList(string masterId)
+        {
+            try
+            {
+                var sql = @"SELECT LC.LCRef FROM TRN.PurchaseOrder PO JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId where PO.Id='"+ masterId + "'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetGRNList(string masterId)
+        {
+            try
+            {
+                var sql = @"SELECT SUM(IRD.TotalMaterialTranAmount) TotalAmount FROM 
+                            TRN.InventoryReceiveDetail IRD
+                            JOIN TRN.PurchaseOrder PO ON PO.Id=IRD.POId
+                            WHERE PO.Id='"+ masterId + "' GROUP BY PO.Id";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetAcceptanceList(string masterId)
+        {
+            try
+            {
+                var sql = @"SELECT SUM(IRD.TotalMaterialTranAmount) TotalAmount FROM 
+                            TRN.PurchaseDocAcceptanceDetail IRD
+                            JOIN TRN.PurchaseOrder PO ON PO.Id=IRD.POId
+                            WHERE PO.Id='"+ masterId + "' GROUP BY PO.Id";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
     }

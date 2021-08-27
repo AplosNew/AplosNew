@@ -908,6 +908,12 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         if (data.Type == 'GL') {
             $scope.tempid = data.ActivityId;
         }
+        if (data.Type == 'Cash') {
+            $scope.tempid = data.CashMasterId;
+        }
+        if (data.Type == 'Bank') {
+            $scope.tempid = data.BankMasterId;
+        }
         $http({
             method: 'POST',
             url: 'Accounts/AccountStatusDashboard/GetDateRangeWisePaymentPopUpData',
@@ -945,6 +951,12 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         if ($scope.detailPaymentPopUpData.Type == 'GL') {
             $scope.tempid = $scope.detailPaymentPopUpData.ActivityId;
         }
+        if ($scope.detailPaymentPopUpData.Type == 'Cash') {
+            $scope.tempid = $scope.detailPaymentPopUpData.CashMasterId;
+        }
+        if ($scope.detailPaymentPopUpData.Type == 'Bank') {
+            $scope.tempid = $scope.detailPaymentPopUpData.BankMasterId;
+        }
 
         if (baseService.isUndefinedOrNull($scope.reportParameters.FromDate)) {
             manualValidation("div_FromDate", true, "From Date is required.");
@@ -979,6 +991,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //due work
     $scope.printPaymentDetailPopUpVoucherReport = function (obj) {
         var data = obj.data;
+        
+        if (data.SourceType == 'VendorAdvance')
+            var file_src = 'Accounts/Advance/ReportVendorAdvance?reportFormat=' + 'Excel' + '&voucherId=' + data.VoucherId;
         if (data.SourceType == 'VendorPayment')
             var file_src = 'Accounts/invoice/VendorInvoicePaymentReport?reportFormat=' + 'Excel' + '&voucherId=' + data.VoucherId;
         if (data.SourceType == 'EmployeePayment')

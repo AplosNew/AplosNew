@@ -20,8 +20,8 @@ namespace Library.Model.Inventory
         public string Policy { get; set; }
         public string Remarks { get; set; }
 		public string CostCenterId { get; set; }
-        public string Comments { get; set; } 
-        
+        public string Comments { get; set; }
+        public string JWTCMID { get; set; } 
         public bool IsAsset { get; set; }
 
         #endregion Scalar Properties
