@@ -15,12 +15,12 @@ namespace Library.MaterialManagement.CutPlan
             _sqlRepository = new SqlRepository();
         }
 
-		public IEnumerable<object> GetProductionOrderData(string entityId)
-		{
+        public IEnumerable<object> GetProductionOrderData(string entityId)
+        {
 
-			try
-			{
-				string sql = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
+            try
+            {
+                string sql = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 									,SONo=STUFF((select distinct ','+XSO.Id from 
@@ -108,18 +108,18 @@ namespace Library.MaterialManagement.CutPlan
 									LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = PD.ProductionOrderId
 								   WHERE  E.Id='" + entityId + "'";
 
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-		public IEnumerable<object> GetLineItemData(string entityId, string processId, string productionOrderId, string masterId)
-		{
-			try
-			{
-				var _sql = @"SELECT POD.Id,0 AS Checked, POD.ProductionOrderId, POD.SalesOrderId
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetLineItemData(string entityId, string processId, string productionOrderId, string masterId)
+        {
+            try
+            {
+                var _sql = @"SELECT POD.Id,0 AS Checked, POD.ProductionOrderId, POD.SalesOrderId
 	                            --, RM.Id AS RecipeMaterialId
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
 	                            , MOI.ArticleId, ART.StandardName AS ArticleName
@@ -143,7 +143,7 @@ namespace Library.MaterialManagement.CutPlan
                             LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
                             WHERE POD.ProductionOrderId = '" + productionOrderId + "'";
 
-				_sql = @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN
+                _sql = @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN
 	                            ,POD.Id, POD.ProductionOrderId, MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId
 	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
@@ -172,13 +172,42 @@ namespace Library.MaterialManagement.CutPlan
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
                             WHERE POD.ProductionOrderId = '" + productionOrderId + "'" +
-							"ORDER BY MOI.MATERIALMASTERID,MOI.ArticleID";
+                            "ORDER BY MOI.MATERIALMASTERID,MOI.ArticleID";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        public IEnumerable<object> getMarkerList(string MaterialId)
+        {
+            try
+            {
+				var _sql = @"select M.Id [Value],M.UserName [Text],c.Id SKUId ,c.UserName SKU From MarkerMaster M
+								left join HKP.Characteristics c on M.CharacteristicsId=c.Id
+								where M.FGMaterialMasterId='" + MaterialId + "'";
 				return _sqlRepository.GetDataCollection(_sql, null);
 			}
-			catch (Exception e)
-			{
-				throw e;
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+		public IEnumerable<object> GetMarkerDetailList(string MarkerId)
+        {
+            try
+            {
+				var _sql = @"select M.Id,M.Ratio,CharacteristicsValueId ,C.UserName Characteristicsvalue 
+								From MarkerDetails M
+								Left Join hkp.Characteristicsvalue c on c.Id=M.CharacteristicsValueId 
+								where MarkerMasterId='" + MarkerId+"'";
+				return _sqlRepository.GetDataCollection(_sql, null);
 			}
-		}
-	}
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+    }
 }

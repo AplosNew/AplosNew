@@ -1073,6 +1073,34 @@ namespace Library.Service.Helpers
                 throw;
             }
         }
+
+        public void PlantHeaderPayment(ref IWorksheet sheet, int lastCol,string sheetHeaderText,string sheetHeader, string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT com.Id,com.CompanyId, com.username LegalName, '' WebDomain, am.Address1, am.Address2, co.UserName AS Country, ct.UserName AS City
+                        ,'' AS Phone, '' AS Email, '' AS Website, ar.UserName AS Area
+                        , am.Address1+', '+ar.UserName+', '+ct.UserName Address, '' Contact,cmp.Image CompanyImage
+                        FROM ORG.Plant AS com
+						left join ORG.Company cmp on cmp.Id = com.CompanyId
+                        LEFT OUTER JOIN MST.AddressMaster AS am ON am.Id = com.AddressMasterId
+                        LEFT OUTER JOIN SCS.Country AS co ON co.Id = am.CountryId
+                        LEFT OUTER JOIN SCS.City AS ct ON ct.Id = am.CityId
+                        LEFT OUTER JOIN SCS.Area AS ar ON ar.Id = am.AreaId
+                        WHERE com.Id = '" + plantId + "'";
+                var plant = _sqlRepository.GetDataTable(sql);
+                if (plant.Rows.Count == 0)
+                    throw new CustomException("Plant information not found!");
+                if (lastCol > 0)
+                {
+                    HeaderPayment(sheet, lastCol, sheetHeaderText, sheetHeader, plant, true);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public void PlantHeaderWithOutLogo(ref IWorksheet sheet, int lastCol, string sheetHeader, string plantId)
         {
             try
@@ -1161,6 +1189,75 @@ namespace Library.Service.Helpers
             sheet.Range[GetColumnNameForXls(additionalColumn) + "3" + ":" + GetColumnNameForXls(lastCol) + "3"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[GetColumnNameForXls(additionalColumn) + "3" + ":" + GetColumnNameForXls(lastCol) + "3"].CellStyle.Font.Bold = true;
             sheet.Range[GetColumnNameForXls(additionalColumn) + "3"].Text = sheetHeader;
+            //if (isWithLogo)
+            //{
+            //    var image = ResourcesPathReader.GetLogoOrImagePath() + dt.Rows[0]["Image"];
+            //    if (File.Exists(image))
+            //        sheet.Pictures.AddPicture(1, lastCol, 3, lastCol + 1, image);
+            //}
+        }
+        public void HeaderPayment(IWorksheet sheet, int lastCol, string sheetHeaderText, string sheetHeader, DataTable dt, bool isWithLogo)
+        {
+            Image companyLogo = null;
+            string strPath = "";
+            int additionalColumn = 1;
+            //isWithLogo = false;
+            if (isWithLogo)
+            {
+                try
+                {
+                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dt.Rows[0]["CompanyImage"].ToString());  // IDCardEng.xlsx
+                    companyLogo = Image.FromFile(strPath);
+                    additionalColumn = 3;
+                    try
+                    {
+
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = sheet.GetColumnWidth(1) + sheet.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 7.1);
+                            int totalheight = (int)((sheet.GetRowHeight(1) + sheet.GetRowHeight(2) + sheet.GetRowHeight(3) + sheet.GetRowHeight(3)) * 1.50);
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = sheet.Pictures.AddPicture(1, 1, companyLogo);
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "1"].RowHeight = 25;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "1"].CellStyle.Font.Size = 14;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "1" + ":" + GetColumnNameForXls(lastCol) + "1"].Merge();
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "1" + ":" + GetColumnNameForXls(lastCol) + "1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "1" + ":" + GetColumnNameForXls(lastCol) + "1"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "1" + ":" + GetColumnNameForXls(lastCol) + "1"].CellStyle.Font.Bold = true;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "1"].Text = dt.Rows[0]["LegalName"].ToString();
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "2"].RowHeight = 15;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "2"].CellStyle.Font.Size = 10;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "2" + ":" + GetColumnNameForXls(lastCol) + "2"].Merge();
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "2" + ":" + GetColumnNameForXls(lastCol) + "2"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "2" + ":" + GetColumnNameForXls(lastCol) + "2"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            var address = dt.Rows[0]["Address1"].ToString().Replace("\n", "");
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "2"].Text = address;
+
+
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "3"].RowHeight = 15;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "3"].CellStyle.Font.Size = 10;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "3" + ":" + GetColumnNameForXls(lastCol) + "3"].Merge();
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "3" + ":" + GetColumnNameForXls(lastCol) + "3"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "3" + ":" + GetColumnNameForXls(lastCol) + "3"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "3" + ":" + GetColumnNameForXls(lastCol) + "3"].CellStyle.Font.Bold = true;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "3"].Text = sheetHeaderText;
+            sheet.Range[GetColumnNameForXls(additionalColumn) + "4"].Text = sheetHeader;
             //if (isWithLogo)
             //{
             //    var image = ResourcesPathReader.GetLogoOrImagePath() + dt.Rows[0]["Image"];

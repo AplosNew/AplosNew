@@ -38,10 +38,10 @@
                             <div class="form-group">
                                 <label class="col-sm-12"></label>
                             </div>
-                            @*<div class="form-group">
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label">Article<sup>*</sup></label>
                                 <div class="col-sm-6">
-                                    <input type="text" name="Asset Item" tabindex="8" ng-model="register.Article" class="form-control" readonly>
+                                    <input type="text" name="Article" tabindex="8" ng-model="register.ArticleStandardName" class="form-control" readonly>
                                 </div>
                                 <div class="col-sm-1">
                                     <button ng-click="getArticleSearchList(register.MaterialMasterId);" ng-disabled="isDisable" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
@@ -49,7 +49,7 @@
                                 <div class="col-sm-1">
                                     <button ng-click="clearMaterialArticle();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-refresh"></i></button>
                                 </div>
-                            </div>*@
+                            </div>
                         </div>
                         <div class="col-sm-12" ng-show="register.FixedAssetMasterId !=null">
                             <div class="form-group">

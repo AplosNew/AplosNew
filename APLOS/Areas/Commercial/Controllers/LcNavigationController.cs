@@ -354,6 +354,43 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpPost, Authorize]
+        public ActionResult POBreakDownDataList(string POID)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.POBreakDownList(POID);
+
+                return Json(new { POBrDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GRNBreakDownDataList(string GRNID)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.GRNBreakDownList(GRNID);
+
+                return Json(new { GRNBrDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCGRNList(string PurchaseLCId)
         {

@@ -203,7 +203,11 @@ namespace Library.MaterialManagement.Inventory
 		void InsertPODocMap(PODocumentMap entity, string POId, out string Id);
 
 		void InsertServicePODocMap(ServicePODocumentMap entity, string POId, out string Id);
-		void InsertServicePOAckDocMap(ServicePOAckDocumentMap entity, string POId, out string Id); 
+		void InsertServicePOAckDocMap(ServicePOAckDocumentMap entity, string POId, out string Id);
+		IEnumerable<object> GetAllPOList(string column, string value, string plantId);
+		IEnumerable<object> GetLCList(string masterId);
+		IEnumerable<object> GetGRNList(string masterId);
+		IEnumerable<object> GetAcceptanceList(string masterId);
 
 	}
 }

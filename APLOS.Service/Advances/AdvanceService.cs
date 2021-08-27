@@ -8518,6 +8518,12 @@ namespace Library.Service.Advances
                 vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"delete trn.GLTransactionDetail where VoucherDetailId in (select id from trn.voucherdetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "'))";
                 vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete dbo.AdvanceReqSchedule where EmployeeSalaryAdvanceId in (select Id from trn.EmployeeSalaryAdvance  where voucherId in  ('" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.EmployeeSalaryAdvance  where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.EmployeeSubsequentTransaction  where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"update trn.VoucherDetail set InvoiceTaxDetailId=NULL  where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"update trn.InvoiceTax set VoucherDetailId=NULL where voucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Id = '" + voucherId + "')";

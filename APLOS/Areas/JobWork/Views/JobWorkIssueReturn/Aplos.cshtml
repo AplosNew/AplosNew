@@ -293,8 +293,8 @@
 											<div e-column e-headertext="Actions" e-width="100">
 												<ul class="list-inline text-center">
 													<li>
-														<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
-														<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab('Grid');" style="margin: -6px;"></i></button>
+														<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
+														<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
 													</li>
 												</ul>
 											</div>
@@ -518,7 +518,7 @@
 													</td>*@
 												@*<td>{{x.Material}}</td>*@
 												@*<td>{{x.ArticleName}}</td>*@
-												<td>{{x.JobWorkTransformationContractChildMasterId}}</td>
+												<td>{{x.JWTCMId}}</td>
 												<td>{{x.Id}}</td>
 
 
@@ -826,8 +826,8 @@
 				<div e-column e-headertext="Actions" e-width="100">
 					<ul class="list-inline text-center">
 						<li>
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
-							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab('Grid');" style="margin: -6px;"></i></button>
+							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
+							<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
 						</li>
 					</ul>
 				</div>
@@ -901,7 +901,7 @@
 				 e-detailstemplate="detailTemp"
 				 e-detailsdatabound="detailgrid">
 				<div e-columns>
-					<div e-column e-field="JWContractId" e-headertext="Contract Id" e-width="80"></div>
+					<div e-column e-field="JWContractId" e-headertext="PO Number" e-width="80"></div>
 					<div e-column e-field="Id" e-headertext="Issue No" e-width="80"></div>
 					<div e-column e-field="Types" e-headertext="Type" e-width="80"></div>
 					<div e-column e-field="issuetype" e-headertext="Issue Type" e-width="80"></div>
@@ -918,8 +918,8 @@
 					<div e-column e-headertext="Actions" e-width="50">
 						<ul class="list-inline text-right">
 							<li>
-								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GridIIssue');" style="margin: -6px;"></i></button>
-								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab('GridIIssue');" style="margin: -6px;"></i></button>
+								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
+								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
 							</li>
 						</ul>
 

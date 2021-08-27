@@ -504,7 +504,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 foreach (AttendanceProcessNewProcess item in data)
                 {
                     EmpId += ",'" + item.EmpSystemID + "'";
-                    CheckerFunction(ref PlantData, item.PlantID);
+                    if (clsWebLib.RetValidLen(item.PlantID).ToString() != "")
+                    {
+                        CheckerFunction(ref PlantData, item.PlantID);
+                    }
                 }
 
                 string ReturnLockedEmp = "''";
@@ -630,10 +633,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                         drx.BeginEdit();
                                         drx["ManualInTime"] = DateTime.Now;
-                                        drx["IsManualInTime"] = true;
+                                        drx["IsManualInTime"] = true; 
                                         drx["ManualByWhom"] = item.AddedBy;
                                         drx["ManualEntryTime"] = DateTime.Now.ToString();
-                                        drx["ManualFlag"] = true;
                                         drx.EndEdit();
 
                                     }
@@ -649,7 +651,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         drx["IsManualOutTime"] = true;
                                         drx["ManualByWhom"] = item.AddedBy;
                                         drx["ManualEntryTime"] = DateTime.Now.ToString();
-                                        drx["ManualFlag"] = true;
                                         drx.EndEdit();
 
                                     }
@@ -674,6 +675,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                             ReturnLockedEmp += ",'" + item.EmpSystemID + "'";
                         }
                     }
+                    else
+                    {
+                        ReturnLockedEmp += ",'" + item.EmpSystemID + "'";
+                    }
 
                 }
 
@@ -690,8 +695,27 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             catch (Exception ex)
             {
+                SaveLog("Data:- "+data.Count().ToString()+" "+ ex.ToString(), "App", true);
                 return ex.ToString();
             }
+        }
+        public static void SaveLog(string Message, string UserName, bool isError = false)
+        {
+            if (Message.Length > 2000)
+                Message = Message.Substring(0, 2000);
+
+            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter("select * from SchedulerLog where 1=2", out DataSet dsRef, false, false, "", "1");
+
+            DataRow dr = dsRef.Tables[0].NewRow();
+            dr["ScheduleMessage"] = Message;
+            dr["UserName"] = UserName;
+            dr["isError"] = isError;
+            dr["AddedDate"] = DateTime.Now.ToString();
+            dsRef.Tables[0].Rows.Add(dr);
+
+            clsStaticInfo info = new clsStaticInfo();
+            info.SaveDataSets(dsRef);
         }
 
         public void CheckerFunction(ref string ManualFlagRowId, string Value)
