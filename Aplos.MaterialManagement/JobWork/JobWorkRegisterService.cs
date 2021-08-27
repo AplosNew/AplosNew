@@ -40,23 +40,15 @@ namespace Library.MaterialManagement.JobWork
 
         }
 
-        public IEnumerable<object> LoadAllTransConForSelection(string PartyVendorId)
+        public IEnumerable<object> LoadAllPOForSelection(string JWPOPartyId)
         {
             try
             {
                 string sql = "";
+             //   string PartyId = PartyVendorId;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                if (!string.IsNullOrEmpty(PartyVendorId))
-                {
-                    sql = @"select tc.*,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party
-                                              , FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
-                                              ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate
-                                              from dbo.JWTransformationPurchaseOrder tc left join ORG.Plant P on P.Id=tc.PlantId
-                                              left join ORG.Entity E on E.Id=tc.EntityId
-                                              left join HKP.Party Pty on Pty.Id=tc.PartyId
-                                              where tc.PartyId='" + PartyVendorId + @"' ";
-                }
-                else
+
+                if (JWPOPartyId == "null")
                 {
                     sql = @"select tc.*,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party
                                               , FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
@@ -64,6 +56,17 @@ namespace Library.MaterialManagement.JobWork
                                               from dbo.JWTransformationPurchaseOrder tc left join ORG.Plant P on P.Id=tc.PlantId
                                               left join ORG.Entity E on E.Id=tc.EntityId
                                               left join HKP.Party Pty on Pty.Id=tc.PartyId ";
+                }
+
+                else
+                {
+                    sql = @"select tc.*,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party
+                                              , FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
+                                              ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate
+                                              from dbo.JWTransformationPurchaseOrder tc left join ORG.Plant P on P.Id=tc.PlantId
+                                              left join ORG.Entity E on E.Id=tc.EntityId
+                                              left join HKP.Party Pty on Pty.Id=tc.PartyId
+                                              where tc.PartyId='" + JWPOPartyId + @"' ";
                 }
 
 
