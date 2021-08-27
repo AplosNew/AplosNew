@@ -4421,6 +4421,62 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 }
                 #endregion
 
+                #region Manual EarnedLeave Processing 
+                DataSet ManualEarnedLeaveData;
+                ManualEarnedLeave(out ManualEarnedLeaveData, PlantValue);
+                if (ManualEarnedLeaveData.Tables[0].Rows.Count > 0)
+                {
+
+                    string RowIdDataSet = "''";
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet RowIdSet, false, false, "", "1");
+                    
+                    if(RowIdSet.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < RowIdSet.Tables[0].Rows.Count; i++)
+                        {
+                            RowIdDataSet += ",'" + RowIdSet.Tables[0].Rows[i][@"RowId"].ToString() + "'";
+                        }
+                        var sql = @"select * from LeaveEarned where RowId In("+RowIdDataSet+") ";
+
+                        objCon.OpenDataSetThroughAdapter(sql, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < ManualEarnedLeaveData.Tables[0].Rows.Count; i++)                            
+                        {
+                                string RowId = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"RowId"]).ToString();
+                                string DayType = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"DayType"]).ToString();
+                                string EarnedPL = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"EarnedPL"]).ToString();
+                                string EarnedCL = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"EarnedCL"]).ToString();
+
+                                dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+                                if (dsRef.Tables[0].DefaultView.Count > 0)
+                                {
+
+                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["DayStatus"] = DayType;
+                                    if (EarnedCL != "")
+                                    {
+                                        dr["EarnedCasualLeave"] = EarnedCL;
+                                    }
+                                    if (EarnedPL != "")
+                                    {
+                                        dr["EarnedPriviledgeLeave"] = EarnedPL;
+                                    }
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr["UpdatedBy"] = "ManualProcess";
+                                    dr.EndEdit();
+                                }                            
+                        }
+                           
+                        SaveDataSets(dsRef);
+                        
+                    }
+
+                }
+                #endregion
+
                 #region Set Manual Flag ->0              
                 ProcessManualFlag(ManualFlagRowId);
                 #endregion
