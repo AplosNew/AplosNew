@@ -1135,13 +1135,13 @@ namespace Aplos.Areas.Productions.Controllers
             int endCol = 1;
             int COL = 1;
 
-            sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
-            sheet.Range[ROW, COL].ColumnWidth = 13;
-            sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
-            sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
-            sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            ROW += 2;
+            //sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
+            //sheet.Range[ROW, COL].ColumnWidth = 13;
+            //sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
+            //sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //ROW += 2;
 
             #region Grid Headers
 
@@ -1149,72 +1149,69 @@ namespace Aplos.Areas.Productions.Controllers
             int ColAssigned = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Product Code", 13, ExcelHAlign.HAlignCenter);
-            int ColProdCode = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer", 13, ExcelHAlign.HAlignCenter);
+            int ColCustomer = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Production Order", 13, ExcelHAlign.HAlignCenter);
-            int ColPO = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Ex Factory Date", 13, ExcelHAlign.HAlignCenter);
+            int ColEFDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Lot No", 13, ExcelHAlign.HAlignCenter);
-            int ColLotNo = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Commitment Date", 13, ExcelHAlign.HAlignCenter);
+            int ColCDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "From Date", 13, ExcelHAlign.HAlignCenter);
-            int ColFD = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "From Period", 13, ExcelHAlign.HAlignCenter);
-            int ColFP = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Upto Date", 13, ExcelHAlign.HAlignCenter);
-            int ColUD = COL;
-            COL++;
-            report.SetHeaderText(ref sheet, ROW, COL, "Despatch", 15, ExcelHAlign.HAlignCenter);
-            int ColDespatch = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Planned Qty", 13, ExcelHAlign.HAlignCenter);
-            int ColPlannedQty = COL;
-            COL++;
-
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Booked Qty", 13, ExcelHAlign.HAlignCenter);
-            int ColcolBookedQty = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Stock Qty", 13, ExcelHAlign.HAlignCenter);
-            int ColStckQty = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "SO ID", 13, ExcelHAlign.HAlignCenter);
+            int ColSoId = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "SO Qty", 13, ExcelHAlign.HAlignCenter);
             int ColSoQty = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "NO Of SO", 13, ExcelHAlign.HAlignCenter);
-            int ColNoOfSO = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Dispatch Qty", 13, ExcelHAlign.HAlignCenter);
+            int ColDisQty = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "ItemId", 13, ExcelHAlign.HAlignCenter);
-            int ColItemId = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance To Dispatch", 15, ExcelHAlign.HAlignCenter);
+            int ColBal = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Item Article", 13, ExcelHAlign.HAlignCenter);
-            int ColItemArticle = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Product Code", 13, ExcelHAlign.HAlignCenter);
+            int ColProdCode = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Product", 13, ExcelHAlign.HAlignCenter);
-            int ColProd = COL;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PR NO", 13, ExcelHAlign.HAlignCenter);
+            int ColPrNo = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Master Order No", 13, ExcelHAlign.HAlignCenter);
-            int ColMasterOrderNo = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Lot No", 13, ExcelHAlign.HAlignCenter);
+            int ColLotNo = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Customer", 13, ExcelHAlign.HAlignCenter);
-            int ColCustomer = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Assigned Qty", 13, ExcelHAlign.HAlignCenter);
+            int ColAssig = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Un-Assigned Qty", 13, ExcelHAlign.HAlignCenter);
+            int ColUnAssig = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "No Of Bag/Ctn", 13, ExcelHAlign.HAlignCenter);
+            int ColBg = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Bag/Ctn Net Weight", 13, ExcelHAlign.HAlignCenter);
+            int ColNtWt = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Contract No", 13, ExcelHAlign.HAlignCenter);
+            int ColContract = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 13, ExcelHAlign.HAlignCenter);
+            int ColRem = COL;
             COL++;
 
             ROW++;
@@ -1231,23 +1228,22 @@ namespace Aplos.Areas.Productions.Controllers
             {
 
                 sheet[ROW, ColAssigned].Text = data.Rows[i]["Assigned"].ToString();
-                sheet[ROW, ColProdCode].Text = data.Rows[i]["ProductCode"].ToString();
-                sheet[ROW, ColPO].Text = data.Rows[i]["PO"].ToString();
-                sheet[ROW, ColLotNo].Text = data.Rows[i]["LotNo"].ToString();
-                sheet[ROW, ColFD].Text = data.Rows[i]["fd"].ToString();
-                sheet[ROW, ColFP].Text = data.Rows[i]["fp"].ToString();
-                sheet[ROW, ColUD].Text = data.Rows[i]["ud"].ToString();
-                sheet[ROW, ColDespatch].Text = data.Rows[i]["Despatch"].ToString();
-                sheet[ROW, ColPlannedQty].Text = data.Rows[i]["PlannedQty"].ToString();
-                sheet[ROW, ColcolBookedQty].Text = data.Rows[i]["BookedQty"].ToString();
-                sheet[ROW, ColStckQty].Text = data.Rows[i]["StockQty"].ToString();
-                sheet[ROW, ColSoQty].Text = data.Rows[i]["SoQty"].ToString();
-                sheet[ROW, ColNoOfSO].Text = data.Rows[i]["NoOfSo"].ToString();
-                sheet[ROW, ColItemId].Text = data.Rows[i]["ItemId"].ToString();
-                sheet[ROW, ColItemArticle].Text = data.Rows[i]["ItemArticle"].ToString();
-                sheet[ROW, ColProd].Text = data.Rows[i]["Product"].ToString();
-                sheet[ROW, ColMasterOrderNo].Text = data.Rows[i]["MasterOrderNo"].ToString();
                 sheet[ROW, ColCustomer].Text = data.Rows[i]["Customer"].ToString();
+                sheet[ROW, ColEFDate].Text = data.Rows[i]["ExFactoryDate"].ToString();
+                sheet[ROW, ColCDate].Text = data.Rows[i]["CommitmentDate"].ToString();
+                sheet[ROW, ColSoId].Text = data.Rows[i]["SoId"].ToString();
+                sheet[ROW, ColSoQty].Text = data.Rows[i]["SoQty"].ToString();
+                sheet[ROW, ColDisQty].Text = data.Rows[i]["Dispatch"].ToString();
+                sheet[ROW, ColBal].Text = data.Rows[i]["ToBeDispatch"].ToString();
+                sheet[ROW, ColProdCode].Text = data.Rows[i]["ProductCode"].ToString();
+                sheet[ROW, ColPrNo].Text = data.Rows[i]["PO"].ToString();
+                sheet[ROW, ColLotNo].Text = data.Rows[i]["LotNo"].ToString();
+                sheet[ROW, ColAssig].Text = data.Rows[i]["AssignedQty"].ToString();
+                sheet[ROW, ColUnAssig].Text = data.Rows[i]["Available"].ToString();
+                sheet[ROW, ColBg].Text = data.Rows[i]["Cartons"].ToString();
+                sheet[ROW, ColNtWt].Text = data.Rows[i]["StockQty"].ToString();
+                sheet[ROW, ColContract].Text = data.Rows[i]["ContractNo"].ToString();
+                sheet[ROW, ColRem].Text = data.Rows[i]["Remarks"].ToString();
 
 
 
