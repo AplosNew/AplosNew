@@ -1027,7 +1027,9 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.ClearIssueTransformationChildTab = function () {
 		ClearFieldsIssueTransformation();
 		$scope.TransformationTypeList = [];
+		$scope.materialStockList = [];
 		$scope.IssueTransformationChildList = [];
+
 		$scope.MaterialInputList = [];
 		$scope.detailList = [];
 		$scope.getData();
@@ -1215,12 +1217,12 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 				}
 			}
 			for (var i1 = 0; i1 < $scope.materialStockList.length; i1++) {
-				$scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / data.BaseUoMFactor;
+				//$scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / data.BaseUoMFactor;
 				$scope.materialStockList[i1].IssueTransactionUoMId = data.TransactionUoMId;
 				$scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
 
 				$scope.materialStockList[i1].TransactionUoMId = data.TransactionUoMId;
-				$scope.materialStockList[i1].BaseUoMFactor = data.BaseUoMFactor;
+				//$scope.materialStockList[i1].BaseUoMFactor = data.BaseUoMFactor;
 			}
 			angular.element(document.querySelector('#stockPopUp')).modal('show');
 		}), function (response) {
@@ -1612,6 +1614,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		//}
 		//$scope.IssueTransformation.MaterialStorageIdInventory = $scope.SelectedMaterialStorage[0].Value;
 		$scope.IssueTransformation.MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+
 		//$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		if ($scope.Action === "Save") {
 			$http({

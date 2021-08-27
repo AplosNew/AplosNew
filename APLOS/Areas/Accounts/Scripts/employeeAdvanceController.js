@@ -134,6 +134,12 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
     $scope.transactionTypeGL = null;
     $scope.getTransactionTypeGL = function (id) {
         $scope.advanceDetailList = [];
+        $scope.loanDetails = [];
+        $("#loanDetails").children().remove();
+        $scope.loanRepaymentSchedulelist = [];
+        $scope.voucher.RepaymentStartDate = null;
+        $scope.TotalPayments = null;
+        $scope.voucher.NoOfInstallmentPerYear = null;
         if ($scope.advance.CurrencyId === null) {
             ShowResult('Please Select Currency!', 'failure');
             return;
@@ -413,6 +419,11 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
         $scope.advanceDetailList = [];
         $scope.loanDetails = [];
         $("#loanDetails").children().remove();
+        $scope.loanRepaymentSchedulelist = [];
+        $scope.voucher.RepaymentStartDate = null;
+        $scope.voucher.NoOfInstallmentPerYear = null;
+        $scope.TotalPayments = null;
+        $scope.TotalInterestPaid = null;
         $scope.clearEmployeePopUp();
         $scope.clearCashPopUp();
         $scope.clearBankPopUp();

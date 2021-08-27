@@ -350,31 +350,31 @@ namespace Library.Service.OrderManagements
         {
             try
             {
-                var _sql = @"SELECT POD.Id,0 AS Checked, POD.ProductionOrderId, POD.SalesOrderId
-	                            --, RM.Id AS RecipeMaterialId
-	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
-	                            , MOI.ArticleId, ART.StandardName AS ArticleName
-	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
-                                , LSD = REPLACE(CONVERT(CHAR(11), LSD, 106),' ','-')
-	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
-	                            , DEST.UserName AS DestinationName, SHP.UserName AS ShipmentModeName
-	                            , PO.PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
-	                            , SO.Qty, SO.CM, SO.Rate,SO.Description
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
-                            FROM [TRN].[ProductionOrderDetail] AS POD
-                            LEFT JOIN [TRN].[SalesOrder] AS SO ON POD.SalesOrderId=SO.Id
-                            LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
-                            --LEFT JOIN [TRN].[RecipeMaterial] AS RM ON RM.MaterialMasterId = MOI.MaterialMasterId AND RM.ArticleId = MOI.ArticleId
-                            JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id --RM.MaterialMasterId = MM.Id AND 
-                            JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id --RM.ArticleId = ART.Id AND 
-                            LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
-                            LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
-                            LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-                            LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
-                            LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                            WHERE POD.ProductionOrderId = '" + productionOrderId + "'";
+                //var _sql = @"SELECT POD.Id,0 AS Checked, POD.ProductionOrderId, POD.SalesOrderId
+	               //             --, RM.Id AS RecipeMaterialId
+	               //             , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
+	               //             , MOI.ArticleId, ART.StandardName AS ArticleName
+	               //             , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+                //                , LSD = REPLACE(CONVERT(CHAR(11), LSD, 106),' ','-')
+	               //             , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	               //             , DEST.UserName AS DestinationName, SHP.UserName AS ShipmentModeName
+	               //             , PO.PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	               //             , SO.Qty, SO.CM, SO.Rate,SO.Description
+	               //             , Flag = CAST(0 AS BIT),SO.DestinationDescription
+                //            FROM [TRN].[ProductionOrderDetail] AS POD
+                //            LEFT JOIN [TRN].[SalesOrder] AS SO ON POD.SalesOrderId=SO.Id
+                //            LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+                //            --LEFT JOIN [TRN].[RecipeMaterial] AS RM ON RM.MaterialMasterId = MOI.MaterialMasterId AND RM.ArticleId = MOI.ArticleId
+                //            JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id --RM.MaterialMasterId = MM.Id AND 
+                //            JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id --RM.ArticleId = ART.Id AND 
+                //            LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                //            LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                //            LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                //            LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                //            LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+                //            WHERE POD.ProductionOrderId = '" + productionOrderId + "'";
 
-                _sql = @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN
+              var  _sql = @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN
 	                            ,POD.Id, POD.ProductionOrderId, MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId
 	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
@@ -386,11 +386,11 @@ namespace Library.Service.OrderManagements
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
 	                            , SO.Qty, SO.CM, SO.Rate,ISNULL(SO.Description,'')Description
 	                            , Flag = CAST(0 AS BIT),ISNULL(SO.DestinationDescription,'')DestinationDescription
-								,ISNULL(fc.CharacteristicsValueId,'') FirstCharacteristicsValueId,ISNULL(sc.CharacteristicsValueId,'') SecondCharacteristicsValueId
-								,ISNULL(tc.CharacteristicsValueId,'') ThirdCharacteristicsValueId,
-                               ISNULL(c1.UserName,'') AS FirstCharacteristics,ISNULL(cv1.UserName,'') AS FirstCharacteristicsValue,
-                                ISNULL(c2.UserName,'') AS SecondCharacteristics,ISNULL(cv2.UserName,'') AS SecondCharacteristicsValue,
-                                ISNULL(c3.UserName,'') AS ThirdCharacteristics,ISNULL(cv3.UserName,'') AS ThirdCharacteristicsValue
+								--,ISNULL(fc.CharacteristicsValueId,'') FirstCharacteristicsValueId,ISNULL(sc.CharacteristicsValueId,'') SecondCharacteristicsValueId
+								--,ISNULL(tc.CharacteristicsValueId,'') ThirdCharacteristicsValueId,
+                              -- ISNULL(c1.UserName,'') AS FirstCharacteristics,ISNULL(cv1.UserName,'') AS FirstCharacteristicsValue,
+                                --ISNULL(c2.UserName,'') AS SecondCharacteristics,ISNULL(cv2.UserName,'') AS SecondCharacteristicsValue,
+                                --ISNULL(c3.UserName,'') AS ThirdCharacteristics,ISNULL(cv3.UserName,'') AS ThirdCharacteristicsValue
                        FROM 
                        [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[ProductionOrderDetail] AS POD ON pod.SalesOrderId=so.Id
@@ -409,17 +409,17 @@ namespace Library.Service.OrderManagements
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
 					   LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
 
-                       LEFT JOIN trn.SecondCharacteristics AS sc ON sc.FirstCharacteristicsId=fc.Id AND sc.SalesOrderId=so.Id
-                       LEFT JOIN trn.ThirdCharacteristics AS tc ON tc.SecondCharacteristicsId=sc.Id AND tc.SalesOrderId=so.Id
+                       --LEFT JOIN trn.SecondCharacteristics AS sc ON sc.FirstCharacteristicsId=fc.Id AND sc.SalesOrderId=so.Id
+                       --LEFT JOIN trn.ThirdCharacteristics AS tc ON tc.SecondCharacteristicsId=sc.Id AND tc.SalesOrderId=so.Id
 
-                       LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=fc.CharacteristicsValueId
-                       LEFT JOIN hkp.Characteristics AS c1 ON c1.Id=cv1.CharacteristicsId
+                       --LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=fc.CharacteristicsValueId
+                       --LEFT JOIN hkp.Characteristics AS c1 ON c1.Id=cv1.CharacteristicsId
 
-                       LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=sc.CharacteristicsValueId
-                       LEFT JOIN hkp.Characteristics AS c2 ON c2.Id=cv2.CharacteristicsId
+                       --LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=sc.CharacteristicsValueId
+                      -- LEFT JOIN hkp.Characteristics AS c2 ON c2.Id=cv2.CharacteristicsId
 
-                       LEFT JOIN hkp.CharacteristicsValue AS cv3 ON cv3.Id=tc.CharacteristicsValueId
-                       LEFT JOIN hkp.Characteristics AS c3 ON c3.Id=cv3.CharacteristicsId
+                       --LEFT JOIN hkp.CharacteristicsValue AS cv3 ON cv3.Id=tc.CharacteristicsValueId
+                       --LEFT JOIN hkp.Characteristics AS c3 ON c3.Id=cv3.CharacteristicsId
 
                         WHERE POD.ProductionOrderId = '" + productionOrderId + "'" +
                         "ORDER BY MOI.MATERIALMASTERID,MOI.ArticleID";
