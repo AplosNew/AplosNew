@@ -927,7 +927,7 @@ namespace Library.Service.SalaryDisbursement
 						left join trn.Voucher v on v.Id=sl.PayableVoucherId
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
                         and spd.PaymentMode='" + pMode + @"' 
-                        and spc.DisbusmentAmount!=0  
+                        and spc.DisbusmentAmount!=0
                         and spd.PlantId='" + voucherVM.PlantId + @"' 
 						and ISNULL(sh.SalaryHead, '')  in ('Net Pay'))";
                     }

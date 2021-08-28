@@ -4506,7 +4506,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dr["BloodGroup"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PermanentAddress", dr["ParmanentAddress"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", cnDgt(dr["CellPhnNo"].ToString(), langName), "Kalpurush", 8);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dr["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
+                    //ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dr["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", cnDgt(dr["NationalID"].ToString(), langName), "Kalpurush", 8);
 
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Name", dr["EmployeeName"].ToString(), "Kalpurush", 8);

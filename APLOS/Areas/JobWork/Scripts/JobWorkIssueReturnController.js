@@ -520,7 +520,8 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		IssueType: 'Revenue',
 		JWContractId: null,
 		ContractType: null,
-		MaterialStorageIdInventory: null
+		MaterialStorageIdInventory: null,
+		RefferenceNo: null
 
 	};
 	$scope.IssueTransformation = Object.assign({}, $scope.IssueTransformationModelTemp);
@@ -1633,6 +1634,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 					ShowResult(response.data.Message, 'failure');
 				else {
 					ShowResult(response.data.Message, 'success');
+					$scope.getdataInventoryIssue();
 					//$scope.Clear();
 					// $scope.getData();
 					//$scope.productNew.Id = response.data.inventoryIssue.Id;

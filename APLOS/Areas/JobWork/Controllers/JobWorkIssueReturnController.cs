@@ -2350,7 +2350,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 //   ROW++;
                 ColVAContractClosingDateEnd++;
 
-                SetHeaderTextTop(ref sheet, ROW, ColVAContractClosingDateEnd, "Contract Id", 20, ExcelHAlign.HAlignLeft);
+                SetHeaderTextTop(ref sheet, ROW, ColVAContractClosingDateEnd, "PO Number", 20, ExcelHAlign.HAlignLeft);
                 ColVAContractClosingDateEnd++;
                 int ColContractId = ColVAContractClosingDateEnd;
                 int ColContractIdEnd = ColVAContractClosingDateEnd + 1;
