@@ -17064,7 +17064,7 @@ namespace Library.MaterialManagement.InventoryManagements
 			try
 			{
 
-				var sql = @"DECLARE @inventoryReceiveId VARCHAR(10) = '1985'
+				var sql = @"DECLARE @inventoryReceiveId VARCHAR(10) = ''
 									,@totalReceiveAmount DECIMAL(18, 4) = 0
 									,@totalServiceAmount DECIMAL(18, 4) = 0
 									,@totalSvcTaxAmount DECIMAL(18, 4) = 0
