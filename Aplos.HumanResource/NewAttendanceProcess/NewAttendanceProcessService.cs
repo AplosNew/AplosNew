@@ -49,7 +49,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate='" + WkDate + "'and PlantID='"+PlantValue+"'", out DataSet dsRef, false, false, "", "1");
 
-                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where WorkDate='" + WkDate + "' and PlantID='"+PlantValue+"'", out DataSet dsLeave, false, false, "", "1");
+                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where WorkDate='" + WkDate + "' and PlantID='"+PlantValue+"'", out DataSet dsEarnedLeave, false, false, "", "1");
 
                         for (int i = 0; i < UnProcessed.Tables[0].Rows.Count; i++)
                         {
@@ -192,21 +192,24 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             }
 
-                            dsLeave.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
-                            if (dsLeave.Tables[0].DefaultView.Count == 0)
+                            dsEarnedLeave.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+                            if (dsEarnedLeave.Tables[0].DefaultView.Count == 0)
                             {
-                                DataRow drx = dsLeave.Tables[0].NewRow();
+                                DataRow drx = dsEarnedLeave.Tables[0].NewRow();
                                 drx["EmpSystemID"] = EmpId;
                                 drx["RowId"] = RowId;
                                 drx["WorkDate"] = WkDate;
                                 drx["GroupID"] = GpId;
+                                drx["DayStatus"] = DBNull.Value;
+                                drx["EarnedPriviledgeLeave"] = 0; 
+                                drx["EarnedCasualLeave"] = 0;
                                 drx["PlantID"] = PlantId;
                                 drx["AddedBy"] = "Schedule";
                                 drx["DateAdded"] = Convert.ToDateTime(DateTime.Now);
-                                dsLeave.Tables[0].Rows.Add(drx);
+                                dsEarnedLeave.Tables[0].Rows.Add(drx);
                             }
                         }
-                        SaveDataSets(dsRef,dsLeave);
+                        SaveDataSets(dsRef, dsEarnedLeave);
                       
                     }
                     #endregion
@@ -2825,6 +2828,33 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 throw (ex);
             }
         }
+        public void EarnedLeaveCalculation(string PreDay, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct p.RowId,dt.DayType, dt.EarnedPL,dt.EarnedCL,
+                        format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                        left join mst.DesignationMasterLegalDesignation ddm on 
+                        ddm.LegalDesignationId = ei.LegalDesignationId
+                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+						left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
+						and dc.PlantId=ei.PlantId
+						left join DayStatusHeader dh on dh.Id=dc.headerId
+						left join DayStatus ds on ds.headerId=dh.Id
+						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
+						where WorkDate='"+PreDay+ @"' 
+						and dt.DayType=p.DayStatus and (dt.EarnedCL>0 or dt.EarnedPL>0)
+						and ei.PlantId='" + Plant+"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         #endregion
 
@@ -3343,6 +3373,52 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                     }
                     #endregion
 
+                    #region PrevDay EarnedLeave Processing 
+                    DataSet PrevEarnedLeave;
+                    EarnedLeaveCalculation(PreviousDay, out PrevEarnedLeave, PlantValue);
+                    if (PrevEarnedLeave.Tables[0].Rows.Count > 0)
+                    {
+                        var WkDate = PrevEarnedLeave.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from LeaveEarned where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                        for (int i = 0; i < PrevEarnedLeave.Tables[0].Rows.Count; i++)
+                        {
+
+                            string RowId = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"RowId"]).ToString();
+                            string DayType = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"DayType"]).ToString();
+                            string EarnedPL = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"EarnedPL"]).ToString();
+                            string EarnedCL = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"EarnedCL"]).ToString();
+                           
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId+ "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                dr["DayStatus"] = DayType;
+                                if (EarnedCL != "")
+                                {
+                                    dr["EarnedCasualLeave"] = EarnedCL;
+                                }
+                                if (EarnedPL != "")
+                                {
+                                    dr["EarnedPriviledgeLeave"] = EarnedPL;
+                                }
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr["UpdatedBy"] = "DayStatusProcess";
+                                dr.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+                    #endregion
+
                     #region Future ManualOT
                     DataSet PrevManualOT;
                     ManualOT(PreviousDay, out PrevManualOT, PlantValue);
@@ -3783,6 +3859,33 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                 objCone.ExecuteNonQueryWrapper(sql, true, "1");
                 objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ManualEarnedLeave(out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct p.RowId,dt.DayType, dt.EarnedPL,dt.EarnedCL,
+                        format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                        left join mst.DesignationMasterLegalDesignation ddm on 
+                        ddm.LegalDesignationId = ei.LegalDesignationId
+                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+						left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
+						and dc.PlantId=ei.PlantId
+						left join DayStatusHeader dh on dh.Id=dc.headerId
+						left join DayStatus ds on ds.headerId=dh.Id
+						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
+						where p.ManualFlag=1 
+						and dt.DayType=p.DayStatus and (dt.EarnedCL>0 or dt.EarnedPL>0)
+						and ei.PlantId='" + Plant + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
             catch (Exception ex)
             {
@@ -4314,6 +4417,62 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         }
                     }
                     SaveDataSets(dsRef);
+
+                }
+                #endregion
+
+                #region Manual EarnedLeave Processing 
+                DataSet ManualEarnedLeaveData;
+                ManualEarnedLeave(out ManualEarnedLeaveData, PlantValue);
+                if (ManualEarnedLeaveData.Tables[0].Rows.Count > 0)
+                {
+
+                    string RowIdDataSet = "''";
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet RowIdSet, false, false, "", "1");
+                    
+                    if(RowIdSet.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < RowIdSet.Tables[0].Rows.Count; i++)
+                        {
+                            RowIdDataSet += ",'" + RowIdSet.Tables[0].Rows[i][@"RowId"].ToString() + "'";
+                        }
+                        var sql = @"select * from LeaveEarned where RowId In("+RowIdDataSet+") ";
+
+                        objCon.OpenDataSetThroughAdapter(sql, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < ManualEarnedLeaveData.Tables[0].Rows.Count; i++)                            
+                        {
+                                string RowId = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"RowId"]).ToString();
+                                string DayType = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"DayType"]).ToString();
+                                string EarnedPL = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"EarnedPL"]).ToString();
+                                string EarnedCL = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"EarnedCL"]).ToString();
+
+                                dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+                                if (dsRef.Tables[0].DefaultView.Count > 0)
+                                {
+
+                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["DayStatus"] = DayType;
+                                    if (EarnedCL != "")
+                                    {
+                                        dr["EarnedCasualLeave"] = EarnedCL;
+                                    }
+                                    if (EarnedPL != "")
+                                    {
+                                        dr["EarnedPriviledgeLeave"] = EarnedPL;
+                                    }
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr["UpdatedBy"] = "ManualProcess";
+                                    dr.EndEdit();
+                                }                            
+                        }
+                           
+                        SaveDataSets(dsRef);
+                        
+                    }
 
                 }
                 #endregion
