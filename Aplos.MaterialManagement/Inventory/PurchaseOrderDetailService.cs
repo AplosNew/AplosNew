@@ -3058,6 +3058,8 @@ namespace Library.MaterialManagement.Inventory
 					{
 						_unitOfWork.BeginTransaction();
 						flag = true;
+
+						_inventoryReceiveService.ExecuteSqlCommand(@"INSERT INTO [TRN].[PurchaseOrderDetailBackUp] SELECT * FROM [TRN].[PurchaseOrderDetail] WHERE Id='"+ receiveDetailId + "';");
 						_inventoryMaterialMasterService.UpdateFromReceive(data.InventoryMaterialId, receiveDetailId);
 						var taxCategoryList = _receiveTaxRepository.Query(t => t.InventoryReceiveDetailId == receiveDetailId).Select().ToList();
 						if (taxCategoryList.Count > 0)
@@ -3113,6 +3115,7 @@ namespace Library.MaterialManagement.Inventory
 					{
 						_unitOfWork.BeginTransaction();
 						flag = true;
+						_inventoryReceiveService.ExecuteSqlCommand(@"INSERT INTO [TRN].[PurchaseOrderDetailBackUp] SELECT * FROM [TRN].[PurchaseOrderDetail] WHERE Id='" + receiveDetailId + "';");
 						_inventoryMaterialMasterService.UpdateFromReceive(data.InventoryMaterialId, receiveDetailId);
 						var taxCategoryList = _receiveTaxRepository.Query(t => t.InventoryReceiveDetailId == receiveDetailId).Select().ToList();
 						if (taxCategoryList.Count > 0)

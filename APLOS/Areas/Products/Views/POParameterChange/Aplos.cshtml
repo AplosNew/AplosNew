@@ -8,7 +8,6 @@
         width: 1200px;
     }
 </style>
-
 <div class="row">
     <div class="form-horizontal form-elements" ng-form="productNewForm">
         <div class="col-xs-12 col-sm-4 col-md-4">
@@ -58,13 +57,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label">LC No: {{LCRef}}</label>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">GRN Value: {{GRNValue}}</label>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Acpt. Value: {{AcptValue}}</label>
+                <label class="col-sm-4 control-label" style="color:blue">LC No: {{LCRef}}</label>
             </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
@@ -90,8 +83,12 @@
                 <label class="col-sm-4 control-label">Payment Mode:{{productNew.PaymentMode}}</label>
                 <label class="col-sm-4 control-label">Total Amount</label>
                 <div class="col-sm-4">
-                    <input type="text" name="Total Amount" ng-model="productNew.TransactionAmount" class="form-control" maxlength="10" disabled>
+                    <input type="text" name="Total Amount" ng-model="productNew.TransactionAmount| setDecimal:2| number:2" class="form-control" maxlength="10" disabled>
                 </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-6 control-label" style="color:blue">Total GRN Amount: {{GRNValue| setDecimal:2| number:2}}</label>
+                <label class="col-sm-6 control-label" style="color:blue">Total Acceptance Amount: {{AcptValue| setDecimal:2| number:2}}</label>
             </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
@@ -108,7 +105,6 @@
                     <input type="text" name="Date" disabled ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
                 </div>
             </div>
-
             <div class="form-group" id="div_currency">
                 <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
                 <div class="col-sm-5">
@@ -129,8 +125,6 @@
                 <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
-
-
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
@@ -139,7 +133,6 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div ng-form="tabForm1">
-                    
                     <div class="table-responsive modal-table" ng-show="inventoryMaterialList.length>0">
                         <table class="table table-striped">
                             <thead>
@@ -159,8 +152,9 @@
                                     <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TotalAmount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                     <th style="width:500px;">Description</th>
                                     <th style="width:500px;">RefferenceNo</th>
-                                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeliveryDate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                    <th>Tolerance</th>
+                                    <th>Delivery Date</th>
+                                    <th>GRN Amount</th>
+                                    <th>Acceptance Amount</th>
                                     <th class="col-sm-1"></th>
                                 </tr>
                             </thead>
@@ -174,75 +168,46 @@
                                     <td>{{x.SecondCharacteristicsValue}}</td>
                                     <td>{{x.ThirdCharacteristicsValue}}</td>
                                     <td>{{x.CountryName}}</td>
-                                    <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
+                                    <td class="text-right" style="width:200px;">{{x.TransactionQty}}</td>
                                     <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
-                                    <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false" placeholder="0.00"> </td>  @*{{x.TransactionRate| number:2}}*@
+                                    <td class="text-right" style="width:200px;">{{x.TransactionRate| number:2}}</td>
                                     <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
-                                    <td class="text-right" style="width:150px;"><input type="text" n-decimals="2" class="form-control text-right" width="150" ng-model="x.TrnAmount" ng-keyup="calculateRate(x);" ng-disabled="true"> </td> @*{{x.TrnAmount| number:2}}*@
-                                    <td class="text-right" style="width:150px;"><input type="text" n-decimals="2" class="form-control text-right" width="150" ng-model="x.BaseTaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| number:2}}*@
-                                    <td class="text-right" style="width:150px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
-                                    <td>
-                                        <div class="show-message">
-                                            <input type="text" class="form-control text-right" ng-model="x.Description" style="width:500px;">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="show-message">
-                                            <input type="text" class="form-control text-left" ng-model="x.RefferenceNo" style="width:500px;">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            <div class="col-sm-12 show-message">
-                                                <input type="text" name="DeliveryDate" ng-model="x.DeliveryDate" datepicker class="form-control" required>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            <div class="col-sm-12 show-message">
-                                                <input type="text" name="Tolerance" ng-model="x.Tolerance" class="form-control">
-                                            </div>
-                                        </div>
-                                    </td>
+                                    <td class="text-right" style="width:150px;">{{x.TrnAmount| number:2}}</td>
+                                    <td class="text-right" style="width:150px;">{{x.BaseTaxAmount| number:2}}</td>
+                                    <td class="text-right" style="width:150px;">{{x.BaseAmount| number:2}}</td>
+                                    <td>{{x.Description}}</td>
+                                    <td>{{x.RefferenceNo}}</td>
+                                    <td>{{x.DeliveryDate}}</td>
+                                    <td class="text-right" style="width:150px;">{{x.GRNAmount| number:2}}</td>
+                                    <td class="text-right" style="width:150px;">{{x.ACPTAmount| number:2}}</td>
                                     <td class="text-right">
                                         <ul class="list-inline action-list">
-                                            <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                            <li><button ng-click="valuePassInDelModal(x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                         </ul>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td colspan="8" class="text-right"><strong>Total : </strong></td>
-
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TransactionQty'| setDecimal:2| number:2 }}</strong></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
-
-
-                                    @*<td class="text-right" ng-hide="sumORnot"></td>*@
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:2| number:2 }}</strong></td>
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:2| number:2}}</strong></td>
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseAmount'| setDecimal:2| number:2}}</strong></td>
-                                    @*<td></td>*@
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td></td>
-
-                                    <td class="text-right">
-                                    </td>
+                                    <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'GRNAmount'| setDecimal:2| number:2}}</strong></td>
+                                    <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'ACPTAmount'| setDecimal:2| number:2}}</strong></td>
+                                    <td class="text-right"></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            
         </div>
-
-
-
     </div>
 </div>
 
@@ -268,32 +233,29 @@
 
     </div>
 </div>
-<div class="table-responsive modal-table aplos-grid-toggle">
-    <div class="content-container-fluid" style="color:black;overflow:scroll">
-        <div style="color:black;" id="Grid" ej-grid e-datasource="POdataList"
-             e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick"
+<div class="row aplos-grid-toggle">
+    <div class="col-md-12">
+        <div style="color:black;" id="Grid" ej-grid e-datasource="POdataList" e-recorddoubleclick="recorddoubleclick"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="true"
-             @*e-detailstemplate="detailTemp"
-             e-detailsdatabound="detailgrid"*@>
+             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="true">
             <div e-columns>
-                <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
-                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
-                <div e-column e-field="PODate1" e-headertext="PO Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
-                <div e-column e-field="PurchaseLC" e-headertext="Purchase LC Ref" e-width="170"></div>
-                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
-                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="170"></div>
-                <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="120"></div>
-                <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
-                <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="100"></div>
-                <div e-column e-field="POType" e-headertext="PO Type" e-width="100"></div>
-                <div e-column e-field="CheckedBy" e-headertext="To be Checked By" e-width="180"></div>
-                <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="180"></div>
-                <div e-column e-field="ApprovedBy" e-headertext="To be Approved By" e-width="180"></div>
-                <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="180"></div>
+                <div e-column e-type="string" e-field="Id" e-headertext="PO No" e-width="150"></div>
+                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
+                <div e-column e-type="string" e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                <div e-column e-type="date" e-field="PODate1" e-headertext="PO Date" e-width="100" e-format="{0:dd-MMM-yyyy}"></div>
+                <div e-column e-type="string" e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
+                <div e-column e-type="string" e-field="PurchaseLC" e-headertext="Purchase LC Ref" e-width="170"></div>
+                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="170"></div>
+                <div e-column e-type="number" e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="120"></div>
+                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
+                <div e-column e-type="number" e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+                <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="100"></div>
+                <div e-column e-type="string" e-field="POType" e-headertext="PO Type" e-width="100"></div>
+                <div e-column e-type="string" e-field="CheckedBy" e-headertext="To be Checked By" e-width="180"></div>
+                <div e-column e-type="string" e-field="CheckedByStatus" e-headertext="Checked Status" e-width="180"></div>
+                <div e-column e-type="string" e-field="ApprovedBy" e-headertext="To be Approved By" e-width="180"></div>
+                <div e-column e-type="string" e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="180"></div>
             </div>
         </div>
 
