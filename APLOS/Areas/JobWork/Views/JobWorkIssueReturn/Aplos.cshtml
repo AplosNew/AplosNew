@@ -897,30 +897,31 @@
 			<div style="color:black;" id="GridIIssue" ej-grid e-datasource="GridInventoryIssuedata"
 				 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
 				 e-recorddoubleclick="GetDataList" e-filtersettings-filterType="excel"
-				 e-enabletouch="true" e-allowselection="true"
+				 e-enabletouch="true" e-allowselection="true" e-allowscrolling="true"
 				 e-detailstemplate="detailTemp"
 				 e-detailsdatabound="detailgrid">
 				<div e-columns>
-					<div e-column e-field="JWContractId" e-headertext="PO Number" e-width="80"></div>
-					<div e-column e-field="Id" e-headertext="Issue No" e-width="80"></div>
-					<div e-column e-field="Types" e-headertext="Type" e-width="80"></div>
-					<div e-column e-field="issuetype" e-headertext="Issue Type" e-width="80"></div>
-					<div e-column e-field="Entity" e-headertext="Entity Name" e-width="80"></div>
-					<div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="80"></div>
-					<div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
-					<div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="80"></div>
+					<div e-column e-field="JWContractId" e-headertext="PO Number" e-width="100"></div>
+					<div e-column e-field="Id" e-headertext="Issue No" e-width="100"></div>
+					<div e-column e-field="Types" e-headertext="Type" e-width="100"></div>
+					<div e-column e-field="issuetype" e-headertext="Issue Type" e-width="100"></div>
+					<div e-column e-field="Entity" e-headertext="Entity Name" e-width="100"></div>
+					<div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="100"></div>
+					<div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+					<div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="100"></div>
 
-					<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>
-					<div e-column e-field="MaterialStorage" e-headertext="Storage Location" e-width="80"></div>
-					<div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="80"></div>
-					<div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
-					<div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
-					<div e-column e-headertext="Actions" e-width="50">
-						<ul class="list-inline text-right">
-							<li>
-								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
-								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
-							</li>
+					<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="100"></div>
+					<div e-column e-field="MaterialStorage" e-headertext="Storage Location" e-width="100"></div>
+					<div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="100"></div>
+					<div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
+					<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+					<div e-column e-headertext="Actions" e-width="100">
+						<ul class="list-inline text-left">
+                            <li>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
+                                @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>*@
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
+                            </li>
 						</ul>
 
 

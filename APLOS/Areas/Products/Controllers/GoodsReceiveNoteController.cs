@@ -3923,7 +3923,7 @@ UNION ALL
 		//		throw new CustomException(Resources.IdNotFound);
 		//}
 		[Authorize, HttpGet]
-		public JsonResult GetJWGRNDataChecking(string GRNbyPOCheckStatus) 
+		public JsonResult GetJWGRNDataChecking(string GRNbyPOCheckStatus, string POId) 
 		{
 			//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			//return Json(_inventoryReveiveService.QueryGetListForMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
@@ -3931,7 +3931,7 @@ UNION ALL
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				return Json(obj.GetJWGRNDataChecking(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
+				return Json(obj.GetJWGRNDataChecking(identity.PlantId, GRNbyPOCheckStatus, POId), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
 			{
