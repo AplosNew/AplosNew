@@ -1777,12 +1777,17 @@ namespace Library.MaterialManagement.InventoryManagements
 									WHERE B.Code='AIT' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
 							
 						) TAxInfo5 ON TAxInfo5.InventoryReceiveDetailId=IRD.Id
-						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
-									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='TCS' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+						--LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						--			LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						--			WHERE B.Code='TCS' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
 								
-						) TAxInfo6 ON TAxInfo6.InventoryReceiveDetailId=IRD.Id
-	               
+						--) TAxInfo6 ON TAxInfo6.InventoryReceiveDetailId=IRD.Id
+	                    LEFT JOIN (SELECT A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount 
+						           FROM trn.InventoryReceiveAdditionalTax A
+									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+									WHERE B.Code='TCS' --and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+								
+						) TAxInfo6 ON TAxInfo6.InventoryReceiveId=IR.Id
 						LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
 						--left join  trn.POGGRNMap POGGRNMap ON POGGRNMap.GRNId=IR.Id
