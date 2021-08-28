@@ -108,7 +108,7 @@
                     <input type="text" name="Date" disabled ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
                 </div>
             </div>
-            
+
             <div class="form-group" id="div_currency">
                 <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
                 <div class="col-sm-5">
@@ -129,6 +129,120 @@
                 <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
+
+
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div ng-form="tabForm1">
+                    
+                    <div class="table-responsive modal-table" ng-show="inventoryMaterialList.length>0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>RowId</th>
+                                    <th>Material Group</th>
+                                    <th>Material Master</th>
+                                    <th>Article</th>
+                                    <th>Sku1</th>
+                                    <th>Sku2</th>
+                                    <th>Sku3</th>
+                                    <th>CountryName</th>
+                                    <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TotalAmount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th style="width:500px;">Description</th>
+                                    <th style="width:500px;">RefferenceNo</th>
+                                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeliveryDate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th>Tolerance</th>
+                                    <th class="col-sm-1"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in inventoryMaterialList">
+                                    <td>{{x.InventoryReceiveDetailId}}</td>
+                                    <td>{{x.MaterialGroupMasterName}}</td>
+                                    <td>{{x.UserName}}</td>
+                                    <td>{{x.StandardName}}</td>
+                                    <td>{{x.FirstCharacteristicsValue}}</td>
+                                    <td>{{x.SecondCharacteristicsValue}}</td>
+                                    <td>{{x.ThirdCharacteristicsValue}}</td>
+                                    <td>{{x.CountryName}}</td>
+                                    <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
+                                    <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
+                                    <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false" placeholder="0.00"> </td>  @*{{x.TransactionRate| number:2}}*@
+                                    <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
+                                    <td class="text-right" style="width:150px;"><input type="text" n-decimals="2" class="form-control text-right" width="150" ng-model="x.TrnAmount" ng-keyup="calculateRate(x);" ng-disabled="true"> </td> @*{{x.TrnAmount| number:2}}*@
+                                    <td class="text-right" style="width:150px;"><input type="text" n-decimals="2" class="form-control text-right" width="150" ng-model="x.BaseTaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| number:2}}*@
+                                    <td class="text-right" style="width:150px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
+                                    <td>
+                                        <div class="show-message">
+                                            <input type="text" class="form-control text-right" ng-model="x.Description" style="width:500px;">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="show-message">
+                                            <input type="text" class="form-control text-left" ng-model="x.RefferenceNo" style="width:500px;">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <div class="col-sm-12 show-message">
+                                                <input type="text" name="DeliveryDate" ng-model="x.DeliveryDate" datepicker class="form-control" required>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <div class="col-sm-12 show-message">
+                                                <input type="text" name="Tolerance" ng-model="x.Tolerance" class="form-control">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-right">
+                                        <ul class="list-inline action-list">
+                                            <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8" class="text-right"><strong>Total : </strong></td>
+
+                                    <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TransactionQty'| setDecimal:2| number:2 }}</strong></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+
+
+                                    @*<td class="text-right" ng-hide="sumORnot"></td>*@
+                                    <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:2| number:2 }}</strong></td>
+                                    <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:2| number:2}}</strong></td>
+                                    <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseAmount'| setDecimal:2| number:2}}</strong></td>
+                                    @*<td></td>*@
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+
+                                    <td class="text-right">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+
+
     </div>
 </div>
 
@@ -253,3 +367,4 @@
         </div>
     </div>
 </div>
+<confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>

@@ -517,23 +517,6 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
 
         UomCboByMaterialMaster($scope.bomDetailNew.RMMaterialMasterId);
 
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/BOMMaster/GetValueAssignmentLevel?MaterialMasterId=' + $scope.bomDetailNew.RMMaterialMasterId
-        }).then(function successCallback(response) {
-            if (baseService.arrayLength(response.data) > 0) {
-                for (var i = 0; i < response.data.length; i++) {
-                    if (response.data[i].Sequence == 1) {
-                        $scope.bomDetailNew.C1ValueAssignmentLevel = response.data[i].ValueAssignmentLevel;
-                        $scope.rmchar1.ValueAssignmentLevel = response.data[i].ValueAssignmentLevel;
-                    } else {
-                        $scope.bomDetailNew.C2ValueAssignmentLevel = response.data[i].ValueAssignmentLevel;
-                        $scope.rmchar2.ValueAssignmentLevel = response.data[i].ValueAssignmentLevel;
-                    }
-                }
-            }
-        });
-
 
         if ($scope.bomDetailNew.IsSKUCommon === true) {
             $scope.bomDetailNew.Specific = true;
@@ -668,6 +651,22 @@ function BOMMasterController(commonMessage, $scope, $rootScope, baseService, $ro
             if (baseService.arrayLength($scope.uOMList) == 1) {
                 $scope.bomDetailNew.UoMId = $scope.uOMList[0].Value;
             }
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/BOMMaster/GetValueAssignmentLevel?MaterialMasterId=' + $scope.bomDetailNew.RMMaterialMasterId
+            }).then(function successCallback(response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    for (var i = 0; i < response.data.length; i++) {
+                        if (response.data[i].Sequence == 1) {
+                            $scope.bomDetailNew.C1ValueAssignmentLevel = response.data[i].ValueAssignmentLevel;
+                            $scope.rmchar1.ValueAssignmentLevel = response.data[i].ValueAssignmentLevel;
+                        } else {
+                            $scope.bomDetailNew.C2ValueAssignmentLevel = response.data[i].ValueAssignmentLevel;
+                            $scope.rmchar2.ValueAssignmentLevel = response.data[i].ValueAssignmentLevel;
+                        }
+                    }
+                }
+            });
         });
     }
     $scope.unitOfMeasurementList = [];
