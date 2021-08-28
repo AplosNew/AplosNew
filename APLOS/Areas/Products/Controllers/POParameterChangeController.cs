@@ -24,7 +24,7 @@ namespace Aplos.Areas.Products.Controllers
         {
             _inventoryReveiveService = inventoryReveiveService;
             _sqlRepository = R;
-            _inventoryReveiveService = inventoryReveiveService;
+            _inventoryDetailService = inventoryDetailService;
         }
 
         public ActionResult Aplos()
