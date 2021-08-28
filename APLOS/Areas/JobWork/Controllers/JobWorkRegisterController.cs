@@ -56,12 +56,12 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult LoadAllTransConForSelection(string PartyVendorId)
+        public JsonResult LoadAllPOForSelection(string JWPOPartyId)
         {
             try
             {
 
-                return Json(JWR.LoadAllTransConForSelection(PartyVendorId), JsonRequestBehavior.AllowGet);
+                return Json(JWR.LoadAllPOForSelection(JWPOPartyId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
