@@ -333,11 +333,11 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
             if (!baseService.isUndefinedOrNull($scope.LCRef)) {
                 throw "Data update is not possible as this PO has LC.";
             }
-            if (!baseService.isUndefinedOrNull($scope.GRNValue)) {
+            if ($scope.GRNValue!=0) {
                 throw "Data update is not possible as this PO has GRN value.";
             }
-            if (!baseService.isUndefinedOrNull($scope.AcptValue)) {
-                throw "Data update is not possible as this PO has Acpt value.";
+            if ($scope.AcptValue!=0) {
+                throw "Data update is not possible as this PO has Acceptance value.";
             }
             $scope.product = Object.assign({}, $scope.productNew);
             if ($scope.Action == "Update") {
@@ -399,30 +399,40 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
         $scope.AcptValue = 0;
     }
 
-    $scope.valuePassInDelModal = function (id) {
-        $scope.id = id;
+    $scope.valuePassInDelModal = function (data) {
+        $scope.id = data.InventoryReceiveDetailId;
+        $scope.detaildata = data;
         $scope.message = 'Are you sure want to permanently delete this?';
         angular.element(document.querySelector('#removerPopUp')).modal('show');
     };
-
+    
     $scope.detailDelete = function () {
         try {
-            $http({
-                method: 'POST',
-                url: $scope.detailDeleteUrl + $scope.id + '&OrderSpecific=' + $scope.productNew.OrderSpecific
-            }).then(function successCallback(response) {
-                if (response.data.Error === true)
+            if ($scope.detaildata.GRNAmount!=0) {
+                throw "Data delete is not possible as this PO has GRN value.";
+            }
+
+            else if ($scope.detaildata.ACPTAmount!=0) {
+                throw "Data delete is not possible as this PO has Acceptance value.";
+            }
+            else {
+                $http({
+                    method: 'POST',
+                    url: 'Products/POParameterChange/DetailDelete?receiveDetailId=' + $scope.id + '&OrderSpecific=' + $scope.productNew.OrderSpecific
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure');
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.id = null;
+                        getInventoryMaterialList($scope.productNew.Id);
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.id = null;
-                    getInventoryMaterialList($scope.productNew.Id);
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
+                };
+            }
         } catch (e) {
-            ShowResult(e, 'success');
+            ShowResult(e, 'failure');
         }
     };
 
