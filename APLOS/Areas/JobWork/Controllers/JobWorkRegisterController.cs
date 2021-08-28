@@ -138,6 +138,18 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColJobWorkItem = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "PO Number", 15, ExcelHAlign.HAlignLeft);
+            int ColPlannedQuantity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PO Date", 15, ExcelHAlign.HAlignLeft);
+            int ColOutputUnit = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Contract Status", 15, ExcelHAlign.HAlignLeft);
+            int ColContractStatus = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "JW Location", 12, ExcelHAlign.HAlignLeft);
             int ColArticleCode = COL;
             COL++;
@@ -150,17 +162,7 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColJWItemType = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "PO Date", 15, ExcelHAlign.HAlignLeft);
-            int ColOutputUnit = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Contract Status", 15, ExcelHAlign.HAlignLeft);
-            int ColContractStatus = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "PO Number", 15, ExcelHAlign.HAlignLeft);
-            int ColPlannedQuantity = COL;
-            COL++;
+          
 
             report.SetHeaderText(ref sheet, ROW, COL, "Vendor Doc. RefNo", 25, ExcelHAlign.HAlignLeft);
             int ColVendorDocRefNo = COL;
