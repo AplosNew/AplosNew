@@ -3656,6 +3656,7 @@
     <Content Include="Areas\HumanResource\Views\EmployeeBudgetUpdate\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\AttendanceDashboard\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttdnProcessLock\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\GLItem\_InventoryInTransitGL.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

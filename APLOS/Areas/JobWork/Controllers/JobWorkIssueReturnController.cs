@@ -2350,7 +2350,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 //   ROW++;
                 ColVAContractClosingDateEnd++;
 
-                SetHeaderTextTop(ref sheet, ROW, ColVAContractClosingDateEnd, "Contract Id", 20, ExcelHAlign.HAlignLeft);
+                SetHeaderTextTop(ref sheet, ROW, ColVAContractClosingDateEnd, "PO Number", 20, ExcelHAlign.HAlignLeft);
                 ColVAContractClosingDateEnd++;
                 int ColContractId = ColVAContractClosingDateEnd;
                 int ColContractIdEnd = ColVAContractClosingDateEnd + 1;
@@ -2430,13 +2430,13 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             int ColJWOutputItem = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Input Item Id", 12, ExcelHAlign.HAlignLeft);
-            int ColJWInputItemId = MPChildCOL;
-            MPChildCOL++;
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Input Item Id", 12, ExcelHAlign.HAlignLeft);
+            //int ColJWInputItemId = MPChildCOL;
+            //MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Input Item", 12, ExcelHAlign.HAlignLeft);
-            int ColJWInputItem = MPChildCOL;
-            MPChildCOL++;
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Input Item", 12, ExcelHAlign.HAlignLeft);
+            //int ColJWInputItem = MPChildCOL;
+            //MPChildCOL++;
 
             report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Input Material", 12, ExcelHAlign.HAlignLeft);
             int ColJWInputMaterial = MPChildCOL;
@@ -2487,8 +2487,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                 sheet[MPChildROW, ColJWOutputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputId"].ToString();
                 sheet[MPChildROW, ColJWOutputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputItem"].ToString();
-                sheet[MPChildROW, ColJWInputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JwInputId"].ToString();
-                sheet[MPChildROW, ColJWInputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWInputItem"].ToString();
+                //sheet[MPChildROW, ColJWInputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JwInputId"].ToString();
+                //sheet[MPChildROW, ColJWInputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWInputItem"].ToString();
                 sheet[MPChildROW, ColJWInputMaterial].Text = TransformationIssueReturnChilddata.Rows[i]["Material"].ToString();
                 sheet[MPChildROW, ColArticle].Text = TransformationIssueReturnChilddata.Rows[i]["Article"].ToString();
                 sheet[MPChildROW, ColBalanceToIssue].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BalanceToIssue"].ToString());
@@ -2526,46 +2526,122 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
         private DataTable GetTransformationContractReportDataById(string PrintTabId, string IssueId)
         {
-            var sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
+            //   var sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
+            //                           ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+            //                           FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
+            //                           e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
+            //,II.Id as TransformationIssueId,FORMAT(II.IssueDate,'dd-MMM-yyyy') as TransformationDate,emp.EmployeeName as ByWhom
+            //,Ms.UserName as JobWorkLocation,II.Types as IssueReturn, II.IssueType
+            //,IssueStatus=case when II.IsConfirmed=0 then 'Not Confirmed' else 'Confirmed' End
+            //                           from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
+            //left join HKP.Party p on p.Id=tc.VendorPartyId
+            //   left join TRN.InventoryIssue II on II.JWContractId=tc.Id
+            //left join dbo.EmployeeInformation emp on emp.SystemId=II.EmployeeId
+            //left join HKP.MaterialStorage Ms on Ms.Id=II.MaterialStorageId
+            //                           WHERE tc.Id='"+ PrintTabId + @"' and II.Id='"+ IssueId + @"' ";
+
+            var sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.PODate,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
                                     ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
 									,II.Id as TransformationIssueId,FORMAT(II.IssueDate,'dd-MMM-yyyy') as TransformationDate,emp.EmployeeName as ByWhom
 									,Ms.UserName as JobWorkLocation,II.Types as IssueReturn, II.IssueType
 									,IssueStatus=case when II.IsConfirmed=0 then 'Not Confirmed' else 'Confirmed' End
-                                    from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
-									left join HKP.Party p on p.Id=tc.VendorPartyId
+                                    ,tc.Remarks
+                                    from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
+									left join HKP.Party p on p.Id=tc.PartyId
 								    left join TRN.InventoryIssue II on II.JWContractId=tc.Id
 									left join dbo.EmployeeInformation emp on emp.SystemId=II.EmployeeId
 									left join HKP.MaterialStorage Ms on Ms.Id=II.MaterialStorageId
-                                    WHERE tc.Id='"+ PrintTabId + @"' and II.Id='"+ IssueId + @"' ";
+                                    WHERE tc.Id='" + PrintTabId + @"' and II.Id='" + IssueId + @"' ";
 
             return _sqlRepository.GetDataTable(sql);
         }
 
         private DataTable GetTransformationIssueReturnChildDataById(string PrintTabId, string IssueId)
         {
-            var sql = @"select distinct IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id as JWOutputId, jwi.UserName as JWOutputItem, mi.Id as JwInputId
-,jwii.UserName as JWInputItem,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
-							 ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalIssuedQty,'0')),IID.TransactionQty
+            //            var sql = @"select distinct IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id as JWOutputId, jwi.UserName as JWOutputItem, mi.Id as JwInputId
+            //,jwii.UserName as JWInputItem,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
+            //							 ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalIssuedQty,'0')),IID.TransactionQty
+            //from TRN.InventoryIssueDetail IID left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+            //left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+            //left join dbo.JobWorkTransformationContractChild mp on mp.JobWorkTransformationContractMasterId=II.JWContractId
+            //left join (select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article, IM.ArticleId,IID.InventoryMaterialId
+            //							            from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+            //                                        left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+            //                                        left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
+            //                                        left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
+            //										where II.JWContractId='"+ PrintTabId + @"'
+            //										group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName)
+            //										kk on kk.InventoryMaterialId=IM.Id
+            //										left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+            //										left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
+            //										left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
+            //										where mp.JobWorkTransformationContractMasterId='"+ PrintTabId + @"' and II.Id='"+ IssueId + @"' and mi.Id is not null and II.Types='InventoryJWIssue'
+            //										group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id, jwi.UserName, mi.Id
+            //										,jwii.UserName,mp.Quantity,mi.GrossConsumption,IID.TransactionQty";
+
+            //            var sql = @"select distinct IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id as JWOutputId, jwi.UserName as JWOutputItem
+            //,mi.Id as JwInputId,jwii.UserName as JWInputItem
+            //,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
+            //,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalIssuedQty,'0'))
+            //,IID.TransactionQty
+            //from TRN.InventoryIssueDetail IID left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+            //left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+            //left join dbo.JobWorkTransformationContractChild mp on mp.JobWorkTransformationContractMasterId=II.JWContractId
+            //left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
+            //left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id and mi.ArticleId=IM.ArticleId
+            //left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
+            //left join (select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article, IM.ArticleId,IID.InventoryMaterialId
+            //							            from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+            //                                        left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+            //                                        left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
+            //                                        left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
+            //										where II.JWContractId='" + PrintTabId + @"'
+            //										group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName)
+            //										kk on kk.InventoryMaterialId=IM.Id
+            //										where mp.JobWorkTransformationContractMasterId='" + PrintTabId + @"' and II.Id='" + IssueId + @"' and mi.Id is not null 
+            //										and II.Types='InventoryJWIssue'
+            //										group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id
+            //										, jwi.UserName, mi.Id
+            //										,jwii.UserName
+            //										,mp.Quantity, mi.GrossConsumption
+            //										,IID.TransactionQty";
+
+            var sql = @"select distinct IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id as JWOutputId, jwi.UserName as JWOutputItem
+--,mi.Id as JwInputId,jwii.UserName as JWInputItem
+,RequiredQuantity=(mp.Quantity * JWMi.GrossConsump)
+,BalanceToIssue=(mp.Quantity * JWMi.GrossConsump)-(ISNULL(kk.TotalIssuedQty,'0'))
+,IID.TransactionQty
 from TRN.InventoryIssueDetail IID left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
 left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
 left join dbo.JobWorkTransformationContractChild mp on mp.JobWorkTransformationContractMasterId=II.JWContractId
+left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
+LEFT join (Select Sum(mi.GrossConsumption) GrossConsump,mi.ArticleId,mm.Id as MaterialMstId,mi.JobWorkTransformationContractChildMasterId
+										from dbo.JobWorkTransformationContractChild3 mi
+										left join MST.MaterialMasterArticle mma on mma.Id= mi.ArticleId
+										left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
+										group by mi.ArticleId,mi.JobWorkTransformationContractChildMasterId,mm.Id)
+										JWMi on JWMi.ArticleId=IM.ArticleId and JWMi.JobWorkTransformationContractChildMasterId=mp.Id and JWMi.MaterialMstId=IM.MaterialMasterId
+--left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id and mi.ArticleId=IM.ArticleId
+--left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 left join (select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article, IM.ArticleId,IID.InventoryMaterialId
 							            from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
                                         left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
                                         left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
                                         left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
-										where II.JWContractId='"+ PrintTabId + @"'
+										where II.JWContractId='" + PrintTabId + @"'
 										group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName)
 										kk on kk.InventoryMaterialId=IM.Id
-										left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
-										left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
-										left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
-										where mp.JobWorkTransformationContractMasterId='"+ PrintTabId + @"' and II.Id='"+ IssueId + @"' and mi.Id is not null and II.Types='InventoryJWIssue'
-										group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id, jwi.UserName, mi.Id
-										,jwii.UserName,mp.Quantity,mi.GrossConsumption,IID.TransactionQty
- ";
+										where mp.JobWorkTransformationContractMasterId='" + PrintTabId + @"' and II.Id='" + IssueId + @"' --and mi.Id is not null 
+										and II.Types='InventoryJWIssue' and JWMi.GrossConsump is not null
+										group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id
+										, jwi.UserName--, mi.Id
+										--,jwii.UserName
+										,mp.Quantity--, mi.GrossConsumption
+										,IID.TransactionQty
+										,JWMi.GrossConsump
+										order by mp.Id";
 
             return _sqlRepository.GetDataTable(sql);
         }

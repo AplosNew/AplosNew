@@ -15,14 +15,16 @@ using System.Web.Mvc;
 
 namespace Aplos.Areas.Products.Controllers
 {
-    public class POParameterChangeController :  BaseController
+    public class POParameterChangeController : BaseController
     {
         private readonly ISqlRepository _sqlRepository;
         private readonly IPurchaseOrderService _inventoryReveiveService;
-        public POParameterChangeController(IPurchaseOrderService inventoryReveiveService, ISqlRepository R)
+        private readonly IPurchaseOrderDetailService _inventoryDetailService;
+        public POParameterChangeController(IPurchaseOrderService inventoryReveiveService, ISqlRepository R, IPurchaseOrderDetailService inventoryDetailService)
         {
-                _inventoryReveiveService = inventoryReveiveService;
+            _inventoryReveiveService = inventoryReveiveService;
             _sqlRepository = R;
+            _inventoryDetailService = inventoryDetailService;
         }
 
         public ActionResult Aplos()
@@ -35,7 +37,7 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult GetAllPOList(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetAllPOList(column, value,identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(_inventoryReveiveService.GetAllPOList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -48,18 +50,18 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
-		public JsonResult Update(PurchaseOrder entity)
-		{
-			try
-			{
+        public JsonResult Update(PurchaseOrder entity)
+        {
+            try
+            {
                 SaveData(entity);
-				return Json(new { entity, Message = AplosMessage.Updated + " PO No <b>" + entity.Id + "</b>" });
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return Json(new { entity, Message = AplosMessage.Updated + " PO No <b>" + entity.Id + "</b>" });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         private void SaveData(PurchaseOrder data)
         {
@@ -78,7 +80,7 @@ namespace Aplos.Areas.Products.Controllers
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                     dr.BeginEdit();
-                   
+
                     dr["PartyId"] = data.PartyId;
                     dr["DeliveryByAddress"] = data.DeliveryByAddress;
                     dr["InvoicingByAddress"] = data.InvoicingByAddress;
@@ -103,6 +105,13 @@ namespace Aplos.Areas.Products.Controllers
             {
                 throw (ex);
             }
+        }
+
+        [HttpPost]
+        public JsonResult DetailDelete(string receiveDetailId, string OrderSpecific)
+        {
+            _inventoryDetailService.DeletePOMaterial(receiveDetailId, OrderSpecific);
+            return Json(new { Message = AplosMessage.Deleted });
         }
 
     }

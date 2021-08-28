@@ -138,6 +138,18 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColJobWorkItem = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "PO Number", 15, ExcelHAlign.HAlignLeft);
+            int ColPlannedQuantity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PO Date", 15, ExcelHAlign.HAlignLeft);
+            int ColOutputUnit = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Contract Status", 15, ExcelHAlign.HAlignLeft);
+            int ColContractStatus = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "JW Location", 12, ExcelHAlign.HAlignLeft);
             int ColArticleCode = COL;
             COL++;
@@ -150,16 +162,34 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColJWItemType = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Contract Date", 15, ExcelHAlign.HAlignLeft);
-            int ColOutputUnit = COL;
+          
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Vendor Doc. RefNo", 25, ExcelHAlign.HAlignLeft);
+            int ColVendorDocRefNo = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Contract Status", 15, ExcelHAlign.HAlignLeft);
-            int ColContractStatus = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Document Date", 15, ExcelHAlign.HAlignLeft);
+            int ColDocuDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Contract Id", 15, ExcelHAlign.HAlignLeft);
-            int ColPlannedQuantity = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Order Specific", 15, ExcelHAlign.HAlignLeft);
+            int ColPOOrderSpecific = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Contract No", 15, ExcelHAlign.HAlignLeft);
+            int ColContractNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer Name", 15, ExcelHAlign.HAlignLeft);
+            int ColCustomerName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Buyer", 15, ExcelHAlign.HAlignLeft);
+            int ColBuyer = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Master LC Ref No", 25, ExcelHAlign.HAlignLeft);
+            int ColLCRef = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 12, ExcelHAlign.HAlignLeft);
@@ -190,8 +220,12 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColJWOutputItem = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Article Id", 15, ExcelHAlign.HAlignLeft);
-            int ColArticleCodeId = COL;
+            //report.SetHeaderText(ref sheet, ROW, COL, "Article Id", 15, ExcelHAlign.HAlignLeft);
+            //int ColArticleCodeId = COL;
+            //COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Material", 15, ExcelHAlign.HAlignLeft);
+            int ColJWOutputMaterial = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Article", 15, ExcelHAlign.HAlignLeft);
@@ -313,7 +347,8 @@ namespace Aplos.Areas.JobWork.Controllers
 
                         sheet[BPRow, ColJobWorkItemMasterId].Text = dataChild.DefaultView[CH]["JobWorkItemId"].ToString();
                         sheet[BPRow, ColJWOutputItem].Text = dataChild.DefaultView[CH]["ByProductItem"].ToString();
-                        sheet[BPRow, ColArticleCodeId].Text = dataChild.DefaultView[CH]["ArticleCode"].ToString();
+                     //   sheet[BPRow, ColArticleCodeId].Text = dataChild.DefaultView[CH]["ArticleCode"].ToString();
+                        sheet[BPRow, ColJWOutputMaterial].Text = dataChild.DefaultView[CH]["BPMaterial"].ToString();
                         sheet[BPRow, ColJWOutputArticle].Text = dataChild.DefaultView[CH]["Article"].ToString();
                         sheet[BPRow, ColOutUnit].Text = dataChild.DefaultView[CH]["Unit"].ToString();
                         sheet[BPRow, ColPlannedQty].Text = dataChild.DefaultView[CH]["TotalReqQty"].ToString();
@@ -364,6 +399,15 @@ namespace Aplos.Areas.JobWork.Controllers
                 sheet[ROW, ColContractStatus].Text = data.Rows[i]["ContractStatus"].ToString();
 
                 sheet[ROW, ColPlannedQuantity].Text = data.Rows[i]["Id"].ToString();
+
+                sheet[ROW, ColVendorDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+                sheet[ROW, ColDocuDate].Text = data.Rows[i]["DocuDate"].ToString();
+                sheet[ROW, ColPOOrderSpecific].Text = data.Rows[i]["POOrderSpecific"].ToString();
+                sheet[ROW, ColContractNo].Text = data.Rows[i]["ContractNo"].ToString();
+                sheet[ROW, ColCustomerName].Text = data.Rows[i]["CustomerName"].ToString();
+                sheet[ROW, ColBuyer].Text = data.Rows[i]["Buyer"].ToString();
+                sheet[ROW, ColLCRef].Text = data.Rows[i]["LCRef"].ToString();
+
                 sheet[ROW, ColTotalReceiptQty].Text = data.Rows[i]["PartyCode"].ToString();
 
                 sheet[ROW, ColRatePerUnit].Text = data.Rows[i]["Party"].ToString();
@@ -373,7 +417,8 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 sheet[ROW, ColJobWorkItemMasterId].Text = data.Rows[i]["JobWorkItemMasterId"].ToString();
                 sheet[ROW, ColJWOutputItem].Text = data.Rows[i]["JWOutputItem"].ToString();
-                sheet[ROW, ColArticleCodeId].Text = data.Rows[i]["ArticleId"].ToString();
+                //sheet[ROW, ColArticleCodeId].Text = data.Rows[i]["ArticleId"].ToString();
+                sheet[ROW, ColJWOutputMaterial].Text = data.Rows[i]["JWOutputMaterial"].ToString();
                 sheet[ROW, ColJWOutputArticle].Text = data.Rows[i]["JWOutputArticle"].ToString();
                 sheet[ROW, ColOutUnit].Text = data.Rows[i]["OutputUnit"].ToString();
 
@@ -419,7 +464,8 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 sheet[BPRow, ColJobWorkItemMasterId].Text = dataChild.DefaultView[CH]["JobWorkItemId"].ToString();
                 sheet[BPRow, ColJWOutputItem].Text = dataChild.DefaultView[CH]["ByProductItem"].ToString();
-                sheet[BPRow, ColArticleCodeId].Text = dataChild.DefaultView[CH]["ArticleCode"].ToString();
+          //    sheet[BPRow, ColArticleCodeId].Text = dataChild.DefaultView[CH]["ArticleCode"].ToString();
+                sheet[BPRow, ColJWOutputMaterial].Text = dataChild.DefaultView[CH]["BPMaterial"].ToString();
                 sheet[BPRow, ColJWOutputArticle].Text = dataChild.DefaultView[CH]["Article"].ToString();
                 sheet[BPRow, ColOutUnit].Text = dataChild.DefaultView[CH]["Unit"].ToString();
                 sheet[BPRow, ColPlannedQty].Text = dataChild.DefaultView[CH]["TotalReqQty"].ToString();
