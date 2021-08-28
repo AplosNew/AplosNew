@@ -13,8 +13,8 @@ using System.Threading.Tasks;
 //}
 namespace Library.HumanResource.Payroll.SalaryProcess
 {
-    
-   public class clsAdvanceProcess:IclsAdvanceProcess
+
+    public class clsAdvanceProcess : IclsAdvanceProcess
     {
         public void ProcessEmployeeAdvance(CustomIdentityPara identity, string sEmployeeIds)
         {
@@ -29,11 +29,11 @@ namespace Library.HumanResource.Payroll.SalaryProcess
             {
                 string sFromDate = Convert.ToDateTime(identity.FromDate).ToString("dd-MMM-yyyy");
                 string sToDate = Convert.ToDateTime(identity.ToDate).ToString("dd-MMM-yyyy");
-                
 
 
 
-                                objSal.GetLocalCurrency(identity.CompanyGroupId, identity.PlantId, out dsCurrency);
+
+                objSal.GetLocalCurrency(identity.CompanyGroupId, identity.PlantId, out dsCurrency);
                 if (dsCurrency.Tables[0].Rows.Count > 0)
                 {
                     _currencyId = "" + dsCurrency.Tables[0].Rows[0]["LocalCurrency"].ToString().Trim();
@@ -51,11 +51,11 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                 GetInstallmentAmount(identity.PlantId, sFromDate, sToDate, sEmployeeIds, out dsAdvanceFromAcc);
 
 
-                
+
 
                 if (dsAdvanceFromAcc.Tables[0].Rows.Count > 0)
                 {
-                   
+
 
                     GetMonthWiseExtraSalaryAmtMaster_Save(identity.PlantId, sFromDate, sEmployeeIds, out dsMonthWiseExtraSalaryAmtMaster);
                     GetMonthWiseExtraSalaryAmtChild_Save(identity.PlantId, sFromDate, sEmployeeIds, out dsMonthWiseExtraSalaryAmtChild);
@@ -74,7 +74,7 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                         DataView dvMonthWiseExtraSalaryAmtMaster = new DataView(dsMonthWiseExtraSalaryAmtMaster.Tables[0]);
                         string m = dsAdvanceFromAcc.Tables[0].Rows[i]["MonthNo"].ToString();
                         string y = dsAdvanceFromAcc.Tables[0].Rows[i]["YearNo"].ToString();
-                        string _EmpInfoSystemID = dsAdvanceFromAcc.Tables[0].Rows[i]["EmployeeId"].ToString();
+                        string _EmpInfoSystemID = dsAdvanceFromAcc.Tables[0].Rows[i]["EmpSystemid"].ToString();
                         string _SalaryHeadID = dsAdvanceFromAcc.Tables[0].Rows[i]["SalaryHeadId"].ToString();
 
                         #region master
@@ -111,7 +111,7 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                             DataRow dr = dvMonthWiseExtraSalaryAmtChild[0].Row;
                             AddEditChild("EDIT", ref dr, dsAdvanceFromAcc.Tables[0].Rows[i], identity, "", MasterId, _currencyId);
                         }
-                        dvMonthWiseExtraSalaryAmtChild.RowFilter = null; 
+                        dvMonthWiseExtraSalaryAmtChild.RowFilter = null;
                         #endregion
                     }
                 }
@@ -127,7 +127,7 @@ namespace Library.HumanResource.Payroll.SalaryProcess
 
             }
         }//End Function
-        void AddEditChild(string flag, ref DataRow dr, DataRow drDailyAllowanceSummary, CustomIdentityPara identity, string pk,string MasterId,string _currencyId)
+        void AddEditChild(string flag, ref DataRow dr, DataRow drDailyAllowanceSummary, CustomIdentityPara identity, string pk, string MasterId, string _currencyId)
         {
             try
             {
@@ -184,12 +184,12 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                 throw ex;
             }
         }
-        void AddEditMaster(string flag,ref DataRow dr, DataRow drDailyAllowanceSummary, CustomIdentityPara identity,string pk)
+        void AddEditMaster(string flag, ref DataRow dr, DataRow drDailyAllowanceSummary, CustomIdentityPara identity, string pk)
         {
             try
             {
 
-                if (flag.ToUpper()=="ADD")
+                if (flag.ToUpper() == "ADD")
                 {
                     dr["SystemID"] = pk;
                     dr["EmpInfoSystemID"] = drDailyAllowanceSummary["EmpSystemId"].ToString();
@@ -334,12 +334,12 @@ namespace Library.HumanResource.Payroll.SalaryProcess
             try
             {
 
-                strSQL = @"  select a.EmployeeId,sum(s.InstallmentAmount) InstallmentAmount
+                strSQL = @"  select a.EmployeeId EmpSystemId,sum(s.InstallmentAmount) Amount,s.MonthNo,s.YearNo
                                     ,(select SalaryHeadID from SalaryHead where HeadCategory='Advance') SalaryHeadID
                             from AdvanceReqSchedule s
                             left join TRN.EmployeeSalaryAdvance a on a.id=s.EmployeeSalaryAdvanceId
                             where s.YearNo=Year( '" + sFromDate + @"') and s.MonthNo=MONTH( '" + sFromDate + @"') and a.plantid='" + sPlantID + @"'
-                            group by EmployeeId ";
+                            group by EmployeeId,s.MonthNo,s.YearNo ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
