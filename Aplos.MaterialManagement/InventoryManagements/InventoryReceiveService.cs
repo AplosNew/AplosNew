@@ -16473,7 +16473,7 @@ namespace Library.MaterialManagement.InventoryManagements
 		}
 
 
-		public IEnumerable<object> GetJWGRNDataChecking(string plantId, string GRNbyPOCheckStatus)
+		public IEnumerable<object> GetJWGRNDataChecking(string plantId, string GRNbyPOCheckStatus, string POId)
 
 		{
 			try
@@ -16511,7 +16511,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
 							,PO.UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank,ISNULL(Pr.UserName ,'') CustomerName
 							,EI2.EmployeeName ByWhomName
-									,EI2.SystemId ByWhomEmployeeId,EI2.SystemId EmpCode
+									,EI2.SystemId ByWhomEmployeeId,EI2.SystemId EmpCode,IR.TransformationContractId
 							FROM [TRN].[InventoryReceive] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -16619,7 +16619,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW'
+                        and IR.GRNType='GRNBYJW' and IR.TransformationContractId='" + POId + @"'
                         Union All
                         SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
@@ -16647,7 +16647,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
 						,PO.UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank,ISNULL(Pr.UserName ,'') CustomerName
 						,EI2.EmployeeName ByWhomName
-									,EI2.SystemId ByWhomEmployeeId,EI2.SystemId EmpCode
+									,EI2.SystemId ByWhomEmployeeId,EI2.SystemId EmpCode,IR.TransformationContractId
 						FROM [TRN].[InventoryReceive] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -16755,7 +16755,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW'
+                        and IR.GRNType='GRNBYJW' and IR.TransformationContractId='" + POId + @"'
                          Union All
                         SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
@@ -16783,7 +16783,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
 									,PO.UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank,ISNULL(Pr.UserName ,'') CustomerName
 									,EI2.EmployeeName ByWhomName
-									,EI2.SystemId ByWhomEmployeeId,EI2.SystemId EmpCode
+									,EI2.SystemId ByWhomEmployeeId,EI2.SystemId EmpCode,IR.TransformationContractId
 						FROM [TRN].[InventoryReceive] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -16891,8 +16891,9 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 1 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW'
+                        and IR.GRNType='GRNBYJW' and IR.TransformationContractId='" + POId + @"'
                         )x
+                        --where x.TransformationContractId=' " + POId + @"'
                         order by GRNDate DESC";
 
 				}
@@ -17186,7 +17187,7 @@ namespace Library.MaterialManagement.InventoryManagements
 			try
 			{
 
-				var sql = @"DECLARE @inventoryReceiveId VARCHAR(10) = '1985'
+				var sql = @"DECLARE @inventoryReceiveId VARCHAR(10) = ''
 									,@totalReceiveAmount DECIMAL(18, 4) = 0
 									,@totalServiceAmount DECIMAL(18, 4) = 0
 									,@totalSvcTaxAmount DECIMAL(18, 4) = 0

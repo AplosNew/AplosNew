@@ -743,7 +743,7 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
                             WHERE isnull(isnull(ps.WorkCenterMasterId,ps.FromSFGInventoryId),'')<>'' AND ps.ProcessId='" + ProcessId + "' AND ps.ProductionOrderId='" + ProductionOrderId + @"'
                              AND ps.ProductionDate" + FDUD + @"'" + date + @"' AND ps.ProductionGrade='A'
                             GROUP BY pbp.UserName,pbp.Sequence,sFrom.Sequence,wcmFrom.Sequence,PS.ProductionDate,ps.ProductionOrderId,s.UserName,wcm.UserName,sFrom.UserName,wcmFrom.UserName 
-                            ORDER BY PS.ProductionDate DESC,pbp.UserName,pbp.Sequence,sFrom.Sequence,wcmFrom.Sequence";
+                            ORDER BY PS.ProductionDate DESC,pbp.Sequence,pbp.UserName,sFrom.Sequence,wcmFrom.Sequence";
 
             return _sqlRepository.GetDataCollection(sql);
         }

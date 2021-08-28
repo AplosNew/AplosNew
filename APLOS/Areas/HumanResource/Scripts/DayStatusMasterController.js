@@ -557,6 +557,8 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         ManualStatusAllowed: false,
         DayStatusChange: false,
         AutoLock: false,
+        EarnedPL: 0,
+        EarnedCL:0,
     };
 
     //Seleting the Current Day Status Starts
@@ -698,6 +700,18 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             AttendanceReProcessApplicable: false,
             OTLimitLockApplicable: false,
             OTCalculation: 0,
+            CasualLeaveValueCV: 0,
+            MedicalLeaveValueMV: 0,
+            PriviledgeLeavePL: 0,
+            MaternityLeaveValueMLV: 0,
+            LateValueLV: 0,
+            WeekOffHoliDayWOH: 0,
+            CompAssignLv: 0,
+            ManualStatusAllowed: false,
+            DayStatusChange: false,
+            AutoLock: false,
+            EarnedPL: 0,
+            EarnedCL: 0,
 
         };
         $scope.DayChild.HeaderId = $scope.Header.Id;
