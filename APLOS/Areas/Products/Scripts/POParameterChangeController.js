@@ -116,9 +116,38 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
             $scope.productNew.OrderSpecific = 'No';
         }
         $scope.ContractWiseData(x.data.ContractId);
-
+        getInventoryMaterialList($scope.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
+    };
+
+    function getInventoryMaterialList(inveReveiveId) {
+        $scope.masterId = inveReveiveId;
+
+        $scope.inventoryMaterialList = [];
+        $http.get('Products/PurchaseOrder/GetInventoryMaterialList?inveReveiveId=' + inveReveiveId)
+            .then(function (response) {
+
+                $scope.inventoryMaterialList = ej.DataManager(response.data.Rows).executeLocal(ej.Query().sortBy("UserName desc"));//response.data.Rows;
+                ////var dataManagerObj = ej.DataManager(response.data.Rows).executeLocal(ej.Query().sortBy("UserName ASC"));
+                //$scope.DetailId = $scope.inventoryMaterialList[0].InventoryReceiveDetailId;
+                //$scope.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
+                //$scope.productNew.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
+                //$scope.productNew.InvoicingStateId = $scope.inventoryMaterialList[0].InvoicingStateId;
+                //$scope.productNew.PlantStateId = $scope.inventoryMaterialList[0].PlantStateId;
+                //checkSameValueInColumnList($scope.inventoryMaterialList, 'TransactionUoM');
+                //getGrossAmount($scope.inventoryMaterialList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
+                //$scope.GetSalesTaxData();
+            });
+
+    }
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
     };
 
     $scope.LCRef = null;
@@ -370,6 +399,31 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
         $scope.AcptValue = 0;
     }
 
+    $scope.valuePassInDelModal = function (id) {
+        $scope.id = id;
+        $scope.message = 'Are you sure want to permanently delete this?';
+        angular.element(document.querySelector('#removerPopUp')).modal('show');
+    };
 
+    $scope.detailDelete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.detailDeleteUrl + $scope.id + '&OrderSpecific=' + $scope.productNew.OrderSpecific
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.id = null;
+                    getInventoryMaterialList($scope.productNew.Id);
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
 
 }
