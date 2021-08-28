@@ -690,7 +690,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 else
                 {
-                    return "Entry of :-"+ ReturnLockedEmp+ " isn't Allowed";
+                    return i+" Rows Updated Succesfully.Entry of :-"+ ReturnLockedEmp+ " isn't Allowed";
                 }
             }
             catch (Exception ex)
