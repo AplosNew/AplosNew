@@ -504,7 +504,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 foreach (AttendanceProcessNewProcess item in data)
                 {
                     EmpId += ",'" + item.EmpSystemID + "'";
-                    CheckerFunction(ref PlantData, item.PlantID);
+                    if (clsWebLib.RetValidLen(item.PlantID).ToString() != "")
+                    {
+                        CheckerFunction(ref PlantData, item.PlantID);
+                    }
                 }
 
                 string ReturnLockedEmp = "''";
@@ -630,7 +633,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                         drx.BeginEdit();
                                         drx["ManualInTime"] = DateTime.Now;
-                                        drx["IsManualInTime"] = true;                                       
+                                        drx["IsManualInTime"] = true; 
+                                        drx["ManualByWhom"] = item.AddedBy;
+                                        drx["ManualEntryTime"] = DateTime.Now.ToString();
                                         drx.EndEdit();
 
                                     }
@@ -643,7 +648,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                         drx.BeginEdit();
                                         drx["ManualOutTime"] = DateTime.Now;
-                                        drx["IsManualOutTime"] = true;                                        
+                                        drx["IsManualOutTime"] = true;
+                                        drx["ManualByWhom"] = item.AddedBy;
+                                        drx["ManualEntryTime"] = DateTime.Now.ToString();
                                         drx.EndEdit();
 
                                     }
@@ -683,7 +690,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 else
                 {
-                    return "Entry of :-"+ ReturnLockedEmp+ " isn't Allowed";
+                    return i+" Rows Updated Succesfully.Entry of :-"+ ReturnLockedEmp+ " isn't Allowed";
                 }
             }
             catch (Exception ex)

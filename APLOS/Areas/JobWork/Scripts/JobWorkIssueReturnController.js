@@ -1027,7 +1027,9 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.ClearIssueTransformationChildTab = function () {
 		ClearFieldsIssueTransformation();
 		$scope.TransformationTypeList = [];
+		$scope.materialStockList = [];
 		$scope.IssueTransformationChildList = [];
+
 		$scope.MaterialInputList = [];
 		$scope.detailList = [];
 		$scope.getData();
@@ -1220,7 +1222,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 				$scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
 
 				$scope.materialStockList[i1].TransactionUoMId = data.TransactionUoMId;
-				$scope.materialStockList[i1].BaseUoMFactor = data.BaseUoMFactor;
+				//$scope.materialStockList[i1].BaseUoMFactor = data.BaseUoMFactor;
 			}
 			angular.element(document.querySelector('#stockPopUp')).modal('show');
 		}), function (response) {
@@ -1612,6 +1614,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		//}
 		//$scope.IssueTransformation.MaterialStorageIdInventory = $scope.SelectedMaterialStorage[0].Value;
 		$scope.IssueTransformation.MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+
 		//$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		if ($scope.Action === "Save") {
 			$http({
@@ -1686,22 +1689,22 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	//};
 
-	//$scope.ConfirmPrintTab = function (p) {
-	//	try {
-	//		var x = "#" + p;
-	//		var gridObj = $(x).data("ejGrid");
-	//		var data = gridObj.getSelectedRecords()[0];
+	$scope.ConfirmIssueReportPrint = function (data) {
+		try {
+			//var x = "#" + p;
+			//var gridObj = $(x).data("ejGrid");
+			//var data = gridObj.getSelectedRecords()[0];
 
-	//		$scope.PrintTabId = data.JWContractId;
-	//		$scope.IssueId = data.Id;
-	//		var reportFormat = "Excel";
-	//		window.open('JobWork/JobWorkIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
-	//		//   $scope.getData();
+			$scope.PrintTabId = data.JWContractId;
+			$scope.IssueId = data.Id;
+			var reportFormat = "Excel";
+			window.open('JobWork/JobWorkIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+			//   $scope.getData();
 
-	//	} catch (e) {
+		} catch (e) {
 
-	//	}
-	//};
+		}
+	};
 
 	// Transformation Stock Wise Status
 

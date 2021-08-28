@@ -498,7 +498,7 @@ namespace Library.Service.EmployeeServices
 
                 string date= DateTime.Now.ToString();
                
-                var sql = @"Update dbo.ItemScanChild Set UpdatedBy='"+items[0].UpdatedBy+ "' ,PackingId ='" + items[0].PackingId+"',Booked=1 " +
+                var sql = @"Update dbo.ItemScanChild Set UpdatedDate=GetDate(),UpdatedBy='"+items[0].UpdatedBy+ "' ,PackingId ='" + items[0].PackingId+"',Booked=1 " +
                         "where RefNo IN("+RefNo+@") and Booked=0 AND IsDespatch=0";
                 
                 ConnectionManager.DAL.ConManager objCone = null;
