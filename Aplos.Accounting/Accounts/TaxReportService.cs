@@ -7762,7 +7762,20 @@ UNION ALL
                 sheet1.Range[xlsRow - 1, 1].RowHeight = 20;
                 sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Bold = true;
 
+                sheet1.Range[xlsRow - 1, 5].Text = "Payable";
+                sheet1.Range[xlsRow - 1, 5].CellStyle.Font.Size = 10;
+               // sheet1.Range[xlsRow - 1, 4,xlsRow-1,7].RowHeight = 30;
+                sheet1.Range[xlsRow - 1, 5].HorizontalAlignment=ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow - 1, 4, xlsRow - 1, 7].BorderAround(ExcelLineStyle.Thin);
 
+                sheet1.Range[xlsRow - 1, 5].CellStyle.Font.Bold = true;
+
+                sheet1.Range[xlsRow - 1, 9].Text = "Tax";
+                sheet1.Range[xlsRow - 1, 9].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow - 1, 9].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow - 1, 7].BorderInside(ExcelLineStyle.Thin);
+                sheet1.Range[xlsRow - 1, 4, xlsRow - 1, 11].BorderAround(ExcelLineStyle.Thin);
+                sheet1.Range[xlsRow - 1, 9].CellStyle.Font.Bold = true;
 
                 //int iPostingDate = xlsCol;
                 //sheet1.Range[xlsRow, xlsCol].Text = "Date";
@@ -7787,10 +7800,30 @@ UNION ALL
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 // xlsCol++;
 
+                xlsCol++;
+                int iInvoiceVoucherNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Invoice Voucher No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iInvoicePostingDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iInvoiceDocDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iInvoiceDocRefNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
                 //VoucherNo
                 xlsCol++;
                 int iVoucherNo = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Voucher No";
+                sheet1.Range[xlsRow, xlsCol].Text = "TDS Voucher No";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
                 xlsCol++;
@@ -7807,6 +7840,14 @@ UNION ALL
                 int iDocRefNo = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+
+                xlsCol++;
+                int iInvoiceAmount = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Invoice Amount";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+           
 
 
                 xlsCol++;
@@ -7848,6 +7889,9 @@ UNION ALL
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+
+
 
                 string voucherNo = "";
                 string Percentage = "";
@@ -7942,8 +7986,15 @@ UNION ALL
                         sheet1[xlsRow, colSLNO].Number = sl;
                         sheet1.Range[xlsRow, PartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
 
+                        sheet1.Range[xlsRow, iInvoiceVoucherNo].Text = dtRCMPayable.Rows[i]["InvoiceVoucherNo"].ToString();
+                        sheet1.Range[xlsRow, iInvoicePostingDate].Text = dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString();
+                        sheet1.Range[xlsRow, iInvoiceDocRefNo].Text = dtRCMPayable.Rows[i]["InvoieDocRefNo"].ToString();
+                        sheet1.Range[xlsRow, iInvoiceDocDate].Text = dtRCMPayable.Rows[i]["InvoiceDocDate"].ToString();
                         sheet1.Range[xlsRow, GSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
-
+                        
+                        sheet1.Range[xlsRow, iInvoiceAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["InvoiceAmount"].ToString());//TaxableAmount
+                        sheet1.Range[xlsRow, iInvoiceAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                        
                         sheet1.Range[xlsRow, iDocRefNo].Text = dtRCMPayable.Rows[i]["DocRefNo"].ToString();
                         sheet1.Range[xlsRow, iVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
                         sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
@@ -8002,7 +8053,7 @@ UNION ALL
                 sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
 
 
-       
+             
                 sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Total";
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
                 formula2 = "SUM(" + clsStaticInfo.GetxlsCol(CrAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(CrAmount) + (xlsRow - 1) + ")";
@@ -8179,11 +8230,11 @@ UNION ALL
         {
             string strSql = "";
             strSql = @"
-
                 select SourceType= case when V.SourceType='VendorInvoice' then 'Inbound Invoice'
 						                when V.SourceType='VendorPayment' then 'Vendor Payment'
 						                when V.SourceType='InventoryPayable' then 'Purchase' else '' end
-                ,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,format( V.DocDate, 'dd-MMM-yyyy')DocDate, P.UserName PartyName,P.TINNO GSTIN 
+                ,IWD.VoucherNo InvoiceVoucherNo,format( IWD.PostingDate, 'dd-MMM-yyyy') InvoicePostingDate,iwd.DocRefNo InvoieDocRefNo,format( IWD.DocDate, 'dd-MMM-yyyy') InvoiceDocDate
+				,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,format( V.DocDate, 'dd-MMM-yyyy')DocDate, P.UserName PartyName,P.TINNO GSTIN 
                 ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
 				                   when v.SourceType='VendorInvoice' then 'GL'
 				                   when v.SourceType='VendorPayment' then 'GL'
@@ -8192,7 +8243,10 @@ UNION ALL
 									                WHEN v.SourceType='VendorInvoice' THEN A.UserName
 									                WHEN v.SourceType='VendorPayment' THEN AP.UserName
 				                   else '' end
-                ,TaxableAmount=case when v.SourceType='InventoryPayable' then IRD.TotalMaterialTranAmount
+				 ,TaxableAmount=case when v.SourceType='InventoryPayable' then IRD.TotalMaterialTranAmount-IT.TaxAmount
+					                when v.SourceType='VendorInvoice' then VD.DrAmount-IT.TaxAmount	
+					                when v.SourceType='VendorPayment' then IWD.Amount-IT.TaxAmount	else 0 end
+                ,InvoiceAmount=case when v.SourceType='InventoryPayable' then IRD.TotalMaterialTranAmount
 					                when v.SourceType='VendorInvoice' then VD.DrAmount	
 					                when v.SourceType='VendorPayment' then IWD.Amount	else 0 end
                 ,IT.Id,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
@@ -8214,31 +8268,34 @@ UNION ALL
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
 				LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId AND TC.TaxCategoryType='TDS'
-               -- LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
-                LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
-	               LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
-	               --LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ('3')) TAXC ON TAXC.Id=IT.TaxCodeId
-
-                --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
+	               LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId+@")) TAXC ON TAXC.Id=IT.TaxCodeId
                 LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
                 LEFT JOIN TRN.InventoryReceiveTax IRT ON IRT.InventoryReceiveId=IR.Id --AND IRT.TaxCategoryId=IT.TaxCategoryId
                 LEFT JOIN MST.HSNTaxPercentage HSNP ON  IRT.HSNCodeId=HSNP.HSNCodeId AND HSNP.TaxCategoryId=IT.TaxCategoryId 
                 LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
                 LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
                 LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
-                LEFT JOIN (SELECT SUM(D.DrAmount) DrAmount,D.VoucherId,D.ActivityId FROM  TRN.VoucherDetail D LEFT JOIN TRN.Voucher VV ON VV.Id=D.VoucherId 
+                LEFT JOIN (SELECT SUM(D.DrAmount) DrAmount,D.VoucherId,D.ActivityId,D.InvoiceWriteOffDetailId 
+				FROM  TRN.VoucherDetail D LEFT JOIN TRN.Voucher VV ON VV.Id=D.VoucherId 
 				WHERE D.InvoiceTaxDetailId IS NULL AND D.DrAmount<> 0 
-				GROUP BY D.VoucherId,D.ActivityId
+				GROUP BY D.VoucherId,D.ActivityId,D.InvoiceWriteOffDetailId
 				) VD ON VD.VoucherId=IT.VoucherId 
                 LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId 
-                LEFT JOIN (SELECT IW.InvoiceWriteOffId,IW.ActivityId,SUM(I.Amount) Amount FROM TRN.InvoiceWriteOffDetail IW 
+                LEFT JOIN (SELECT IW.InvoiceWriteOffId,IW.ActivityId,SUM(I.Amount) Amount,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate
+				FROM TRN.InvoiceWriteOffDetail IW 
 			                JOIN TRN.Invoice I ON I.Id=IW.InvoiceId
-		                GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
+							JOIN TRN.Voucher V ON V.Id=I.VoucherId
+		                GROUP BY InvoiceWriteOffId,ActivityId,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate
+						
+						) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
 				
-                where TC.TaxCategoryType='TDS' AND ITD.AType='Cr' AND V.PostingDate between '" + fromDate + "' AND '" + toDate + @"' and V.PlantId = '" + plantId + @"' and V.IsPark=0
-                ORDER BY LineItemType,ValueOfFixed,Percentage";
+                where TC.TaxCategoryType='TDS' AND ITD.AType='Cr' 
+				AND V.PostingDate between '"+fromDate+"' AND '"+toDate+"' and V.PlantId = '"+plantId+@"' and V.IsPark=0
+                ORDER BY LineItemType,ValueOfFixed,Percentage
+				";
 
             return _sqlRepository.GetDataTable(strSql);
 
