@@ -3173,7 +3173,6 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
 					WHERE IRT.PurchaseReturnId=@receiveId   AND ITD.AType='Dr'
 					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
-					
                     ORDER BY T.TrnType DESC";
 				return _sqlRepository.GetDataCollection(sql);
 			}

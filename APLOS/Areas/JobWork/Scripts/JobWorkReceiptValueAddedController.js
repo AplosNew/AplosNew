@@ -1052,18 +1052,20 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 	// INDIVIDUAL RECEIPT REPORT
 
-	//$scope.ConfirmPrintTab = function (data) {
-	//	try {
-	//		$scope.PrintTabId = data.ContractId;
-	//		$scope.IssueId = data.Id;
-	//		var reportFormat = "Excel";
-	//		window.open('JobWork/JobWorkReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
-	//		//   $scope.getData();
+	$scope.PrintReceiptReport = function (data) {
+		try {
+		//	$scope.PrintTabId = data.ContractId;
+			//	$scope.PrintTabId = data.TransformationContractId;
+			$scope.PrintTabId = $scope.Transformation.Id;
+			$scope.IssueId = data.Id;
+			var reportFormat = "Excel";
+			window.open('JobWork/JobWorkReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+			//   $scope.getData();
 
-	//	} catch (e) {
+		} catch (e) {
 
-	//	}
-	//};
+		}
+	};
 
 
 	//region code by sk
@@ -1961,7 +1963,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			method: "GET",
 			dataType: 'JSON',
 			//url: $scope.getSearchListUrl,
-			url: 'Products/GoodsReceiveNote/GetJWGRNDataChecking?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus,
+			url: 'Products/GoodsReceiveNote/GetJWGRNDataChecking?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus + '&POId=' + $scope.Transformation.Id,
 		}).then(function successCallback(response) {
 			$scope.GriddataMaster = response.data;
 			//entrydata = copy(searchdata);

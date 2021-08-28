@@ -1057,7 +1057,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     }
 
     $scope.getStocksReport = function () {
-        $scope.validations();
+       
         $http({
             method: 'POST',
             url: $scope.path + "GetStockReport",

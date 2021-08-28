@@ -377,45 +377,52 @@
 										<div class="form-group">
 											<label class="col-sm-4 control-label">Remarks</label>
 											<div class="col-sm-8">
-												<textarea class="form-control" rows="2" ng-model="IssueTransformation.Remarks" maxlength="250" tabindex="6"></textarea>
+												<textarea class="form-control" rows="1" ng-model="IssueTransformation.Remarks" maxlength="250" tabindex="6"></textarea>
 											</div>
 										</div>
 
 
 									</div>
-									<div class="col-xs-12 col-sm-6 col-md-6">
-										<div class="form-group" show-errors>
-											<label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-											<div class="col-sm-8 show-message">
-												<div class="select-style">
-													<select class="form-control" ng-model="IssueTransformation.EntityId" name="Entity" required
-															ng-options="item.Value as item.Text for item in EntityList" tabindex="3">
-														<option value="">--Select--</option>
-													</select>
-												</div>
-											</div>
-										</div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="IssueTransformation.EntityId" name="Entity" required
+                                                            ng-options="item.Value as item.Text for item in EntityList" tabindex="3">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
 
-										<div class="form-group">
-											<label class="col-sm-4 control-label">Storage Location</label>
-											<div class="col-sm-8">
-												<input type="text" ng-model="IssueTransformation.StorageLocation" class="form-control" readonly tabindex="2">
-											</div>
-										</div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Storage Location</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" ng-model="IssueTransformation.StorageLocation" class="form-control" readonly tabindex="2">
+                                            </div>
+                                        </div>
 
-										<div class="form-group" show-errors>
-											<label class="col-sm-4 control-label" title="Responsible Name"><span>By Whom</span><sup>*</sup></label>
-											<div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
-												<span class="input-group-addon" ng-class="{filled:IssueTransformation.EmpStatus==='Separated'}">{{IssueTransformation.EmpCode}}</span>
-												<input type="text" ng-model="IssueTransformation.EmpName" name="By Whom" required class="form-control" readonly ng-class="{filled:IssueTransformation.EmpStatus==='Separated'}">
-												<span class="input-group-btn">
-													<button ng-click="EmpPopUp()" tabindex="3" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-													<button ng-click="EmpClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-												</span>
-											</div>
-										</div>
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label" title="Responsible Name"><span>By Whom</span><sup>*</sup></label>
+                                            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                                                <span class="input-group-addon" ng-class="{filled:IssueTransformation.EmpStatus==='Separated'}">{{IssueTransformation.EmpCode}}</span>
+                                                <input type="text" ng-model="IssueTransformation.EmpName" name="By Whom" required class="form-control" readonly ng-class="{filled:IssueTransformation.EmpStatus==='Separated'}">
+                                                <span class="input-group-btn">
+                                                    <button ng-click="EmpPopUp()" tabindex="3" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                    <button ng-click="EmpClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+                                        </div>
 
-									</div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Reference No</label>
+                                            <div class="col-sm-8">
+                                                <textarea class="form-control" rows="2" ng-model="IssueTransformation.RefferenceNo" maxlength="250" tabindex="6"></textarea>
+                                            </div>
+                                        </div>
+
+                                    </div>
 
 								</div>
 								@*<div class="common-btn">
@@ -518,7 +525,7 @@
 													</td>*@
 												@*<td>{{x.Material}}</td>*@
 												@*<td>{{x.ArticleName}}</td>*@
-												<td>{{x.JobWorkTransformationContractChildMasterId}}</td>
+												<td>{{x.JWTCMId}}</td>
 												<td>{{x.Id}}</td>
 
 
@@ -897,30 +904,31 @@
 			<div style="color:black;" id="GridIIssue" ej-grid e-datasource="GridInventoryIssuedata"
 				 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
 				 e-recorddoubleclick="GetDataList" e-filtersettings-filterType="excel"
-				 e-enabletouch="true" e-allowselection="true"
+				 e-enabletouch="true" e-allowselection="true" e-allowscrolling="true"
 				 e-detailstemplate="detailTemp"
 				 e-detailsdatabound="detailgrid">
 				<div e-columns>
-					<div e-column e-field="JWContractId" e-headertext="PO Number" e-width="80"></div>
-					<div e-column e-field="Id" e-headertext="Issue No" e-width="80"></div>
-					<div e-column e-field="Types" e-headertext="Type" e-width="80"></div>
-					<div e-column e-field="issuetype" e-headertext="Issue Type" e-width="80"></div>
-					<div e-column e-field="Entity" e-headertext="Entity Name" e-width="80"></div>
-					<div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="80"></div>
-					<div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
-					<div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="80"></div>
+					<div e-column e-field="JWContractId" e-headertext="PO Number" e-width="100"></div>
+					<div e-column e-field="Id" e-headertext="Issue No" e-width="100"></div>
+					<div e-column e-field="Types" e-headertext="Type" e-width="100"></div>
+					<div e-column e-field="issuetype" e-headertext="Issue Type" e-width="100"></div>
+					<div e-column e-field="Entity" e-headertext="Entity Name" e-width="100"></div>
+					<div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="100"></div>
+					<div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+					<div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="100"></div>
 
-					<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="80"></div>
-					<div e-column e-field="MaterialStorage" e-headertext="Storage Location" e-width="80"></div>
-					<div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="80"></div>
-					<div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
-					<div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
-					<div e-column e-headertext="Actions" e-width="50">
-						<ul class="list-inline text-right">
-							<li>
-								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
-								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
-							</li>
+					<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="100"></div>
+					<div e-column e-field="MaterialStorage" e-headertext="Storage Location" e-width="100"></div>
+					<div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="100"></div>
+					<div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
+					<div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+					<div e-column e-headertext="Actions" e-width="100">
+						<ul class="list-inline text-left">
+                            <li>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
+                                @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>*@
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
+                            </li>
 						</ul>
 
 

@@ -10142,6 +10142,7 @@ namespace Library.MaterialManagement.Inventory
                                     ActivityId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
                                     Comments = issue.Comments,
                                     CostCenterId = issue.CostCenterId,
+                                    JWTCMID = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.JWTCMId).FirstOrDefault(),
                                     ModelState = ModelState.Added
 
                                     //InventoryReceiveId= receiveDetailRow.InventoryReceiveId,
@@ -10474,7 +10475,7 @@ namespace Library.MaterialManagement.Inventory
                                     ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
                                     CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
                                     Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
-
+                                    JWTCMID= entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.JWTCMId).FirstOrDefault(),
                                     ModelState = ModelState.Added
                                 };
 

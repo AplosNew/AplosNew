@@ -99,10 +99,10 @@
                         <div e-column e-template="#shift" e-headertext="Shift" e-width="150"></div>
                         <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="50"></div>
 
-                        <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
-                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
-                        <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
-                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
+                        <div e-column e-template="#Saadindate" e-headertext="In Date" e-width="130"></div>
+                        <div e-column e-template="#Saadintime" e-headertext="In Time" e-width="120"></div>
+                        <div e-column e-template="#Saadoutdate" e-headertext="Out Date" e-width="130"></div>
+                        <div e-column e-template="#Saadouttime" e-headertext="Out Time" e-width="120"></div>
 
                         <div e-column e-field="InDateOriginal" e-headertext="Processed In Date" e-width="130"></div>
                         <div e-column e-field="InTimeOriginal" e-headertext="Processed In Time" e-width="120"></div>
@@ -179,10 +179,10 @@
                         <div e-column e-template="#allShiftSingleDay" e-headertext="Shift" e-width="150"></div>
                         <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="50"></div>
 
-                        <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
-                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
-                        <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
-                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
+                        <div e-column e-template="#Saadindate" e-headertext="In Date" e-width="130"></div>
+                        <div e-column e-template="#Saadintime" e-headertext="In Time" e-width="120"></div>
+                        <div e-column e-template="#Saadoutdate" e-headertext="Out Date" e-width="130"></div>
+                        <div e-column e-template="#Saadouttime" e-headertext="Out Time" e-width="120"></div>
 
                         <div e-column e-field="InDateOriginal" e-headertext="Processed InDate" e-width="100"></div>
                         <div e-column e-field="InTimeOriginal" e-headertext="Processed InTime" e-width="100"></div>
@@ -226,18 +226,18 @@
     }
 </style>
 
-<script type="text/template" id="indate">
+<script type="text/template" id="Saadindate">
     <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDateApp" e-enabled="data.isApprovedIN" e-width="100%" />
 </script>
-<script type="text/template" id="intime">
+<script type="text/template" id="Saadintime">
 
     <input type="text" ej-timepicker e-value="data.InTimeApp" e-width="100%" e-enabled="data.isApprovedIN" />
 
 </script>
-<script type="text/template" id="outdate">
+<script type="text/template" id="Saadoutdate">
     <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDateApp" e-enabled="data.isApprovedOUT" e-width="100%" />
 </script>
-<script type="text/template" id="outtime">
+<script type="text/template" id="Saadouttime">
     <input type="text" ej-timepicker e-value="data.OutTimeApp" e-width="90%" e-enabled="data.isApprovedOUT" />
 </script>
 

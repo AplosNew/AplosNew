@@ -40,23 +40,15 @@ namespace Library.MaterialManagement.JobWork
 
         }
 
-        public IEnumerable<object> LoadAllTransConForSelection(string PartyVendorId)
+        public IEnumerable<object> LoadAllPOForSelection(string JWPOPartyId)
         {
             try
             {
                 string sql = "";
+             //   string PartyId = PartyVendorId;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                if (!string.IsNullOrEmpty(PartyVendorId))
-                {
-                    sql = @"select tc.*,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party
-                                              , FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
-                                              ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate
-                                              from dbo.JWTransformationPurchaseOrder tc left join ORG.Plant P on P.Id=tc.PlantId
-                                              left join ORG.Entity E on E.Id=tc.EntityId
-                                              left join HKP.Party Pty on Pty.Id=tc.PartyId
-                                              where tc.PartyId='" + PartyVendorId + @"' ";
-                }
-                else
+
+                if (JWPOPartyId == "null")
                 {
                     sql = @"select tc.*,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party
                                               , FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
@@ -64,6 +56,17 @@ namespace Library.MaterialManagement.JobWork
                                               from dbo.JWTransformationPurchaseOrder tc left join ORG.Plant P on P.Id=tc.PlantId
                                               left join ORG.Entity E on E.Id=tc.EntityId
                                               left join HKP.Party Pty on Pty.Id=tc.PartyId ";
+                }
+
+                else
+                {
+                    sql = @"select tc.*,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party
+                                              , FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
+                                              ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate
+                                              from dbo.JWTransformationPurchaseOrder tc left join ORG.Plant P on P.Id=tc.PlantId
+                                              left join ORG.Entity E on E.Id=tc.EntityId
+                                              left join HKP.Party Pty on Pty.Id=tc.PartyId
+                                              where tc.PartyId='" + JWPOPartyId + @"' ";
                 }
 
 
@@ -120,9 +123,16 @@ namespace Library.MaterialManagement.JobWork
                     //,mp.ArticleCodeId, mma.StandardName,mm.Id,mm.UserName,mp.Quantity,mp.RateApplyId, c.Code,mp.RatePerUnit,mmuom.UserName,mpuom.UserName,mi.TotalGrossConsump,kk.TotalReceivedQuantity,mi.TNoOfInputItem
                     //,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN order by tc.Id ";
 
-                    _sql = @"select tc.Id,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party,PP.GSTIN, FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
+                    _sql = @"select tc.Id,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+trn.MasterOrder XMOI
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
+LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
+where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
+),Pty.Code as PartyCode, Pty.UserName as Party,PP.GSTIN, FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
 ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate, jwa.UserName as JWActivity,JWItemType='Output', jl.LocationName as JWLocation, tc.ContractStatus
-,mp.Id as ContractLineItemId, mp.JobWorkItemMasterId, jwi.UserName as JWOutputItem, mp.ArticleId, mma.StandardName as JWOutputArticle, mm.Id as JWOutputMaterialId, mm.UserName as JWOutputMaterial
+,mp.Id as ContractLineItemId, mp.JobWorkItemMasterId, jwi.UserName as JWOutputItem, mp.ArticleId,mma.Code as JWOutputArticleCode, mma.StandardName as JWOutputArticle, mm.Id as JWOutputMaterialId
+,mm.Code as JWOutputMaterialCode, mm.UserName as JWOutputMaterial
 ,OutputUnit=case when mp.ArticleId is not null then mmuom.UserName else mpuom.UserName End, mp.Quantity as PlannedQuantity, mp.RateApplyId, c.Code as MPCurrency, mp.RatePerUnit
 ,isnull(mi.TotalGrossConsump,'0') as TotalGrossConsumption
 ,ContractAmount=case when mp.RateApplyId='Output' then (mp.Quantity * mp.RatePerUnit) else (mp.Quantity * mi.TotalGrossConsump * mp.RatePerUnit) End
@@ -140,7 +150,7 @@ left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
 left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 --left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
 left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
-left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
+left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId and mm.Id=mp.MaterialMasterId
 left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
@@ -153,10 +163,14 @@ left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
 left join dbo.JobWorkTransformationContractChild om on om.JobWorkTransformationContractMasterId=ii.JWContractId
 left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
 IQ on IQ.Id=mp.Id
+left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
+left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 where (tc.[PODate] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"'))
 group by tc.Id,tc.PODate,P.UserName,E.UserName,Pty.Code,Pty.UserName,tc.ProcessStartDate,tc.ProcessEndDate,tc.ContractClosingDate,jwa.UserName,jl.LocationName,mp.Id,mp.JobWorkItemMasterId, jwi.UserName
 ,mp.ArticleId, mma.StandardName,mm.Id,mm.UserName,mp.Quantity,mp.RateApplyId, c.Code,mp.RatePerUnit,mmuom.UserName,mpuom.UserName,mi.TotalGrossConsump,kk.TotalReceivedQuantity,mi.TNoOfInputItem
-,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN order by tc.Id";
+,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN,tc.DocRefNo,tc.DocDate,tc.OrderSpecific,Ct.ContractNo,Prty.UserName,MLC.LCRef,Ct.Id,mma.Code,mm.Code
+order by tc.Id";
 
                 }
                 else
@@ -198,9 +212,16 @@ group by tc.Id,tc.PODate,P.UserName,E.UserName,Pty.Code,Pty.UserName,tc.ProcessS
                         //,mp.ArticleCodeId, mma.StandardName,mm.Id,mm.UserName,mp.Quantity,mp.RateApplyId, c.Code,mp.RatePerUnit,mmuom.UserName,mpuom.UserName,mi.TotalGrossConsump,kk.TotalReceivedQuantity,mi.TNoOfInputItem
                         //,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN order by tc.Id ";
 
-                        _sql = @"select tc.Id,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party,PP.GSTIN, FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
+                        _sql = @"select tc.Id,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+trn.MasterOrder XMOI
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
+LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
+where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
+),Pty.Code as PartyCode, Pty.UserName as Party,PP.GSTIN, FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
 ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate, jwa.UserName as JWActivity,JWItemType='Output', jl.LocationName as JWLocation, tc.ContractStatus
-,mp.Id as ContractLineItemId, mp.JobWorkItemMasterId, jwi.UserName as JWOutputItem, mp.ArticleId, mma.StandardName as JWOutputArticle, mm.Id as JWOutputMaterialId, mm.UserName as JWOutputMaterial
+,mp.Id as ContractLineItemId, mp.JobWorkItemMasterId, jwi.UserName as JWOutputItem, mp.ArticleId,mma.Code as JWOutputArticleCode, mma.StandardName as JWOutputArticle, mm.Id as JWOutputMaterialId
+,mm.Code as JWOutputMaterialCode, mm.UserName as JWOutputMaterial
 ,OutputUnit=case when mp.ArticleId is not null then mmuom.UserName else mpuom.UserName End, mp.Quantity as PlannedQuantity, mp.RateApplyId, c.Code as MPCurrency, mp.RatePerUnit
 ,isnull(mi.TotalGrossConsump,'0') as TotalGrossConsumption
 ,ContractAmount=case when mp.RateApplyId='Output' then (mp.Quantity * mp.RatePerUnit) else (mp.Quantity * mi.TotalGrossConsump * mp.RatePerUnit) End
@@ -218,7 +239,7 @@ left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
 left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 --left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
 left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
-left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
+left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId and mm.Id=mp.MaterialMasterId
 left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
@@ -231,10 +252,14 @@ left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
 left join dbo.JobWorkTransformationContractChild om on om.JobWorkTransformationContractMasterId=ii.JWContractId
 left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
 IQ on IQ.Id=mp.Id
+left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
+left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 where (tc.[PODate] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and tc.PartyId='" + PartyVendorId + @"' and tc.Id='" + ContractId + @"'
 group by tc.Id,tc.PODate,P.UserName,E.UserName,Pty.Code,Pty.UserName,tc.ProcessStartDate,tc.ProcessEndDate,tc.ContractClosingDate,jwa.UserName,jl.LocationName,mp.Id,mp.JobWorkItemMasterId, jwi.UserName
 ,mp.ArticleId, mma.StandardName,mm.Id,mm.UserName,mp.Quantity,mp.RateApplyId, c.Code,mp.RatePerUnit,mmuom.UserName,mpuom.UserName,mi.TotalGrossConsump,kk.TotalReceivedQuantity,mi.TNoOfInputItem
-,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN order by tc.Id ";
+,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN,tc.DocRefNo,tc.DocDate,tc.OrderSpecific,Ct.ContractNo,Prty.UserName,MLC.LCRef,Ct.Id,mma.Code,mm.Code
+order by tc.Id ";
 
                     }
                     else
@@ -274,9 +299,16 @@ group by tc.Id,tc.PODate,P.UserName,E.UserName,Pty.Code,Pty.UserName,tc.ProcessS
                         //,mp.ArticleCodeId, mma.StandardName,mm.Id,mm.UserName,mp.Quantity,mp.RateApplyId, c.Code,mp.RatePerUnit,mmuom.UserName,mpuom.UserName,mi.TotalGrossConsump,kk.TotalReceivedQuantity,mi.TNoOfInputItem
                         //,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN order by tc.Id ";
 
-                        _sql = @"select tc.Id,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party,PP.GSTIN, FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
+                        _sql = @"select tc.Id,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+trn.MasterOrder XMOI
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
+LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
+where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
+),Pty.Code as PartyCode, Pty.UserName as Party,PP.GSTIN, FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
 ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate, jwa.UserName as JWActivity,JWItemType='Output', jl.LocationName as JWLocation, tc.ContractStatus
-,mp.Id as ContractLineItemId, mp.JobWorkItemMasterId, jwi.UserName as JWOutputItem, mp.ArticleId, mma.StandardName as JWOutputArticle, mm.Id as JWOutputMaterialId, mm.UserName as JWOutputMaterial
+,mp.Id as ContractLineItemId, mp.JobWorkItemMasterId, jwi.UserName as JWOutputItem, mp.ArticleId,mma.Code as JWOutputArticleCode, mma.StandardName as JWOutputArticle, mm.Id as JWOutputMaterialId
+,mm.Code as JWOutputMaterialCode, mm.UserName as JWOutputMaterial
 ,OutputUnit=case when mp.ArticleId is not null then mmuom.UserName else mpuom.UserName End, mp.Quantity as PlannedQuantity, mp.RateApplyId, c.Code as MPCurrency, mp.RatePerUnit
 ,isnull(mi.TotalGrossConsump,'0') as TotalGrossConsumption
 ,ContractAmount=case when mp.RateApplyId='Output' then (mp.Quantity * mp.RatePerUnit) else (mp.Quantity * mi.TotalGrossConsump * mp.RatePerUnit) End
@@ -294,7 +326,7 @@ left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
 left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 --left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
 left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
-left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
+left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId and mm.Id=mp.MaterialMasterId
 left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
@@ -307,10 +339,14 @@ left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
 left join dbo.JobWorkTransformationContractChild om on om.JobWorkTransformationContractMasterId=ii.JWContractId
 left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
 IQ on IQ.Id=mp.Id
+left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
+left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 where (tc.[PODate] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and (tc.PartyId='" + PartyVendorId + @"' or tc.Id='" + ContractId + @"')
 group by tc.Id,tc.PODate,P.UserName,E.UserName,Pty.Code,Pty.UserName,tc.ProcessStartDate,tc.ProcessEndDate,tc.ContractClosingDate,jwa.UserName,jl.LocationName,mp.Id,mp.JobWorkItemMasterId, jwi.UserName
 ,mp.ArticleId, mma.StandardName,mm.Id,mm.UserName,mp.Quantity,mp.RateApplyId, c.Code,mp.RatePerUnit,mmuom.UserName,mpuom.UserName,mi.TotalGrossConsump,kk.TotalReceivedQuantity,mi.TNoOfInputItem
-,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN order by tc.Id";
+,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN,tc.DocRefNo,tc.DocDate,tc.OrderSpecific,Ct.ContractNo,Prty.UserName,MLC.LCRef,Ct.Id,mma.Code,mm.Code
+order by tc.Id";
                     }
                 }
 
@@ -361,10 +397,17 @@ group by tc.Id,tc.PODate,P.UserName,E.UserName,Pty.Code,Pty.UserName,tc.ProcessS
                     //where (tc.[Date] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"'))
                     //order by tc.Id ";
 
-                    _sql = @"select tbp.Id,tc.Id as ContractId,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party
+                    _sql = @"select tbp.Id,tc.Id as ContractId,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+trn.MasterOrder XMOI
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
+LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
+where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
+), Pty.Code as PartyCode, Pty.UserName as Party
 ,PP.GSTIN, FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
 ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate, jwa.UserName as JWActivity,JWItemType='ByProduct'
-, jl.LocationName as JWLocation, tc.ContractStatus, tbp.JobWorkItemId, jwi.UserName as ByProductItem, mma.Code as ArticleCode, mma.StandardName as Article
+, jl.LocationName as JWLocation, tc.ContractStatus, tbp.JobWorkItemId, jwi.UserName as ByProductItem,mm.Code as BPMaterialCode, mm.UserName as BPMaterial
+, mma.Code as ArticleCode, mma.StandardName as Article
 ,Unit=case when tbp.ArticleId is not null then mmuom.UserName else uom.UserName End,TotalReqQty=((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100), mp.RateApplyId
 ,c.Code as Currency,tbp.StandardRate
 ,ContractAmount=case when mp.RateApplyId='Output' then (((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) * tbp.StandardRate) else (mp.Quantity * tmi.TotalGrossConsump * tbp.StandardRate) End
@@ -391,6 +434,9 @@ left join HKP.Party Pty on Pty.Id=tc.PartyId
 left join HKP.PartyPlant PP on PP.PartyId=Pty.Id
 left join HKP.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
 left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
+left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
+left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 where (tc.PODate between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"'))
 order by tc.Id ";
 
@@ -431,10 +477,17 @@ order by tc.Id ";
                         //where (tc.[Date] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and tc.VendorPartyId='" + PartyVendorId + @"' and tc.Id='" + ContractId + @"'
                         //order by tc.Id ";
 
-                        _sql = @"select tbp.Id,tc.Id as ContractId,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party
+                        _sql = @"select tbp.Id,tc.Id as ContractId,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+trn.MasterOrder XMOI
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
+LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
+where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
+), Pty.Code as PartyCode, Pty.UserName as Party
 ,PP.GSTIN, FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
 ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate, jwa.UserName as JWActivity,JWItemType='ByProduct'
-, jl.LocationName as JWLocation, tc.ContractStatus, tbp.JobWorkItemId, jwi.UserName as ByProductItem, mma.Code as ArticleCode, mma.StandardName as Article
+, jl.LocationName as JWLocation, tc.ContractStatus, tbp.JobWorkItemId, jwi.UserName as ByProductItem,mm.Code as BPMaterialCode, mm.UserName as BPMaterial
+, mma.Code as ArticleCode, mma.StandardName as Article
 ,Unit=case when tbp.ArticleId is not null then mmuom.UserName else uom.UserName End,TotalReqQty=((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100), mp.RateApplyId
 ,c.Code as Currency,tbp.StandardRate
 ,ContractAmount=case when mp.RateApplyId='Output' then (((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) * tbp.StandardRate) else (mp.Quantity * tmi.TotalGrossConsump * tbp.StandardRate) End
@@ -461,6 +514,9 @@ left join HKP.Party Pty on Pty.Id=tc.PartyId
 left join HKP.PartyPlant PP on PP.PartyId=Pty.Id
 left join HKP.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
 left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
+left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
+left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 where (tc.PODate between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and tc.PartyId='" + PartyVendorId + @"' and tc.Id='" + ContractId + @"'
 order by tc.Id  ";
 
@@ -499,10 +555,17 @@ order by tc.Id  ";
                         //where (tc.[Date] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and (tc.VendorPartyId='" + PartyVendorId + @"' or tc.Id='" + ContractId + @"')
                         //order by tc.Id ";
 
-                        _sql = @"select tbp.Id,tc.Id as ContractId,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity, Pty.Code as PartyCode, Pty.UserName as Party
+                        _sql = @"select tbp.Id,tc.Id as ContractId,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+trn.MasterOrder XMOI
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
+LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
+where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
+), Pty.Code as PartyCode, Pty.UserName as Party
 ,PP.GSTIN, FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as ContractProStartDate
 ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate, jwa.UserName as JWActivity,JWItemType='ByProduct'
-, jl.LocationName as JWLocation, tc.ContractStatus, tbp.JobWorkItemId, jwi.UserName as ByProductItem, mma.Code as ArticleCode, mma.StandardName as Article
+, jl.LocationName as JWLocation, tc.ContractStatus, tbp.JobWorkItemId, jwi.UserName as ByProductItem,mm.Code as BPMaterialCode, mm.UserName as BPMaterial
+, mma.Code as ArticleCode, mma.StandardName as Article
 ,Unit=case when tbp.ArticleId is not null then mmuom.UserName else uom.UserName End,TotalReqQty=((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100), mp.RateApplyId
 ,c.Code as Currency,tbp.StandardRate
 ,ContractAmount=case when mp.RateApplyId='Output' then (((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) * tbp.StandardRate) else (mp.Quantity * tmi.TotalGrossConsump * tbp.StandardRate) End
@@ -529,6 +592,9 @@ left join HKP.Party Pty on Pty.Id=tc.PartyId
 left join HKP.PartyPlant PP on PP.PartyId=Pty.Id
 left join HKP.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
 left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
+left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
+left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
+LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
 where (tc.PODate between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and (tc.PartyId='" + PartyVendorId + @"' or tc.Id='" + ContractId + @"')
 order by tc.Id ";
                     }
