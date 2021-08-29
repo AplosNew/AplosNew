@@ -273,9 +273,44 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
 
 
-    $scope.PurchaseLCPOList = [];
+    $scope.PurchaseLCMaterialPOList = [];
     $scope.SelectedLCRow = {};
-    $scope.LoadPOList = function (LCData) {
+    $scope.LoadMaterialPOList = function (MaterialPOData) {
+        $scope.SelectedLCRow = MaterialPOData;
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPurchaseLCPOList",
+            data: { 'PurchaseLCId': MaterialPOData.LCId },
+            dataType: 'JSON'
+        })
+
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.PurchaseLCMaterialPOList = response.data.PODATA;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        $rootScope.openPopupAngular('MaterialPOPopup');
+    }
+    $scope.summaryMaterialPO = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalValue", dataMember: "TotalValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNAmount", dataMember: "GRNAmount", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "setOffValue", dataMember: "setOffValue", format: "{0:N2}" }],
+        showCaptionSummary: true
+
+    }];
+
+    $scope.PurchaseLCServicePOList = [];
+    $scope.SelectedLCRow = {};
+    $scope.LoadServicePOList = function (LCData) {
         $scope.SelectedLCRow = LCData;
         $http({
             method: 'POST',
@@ -298,7 +333,43 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
         $rootScope.openPopupAngular('POPopup');
     }
-    $scope.summaryPO = [{
+    $scope.summaryServicePO = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalValue", dataMember: "TotalValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNAmount", dataMember: "GRNAmount", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "setOffValue", dataMember: "setOffValue", format: "{0:N2}" }],
+        showCaptionSummary: true
+
+    }];
+
+
+    $scope.PurchaseLCJWPOList = [];
+    $scope.SelectedLCRow = {};
+    $scope.LoadJWPOList = function (LCData) {
+        $scope.SelectedLCRow = LCData;
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPurchaseLCPOList",
+            data: { 'PurchaseLCId': LCData.LCId },
+            dataType: 'JSON'
+        })
+
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.PurchaseLCPOList = response.data.PODATA;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        $rootScope.openPopupAngular('POPopup');
+    }
+    $scope.summaryJWPO = [{
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalValue", dataMember: "TotalValue", format: "{0:N2}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
@@ -311,7 +382,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.PurchaseLCPOBreakDownList = [];
     $scope.LoadPOBreakDownList = function (POBreakDownData) {
-        $scope.SelectedLCRow = POBreakDownData;
+       // $scope.SelectedLCRow = POBreakDownData;
         $http({
             method: 'POST',
             url: $scope.path + "POBreakDownDataList",
@@ -375,7 +446,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.PurchaseLCGRNBreakDownList = [];
     $scope.LoadGRNBreakDownList = function (GRNBreakDownData) {
-        $scope.SelectedLCRow = GRNBreakDownData;
+        //$scope.SelectedLCRow = GRNBreakDownData;
         $http({
             method: 'POST',
             url: $scope.path + "GRNBreakDownDataList",
@@ -572,19 +643,53 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     }];
 
-    $scope.EmptyGrid = function () {
-        $scope.PurchaseLCList = [];
+
+    $scope.NonLcGRNList = [];
+    $scope.LoadNonLcGRNList = function (NonLCGRNData) {
+        $scope.SelectedLCRow = NonLCGRNData;
+        $http({
+            method: 'POST',
+            url: $scope.path + "NonLcGRNBreakDownDataList",
+            data: { 'POID': NonLCGRNData.PONo },
+            dataType: 'JSON'
+        })
+
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.NonLcGRNList = response.data.NonLCGRNData;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        $rootScope.openPopupAngular('NonLcGRNPopup');
     }
+    $scope.summaryNONLcGRN = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
+        ],
+        showCaptionSummary: true
+
+    }];
+
     $scope.today = $filter('dateFiltering')(Date.now());
     $scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
         try {
-            if (angular.isUndefinedOrNull(e.data.ExpiryDate) < angular.isUndefinedOrNull($scope.today)) {
+            if (new Date(e.data.ExpiryDate) < new Date()) {
                 e.row.css("background-color","#FF502A");
                 return;
             }
         } catch (e) {
 
         }
+    }
+
+    $scope.EmptyGrid = function () {
+        $scope.PurchaseLCList = [];
     }
 
 }

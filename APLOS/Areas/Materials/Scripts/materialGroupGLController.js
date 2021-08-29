@@ -1423,6 +1423,9 @@ function MaterialGroupGLController(cboService, commonMessage, $scope, $rootScope
                 if (!baseService.isUndefinedOrNull($scope.materialGroupGL.ClearingAccountBudgetMasterId)) {
                     item.ClearingAccountBudgetMasterId = $scope.materialGroupGL.ClearingAccountBudgetMasterId;
                 }
+                if (!baseService.isUndefinedOrNull($scope.materialGroupGL.InventoryInTransitBudgetMasterId)) {
+                    item.InventoryInTransitBudgetMasterId = $scope.materialGroupGL.InventoryInTransitBudgetMasterId;
+                }
                 if (!baseService.isUndefinedOrNull($scope.materialGroupGL.ClearingAccountActivityId)) {
                     item.ClearingAccountActivityId = $scope.materialGroupGL.ClearingAccountActivityId;
                 }

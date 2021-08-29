@@ -444,7 +444,7 @@ namespace Library.HumanResource.Report.Payroll
                 {
                     throw new Exception("No Data Found");
                 }
-                DataTable dtEmployees = dvEmp.ToTable(true, "SystemID", "Department", "LegalDesignation", "DOJ", "DOS", "DOB", "Grade", "GradeCode", "EmployeeName", "EmployeeCode", "SalaryHeadValue", "Line", "Gender", "PayRollGroup", "JobLocation", "PaymentMode", "BankName", "Section", "Unit","OTHr", "OTConsiderOn");
+                DataTable dtEmployees = dvEmp.ToTable(true, "SystemID", "Department", "LegalDesignation", "DOJ", "DOS", "DOB", "Grade", "GradeCode", "EmployeeName", "EmployeeCode", "SalaryHeadValue", "Line", "Gender", "PayRollGroup", "JobLocation", "PaymentMode", "BankName", "Section", "Unit","OTHr", "OTConsiderOn", "OTHrMinute");
 
 
                 objRpt.SelectedPlantWiseCompany(para.PlantId, out dsCmp);

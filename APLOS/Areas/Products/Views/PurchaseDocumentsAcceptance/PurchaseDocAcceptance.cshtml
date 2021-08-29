@@ -283,19 +283,19 @@
                                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                              e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="false">
                                             <div e-columns>
-                                                <div e-column e-field="PurchaseLCNO" e-headertext="LC Id" e-width="80" e-visible="false"></div>
-                                                <div e-column e-field="ContractId" e-headertext="ContractId" e-width="100" e-visible="false"></div>
-                                                <div e-column e-field="LCRef" e-headertext="LC No" e-width="100"></div>
-                                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
-                                                <div e-column e-field="UDNo" e-headertext="UD No" e-width="100"></div>
-                                                <div e-column e-field="MasterLCRef" e-headertext="MasterLC Ref" e-width="100"></div>
-                                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="100"></div>
-                                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
-                                                <div e-column e-field="LCOpeningDate" e-headertext="LCOpening Date" e-width="100"></div>
-                                                <div e-column e-field="LCExpiryDate" e-headertext="LCExpiry Date" e-width="100"></div>
-                                                <div e-column e-field="LCOpeningBank" e-headertext="LCOpening Bank" e-width="100"></div>
-                                                <div e-column e-field="CurrencyName" e-headertext="Currency" e-width="30"></div>
-                                                <div e-column e-field="AcceptanceFirst" e-headertext="Acceptance First" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="PurchaseLCNO" e-headertext="LC Id" e-width="80" e-visible="false"></div>
+                                                <div e-column e-type="string" e-field="ContractId" e-headertext="ContractId" e-width="100" e-visible="false"></div>
+                                                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="MasterLCRef" e-headertext="MasterLC Ref" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                                <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="Opening Date" e-width="100"></div>
+                                                <div e-column e-type="date" e-field="LCExpiryDate" e-headertext="Expiry Date" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="LCOpeningBank" e-headertext="Opening Bank" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="CurrencyName" e-headertext="Currency" e-width="30"></div>
+                                                <div e-column e-type="string" e-field="AcceptanceFirst" e-headertext="Acceptance First" e-width="100"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -586,7 +586,7 @@
                                             <td class="text-right">{{x.Balance}}</td>
                                             <td class="text-right"><input type="text" style="width:60px;" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
-                                            <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="10" ng-model="x.CurrencyName" ng-disabled="false" readonly></td>
+                                            <td class="text-right">{{x.CurrencyName}}</td>
                                             <td class="text-right">{{x.TaxAmount | number:2}}</td>
                                             <td class="text-right">{{x.ChargesTranAmount | number:2}}</td>
                                             <td class="text-right">{{x.ChargesTaxTranAmount | number:2}}</td>
@@ -702,10 +702,10 @@
                                             <td class="text-right">{{x.TotalGRN}}</td>
                                             <td class="text-right">{{x.Otherqty}}</td>
                                             @*<td class="text-right">{{x.Balance}}</td>*@
-
-
-                                            <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="10" ng-model="x.CurrencyName" ng-disabled="false" readonly></td>
-                                            <td class="text-right">{{x.TaxAmount | number:2}}</td>
+                                            <td class="text-right">{{x.CurrencyName}}</td>
+                                            <td class="text-right">
+                                                {{x.TaxAmount | number:2}}
+                                            </td>
                                             <td class="text-right">{{x.ChargesTranAmount | number:2}}</td>
                                             <td class="text-right">{{x.ChargesTaxTranAmount | number:2}}</td>
                                             <td class="text-right">{{x.TotalMaterialTranAmount |number:2}}</td>
