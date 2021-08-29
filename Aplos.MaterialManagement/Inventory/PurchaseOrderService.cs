@@ -721,6 +721,7 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
                         LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
                         LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                         LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
@@ -784,6 +785,7 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
                         LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
                         LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                         LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
