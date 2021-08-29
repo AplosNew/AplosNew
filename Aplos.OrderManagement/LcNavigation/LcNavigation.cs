@@ -41,7 +41,7 @@ namespace Library.OrderManagement.LcNavigation
             return @"select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
-                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate,
+                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
                         P.UserName as  Vendor,
                         PL.Amount as Value,
                         Cur.Code as Currency,
@@ -50,6 +50,7 @@ namespace Library.OrderManagement.LcNavigation
                         PL.BenificiaryBank,                       
                         po.POAmount as POValue
 						,PO.POCount
+                        ,PL.AddedDate
                         ,ac.AcceptanceValue
 						,invpy.InvPayment SetOff 
 						,Loan.Amount Loan
@@ -65,7 +66,8 @@ namespace Library.OrderManagement.LcNavigation
                         cus.Customer,
                         PL.Id as LCId
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
-
+						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
+						,variance=po.POAmount-grn.GRNTotalAmount
 						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
@@ -123,7 +125,8 @@ namespace Library.OrderManagement.LcNavigation
 										inner join  trn.invoice I on i.PurchaseDocAcceptanceId=ac.Id
 										 group by Ac.PurchaseLCId
 						 ) as PM on PM.PurchaseLCId=PL.Id
-                         where pl.plantId='" + identity.PlantId + @"' and PL.LCDate between '" + fromDate + @"' and '" + toDate + @"'";
+                         where pl.plantId='" + identity.PlantId + @"' and PL.LCDate between '" + fromDate + @"' and '" + toDate + @"'
+	 order by pl.AddedDate DESC";
 
         }
 
@@ -198,7 +201,43 @@ namespace Library.OrderManagement.LcNavigation
 
         }
 
-      
+
+        
+       public List<Dictionary<string, object>> GetNonTagLCSearchByDate(string fromDate, string toDate)
+        {
+            try
+            {
+                string sql = NonTagLCSearchByDateSql(fromDate, toDate);
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private string NonTagLCSearchByDateSql(string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"select PO.PurchaseLCId,PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate,PT.PaymentMode,PO.DocRefNo VendorRef
+,sum(POD.TransactionAmount) POAmount,c.Code Currency,P.UserName Vendor,GRN.GRNTotalAmount,po.AddedDate
+from trn.PurchaseOrder PO
+left outer join TRN.PurchaseOrderDetail POD on POD.InventoryReceiveId=PO.Id
+left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
+left outer join SCS.Currency C on c.Id=PO.CurrencyId
+left outer join hkp.Party P on P.Id=PO.PartyId
+
+                            left join
+                             (select  IRD.POId,sum(IRD.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct IRD.InventoryReceiveId) as GRNCount
+							from TRN.InventoryReceiveDetail IRD
+							group by IRD.POId)
+                            as grn on grn.POId=PO.Id
+							where PO.PurchaseLCId is null and PO.PODate between '" + fromDate + @"' and '" + toDate + @"' and PO.PlantId='" + identity.PlantId + @"'
+group by PO.PurchaseLCId,PO.Id ,PO.PODate,PT.PaymentMode,PO.DocRefNo ,POD.TransactionAmount ,C.Code,P.UserName,GRN.GRNTotalAmount,po.AddedDate
+order by po.AddedDate desc
+";
+        }
+
         private void Json(object p, object allowGet)
         {
             throw new NotImplementedException();
@@ -316,7 +355,7 @@ namespace Library.OrderManagement.LcNavigation
 from trn.InventoryReceive IR 
 							left outer join trn.InventoryReceiveDetail IRD on IRD.InventoryReceiveId=IR.Id
 							left outer join trn.PurchaseOrder PO on PO.id=IRD.POId
-							left outer join trn.PurchaseOrderDetail POD on POD.InventoryReceiveId=PO.Id
+							--left outer join trn.PurchaseOrderDetail POD on POD.InventoryReceiveId=PO.Id
 							where IR.Id='" + GRNID + @"'
 							group by IRD.POId,IR.GRNDate";
         }
