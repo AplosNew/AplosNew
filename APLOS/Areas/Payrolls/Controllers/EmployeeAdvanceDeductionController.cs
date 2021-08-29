@@ -138,13 +138,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region -- Save --
         [HttpPost]
-        public JsonResult SaveSalaryAdvance(List<SalaryAdvance> data, string Year, string Month, List<SalaryHeadAD> SalaryHead,string Advance, string Interest)
+        public JsonResult SaveSalaryAdvance(List<SalaryAdvance> data, string Year, string Month, List<SalaryHeadAD> SalaryHead,string Advance, string Interest,List<SalaryAdvance> DataToBeDelete)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsEmpAdvanceDeduction ep = new clsEmpAdvanceDeduction();
-                ep.SaveAdvance(data, Year, Month, SalaryHead,Advance,Interest);
+                ep.SaveAdvance(data, Year, Month, SalaryHead,Advance,Interest, DataToBeDelete);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
             }
             catch (Exception ex)

@@ -114,7 +114,7 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
 
                 times = $scope.VAS.videoStartTime.split(":");
             }
-            totalSeconds = (parseFloat(times[0]) * 3600) + (parseFloat(times[1]) * 60) + (parseFloat(times[2]));
+            totalSeconds = (dbl(times[0]) * 3600) + (dbl(times[1]) * 60) + (dbl(times[2]));
             $scope.videoStartTime = totalSeconds;
             $scope.VAS.videoStartTime = toHHMMSS(totalSeconds);
             if (totalSeconds > vid.duration) {
@@ -762,7 +762,7 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
                 for (var i = 1; i <= 5; i++) {
                     var _CurrentValue = $("#CT_" + i + "_" + index).val();
                     if (_CurrentValue != "") {
-                        var _total = parseFloat(_CurrentValue);
+                        var _total = dbl(_CurrentValue);
                         if (_total > 0) {
                             $scope.VideoStartEnabled = false;
                             return;
@@ -788,7 +788,7 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
             for (var i = 1; i <= 5; i++) {
                 var _CurrentValue = $("#CT_" + i + "_" + index).val();
                 if (_CurrentValue != "") {
-                    _total += parseFloat(_CurrentValue);
+                    _total += dbl(_CurrentValue);
                     _count++;
                     valArr.push(_CurrentValue);
                     $scope.VideoStartEnabled = false;
@@ -799,7 +799,7 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
                 if ($("#chkCycle" + i).is(':checked')) {
                     var _CurrentValue1 = $("#CT_" + i + "_" + index).val();
                     if (_CurrentValue1 != "") {
-                        _total += parseFloat(_CurrentValue1);
+                        _total += dbl(_CurrentValue1);
                         _count++;
                         valArr.push(_CurrentValue1);
                         $scope.VideoStartEnabled = false;
@@ -815,23 +815,25 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
         else if (calvalue == "MIN")
             Avg = Math.max.apply(Math, valArr);
 
-        if (isNaN(parseFloat(Avg).toFixed(3))) {
+        if (isNaN(dbl(Avg).toFixed(3))) {
             $("#CT_Avg_" + index).val('');
         }
         else {
-            $("#CT_Avg_" + index).val(parseFloat(Avg).toFixed(3));
+            $("#CT_Avg_" + index).val(dbl(Avg).toFixed(3));
         }
 
         var _ratingVal = $("#CT_Rat_" + index).val();
         if (_ratingVal != "") {
-            var _btSec = parseFloat(parseFloat(Avg).toFixed(3)) * parseFloat(_ratingVal) / 100;
-            $("#CT_BT_SEC_" + index).val(parseFloat(_btSec).toFixed(3));
+            var _btSec = dbl(dbl(Avg).toFixed(3)) * dbl(_ratingVal) / 100;
+            $("#CT_BT_SEC_" + index).val(dbl(_btSec).toFixed(3));
         }
 
         $scope.CTAverage();
     }
 
     $scope.CTAverageModel = [];
+    $scope.TotalAverage = 0;
+    $scope.TotalBTSec = 0;
     $scope.CTAverage = function () {
 
         var _id = $scope.VAS.AvgMaxMin;
@@ -842,7 +844,7 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
         else if (_id == "3")
             $scope.AvgMM = "MIN";
 
-       
+
         var calvalue = $scope.AvgMM;
         $scope.CTAverageModel = [];
         for (var i = 1; i <= 5; i++) {
@@ -853,14 +855,14 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
             for (var index = 1; index <= 100; index++) {
                 var _CurrentValue1 = $("#CT_" + i + "_" + index).val();
                 if (_CurrentValue1 != "") {
-                    _total += parseFloat(_CurrentValue1);
+                    _total += dbl(_CurrentValue1);
                     _count++;
 
                     if (MinValue == 0.000)
-                        MinValue = parseFloat(_CurrentValue1);
+                        MinValue = dbl(_CurrentValue1);
 
 
-                    var cValue = angular.isUndefinedOrNull(_CurrentValue1) ? 0.000 : parseFloat(_CurrentValue1);
+                    var cValue = angular.isUndefinedOrNull(_CurrentValue1) ? 0.000 : dbl(_CurrentValue1);
                     if (cValue > MaxVal)
                         MaxVal = cValue;
 
@@ -884,8 +886,24 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
 
             $scope.CTAverageModel.push({ CT: i, Value: _total == 0 ? '' : _total.toFixed(3) });
 
+            //total average and  BT
+            $scope.TotalAverage = 0;
+            $scope.TotalBTSec = 0;
+            for (var index = 1; index <= 100; index++) {
+                $scope.TotalAverage += dbl($("#CT_Avg_" + index).val());
+                $scope.TotalBTSec += dbl($("#CT_BT_SEC_" + index).val());
+            }
+            $scope.TotalAverage = $scope.TotalAverage == 0 ? '' : $scope.TotalAverage.toFixed(3);
+            $scope.TotalBTSec = $scope.TotalBTSec == 0 ? '' : $scope.TotalBTSec.toFixed(3);
         }
 
+    }
+
+    function dbl(val) {
+        if (!isNaN(parseFloat(val)) && isFinite(val))
+            return parseFloat(val);
+
+        return 0;
     }
 
     $scope.setPlay = function (id, index) {
@@ -947,8 +965,8 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
         }
         var _avgValue = $("#CT_Avg_" + Index).val();
         if (_ratingVal != "" && _avgValue != "") {
-            var _btSec = parseFloat(_avgValue) * parseFloat(_ratingVal) / 100;
-            $("#CT_BT_SEC_" + Index).val(parseFloat(_btSec).toFixed(3));
+            var _btSec = dbl(_avgValue) * dbl(_ratingVal) / 100;
+            $("#CT_BT_SEC_" + Index).val(dbl(_btSec).toFixed(3));
         }
         else {
             $("#CT_BT_SEC_" + Index).val('');
@@ -977,12 +995,12 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
                 for (var j = 1; j <= 5; j++) {
                     var txtcurrentVal = $("#CT_" + j + "_" + i).val();
                     if (txtcurrentVal != "") {
-                        txtVal += parseFloat(txtcurrentVal);
+                        txtVal += dbl(txtcurrentVal);
                         _count++;
                         arrVal.push(txtcurrentVal);
                     }
                     else {
-                        txtVal += parseFloat(0.00);
+                        txtVal += dbl(0.00);
                     }
                 }
             }
@@ -992,12 +1010,12 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
                     if ($("#chkCycle" + k).is(':checked')) {
                         var txtcurrentVal1 = $("#CT_" + k + "_" + i).val();
                         if (txtcurrentVal1 != "") {
-                            txtVal += parseFloat(txtcurrentVal1);
+                            txtVal += dbl(txtcurrentVal1);
                             _count++;
                             arrVal.push(txtcurrentVal1);
                         }
                         else {
-                            txtVal += parseFloat(0.00);
+                            txtVal += dbl(0.00);
                         }
                     }
                 }
@@ -1033,7 +1051,7 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
                 $("#CT_Avg_" + i).val("");
             }
             else {
-                $("#CT_Avg_" + i).val(parseFloat(calculatedValue).toFixed(3));
+                $("#CT_Avg_" + i).val(dbl(calculatedValue).toFixed(3));
             }
             $scope.changeRatings(i);
             txtVal = 0.00;
@@ -1087,7 +1105,7 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
 
         $('.CTRating').each(function () {
             if ($(this).val() !== "") {
-                CTRating += parseFloat(InitValue($(this).val()));
+                CTRating += dbl(InitValue($(this).val()));
             }
         });
 
@@ -1101,7 +1119,7 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
             if ($(this).val() !== "") {
                 var _gsdID = $(this).attr('id').replace('CT_BT_SEC_', 'GSD_');
                 var _gsdValue = $("#" + _gsdID).val();
-                BTSECSum += parseFloat(InitValue($(this).val()));
+                BTSECSum += dbl(InitValue($(this).val()));
             }
         });
 
@@ -1119,13 +1137,13 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
             return false;
         }
 
-        BTSECSum = (parseFloat(BTSECSum) / 60) * parseFloat(_isFrequency);
+        BTSECSum = (dbl(BTSECSum) / 60) * dbl(_isFrequency);
 
         $('.GSD_TMU').each(function () {
             if ($(this).val() != "") {
                 var _SelectGSDColumn = $(this).attr("id").replace('hd', '');
                 var _GSDCode = $("#" + _SelectGSDColumn).val();
-                Gross_GSD_SAM_SUM += parseFloat(InitValue($(this).val()));
+                Gross_GSD_SAM_SUM += dbl(InitValue($(this).val()));
             }
         });
 
@@ -1175,21 +1193,21 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.VAS.MachineAllowances = InitValue($scope.VAS.MachineAllowances);
         $scope.VAS.BHTValue = InitValue($scope.VAS.BHTValue);
 
-        Gross_GSD_SAM_SUM = (parseFloat(Gross_GSD_SAM_SUM) / 2000) * parseFloat(_isFrequency);
+        Gross_GSD_SAM_SUM = (dbl(Gross_GSD_SAM_SUM) / 2000) * dbl(_isFrequency);
 
-        TotalAllowance = parseFloat($scope.VAS.MachineAllowances) + parseFloat($scope.VAS.PersonalAllowances) + parseFloat($scope.VAS.AdditionalAllowances) + parseFloat($scope.VAS.BHTValue);
+        TotalAllowance = dbl($scope.VAS.MachineAllowances) + dbl($scope.VAS.PersonalAllowances) + dbl($scope.VAS.AdditionalAllowances) + dbl($scope.VAS.BHTValue);
 
-        CaltotalAllowance = (parseFloat(BTSECSum) * (1 + (parseFloat(TotalAllowance) / 100)));
+        CaltotalAllowance = (dbl(BTSECSum) * (1 + (dbl(TotalAllowance) / 100)));
 
-        Total_GSD_SAM_SUM = (parseFloat(Gross_GSD_SAM_SUM));
+        Total_GSD_SAM_SUM = (dbl(Gross_GSD_SAM_SUM));
 
         // var _BHTValue = $scope.VAS.BHTValue;
 
-        FinalSAM = parseFloat(CaltotalAllowance / $scope.VAS.VASQuantity);
-        Final_GSD_SAM_SUM = parseFloat(Total_GSD_SAM_SUM) + ((parseFloat(Total_GSD_SAM_SUM)) * (parseFloat(TotalAllowance) / 100));
+        FinalSAM = dbl(CaltotalAllowance / $scope.VAS.VASQuantity);
+        Final_GSD_SAM_SUM = dbl(Total_GSD_SAM_SUM) + ((dbl(Total_GSD_SAM_SUM)) * (dbl(TotalAllowance) / 100));
 
-        $scope.VAS.VASSAM = parseFloat(FinalSAM).toFixed(3);
-        $scope.VAS.StandardSAM = parseFloat(Final_GSD_SAM_SUM).toFixed(3);
+        $scope.VAS.VASSAM = dbl(FinalSAM).toFixed(3);
+        $scope.VAS.StandardSAM = dbl(Final_GSD_SAM_SUM).toFixed(3);
     };
 
     function InitValue($model) {
@@ -1298,7 +1316,7 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
         vEs[0].currentTime = 0;
 
         var times = $scope.VAS.videoStartTime.split(":");
-        var totalSeconds = (parseFloat(times[0]) * 3600) + (parseFloat(times[1]) * 60) + (parseFloat(times[2]));
+        var totalSeconds = (dbl(times[0]) * 3600) + (dbl(times[1]) * 60) + (dbl(times[2]));
         if (totalSeconds > vEs[0].currentTime) {
             vEs[0].currentTime = totalSeconds;
         }
@@ -1314,7 +1332,7 @@ function TimeCaptureController(cboService, commonMessage, $scope, $rootScope, ba
         vEs[0].currentTime += -10;
 
         var times = $scope.VAS.videoStartTime.split(":");
-        var totalSeconds = (parseFloat(times[0]) * 3600) + (parseFloat(times[1]) * 60) + (parseFloat(times[2]));
+        var totalSeconds = (dbl(times[0]) * 3600) + (dbl(times[1]) * 60) + (dbl(times[2]));
         if (totalSeconds > vEs[0].currentTime) {
             vEs[0].currentTime = totalSeconds;
         }
