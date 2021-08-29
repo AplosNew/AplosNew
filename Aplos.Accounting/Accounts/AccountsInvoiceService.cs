@@ -350,6 +350,22 @@ namespace Library.Accounting.Accounts
 									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo";
             return _sqlRepository.GetDataCollection(sql);
         }
+
+        public List<Dictionary<string, object>> GetFiscalInvoiceTotalAmountByParty(string plantId, string partyId, DateTime postingDate)
+        {
+            var sql = @"SELECT V.VoucherNo,format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,P.UserName PartyName,PP.UserName PartyPlantName
+						,C.Code CurrencyCode,IV.Amount,IV.WrittenOffAmount,IV.Amount-IV.WrittenOffAmount Balance
+						,IV.Amount*ISNULL(IV.CompanyCurrencyRate,0) BooksInvoiceAmount 
+						FROM trn.Invoice IV
+						LEFT JOIN SCS.FiscalYear FYP ON FYP.Id=IV.FiscalYearId
+						LEFT JOIN TRN.Voucher V ON V.Id=IV.VoucherId
+						LEFT JOIN HKP.Party P ON P.Id=IV.PartyId
+						LEFT JOIN HKP.PartyPlant PP ON PP.Id=IV.PartyPlantId
+						LEFT JOIN SCS.Currency C ON C.Id=IV.CurrencyId
+						WHERE IV.PlantId='" + plantId + "' and IV.PartyId='" + partyId + "' AND FYP.StartDate <= '" + postingDate.ToDbDate() + "' AND FYP.EndDate >= '" + postingDate.ToDbDate() + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public GridModel InvoiceQuery(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             try
