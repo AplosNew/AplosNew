@@ -270,6 +270,7 @@ namespace Library.Service.Materials
         			LEFT OUTER JOIN HKP.GLGeneralInfo AS GLGI2 ON GLGI2.Id=MAD.ClearingAccountGLId
         			LEFT OUTER JOIN HKP.GLGeneralInfo AS GLGI3 ON GLGI3.Id=MAD.ServiceGLId
         			LEFT OUTER JOIN HKP.GLGeneralInfo AS GLGI4 ON GLGI4.Id=MAD.ExpenseGLId
+
 					LEFT OUTER JOIN MST.BudgetMaster AS DPBM ON MAD.DownPaymentBudgetMasterId = DPBM.Id
 					LEFT OUTER JOIN HKP.Budget AS DPB ON DPBM.BudgetId = DPB.Id
 					LEFT OUTER JOIN HKP.Activity AS DPA ON MAD.DownPaymentActivityId = DPA.Id
