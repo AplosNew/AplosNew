@@ -313,6 +313,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             $scope.invalidPostingDate = false;
         }
         return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
+        $scope.getFiscalInvoiceTotalAmountByParty($scope.voucher.PartyId, $scope.voucher.PostingDate);
     };
     $scope.beneficiaryTypeList = [];
 
@@ -430,6 +431,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             $scope.taxCodDataList = [];
             $scope.getPartyPlantList(party.Id);
             $scope.GetCurrencyExchangeRateList();
+            $scope.getFiscalInvoiceTotalAmountByParty(party.Id, $scope.voucher.PostingDate);
             clearVoucherDetail();
         }
         $scope.hidePartyPopUp();
@@ -1544,6 +1546,29 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     };
     $scope.closeInvoiceSetOffDetailByInvoice = function () {
         angular.element(document.querySelector('#invoiceetOffByInvoicePopUp')).modal('hide');
+
+    }
+
+    $scope.getFiscalInvoiceTotalAmountByParty = function (partyId,postingDate) {
+        $scope.fiscalinvoiceAmountByParty = [];
+        $http({
+            method: "GET",
+            url: "accounts/invoice/GetFiscalInvoiceTotalAmountByParty?partyId=" + partyId + '&postingDate=' + postingDate
+        }).then(function successCallback(response) {
+            $scope.fiscalinvoiceAmountByParty = response.data;
+            $scope.TotalAdvanceAmount = Math.round($filter("sumByKey")($filter("filter")($scope.fiscalinvoiceAmountByParty), "BooksInvoiceAmount") * 10000 + Number.EPSILON) / 10000;
+            //if ($scope.fiscalinvoiceAmountByParty.length > 0) {
+            //    angular.element(document.querySelector("#partyfiscalInvoiceAmountPopUp")).modal("show");
+            //}
+        });
+    };
+    $scope.showFiscalInvoiceAmountByParty = function () {
+        if ($scope.fiscalinvoiceAmountByParty.length > 0) {
+            angular.element(document.querySelector("#partyfiscalInvoiceAmountPopUp")).modal("show");
+        }
+    }
+    $scope.closeFiscalInvoiceTotalAmountByParty = function () {
+        angular.element(document.querySelector('#partyfiscalInvoiceAmountPopUp')).modal('hide');
 
     }
 }

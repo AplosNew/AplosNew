@@ -17546,8 +17546,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.PlantId='"+ plantId + @"'  AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 and IR.GRNType='GRNBYJW'
-						AND IR.TransformationContractId='"+contractId+"'";
+                        WHERE IR.PlantId='"+ plantId + @"'  AND ISNULL(IR.[Status],'')='Posting' And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='"+contractId+"'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
             catch (Exception ex)

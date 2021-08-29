@@ -25,10 +25,15 @@ function partyLedgerReportController(commonMessage, $scope, $rootScope, baseServ
         PartyPlantName: null,
         GSTIN: null,
         ReportFormat: 'Pdf',
-        PartyType: 'Customer'
+        PartyType: 'Customer',
+        ReportSize: 'ShortSize'
     };
 
-   
+    //$scope.showSecondDiv = function () {
+    //    $scope.showFinanceDB = false;
+    //}
+
+    ///console.log($scope.report);
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
@@ -153,7 +158,7 @@ function partyLedgerReportController(commonMessage, $scope, $rootScope, baseServ
         $scope.GLNameCode = null;
     };
 
-    $scope.getReport = function () {
+    $scope.getReport = function (x) {
         if (baseService.isUndefinedOrNull($scope.report.PartyType)) {
             manualValidation('div_PartyType', true, "Party Type is required.");
         }
@@ -172,20 +177,41 @@ function partyLedgerReportController(commonMessage, $scope, $rootScope, baseServ
         else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
             manualValidation('div_ToDate', true, "To date must be above or equal to From Date.");
         }
+         
         else {
-            var url = 'Parties/PartyReport/GetPartyLedgerReport?reportFormat=' + $scope.report.ReportFormat + '&partyType=' + $scope.report.PartyType + '&partyId=' + $scope.report.PartyId + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&active=' + $scope.report.Active;
-            if (!baseService.isUndefinedOrNull($scope.report.PartyPlantId)) {
-                url += '&partyPlantId=' + $scope.report.PartyPlantId;
-            }
-            if (!baseService.isUndefinedOrNull($scope.report.GLGeneralInfoId)) {
-                url += '&glId=' + $scope.report.GLGeneralInfoId;
-            }
-            if (!baseService.isUndefinedOrNull($scope.report.GSTIN)) {
-                url += '&gSTINId=' + $scope.report.GSTIN;
-            }
-            $window.open(url, '_blank');
-        }
+               if (x == 'LongSizeReport') {
+                   $scope.reportLongSize = x;
+                   var url = 'Parties/PartyReport/GetPartyLedgerReport?reportFormat=' + $scope.report.ReportFormat + '&partyType=' + $scope.report.PartyType + '&partyId=' + $scope.report.PartyId + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&active=' + $scope.report.Active + '&reportLongSize=' + $scope.reportLongSize;
+                    if (!baseService.isUndefinedOrNull($scope.report.PartyPlantId)) {
+                        url += '&partyPlantId=' + $scope.report.PartyPlantId;
+                    }
+                    if (!baseService.isUndefinedOrNull($scope.report.GLGeneralInfoId)) {
+                        url += '&glId=' + $scope.report.GLGeneralInfoId;
+                    }
+                    if (!baseService.isUndefinedOrNull($scope.report.GSTIN)) {
+                        url += '&gSTINId=' + $scope.report.GSTIN;
+                    }
+                    $window.open(url, '_blank');
+               }
+               else {
+                        var url = 'Parties/PartyReport/GetPartyLedgerReport?reportFormat=' + $scope.report.ReportFormat + '&partyType=' + $scope.report.PartyType + '&partyId=' + $scope.report.PartyId + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&active=' + $scope.report.Active;
+                        if (!baseService.isUndefinedOrNull($scope.report.PartyPlantId)) {
+                            url += '&partyPlantId=' + $scope.report.PartyPlantId;
+                        }
+                        if (!baseService.isUndefinedOrNull($scope.report.GLGeneralInfoId)) {
+                            url += '&glId=' + $scope.report.GLGeneralInfoId;
+                        }
+                        if (!baseService.isUndefinedOrNull($scope.report.GSTIN)) {
+                            url += '&gSTINId=' + $scope.report.GSTIN;
+                        }
+                        $window.open(url, '_blank');
+               }
+
+             }
     };
+
+  
+   
 
     $scope.closePartyPopUp = function myfunction(x) {
             var data = x.data;

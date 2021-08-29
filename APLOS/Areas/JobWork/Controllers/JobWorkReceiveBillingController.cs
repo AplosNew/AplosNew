@@ -150,11 +150,14 @@ namespace Aplos.Areas.JobWork.Controllers
 			                ,FORMAT(tc.[Time],'hh:mm tt')[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
 			                FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
 			                e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency
+                            ,TC.PurchaseLCId,ISNULL(LC.LCRef,'')LCRef,ISNULL(CN.ContractNo,'')ContractNo
 			                from [dbo].[JWReceiveBilling] RB
 			                LEFT JOIN [dbo].[JWTransformationPurchaseOrder] tc ON tc.Id=RB.JWTransformationPurchaseOrderId
 			                LEFT JOIN ORG.Entity e on e.Id=tc.EntityId
 			                LEFT JOIN HKP.Party p on p.Id=tc.PartyId
-                            LEFT JOIN [SCS].[Currency] AS CU ON tc.CurrencyId=CU.Id 
+                            LEFT JOIN [SCS].[Currency] AS CU ON tc.CurrencyId=CU.Id
+							LEFT JOIN dbo.PurchaseLC LC ON LC.Id=TC.PurchaseLCId
+							LEFT JOIN dbo.[Contract] CN ON CN.Id=TC.ContractId 
                             Where RB.PlantId='" + identity.PlantId + "'";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -189,10 +192,9 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS FCV ON CTC.FirstCharacteristicsValueId = FCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
-                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMId,MaterialTranRate from TRN.InventoryReceiveDetail GROUP BY JWTCMId,MaterialTranRate) IRD ON IRD.JWTCMId=CTC.JobWorkTransformationContractMasterId
+                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMId,MaterialTranRate,MaterialFor from TRN.InventoryReceiveDetail GROUP BY JWTCMId,MaterialTranRate,MaterialFor) IRD ON IRD.JWTCMId=CTC.JobWorkTransformationContractMasterId
                             LEFT JOIN (Select JWTransformationContractChildId,SUM(BillingQty) BillingQty from dbo.JWReceiveBillingDetail GROUP BY JWTransformationContractChildId) B ON B.JWTransformationContractChildId=CTC.Id
-                            LEFT JOIN TRN.InventoryReceiveDetail GRND ON GRND.JWTCMId=CTC.JobWorkTransformationContractMasterId
-                            WHERE  CTC.JobWorkTransformationContractMasterId ='" + contractId + "' AND GRND.MaterialFor='JWOUTPUTMaterial'";
+                            WHERE  CTC.JobWorkTransformationContractMasterId ='" + contractId + "' AND IRD.MaterialFor='JWOUTPUTMaterial'";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
