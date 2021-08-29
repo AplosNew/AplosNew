@@ -38,7 +38,7 @@ namespace Library.OrderManagement.LcNavigation
         private string PurchaseLCSearchByDateSql(string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"select
+            return @"  select * from (select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
@@ -59,9 +59,7 @@ namespace Library.OrderManagement.LcNavigation
 						,grn.GRNTotalAmount as GRNValue
                         ,grn.GRNCount
 	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
-						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END
-                        
-                        ,case when PM.PaymentMade = 0 then null else PM.PaymentMade end as PaymentMade,
+						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END ,
                         con.ContractNo,
                         cus.Customer,
                         PL.Id as LCId
@@ -69,6 +67,8 @@ namespace Library.OrderManagement.LcNavigation
 						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
 						,variance=po.POAmount-grn.GRNTotalAmount
 						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
+						,Source='MaterialPO'
+					
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
                         left outer join HKP.Bank as B on OBank.BankId=b.Id
@@ -120,13 +120,74 @@ namespace Library.OrderManagement.LcNavigation
 										inner join HKP.Party as customer on con.CustomerId=customer.Id
 										)
 										as cus on cus.Id=PL.ContractId
-                         left join (
-										 select Ac.PurchaseLCId,sum(i.WrittenOffAmount) AS PaymentMade from TRN.PurchaseDocAcceptance AC
-										inner join  trn.invoice I on i.PurchaseDocAcceptanceId=ac.Id
-										 group by Ac.PurchaseLCId
-						 ) as PM on PM.PurchaseLCId=PL.Id
-                         where pl.plantId='" + identity.PlantId + @"' and PL.LCDate between '" + fromDate + @"' and '" + toDate + @"'
-	 order by pl.AddedDate DESC";
+                         where 
+						 pl.plantId='"+identity.PlantId+@"' and 
+						 PL.LCDate between '"+fromDate+ @"' and '" + toDate + @"'
+	
+
+	 UNION
+
+
+select
+                        PL.LCRef as LCNo,
+                        B.UserName as OpeningBank,
+                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
+                        P.UserName as  Vendor,
+                        PL.Amount as Value,
+                        Cur.Code as Currency,
+                        PL.LCANo,PL.Type as LCType,
+                        PL.Tenure,
+                        PL.BenificiaryBank,                       
+                        po.POAmount as POValue
+						,PO.POCount
+                        ,PL.AddedDate
+                        ,0 AcceptanceValue
+						,0 SetOff
+						,0 Loan
+						,0 LoanSetOff
+						,0 AcceptanceCount
+						,grn.GRNTotalAmount as GRNValue
+                        ,grn.GRNCount
+	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
+						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END,
+
+                        con.ContractNo,
+                        cus.Customer,
+                        PL.Id as LCId
+						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
+						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
+						,variance=po.POAmount-grn.GRNTotalAmount
+						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
+						,Source='OutSourcePO'
+                        from PurchaseLC as PL
+                        left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
+                        left outer join HKP.Bank as B on OBank.BankId=b.Id
+                        left outer join [Contract] as Con on PL.ContractId= Con.Id
+                        left outer join scs.Currency as Cur on PL.CurrencyId = Cur.Id
+                        left outer join MST.Destination as D on PL.CurrencyId=D.Id
+                        left outer join HKP.Party as P on PL.VendorId = p.Id
+						left outer join MasterLC ML on ML.Id=con.MasterLCId
+                        left join (
+						          select po.PurchaseLCId,sum(pod.TransactionAmount) AS POAmount,count(distinct po.Id) AS POCount from [dbo].[JWTransformationPurchaseOrder]  PO 
+                                  inner JOin [dbo].[JobWorkTransformationContractChild] POD ON POD.JobWorkTransformationContractMasterId=po.Id
+                                      group by  po.PurchaseLCId) AS PO on PO.PurchaseLCId=pl.Id
+                        left join(
+									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[JWTransformationPurchaseOrder] as po 
+									inner join TRN.InventoryReceiveDetail as g on g.JWTCMId=po.Id
+									group by po.PurchaseLCId
+                        ) as grn on grn.LCId = PL.Id 
+
+                        left outer join (
+										 select con.Id as Id, customer.UserName as Customer from Contract as con 
+										inner join HKP.Party as customer on con.CustomerId=customer.Id
+										)
+										as cus on cus.Id=PL.ContractId
+                        
+                         where 
+						 pl.plantId='" + identity.PlantId + @"' and 
+						 PL.LCDate between '" + fromDate + @"' and '" + toDate + @"') LC
+
+		 order by LC.OpeningDate DESC";
 
         }
 
@@ -219,23 +280,24 @@ namespace Library.OrderManagement.LcNavigation
         private string NonTagLCSearchByDateSql(string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"select PO.PurchaseLCId,PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate,PT.PaymentMode,PO.DocRefNo VendorRef
-,sum(POD.TransactionAmount) POAmount,c.Code Currency,P.UserName Vendor,GRN.GRNTotalAmount,po.AddedDate
+            return @"select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
+,PT.PaymentMode,PO.DocRefNo VendorRef
+, POD.POAmount,c.Code Currency,P.UserName Vendor
+,GRN.GRNTotalAmount
+,PO.AddedDate,PT.UserName PaymentTerm
 from trn.PurchaseOrder PO
-left outer join TRN.PurchaseOrderDetail POD on POD.InventoryReceiveId=PO.Id
+left outer join (select sum(TransactionAmount) POAmount,InventoryReceiveId from  TRN.PurchaseOrderDetail group by InventoryReceiveId)POD on POD.InventoryReceiveId=PO.Id
 left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
 left outer join SCS.Currency C on c.Id=PO.CurrencyId
 left outer join hkp.Party P on P.Id=PO.PartyId
-
                             left join
                              (select  IRD.POId,sum(IRD.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct IRD.InventoryReceiveId) as GRNCount
 							from TRN.InventoryReceiveDetail IRD
 							group by IRD.POId)
                             as grn on grn.POId=PO.Id
-							where PO.PurchaseLCId is null and PO.PODate between '" + fromDate + @"' and '" + toDate + @"' and PO.PlantId='" + identity.PlantId + @"'
-group by PO.PurchaseLCId,PO.Id ,PO.PODate,PT.PaymentMode,PO.DocRefNo ,POD.TransactionAmount ,C.Code,P.UserName,GRN.GRNTotalAmount,po.AddedDate
-order by po.AddedDate desc
-";
+							where PO.PurchaseLCId is null and  PO.PlantId='20171' and PT.PaymentMode='LC'
+							and PO.PODate between '" + fromDate + @"' and '" + toDate + @"'
+order by PO.PODate desc";
         }
 
         private void Json(object p, object allowGet)
@@ -266,6 +328,22 @@ order by po.AddedDate desc
             try
             {
                 string sql = POBreakDownSql(POID);
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public List<Dictionary<string, object>> NonLcGRNBreakDownList(string POID)
+        {
+
+            try
+            {
+                string sql = NonLcGrnBreakdown(POID);
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -347,6 +425,19 @@ order by po.AddedDate desc
 							where PO.Id='"+POID+@"'
 							group by IRD.InventoryReceiveId,IR.GRNDate";
         }
+
+        private string NonLcGrnBreakdown(string POID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"	select IRD.InventoryReceiveId GRNNo,sum(IRD.TotalMaterialTranAmount) Amount,Format(IR.GRNDate,'dd-MMM-yyyy') Date
+							from trn.PurchaseOrder PO 
+							left outer join trn.InventoryReceiveDetail IRD on IRD.POId=PO.Id			
+							left outer join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId			
+							
+							where PO.Id='" + POID + @"'
+							group by IRD.InventoryReceiveId,IR.GRNDate";
+        }
+
 
         private string GRNBreakDownSql(string GRNID)
         {
