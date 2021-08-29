@@ -160,6 +160,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 if (dsLocal.Tables[0].Rows.Count > 0)
                     throw new Exception("Same description has been used in another arrear process. Please change your description");
 
+                string ProcessMonths = "''";
                 do
                 {
                     DateTime dtFromDateTemp = Convert.ToDateTime(FromDate);
@@ -167,10 +168,16 @@ namespace Aplos.Areas.Payrolls.Controllers
                         new DateTime(dtFromDateTemp.Year, dtFromDateTemp.Month, 1).ToString("dd-MMM-yyyy"),
                         new DateTime(dtFromDateTemp.Year, dtFromDateTemp.Month, DateTime.DaysInMonth(dtFromDateTemp.Year, dtFromDateTemp.Month)).ToString("dd-MMM-yyyy")));
 
+                    ProcessMonths += dtFromDateTemp.Year.ToString() + dtFromDateTemp.Month.ToString();
+
                     dtFromDateTemp = new DateTime(dtFromDateTemp.Year, dtFromDateTemp.Month, 1);
                     FromDate = dtFromDateTemp.AddMonths(1).ToString("dd-MMM-yyyy");
 
+
+
                 } while (Convert.ToDateTime(FromDate) < Convert.ToDateTime(ToDate));
+
+
 
 
                 return await Task.Factory.StartNew(() =>
@@ -178,6 +185,44 @@ namespace Aplos.Areas.Payrolls.Controllers
                     //there will be a loop for months and years
                     try
                     {
+                        
+
+                        var alldataset = palldataset;
+                        string _active_emps = string.Empty;
+                        string _all_emps = string.Empty;
+                        GetEmpDelimitedActiveAndNewlyJoined(alldataset.dtActive, alldataset.dtNewlyJoined, out _active_emps);
+                        GetEmpDelimited(alldataset.dtPresetZero, ref _active_emps);
+                        _all_emps = _active_emps;
+
+                        #region MLV RETURN
+                        SendNotification("MLV Return");
+
+                        GetEmpDelimitedMLVR(alldataset.dtMaternityReturn, ref _all_emps);
+                        #endregion
+                        #region SALARY LOCK Prev Month
+                        SendNotification("Validating Salary Lock for selected date range");
+
+                        clsSalaryProcessUI objel = new clsSalaryProcessUI();
+                        for (int i = 0; i < MonthList.Count; i++)
+                        {
+                            try
+                            {
+                                string _yearnoP = Convert.ToDateTime(MonthList[i].Item1).ToString("yyyy");
+                                string _monthnoP = Convert.ToDateTime(MonthList[i].Item1).ToString("MM");
+                                objel.ValidationSalaryLockForArrear(_all_emps, _yearnoP, _monthnoP);
+                            }
+                            catch (Exception ex)
+                            {
+                                string _errorMessage = "Process was interrupted for the month " + Convert.ToDateTime(MonthList[i].Item1).ToString("MMM") + "/" + Convert.ToDateTime(MonthList[i].Item1).ToString("yyyy");
+                                _errorMessage += ". Reason [" + ex.Message + @"]";
+                                throw new Exception(_errorMessage);
+                            }
+
+                        }
+
+                        #endregion
+
+
                         string BatchNo = System.DateTime.Now.Ticks.ToString();
 
                         for (int i = 0; i < MonthList.Count; i++)
@@ -195,13 +240,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                             string _currencyId = string.Empty;
 
                             var _identitySignal = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                            SendNotification("Starting Salary Process");
+                            SendNotification("Starting arrear Process");
 
                             try
                             {
                                 //OnAbortSalaryProcess(source);
 
-                                var alldataset = palldataset;
+                                alldataset = palldataset;
 
                                 objQ = new clsSalaryProcessQuery();
 
@@ -224,17 +269,17 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 SendNotification("Getting Employee List");
 
                                 #region Active and other
-                                string _active_emps = string.Empty;
-                                string _all_emps = string.Empty;
-                                GetEmpDelimitedActiveAndNewlyJoined(alldataset.dtActive, alldataset.dtNewlyJoined, out _active_emps);
-                                GetEmpDelimited(alldataset.dtPresetZero, ref _active_emps);
-                                _all_emps = _active_emps;
+                                //string _active_emps = string.Empty;
+                                //string _all_emps = string.Empty;
+                                //GetEmpDelimitedActiveAndNewlyJoined(alldataset.dtActive, alldataset.dtNewlyJoined, out _active_emps);
+                                //GetEmpDelimited(alldataset.dtPresetZero, ref _active_emps);
+                                //_all_emps = _active_emps;
 
-                                #region MLV RETURN
-                                SendNotification("MLV Return");
+                                //#region MLV RETURN
+                                //SendNotification("MLV Return");
 
-                                GetEmpDelimitedMLVR(alldataset.dtMaternityReturn, ref _all_emps);
-                                #endregion
+                                //GetEmpDelimitedMLVR(alldataset.dtMaternityReturn, ref _all_emps);
+                                //#endregion
 
                                 #region SALARY LOCK Current Month
                                 //clsSalaryProcessUI objel = new clsSalaryProcessUI();
@@ -261,15 +306,15 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 }
                                 #endregion
 
-                                #region SALARY LOCK Prev Month
-                                SendNotification("Validating Salary Lock for Previous Month");
+                                //#region SALARY LOCK Prev Month
+                                //SendNotification("Validating Salary Lock for Previous Month");
 
-                                //clsSalaryProcessUI objel = new clsSalaryProcessUI();
-                                //string dtFD = Convert.ToDateTime(FromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
-                                //string _yearnoP = Convert.ToDateTime(dtFD).ToString("yyyy");
-                                //string _monthnoP = Convert.ToDateTime(dtFD).ToString("MM");
-                                //objel.ValidationSalaryLockPreviousMonth(_all_emps, _yearnoP, _monthnoP);
-                                #endregion
+                                ////clsSalaryProcessUI objel = new clsSalaryProcessUI();
+                                ////string dtFD = Convert.ToDateTime(FromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
+                                ////string _yearnoP = Convert.ToDateTime(dtFD).ToString("yyyy");
+                                ////string _monthnoP = Convert.ToDateTime(dtFD).ToString("MM");
+                                ////objel.ValidationSalaryLockPreviousMonth(_all_emps, _yearnoP, _monthnoP);
+                                //#endregion
 
 
                                 //SendNotification("Validating Bank Accounts");
@@ -327,7 +372,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             }
                             catch (Exception ex)
                             {
-                                
+
                                 SendNotification(ex.Message);
                                 throw ex;
                                 //requestCancelled = true;
@@ -346,7 +391,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     }
                     catch (Exception ex)
                     {
-
+                        SendNotification(ex.Message);
                         requestCancelled = true;
                         _lock.UnlockProcess();
                         return Json(new { Error = true, Message = ex.Message });
@@ -358,6 +403,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             catch (Exception ex)
             {
+                SendNotification(ex.Message);
                 requestCancelled = true;
                 _lock.UnlockProcess();
                 return Json(new { Error = true, Message = ex.Message });

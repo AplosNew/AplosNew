@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Library.Service.Payrolls.SalaryProcessActive
 {
-   public class clsSalaryProcessUI
+    public class clsSalaryProcessUI
     {
-        public void LoadEmpSalaryProcGrid(string Description,string FromDate,string ToDate,string PlantId,out AllDataset ads)
+        public void LoadEmpSalaryProcGrid(string Description, string FromDate, string ToDate, string PlantId, out AllDataset ads)
         {
             //TBD//
             //cbx enable/disable
@@ -100,14 +100,14 @@ namespace Library.Service.Payrolls.SalaryProcessActive
                 {
                     //panSalaryProc.Visible = true;
                     DataView dvActive = new DataView(dsEmpBacInfo.Tables[0]);
-                    dvActive.RowFilter = " DOJs <  '" + FromDate + @"' AND (DOSs IS NULL OR DOSs > '"+ToDate+"')";
+                    dvActive.RowFilter = " DOJs <  '" + FromDate + @"' AND (DOSs IS NULL OR DOSs > '" + ToDate + "')";
                     //dvActive.RowFilter = "EmployeeStatus='Active' and DOJs <  '" + FromDate + @"'";
                     DataTable dtActive = dvActive.ToTable();
                     GetList(ref ads, dtActive, ListEnum.Active);
-                }                
+                }
                 //SetGridRowColor(dgSalaryProc);
                 LoadOtherTabDG(dsEmpBacInfo, dsEmpSeparated, ref ads);
-                LoadSlrRuleInfo(FromDate,ToDate,PlantId,lblLocalCurrencyID,out lblForeignCurrencyID,out txtForeignCurRate,out lblUseFrgCurID);
+                LoadSlrRuleInfo(FromDate, ToDate, PlantId, lblLocalCurrencyID, out lblForeignCurrencyID, out txtForeignCurRate, out lblUseFrgCurID);
             }
             catch (Exception ex)
             {
@@ -118,7 +118,7 @@ namespace Library.Service.Payrolls.SalaryProcessActive
                 dsEmpBacInfo = null;
             }
         }//End Function
-        private void ValidationSalary(string FromDate, string ToDate,string PlantId)
+        private void ValidationSalary(string FromDate, string ToDate, string PlantId)
         {
             //clsSalaryProc objSlrProc = null;
             DataSet dsSalarySetting = null;
@@ -221,7 +221,7 @@ namespace Library.Service.Payrolls.SalaryProcessActive
                 objCon = null;
             }
         }//End Function
-        private void LoadSlrRuleInfo(string FromDate, string ToDate, string plantid,string lblLocalCurrencyID,out string lblForeignCurrencyID,out string txtForeignCurRate,out string lblUseFrgCurID)
+        private void LoadSlrRuleInfo(string FromDate, string ToDate, string plantid, string lblLocalCurrencyID, out string lblForeignCurrencyID, out string txtForeignCurRate, out string lblUseFrgCurID)
         {
             DataSet dsLocal = null;
             //clsSalaryProc objSlrProc = null;
@@ -286,7 +286,7 @@ namespace Library.Service.Payrolls.SalaryProcessActive
                     {
                         if (dsLocal.Tables[0].Rows[0]["ToCurrencyCode"].ToString().Trim() == lblLocalCurrencyID)
                         {
-                            lblForeignCurrencyID =dsLocal.Tables[0].Rows[0]["FromCurrencyCode"].ToString().Trim();
+                            lblForeignCurrencyID = dsLocal.Tables[0].Rows[0]["FromCurrencyCode"].ToString().Trim();
                             //lblForeignCurrency.Text = "" + dsLocal.Tables[0].Rows[0]["FromCurrencyDesc"].ToString().Trim();
                             txtForeignCurRate = "1";// dsLocal.Tables[0].Rows[0]["ToCurrencyBuying"].ToString().Trim();
                         }
@@ -336,7 +336,7 @@ namespace Library.Service.Payrolls.SalaryProcessActive
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             try
-            { 
+            {
                 strSQL = @"SELECT A.SystemID
 	                                        ,A.FromCurrencyUnit
 	                                        ,A.FromCurrencyCode
@@ -372,7 +372,7 @@ namespace Library.Service.Payrolls.SalaryProcessActive
                 objCon = null;
             }
         }//End Function
-        
+
         public void LoadSeparatedEmp(string sPlantID, string sUserGroupID, string sFromDate, string sToDate, out System.Data.DataSet dsRef)
         {
             string strSQL;
@@ -380,7 +380,7 @@ namespace Library.Service.Payrolls.SalaryProcessActive
             try
             {
                 string dtFD = Convert.ToDateTime(sFromDate).AddDays(-1).ToString("dd-MMM-yyyy");
-                
+
                 strSQL = @"SELECT --IsSelectSlrProc = Case WHEN S.SlrProcMstSystemID IS NULL THEN Convert(bit, 'False')  ELSE Convert(bit, 'True') END,
                                   Convert(bit, 'False') IsSelectSlrProc,
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
@@ -752,13 +752,13 @@ and isnull(locka.EmpSystemId,'')=''
                 objCon = null;
             }
         }
-        public void LoadEmp_For_LOG(string sPlantID, string sFromDate, string sToDate,string empids, out System.Data.DataSet dsRef)
+        public void LoadEmp_For_LOG(string sPlantID, string sFromDate, string sToDate, string empids, out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                if(empids.Length==0)
+                if (empids.Length == 0)
                 {
                     empids = "''";
                 }
@@ -815,7 +815,7 @@ and isnull(locka.EmpSystemId,'')=''
                                             ) X
                                             GROUP BY EmpInfoSystemID
                                             ) Y ON Y.EmpInfoSystemID = E.SystemId
-                               WHERE E.systemid in (" + empids+@")";
+                               WHERE E.systemid in (" + empids + @")";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -930,20 +930,20 @@ and isnull(locka.EmpSystemId,'')=''
             }
         }//End Function
 
-        public void SSValida(string PlantId,string FromDate,string ToDate)
+        public void SSValida(string PlantId, string FromDate, string ToDate)
         {
             DataSet dsSSND = null;
             DataSet dsSSNA = null;
             try
             {
                 LoadNotDefinedSS("", PlantId, "ALL", FromDate, ToDate, out dsSSND);
-                if(dsSSND.Tables[0].Rows.Count>0)
+                if (dsSSND.Tables[0].Rows.Count > 0)
                 {
                     string msg = string.Empty;
-                    GetMsg(dsSSND,out msg);
-                    if(msg.Length>0)
+                    GetMsg(dsSSND, out msg);
+                    if (msg.Length > 0)
                     {
-                        throw new Exception("Salary Structure is not defined for the following employees "+msg+"");
+                        throw new Exception("Salary Structure is not defined for the following employees " + msg + "");
                     }
                 }
                 LoadUnapprovedSStructure("", PlantId, "ALL", FromDate, ToDate, out dsSSNA);
@@ -962,16 +962,16 @@ and isnull(locka.EmpSystemId,'')=''
                 throw ex;
             }
         }
-        public void GetMsg(DataSet ds,out string msg)
+        public void GetMsg(DataSet ds, out string msg)
         {
             msg = string.Empty;
             try
             {
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
-                    if(msg.Length==0)
+                    if (msg.Length == 0)
                     {
-                        msg = " ["+ ds.Tables[0].Rows[i]["EmployeeCode"].ToString()+"]";
+                        msg = " [" + ds.Tables[0].Rows[i]["EmployeeCode"].ToString() + "]";
                     }
                     else
                     {
@@ -1037,12 +1037,12 @@ and isnull(locka.EmpSystemId,'')=''
             {
             }
         }//End Function 
-        private void LoadOtherTabDG(DataSet dslocalAll,DataSet dsSeparatedEmp, ref AllDataset ads)
+        private void LoadOtherTabDG(DataSet dslocalAll, DataSet dsSeparatedEmp, ref AllDataset ads)
         {
             string Status = string.Empty;
             DataSet dsLocal = null;
             try
-            {               
+            {
                 string FromDate = ads.FromDate;
                 string ToDate = ads.ToDate;
                 string PlantId = ads.PlantId;
@@ -1060,10 +1060,10 @@ and isnull(locka.EmpSystemId,'')=''
                 //objEmpBasic = new clsEmployeeLoad();
                 //newlyjoined
                 DataView dvNew = new DataView(dslocalAll.Tables[0]);
-                dvNew.RowFilter = "DOJs>='" + FromDate + "' and DOJs<='" + ToDate + "' and (DOSs is null or DOSs>'"+ToDate+"')";
+                dvNew.RowFilter = "DOJs>='" + FromDate + "' and DOJs<='" + ToDate + "' and (DOSs is null or DOSs>'" + ToDate + "')";
                 //dvNew.RowFilter = "DOJs>='" + FromDate + "' and DOJs<='" + ToDate + "' and EmployeeStatus='Active'";
                 DataTable dtvNew = dvNew.ToTable();
-                GetList(ref ads, dtvNew,ListEnum.NewlyJoined);
+                GetList(ref ads, dtvNew, ListEnum.NewlyJoined);
 
                 //separated
                 DataView dvSep = new DataView(dsSeparatedEmp.Tables[0]);
@@ -1073,7 +1073,7 @@ and isnull(locka.EmpSystemId,'')=''
                 //DataView dvSep = new DataView(dslocalAll.Tables[0]);
                 //dvSep.RowFilter = "EmployeeStatus='" + bplib.clsWebLib.EmployeeStatus_Separated + "' and DOSs >= '" + FromDate + "' and DOSs <='" + ToDate + "'  ";
                 //DataTable dtSep = dvSep.ToTable();
-                GetList(ref ads, dtSep,ListEnum.Separated);
+                GetList(ref ads, dtSep, ListEnum.Separated);
 
                 ///emp sstruc not defined
                 LoadNotDefinedSS(Status, PlantId, "ALL", FromDate, ToDate, out dsLocal);
@@ -1091,7 +1091,7 @@ and isnull(locka.EmpSystemId,'')=''
                 GetList(ref ads, dsLocal.Tables[0], ListEnum.DifferentStatus);
                 //ads.dtDifferentStatus = dsStatusDifferent.Tables[0];
                 ///Exception emp
-               
+
                 LoadExceptionEmps(PlantId, FromDate, ToDate, out dsLocal);
                 GetList_ExceptionEmp(ref ads, dsLocal.Tables[0], ListEnum.ExceptionEmp);
                 //ads.dtEXemp = dslocal.Tables[0];               
@@ -1102,14 +1102,14 @@ and isnull(locka.EmpSystemId,'')=''
                 //clsSalaryProcessQuery objq = new clsSalaryProcessQuery();
                 DataSet dsBeyond = null;
                 LoadBeyondEmps(PlantId, FromDate, ToDate, out dsBeyond);
-               //ads.dtb
+                //ads.dtb
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }//End Function
-        void GetList(ref AllDataset ads,DataTable dt,ListEnum le)
+        void GetList(ref AllDataset ads, DataTable dt, ListEnum le)
         {
             try
             {
@@ -1119,11 +1119,11 @@ and isnull(locka.EmpSystemId,'')=''
                     list = dt.ToList<ActiveEmp>();
                 }
 
-                if(le==ListEnum.Active)
+                if (le == ListEnum.Active)
                 {
                     ads.dtActive = list;
                 }
-                else if(le==ListEnum.NewlyJoined)
+                else if (le == ListEnum.NewlyJoined)
                 {
                     ads.dtNewlyJoined = list;
                 }
@@ -1142,7 +1142,7 @@ and isnull(locka.EmpSystemId,'')=''
                 else if (le == ListEnum.SalaryStructureNotApproved)
                 {
                     ads.dtSNA = list;
-                }               
+                }
                 else if (le == ListEnum.ApprovedSalary)
                 {
                     ads.dtApprovedSalary = list;
@@ -1150,8 +1150,8 @@ and isnull(locka.EmpSystemId,'')=''
                 else if (le == ListEnum.DifferentStatus)
                 {
                     ads.dtDifferentStatus = list;
-                }               
-                else 
+                }
+                else
                 {
                     //ads.dtEXemp = list;
                 }
@@ -1171,7 +1171,7 @@ and isnull(locka.EmpSystemId,'')=''
                     list = dt.ToList<MaternityRetun>();
                 }
 
-                
+
                 if (le == ListEnum.MaternityReturn)
                 {
                     ads.dtMaternityReturn = list;
@@ -2115,19 +2115,19 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
             }
         }//End Function
 
-        public void GetSalaryProcessedLockedEmp(string empids,string yearno, string monthno, out System.Data.DataSet dsRef)
+        public void GetSalaryProcessedLockedEmp(string empids, string yearno, string monthno, out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                if(empids.Length==0)
+                if (empids.Length == 0)
                 {
                     empids = "''";
                 }
                 strSQL = @"select e.EmployeeCode from salarylock c
                                 left join EmployeeInformation e on e.SystemId=c.EmpSystemId
-                                where YearNo="+yearno+" and MonthNo="+monthno+" and IsLocked=1 and EmpSystemId in ("+ empids + ")";//eee
+                                where YearNo=" + yearno + " and MonthNo=" + monthno + " and IsLocked=1 and EmpSystemId in (" + empids + ")";//eee
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -2181,7 +2181,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                 //strSQL = @"select e.EmployeeCode from salarylock c
                 //                left join EmployeeInformation e on e.SystemId=c.EmpSystemId
                 //                where YearNo=" + yearno + " and MonthNo=" + monthno + " and IsLocked=1 and EmpSystemId in (" + empids + ") and isnull(c.EmpSystemId,'')=''";//eee
-                strSQL = @"select e.EmployeeCode,c.EmpSystemId  IsLocked ,spc.EmpInfoSystemID IsSalaryProcessed
+                strSQL = @"select distinct e.EmployeeCode,c.EmpSystemId  IsLocked ,spc.EmpInfoSystemID IsSalaryProcessed
                                 from (select * from EmployeeInformation) e
                                 left  join (select * from salarylock where YearNo=" + yearno + " and MonthNo=" + monthno + @" and IsLocked=1 )c on e.SystemId=c.EmpSystemId
                                 left join (select * from SalaryProcChild where SlrProcMstSystemID in
@@ -2225,7 +2225,43 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                         }
                     }//if
                 }
-                
+
+                return r;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string GetSalaryProcessedNotLockedMSGArrear(DataSet ds)
+        {
+            string r = string.Empty;
+            try
+            {
+                //DataTable dtProcess = new DataView(ds.Tables[0]).ToTable(true, "EmployeeCode", "IsLocked", "IsSalaryProcessed");
+                DataTable dtProcess = new DataView(ds.Tables[0]).ToTable(true, "IsSalaryProcessed");
+                DataTable dtLock = new DataView(ds.Tables[0]).ToTable(true, "IsLocked");
+
+                for (int i = 0; i < dtProcess.Rows.Count; i++)
+                {
+                    bool IsNotSalaryProcessed = string.IsNullOrEmpty(dtProcess.Rows[i]["IsSalaryProcessed"].ToString());
+                    if (IsNotSalaryProcessed == false)//process and not locked
+                    {
+                        r += " Salary not processed ";
+                        break;
+                    }
+
+                }
+                for (int i = 0; i < dtLock.Rows.Count; i++)
+                {
+                    bool IsNotLocked = string.IsNullOrEmpty(dtLock.Rows[i]["IsLocked"].ToString());
+
+                    if (IsNotLocked == false)
+                    {
+                        r += " Salary not locked ";
+                        break;
+                    }
+                }
                 return r;
             }
             catch (Exception ex)
@@ -2262,7 +2298,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                     //}
                     //else
                     //{
-                  
+
                     //}
                 }
                 //if (r.Length > 0)
@@ -2309,6 +2345,50 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                 {
                     throw new Exception(r);
                 }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void ValidationSalaryLockForArrear(string emplist, string yearno, string monthno)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                if (emplist.Length == 0)
+                {
+                    emplist = "''";
+                }
+
+                string strSQL = @"SELECT TOP 1 ei.SystemId,k.EmpInfoSystemID
+                                  FROM EmployeeInformation AS ei
+                                        LEFT JOIN (
+                                                    SELECT * FROM (SELECT DENSE_RANK() OVER (PARTITION BY c.EmpInfoSystemID ORDER BY  C.SystemID) AS RNK,C.EmpInfoSystemID
+                                                    FROM SalaryProcMaster M
+                                                    JOIN SalaryProcChild AS c ON c.SlrProcMstSystemID=m.SystemID
+                                                    WHERE m.MonthNo=" + monthno + @" AND M.YearNo=" + yearno + @") AS K WHERE K.RNK=1
+                                                  ) AS K ON k.EmpInfoSystemID=ei.SystemId
+                                WHERE ei.SystemId IN (" + emplist + @") AND ISNULL(k.EmpInfoSystemID,'')=''";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out DataSet dsRef, false, "1");
+
+                if (dsRef.Tables[0].Rows.Count > 0)
+                    throw new Exception("Salary not processed");
+
+
+                strSQL = @"SELECT TOP 1 ei.SystemId,k.EmpSystemId
+                                FROM EmployeeInformation AS ei
+                                LEFT JOIN salarylock K ON k.EmpSystemId=ei.SystemId AND k.MonthNo=" + monthno + @" AND k.YearNo=" + yearno + @"
+                                WHERE ei.SystemId IN (" + emplist + @") AND ISNULL(k.EmpSystemId,'')=''";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+
+                if (dsRef.Tables[0].Rows.Count > 0)
+                    throw new Exception("Salary not locked");
+
+
             }
             catch (Exception ex)
             {
@@ -2370,7 +2450,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
         public string LegalSalaryGradeId { get; set; }
         public string IFSCCode { get; set; }
         public string MICRCode { get; set; }
-       
+
 
 
     }
@@ -2419,7 +2499,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
         public string Subsection { get; set; }
         public string DOJ { get; set; }
         public string DOS { get; set; }
-        public string EmployeeStatus { get; set; }       
+        public string EmployeeStatus { get; set; }
     }
     enum ListEnum
     {
