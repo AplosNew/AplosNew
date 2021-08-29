@@ -759,7 +759,7 @@ namespace Library.HumanResource.Dashboard
                                 	(
                                 		SELECT BudgetCode,COUNT(SystemId) TotalManpower,SUM(TotalSalary) TotalSalary
                                 		FROM [dbo].[EmployeeInformation]  
-                                		WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND GroupID = 'CG20181' 
+                                		WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND GroupID = '"+ companyGroupId + @"' 
                                 		group by BudgetCode
                                 	) EmpInfo on M.Id=EmpInfo.BudgetCode
                                 	Left Outer Join
