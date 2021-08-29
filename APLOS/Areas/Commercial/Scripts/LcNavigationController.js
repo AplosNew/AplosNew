@@ -311,7 +311,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.PurchaseLCPOBreakDownList = [];
     $scope.LoadPOBreakDownList = function (POBreakDownData) {
-        $scope.SelectedLCRow = POBreakDownData;
+       // $scope.SelectedLCRow = POBreakDownData;
         $http({
             method: 'POST',
             url: $scope.path + "POBreakDownDataList",
@@ -375,7 +375,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.PurchaseLCGRNBreakDownList = [];
     $scope.LoadGRNBreakDownList = function (GRNBreakDownData) {
-        $scope.SelectedLCRow = GRNBreakDownData;
+        //$scope.SelectedLCRow = GRNBreakDownData;
         $http({
             method: 'POST',
             url: $scope.path + "GRNBreakDownDataList",
@@ -572,19 +572,53 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     }];
 
-    $scope.EmptyGrid = function () {
-        $scope.PurchaseLCList = [];
+
+    $scope.NonLcGRNList = [];
+    $scope.LoadNonLcGRNList = function (NonLCGRNData) {
+        $scope.SelectedLCRow = NonLCGRNData;
+        $http({
+            method: 'POST',
+            url: $scope.path + "NonLcGRNBreakDownDataList",
+            data: { 'POID': NonLCGRNData.PONo },
+            dataType: 'JSON'
+        })
+
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.NonLcGRNList = response.data.NonLCGRNData;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        $rootScope.openPopupAngular('NonLcGRNPopup');
     }
+    $scope.summaryNONLcGRN = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
+        ],
+        showCaptionSummary: true
+
+    }];
+
     $scope.today = $filter('dateFiltering')(Date.now());
     $scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
         try {
-            if (angular.isUndefinedOrNull(e.data.ExpiryDate) < angular.isUndefinedOrNull($scope.today)) {
+            if (new Date(e.data.ExpiryDate) < new Date()) {
                 e.row.css("background-color","#FF502A");
                 return;
             }
         } catch (e) {
 
         }
+    }
+
+    $scope.EmptyGrid = function () {
+        $scope.PurchaseLCList = [];
     }
 
 }
