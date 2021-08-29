@@ -4454,12 +4454,10 @@ public class clsSalaryProcessAplosArrear
             connection = new ConnectionManager.clsConnection();
             connection.BeginTransaction();
             connection.executeQuery(@"INSERT INTO ArrearSummaryMonthWise(
-                                     ArrearProcessBatchId,MonthNo,YearNo,EmployeeSystemId,TotalSalary,TotalArrear,Diff,AddedBy,DateAdded,UpdatedBy,DateUpdated
+                                     ArrearProcessBatchId,MonthNo,YearNo,EmployeeSystemId,Diff,AddedBy,DateAdded,UpdatedBy,DateUpdated
                                 )
 
                                     SELECT am.ArrearProcessBatchId,am.MonthNo, am.YearNo,ei.SystemId,
-                                    SUM(SAL.DisbusmentAmount) AS TotalSalary,
-                                    SUM(ac.DisbusmentAmount) AS TotalArrear,
                                     SUM(AC.Diff) Diff,'ArrearProcess',GETDATE(),'ArrearProcess',GETDATE()
 
 

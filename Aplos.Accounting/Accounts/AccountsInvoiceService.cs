@@ -849,7 +849,35 @@ namespace Library.Accounting.Accounts
 											INNER JOin TRN.VoucherDetail xPDAMAP on xpo.id=xPDAMAP.ActivityId
 											WHERE VD.ActivityId!=xPDAMAP.ActivityId and xPDAMAP.VoucherId=V.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')
-                                        ,NULL LCRef,NULL ContractNo
+                                        	,AcceptanceNo=STUFF((select distinct ','+ XPDA.AcceptanceNo from
+										TRN.PurchaseDocAcceptance XPDA  
+										LEFT JOIN TRN.Voucher XV ON XV.Id=XPDA.VoucherId
+										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+										,LCRef=STUFF((select distinct ','+ XLC.LCRef from
+										dbo.PurchaseLC  XLC LEFT JOIN TRN.PurchaseDocAcceptance XPDA  ON XPDA.PurchaseLCId=XLC.Id
+										LEFT JOIN TRN.Voucher XV ON XV.Id=XPDA.VoucherId
+										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                        
+                                        ,ContractNo=STUFF((select distinct ','+ XC.ContractNo from
+										dbo.PurchaseLC  XLC JOIN TRN.PurchaseDocAcceptance XPDA  ON XPDA.PurchaseLCId=XLC.Id
+                                        left join dbo.Contract XC ON XC.Id=XLC.ContractId
+										LEFT JOIN TRN.Voucher XV ON XV.Id=XPDA.VoucherId
+										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+										 ,Customer=STUFF((select distinct ','+ XP.UserName from
+										dbo.PurchaseLC  XLC JOIN TRN.PurchaseDocAcceptance XPDA  ON XPDA.PurchaseLCId=XLC.Id
+                                        left join dbo.Contract XC ON XC.Id=XLC.ContractId
+										LEFT JOIN HKP.Party XP ON XP.Id=XC.CustomerId
+										LEFT JOIN TRN.Voucher XV ON XV.Id=XPDA.VoucherId
+										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+										,MasterLCNo=STUFF((select distinct ','+ MLC.LCRef from
+										dbo.PurchaseLC  XLC JOIN TRN.PurchaseDocAcceptance XPDA  ON XPDA.PurchaseLCId=XLC.Id
+                                        left join dbo.Contract XC ON XC.Id=XLC.ContractId
+										LEFT JOIN dbo.MasterLC MLC ON MLC.Id=XC.MasterLCId
+										LEFT JOIN TRN.Voucher XV ON XV.Id=XPDA.VoucherId
+										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
@@ -898,16 +926,7 @@ namespace Library.Accounting.Accounts
 											INNER JOin TRN.VoucherDetail xPDAMAP on xpo.id=xPDAMAP.ActivityId
 											WHERE VD.ActivityId!=xPDAMAP.ActivityId and xPDAMAP.VoucherId=V.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')
-                                        ,LCRef=STUFF((select distinct ','+ XLC.LCRef from
-										dbo.PurchaseLC  XLC JOIN TRN.PurchaseDocAcceptance XPDA  ON XPDA.PurchaseLCId=XLC.Id
-										LEFT JOIN TRN.Voucher XV ON XV.Id=XPDA.Id
-										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                        
-                                        ,ContractNo=STUFF((select distinct ','+ XC.ContractNo from
-										dbo.PurchaseLC  XLC JOIN TRN.PurchaseDocAcceptance XPDA  ON XPDA.PurchaseLCId=XLC.Id
-                                        left join dbo.Contract XC ON XC.Id=XLC.ContractId
-										LEFT JOIN TRN.Voucher XV ON XV.Id=XPDA.Id
-										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                        ,NULL AcceptanceNo ,NULL LCRef,NULL ContractNo,NULL Customer, NULL MasterLCNo
 
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
