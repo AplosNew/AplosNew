@@ -1230,9 +1230,15 @@ namespace Aplos.Areas.Products.Controllers
                             drmo.BeginEdit();
 
 
-                            drmo["AcceptanceRcvQty"] = Convert.ToDecimal(dsPO.Tables[0].Rows[i]["AcceptanceRcvQty"].ToString()) - Tqty;
+                            if (!string.IsNullOrEmpty(dsPO.Tables[0].Rows[i]["AcceptanceRcvQty"].ToString()))
+                            {
+                                drmo["AcceptanceRcvQty"] = Convert.ToDecimal(dsPO.Tables[0].Rows[i]["AcceptanceRcvQty"].ToString()) - Tqty;
+                            }
+                            else
+                            {
+                                drmo["AcceptanceRcvQty"] = Convert.ToDecimal(dsPO.Tables[0].Rows[i]["AcceptanceRcvQty"].ToString());
+                            }
                             drmo["AcceptanceRcvStatusQty"] = 0;
-                            
 
                             drmo.EndEdit();
 
