@@ -159,12 +159,16 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
     $scope.SaveSalaryAdvance = function () {
         try {
             var DataToBeSaved = [];
+            var DataToBeDelete = [];
             var SalaryHead = [];
             var obj = {};
             var obg = {};
             for (var i = 0; i < $scope.SalaryAdvanceList.length; i++) {
                 if ($scope.SalaryAdvanceList[i].IsSelected == true) {
                     DataToBeSaved.push($scope.SalaryAdvanceList[i]);
+                }
+                else {
+                    DataToBeDelete.push($scope.SalaryAdvanceList[i]);
                 }
                 if ($scope.SalaryAdvanceList[i].InterestAmount > 0) {
                     if (baseService.isUndefinedOrNull($scope.SalaryHeadInterest)) {
@@ -193,7 +197,7 @@ function EmployeeAdvanceDeductionController(cboService, commonMessage, $scope, $
             $http({
                 method: "POST",
                 dataType: 'JSON',
-                data: { 'data': DataToBeSaved, 'Year': $scope.year, 'Month': $scope.month, 'SalaryHead': SalaryHead, 'Advance': $scope.SalaryHeadId, 'Interest': $scope.SalaryHeadInterest },
+                data: { 'data': DataToBeSaved, 'Year': $scope.year, 'Month': $scope.month, 'SalaryHead': SalaryHead, 'Advance': $scope.SalaryHeadId, 'Interest': $scope.SalaryHeadInterest, 'DataToBeDelete': DataToBeDelete },
                 url: $scope.path + 'SaveSalaryAdvance'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {

@@ -392,6 +392,25 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult NonLcGRNBreakDownDataList(string POID)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.NonLcGRNBreakDownList(POID);
+
+                return Json(new { NonLCGRNData = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        
+
 
         [HttpPost, Authorize]
         public ActionResult GRNBreakDownDataList(string GRNID)
@@ -409,6 +428,8 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
+
+
 
 
         [HttpPost, Authorize]
@@ -505,8 +526,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (
-                        select
+            string sql = @"select top 100 * from (  select * from (select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
@@ -527,9 +547,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						,grn.GRNTotalAmount as GRNValue
                         ,grn.GRNCount
 	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
-						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END
-                        
-                        ,case when PM.PaymentMade = 0 then null else PM.PaymentMade end as PaymentMade,
+						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END ,
                         con.ContractNo,
                         cus.Customer,
                         PL.Id as LCId
@@ -537,6 +555,8 @@ namespace Aplos.Areas.Commercial.Controllers
 						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
 						,variance=po.POAmount-grn.GRNTotalAmount
 						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
+						,Source='MaterialPO'
+					
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
                         left outer join HKP.Bank as B on OBank.BankId=b.Id
@@ -588,13 +608,71 @@ namespace Aplos.Areas.Commercial.Controllers
 										inner join HKP.Party as customer on con.CustomerId=customer.Id
 										)
 										as cus on cus.Id=PL.ContractId
-                         left join (
-										 select Ac.PurchaseLCId,sum(i.WrittenOffAmount) AS PaymentMade from TRN.PurchaseDocAcceptance AC
-										inner join  trn.invoice I on i.PurchaseDocAcceptanceId=ac.Id
-										 group by Ac.PurchaseLCId
-						 ) as PM on PM.PurchaseLCId=PL.Id
-                         where pl.plantId='" + identity.PlantId+@"' 
-						 ) AS TEMP WHERE " + strkey + "order by TEMP.AddedDate DESC";
+                         where 
+						 pl.plantId='" + identity.PlantId+@"'
+
+	 UNION
+
+
+select
+                        PL.LCRef as LCNo,
+                        B.UserName as OpeningBank,
+                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
+                        P.UserName as  Vendor,
+                        PL.Amount as Value,
+                        Cur.Code as Currency,
+                        PL.LCANo,PL.Type as LCType,
+                        PL.Tenure,
+                        PL.BenificiaryBank,                       
+                        po.POAmount as POValue
+						,PO.POCount
+                        ,PL.AddedDate
+                        ,0 AcceptanceValue
+						,0 SetOff
+						,0 Loan
+						,0 LoanSetOff
+						,0 AcceptanceCount
+						,grn.GRNTotalAmount as GRNValue
+                        ,grn.GRNCount
+	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
+						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END,
+
+                        con.ContractNo,
+                        cus.Customer,
+                        PL.Id as LCId
+						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
+						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
+						,variance=po.POAmount-grn.GRNTotalAmount
+						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
+						,Source='OutSourcePO'
+                        from PurchaseLC as PL
+                        left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
+                        left outer join HKP.Bank as B on OBank.BankId=b.Id
+                        left outer join [Contract] as Con on PL.ContractId= Con.Id
+                        left outer join scs.Currency as Cur on PL.CurrencyId = Cur.Id
+                        left outer join MST.Destination as D on PL.CurrencyId=D.Id
+                        left outer join HKP.Party as P on PL.VendorId = p.Id
+						left outer join MasterLC ML on ML.Id=con.MasterLCId
+                        left join (
+						          select po.PurchaseLCId,sum(pod.TransactionAmount) AS POAmount,count(distinct po.Id) AS POCount from [dbo].[JWTransformationPurchaseOrder]  PO 
+                                  inner JOin [dbo].[JobWorkTransformationContractChild] POD ON POD.JobWorkTransformationContractMasterId=po.Id
+                                      group by  po.PurchaseLCId) AS PO on PO.PurchaseLCId=pl.Id
+                        left join(
+									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[JWTransformationPurchaseOrder] as po 
+									inner join TRN.InventoryReceiveDetail as g on g.JWTCMId=po.Id
+									group by po.PurchaseLCId
+                        ) as grn on grn.LCId = PL.Id 
+
+                        left outer join (
+										 select con.Id as Id, customer.UserName as Customer from Contract as con 
+										inner join HKP.Party as customer on con.CustomerId=customer.Id
+										)
+										as cus on cus.Id=PL.ContractId
+                        
+                         where 
+						 pl.plantId='"+identity.PlantId+@"'  ) LC
+						
+						) AS TEMP WHERE " + strkey + "order by TEMP.OpeningDate DESC ";
             
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -607,11 +685,13 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select PO.PurchaseLCId,PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
+            string sql = @"select top 100 * from (select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
 ,PT.PaymentMode,PO.DocRefNo VendorRef
-,sum(POD.TransactionAmount) POAmount,c.Code Currency,P.UserName Vendor,GRN.GRNTotalAmount,PO.AddedDate
+, POD.POAmount,c.Code Currency,P.UserName Vendor
+,GRN.GRNTotalAmount
+,PO.AddedDate,PT.UserName PaymentTerm
 from trn.PurchaseOrder PO
-left outer join TRN.PurchaseOrderDetail POD on POD.InventoryReceiveId=PO.Id
+left outer join (select sum(TransactionAmount) POAmount,InventoryReceiveId from  TRN.PurchaseOrderDetail group by InventoryReceiveId)POD on POD.InventoryReceiveId=PO.Id
 left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
 left outer join SCS.Currency C on c.Id=PO.CurrencyId
 left outer join hkp.Party P on P.Id=PO.PartyId
@@ -620,9 +700,7 @@ left outer join hkp.Party P on P.Id=PO.PartyId
 							from TRN.InventoryReceiveDetail IRD
 							group by IRD.POId)
                             as grn on grn.POId=PO.Id
-							where PO.PurchaseLCId is null and PO.PlantId='" + identity.PlantId+ @"'
-group by PO.PurchaseLCId,PO.Id ,PO.PODate,PT.PaymentMode,PO.DocRefNo,PO.AddedDate
-,POD.TransactionAmount ,C.Code,P.UserName,GRN.GRNTotalAmount) AS TEMP WHERE " + strkey + "order by TEMP.AddedDate desc";
+							where PO.PurchaseLCId is null and  PO.PlantId='"+identity.PlantId+@"' and PT.PaymentMode='LC') AS TEMP WHERE " + strkey /*+ "order by TEMP.PODate desc"*/;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

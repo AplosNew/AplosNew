@@ -239,7 +239,7 @@ namespace Library.Service.Materials
 					                    LEFT JOIN MST.BudgetMaster AS CABM ON MAD.ClearingAccountBudgetMasterId = CABM.Id
 					                    LEFT JOIN MST.BudgetMaster AS CABM1 ON MAD.InventoryInTransitBudgetMasterId = CABM1.Id
 					                    LEFT JOIN HKP.Budget AS CAB ON CABM.BudgetId = CAB.Id
-					                    LEFT JOIN HKP.Budget AS CAB1 ON CABM1.BudgetId = CAB.Id
+					                    LEFT JOIN HKP.Budget AS CAB1 ON CABM1.BudgetId = CAB1.Id
 					                    LEFT JOIN HKP.Activity AS CAA ON MAD.ClearingAccountActivityId = CAA.Id
 					                    LEFT JOIN HKP.Activity AS CAA1 ON MAD.InventoryInTransitActivityId = CAA1.Id
 					                    LEFT JOIN MST.BudgetMaster AS IBM ON MAD.InventoryBudgetMasterId = IBM.Id
