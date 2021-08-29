@@ -215,8 +215,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 }
                                 #endregion
                                 SendNotification("Validating Salary Structure");
-                                clsSalaryProcessUI objel = new clsSalaryProcessUI();
-                                objel.SSValida(identity.PlantId, FromDate, ToDate);
+                                //clsSalaryProcessUI objel = new clsSalaryProcessUI();
+                                //objel.SSValida(identity.PlantId, FromDate, ToDate);
 
                                 SendNotification("Getting Currency");
                                 GetCurrency(identity.CompanyGroupId, identity.PlantId, out _currencyId);
@@ -372,12 +372,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                 connection.BeginTransaction();
 
                 connection.executeQuery(@"INSERT INTO ArrearSummaryBatchWise(
-                                     ArrearProcessBatchId,EmployeeSystemId,TotalSalary,TotalArrear,Diff,AddedBy,DateAdded,UpdatedBy,DateUpdated
+                                     ArrearProcessBatchId,EmployeeSystemId,Diff,AddedBy,DateAdded,UpdatedBy,DateUpdated
                                 )
 
                                     SELECT am.ArrearProcessBatchId,ei.SystemId,
-                                    0 AS TotalSalary,
-                                    0 AS TotalArrear,
                                     SUM(AC.Diff) Diff,'ArrearProcess',GETDATE(),'ArrearProcess',GETDATE()
 
 
