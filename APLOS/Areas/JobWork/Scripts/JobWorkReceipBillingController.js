@@ -1,8 +1,6 @@
 ﻿'use strict';
 JobWorkReceiveBillingController.$inject = ['$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'factoryService'];
 function JobWorkReceiveBillingController($window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, factoryService) {
-    //$scope.ToDoFilePath = virtualPath.JobWorkValueAddedContract;
-    //$scope.ToDownloadFilePath = virtualPath.JobWorkTransformationContract;
     $rootScope.title = 'Receive Billing';
     $scope.Action = 'Save';
     $scope.ContractList = [];
@@ -303,22 +301,17 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
     $scope.lst = [];
     $scope.GRNListDetails = function () {
-        //debugger;
         $http({
             method: 'GET',
             url: 'Products/GoodsReceiveNote/JWGRNDetailsData'
         }).then(function successCallback(response) {
             $scope.lst = response.data;
-            //$scope.detailgrid($scope.lst);
             window.lst = response.data;
         });
     }
 
     $scope.detailTemp = "#tabGridContents";
-    //$scope.detailgrid = "detailGridData(e)";
     $scope.detailgrid = function detailGridData(e) {
-        //debugger;
-
         var filteredData = e.data["Id"];
         var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("InventoryReceiveId", "equal", parseInt(filteredData), true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
@@ -391,7 +384,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         try {
 
             ValidationMaster();
-            if (baseService.arrayLength($scope.JWPOList) < 0) {
+            if (baseService.arrayLength($scope.JWPOList) < 0 || baseService.arrayLength($scope.JWPOList) == 0) {
                 throw "Billing detail is required";
             }
 

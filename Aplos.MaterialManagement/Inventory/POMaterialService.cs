@@ -142,6 +142,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IRD.RefferenceNo
                             ,Replace(CONVERT(VARCHAR(11), IRD.DeliveryDate, 106), ' ', '-') DeliveryDate
                             ,C.UserName CountryName,C.Id CountryId,IRD.RefferenceNo,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,HN.Code HSNCode,IRD.Tolerance
+                            ,ISNULL(RD.GRNTotalAmount,0) GRNAmount,ISNULL(ACPT.ACPTTotalAmount,0) ACPTAmount
                         FROM [TRN].[PurchaseOrderDetail] AS IRD
                         left JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId=MM.Id
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -167,6 +168,8 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId  
                        Left join scs.country C On C.Id=IRD.CountryId
                             LEFT JOIN [HKP].[HSNCode] AS HN ON MM.HSNCodeId=HN.Id
+						LEFT JOIN(SELECT SUM(TotalMaterialTranAmount) GRNTotalAmount,PODetailsId FROM TRN.InventoryReceiveDetail GROUP BY PODetailsId) RD ON RD.PODetailsId=IRD.Id
+						LEFT JOIN(SELECT SUM(TotalMaterialTranAmount) ACPTTotalAmount,PODetailId FROM TRN.PurchaseDocAcceptanceDetail GROUP BY PODetailId) ACPT ON ACPT.PODetailId=IRD.Id
                         WHERE IRD.InventoryReceiveId=@inventoryReceiveId";
                 return _sqlRepository.GetDifferentGridData(parameters);
             }

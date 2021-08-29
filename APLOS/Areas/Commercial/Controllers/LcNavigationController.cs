@@ -54,6 +54,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
+
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCSearch()
         {
@@ -68,6 +69,25 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetNonTagLCSearchByDate(string fromDate, string toDate)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.GetNonTagLCSearchByDate(fromDate, toDate);
+                return Json(new { DATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+
 
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCReport(Dictionary<string, object> Filter, string FilterFields)
@@ -485,10 +505,11 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select
+            string sql = @"select top 100 * from (
+                        select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
-                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate,
+                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
                         P.UserName as  Vendor,
                         PL.Amount as Value,
                         Cur.Code as Currency,
@@ -497,6 +518,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         PL.BenificiaryBank,                       
                         po.POAmount as POValue
 						,PO.POCount
+                        ,PL.AddedDate
                         ,ac.AcceptanceValue
 						,invpy.InvPayment SetOff 
 						,Loan.Amount Loan
@@ -512,7 +534,8 @@ namespace Aplos.Areas.Commercial.Controllers
                         cus.Customer,
                         PL.Id as LCId
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
-
+						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
+						,variance=po.POAmount-grn.GRNTotalAmount
 						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
@@ -537,7 +560,7 @@ namespace Aplos.Areas.Commercial.Controllers
 									group by A.PurchaseLCId
                         ) as ac on ac.PurchaseLCId = PL.Id
 
-											left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount
+	left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount
 										from TRN.LoanAgainstAcceptance LAA 
 											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId
 											--LEFT JOIN TRN.Financing F ON F.LoanAgainstAcceptanceId=LAA.Id 
@@ -570,8 +593,37 @@ namespace Aplos.Areas.Commercial.Controllers
 										inner join  trn.invoice I on i.PurchaseDocAcceptanceId=ac.Id
 										 group by Ac.PurchaseLCId
 						 ) as PM on PM.PurchaseLCId=PL.Id
-                         where pl.plantId='" + identity.PlantId +@"') AS TEMP WHERE " + strkey;
+                         where pl.plantId='" + identity.PlantId+@"' 
+						 ) AS TEMP WHERE " + strkey + "order by TEMP.AddedDate DESC";
             
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetNonTagLcSearchList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (select PO.PurchaseLCId,PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
+,PT.PaymentMode,PO.DocRefNo VendorRef
+,sum(POD.TransactionAmount) POAmount,c.Code Currency,P.UserName Vendor,GRN.GRNTotalAmount,PO.AddedDate
+from trn.PurchaseOrder PO
+left outer join TRN.PurchaseOrderDetail POD on POD.InventoryReceiveId=PO.Id
+left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
+left outer join SCS.Currency C on c.Id=PO.CurrencyId
+left outer join hkp.Party P on P.Id=PO.PartyId
+                            left join
+                             (select  IRD.POId,sum(IRD.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct IRD.InventoryReceiveId) as GRNCount
+							from TRN.InventoryReceiveDetail IRD
+							group by IRD.POId)
+                            as grn on grn.POId=PO.Id
+							where PO.PurchaseLCId is null and PO.PlantId='" + identity.PlantId+ @"'
+group by PO.PurchaseLCId,PO.Id ,PO.PODate,PT.PaymentMode,PO.DocRefNo,PO.AddedDate
+,POD.TransactionAmount ,C.Code,P.UserName,GRN.GRNTotalAmount) AS TEMP WHERE " + strkey + "order by TEMP.AddedDate desc";
+
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

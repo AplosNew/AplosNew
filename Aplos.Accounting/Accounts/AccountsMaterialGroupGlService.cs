@@ -64,8 +64,8 @@ namespace Library.Accounting.Accounts
 									,CreditNoteGLInfo								
 									,ShortageGLInfo
 									,RejectionGLInfo								
-									,GL,
-							
+									,GL
+							,InventoryInTransitGLInfo,
 									PartyAccountGroup +'GL' PartyAccountGroup
                                     INTO #tempOT
                                     from 
@@ -81,6 +81,7 @@ namespace Library.Accounting.Accounts
 					, MT.[Description] AS MaterialTypeName, MGM.MaterialGroup1Id
 					, F.UserName 'COAName', F.DownPaymentGLInfo
 					,F.ClearingAccountGLInfo
+                    ,F.InventoryInTransitGLInfo
 					, F.InventoryGLInfo
 					, F.ExpenseGLInfo
 					, F.DebitNoteGLInfo
@@ -103,6 +104,7 @@ namespace Library.Accounting.Accounts
 					, GLGICN.AccountCode + ' - ' + GLGICN.UserName AS CreditNoteGLInfo 
 					, GLGIST.AccountCode + ' - ' + GLGIST.UserName AS ShortageGLInfo 
 					, GLGIRJ.AccountCode + ' - ' + GLGIRJ.UserName AS RejectionGLInfo 
+                    ,MAD.InventoryInTransitGLId, GLGI5.AccountCode + ' - ' + GLGI5.UserName AS InventoryInTransitGLInfo
 
 					FROM HKP.COA AS C
 					LEFT JOIN HKP.MaterialGroupGL AS MAD ON MAD.COAId=c.Id
@@ -110,6 +112,7 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN HKP.GLGeneralInfo AS GLGI2 ON GLGI2.Id=MAD.ClearingAccountGLId
 					LEFT JOIN HKP.GLGeneralInfo AS GLGI3 ON GLGI3.Id=MAD.InventoryGLId
 					LEFT JOIN HKP.GLGeneralInfo AS GLGI4 ON GLGI4.Id=MAD.ExpenseGLId
+                    LEFT JOIN HKP.GLGeneralInfo AS GLGI5 ON GLGI5.Id=MAD.InventoryInTransitGLId
 					LEFT JOIN HKP.GLGeneralInfo AS GLGIDN ON GLGIDN.Id=MAD.DebitNoteGLId
 					LEFT JOIN HKP.GLGeneralInfo AS GLGICN ON GLGICN.Id=MAD.CreditNoteGLId
 					LEFT JOIN HKP.GLGeneralInfo AS GLGIST ON GLGIST.Id=MAD.ShortageGLId
@@ -139,7 +142,7 @@ namespace Library.Accounting.Accounts
 										,a.PartyAccountGroup
 										,a.GL
 										,a.ClearingAccountGLInfo
-										,a.MaterialGroup1Name
+										,a.MaterialGroup1Name,a.InventoryInTransitGLInfo
 
                             ) TT
 	                            DECLARE @sql nvarchar(max),
@@ -181,7 +184,7 @@ namespace Library.Accounting.Accounts
 									,CreditNoteBudgetName
 									,ShortageBudgetName
 									,RejectionBudgetName														
-									,Budget
+									,Budget,InventoryInTransitBudgetName
 									,PartyAccountGroup +'Budget' PartyAccountGroup
                                     INTO #tempOTT
                                     from 
@@ -199,7 +202,7 @@ namespace Library.Accounting.Accounts
 							, F.ShortageBudgetName
 							, F.RejectionBudgetName
 							,MGGL.PartyAccountGroup
-
+                            ,F.InventoryInTransitBudgetName,F.InventoryInTransitBudgetMasterId
 
 							,MGGL.Budget
 							FROM MST.MaterialGroupMaster As MGM
@@ -215,6 +218,8 @@ namespace Library.Accounting.Accounts
 							, BCN.UserName AS CreditNoteBudgetName 
 							,BST.UserName AS ShortageBudgetName 
 							,BRJ.UserName AS RejectionBudgetName 
+                            , CAB1.UserName AS InventoryInTransitBudgetName
+                            ,MAD.InventoryInTransitBudgetMasterId
 							FROM HKP.COA AS C
 							LEFT JOIN HKP.MaterialGroupGL AS MAD ON MAD.COAId=c.Id
 
@@ -223,6 +228,8 @@ namespace Library.Accounting.Accounts
 
 							LEFT JOIN MST.BudgetMaster AS CABM ON MAD.ClearingAccountBudgetMasterId = CABM.Id
 							LEFT JOIN HKP.Budget AS CAB ON CABM.BudgetId = CAB.Id
+                            LEFT JOIN MST.BudgetMaster AS CABM1 ON MAD.InventoryInTransitBudgetMasterId = CABM1.Id
+                            LEFT JOIN HKP.Budget AS CAB1 ON CABM1.BudgetId = CAB.Id
 
 							LEFT JOIN MST.BudgetMaster AS IBM ON MAD.InventoryBudgetMasterId = IBM.Id
 							LEFT JOIN HKP.Budget AS IB ON IBM.BudgetId = IB.Id
@@ -261,7 +268,7 @@ namespace Library.Accounting.Accounts
 										,a.RejectionBudgetName
 										,a.PartyAccountGroup					
 										,a.Budget	
-										, a.ClearingAccountBudgetName
+										, a.ClearingAccountBudgetName,a.InventoryInTransitBudgetName,a.InventoryInTransitBudgetMasterId
 														
                             ) TT
 	                            DECLARE @sql nvarchar(max),
@@ -310,7 +317,7 @@ namespace Library.Accounting.Accounts
 									,CreditNoteActivityName
 									,ShortageActivityName
 									,RejectionActivityName,
-									Activity,
+									Activity,InventoryInTransitActivityName,
 
 
 									PartyAccountGroup +'Activity' PartyAccountGroup
@@ -334,6 +341,7 @@ namespace Library.Accounting.Accounts
 										, F.RejectionActivityName
 										,MGGL.PartyAccountGroup
 										,MGGL.Activity
+                                        ,F.InventoryInTransitActivityId,F.InventoryInTransitActivityName
 										FROM MST.MaterialGroupMaster As MGM
 
 										LEFT JOIN (SELECT MAD.Id, MAD.MaterialGroupMasterId
@@ -349,12 +357,13 @@ namespace Library.Accounting.Accounts
 										, ACN.UserName AS CreditNoteActivityName
 										 , AST.UserName AS ShortageActivityName
 										 , ARJ.UserName AS RejectionActivityName
-
+                                        , MAD.InventoryInTransitActivityId, CAA1.UserName AS InventoryInTransitActivityName
 										FROM HKP.COA AS C
 										LEFT JOIN HKP.MaterialGroupGL AS MAD ON MAD.COAId=c.Id
 
 										LEFT JOIN HKP.Activity AS DPA ON MAD.DownPaymentActivityId = DPA.Id
 										LEFT JOIN HKP.Activity AS CAA ON MAD.ClearingAccountActivityId = CAA.Id
+                                        LEFT JOIN HKP.Activity AS CAA1 ON MAD.InventoryInTransitActivityId = CAA1.Id
 										LEFT JOIN HKP.Activity AS IA ON MAD.InventoryActivityId = IA.Id
 										LEFT JOIN HKP.Activity AS EA ON MAD.ExpenseActivityId = EA.Id
 										LEFT JOIN HKP.Activity AS ADN ON MAD.DebitNoteActivityId = ADN.Id
@@ -382,7 +391,7 @@ namespace Library.Accounting.Accounts
 							     		,a.RejectionActivityName
 										,a.PartyAccountGroup
 										,a.Activity								
-										,a.DownPaymentActivityName
+										,a.DownPaymentActivityName,a.InventoryInTransitActivityId,a.InventoryInTransitActivityName
 									, a.ClearingAccountActivityName  
                               ) TT
 	                            DECLARE @sql nvarchar(max),
@@ -494,6 +503,20 @@ namespace Library.Accounting.Accounts
                 sheet[ROW, COL].Text = "Clearing Account Activity Name	";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colClearingAccountActivityName = COL;
+
+                COL++;
+                sheet[ROW, COL].Text = "Inventory In Transit GL Info";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colInventoryInTransitGLInfo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Inventory In Transit Budget Name";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colInventoryInTransitBudgetName = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Inventory In Transit Activity Name	";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colInventoryInTransitActivityName = COL;
+
                 COL++;
                 sheet[ROW, COL].Text = "Inventory GL Info";
                 sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -629,6 +652,7 @@ namespace Library.Accounting.Accounts
                     sheet[ROW, colCOAName].Text = dtMaterialGroupWithGL.Rows[i]["COAName"].ToString();
                     sheet[ROW, colDownPaymentGLInfo].Text = dtMaterialGroupWithGL.Rows[i]["DownPaymentGLInfo"].ToString();
                     sheet[ROW, colClearingAccountGLInfo].Text = dtMaterialGroupWithGL.Rows[i]["ClearingAccountGLInfo"].ToString();
+                    sheet[ROW, colInventoryInTransitGLInfo].Text = dtMaterialGroupWithGL.Rows[i]["InventoryInTransitGLInfo"].ToString();
                     sheet[ROW, colInventoryGLInfo].Text = dtMaterialGroupWithGL.Rows[i]["InventoryGLInfo"].ToString();
                     sheet[ROW, colExpenseGLInfo].Text = dtMaterialGroupWithGL.Rows[i]["ExpenseGLInfo"].ToString();
                     sheet[ROW, colDebitNoteGLInfo].Text = dtMaterialGroupWithGL.Rows[i]["DebitNoteGLInfo"].ToString();
@@ -648,6 +672,7 @@ namespace Library.Accounting.Accounts
 
                         sheet[ROW, colDownPaymentBudgetName].Text = dtMaterialGroupWithBudget.DefaultView[0]["DownPaymentBudgetName"].ToString();
                         sheet[ROW, colClearingAccountBudgetName].Text = dtMaterialGroupWithBudget.DefaultView[0]["ClearingAccountBudgetName"].ToString();
+                        sheet[ROW, colInventoryInTransitBudgetName].Text = dtMaterialGroupWithBudget.DefaultView[0]["InventoryInTransitBudgetName"].ToString();
                         sheet[ROW, colInventoryBudgetName].Text = dtMaterialGroupWithBudget.DefaultView[0]["InventoryBudgetName"].ToString();
                         sheet[ROW, colExpenseBudgetName].Text = dtMaterialGroupWithBudget.DefaultView[0]["ExpenseBudgetName"].ToString();
                         sheet[ROW, colDebitNoteBudgetName].Text = dtMaterialGroupWithBudget.DefaultView[0]["DebitNoteBudgetName"].ToString();
