@@ -328,6 +328,7 @@
                             <td ng-repeat="ELE in TotalElements">
                                 <input type="text" readonly id="CT_Avg_{{(TAB*10)+ELE}}" class="form-control" ng-blur="changeRatings((TAB*10)+ELE)" />
                             </td>
+                            <td class="tdTitle" style="background-color:#f6f6f6;border:1px solid #dddddd;padding-left:0px;margin-left:0px;text-align:left;">{{TotalAverage}}</td>
 
                         </tr>
                         <tr class="tdRatings">
@@ -345,6 +346,7 @@
                             <td ng-repeat="ELE in TotalElements">
                                 <input type="text" readonly id="CT_BT_SEC_{{(TAB*10)+ELE}}" class="form-control BTSEC">
                             </td>
+                            <td class="tdTitle" style="background-color:#f6f6f6;border:1px solid #dddddd;padding-left:0px;margin-left:0px;text-align:left;">{{TotalBTSec}}</td>
                         </tr>
                     </tbody>
                 </table>
