@@ -878,6 +878,11 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/TaxReport/GSTReceivableReport",
             controller: "GSTReceivableReportController"
         })
+        .when("/gst-payable", {
+            templateUrl: "Accounts/TaxReport/GSTPayableReport",
+            controller: "GSTPayableReportController"
+        })
+    
         .when("/gst-payable-sales", {
             templateUrl: "Accounts/TaxReport/GSTPayableSalesReport",
             controller: "GSTPayableSalesReportController"
