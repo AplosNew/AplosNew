@@ -324,7 +324,7 @@ namespace Library.Service.Employees
             try
             {
                 var sql = @"SELECT E.SystemId EmployeeId
-							    	--,E.PlantId
+							    	,E.PlantId
 							    	,E.GroupID
 							    	,E.CompanyId
 							    	,E.EmployeeName

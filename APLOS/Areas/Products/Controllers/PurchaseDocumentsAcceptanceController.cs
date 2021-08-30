@@ -340,8 +340,7 @@ namespace Aplos.Areas.Products.Controllers
 
             try
             {
-                string sql = @"SELECT  PAD.Id 
-                                    , MGM.UserName AS MaterialGroupMasterName, MM.Id MaterialMasterId, MM.UserName, PAD.ArticleId, ART.StandardName, PAD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
+                string sql = @"SELECT  PAD.Id ,PAD.POId,PAD.PODetailId, MGM.UserName AS MaterialGroupMasterName, MM.Id MaterialMasterId, MM.UserName, PAD.ArticleId, ART.StandardName, PAD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
                                     , PAD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue, PAD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
                                     , PAD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue, PAD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
                                     , PAD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
@@ -368,7 +367,7 @@ namespace Aplos.Areas.Products.Controllers
                                     LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON PAD.TransactionUoMId=TUoM.Id
                                     LEFT JOIN[TRN].[PurchaseOrder] AS IR ON PAD.POId= IR.Id
                                     LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
-                                    WHERE PAD.PurchaseDocAcceptanceId='"+ Id + "'";
+                                    WHERE PAD.PurchaseDocAcceptanceId='" + Id + "'";
                 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
