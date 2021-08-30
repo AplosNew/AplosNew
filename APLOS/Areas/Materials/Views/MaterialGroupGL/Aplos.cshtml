@@ -216,6 +216,11 @@
                             <div e-column e-field="ClearingAccountGLInfo" e-headertext="C A GL" e-allowediting="false" e-width="80"></div>
                             <div e-column e-field="ClearingAccountBudgetName" e-headertext="C A Budget" e-allowediting="false" e-width="80"></div>
                             <div e-column e-field="ClearingAccountActivityName" e-headertext="C A Activity" e-allowediting="false" e-width="80"></div>
+
+                            <div e-column e-field="InventoryInTransitGLInfo" e-headertext="Inventory In Transit GL" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="InventoryInTransitBudgetName" e-headertext="Inventory In Transit Budget" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="InventoryInTransitActivityName" e-headertext="Inventory In Transit Activity" e-allowediting="false" e-width="80"></div>
+
                             <div e-column e-field="InventoryGLInfo" e-headertext="Inv GL" e-allowediting="false" e-width="80"></div>
                             <div e-column e-field="InventoryBudgetName" e-headertext="Inv Budget" e-allowediting="false" e-width="80"></div>
                             <div e-column e-field="InventoryActivityName" e-headertext="Inv Activity" e-allowediting="false" e-width="80"></div>
@@ -409,6 +414,41 @@
                             </div>
                         </div>
                     </fieldset>
+
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Inventory In Transit </legend>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">GL</label>
+                            <div class="col-sm-6 pdr3">
+                                <input type="text" class="form-control col-sm-6" ng-model="InventoryInTransitInfo" readonly>
+                            </div>
+                            <button name="submit" class="single-btn" data-toggle="modal" ng-click="GetInventoryInTransitList();"><i class="fa fa-search"></i></button>
+                            <button ng-click="refreshInventoryInTransit();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Budget</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="materialGroupGL.InventoryInTransitBudgetMasterId"
+                                            ng-options="item.BudgetMasterId as item.BudgetName for item in InventoryInTransitBudgetList" id="BudgetId" name="Budget" tabindex="1" ng-change="getInventoryInTransitActivity()">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Activity</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="materialGroupGL.InventoryInTransitActivityId"
+                                            ng-options="item.ActivityId as item.ActivityName for item in InventoryInTransitActivityList" id="ActivityId" name="Activity" tabindex="1">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
                     <fieldset class="scheduler-border">
                         <legend class="scheduler-border">Expense</legend>
                         <div class="form-group">
@@ -679,6 +719,7 @@
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_DownPaymentGL.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_AssetTypeGL.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_ClearingAccountGL.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_InventoryInTransitGL.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_ExpensesTypeGL.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_RevenueTypeGL.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_DebitNoteGL.cshtml")

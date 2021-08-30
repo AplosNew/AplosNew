@@ -4051,6 +4051,57 @@ public class clsSalaryProcessAplosArrear
         }
     }//End Function
 
+    public void salaryLockValidation(string employeeIds, string Months)
+    {
+
+
+
+
+        ConnectionManager.DAL.ConManager objCon;
+        string strSql = string.Empty;
+
+        try
+        {
+
+            string TotalEmployees = "''";
+
+            //int _count = 0;
+            //if (dsGrid != null)
+            //{
+            //    for (int i = 0; i < dsGrid.Tables[0].Rows.Count; i++)
+            //    {
+            //        var pp = dsGrid.Tables[0].Rows[i]["IsSelectSlrProc"].ToString().Trim();
+            //        if (Convert.ToBoolean(pp) == true)
+            //        {
+            //            _count++;
+
+            //            TotalEmployees += ",'" + dsGrid.Tables[0].Rows[i]["EmpSystemID"].ToString().Trim() + @"'";
+
+            //        }//checked
+            //    }//for
+            //}//if
+
+            strSql = @"SELECT TOP 1 sl.* FROM EmployeeInformation AS ei
+								LEFT JOIN SalaryLock sl ON sl.EmpSystemId=ei.SystemId AND CONCAT(sl.YearNo,sl.MonthNo) IN ("+ Months + @")	
+									
+								WHERE ei.SystemId IN ("+ employeeIds + @") AND (ISNULL(sl.Id,'')='' OR ISNULL(sl.IsLocked,0)=0)";
+
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter(strSql, out DataSet dsRef, false, false, "", "1");
+
+            if (dsRef.Tables[0].Rows.Count > 0)
+                throw new Exception("Salary process missing/not locked for the selected employees. Please check salary process and lock");
+        }
+        catch (Exception ex)
+        {
+            throw (ex);
+        }
+        finally
+        {
+            objCon = null;
+        }
+
+    }
 
     void CurrencyRate(ParaSalaryProcess spara, FunctionPara fpara, decimal sFrgCurRate)
     {
@@ -4454,12 +4505,10 @@ public class clsSalaryProcessAplosArrear
             connection = new ConnectionManager.clsConnection();
             connection.BeginTransaction();
             connection.executeQuery(@"INSERT INTO ArrearSummaryMonthWise(
-                                     ArrearProcessBatchId,MonthNo,YearNo,EmployeeSystemId,TotalSalary,TotalArrear,Diff,AddedBy,DateAdded,UpdatedBy,DateUpdated
+                                     ArrearProcessBatchId,MonthNo,YearNo,EmployeeSystemId,Diff,AddedBy,DateAdded,UpdatedBy,DateUpdated
                                 )
 
                                     SELECT am.ArrearProcessBatchId,am.MonthNo, am.YearNo,ei.SystemId,
-                                    SUM(SAL.DisbusmentAmount) AS TotalSalary,
-                                    SUM(ac.DisbusmentAmount) AS TotalArrear,
                                     SUM(AC.Diff) Diff,'ArrearProcess',GETDATE(),'ArrearProcess',GETDATE()
 
 

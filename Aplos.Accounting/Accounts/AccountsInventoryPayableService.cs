@@ -3173,7 +3173,6 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
 					WHERE IRT.PurchaseReturnId=@receiveId   AND ITD.AType='Dr'
 					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
-					
                     ORDER BY T.TrnType DESC";
 				return _sqlRepository.GetDataCollection(sql);
 			}
@@ -3979,12 +3978,12 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
 						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON SVGL.ExpenseGLId=GLF.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BMF ON SVGL.ExpenseBudgetMasterId= BMF.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON SVGL.ServiceGLId=GLF.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON SVGL.ServiceBudgetMasterId= BMF.Id
 						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
-						LEFT JOIN [HKP].[Activity] AS AF ON SVGL.ExpenseActivityId= AF.Id
+						LEFT JOIN [HKP].[Activity] AS AF ON SVGL.ServiceActivityId= AF.Id
 						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial' AND IR.PlantId=@plantId
-						GROUP BY SVGL.ExpenseGLId,SVGL.ExpenseBudgetMasterId,SVGL.ExpenseActivityId,GLF.AccountCode,GLF.UserName
+						GROUP BY SVGL.ServiceGLId,SVGL.ServiceBudgetMasterId,SVGL.ServiceActivityId,GLF.AccountCode,GLF.UserName
 						,BF.Code,BF.UserName
 						,AF.Code,AF.UserName,IRD.Id
 

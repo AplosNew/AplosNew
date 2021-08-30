@@ -187,107 +187,164 @@ namespace Library.HumanResource.Dashboard
                 {
                     dStatus = "and PO.IsDirect = 0";
                 }
-                var sql = @"SELECT  CompanyGroupId,GroupName,CompanyId,UserName,Case when  ISNULL(IsDirect,0) = 0 then 'Indirect' else 'Direct' end AS  IsDirect, ISNULL(SUM(TotalNumber),0) ProposedManpowerBudget, ISNULL(SUM(TotalManpower),0) TotalManpower , sum(short) Short,sum(Excess) Excess
-								,ISNULL(SUM(TotalSalary),0) OnRoleSalaryC
-								--,ISNULL((SUM(MaxSal)+SUM(MinSal))/2,0) ProposedSalaryC
-								,sum(BudgetedSalary) ProposedSalaryC
-                                 FROM
-                                 (
-                                     SELECT m.CgId CompanyGroupId, m.IsDirect,m.Id,b.TotalNumber,m.GroupName,m.CompanyId,m.CName as UserName,EmpInfo.TotalSalary
-                                     ,EmpInfo.TotalManpower,(ISNULL(Sal.MaximumSalary,0)) MaxSal,(ISNULL(Sal.MinimumSalary,0)) MinSal
-									 ,((ISNULL(Sal.MaximumSalary,0)) + (ISNULL(Sal.MinimumSalary,0)) / 2 ) * b.TotalNumber BudgetedSalary
-                                     , Short = CASE WHEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) > 0
-                                                THEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) ELSE 0 END
-                                     , Excess = CASE WHEN isNull(TotalManpower,0) - ISNULL(TotalNumber,0) > 0
-                                                THEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0) ELSE 0 END
-                                      FROM
-                                          --------------------1 budgetCode from [MST].[ManpowerBudget]--------------------------------------
-                                            (SELECT po.IsDirect, MB.Code,MB.Id,Cg.Id as CgId,Cg.UserName as GroupName, c.Id as CompanyId, c.UserName as CName FROM [MST].[ManpowerBudget]  MB
-                                              LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-                                               LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
-                                             LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+        //        var sql = @"SELECT  CompanyGroupId,GroupName,CompanyId,UserName,Case when  ISNULL(IsDirect,0) = 0 then 'Indirect' else 'Direct' end AS  IsDirect, ISNULL(SUM(TotalNumber),0) ProposedManpowerBudget, ISNULL(SUM(TotalManpower),0) TotalManpower , sum(short) Short,sum(Excess) Excess
+								//,ISNULL(SUM(TotalSalary),0) OnRoleSalaryC
+								//--,ISNULL((SUM(MaxSal)+SUM(MinSal))/2,0) ProposedSalaryC
+								//,sum(BudgetedSalary) ProposedSalaryC
+        //                         FROM
+        //                         (
+        //                             SELECT m.CgId CompanyGroupId, m.IsDirect,m.Id,b.TotalNumber,m.GroupName,m.CompanyId,m.CName as UserName,EmpInfo.TotalSalary
+        //                             ,EmpInfo.TotalManpower,(ISNULL(Sal.MaximumSalary,0)) MaxSal,(ISNULL(Sal.MinimumSalary,0)) MinSal
+								//	 ,((ISNULL(Sal.MaximumSalary,0)) + (ISNULL(Sal.MinimumSalary,0)) / 2 ) * b.TotalNumber BudgetedSalary
+        //                             , Short = CASE WHEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) > 0
+        //                                        THEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) ELSE 0 END
+        //                             , Excess = CASE WHEN isNull(TotalManpower,0) - ISNULL(TotalNumber,0) > 0
+        //                                        THEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0) ELSE 0 END
+        //                              FROM
+        //                                  --------------------1 budgetCode from [MST].[ManpowerBudget]--------------------------------------
+        //                                    (SELECT po.IsDirect, MB.Code,MB.Id,Cg.Id as CgId,Cg.UserName as GroupName, c.Id as CompanyId, c.UserName as CName FROM [MST].[ManpowerBudget]  MB
+        //                                      LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+        //                                       LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
+        //                                     LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
 
-                                             LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+        //                                     LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
 
-								              LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
-								              LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
-								              LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+								//              LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
+								//              LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
+								//              LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 
-                                               WHERE Cg.Id = '" + companyGroupId + @"' " + dStatus + @" " + EmployeeCategory + @" AND MB.Active = 1
-                                            )  M
-                                           -----------------------2. EmployeeInformation from [dbo].[EmployeeInformation]--------------------------------
-                                            LEFT OUTER JOIN
-                                             (SELECT PO.IsDirect,COUNT(SystemID) TotalManpower,BudgetCode,GroupID,c.Id cid,SUM(TotalSalary) TotalSalary
-                                               FROM [dbo].[EmployeeInformation]  em
-								                LEFT outer join [MST].[ManpowerBudget] AS MB  ON  MB.Id = em.BudgetCode
-                                                 LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = em.GroupId
-                                              LEFT outer JOIN [ORG].[Company] AS C ON C.Id = em.CompanyId
-                                              LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                              LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-                                                 LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
-									            LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
-									            LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
-									            LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
-									            LEFT JOIN [ORG].[Section] ON Section.Id = Po.SectionId
-									            LEFT JOIN [ORG].[Subsection] ON Subsection.Id = Po.SubsectionId
+        //                                       WHERE Cg.Id = '" + companyGroupId + @"' " + dStatus + @" " + EmployeeCategory + @" AND MB.Active = 1
+        //                                    )  M
+        //                                   -----------------------2. EmployeeInformation from [dbo].[EmployeeInformation]--------------------------------
+        //                                    LEFT OUTER JOIN
+        //                                     (SELECT PO.IsDirect,COUNT(SystemID) TotalManpower,BudgetCode,GroupID,c.Id cid,SUM(TotalSalary) TotalSalary
+        //                                       FROM [dbo].[EmployeeInformation]  em
+								//                LEFT outer join [MST].[ManpowerBudget] AS MB  ON  MB.Id = em.BudgetCode
+        //                                         LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = em.GroupId
+        //                                      LEFT outer JOIN [ORG].[Company] AS C ON C.Id = em.CompanyId
+        //                                      LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+        //                                      LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+        //                                         LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
+								//	            LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
+								//	            LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
+								//	            LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
+								//	            LEFT JOIN [ORG].[Section] ON Section.Id = Po.SectionId
+								//	            LEFT JOIN [ORG].[Subsection] ON Subsection.Id = Po.SubsectionId
 
-									            LEFT JOIN [HKP].Designation GDes ON GDes.Id = EM.GivenDesignationId
-								                LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.GivenDesignationId
-								                LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+								//	            LEFT JOIN [HKP].Designation GDes ON GDes.Id = EM.GivenDesignationId
+								//                LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.GivenDesignationId
+								//                LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 
-                                               WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM')
-                                                AND GroupID = '" + companyGroupId + @"'  " + dStatus + @" " + EmployeeCategory + @"
-                                                group by BudgetCode,GroupID,c.Id, PO.IsDirect
-                                            ) EmpInfo on m.Id=EmpInfo.BudgetCode and EmpInfo.GroupID = m.CgId and EmpInfo.cid = m.CompanyId and EmpInfo.IsDirect = m.IsDirect 
-                                            --------------------------ManpowerBudgetWiseSalary-----------------------------------
-								            LEFT OUTER JOIN
-								            (
+        //                                       WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM')
+        //                                        AND GroupID = '" + companyGroupId + @"'  " + dStatus + @" " + EmployeeCategory + @"
+        //                                        group by BudgetCode,GroupID,c.Id, PO.IsDirect
+        //                                    ) EmpInfo on m.Id=EmpInfo.BudgetCode and EmpInfo.GroupID = m.CgId and EmpInfo.cid = m.CompanyId and EmpInfo.IsDirect = m.IsDirect 
+        //                                    --------------------------ManpowerBudgetWiseSalary-----------------------------------
+								//            LEFT OUTER JOIN
+								//            (
 
-								                SELECT MBA.ManpowerBudgetId,po.IsDirect,
-									            MinimumSalary = case when MBA.EffectiveDate <= '" + date + @"'  then  isnull(MinimumSalary,0) else 0 end,
-									            MaximumSalary = case when MBA.EffectiveDate <= '" + date + @"'  then  isnull(MaximumSalary,0) else 0 end
-									            ,ED.EffectiveDate,m.CompanyId
-									            FROM [MST].[ManpowerBudgetAllowance] MBA
-								                LEFT OUTER JOIN [MST].[ManpowerBudget] AS m ON m.Id = MBA.ManpowerBudgetId
-									            LEFT OUTER JOIN [MST].[ManpowerBudgetDetail] AS MBD ON MBD.ManpowerBudgetId = MBA.ManpowerBudgetId
-                                                     LEFT OUTER JOIN [ORG].[Position] AS PO ON m.PositionId = PO.Id
-									            LEFT OUTER JOIN (
-									            SELECT MAX(EffectiveDate) EffectiveDate,ManpowerBudgetId,CompanyId from [MST].[ManpowerBudgetAllowance]
-									             LEFT OUTER JOIN [MST].[ManpowerBudget] AS m on m.Id = ManpowerBudgetId
-									             WHERE EffectiveDate=(SELECT DISTINCT TOP (1) EffectiveDate FROM [MST].[ManpowerBudgetAllowance] WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"') ORDER BY EffectiveDate DESC)
-									             GROUP BY ManpowerBudgetId ,CompanyId
-									            )  ED ON ED.ManpowerBudgetId = MBA.ManpowerBudgetId and ED.EffectiveDate = MBA.EffectiveDate
-									             WHERE
-									             ED.EffectiveDate IS NOT NULL AND m.CompanyGroupId =  '" + companyGroupId + @"'
-									             " + dStatus + @" AND MBD.EffectiveDate = (SELECT DISTINCT TOP (1) EffectiveDate FROM [MST].[ManpowerBudgetDetail] WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"') ORDER BY EffectiveDate DESC)
-									            ) Sal ON m.Id = Sal.ManpowerBudgetId AND m.CompanyId = Sal.CompanyId and m.IsDirect = Sal.IsDirect
-                                             -------------------------3. Manpower Budget Detail from [MST].[ManpowerBudgetDetail]--------------------------------------------------------
-                                              LEFT OUTER JOIN
-                                            (
-                                            SELECT MBD.TotalNumber, ManpowerBudgetId,Cg.Id, C.Id AS cid,PO.IsDirect FROM
-                                            (SELECT TOP 1 WITH TIES TotalNumber,ManpowerBudgetId,EffectiveDate
-									            FROM [MST].[ManpowerBudgetDetail]
-									            WHERE CONVERT(DATE,EffectiveDate) <= CONVERT(DATE,'" + date + @"')
-									            ORDER BY ROW_NUMBER() OVER(PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC)
-                                             ) MBD
+								//                SELECT MBA.ManpowerBudgetId,po.IsDirect,
+								//	            MinimumSalary = case when MBA.EffectiveDate <= '" + date + @"'  then  isnull(MinimumSalary,0) else 0 end,
+								//	            MaximumSalary = case when MBA.EffectiveDate <= '" + date + @"'  then  isnull(MaximumSalary,0) else 0 end
+								//	            ,ED.EffectiveDate,m.CompanyId
+								//	            FROM [MST].[ManpowerBudgetAllowance] MBA
+								//                LEFT OUTER JOIN [MST].[ManpowerBudget] AS m ON m.Id = MBA.ManpowerBudgetId
+								//	            LEFT OUTER JOIN [MST].[ManpowerBudgetDetail] AS MBD ON MBD.ManpowerBudgetId = MBA.ManpowerBudgetId
+        //                                             LEFT OUTER JOIN [ORG].[Position] AS PO ON m.PositionId = PO.Id
+								//	            LEFT OUTER JOIN (
+								//	            SELECT MAX(EffectiveDate) EffectiveDate,ManpowerBudgetId,CompanyId from [MST].[ManpowerBudgetAllowance]
+								//	             LEFT OUTER JOIN [MST].[ManpowerBudget] AS m on m.Id = ManpowerBudgetId
+								//	             WHERE EffectiveDate=(SELECT DISTINCT TOP (1) EffectiveDate FROM [MST].[ManpowerBudgetAllowance] WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"') ORDER BY EffectiveDate DESC)
+								//	             GROUP BY ManpowerBudgetId ,CompanyId
+								//	            )  ED ON ED.ManpowerBudgetId = MBA.ManpowerBudgetId and ED.EffectiveDate = MBA.EffectiveDate
+								//	             WHERE
+								//	             ED.EffectiveDate IS NOT NULL AND m.CompanyGroupId =  '" + companyGroupId + @"'
+								//	             " + dStatus + @" AND MBD.EffectiveDate = (SELECT DISTINCT TOP (1) EffectiveDate FROM [MST].[ManpowerBudgetDetail] WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"') ORDER BY EffectiveDate DESC)
+								//	            ) Sal ON m.Id = Sal.ManpowerBudgetId AND m.CompanyId = Sal.CompanyId and m.IsDirect = Sal.IsDirect
+        //                                     -------------------------3. Manpower Budget Detail from [MST].[ManpowerBudgetDetail]--------------------------------------------------------
+        //                                      LEFT OUTER JOIN
+        //                                    (
+        //                                    SELECT MBD.TotalNumber, ManpowerBudgetId,Cg.Id, C.Id AS cid,PO.IsDirect FROM
+        //                                    (SELECT TOP 1 WITH TIES TotalNumber,ManpowerBudgetId,EffectiveDate
+								//	            FROM [MST].[ManpowerBudgetDetail]
+								//	            WHERE CONVERT(DATE,EffectiveDate) <= CONVERT(DATE,'" + date + @"')
+								//	            ORDER BY ROW_NUMBER() OVER(PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC)
+        //                                     ) MBD
 
-                                              LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  Mb.Id = MBD.ManpowerBudgetId
+        //                                      LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  Mb.Id = MBD.ManpowerBudgetId
 
-                                              LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+        //                                      LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
 
-                                              LEFT outer JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= c.Id
-                                              LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                              LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-                                               LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
-								               LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
-								               LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
-								               LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
-                                             WHERE CG.Id = '" + companyGroupId + @"' " + dStatus + @" AND TotalNumber > 0 
-                                             ) B
+        //                                      LEFT outer JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= c.Id
+        //                                      LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+        //                                      LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+        //                                       LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
+								//               LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
+								//               LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
+								//               LEFT JOIN [ORG].[Department] ON Department.Id = Po.DepartmentId
+        //                                     WHERE CG.Id = '" + companyGroupId + @"' " + dStatus + @" AND TotalNumber > 0 
+        //                                     ) B
 
-                                             ON M.id = b.ManpowerBudgetId AND B.Id = M.CgId AND B.cid = M.CompanyId AND B.IsDirect = M.IsDirect
-                                 ) EDE GROUP BY GroupName,CompanyId,UserName,IsDirect,CompanyGroupId ORDER BY UserName";
+        //                                     ON M.id = b.ManpowerBudgetId AND B.Id = M.CgId AND B.cid = M.CompanyId AND B.IsDirect = M.IsDirect
+        //                         ) EDE GROUP BY GroupName,CompanyId,UserName,IsDirect,CompanyGroupId ORDER BY UserName";
 
+               var sql = @"SELECT  CompanyGroupId,GroupName,CompanyId,UserName,Case when  ISNULL(IsDirect,0) = 0 then 'Indirect' else 'Direct' end AS  IsDirect, ISNULL(SUM(TotalNumber),0) ProposedManpowerBudget, ISNULL(SUM(TotalManpower),0) TotalManpower , sum(short) Short,sum(Excess) Excess
+                            ,ISNULL(SUM(TotalSalary),0) OnRoleSalaryC
+                            --,ISNULL((SUM(MaxSal)+SUM(MinSal))/2,0) ProposedSalaryC
+                            ,sum(BudgetedSalary) ProposedSalaryC
+                            FROM
+                            (
+                            	SELECT m.CgId CompanyGroupId, m.IsDirect,m.Id,IsNull(b.TotalNumber,0) TotalNumber,m.GroupName,m.CompanyId,m.CName as UserName, IsNull(EmpInfo.TotalSalary,0) TotalSalary
+                            	,IsNull(EmpInfo.TotalManpower,0) TotalManpower,(ISNULL(Sal.MaximumSalary,0)) MaxSal,(ISNULL(Sal.MinimumSalary,0)) MinSal
+                            	,(ISNULL(Sal.MaximumSalary,0) + ISNULL(Sal.MinimumSalary,0)) / 2  AvgSal
+                            	,((ISNULL(Sal.MaximumSalary,0) + ISNULL(Sal.MinimumSalary,0)) / 2 ) * IsNull(b.TotalNumber,0) BudgetedSalary
+                            	, Short = CASE WHEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) > 0
+                            	THEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) ELSE 0 END
+                            	, Excess = CASE WHEN isNull(TotalManpower,0) - ISNULL(TotalNumber,0) > 0
+                            	THEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0) ELSE 0 END
+                            	From
+                            	(
+                            	SELECT PO.IsDirect, MB.Code,MB.Id,Cg.Id as CgId,Cg.UserName as GroupName, c.Id as CompanyId, c.UserName as CName 
+                            	FROM [MST].[ManpowerBudget]  MB
+                            	LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                            	LEFT OUTER JOIN [ORG].[Company] AS C ON C.Id = E.CompanyId
+                            	LEFT OUTER JOIN [ORG].[CompanyGroup] AS CG ON CG.Id = C.CompanyGroupId
+                            	LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                                LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
+								LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
+								LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                            	WHERE CG.Id = '" + companyGroupId + @"' " + dStatus + @" " + EmployeeCategory + @"   AND MB.Active = 1
+                            	) M
+                            	Left Outer Join
+                            	(
+                            		SELECT BudgetCode,COUNT(SystemId) TotalManpower,SUM(TotalSalary) TotalSalary
+                            		FROM [dbo].[EmployeeInformation]  
+                            		WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND GroupID = '" + companyGroupId +@"'
+
+                                    group by BudgetCode
+                            	) EmpInfo on M.Id=EmpInfo.BudgetCode
+                            	Left Outer Join
+                            	(
+                            		Select MBA.ManpowerBudgetId,MBA.MinimumSalary,MBA.MaximumSalary,MBA.EffectiveDate from 
+                            		(
+                            			Select MAX(EffectiveDate) EffectiveDate,ManpowerBudgetId from
+                            			[MST].[ManpowerBudgetAllowance]
+                            			WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'"+date+ @"')
+                            			GROUP BY ManpowerBudgetId
+                            		) x
+                            		Left Join MST.ManpowerBudgetAllowance MBA on MBA.Id=(Select Top 1 id from MST.ManpowerBudgetAllowance M where M.ManpowerBudgetId=x.ManpowerBudgetId and M.EffectiveDate=x.EffectiveDate order by MBA.EffectiveDate Desc)
+                            	) Sal on M.Id=Sal.ManpowerBudgetId
+                            	Left Outer Join
+                            	(
+                            		SELECT x.ManpowerBudgetId,x.TotalNumber,x.EffectiveDate from
+                            		(
+                            			Select rank() over (partition by ManpowerBudgetId order by  EffectiveDate DESC,Id) RNK, TotalNumber, ManpowerBudgetId, EffectiveDate
+                            			from [MST].[ManpowerBudgetDetail]
+                            			WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"')
+                            		) x
+                            		Where x.RNK=1
+                            	) B on M.Id=B.ManpowerBudgetId
+                            ) EDE GROUP BY GroupName,CompanyId,UserName,IsDirect,CompanyGroupId ORDER BY UserName";
 
                 DataTable dt = _sqlRepository.GetDataTable(sql);
                 //GroupName,CompanyId,UserName,Case when  ISNULL(IsDirect, 0) = 0 then 'Indirect' else 'Direct' end AS  IsDirect,
@@ -514,153 +571,222 @@ namespace Library.HumanResource.Dashboard
                 }
 
                 join = joinBuilder.ToString();
-                var sql = @"SELECT CASE WHEN  ISNULL(IsDirect,0) = 0 THEN 'Indirect' ELSE 'Direct' END AS  IsDirect,
-                                CompanyId,ISNULL(UserName,'N/A') UserName,UId,Sequence" + cListextF + @"" + cListextIdF + @"
-                               ,ISNULL(sum(TotalNumber),0) ProposedManpowerBudget ,ISNULL(SUM(TotalManpower),0) TotalManpower
-                                ,ISNULL(sum(TotalSalary),0) OnRoleSalaryC
-                                -- ,ISNULL((sum(MaxSal)+sum(MinSal))/2,0) ProposedSalaryC
+                //var sql = @"SELECT CASE WHEN  ISNULL(IsDirect,0) = 0 THEN 'Indirect' ELSE 'Direct' END AS  IsDirect,
+                //                        CompanyId,ISNULL(UserName,'N/A') UserName,UId,Sequence" + cListextF + @"" + cListextIdF + @"
+                //                       ,ISNULL(sum(TotalNumber),0) ProposedManpowerBudget ,ISNULL(SUM(TotalManpower),0) TotalManpower
+                //                        ,ISNULL(sum(TotalSalary),0) OnRoleSalaryC
+                //                        -- ,ISNULL((sum(MaxSal)+sum(MinSal))/2,0) ProposedSalaryC
+                //                        ,sum(BudgetedSalary) ProposedSalaryC
+                //                        " + shortExcess + @" --Sum of Short / excess
+                //                        FROM
+                //                         (
+                //                         SELECT m.Id
+                //                         ,b.TotalNumber
+                //                         ,m.CompanyId
+                //                          " + cListextM + @" -- plant name and division name
+                //                          " + cListextIdM + @" -- Plant Id & division Id
+
+                //                           ,m.IsDirect
+                //                          ,m.UId
+                //                          ,m.UserName
+                //                          ,m.Sequence
+                //                          ,e.TotalSalary
+                //                          ,e.TotalManpower
+                //                            ,(ISNULL(Sal.MaximumSalary,0)) MaxSal
+                //    ,(ISNULL(Sal.MinimumSalary,0)) MinSal
+                //                          ,Short = CASE
+                //                          WHEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) > 0
+                //                          THEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0)
+                //                          ELSE 0
+                //                          END
+                //                          ,Excess = CASE
+                //                          WHEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0) > 0
+                //                          THEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0)
+                //                          ELSE 0 END
+                //                        ,((ISNULL(Sal.MaximumSalary,0)) + (ISNULL(Sal.MinimumSalary,0)) / 2 ) * b.TotalNumber BudgetedSalary
+                //                          FROM
+                //                          ----------------------1 bc-------------------------------c-------
+                //                          (SELECT
+                //                            MB.Code
+                //                            ,MB.Id
+                //                            ,MB.CompanyGroupId
+                //                            ,c.Id AS CompanyId
+                //                            ,c.UserName AS CName
+                //                            ,PO.IsDirect
+
+                //                            " + cListext + @"
+                //                            " + cListextIdR + @"
+                //                            " + cList + @" UserName
+                //                            " + cListId + @" UId
+                //                            " + cListSequence + @" Sequence
+
+                //                            FROM [MST].[ManpowerBudget]  MB
+                //                            LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+                //                           LEFT OUTER JOIN [ORG].[Company] AS c on c.Id = MB.CompanyId AND c.CompanyGroupId = cg.Id
+                //                            LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                //                            LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+
+                //	LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
+                //    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
+                //    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+
+                //                            " + join + @"
+                //                            WHERE Cg.Id = '" + companyGroupId + @"' " + dStatus + @"  " + wc + @" " + EmployeeCategory + @" AND MB.Active = 1
+                //                            )  m
+                //                        -----------------------2e--------------------------------
+                //                           LEFT OUTER JOIN
+                //                           (SELECT COUNT(em.SystemID) TotalManpower,PO.IsDirect,BudgetCode,em.GroupID,C.Id AS cid   " + cListextId + @",sum(TotalSalary) TotalSalary
+                //                           FROM [dbo].[EmployeeInformation]  em
+                //                            LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = em.BudgetCode
+                //                              LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = em.GroupId
+                //                          LEFT outer JOIN [ORG].[Company] AS C ON C.Id = em.CompanyId  AND c.CompanyGroupId = cg.Id
+                //                          LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                //                          LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+
+                //	LEFT JOIN [HKP].Designation GDes ON GDes.Id = EM.GivenDesignationId
+                //    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.GivenDesignationId
+                //    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+
+                //                             " + JoinEm + @"
+                //                           WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM')
+
+                //                            AND  em.GroupID  = '" + companyGroupId + @"' " + wcem + @" " + dStatus + @" " + EmployeeCategory + @"
+                //                           GROUP BY BudgetCode,em.GroupID,C.Id,PO.IsDirect  " + cListEmpG + @"
+                //                        ) e on m.Id=e.BudgetCode and e.GroupID = m.CompanyGroupId and e.cid = m.CompanyId and m.IsDirect = e.IsDirect " + cListEmp + @"
+                //                       --------------------------------ManpowerBudgetWisealary-----------------------------------
+                //LEFT OUTER JOIN
+                //(
+
+                //    SELECT MBA.ManpowerBudgetId,PO.IsDirect,
+                //	MinimumSalary = case when MBA.EffectiveDate <= '" + date + @"'  then  isnull(MinimumSalary,0) else 0 end,
+                //	MaximumSalary = case when MBA.EffectiveDate <= '" + date + @"'  then  isnull(MaximumSalary,0) else 0 end
+                //	,ED.EffectiveDate,c.Id cId
+                //	FROM [MST].[ManpowerBudgetAllowance] MBA
+                //    LEFT outer join [MST].[ManpowerBudget] AS mb on mb.Id = MBA.ManpowerBudgetId
+                //	LEFT OUTER JOIN [MST].[ManpowerBudgetDetail] AS MBD ON MBD.ManpowerBudgetId = MBA.ManpowerBudgetId
+                //                            LEFT outer join [ORG].[CompanyGroup] AS cg on cg.Id = mb.CompanyGroupId
+                //    LEFT outer join [ORG].[Company] AS c on c.Id = mb.CompanyId AND c.CompanyGroupId = cg.Id
+                //    LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = mb.EntityId
+                //                            LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = mb.PositionId
+                //                             " + join + @"
+                //	LEFT OUTER JOIN (
+                //	SELECT MAX(MBA.EffectiveDate) EffectiveDate,mB.Id  ManpowerBudgetId,c.Id from [MST].[ManpowerBudgetAllowance] MBA
+                //	  LEFT outer join [MST].[ManpowerBudget] AS mB on mB.Id = MBA.ManpowerBudgetId
+                //	LEFT OUTER JOIN [MST].[ManpowerBudgetDetail] AS MBD ON MBD.ManpowerBudgetId = MBA.ManpowerBudgetId
+                //                            LEFT outer join [ORG].[CompanyGroup] AS cg on cg.Id = mB.CompanyGroupId
+                //    LEFT outer join [ORG].[Company] AS c on c.Id = mB.CompanyId AND c.CompanyGroupId = cg.Id
+                //    LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = mB.EntityId
+                //                            LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = mB.PositionId
+                //                             " + join + @"
+                //	 WHERE  MBA.EffectiveDate=(SELECT DISTINCT TOP (1) EffectiveDate FROM [MST].[ManpowerBudgetAllowance] WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"') ORDER BY EffectiveDate DESC)
+                //	 GROUP BY mB.Id  ,c.Id
+                //	)  ED ON ED.ManpowerBudgetId = MBA.ManpowerBudgetId AND ED.EffectiveDate = MBA.EffectiveDate
+                //	 where
+                //	 ED.EffectiveDate IS NOT NULL AND cg.Id ='" + companyGroupId + @"' " + wc + @" " + dStatus + @"
+                //	 AND MBD.EffectiveDate = (SELECT DISTINCT TOP (1) EffectiveDate FROM [MST].[ManpowerBudgetDetail] WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"') ORDER BY EffectiveDate DESC)
+                //	) Sal on m.Id = Sal.ManpowerBudgetId and m.CompanyId = Sal.cId and m.IsDirect = Sal.IsDirect
+
+                //                         -------------------------3b--------------------------------------------------------
+                //                          LEFT OUTER JOIN
+                //                        (
+                //                        SELECT MBD.TotalNumber, ManpowerBudgetId,Cg.Id as CgId, C.Id as cid,PO.IsDirect   " + cListextIdR + @"
+
+                //                        FROM
+
+                //                        (SELECT TOP 1 WITH TIES TotalNumber,ManpowerBudgetId,EffectiveDate
+                //	FROM [MST].[ManpowerBudgetDetail]
+                //	WHERE CONVERT(DATE,EffectiveDate) <= CONVERT(DATE,'" + date + @"')
+                //	ORDER BY ROW_NUMBER() OVER(PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC)
+                //                         ) MBD
+
+                //                          LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  Mb.Id = MBD.ManpowerBudgetId
+
+                //                          LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+
+                //                          LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= c.Id
+                //                          LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+
+                //                          LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+
+                //		LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
+                //    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
+                //    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+
+                //                           " + join + @"
+
+                //                         WHERE CG.Id = '" + companyGroupId + @"' " + wc + @" " + dStatus + @" " + EmployeeCategory + @" AND TotalNumber > 0
+                //                         ) B
+                //                         ON m.id = b.ManpowerBudgetId and b.CgId = m.CompanyGroupId and B.cid = m.CompanyId and B.IsDirect = m.IsDirect   " + cListFinish + @"
+                //                         ) ede  GROUP BY CompanyId,UserName,UId,Sequence,IsDirect " + cListextF + @"" + cListextIdF + @" ORDER BY Sequence";
+
+                var sql = @"SELECT  CompanyGroupId,GroupName,CompanyId,UserName,UId,Sequence,Case when  ISNULL(IsDirect,0) = 0 then 'Indirect' else 'Direct' end AS  IsDirect, ISNULL(SUM(TotalNumber),0) ProposedManpowerBudget, ISNULL(SUM(TotalManpower),0) TotalManpower , sum(short) Short,sum(Excess) Excess
+                                ,ISNULL(SUM(TotalSalary),0) OnRoleSalaryC
+                                --,ISNULL((SUM(MaxSal)+SUM(MinSal))/2,0) ProposedSalaryC
                                 ,sum(BudgetedSalary) ProposedSalaryC
-                                " + shortExcess + @"
                                 FROM
-                                 (
-                                 SELECT m.Id
-                                 ,b.TotalNumber
-                                 ,m.CompanyId
-                                  " + cListextM + @"
-                                  " + cListextIdM + @"
-                                    
-                                   ,m.IsDirect
-                                  ,m.UId
-                                  ,m.UserName
-                                  ,m.Sequence
-                                  ,e.TotalSalary
-                                  ,e.TotalManpower
-                                    ,(ISNULL(Sal.MaximumSalary,0)) MaxSal
-								    ,(ISNULL(Sal.MinimumSalary,0)) MinSal
-                                  ,Short = CASE
-                                  WHEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) > 0
-                                  THEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0)
-                                  ELSE 0
-                                  END
-                                  ,Excess = CASE
-                                  WHEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0) > 0
-                                  THEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0)
-                                  ELSE 0 END
-                                ,((ISNULL(Sal.MaximumSalary,0)) + (ISNULL(Sal.MinimumSalary,0)) / 2 ) * b.TotalNumber BudgetedSalary
-                                  FROM
-                                  ----------------------1 bc-------------------------------c-------
-                                  (SELECT
-                                    MB.Code
-                                    ,MB.Id
-                                    ,MB.CompanyGroupId
-                                    ,c.Id AS CompanyId
-                                    ,c.UserName AS CName
-                                    ,PO.IsDirect
-
-                                    " + cListext + @"
-                                    " + cListextIdR + @"
-                                    " + cList + @" UserName
-                                    " + cListId + @" UId
-                                    " + cListSequence + @" Sequence
-
-                                    FROM [MST].[ManpowerBudget]  MB
-                                    LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-                                   LEFT OUTER JOIN [ORG].[Company] AS c on c.Id = MB.CompanyId AND c.CompanyGroupId = cg.Id
-                                    LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                    LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-
-									LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
-								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
-								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-
-                                    " + join + @"
-                                    WHERE Cg.Id = '" + companyGroupId + @"' " + dStatus + @"  " + wc + @" " + EmployeeCategory + @" AND MB.Active = 1
-                                    )  m
-                                -----------------------2e--------------------------------
-                                   LEFT OUTER JOIN
-                                   (SELECT COUNT(em.SystemID) TotalManpower,PO.IsDirect,BudgetCode,em.GroupID,C.Id AS cid   " + cListextId + @",sum(TotalSalary) TotalSalary
-                                   FROM [dbo].[EmployeeInformation]  em
-                                    LEFT outer join [MST].[ManpowerBudget] AS MB  on  MB.Id = em.BudgetCode
-                                      LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = em.GroupId
-                                  LEFT outer JOIN [ORG].[Company] AS C ON C.Id = em.CompanyId  AND c.CompanyGroupId = cg.Id
-                                  LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                  LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-
-									LEFT JOIN [HKP].Designation GDes ON GDes.Id = EM.GivenDesignationId
-								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.GivenDesignationId
-								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-
-                                     " + JoinEm + @"
-                                   WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM')
-
-                                    AND  em.GroupID  = '" + companyGroupId + @"' " + wcem + @" " + dStatus + @" " + EmployeeCategory + @"
-                                   GROUP BY BudgetCode,em.GroupID,C.Id,PO.IsDirect  " + cListEmpG + @"
-                                ) e on m.Id=e.BudgetCode and e.GroupID = m.CompanyGroupId and e.cid = m.CompanyId and m.IsDirect = e.IsDirect " + cListEmp + @"
-                               --------------------------------ManpowerBudgetWisealary-----------------------------------
-								LEFT OUTER JOIN
-								(
-
-								    SELECT MBA.ManpowerBudgetId,PO.IsDirect,
-									MinimumSalary = case when MBA.EffectiveDate <= '" + date + @"'  then  isnull(MinimumSalary,0) else 0 end,
-									MaximumSalary = case when MBA.EffectiveDate <= '" + date + @"'  then  isnull(MaximumSalary,0) else 0 end
-									,ED.EffectiveDate,c.Id cId
-									FROM [MST].[ManpowerBudgetAllowance] MBA
-								    LEFT outer join [MST].[ManpowerBudget] AS mb on mb.Id = MBA.ManpowerBudgetId
-									LEFT OUTER JOIN [MST].[ManpowerBudgetDetail] AS MBD ON MBD.ManpowerBudgetId = MBA.ManpowerBudgetId
-                                    LEFT outer join [ORG].[CompanyGroup] AS cg on cg.Id = mb.CompanyGroupId
-								    LEFT outer join [ORG].[Company] AS c on c.Id = mb.CompanyId AND c.CompanyGroupId = cg.Id
-								    LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = mb.EntityId
-                                    LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = mb.PositionId
-                                     " + join + @"
-									LEFT OUTER JOIN (
-									SELECT MAX(MBA.EffectiveDate) EffectiveDate,mB.Id  ManpowerBudgetId,c.Id from [MST].[ManpowerBudgetAllowance] MBA
-									  LEFT outer join [MST].[ManpowerBudget] AS mB on mB.Id = MBA.ManpowerBudgetId
-									LEFT OUTER JOIN [MST].[ManpowerBudgetDetail] AS MBD ON MBD.ManpowerBudgetId = MBA.ManpowerBudgetId
-                                    LEFT outer join [ORG].[CompanyGroup] AS cg on cg.Id = mB.CompanyGroupId
-								    LEFT outer join [ORG].[Company] AS c on c.Id = mB.CompanyId AND c.CompanyGroupId = cg.Id
-								    LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = mB.EntityId
-                                    LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = mB.PositionId
-                                     " + join + @"
-									 WHERE  MBA.EffectiveDate=(SELECT DISTINCT TOP (1) EffectiveDate FROM [MST].[ManpowerBudgetAllowance] WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"') ORDER BY EffectiveDate DESC)
-									 GROUP BY mB.Id  ,c.Id
-									)  ED ON ED.ManpowerBudgetId = MBA.ManpowerBudgetId AND ED.EffectiveDate = MBA.EffectiveDate
-									 where
-									 ED.EffectiveDate IS NOT NULL AND cg.Id ='" + companyGroupId + @"' " + wc + @" " + dStatus + @"
-									 AND MBD.EffectiveDate = (SELECT DISTINCT TOP (1) EffectiveDate FROM [MST].[ManpowerBudgetDetail] WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"') ORDER BY EffectiveDate DESC)
-									) Sal on m.Id = Sal.ManpowerBudgetId and m.CompanyId = Sal.cId and m.IsDirect = Sal.IsDirect
-
-                                 -------------------------3b--------------------------------------------------------
-                                  LEFT OUTER JOIN
                                 (
-                                SELECT MBD.TotalNumber, ManpowerBudgetId,Cg.Id as CgId, C.Id as cid,PO.IsDirect   " + cListextIdR + @"
-
-                                FROM
-
-                                (SELECT TOP 1 WITH TIES TotalNumber,ManpowerBudgetId,EffectiveDate
-									FROM [MST].[ManpowerBudgetDetail]
-									WHERE CONVERT(DATE,EffectiveDate) <= CONVERT(DATE,'" + date + @"')
-									ORDER BY ROW_NUMBER() OVER(PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC)
-                                 ) MBD
-
-                                  LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  Mb.Id = MBD.ManpowerBudgetId
-
-                                  LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-
-                                  LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= c.Id
-                                  LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-
-                                  LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-
-										LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
-								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
-								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-
-                                   " + join + @"
-
-                                 WHERE CG.Id = '" + companyGroupId + @"' " + wc + @" " + dStatus + @" " + EmployeeCategory + @" AND TotalNumber > 0
-                                 ) B
-                                 ON m.id = b.ManpowerBudgetId and b.CgId = m.CompanyGroupId and B.cid = m.CompanyId and B.IsDirect = m.IsDirect   " + cListFinish + @"
-                                 ) ede  GROUP BY CompanyId,UserName,UId,Sequence,IsDirect " + cListextF + @"" + cListextIdF + @" ORDER BY Sequence";
+                                	SELECT m.CgId CompanyGroupId, m.IsDirect,m.Id,IsNull(b.TotalNumber,0) TotalNumber,m.GroupName,m.CompanyId, IsNull(EmpInfo.TotalSalary,0) TotalSalary
+                                	,IsNull(EmpInfo.TotalManpower,0) TotalManpower,(ISNULL(Sal.MaximumSalary,0)) MaxSal,(ISNULL(Sal.MinimumSalary,0)) MinSal
+                                	,(ISNULL(Sal.MaximumSalary,0) + ISNULL(Sal.MinimumSalary,0)) / 2  AvgSal
+                                	,((ISNULL(Sal.MaximumSalary,0) + ISNULL(Sal.MinimumSalary,0)) / 2 ) * IsNull(b.TotalNumber,0) BudgetedSalary
+                                	, Short = CASE WHEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) > 0
+                                	THEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) ELSE 0 END
+                                	, Excess = CASE WHEN isNull(TotalManpower,0) - ISNULL(TotalNumber,0) > 0
+                                	THEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0) ELSE 0 END
+                                	" + cListextM + @" -- plant name and division name
+                                                                  " + cListextIdM + @" -- Plant Id & division Id
+                                            ,m.UId
+                                          ,m.UserName
+                                          ,m.Sequence
+                                								  
+                                	From
+                                	(
+                                	SELECT PO.IsDirect, MB.Code,MB.Id,Cg.Id as CgId,Cg.UserName as GroupName, c.Id as CompanyId, c.UserName as CName 
+                " + cListext + @"
+                                                                    " + cListextIdR + @"
+                                                                    " + cList + @" UserName
+                                                                    " + cListId + @" UId
+                                                                    " + cListSequence + @" Sequence
+                                	FROM [MST].[ManpowerBudget]  MB
+                                	LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+                                	LEFT OUTER JOIN [ORG].[Company] AS C ON C.Id = E.CompanyId
+                                	LEFT OUTER JOIN [ORG].[CompanyGroup] AS CG ON CG.Id = C.CompanyGroupId
+                                	LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+                                	LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
+                                								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
+                                								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                                	" + join + @"
+                                	WHERE CG.Id = '" + companyGroupId + @"' " + dStatus + @"  " + wc + @" " + EmployeeCategory + @"  AND MB.Active = 1
+                                	) M
+                                	Left Outer Join
+                                	(
+                                		SELECT BudgetCode,COUNT(SystemId) TotalManpower,SUM(TotalSalary) TotalSalary
+                                		FROM [dbo].[EmployeeInformation]  
+                                		WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND GroupID = '"+ companyGroupId + @"' 
+                                		group by BudgetCode
+                                	) EmpInfo on M.Id=EmpInfo.BudgetCode
+                                	Left Outer Join
+                                	(
+                                		Select MBA.ManpowerBudgetId,MBA.MinimumSalary,MBA.MaximumSalary,MBA.EffectiveDate from 
+                                		(
+                                			Select MAX(EffectiveDate) EffectiveDate,ManpowerBudgetId from
+                                			[MST].[ManpowerBudgetAllowance]
+                                			WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"')
+                                			GROUP BY ManpowerBudgetId
+                                		) x
+                                		Left Join MST.ManpowerBudgetAllowance MBA on MBA.Id=(Select Top 1 id from MST.ManpowerBudgetAllowance M where M.ManpowerBudgetId=x.ManpowerBudgetId and M.EffectiveDate=x.EffectiveDate order by MBA.EffectiveDate Desc)
+                                	) Sal on M.Id=Sal.ManpowerBudgetId
+                                	Left Outer Join
+                                	(
+                                		SELECT x.ManpowerBudgetId,x.TotalNumber,x.EffectiveDate from
+                                		(
+                                			Select rank() over (partition by ManpowerBudgetId order by  EffectiveDate DESC,Id) RNK, TotalNumber, ManpowerBudgetId, EffectiveDate
+                                			from [MST].[ManpowerBudgetDetail]
+                                			WHERE CONVERT(DATE,(EffectiveDate) )<= CONVERT(DATE,'" + date + @"')
+                                		) x
+                                		Where x.RNK=1
+                                	) B on M.Id=B.ManpowerBudgetId
+                                ) EDE GROUP BY GroupName,CompanyId,UserName,UId,Sequence,IsDirect,CompanyGroupId ORDER BY UserName";
 
                 DataTable dt = _sqlRepository.GetDataTable(sql);
                 DataTable dtTemp = dt.Clone();

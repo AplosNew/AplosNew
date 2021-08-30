@@ -10,37 +10,101 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.downloadgriddataPDFUrl = 'GridReports/DownloadPdf';
     $scope.getListUrl = $scope.path + 'getlist';
+    $scope.FilterList = [];
 
-    $scope.getPurcheseLcReport = function () {
-        try {
-            var file_src = $scope.path + 'GetPurchaseLCReport';
-            $rootScope.report(file_src);
+    $scope.searchCol = "";
+    $scope.searchVal = "";
 
-        } catch (e) {
+    $scope.LCsearchBy = "LCNo";
+    $scope.LCsearch = "";
+
+    $scope.NonLCFilterList = [
+        { 'name': 'PO No.', 'value': 'PONo' },
+        { 'name': 'PO Date', 'value': 'PODate' },
+        { 'name': 'Payment Mode', 'value': 'PaymentMode' },
+        { 'name': 'Vendor Ref', 'value': 'VendorRef' },
+        { 'name': 'Value', 'value': 'POAmount' },
+        { 'name': 'Currency', 'value': 'Currency' },
+        { 'name': 'Vendor', 'value': 'Vendor' },
+        { 'name': 'GRN Value', 'value': 'GRNTotalAmount' },
+    ];
+    $scope.LCFilterList =
+        [
+            /*{ 'name': 'Purchase LC Id', 'value': 'LCId' },*/
+            { 'name': 'LC No.', 'value': 'LCNo' },
+            { 'name': 'Opening Bank', 'value': 'OpeningBank' },
+            { 'name': 'Opening Date', 'value': 'OpeningDate' },
+            { 'name': 'Vendor', 'value': 'Vendor' },
+            { 'name': 'Value', 'value': 'Value' },
+            { 'name': 'Currency', 'value': 'Currency' },
+            { 'name': 'LCA No', 'value': 'LCANo' },
+            { 'name': 'LC Type', 'value': 'LCType' },
+            { 'name': 'Tenure', 'value': 'Tenure' },
+            { 'name': 'Benificiary Bank', 'value': 'BenificiaryBank' },
+            { 'name': 'PO Value', 'value': 'POValue' },
+            { 'name': 'Acceptance Value', 'value': 'AcceptanceValue' },
+            { 'name': 'GRN Value', 'value': 'GRNValue' },
+            { 'name': 'Is Closed', 'value': 'IsClosed' },
+            { 'name': 'Contract No', 'value': 'ContractNo' },
+            { 'name': 'Customer', 'value': 'Customer' },
+        ];
+
+
+
+    $scope.FilterList = Object.assign([], $scope.LCFilterList);
+
+
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+        $scope.FilterList = [];
+        if ($scope.tab == 1) {
+            $scope.LCsearchBy = "LCNo";
+            $scope.LCsearch = "";
+            $scope.FilterList = Object.assign([], $scope.LCFilterList);
         }
-    }
-
-
-    $scope.getPurcheseLcReport = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetPurchaseLCReport",
-                data: { Filter: $scope.FilterModel, FilterFields: getString() },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error == false) {
-                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                }
-                else {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-        } catch (e) {
+        else if ($scope.tab == 2) {
+            $scope.LCsearchBy = "PONo";
+            $scope.LCsearch = "";
+            $scope.FilterList = Object.assign([], $scope.NonLCFilterList);
         }
-    }
+      
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+
+
+    //$scope.getPurcheseLcReport = function () {
+    //    try {
+    //        var file_src = $scope.path + 'GetPurchaseLCReport';
+    //        $rootScope.report(file_src);
+
+    //    } catch (e) {
+    //    }
+    //}
+    //$scope.getPurcheseLcReport = function () {
+    //    try {
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.path + "GetPurchaseLCReport",
+    //            data: { Filter: $scope.FilterModel, FilterFields: getString() },
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error == false) {
+    //                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //            }
+    //            else {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //        }), function errorCallBack(response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        };
+    //    } catch (e) {
+    //    }
+    //}
 
     $scope.GridFilter = function (args) {
         if (args.requestType == "filtering") {
@@ -90,16 +154,78 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         ToDate: $filter('dateFiltering')(Date.now()),
         Type: 'Search'
     };
-    $scope.PurchaseLCList = [];  
+    $scope.PurchaseLCList = [];
     $scope.LoadLCGrid = function () {
+        if ($scope.isSet(2)) {
+            $scope.LoadNonTagLcGrid();
+        } else {
+
+            if ($scope.LCGrid.Type == 'SearchByDate') {
+                $scope.LCsearch = '';
+                $scope.PurchaseLCList = [];
+                if (new Date($scope.LCGrid.FromDate) > new Date($scope.LCGrid.ToDate))
+                    throw " From date can not be greater than To date.";
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetPurchaseLCSearchByDate",
+                    data: { 'fromDate': $scope.LCGrid.FromDate, 'toDate': $scope.LCGrid.ToDate },
+                    dataType: 'JSON'
+
+                }).then(function successCallback(response) {
+
+                    if (response.data.Error == false) {
+                        for (var i = 0; i < response.data.DATA.length; i++) {
+                            response.data.DATA[i].OpeningDate = new Date(response.data.DATA[i].OpeningDate);
+                        }
+                        $scope.PurchaseLCList = [];
+                        $scope.PurchaseLCList = response.data.DATA;
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                }),
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+            }
+            else {
+                $scope.LCGrid.FromDate = '';
+                $scope.LCGrid.ToDate = '';
+                $scope.PurchaseLCList = [];
+                try {
+                    if ($scope.LCsearch == '')
+                        throw "Please insert search value.";
+                    $http({
+                        method: 'POST',
+                        url: $scope.path + "GetList",
+                        data: { 'column': $scope.LCsearchBy, 'value': $scope.LCsearch },
+                        dataType: 'JSON'
+
+                    }).then(function successCallback(response) {
+                        $scope.PurchaseLCList = [];
+                        $scope.PurchaseLCList = response.data;
+                    });
+                }
+                catch (e) {
+                    ShowResult(e, 'failure');
+                }
+
+            }
+        }
+    }
+
+
+    $scope.NonTagLcList = [];
+    $scope.LoadNonTagLcGrid = function () {
+
         if ($scope.LCGrid.Type == 'SearchByDate') {
             $scope.LCsearch = '';
-            $scope.PurchaseLCList = [];
-            if (new Date($scope.LCGrid.FromDate) > new Date($scope.LCGrid.ToDate)) 
+            $scope.NonTagLcList = [];
+            if (new Date($scope.LCGrid.FromDate) > new Date($scope.LCGrid.ToDate))
                 throw " From date can not be greater than To date.";
             $http({
                 method: 'POST',
-                url: $scope.path + "GetPurchaseLCSearchByDate",
+                url: $scope.path + "GetNonTagLCSearchByDate",
                 data: { 'fromDate': $scope.LCGrid.FromDate, 'toDate': $scope.LCGrid.ToDate },
                 dataType: 'JSON'
 
@@ -109,8 +235,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
                     for (var i = 0; i < response.data.DATA.length; i++) {
                         response.data.DATA[i].OpeningDate = new Date(response.data.DATA[i].OpeningDate);
                     }
-                    $scope.PurchaseLCList = [];
-                    $scope.PurchaseLCList = response.data.DATA;
+                    $scope.NonTagLcList = [];
+                    $scope.NonTagLcList = response.data.DATA;
                 }
                 else {
                     ShowResult(response.data.Message, 'failure');
@@ -123,19 +249,19 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         else {
             $scope.LCGrid.FromDate = '';
             $scope.LCGrid.ToDate = '';
-            $scope.PurchaseLCList = [];
+            $scope.NonTagLcList = [];
             try {
                 if ($scope.LCsearch == '')
                     throw "Please insert search value.";
                 $http({
                     method: 'POST',
-                    url: $scope.path + "GetList",
+                    url: $scope.path + "GetNonTagLcSearchList",
                     data: { 'column': $scope.LCsearchBy, 'value': $scope.LCsearch },
                     dataType: 'JSON'
 
                 }).then(function successCallback(response) {
-                    $scope.PurchaseLCList = [];
-                    $scope.PurchaseLCList = response.data;
+                    $scope.NonTagLcList = [];
+                    $scope.NonTagLcList = response.data;
                 });
             }
             catch (e) {
@@ -145,9 +271,46 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         }
     }
 
-    $scope.PurchaseLCPOList = [];
+
+
+    $scope.PurchaseLCMaterialPOList = [];
     $scope.SelectedLCRow = {};
-    $scope.LoadPOList = function (LCData) {
+    $scope.LoadMaterialPOList = function (MaterialPOData) {
+        $scope.SelectedLCRow = MaterialPOData;
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPurchaseLCPOList",
+            data: { 'PurchaseLCId': MaterialPOData.LCId },
+            dataType: 'JSON'
+        })
+
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.PurchaseLCMaterialPOList = response.data.PODATA;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        $rootScope.openPopupAngular('MaterialPOPopup');
+    }
+    $scope.summaryMaterialPO = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalValue", dataMember: "TotalValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNAmount", dataMember: "GRNAmount", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "setOffValue", dataMember: "setOffValue", format: "{0:N2}" }],
+        showCaptionSummary: true
+
+    }];
+
+    $scope.PurchaseLCServicePOList = [];
+    $scope.SelectedLCRow = {};
+    $scope.LoadServicePOList = function (LCData) {
         $scope.SelectedLCRow = LCData;
         $http({
             method: 'POST',
@@ -157,7 +320,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         })
 
             .then(function successCallback(response) {
-                if (response.data.Error == false) {                   
+                if (response.data.Error == false) {
                     $scope.PurchaseLCPOList = response.data.PODATA;
                 }
                 else {
@@ -170,7 +333,43 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
         $rootScope.openPopupAngular('POPopup');
     }
-    $scope.summaryPO = [{
+    $scope.summaryServicePO = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalValue", dataMember: "TotalValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNAmount", dataMember: "GRNAmount", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "setOffValue", dataMember: "setOffValue", format: "{0:N2}" }],
+        showCaptionSummary: true
+
+    }];
+
+
+    $scope.PurchaseLCJWPOList = [];
+    $scope.SelectedLCRow = {};
+    $scope.LoadJWPOList = function (LCData) {
+        $scope.SelectedLCRow = LCData;
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPurchaseLCPOList",
+            data: { 'PurchaseLCId': LCData.LCId },
+            dataType: 'JSON'
+        })
+
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.PurchaseLCPOList = response.data.PODATA;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        $rootScope.openPopupAngular('POPopup');
+    }
+    $scope.summaryJWPO = [{
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalValue", dataMember: "TotalValue", format: "{0:N2}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
@@ -183,7 +382,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.PurchaseLCPOBreakDownList = [];
     $scope.LoadPOBreakDownList = function (POBreakDownData) {
-        $scope.SelectedLCRow = POBreakDownData;
+       // $scope.SelectedLCRow = POBreakDownData;
         $http({
             method: 'POST',
             url: $scope.path + "POBreakDownDataList",
@@ -208,7 +407,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
     $scope.sumPO = [{
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GRNValue", dataMember: "GRNValue", format: "{0:N2}" }
-            ],
+        ],
         showCaptionSummary: true
 
     }];
@@ -247,7 +446,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.PurchaseLCGRNBreakDownList = [];
     $scope.LoadGRNBreakDownList = function (GRNBreakDownData) {
-        $scope.SelectedLCRow = GRNBreakDownData;
+        //$scope.SelectedLCRow = GRNBreakDownData;
         $http({
             method: 'POST',
             url: $scope.path + "GRNBreakDownDataList",
@@ -303,7 +502,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }
         $rootScope.openPopupAngular('ACPopup');
     }
-    $scope.summaryAC= [{
+    $scope.summaryAC = [{
         title: "Total :", summaryColumns: [
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOffValue", dataMember: "SetOffValue", format: "{0:N2}" }],
@@ -372,8 +571,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
     }
     $scope.summarySetoff = [{
         title: "Total :", summaryColumns: [
-                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
-           ],
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
+        ],
         showCaptionSummary: true
 
     }];
@@ -444,33 +643,55 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     }];
 
-    $scope.searchCol = "";
-    $scope.searchVal = "";
-    $scope.LCsearchBy = "LCNo";
-    $scope.LCsearch = "";
-    $scope.LCFilterList = [
-        /*{ 'name': 'Purchase LC Id', 'value': 'LCId' },*/
-        { 'name': 'LC No.', 'value': 'LCNo' },
-        { 'name': 'Opening Bank', 'value': 'OpeningBank' },
-        { 'name': 'Opening Date', 'value': 'OpeningDate' },
-        { 'name': 'Vendor', 'value': 'Vendor' },
-        { 'name': 'Value', 'value': 'Value' },
-        { 'name': 'Currency', 'value': 'Currency' },
-        { 'name': 'LCA No', 'value': 'LCANo' },
-        { 'name': 'LC Type', 'value': 'LCType' },
-        { 'name': 'Tenure', 'value': 'Tenure' },
-        { 'name': 'Benificiary Bank', 'value': 'BenificiaryBank' },
-        { 'name': 'PO Value', 'value': 'POValue' },
-        { 'name': 'Acceptance Value', 'value': 'AcceptanceValue' },
-        { 'name': 'GRN Value', 'value': 'GRNValue' },
-        { 'name': 'Is Closed', 'value': 'IsClosed' },
-        { 'name': 'Contract No', 'value': 'ContractNo' },
-        { 'name': 'Customer', 'value': 'Customer' },
-    ];
+
+    $scope.NonLcGRNList = [];
+    $scope.LoadNonLcGRNList = function (NonLCGRNData) {
+        $scope.SelectedLCRow = NonLCGRNData;
+        $http({
+            method: 'POST',
+            url: $scope.path + "NonLcGRNBreakDownDataList",
+            data: { 'POID': NonLCGRNData.PONo },
+            dataType: 'JSON'
+        })
+
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.NonLcGRNList = response.data.NonLCGRNData;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        $rootScope.openPopupAngular('NonLcGRNPopup');
+    }
+    $scope.summaryNONLcGRN = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
+        ],
+        showCaptionSummary: true
+
+    }];
+
+    $scope.today = $filter('dateFiltering')(Date.now());
+    $scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
+        try {
+            if (new Date(e.data.ExpiryDate) < new Date()) {
+                e.row.css("background-color","#FF502A");
+                return;
+            }
+        } catch (e) {
+
+        }
+    }
 
     $scope.EmptyGrid = function () {
         $scope.PurchaseLCList = [];
     }
+
 }
 
 

@@ -721,6 +721,7 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
                         LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
                         LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                         LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
@@ -775,7 +776,7 @@ namespace Library.MaterialManagement.Inventory
                         
                           LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
 						LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
-						LEFT JOIN [HKP].[Party] Par ON Par.Id= Ctc.CustomerId
+						LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
                         LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
                         LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
 
@@ -784,11 +785,13 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
                         LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
                         LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                         LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
                         LEFT JOIN [ORG].Plant PL ON PL.Id=IR.PlantId
                         LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
+                        LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
                         LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
                         LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM [TRN].[PurchaseOrderDetail] AS A

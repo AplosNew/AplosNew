@@ -520,7 +520,8 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		IssueType: 'Revenue',
 		JWContractId: null,
 		ContractType: null,
-		MaterialStorageIdInventory: null
+		MaterialStorageIdInventory: null,
+		RefferenceNo: null
 
 	};
 	$scope.IssueTransformation = Object.assign({}, $scope.IssueTransformationModelTemp);
@@ -1633,6 +1634,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 					ShowResult(response.data.Message, 'failure');
 				else {
 					ShowResult(response.data.Message, 'success');
+					$scope.getdataInventoryIssue();
 					//$scope.Clear();
 					// $scope.getData();
 					//$scope.productNew.Id = response.data.inventoryIssue.Id;
@@ -1689,22 +1691,22 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	//};
 
-	//$scope.ConfirmPrintTab = function (p) {
-	//	try {
-	//		var x = "#" + p;
-	//		var gridObj = $(x).data("ejGrid");
-	//		var data = gridObj.getSelectedRecords()[0];
+	$scope.ConfirmIssueReportPrint = function (data) {
+		try {
+			//var x = "#" + p;
+			//var gridObj = $(x).data("ejGrid");
+			//var data = gridObj.getSelectedRecords()[0];
 
-	//		$scope.PrintTabId = data.JWContractId;
-	//		$scope.IssueId = data.Id;
-	//		var reportFormat = "Excel";
-	//		window.open('JobWork/JobWorkIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
-	//		//   $scope.getData();
+			$scope.PrintTabId = data.JWContractId;
+			$scope.IssueId = data.Id;
+			var reportFormat = "Excel";
+			window.open('JobWork/JobWorkIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+			//   $scope.getData();
 
-	//	} catch (e) {
+		} catch (e) {
 
-	//	}
-	//};
+		}
+	};
 
 	// Transformation Stock Wise Status
 
