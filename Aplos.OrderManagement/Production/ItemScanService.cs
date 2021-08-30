@@ -313,6 +313,11 @@ namespace Library.Service.EmployeeServices
                                 drx["Shade"] = dr["Shade"].ToString();
                                 drx["AddedBy"] = dr["AddedBy"].ToString();
                                 drx["AddedDate"] = dr["AddedDate"].ToString();
+                                string BookingDate= bplib.clsWebLib.RetValidLen(dr["BookedDate"]).ToString();
+                                if (BookingDate != "")
+                                {
+                                    drx["BookedDate"] = BookingDate;
+                                }
                                 drx["ProductCode"] = dr["ProductCode"].ToString();
                                 drx["POId"] = dr["POId"].ToString();
                                 drx["LotNo"] = dr["LotNo"].ToString();
@@ -498,7 +503,7 @@ namespace Library.Service.EmployeeServices
 
                 string date= DateTime.Now.ToString();
                
-                var sql = @"Update dbo.ItemScanChild Set UpdatedDate=GetDate(),UpdatedBy='"+items[0].UpdatedBy+ "' ,PackingId ='" + items[0].PackingId+"',Booked=1 " +
+                var sql = @"Update dbo.ItemScanChild Set BookedDate=GetDate(),UpdatedBy='" + items[0].UpdatedBy+ "' ,PackingId ='" + items[0].PackingId+"',Booked=1 " +
                         "where RefNo IN("+RefNo+@") and Booked=0 AND IsDespatch=0";
                 
                 ConnectionManager.DAL.ConManager objCone = null;
