@@ -34,7 +34,9 @@ function MaterialGroupGLController(cboService, commonMessage, $scope, $rootScope
         DownPaymentBudgetMasterId: null,
         DownPaymentActivityId: null,
         ClearingAccountBudgetMasterId: null,
+        InventoryInTransitBudgetMasterId: null,
         ClearingAccountActivityId: null,
+        InventoryInTransitActivityId: null,
         InventoryGLId: null,
         InventoryBudgetMasterId: null,
         InventoryActivity: null,
@@ -1415,11 +1417,20 @@ function MaterialGroupGLController(cboService, commonMessage, $scope, $rootScope
                 if (!baseService.isUndefinedOrNull($scope.ClearingAccountGLId)) {
                     item.ClearingAccountGLId = $scope.ClearingAccountGLId;
                 }
+                if (!baseService.isUndefinedOrNull($scope.InventoryInTransitGLId)) {
+                    item.InventoryInTransitGLId = $scope.InventoryInTransitGLId;
+                }
                 if (!baseService.isUndefinedOrNull($scope.materialGroupGL.ClearingAccountBudgetMasterId)) {
                     item.ClearingAccountBudgetMasterId = $scope.materialGroupGL.ClearingAccountBudgetMasterId;
                 }
+                if (!baseService.isUndefinedOrNull($scope.materialGroupGL.InventoryInTransitBudgetMasterId)) {
+                    item.InventoryInTransitBudgetMasterId = $scope.materialGroupGL.InventoryInTransitBudgetMasterId;
+                }
                 if (!baseService.isUndefinedOrNull($scope.materialGroupGL.ClearingAccountActivityId)) {
                     item.ClearingAccountActivityId = $scope.materialGroupGL.ClearingAccountActivityId;
+                }
+                if (!baseService.isUndefinedOrNull($scope.materialGroupGL.InventoryInTransitActivityId)) {
+                    item.InventoryInTransitActivityId = $scope.materialGroupGL.InventoryInTransitActivityId;
                 }
                 if (!baseService.isUndefinedOrNull($scope.InventoryGLId)) {
                     item.InventoryGLId = $scope.InventoryGLId;
@@ -1803,5 +1814,80 @@ function MaterialGroupGLController(cboService, commonMessage, $scope, $rootScope
           //  $("#headchk").ejCheckBox({ "change": headCheckChangeemployee });
         }
     }
+
+    //#region Inventory In Transit
+    $scope.InventoryInTransitList = [];
+    $scope.InventoryInTransitInfo = null;
+    $scope.InventoryInTransitGLId = null;
+    $scope.clearingInventoryInTransitParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'GLGeneralInfoCode',
+        searchBy: "GLGeneralInfoName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.searchInventoryInTransitList = [
+
+        {
+            'name': 'Account Group',
+            'value': 'AccountGroupName'
+        },
+        {
+            'name': 'GL',
+            'value': 'GLGeneralInfoName'
+        }
+    ];
+    $scope.GetInventoryInTransitList = function () {
+        if ($scope.materialGroupGL.COAId === null) {
+            return ShowResult("Select COA first", 'failure');
+        }
+        $scope.GLUrl1 = 'accounts/glitem/GetClearingAccountGL?coaId=' + $scope.materialGroupGL.COAId;
+        $scope.GetInventoryInTransitListData = function (pageno) {
+            baseService.paginationBase($scope.GLUrl1, pageno, $scope.clearingInventoryInTransitParameters)
+                .then(function (data) {
+                    $scope.InventoryInTransitList = data.Rows;
+                    $scope.clearingInventoryInTransitParameters.total_count = data.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#InventoryInTransitGLListPopUp')).modal('show');
+        $scope.modalShow = true;
+        $scope.GetInventoryInTransitListData();
+    };
+    $scope.closeInventoryInTransitListPopUpSelected = function () {
+        if ($scope.rowSelected !== null) {
+            angular.element(document.querySelector('#InventoryInTransitGLListPopUp')).modal('hide');
+        }
+    };
+    $scope.setInventoryInTransitSelected = function (x) {
+        $scope.rowSelected = x.GLGeneralInfoCode;
+        $scope.AssetGLSelectedData = x;
+        $scope.InventoryInTransitInfo = x.GLGeneralInfoName;
+        $scope.InventoryInTransitGLId = x.GLGeneralInfoId;
+        getInventoryInTransitBudget();
+    };
+    $scope.refreshInventoryInTransit = function () {
+        $scope.InventoryInTransitInfo = null;
+        $scope.InventoryInTransitGLId = null;
+    }
+    $scope.InventoryInTransitActivityList = [];
+    $scope.getInventoryInTransitActivity = function () {
+        cboService.getBudgetMasterActivityCbo($scope.materialGroupGL.InventoryInTransitBudgetMasterId, function (result) {
+            $scope.InventoryInTransitActivityList = result;
+        });
+    }
+    $scope.InventoryInTransitBudgetList = [];
+    function getInventoryInTransitBudget() {
+        cboService.getBudgetMasterCboByCOAAndGLId($scope.materialGroupGL.COAId, $scope.InventoryInTransitGLId, function (result) {
+            $scope.InventoryInTransitBudgetList = result;
+        });
+    }
+    //#endregion
 
 }

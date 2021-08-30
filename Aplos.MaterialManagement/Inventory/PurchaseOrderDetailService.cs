@@ -2592,7 +2592,9 @@ namespace Library.MaterialManagement.Inventory
 								ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId,
 								AcceptanceRcvQty = 0,
 								AcceptanceRcvStatusQty = false,
-								RefferenceNo = refferenceNo//itemDetail.RefferenceNo
+								RefferenceNo = refferenceNo,//itemDetail.RefferenceNo
+								Tolerance=itemDetail.Tolerance
+
 
 
 							};
@@ -3044,5 +3046,135 @@ namespace Library.MaterialManagement.Inventory
 
 		#endregion
 
+		#region PO Parameter
+		public void DeletePOMaterial(string receiveDetailId, string OrderSpecific)
+		{
+			var flag = false;
+			if (OrderSpecific == "No")
+			{
+				try
+				{
+					var isNonCreditable = _receiveDetailRepository.SqlQuery<bool>(@"SELECT A.IsNonCreditable FROM [TRN].[PurchaseOrder] AS A JOIN [TRN].[PurchaseOrderDetail] AS B ON B.InventoryReceiveId=A.Id WHERE B.Id='" + receiveDetailId + "'").First();
+					var data = Find(receiveDetailId);
+					if (data.IsNotNull())
+					{
+						_unitOfWork.BeginTransaction();
+						flag = true;
+
+						_inventoryReceiveService.ExecuteSqlCommand(@"INSERT INTO [TRN].[PurchaseOrderDetailBackUp] SELECT * FROM [TRN].[PurchaseOrderDetail] WHERE Id='"+ receiveDetailId + "';");
+						_inventoryMaterialMasterService.UpdateFromReceive(data.InventoryMaterialId, receiveDetailId);
+						var taxCategoryList = _receiveTaxRepository.Query(t => t.InventoryReceiveDetailId == receiveDetailId).Select().ToList();
+						if (taxCategoryList.Count > 0)
+						{
+							foreach (var item in taxCategoryList)
+							{
+								item.ModelState = ModelState.Deleted;
+								_receiveTaxRepository.Delete(item);
+								_unitOfWork.SaveChanges();
+							}
+						}
+						var ratio = _inventoryReceiveService.GetChargesRatio(data.InventoryReceiveId, data.Id, 0, null, 0, isNonCreditable);
+						UpdateInventoryDetail(data, ratio, 1, isNonCreditable);
+						var res = _inventoryReceiveRepository.SqlQuery<int>(@"Select POId=Case when IR.POId IS NULL then 0 else 1 end from [TRN].PurchaseOrder PO Left JOIN [TRN].[InventoryReceive]  IR On IR.POId=PO.Id where PO.Id= '" + data.InventoryReceiveId + "'").FirstOrDefault();
+						if (res == 1)
+						{
+							throw new CustomException("Already Received In PO");
+
+						}
+						base.DeleteGraph(data);
+						_unitOfWork.SaveChanges();
+						flag = false;
+						_unitOfWork.Commit();
+					}
+					else
+						throw new CustomException("Data not found");
+				}
+				catch (CustomException)
+				{
+					throw;
+				}
+				catch (Exception ex)
+				{
+					throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+				}
+				finally
+				{
+					if (flag)
+					{
+						_unitOfWork.Rollback();
+					}
+				}
+			}
+			else
+			{
+				try
+				{
+					var isNonCreditable = _receiveDetailRepository.SqlQuery<bool>(@"SELECT A.IsNonCreditable FROM [TRN].[PurchaseOrder] AS A JOIN [TRN].[PurchaseOrderDetail] AS B ON B.InventoryReceiveId=A.Id WHERE B.Id='" + receiveDetailId + "'").First();
+					var data = Find(receiveDetailId);
+					if (data.IsNotNull())
+					{
+						_unitOfWork.BeginTransaction();
+						flag = true;
+						_inventoryReceiveService.ExecuteSqlCommand(@"INSERT INTO [TRN].[PurchaseOrderDetailBackUp] SELECT * FROM [TRN].[PurchaseOrderDetail] WHERE Id='" + receiveDetailId + "';");
+						_inventoryMaterialMasterService.UpdateFromReceive(data.InventoryMaterialId, receiveDetailId);
+						var taxCategoryList = _receiveTaxRepository.Query(t => t.InventoryReceiveDetailId == receiveDetailId).Select().ToList();
+						if (taxCategoryList.Count > 0)
+						{
+							foreach (var item in taxCategoryList)
+							{
+								item.ModelState = ModelState.Deleted;
+								_receiveTaxRepository.Delete(item);
+								_unitOfWork.SaveChanges();
+							}
+						}
+						var ratio = _inventoryReceiveService.GetChargesRatio(data.InventoryReceiveId, data.Id, 0, null, 0, isNonCreditable);
+						UpdateInventoryDetail(data, ratio, 1, isNonCreditable);
+						var POBOQMAPList = _POBOQMapRepository.Query(t => t.PODetailId == receiveDetailId).Select().ToList();
+						if (POBOQMAPList.Count > 0)
+						{
+							foreach (var itemPOBOQMap in POBOQMAPList)
+							{
+								itemPOBOQMap.ModelState = ModelState.Deleted;
+								_POBOQMapRepository.Delete(itemPOBOQMap);
+								_unitOfWork.SaveChanges();
+							}
+						}
+						var res = _inventoryReceiveRepository.SqlQuery<int>(@"Select POId=Case when IR.POId IS NULL then 0 else 1 end from [TRN].PurchaseOrder PO Left JOIN [TRN].[InventoryReceive]  IR On IR.POId=PO.Id where PO.Id= '" + data.InventoryReceiveId + "'").FirstOrDefault();
+						if (res == 1)
+						{
+							throw new CustomException("Already Received In PO");
+
+						}
+						base.DeleteGraph(data);
+						_unitOfWork.SaveChanges();
+						flag = false;
+						_unitOfWork.Commit();
+					}
+					else
+						throw new CustomException("Data not found");
+				}
+				catch (CustomException)
+				{
+					throw;
+				}
+				catch (Exception ex)
+				{
+					throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+				}
+				finally
+				{
+					if (flag)
+					{
+						_unitOfWork.Rollback();
+					}
+				}
+			}
+
+		}
+		#endregion
 	}
 }
