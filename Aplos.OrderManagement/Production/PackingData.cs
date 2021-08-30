@@ -123,7 +123,7 @@ namespace Library.OrderManagement.Production
 
                             if (Cartons[j]["LotNo"].ToString() == jj["LotNo"].ToString() && Cartons[j]["ProductCode"].ToString() == jj["ProductCode"].ToString() && Cartons[j]["PO"].ToString() == jj["PONo"].ToString())
                             {
-                                var sqls = @"Update dbo.ItemScanChild Set PackingId = '" + jj["Id"].ToString() + "' , UpdatedBy = '" + identity.Name + "' , Booked = 1  where RefNo IN(" + Cartons[j]["RefNo"] + @")";
+                                var sqls = @"Update dbo.ItemScanChild Set PackingId = '" + jj["Id"].ToString() + "' , UpdatedBy = '" + identity.Name + "' ,BookedDate = GETDATE(), Booked = 1  where RefNo IN(" + Cartons[j]["RefNo"] + @")";
 
                                 ConnectionManager.DAL.ConManager objCone = null;
                                 objCone = new ConnectionManager.DAL.ConManager("1");

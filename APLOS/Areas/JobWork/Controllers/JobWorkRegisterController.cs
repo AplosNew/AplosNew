@@ -162,8 +162,6 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColJWItemType = COL;
             COL++;
 
-          
-
             report.SetHeaderText(ref sheet, ROW, COL, "Vendor Doc. RefNo", 25, ExcelHAlign.HAlignLeft);
             int ColVendorDocRefNo = COL;
             COL++;
@@ -180,6 +178,10 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColContractNo = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "UD No", 15, ExcelHAlign.HAlignLeft);
+            int ColUDNo = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Customer Name", 15, ExcelHAlign.HAlignLeft);
             int ColCustomerName = COL;
             COL++;
@@ -190,6 +192,14 @@ namespace Aplos.Areas.JobWork.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Master LC Ref No", 25, ExcelHAlign.HAlignLeft);
             int ColLCRef = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Purchase LC No", 15, ExcelHAlign.HAlignLeft);
+            int ColPurchaseLCNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Opening Bank", 25, ExcelHAlign.HAlignLeft);
+            int ColOpeningBank = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 12, ExcelHAlign.HAlignLeft);
@@ -375,6 +385,19 @@ namespace Aplos.Areas.JobWork.Controllers
                         sheet[BPRow, ColRatePerUnit].Text = dataChild.DefaultView[CH]["Party"].ToString();
                         sheet[BPRow, ColGSTIN].Text = dataChild.DefaultView[CH]["GSTIN"].ToString();
                         sheet[BPRow, ColTotalValue].Text = dataChild.DefaultView[CH]["ContractCloseDate"].ToString();
+
+                        sheet[ROW, ColVendorDocRefNo].Text = dataChild.Rows[CH]["DocRefNo"].ToString();
+                        sheet[ROW, ColDocuDate].Text = dataChild.Rows[CH]["DocuDate"].ToString();
+                        sheet[ROW, ColPOOrderSpecific].Text = dataChild.Rows[CH]["POOrderSpecific"].ToString();
+                        sheet[ROW, ColContractNo].Text = dataChild.Rows[CH]["ContractNo"].ToString();
+                        sheet[ROW, ColCustomerName].Text = dataChild.Rows[CH]["CustomerName"].ToString();
+                        sheet[ROW, ColBuyer].Text = dataChild.Rows[CH]["Buyer"].ToString();
+                        sheet[ROW, ColLCRef].Text = dataChild.Rows[CH]["LCRef"].ToString();
+
+                        sheet[ROW, ColUDNo].Text = dataChild.Rows[CH]["UDNo"].ToString();
+                        sheet[ROW, ColPurchaseLCNo].Text = dataChild.Rows[CH]["PurchaseLCNo"].ToString();
+                        sheet[ROW, ColOpeningBank].Text = dataChild.Rows[CH]["OpeningBank"].ToString();
+
                         BPRow++;
                      //   string x = i;
                     }
@@ -407,6 +430,10 @@ namespace Aplos.Areas.JobWork.Controllers
                 sheet[ROW, ColCustomerName].Text = data.Rows[i]["CustomerName"].ToString();
                 sheet[ROW, ColBuyer].Text = data.Rows[i]["Buyer"].ToString();
                 sheet[ROW, ColLCRef].Text = data.Rows[i]["LCRef"].ToString();
+
+                sheet[ROW, ColUDNo].Text = data.Rows[i]["UDNo"].ToString();
+                sheet[ROW, ColPurchaseLCNo].Text = data.Rows[i]["PurchaseLCNo"].ToString();
+                sheet[ROW, ColOpeningBank].Text = data.Rows[i]["OpeningBank"].ToString();
 
                 sheet[ROW, ColTotalReceiptQty].Text = data.Rows[i]["PartyCode"].ToString();
 
@@ -492,6 +519,19 @@ namespace Aplos.Areas.JobWork.Controllers
                 sheet[BPRow, ColRatePerUnit].Text = dataChild.DefaultView[CH]["Party"].ToString();
                 sheet[BPRow, ColGSTIN].Text = dataChild.DefaultView[CH]["GSTIN"].ToString();
                 sheet[BPRow, ColTotalValue].Text = dataChild.DefaultView[CH]["ContractCloseDate"].ToString();
+
+                sheet[ROW, ColVendorDocRefNo].Text = dataChild.Rows[CH]["DocRefNo"].ToString();
+                sheet[ROW, ColDocuDate].Text = dataChild.Rows[CH]["DocuDate"].ToString();
+                sheet[ROW, ColPOOrderSpecific].Text = dataChild.Rows[CH]["POOrderSpecific"].ToString();
+                sheet[ROW, ColContractNo].Text = dataChild.Rows[CH]["ContractNo"].ToString();
+                sheet[ROW, ColCustomerName].Text = dataChild.Rows[CH]["CustomerName"].ToString();
+                sheet[ROW, ColBuyer].Text = dataChild.Rows[CH]["Buyer"].ToString();
+                sheet[ROW, ColLCRef].Text = dataChild.Rows[CH]["LCRef"].ToString();
+
+                sheet[ROW, ColUDNo].Text = dataChild.Rows[CH]["UDNo"].ToString();
+                sheet[ROW, ColPurchaseLCNo].Text = dataChild.Rows[CH]["PurchaseLCNo"].ToString();
+                sheet[ROW, ColOpeningBank].Text = dataChild.Rows[CH]["OpeningBank"].ToString();
+
                 BPRow++;
             }
 
