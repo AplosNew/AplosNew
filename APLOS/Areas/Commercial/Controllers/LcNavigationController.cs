@@ -526,7 +526,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (  select * from (select
+            string sql = @"select top 100 * from (  select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
@@ -535,8 +535,10 @@ namespace Aplos.Areas.Commercial.Controllers
                         Cur.Code as Currency,
                         PL.LCANo,PL.Type as LCType,
                         PL.Tenure,
-                        PL.BenificiaryBank,                       
-                        po.POAmount as POValue
+                        PL.BenificiaryBank                 
+                        ,PO.MaterialPOAmount						
+						,PO.ServicePOAmount
+						,PO.JWPOAmount
 						,PO.POCount
                         ,PL.AddedDate
                         ,ac.AcceptanceValue
@@ -553,9 +555,9 @@ namespace Aplos.Areas.Commercial.Controllers
                         PL.Id as LCId
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
 						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
-						,variance=po.POAmount-grn.GRNTotalAmount
+						--,variance=po.POAmount-grn.GRNTotalAmount
 						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
-						,Source='MaterialPO'
+						
 					
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
@@ -566,12 +568,36 @@ namespace Aplos.Areas.Commercial.Controllers
                         left outer join HKP.Party as P on PL.VendorId = p.Id
 						left outer join MasterLC ML on ML.Id=con.MasterLCId
                         left join (
-						          select po.PurchaseLCId,sum(pod.TransactionAmount) AS POAmount,count(distinct po.Id) AS POCount from TRN.PurchaseOrder PO 
+						        select k.PurchaseLCId,sum(MaterialPOAmount) AS MaterialPOAmount,sum(JWPOAmount) AS JWPOAmount,sum(ServicePOAmount) AS ServicePOAmount
+								,count(distinct k.Id) AS POCount from (  
+								select po.PurchaseLCId,pod.TransactionAmount AS MaterialPOAmount,0 AS JWPOAmount,0 AS ServicePOAmount, po.Id
+								   from TRN.PurchaseOrder PO 
                                   inner JOin trn.PurchaseOrderDetail POD ON POD.InventoryReceiveId=po.Id
-                                      group by  po.PurchaseLCId) AS PO on PO.PurchaseLCId=pl.Id
+                                     
+									  union
+
+							    select po.PurchaseLCId,0 AS MaterialPOAmount,pod.TransactionAmount,0 AS ServicePOAmount, po.Id
+								 from [dbo].[JWTransformationPurchaseOrder]  PO 
+                                  inner JOin [dbo].[JobWorkTransformationContractChild] POD ON POD.JobWorkTransformationContractMasterId=po.Id
+
+								   union
+
+								   select po.PurchaseLCId,0 AS MaterialPOAmount,0 AS JWPOAmount,POD.Amount AS ServicePOAmount, po.Id
+								 from trn.ServicePOMaster PO 
+                                  inner JOin trn.ServicePODetail POD ON POD.ServicePOMasterId=po.Id
+
+                                     
+									  ) AS K group by k.PurchaseLCId
+									  ) AS PO on PO.PurchaseLCId=pl.Id
+
                         left join(
 									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from TRN.purchaseorder as po 
 									inner join TRN.InventoryReceiveDetail as g on g.POId=po.Id
+									group by po.PurchaseLCId
+									union 
+									
+									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[JWTransformationPurchaseOrder] as po 
+									inner join TRN.InventoryReceiveDetail as g on g.JWTCMId=po.Id
 									group by po.PurchaseLCId
                         ) as grn on grn.LCId = PL.Id 
                         left join (
@@ -582,9 +608,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 	left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount
 										from TRN.LoanAgainstAcceptance LAA 
-											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId
-											--LEFT JOIN TRN.Financing F ON F.LoanAgainstAcceptanceId=LAA.Id 
-											--LEFT JOIN TRN.FinancingDetailWriteOff FDW ON FDW.FinancingId=F.Id
+											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId											
 											group by PDA.PurchaseLCId												
 						) Loan on Loan.PurchaseLCId=PL.Id
 
@@ -609,70 +633,7 @@ namespace Aplos.Areas.Commercial.Controllers
 										)
 										as cus on cus.Id=PL.ContractId
                          where 
-						 pl.plantId='" + identity.PlantId+@"'
-
-	 UNION
-
-
-select
-                        PL.LCRef as LCNo,
-                        B.UserName as OpeningBank,
-                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
-                        P.UserName as  Vendor,
-                        PL.Amount as Value,
-                        Cur.Code as Currency,
-                        PL.LCANo,PL.Type as LCType,
-                        PL.Tenure,
-                        PL.BenificiaryBank,                       
-                        po.POAmount as POValue
-						,PO.POCount
-                        ,PL.AddedDate
-                        ,0 AcceptanceValue
-						,0 SetOff
-						,0 Loan
-						,0 LoanSetOff
-						,0 AcceptanceCount
-						,grn.GRNTotalAmount as GRNValue
-                        ,grn.GRNCount
-	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
-						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END,
-
-                        con.ContractNo,
-                        cus.Customer,
-                        PL.Id as LCId
-						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
-						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
-						,variance=po.POAmount-grn.GRNTotalAmount
-						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
-						,Source='OutSourcePO'
-                        from PurchaseLC as PL
-                        left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
-                        left outer join HKP.Bank as B on OBank.BankId=b.Id
-                        left outer join [Contract] as Con on PL.ContractId= Con.Id
-                        left outer join scs.Currency as Cur on PL.CurrencyId = Cur.Id
-                        left outer join MST.Destination as D on PL.CurrencyId=D.Id
-                        left outer join HKP.Party as P on PL.VendorId = p.Id
-						left outer join MasterLC ML on ML.Id=con.MasterLCId
-                        left join (
-						          select po.PurchaseLCId,sum(pod.TransactionAmount) AS POAmount,count(distinct po.Id) AS POCount from [dbo].[JWTransformationPurchaseOrder]  PO 
-                                  inner JOin [dbo].[JobWorkTransformationContractChild] POD ON POD.JobWorkTransformationContractMasterId=po.Id
-                                      group by  po.PurchaseLCId) AS PO on PO.PurchaseLCId=pl.Id
-                        left join(
-									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[JWTransformationPurchaseOrder] as po 
-									inner join TRN.InventoryReceiveDetail as g on g.JWTCMId=po.Id
-									group by po.PurchaseLCId
-                        ) as grn on grn.LCId = PL.Id 
-
-                        left outer join (
-										 select con.Id as Id, customer.UserName as Customer from Contract as con 
-										inner join HKP.Party as customer on con.CustomerId=customer.Id
-										)
-										as cus on cus.Id=PL.ContractId
-                        
-                         where 
-						 pl.plantId='"+identity.PlantId+@"'  ) LC
-						
-						) AS TEMP WHERE " + strkey + "order by TEMP.OpeningDate DESC ";
+						 pl.plantId='" + identity.PlantId+@"') AS TEMP WHERE " + strkey + "order by TEMP.OpeningDate DESC ";
             
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

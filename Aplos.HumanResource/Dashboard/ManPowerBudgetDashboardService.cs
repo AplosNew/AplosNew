@@ -310,7 +310,10 @@ namespace Library.HumanResource.Dashboard
                             	LEFT OUTER JOIN [ORG].[Company] AS C ON C.Id = E.CompanyId
                             	LEFT OUTER JOIN [ORG].[CompanyGroup] AS CG ON CG.Id = C.CompanyGroupId
                             	LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-                            	WHERE CG.Id = '"+ companyGroupId + @"'   AND MB.Active = 1
+                                LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
+								LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
+								LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                            	WHERE CG.Id = '" + companyGroupId + @"' " + dStatus + @" " + EmployeeCategory + @"   AND MB.Active = 1
                             	) M
                             	Left Outer Join
                             	(
@@ -759,7 +762,7 @@ namespace Library.HumanResource.Dashboard
                                 	(
                                 		SELECT BudgetCode,COUNT(SystemId) TotalManpower,SUM(TotalSalary) TotalSalary
                                 		FROM [dbo].[EmployeeInformation]  
-                                		WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND GroupID = 'CG20181' 
+                                		WHERE EmployeeStatus = 'Active' and ISNULL(BudgetCode,'')<>'' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND GroupID = '"+ companyGroupId + @"' 
                                 		group by BudgetCode
                                 	) EmpInfo on M.Id=EmpInfo.BudgetCode
                                 	Left Outer Join

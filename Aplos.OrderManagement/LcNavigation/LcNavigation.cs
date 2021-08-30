@@ -413,7 +413,6 @@ order by PO.PODate desc";
                              where po.purchaseLcId='" + PurchaseLCId+@"'
                             group by po.Id,pl.Id,c.Code,po.PODate,po.DocRefNo,grn.GRNTotalAmount,AC.AcceptanceValue,setOff.InvPayment";
         }
-
         private string POBreakDownSql(string POID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -463,7 +462,6 @@ from trn.InventoryReceive IR
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
 
