@@ -540,6 +540,7 @@
     <Compile Include="Areas\HumanResource\Controllers\AttendanceSourceConfigController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeBudgetUpdateController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\NewAttdnDashboardController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\NewHRDashboardController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTUpdateConfigurationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DayStatusMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionProcessController.cs" />
@@ -1786,6 +1787,7 @@
     <Content Include="Areas\HumanResource\Scripts\AttendanceSourceConfig.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeBudgetUpdateController.js" />
     <Content Include="Areas\HumanResource\Scripts\NewAttdnDashboardController.js" />
+    <Content Include="Areas\HumanResource\Scripts\NewHRDashboardController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTUpdateConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionProcessController.js" />
@@ -3657,6 +3659,7 @@
     <Content Include="Areas\HumanResource\Views\EmployeeBudgetUpdate\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\AttendanceDashboard\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttdnProcessLock\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\NewHRDashboard\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\GLItem\_InventoryInTransitGL.cshtml" />
     <Content Include="Areas\Accounts\Views\_PartyFiscalInvoiceAmountPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\TaxReport\GSTPayableReport.cshtml" />

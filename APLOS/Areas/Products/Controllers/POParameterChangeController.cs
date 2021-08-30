@@ -108,6 +108,56 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
+        public JsonResult UpdateDetail(PurchaseOrderDetail entity)
+        {
+            try
+            {
+                UpdateDetailData(entity);
+                return Json(new { entity, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void UpdateDetailData(PurchaseOrderDetail data)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                string sql = "SELECT * FROM [TRN].[PurchaseOrderDetail] WHERE Id='" + data.Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    dr.BeginEdit();
+                    
+                    dr["Tolerance"] = data.Tolerance;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                    dr.EndEdit();
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
         public JsonResult DetailDelete(string receiveDetailId, string OrderSpecific)
         {
             _inventoryDetailService.DeletePOMaterial(receiveDetailId, OrderSpecific);

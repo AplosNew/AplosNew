@@ -560,7 +560,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length">
+                                        <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length>0">
                                             <td>
                                                 <div class="checkbox-site">
                                                     <label>
@@ -673,7 +673,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length">
+                                        <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length>0">
                                             <td>
                                                 <div class="checkbox-site">
                                                     <label>
@@ -682,9 +682,9 @@
                                                     </label>
                                                 </div>
                                             </td>
-                                            <td>{{x.AcceptenceDetailId}}</td>
-                                            <td>{{x.POID}}</td>
-                                            <td>{{x.InventoryReceiveDetailId}}</td>
+                                            <td>{{x.Id}}</td>
+                                            <td>{{x.POId}}</td>
+                                            <td>{{x.PODetailId}}</td>
                                             <td>{{x.MaterialGroupMasterName}}</td>
                                             <td>{{x.UserName}}</td>
                                             <td>{{x.StandardName}}</td>
@@ -697,7 +697,8 @@
                                             <td class="text-right">{{x.TransactionRate}}</td>
                                             @*<td class="text-right"><input type="text" style="width:60px;" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>*@
                                             <td class="text-right">{{x.CurrentGRNQty}}</td>
-                                            <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" @*ng-change="calculateAmount(x,$index);"*@ width="200" ng-model="x.TransactionQty" ng-disabled="!x.Active"></td>
+                                            @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right"  width="200" ng-model="x.TransactionQty" ng-disabled="!x.Active"></td>*@
+                                        <td class="text-right">{{x.TransactionQty | number:2}}</td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
                                             <td class="text-right">{{x.TotalGRN}}</td>
                                             <td class="text-right">{{x.Otherqty}}</td>

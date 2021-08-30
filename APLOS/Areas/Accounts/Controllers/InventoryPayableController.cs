@@ -84,6 +84,7 @@ namespace Aplos.Areas.Accounts.Controllers
 									,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
 									,IR.GateEntryNo,IR.POId,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherNo ELSE V.VoucherNo END
+									,VoucherId = CASE WHEN IR.EmployeeId <>'' THEN VE.Id ELSE V.Id END
 									,VoucherTypeId = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherTypeId ELSE V.VoucherTypeId END
 									,PostingDate= CASE WHEN IR.EmployeeId <>'' THEN REPLACE(CONVERT(CHAR(11), VE.PostingDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') END
                                     ,MS.UserName MaterialStorageName, IR.IsFOC, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
@@ -216,6 +217,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        
         #endregion
         #region InventoryJobWorkReceived
 
@@ -270,7 +272,28 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             return Json(_accountsInventoryPayableService.GetJWPostedList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
-        
+
+        [HttpGet, Authorize]
+        public ActionResult GetOutSourcingVoucherReport(ReportFormat reportFormat, string voucherId)
+        {
+            AccountsInventoryPayableReportService _accountsInventoryPayableService = new AccountsInventoryPayableReportService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _accountsInventoryPayableService.GetOutSourcingVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
+
         #endregion
 
         #region Service Payable
