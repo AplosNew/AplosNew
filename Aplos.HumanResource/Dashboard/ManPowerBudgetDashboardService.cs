@@ -310,7 +310,10 @@ namespace Library.HumanResource.Dashboard
                             	LEFT OUTER JOIN [ORG].[Company] AS C ON C.Id = E.CompanyId
                             	LEFT OUTER JOIN [ORG].[CompanyGroup] AS CG ON CG.Id = C.CompanyGroupId
                             	LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-                            	WHERE CG.Id = '"+ companyGroupId + @"'   AND MB.Active = 1
+                                LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
+								LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = GDes.Id
+								LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                            	WHERE CG.Id = '" + companyGroupId + @"' " + dStatus + @" " + EmployeeCategory + @"   AND MB.Active = 1
                             	) M
                             	Left Outer Join
                             	(
