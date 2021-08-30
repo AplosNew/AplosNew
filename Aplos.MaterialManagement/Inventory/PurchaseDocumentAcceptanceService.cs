@@ -122,8 +122,11 @@ namespace Library.MaterialManagement.Inventory
                                             , P.UserName AS PartyName
                                             , IR.MaterialStorageId, IR.DocRefNo
                                             , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+                                            ,PD.TransactionAmount
                                             ,0 AS 'Active'
-                                            FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                                            FROM [TRN].[PurchaseOrder] AS IR 
+                                            JOIN (SELECT SUM(TransactionAmount) TransactionAmount,InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId) PD ON PD.InventoryReceiveId=IR.Id
+                                            JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                                             LEFT JOIN dbo.PurchaseLC PLC ON PLC.id= IR.PurchaseLCId
                                             LEFT JOIN [MST].[BankMaster] BM ON BM.Id=PLC.OpeningBankMasterId
                                            WHERE IR.PlantId='" + plantId + @"' 
@@ -136,8 +139,11 @@ namespace Library.MaterialManagement.Inventory
                                             , P.UserName AS PartyName
                                             , IR.MaterialStorageId, IR.DocRefNo
                                             , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+                                            ,PD.TransactionAmount
                                             ,0 AS 'Active'
-                                            FROM [TRN].[ServicePOMaster] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                                            FROM [TRN].[ServicePOMaster] AS IR 
+                                            JOIN (SELECT SUM(Amount) TransactionAmount,ServicePOMasterId FROM [TRN].[ServicePODetail] GROUP BY ServicePOMasterId) PD ON PD.ServicePOMasterId=IR.Id
+                                            JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                                             LEFT JOIN dbo.PurchaseLC PLC ON PLC.id= IR.PurchaseLCId
                                             LEFT JOIN [MST].[BankMaster] BM ON BM.Id=PLC.OpeningBankMasterId
                                            WHERE IR.PlantId='" + plantId + @"'
@@ -161,7 +167,7 @@ namespace Library.MaterialManagement.Inventory
                                 , P.UserName AS PartyName
                                 , IRD.POId,IRD.PODocRefNo, IR.DocRefNo
                                 , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                                ,IR.GateEntryNo,C.Code Currency,CONVERT(NUMERIC(10,2),IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount,0 AS Active
+                                ,IR.GateEntryNo,C.Code Currency,CONVERT(NUMERIC(10,2),IRD.TotalMaterialBooksCurrencyAmount) TransactionAmount,0 AS Active
                                 FROM [TRN].[InventoryReceive] AS IR 
                           JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                           JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId                        
