@@ -87,25 +87,44 @@
                 </div>
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Format<sup>*</sup></label>
+
+        @*<div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Report Size<sup>*</sup></label>
             <div class="col-sm-9 radio">
                 <label>
-                    <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                    <input type="radio" name="source" ng-model="report.ReportSize" value="ShortSize">
+                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span> Short
+                </label>
+                <label>
+                    <input type="radio" name="source" ng-model="report.ReportSize" value="LongSize">
+                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span> Long
+                </label>
+            </div>
+        </div>*@
+
+        <div class="form-group" show-errors @*ng-hide="report.ReportSize=='LongSize'"*@>
+            <label class="col-sm-3 control-label" >Format<sup>*</sup></label>
+            <div class="col-sm-9 radio">
+                <label>
+                    <input type="radio" name="babu" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
                     <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
                 </label>
                 <label>
-                    <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                    <input type="radio" name="babu" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
                     <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
                 </label>
             </div>
         </div>
     </div>
+
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+            <li><button ng-click="getReport();" @*ng-show="report.ReportSize=='ShortSize'"*@ class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Short Download</button></li>
+            <li><button ng-click="getReport('LongSizeReport');" @*ng-show="report.ReportSize=='LongSize'"*@ class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Long Download</button></li>
         </ul>
     </div>
+
+    @*ng-hide="showFinanceDB"*@
 </div>
 <div class="modal fade site-modal in" id="GLPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

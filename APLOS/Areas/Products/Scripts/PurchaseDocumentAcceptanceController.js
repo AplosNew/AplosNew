@@ -11,7 +11,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     $scope.deleteLineItemUrl = $scope.path + 'DeleteLineItem/';
 
     $scope.sreviceSaveUrl = $scope.path + 'servicechargescreate';
-    //$scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
     $scope.partyType = 'Vendor';
     $scope.isAdvance = false;
     $scope.currentDate = new Date(Date.now());

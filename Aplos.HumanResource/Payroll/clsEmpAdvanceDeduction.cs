@@ -19,7 +19,7 @@ namespace Library.HumanResource.Payroll
         {
             _sqlRepository = new SqlRepository();
         }
-        public void SaveAdvance(List<SalaryAdvance> data, string Year, string Month, List<SalaryHeadAD> ExtraSlrHd, string Advance, string Interest)
+        public void SaveAdvance(List<SalaryAdvance> data, string Year, string Month, List<SalaryHeadAD> ExtraSlrHd, string Advance, string Interest, List<SalaryAdvance> DataToBeDelete)
         {
             try
             {
@@ -34,6 +34,7 @@ namespace Library.HumanResource.Payroll
                 DataView dvMWESAChd = null;
 
                 DataSet dsEmpInfo = null;
+                DataSet dsSalaryLock = null;
                 DataTable dtEmpInfo = null;
                 DataView dvEmpInfo = null;
 
@@ -45,7 +46,7 @@ namespace Library.HumanResource.Payroll
                 int count = 0;
                 double total = 0;
                 double totalInterest = 0;
-                
+
                 DataSet dsChild;
                 string BPId = string.Empty;
                 DataRow drBp = null;
@@ -55,6 +56,7 @@ namespace Library.HumanResource.Payroll
                 con.OpenDataSetThroughAdapter(sql, out dsChild, false, "1");
 
                 string empids = string.Empty;
+                string deleteEmpId = string.Empty;
                 foreach (SalaryAdvance Item in data)
                 {
                     if (empids == "")
@@ -67,7 +69,21 @@ namespace Library.HumanResource.Payroll
                     }
 
                 }
+                if (DataToBeDelete != null)
+                {
+                    foreach (SalaryAdvance Item in DataToBeDelete)
+                    {
+                        if (deleteEmpId == "")
+                        {
+                            deleteEmpId = "'" + Item.EmployeeId + "'";
+                        }
+                        else
+                        {
+                            deleteEmpId += ",'" + Item.EmployeeId + "'";
+                        }
 
+                    }
+                }
                 string SalaryHeads = string.Empty;
                 foreach (SalaryHeadAD Item in ExtraSlrHd)
                 {
@@ -80,6 +96,17 @@ namespace Library.HumanResource.Payroll
                         SalaryHeads += ",'" + Interest + "'";
                     }
 
+                }
+                if (DataToBeDelete != null)
+                {
+                    DeletedEmplist(deleteEmpId, Convert.ToInt32(Year), Convert.ToInt32(Month), identity.PlantId, SalaryHeads);
+                }
+
+                SalaryLockCheck(empids, Convert.ToInt32(Year), Convert.ToInt32(Month), out dsSalaryLock);
+
+                while (dsSalaryLock.Tables[0].DefaultView.Count > 0)
+                {
+                    throw new Exception("Salary Locked..");
                 }
 
                 LoadExternalUploadFromExcelOnGrid(empids, SalaryHeads, Convert.ToInt32(Year), Convert.ToInt32(Month), out dsEmpInfo);
@@ -238,7 +265,7 @@ namespace Library.HumanResource.Payroll
                                         }
                                         if (item.SalaryHead == Advance)
                                         {
-                                            drMWESAChd["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(Advance, 50);                                            
+                                            drMWESAChd["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(Advance, 50);
                                         }
                                         else
                                         {
@@ -378,7 +405,7 @@ namespace Library.HumanResource.Payroll
 
                                     if (item.SalaryHead == Advance)
                                     {
-                                        drMWESAChd["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(Advance, 50);                                        
+                                        drMWESAChd["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(Advance, 50);
 
                                     }
                                     else
@@ -502,6 +529,26 @@ namespace Library.HumanResource.Payroll
             }
         }//End Function
 
+        public void SalaryLockCheck(string EmpId, int YearNo, int MonthNo, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"select * from SalaryLock where EmpSystemId in (" + EmpId + ") and MonthNo='" + MonthNo + "' and YearNo='" + YearNo + "' and IsLocked=1";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
         public void GetMthWiseExtSalAmtChild(string plantid, string empids, int YearNo, int MonthNo, string SalaryHeadId, out DataSet dsRef)
         {
             string strSQL;
@@ -524,7 +571,23 @@ namespace Library.HumanResource.Payroll
                 objCon = null;
             }
         }//End Function
+        public void DeletedEmplist(string EmpId, int YearNo, int MonthNo, string plantid, string SalaryHeadId)
+        {
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("Delete FROM MonthWiseExtraSalaryAmtChild WHERE SalaryHeadID in (" + SalaryHeadId + @") and MWESAMasterSystemID IN(SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid = '" + plantid + @"' and EmpInfoSystemID in (" + EmpId + @"))");
+                con.executeQuery("Delete FROM MonthWiseExtraSalaryAmtMaster WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and EmpInfoSystemID in (" + EmpId + @")");
+                con.executeQuery("Delete FROM [TRN].[EmployeeAdvanceDeduction] where YearNo= '" + YearNo + "' and MonthNo='" + MonthNo + "' and EmployeeId in (" + EmpId + ")");
 
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }//End Function
     }
 }
 

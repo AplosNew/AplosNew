@@ -521,12 +521,12 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            if (voucherVM.IsInvoice && voucherVM.EmployeeId == null && voucherVM.PaymentTermId == null)
-                throw new CustomException("Please select Payment Term");
-            if (voucherVM.IsInvoice && voucherVM.BaseOnDueDate == null)
-                throw new CustomException("Please inpute BaseOnDueDate Term");
-            if (voucherVM.IsInvoice && voucherVM.EmployeeId == null && voucherVM.BaseNoOfDays == 0 || voucherVM.IsInvoice && voucherVM.BaseNoOfDays < 0)
-                throw new CustomException("Please inpute BaseNoOfDays Term");
+            //if (voucherVM.IsInvoice && voucherVM.EmployeeId == null && voucherVM.PaymentTermId == null)
+            //    throw new CustomException("Please select Payment Term");
+            //if (voucherVM.IsInvoice && voucherVM.BaseOnDueDate == null)
+            //    throw new CustomException("Please inpute BaseOnDueDate Term");
+            //if (voucherVM.IsInvoice && voucherVM.EmployeeId == null && voucherVM.BaseNoOfDays == 0 || voucherVM.IsInvoice && voucherVM.BaseNoOfDays < 0)
+            //    throw new CustomException("Please inpute BaseNoOfDays Term");
 
             if (changeInInventoryList != null)
             {

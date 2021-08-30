@@ -282,6 +282,7 @@ function ServiceGroupGLController(cboService, commonMessage, $scope, $rootScope,
     };
 
     // #endregion
+
     // #region ******Service GL******
     $scope.assetTypeGLList = [];
     $scope.searchAssetTypeByList = [
@@ -1111,7 +1112,9 @@ function ServiceGroupGLController(cboService, commonMessage, $scope, $rootScope,
         $scope.DownPaymentGLInfo = null;
         $scope.DownPaymentGLGLId = null;
         $scope.ClearingAccGLInfo = null;
-        $scope.ClearingAccGLGLId = null;
+        $scope.ClearingAccountGLId = null;
+        $scope.ServiceGLId = null;
+        $scope.ServiceGLInfo = null;
         $scope.refreshServiceGL();
         $scope.refreshExpenseGL();
         $scope.refreshRevenueGL();
