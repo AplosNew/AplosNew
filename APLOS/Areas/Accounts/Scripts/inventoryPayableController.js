@@ -978,7 +978,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         }).then(function successCallback(response) {
             $scope.additionalTaxDetailList = response.data;
         });        $scope.getPaymentVoucherType();        angular.element(document.querySelector('#additionalTaxPopUp')).modal('show');
-    };    $scope.postAdditionalTax = function () {
+    };    $scope.postAdditionalTax = function () {
         if ($scope.additionalTaxVoucherTypeId == null)
             ShowResult('Please select VoucherType', 'failure', 'additionalTaxPopUp');
 
@@ -1049,4 +1049,33 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         }
 
     }
+
+    $scope.delete = function (invoiceId, voucherId,type) {
+        $http({
+            method: "POST",
+            url: 'accounts/Invoice/DeleteInventoryPayable',
+            data: {
+                "grnId": invoiceId, "voucherId": voucherId, "type":type
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.GRNId = null;
+                $scope.VoucherId = null;
+                $scope.Type = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.onClickDeletePopUp = function (x) {        var data = x;        $scope.GRNId = data.Id;        $scope.VoucherId = data.VoucherId;        $scope.Type = data.Type;        $scope.message_delete_confirmation = "Are you sure to Delete?";        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+    };
 }
