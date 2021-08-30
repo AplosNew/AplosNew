@@ -230,24 +230,18 @@ namespace Library.Service.Materials
 					                     ,F.ServiceActivityId
 					                     ,F.ServiceBudgetName
 					                     ,F.ServiceActivityName
-                                         ,F.ExpenseGLInfo
-                                         ,F.ExpenseGLId
-                                         ,F.ExpenseBudgetMasterId
-					                     ,F.ExpenseActivityId
-					                     ,F.ExpenseBudgetName
-					                     ,F.ExpenseActivityName
+                                         
                                             FROM HKP.ServiceGroup As MGM
                                             LEFT OUTER JOIN HKP.ServiceType As MT ON MT.Id = MGM.ServiceTypeId
                                             LEFT OUTER JOIN (select
         			MAD.Id,MAD.ServiceGroupId,
         			c.Id AS COAId,GLGI1.AccountCode
         			,MAD.DownPaymentGLId,MAD.ClearingAccountGLId
-                    ,MAD.ServiceGLId,MAD.ExpenseGLId
+                    ,MAD.ServiceGLId
         			,C.UserName
 					,GLGI1.AccountCode + ' - ' + GLGI1.UserName AS DownPaymentGLInfo
 					,GLGI2.AccountCode + ' - ' + GLGI2.UserName AS ClearingAccountGLInfo
 					,GLGI3.AccountCode + ' - ' + GLGI3.UserName AS ServiceGLInfo
-					,GLGI4.AccountCode + ' - ' + GLGI4.UserName AS ExpenseGLInfo
         			,MAD.DownPaymentBudgetMasterId
                     ,MAD.DownPaymentActivityId
 					,DPB.UserName AS DownPaymentBudgetName
@@ -258,18 +252,13 @@ namespace Library.Service.Materials
 					,CAA.UserName AS ClearingAccountActivityName
         			,MAD.ServiceBudgetMasterId
                     ,MAD.ServiceActivityId
-        			,MAD.ExpenseBudgetMasterId
-                    ,MAD.ExpenseActivityId
 					,IB.UserName AS ServiceBudgetName
 					,IA.UserName AS ServiceActivityName
-					,EB.UserName AS ExpenseBudgetName
-					,EA.UserName AS ExpenseActivityName
         			from HKP.COA c
         			LEFT OUTER JOIN HKP.ServiceGroupGL AS MAD ON MAD.COAId=c.Id
         			LEFT OUTER JOIN HKP.GLGeneralInfo AS GLGI1 ON GLGI1.Id=MAD.DownPaymentGLId
         			LEFT OUTER JOIN HKP.GLGeneralInfo AS GLGI2 ON GLGI2.Id=MAD.ClearingAccountGLId
         			LEFT OUTER JOIN HKP.GLGeneralInfo AS GLGI3 ON GLGI3.Id=MAD.ServiceGLId
-        			LEFT OUTER JOIN HKP.GLGeneralInfo AS GLGI4 ON GLGI4.Id=MAD.ExpenseGLId
 
 					LEFT OUTER JOIN MST.BudgetMaster AS DPBM ON MAD.DownPaymentBudgetMasterId = DPBM.Id
 					LEFT OUTER JOIN HKP.Budget AS DPB ON DPBM.BudgetId = DPB.Id
@@ -283,9 +272,6 @@ namespace Library.Service.Materials
 					LEFT OUTER JOIN HKP.Budget AS IB ON IBM.BudgetId = IB.Id
 					LEFT OUTER JOIN HKP.Activity AS IA ON MAD.ServiceActivityId = IA.Id
 
-					LEFT OUTER JOIN MST.BudgetMaster AS EBM ON MAD.ExpenseBudgetMasterId = EBM.Id
-					LEFT OUTER JOIN HKP.Budget AS EB ON EBM.BudgetId = EB.Id
-					LEFT OUTER JOIN HKP.Activity AS EA ON MAD.ExpenseActivityId = EA.Id
 											" + coaStr + @"
 											)AS F ON F.ServiceGroupId = MGM.Id ";
 

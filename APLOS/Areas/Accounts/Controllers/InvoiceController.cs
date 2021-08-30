@@ -331,11 +331,21 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult DeleteInventoryPayable(string invoiceId, string voucherId, string type)
+        {
+            if (type == NewBeneficiaryType.Vendor.ToString())
+                _invoiceService.DeleteInventoryPayable(invoiceId, voucherId);
+            if (type == NewBeneficiaryType.Employee.ToString())
+                _employeePayableService.DeleteInvoiceBeneficiaryEmployee(invoiceId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
 
         #endregion
 
         #region Auto Mail
-  
+
         [HttpGet, Authorize]
         public ActionResult GetAutoMailReport()   
         {
