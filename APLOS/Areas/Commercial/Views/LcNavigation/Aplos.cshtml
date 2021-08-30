@@ -98,7 +98,9 @@
                                 <div e-column e-type="string" e-field="LCType" e-headertext="LC Type" e-width="50"></div>
                                 <div e-column e-type="number" e-field="Tenure" e-textalign="right" e-headertext="Tenure(Days)" e-width="50"></div>
                                 <div e-column e-type="string" e-field="BenificiaryBank" e-headertext="Benificiary Bank" e-width="80"></div>
-                                <div e-column e-template="#templatePOValue" e-headertext="PO Value" e-width="80"></div>
+                                <div e-column e-template="#tmpMaterialPO" e-headertext="Material PO Value" e-width="80"></div>
+                                <div e-column e-template="#tmpServicePO" e-headertext="Service PO Value" e-width="80"></div>
+                                <div e-column e-template="#tmpJWPO" e-headertext="JW PO Value" e-width="80"></div>
                                 <div e-column e-template="#templateAcceptanceValue" e-headertext="Acceptance Value" e-width="80"></div>
                                 <div e-column e-template="#templateSetoff" e-headertext="Set off" e-width="80"></div>
                                 <div e-column e-template="#templateGRNValue" e-headertext="GRN Value" e-width="80"></div>
@@ -152,9 +154,19 @@
                 <a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.LoadNonLcGRNList(data);">{{data.GRNTotalAmount |number:2}}</a>
             </div>
         </script>
-        <script type="text/template" id="templatePOValue">
+        <script type="text/template" id="tmpMaterialPO">
             <div class="text-right" style="width:100%">
-                <a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.LoadPOList(data);">{{data.POValue |number:2}}</a>
+                <a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.LoadMaterialPOList(data);">{{data.MaterialPOAmount |number:2}}</a>
+            </div>
+        </script>
+        <script type="text/template" id="tmpServicePO">
+            <div class="text-right" style="width:100%">
+                <a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.LoadPOList(data);">{{data.ServicePOAmount |number:2}}</a>
+            </div>
+        </script>
+        <script type="text/template" id="tmpJWPO">
+            <div class="text-right" style="width:100%">
+                <a style="text-decoration:underline;color:blue; cursor:pointer;" ng-click="$parent.LoadPOList(data);">{{data.JWPOAmount |number:2}}</a>
             </div>
         </script>
 
@@ -189,10 +201,123 @@
 </div>
 
 <div class="row">
-    <div class="modal fade site-modal in" id="POPopup" role="dialog" data-backdrop="static">
+    <div class="modal fade site-modal in" id="MaterialPOPopup" role="dialog" data-backdrop="static">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">PO<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-header">Material PO<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="col-md-12 col-md-2 col-md-2">Vendor</div>
+                            <div class="col-md-12 col-md-10 col-md-10">:{{SelectedLCRow.Vendor}}</div>
+                            <div class="col-md-12 col-md-2 col-md-2">LC No.</div>
+                            <div class="col-md-12 col-md-4 col-md-4">:{{SelectedLCRow.LCNo}}</div>
+
+                            <div class="col-md-12 col-md-2 col-md-2">Opening Date</div>
+                            <div class="col-md-12 col-md-4 col-md-4">
+                                <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
+                            </div>
+                            <div class="col-md-12 col-md-2  col-md-2">LC Amount</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
+                            <div class="col-md-12 col-md-2  col-md-2">Currency</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div style="color:black;" id="GridPurchaseLCPO" ej-grid e-datasource="PurchaseLCMaterialPOList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryMaterialPO"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor RefNo." e-width="100"></div>
+                                <div e-column e-type="string" e-field="TotalValue" e-textalign="right" e-format="{0:N2}" e-headertext="Total Value" e-width="100"></div>
+
+                                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-type="number" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="AcceptanceValue" e-width="100"></div>
+                                <div e-column e-template="#asasas" e-headertext="GRN Value" e-width="80"></div>                               
+                                <div e-column e-type="string" e-field="setOffValue" e-textalign="right" e-format="{0:N2}" e-headertext="Set Off Value" e-width="80"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="asasas">
+                        <div class="text-right" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.LoadPOBreakDownList(data);">{{data.GRNAmount |number:2}}</a>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div class="row">
+    <div class="modal fade site-modal in" id="ServicePOPopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">Service PO<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="col-md-12 col-md-2 col-md-2">Vendor</div>
+                            <div class="col-md-12 col-md-10 col-md-10">:{{SelectedLCRow.Vendor}}</div>
+                            <div class="col-md-12 col-md-2 col-md-2">LC No.</div>
+                            <div class="col-md-12 col-md-4 col-md-4">:{{SelectedLCRow.LCNo}}</div>
+
+                            <div class="col-md-12 col-md-2 col-md-2">Opening Date</div>
+                            <div class="col-md-12 col-md-4 col-md-4">
+                                <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
+                            </div>
+                            <div class="col-md-12 col-md-2  col-md-2">LC Amount</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
+                            <div class="col-md-12 col-md-2  col-md-2">Currency</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div style="color:black;" id="GridPurchaseLCPO" ej-grid e-datasource="PurchaseLCPOList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryPO"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor RefNo." e-width="100"></div>
+                                <div e-column e-type="string" e-field="TotalValue" e-textalign="right" e-format="{0:N2}" e-headertext="Total Value" e-width="100"></div>
+
+                                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-type="number" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="AcceptanceValue" e-width="100"></div>
+                                <div e-column e-template="#asasas" e-headertext="GRN Value" e-width="80"></div>
+                                @*<div e-column e-template="#GRNBreakDown" e-headertext="GRN Value" e-width="80"></div>*@
+                                @*<div e-column e-type="string" e-field="#sss" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="GRNAmount" e-textalign="right" e-format="{0:N2}" e-headertext="GRNAmount" e-width="80"></div>*@
+                                <div e-column e-type="string" e-field="setOffValue" e-textalign="right" e-format="{0:N2}" e-headertext="Set Off Value" e-width="80"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="asasas">
+                        <div class="text-right" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.LoadPOBreakDownList(data);">{{data.GRNAmount |number:2}}</a>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div class="row">
+    <div class="modal fade site-modal in" id="JWPOPopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">JW PO<button type="button" class="close" data-dismiss="modal">&times;</button></div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">

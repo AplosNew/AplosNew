@@ -3816,7 +3816,14 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			$scope.UOMValidation();
 			$scope.groupList = [];
 			$scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
-
+			for (var i = 0; i < $scope.GetListForMasterOrdernew.length; i++) {
+				$scope.GetListForMasterOrdernew[i].Tolerance = $scope.productNew.Tolerance;
+			}
+			for (var i = 0; i < $scope.groupList.length; i++) {
+				$scope.groupList[i].Tolerance = $scope.productNew.Tolerance;
+			}
+			
+			
 			if ($scope.ActionPOBOQ === 'Save') {
 				$scope.materialValidationForBOQItem();
 				if (!$scope.UOMValidation()) {//$scope.invalid && 

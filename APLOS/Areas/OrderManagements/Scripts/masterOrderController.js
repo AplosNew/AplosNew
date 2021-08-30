@@ -2039,20 +2039,21 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         };
     }
 
-    $scope.Percentage = 0;
-    $scope.GetContractPercentage = function (id) {
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/masterOrder/GetContractPercentage?masterOrderItemId=' + id
-        }).then(function successCallback(response) {
-            if (baseService.arrayLength(response.data) > 0) {
-                $scope.Percentage = response.data[0].Percentage;
-            }
-        });
-    }
+    //$scope.Percentage = 0;
+    //$scope.GetContractPercentage = function (id) {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'OrderManagements/masterOrder/GetContractPercentage?masterOrderItemId=' + id
+    //    }).then(function successCallback(response) {
+    //        if (baseService.arrayLength(response.data) > 0) {
+    //            $scope.Percentage = response.data[0].Percentage;
+    //        }
+    //    });
+    //}
 
     $scope.SetNetSalesRealization = function () {
-        $scope.soModel.NetSalesRealization = $scope.soModel.Rate - $scope.soModel.Discount - $scope.soModel.SalesExpense - $scope.Percentage / 100;
+        //$scope.soModel.NetSalesRealization = $scope.soModel.Rate - $scope.soModel.Discount - $scope.soModel.SalesExpense - $scope.Percentage / 100;
+        $scope.soModel.NetSalesRealization = $scope.soModel.SalesExpense - $scope.soModel.Discount;
     }
 
     // #region Split Sales Order

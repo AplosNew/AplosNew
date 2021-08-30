@@ -11,7 +11,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     $scope.deleteLineItemUrl = $scope.path + 'DeleteLineItem/';
 
     $scope.sreviceSaveUrl = $scope.path + 'servicechargescreate';
-    //$scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
     $scope.partyType = 'Vendor';
     $scope.isAdvance = false;
     $scope.currentDate = new Date(Date.now());
@@ -1239,7 +1238,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             url: 'Products/PurchaseDocumentsAcceptance/GetRecordDoubleClickGRNDetail?Id=' + Id,
         }).then(function successCallback(response) {
             $scope.GetDataDoubleClickDetails = response.data;
-            $scope.inventoryMaterialListPO = $scope.GetDataDoubleClickDetails;
+            $scope.inventoryMaterialListPO = response.data;
             //$scope.inventoryMaterialListPO.TaxList = [];
 
             if ($scope.GridListPO.length > 0) {
