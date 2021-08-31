@@ -112,10 +112,10 @@ namespace Aplos.Areas.Products.Controllers
                           FROM [TRN].[InventoryReceiveDetail] A
 						   JOIN TRN.POGGRNMap PG ON PG.GRNId=A.InventoryReceiveId
                           LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId
-						  Where PO.PurchaseLCId='"+ purchaseLCId + @"'
+						  Where PO.PurchaseLCId='" + purchaseLCId + @"'
 						  GROUP BY InventoryReceiveId
 						  ) IRD ON IRD.InventoryReceiveId=IR.Id
-                          WHERE IR.PlantId='"+identity.PlantId+@"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1
+                          WHERE IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1
                           AND IR.Id IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)";
 
 
@@ -211,7 +211,7 @@ namespace Aplos.Areas.Products.Controllers
             entity.CompanyId = identity.CompanyId;
             entity.PlantId = identity.PlantId;
 
-            _purchaseDocumentAcceptance.InsertOrUpdate(entity, PurchaseDocAcceptanceDetail,PurchaseDocAcceptanceServiceDetail, purchaseDocAcceptanceService, purchaseDocAcceptanceServiceTax);
+            _purchaseDocumentAcceptance.InsertOrUpdate(entity, PurchaseDocAcceptanceDetail, PurchaseDocAcceptanceServiceDetail, purchaseDocAcceptanceService, purchaseDocAcceptanceServiceTax);
             return Json(new { entity, Message = AplosMessage.Updated });
         }
 
@@ -368,7 +368,7 @@ namespace Aplos.Areas.Products.Controllers
                                     LEFT JOIN[TRN].[PurchaseOrder] AS IR ON PAD.POId= IR.Id
                                     LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
                                     WHERE PAD.PurchaseDocAcceptanceId='" + Id + "'";
-                
+
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -752,20 +752,18 @@ namespace Aplos.Areas.Products.Controllers
 
         private Dictionary<string, object> GetDetailId(string id)
         {
-            var cmdText = @"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[PurchaseDocAcceptanceDetail]  WHERE PurchaseDocAcceptanceId ='"+id+"'";
+            var cmdText = @"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[PurchaseDocAcceptanceDetail]  WHERE PurchaseDocAcceptanceId ='" + id + "'";
             return _sqlRepository.GetData(cmdText);
         }
 
         [HttpPost]
         public JsonResult CreateGRNAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail)
         {
-
-            DataSet dsMaster, detailDestination, taxDestination, servicetaxDestination;
-            DataView dvdetailDestination = null;
+            string acptDetailId = "";
+            DataSet dsMaster, detailDestination, taxDestination, servicetaxDestination, dsdetailGRN, dsdetailPO;
+            DataView dvdetailDestination, dvdetailGRN = null;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-           
-          
             string inventoryReceiveId = "";
             foreach (var item in PurchaseDocAcceptanceDetail)
             {
@@ -780,12 +778,14 @@ namespace Aplos.Areas.Products.Controllers
 
             }
 
-            
-         
             SaveData(entity, out dsMaster, out string masterId);
             entity.Id = masterId;
 
-            con.OpenDataSetThroughAdapter("SELECT * FROM TRN.PurchaseDocAcceptanceDetail WHERE PODetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + "))", out detailDestination, false, "1");
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.PurchaseDocAcceptanceDetail WHERE PODetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + "))", out detailDestination, false, "1");
+
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.[InventoryReceiveDetail] WHERE InventoryReceiveId IN (" + inventoryReceiveId + "))", out dsdetailGRN, false, "1");
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.[PurchaseOrderDetail] WHERE InventoryReceiveId IN (" + inventoryReceiveId + "))", out dsdetailPO, false, "1");
+
             //con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceTax] WHERE PurchaseDocAcceptanceDetailId IN (SELECT Id FROM TRN.PurchaseDocAcceptanceDetail Where InventoryReceiveDetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + ")))", out taxDestination, false, "1");
             //con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceService] WHERE PurchaseDocAcceptanceId='" + masterId + "'", out servicetaxDestination, false, "1");
 
@@ -816,9 +816,10 @@ namespace Aplos.Areas.Products.Controllers
                     DataRow drDetail = detailDestination.Tables[0].NewRow();
                     CopyRow(acceptanceDetailSource.Rows[K], ref drDetail);
                     drDetail["Id"] = masterId + "-" + IdCount;
+                    acptDetailId = masterId + "-" + IdCount;
                     drDetail["PurchasedocAcceptanceId"] = masterId;
 
-                   
+
                     drDetail["MaterialMasterId"] = bplib.clsWebLib.RetValidLen(acceptanceDetailSource.Rows[K]["MaterialMasterId"].ToString());
                     drDetail["ArticleId"] = bplib.clsWebLib.RetValidLen(acceptanceDetailSource.Rows[K]["ArticleId"].ToString());
                     drDetail["FirstCharacteristicsId"] = bplib.clsWebLib.RetValidLen(acceptanceDetailSource.Rows[K]["FirstCharacteristicsId"].ToString());
@@ -835,7 +836,7 @@ namespace Aplos.Areas.Products.Controllers
 
                     detailDestination.Tables[0].Rows.Add(drDetail);
 
-                   // dvBp.RowFilter = " TaxPolicyID='" + item.TaxPolicyID + "' and plantID='" + item.PlantId + "' ";
+                    // dvBp.RowFilter = " TaxPolicyID='" + item.TaxPolicyID + "' and plantID='" + item.PlantId + "' ";
 
                     //inventoryTaxSource.DefaultView.RowFilter = "InventoryReceiveDetailId='" + acceptanceDetailSource.Rows[K]["Id"].ToString() + "'";
                     //for (int i = 0; i < inventoryTaxSource.DefaultView.Count; i++)
@@ -867,6 +868,19 @@ namespace Aplos.Areas.Products.Controllers
                 else
                 {
 
+                }
+
+                dvdetailGRN = new DataView(dsdetailGRN.Tables[0]);
+                dvdetailGRN.RowFilter = "PODetailsId='" + acceptanceDetailSource.Rows[K]["PODetailsId"].ToString() + "'";
+                if (dvdetailGRN.Count>0)
+                {
+                    DataRow drGRN = dvdetailGRN[0].Row;
+                    drGRN.BeginEdit();
+
+                    drGRN["PurchaseDocumentAcceptanceId"] = masterId;
+                    drGRN["PurchaseDocumentAcceptanceDetailId"] = acptDetailId;
+
+                    drGRN.EndEdit();
                 }
             }
 
@@ -1070,7 +1084,7 @@ namespace Aplos.Areas.Products.Controllers
 
         public void DeleteData(string Id)
         {
-            string strSQL, strDSQL, strPOSQL, strGRNSQL, strTSQL, strSVSQL, strCSQL;
+            string strSQL, strDSQL, strPOSQL, strGRNSQL, strTSQL, strSVSQL, strCSQL, strGRNACPTSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             DataSet dsPO = null;
             DataSet dsPAD = null;
@@ -1079,20 +1093,21 @@ namespace Aplos.Areas.Products.Controllers
             decimal Tqty = 0;
             try
             {
-                
 
-                strGRNSQL = "delete from TRN.GRNAcceptanceMap Where PurchaseDocumentAcceptanceId ='" + Id + "'";
-                strPOSQL = "delete from TRN.PurchaseDocAcceptancePOMap Where PurchaseDocAcceptanceId ='" + Id + "'";
-                strTSQL = "delete from TRN.[PurchaseDocAcceptanceTax] Where PurchaseDocAcceptanceId ='" + Id + "'";
-                strDSQL = "delete from TRN.PurchaseDocAcceptanceDetail Where PurchaseDocAcceptanceId ='" + Id + "'";
-                strSVSQL = "delete from TRN.[PurchaseDocAcceptanceService] Where PurchaseDocAcceptanceId ='" + Id + "'";
-                strCSQL = "delete from TRN.[PurchaseDocAcceptanceCharges] Where PurchaseDocAcceptanceId ='" + Id + "'";
-                strSQL = "delete from TRN.PurchaseDocAcceptance  Where Id='" + Id + "'";
+
+                strGRNACPTSQL = @"update TRN.[InventoryReceiveDetail] set PurchaseDocumentAcceptanceId=NULL, PurchaseDocumentAcceptanceDetailId=NULL  where PurchaseDocumentAcceptanceId='" + Id + "'";
+                strGRNSQL = @"delete from TRN.GRNAcceptanceMap Where PurchaseDocumentAcceptanceId ='" + Id + "'";
+                strPOSQL = @"delete from TRN.PurchaseDocAcceptancePOMap Where PurchaseDocAcceptanceId ='" + Id + "'";
+                strTSQL = @"delete from TRN.[PurchaseDocAcceptanceTax] Where PurchaseDocAcceptanceId ='" + Id + "'";
+                strDSQL = @"delete from TRN.PurchaseDocAcceptanceDetail Where PurchaseDocAcceptanceId ='" + Id + "'";
+                strSVSQL = @"delete from TRN.[PurchaseDocAcceptanceService] Where PurchaseDocAcceptanceId ='" + Id + "'";
+                strCSQL = @"delete from TRN.[PurchaseDocAcceptanceCharges] Where PurchaseDocAcceptanceId ='" + Id + "'";
+                strSQL = @"delete from TRN.PurchaseDocAcceptance  Where Id='" + Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
 
-              
+
                 objCon.OpenDataSetThroughAdapter(@"Select Id,InventoryReceiveId,AcceptanceRcvQty,AcceptanceRcvStatusQty from TRN.PurchaseOrderDetail 
                     Where Id IN (Select  PODetailId FROM TRN.PurchaseDocAcceptanceDetail Where PurchaseDocAcceptanceId = '" + Id + "')", out dsPO, false, "1");
 
@@ -1100,14 +1115,12 @@ namespace Aplos.Areas.Products.Controllers
                 {
                     for (int i = 0; i < dsPO.Tables[0].Rows.Count; i++)
                     {
-
-                        objCon.OpenDataSetThroughAdapter(@"Select TransactionQty  FROM TRN.PurchaseDocAcceptanceDetail Where PODetailId='"+ dsPO.Tables[0].Rows[i]["Id"].ToString() + "'", out dsPAD, false, "1");
+                        objCon.OpenDataSetThroughAdapter(@"Select TransactionQty  FROM TRN.PurchaseDocAcceptanceDetail Where PODetailId='" + dsPO.Tables[0].Rows[i]["Id"].ToString() + "'", out dsPAD, false, "1");
 
                         if (dsPAD.Tables[0].Rows.Count > 0)
                         {
-                            Tqty= Convert.ToDecimal(dsPAD.Tables[0].Rows[0]["TransactionQty"].ToString());
+                            Tqty = Convert.ToDecimal(dsPAD.Tables[0].Rows[0]["TransactionQty"].ToString());
                         }
-
 
                         DataView dv = new DataView(dsPO.Tables[0]);
                         dv.RowFilter = "Id='" + dsPO.Tables[0].Rows[i]["Id"].ToString() + "'";
@@ -1132,14 +1145,10 @@ namespace Aplos.Areas.Products.Controllers
                             drmo.EndEdit();
 
                         }
-
-
-
                     }
-                  
-
                 }
 
+                objCon.ExecuteNonQueryWrapper(strGRNACPTSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strGRNSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strPOSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strTSQL, true, "1");
@@ -1246,7 +1255,7 @@ namespace Aplos.Areas.Products.Controllers
             {
                 throw new CustomException("Please Select details !");
             }
-            
+
             _purchaseDocumentAcceptance.InsertOrUpdateServicePOAcceptance(entity, PurchaseDocAcceptanceDetail);
             return Json(new { entity, Message = AplosMessage.Success + " Purchase Document Acceptance no <b>" + entity.Id + "</b>" });
         }
@@ -1283,10 +1292,10 @@ namespace Aplos.Areas.Products.Controllers
             {
                 throw ex;
             }
-            
+
         }
 
-       
+
         [Authorize, HttpPost]
         public JsonResult DeleteServicePOItem(string Id)
         {
