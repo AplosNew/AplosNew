@@ -1728,7 +1728,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         };
         getSalesOrderList();
         $scope.getDestination();
-        $scope.GetContractPercentage(id);
+        //$scope.GetContractPercentage(id);
         angular.element(document.querySelector('#soPoUp')).modal('show');
     };
 

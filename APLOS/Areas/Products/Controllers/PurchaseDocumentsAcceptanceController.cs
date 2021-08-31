@@ -760,8 +760,8 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult CreateGRNAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail)
         {
             string acptDetailId = "";
-            DataSet dsMaster, detailDestination, taxDestination, servicetaxDestination;
-            DataView dvdetailDestination = null;
+            DataSet dsMaster, detailDestination, taxDestination, servicetaxDestination, dsdetailGRN, dsdetailPO;
+            DataView dvdetailDestination, dvdetailGRN = null;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
             string inventoryReceiveId = "";
@@ -781,7 +781,11 @@ namespace Aplos.Areas.Products.Controllers
             SaveData(entity, out dsMaster, out string masterId);
             entity.Id = masterId;
 
-            con.OpenDataSetThroughAdapter("SELECT * FROM TRN.PurchaseDocAcceptanceDetail WHERE PODetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + "))", out detailDestination, false, "1");
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.PurchaseDocAcceptanceDetail WHERE PODetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + "))", out detailDestination, false, "1");
+
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.[InventoryReceiveDetail] WHERE InventoryReceiveId IN (" + inventoryReceiveId + "))", out dsdetailGRN, false, "1");
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.[PurchaseOrderDetail] WHERE InventoryReceiveId IN (" + inventoryReceiveId + "))", out dsdetailPO, false, "1");
+
             //con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceTax] WHERE PurchaseDocAcceptanceDetailId IN (SELECT Id FROM TRN.PurchaseDocAcceptanceDetail Where InventoryReceiveDetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + ")))", out taxDestination, false, "1");
             //con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceService] WHERE PurchaseDocAcceptanceId='" + masterId + "'", out servicetaxDestination, false, "1");
 
@@ -866,7 +870,18 @@ namespace Aplos.Areas.Products.Controllers
 
                 }
 
+                dvdetailGRN = new DataView(dsdetailGRN.Tables[0]);
+                dvdetailGRN.RowFilter = "PODetailsId='" + acceptanceDetailSource.Rows[K]["PODetailsId"].ToString() + "'";
+                if (dvdetailGRN.Count>0)
+                {
+                    DataRow drGRN = dvdetailGRN[0].Row;
+                    drGRN.BeginEdit();
 
+                    drGRN["PurchaseDocumentAcceptanceId"] = masterId;
+                    drGRN["PurchaseDocumentAcceptanceDetailId"] = acptDetailId;
+
+                    drGRN.EndEdit();
+                }
             }
 
             SaveGRNAcceptanceMapData(PurchaseDocAcceptanceDetail, masterId, out DataSet dsGRNAcceptanceMap);
@@ -1100,14 +1115,12 @@ namespace Aplos.Areas.Products.Controllers
                 {
                     for (int i = 0; i < dsPO.Tables[0].Rows.Count; i++)
                     {
-
                         objCon.OpenDataSetThroughAdapter(@"Select TransactionQty  FROM TRN.PurchaseDocAcceptanceDetail Where PODetailId='" + dsPO.Tables[0].Rows[i]["Id"].ToString() + "'", out dsPAD, false, "1");
 
                         if (dsPAD.Tables[0].Rows.Count > 0)
                         {
                             Tqty = Convert.ToDecimal(dsPAD.Tables[0].Rows[0]["TransactionQty"].ToString());
                         }
-
 
                         DataView dv = new DataView(dsPO.Tables[0]);
                         dv.RowFilter = "Id='" + dsPO.Tables[0].Rows[i]["Id"].ToString() + "'";
@@ -1132,12 +1145,7 @@ namespace Aplos.Areas.Products.Controllers
                             drmo.EndEdit();
 
                         }
-
-
-
                     }
-
-
                 }
 
                 objCon.ExecuteNonQueryWrapper(strGRNACPTSQL, true, "1");
