@@ -800,7 +800,7 @@ namespace Aplos.Areas.Attendances.Controllers
             
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            if (PlantId == "")
+            if (PlantId == "" || PlantId == null)
             {
                 Plant = identity.PlantId;
             }
