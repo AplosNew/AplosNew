@@ -331,11 +331,24 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult DeleteInventoryPayable(string grnId, string voucherId, string invoiceId,string type, string tDSTaxVoucherId, string tDSVoucherNo)
+        {
+            if(tDSTaxVoucherId != null)
+                throw new CustomException("TDS voucher no  "+ tDSVoucherNo + "need to delete first!");
+
+            if (type == NewBeneficiaryType.Vendor.ToString())
+                _invoiceService.DeleteInventoryPayable(grnId, invoiceId, voucherId);
+            if (type == NewBeneficiaryType.Employee.ToString())
+                _employeePayableService.DeleteGRNBeneficiaryEmployee(grnId, invoiceId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
 
         #endregion
 
         #region Auto Mail
-  
+
         [HttpGet, Authorize]
         public ActionResult GetAutoMailReport()   
         {
