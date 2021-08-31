@@ -367,7 +367,79 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 var data = navigation.GetPurchaseLCPOList(PurchaseLCId);
 
-                return Json(new { PODATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { MaterialPODATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetPurchaseLCServicePOList(string PurchaseLCId)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.GetPurchaseLCServicePOList(PurchaseLCId);
+
+                return Json(new { ServicePODATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult ServicePOBreakDownDataList(string POID)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.ServicePOBreakDownList(POID);
+
+                return Json(new { ServicePOBrDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult JWPOBreakDownDataList(string POID)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.JWPOBreakDownList(POID);
+
+                return Json(new { JWPOBrDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetPurchaseLCJWPOList(string PurchaseLCId)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.GetPurchaseLCJWPOList(PurchaseLCId);
+
+                return Json(new { JWPODATA = data, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -409,9 +481,6 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-        
-
-
         [HttpPost, Authorize]
         public ActionResult GRNBreakDownDataList(string GRNID)
         {
@@ -428,9 +497,6 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
-
-
-
 
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCGRNList(string PurchaseLCId)
@@ -574,13 +640,13 @@ namespace Aplos.Areas.Commercial.Controllers
 								   from TRN.PurchaseOrder PO 
                                   inner JOin trn.PurchaseOrderDetail POD ON POD.InventoryReceiveId=po.Id
                                      
-									  union
+									  union ALL
 
 							    select po.PurchaseLCId,0 AS MaterialPOAmount,pod.TransactionAmount,0 AS ServicePOAmount, po.Id
 								 from [dbo].[JWTransformationPurchaseOrder]  PO 
                                   inner JOin [dbo].[JobWorkTransformationContractChild] POD ON POD.JobWorkTransformationContractMasterId=po.Id
 
-								   union
+								   union ALL
 
 								   select po.PurchaseLCId,0 AS MaterialPOAmount,0 AS JWPOAmount,POD.Amount AS ServicePOAmount, po.Id
 								 from trn.ServicePOMaster PO 
@@ -599,6 +665,11 @@ namespace Aplos.Areas.Commercial.Controllers
 									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[JWTransformationPurchaseOrder] as po 
 									inner join TRN.InventoryReceiveDetail as g on g.JWTCMId=po.Id
 									group by po.PurchaseLCId
+								   union 
+								   select  po.PurchaseLCId as LCId,sum(g.Amount) as GRNTotalAmount,count(distinct g.ServicePOMasterId) as GRNCount from  trn.ServicePOMaster PO 
+									inner join TRN.ServiceAcknowledgementDetail as g on g.ServicePOMasterId=po.Id
+									group by po.PurchaseLCId
+
                         ) as grn on grn.LCId = PL.Id 
                         left join (
 									select sum(AD.TotalMaterialTranAmount) as AcceptanceValue,A.PurchaseLCId,count(distinct A.Id) AcceptanceCount  from TRN.PurchaseDocAcceptanceDetail as AD
