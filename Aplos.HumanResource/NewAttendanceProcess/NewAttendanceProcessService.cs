@@ -776,7 +776,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-
                     #region OTDayLimit Process Row Creation
                     DataSet OTDayLimit;
                     OTDayLimitRowCreation(Date, out OTDayLimit, PlantValue);
@@ -880,23 +879,27 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select distinct e.SystemId as EmpId,dc.IsOTEntitled,Format(p.WorkDate,'yyyy-MMM-dd')WorkDate
-                from AttdnProcessData p 
-                join EmployeeInformation e on e.SystemId=p.EmpSystemID
-                left join hkp.Designation dg on dg.Id = e.GivenDesignationId
-                left join mst.DesignationMaster dm on dm.DesignationId = dg.Id 
-                left join scs.DesignationMasterConfiguration dc on dc.DesignationMasterId=dm.Id
+                var sql = @"select distinct e.SystemId as EmpId,dc.IsOTEntitled,
+				Format(p.WorkDate,'yyyy-MMM-dd')WorkDate
+                from AttdnProcessData p join
+                EmployeeInformation e on e.SystemId=p.EmpSystemID    
+				join hkp.LegalDesignation d on d.Id=e.LegalDesignationId
+				left join mst.DesignationMasterLegalDesignation ddm on 
+                ddm.LegalDesignationId = D.Id
+                left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+				left join scs.DesignationMasterConfiguration dc on dc.DesignationMasterId=dm.Id
                 and dc.PlantId=e.PlantId
-                where p.WorkDate='" + Date + @"' and e.PlantId='" + PlantId + @"' 
+                 where p.WorkDate='"+Date+@"' and 
+				 e.PlantId='"+PlantId+@"' 
                 and e.EmployeeStatus='Active'
-                and dc.IsOTEntitled=1 
-                and e.SystemId not in
+                and dc.IsOTEntitled=1
+				 and e.SystemId not in
                 (select final.EmpSystemId from (
                 select distinct o.empsystemId,(select top 1 Exclude from NonEligibleOT m
                 where m.EmpSystemId=o.EmpSystemId
                 order by EffectiveDate desc)as x
-                from NonEligibleOT o) final where final.x=1)
-				";
+                from NonEligibleOT o) final where final.x=1)";
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
