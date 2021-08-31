@@ -329,7 +329,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
     $scope.calculateBalance = function (data) {
         data.BalanceQty = data.ReceiveQty - data.BillingQty;
-        data.Amount = data.BillingQty * data.MaterialTranRate;
+        data.Amount = parseFloat(data.BillingQty * data.MaterialTranRate).toFixed(2);
         var gridObj = $("#GridJWPO").data("ejGrid");
         gridObj.refreshContent(true);
         gridObj.refreshTemplate();

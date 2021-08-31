@@ -126,7 +126,7 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS FCV ON CTC.FirstCharacteristicsValueId = FCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
-                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMId,MaterialTranRate from TRN.InventoryReceiveDetail GROUP BY JWTCMId,MaterialTranRate) IRD ON IRD.JWTCMId=CTC.JobWorkTransformationContractMasterId
+                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMDId,MaterialTranRate from TRN.InventoryReceiveDetail GROUP BY JWTCMDId,MaterialTranRate) IRD ON IRD.JWTCMDId=CTC.Id
                             LEFT JOIN (Select JWTransformationContractChildId,SUM(BillingQty) BillingQty from dbo.JWReceiveBillingDetail WHERE JWReceiveBillingId<>'" + masterId + @"' GROUP BY JWTransformationContractChildId ) B ON B.JWTransformationContractChildId=CTC.Id
                             WHERE RBD.JWReceiveBillingId='" + masterId + "'";
 
