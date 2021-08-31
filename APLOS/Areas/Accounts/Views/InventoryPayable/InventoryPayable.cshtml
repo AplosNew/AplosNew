@@ -625,8 +625,8 @@
 
 
                 <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
-                <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
-                <div e-column e-headertext="GRN" e-commands="commandGRN" e-isunbound=true e-textalign="left" e-width="60"></div>
+                <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="center" e-width="60"></div>
+                <div e-column e-headertext="GRN" e-commands="commandGRN" e-isunbound=true e-textalign="center" e-width="60"></div>
                 <div e-column e-headertext="Delete" e-template="#DeleteTemplate" e-width="100"></div>
 
             </div>
@@ -641,10 +641,15 @@
 
         </script>
         <script id="DeleteTemplate" type="text/template">
-            <ul class="common-btn list-inline text-right">
-                <li> <button type="button" class="btn"  ng-click="$parent.onClickDeletePopUp(data);">Delete</button></li>
-            </ul>
-
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li> 
+                    <button ng-hide="data.IsPark==false" ng-click="$parent.onClickDeletePopUp(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                        <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                    </button>
+                    </li>
+                </ul>
+            </div>
         </script>
     </div>
     <i>**Showing top 100 Posted GRN  order by PostingDate</i>
@@ -652,6 +657,6 @@
 
 @Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedGRNDetailPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AdditionalTaxPopUp.cshtml")
-<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(GRNId,VoucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(GRNId,VoucherId,InvoiceId,Type,TDSTaxVoucherId,TDSVoucherNo)"></confirm-archive-generic>
 
 
