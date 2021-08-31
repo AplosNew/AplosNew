@@ -3932,7 +3932,10 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
-				return Json(obj.GetBOQItems(ContractId, VendorId, IsOwnVendor, inveReveiveMasterId), JsonRequestBehavior.AllowGet);
+				
+				var jsondata = Json(obj.GetBOQItems(ContractId, VendorId, IsOwnVendor, inveReveiveMasterId), JsonRequestBehavior.AllowGet);
+				jsondata.MaxJsonLength = int.MaxValue;
+				return jsondata;
 			}
 			catch (Exception ex)
 			{
@@ -3980,7 +3983,11 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
-				return Json(obj.GetBOQItemsListForUpdate(ContractId, VendorId, inveReveiveId, inveReveiveMasterId, MaterialMasterId, ArticleId, FirstCharacteristicsValueId, SecondCharacteristicsValueId, ThirdCharacteristicsValueId), JsonRequestBehavior.AllowGet);
+
+				var jsondata = Json(obj.GetBOQItemsListForUpdate(ContractId, VendorId, inveReveiveId, inveReveiveMasterId, MaterialMasterId, ArticleId, FirstCharacteristicsValueId, SecondCharacteristicsValueId, ThirdCharacteristicsValueId), JsonRequestBehavior.AllowGet);
+				jsondata.MaxJsonLength = int.MaxValue;
+				return jsondata;
+
 			}
 			catch (Exception ex)
 			{

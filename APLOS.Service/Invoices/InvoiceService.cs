@@ -4588,7 +4588,7 @@ namespace Library.Service.Invoices
         #endregion
 
         #region Inventory Payable
-        public void DeleteInventoryPayable(string invoiceId, string voucherId)
+        public void DeleteInventoryPayable(string grnId, string invoiceId, string voucherId)
         {
             var flag = false;
             try
@@ -4603,9 +4603,20 @@ namespace Library.Service.Invoices
                 var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var invoice = base.Find(invoiceId);
+                if(invoice.WrittenOffAmount>0)
+                    throw new CustomException("Please Delete Payment Voucher first ! ");
+
                 var invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 var invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
+
+                var grnBuilder = new System.Text.StringBuilder();
+                var buildergrnSql = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
+                var buildergrnmapSql = @"delete trn.GRNAcceptanceMap  where InvoiceId='" + invoiceId + "'";
+                grnBuilder.Append(buildergrnSql);
+                grnBuilder.Append(buildergrnmapSql);
+                _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
+
                 foreach (var item in voucherdetailcurrnecy)
                 {
                     _voucherDetailCurrencyRepository.Delete(item.Id);

@@ -380,31 +380,31 @@ function NewHRDashboardController(cboService, $scope, $rootScope, $routeParams, 
     }
 
     // On Downloading the Excel
-    $scope.downloadgriddataUrl = 'GridReports/Download';
-    $scope.printReport = function () {
-        $http({
-            method: 'POST',
-            url: 'NewHRDashboard/GetPrintReport',
-            data: {
-                'ChartColumnList': $scope.ColList,
-                'seq': $scope.index,
-                'date': $scope.Date,
-                'Column': $scope.RptColumn,
-                'data': $scope.RptData,
-                'stat': $scope.Stat,
-                'EmpCat': $scope.EmpCat,
-                'EmpStat': $scope.EmpStat,
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-    }
+    //$scope.downloadgriddataUrl = 'GridReports/Download';
+    //$scope.printReport = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: 'NewHRDashboard/GetPrintReport',
+    //        data: {
+    //            'ChartColumnList': $scope.ColList,
+    //            'seq': $scope.index,
+    //            'date': $scope.Date,
+    //            'Column': $scope.RptColumn,
+    //            'data': $scope.RptData,
+    //            'stat': $scope.Stat,
+    //            'EmpCat': $scope.EmpCat,
+    //            'EmpStat': $scope.EmpStat,
+    //        },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error == true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
+    //}
 }

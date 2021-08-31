@@ -2502,6 +2502,51 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function
+        public void GetExistingProcessedSalary(string FromDate, string sEmpInfo, out Dictionary<string, Dictionary<string, DataRow>> salaryInfo)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = "";
+            try
+            {
+                strSql = @"SELECT c.EmpInfoSystemID, c.SalaryHeadID, c.DisbusmentAmount, c.DisbusmentCurrencyID
+                              FROM SalaryProcMaster AS M 
+                            JOIN SalaryProcChild C ON m.SystemID=c.SlrProcMstSystemID
+
+                            WHERE c.EmpInfoSystemID IN (" + sEmpInfo + @") AND m.MonthNo=" + Convert.ToDateTime(FromDate).Month.ToString() + @" AND m.YearNo=" + Convert.ToDateTime(FromDate).Year.ToString() + @"
+                            ORDER BY c.EmpInfoSystemID, c.SalaryHeadID		
+							";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out DataSet dsRef, false, "1");
+
+
+                salaryInfo = new Dictionary<string, Dictionary<string, DataRow>>();
+                Dictionary<string, DataRow> SalaryHeads = new Dictionary<string, DataRow>();
+                string empId = "";
+                string CurrentEmpId = "";
+                foreach (DataRow Row in dsRef.Tables[0].Rows)
+                {
+                    CurrentEmpId = Row["EmpInfoSystemID"].ToString();
+                    if (empId != CurrentEmpId)
+                    {
+                        SalaryHeads = new Dictionary<string, DataRow>();
+                        salaryInfo.Add(CurrentEmpId, SalaryHeads);
+                    }
+
+                    SalaryHeads.Add(Row["SalaryHeadID"].ToString(), Row);
+                    empId = CurrentEmpId;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
 
         public void GetOTHour(string sEmpInfo, string sFromDate, string sToDate, out DataSet dsRef)
         {

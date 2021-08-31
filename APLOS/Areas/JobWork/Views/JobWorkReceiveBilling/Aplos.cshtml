@@ -205,19 +205,18 @@
                          e-recorddoubleclick="recorddoubleclickFromMasterGrid"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                          e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-                         e-detailstemplate="detailTemp"
-                         e-detailsdatabound="detailgrid">
+                         e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid">
                         <div e-columns>
                             <div e-column e-headertext="Actions" e-width="50">
                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>
                             </div>
-                            <div e-column e-field="Id" e-headertext="GRN No" e-width="150"></div>
-
-                            <div e-column e-field="GRNDate1" e-headertext="GRN Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                            <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
-                            <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="100"></div>
-                            <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="100"></div>
-                            <div e-column e-field="VoucherId" e-headertext="VoucherNo" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Id" e-headertext="GRN No" e-width="150"></div>
+                            <div e-column e-type="date" e-field="GRNDate1" e-headertext="GRN Date" e-width="150" e-format="{0:dd-MMM-yyyy}"></div>
+                            <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
+                            <div e-column e-type="number" e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="100"></div>
+                            <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="100"></div>
+                            <div e-column e-type="string" e-field="JWWIPVoucherId" e-headertext="VoucherNo" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Status" e-headertext="Status" e-width="100"></div>
                         </div>
                     </div>
                 </div>
@@ -311,13 +310,13 @@
                          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
                             <div e-column e-field="JWTransformationPurchaseOrderId" e-headertext="OutSourcePOId" e-width="20"></div>
-                            <div e-column e-field="TabType" e-headertext="Type" e-width="30"></div>
+                            <div e-column e-field="TabType" e-headertext="Type" e-width="40"></div>
                             <div e-column e-field="ValueAddedDate" e-headertext="Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                            <div e-column e-field="VACTime" e-headertext="Time" e-width="20"></div>
-                            <div e-column e-field="Entity" e-headertext="Entity" e-width="30"></div>
-                            <div e-column e-field="PartyName" e-headertext="Party" e-width="40"></div>
-                            <div e-column e-field="LCRef" e-headertext="LCRef" e-width="40"></div>
-                            <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="40"></div>
+                            <div e-column e-field="VACTime" e-headertext="Time" e-width="30"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>
+                            <div e-column e-field="PartyName" e-headertext="Party" e-width="60"></div>
+                            <div e-column e-field="LCRef" e-headertext="LC No" e-width="50"></div>
+                            <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="40"></div>
                             <div e-column e-field="VAProcessStartDate" e-headertext="Process Start Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             <div e-column e-field="VAProcessEndDate" e-headertext="Process End Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             <div e-column e-field="VAContractClosingDate" e-headertext="Contract Closing Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
