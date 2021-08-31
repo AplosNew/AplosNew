@@ -1,6 +1,6 @@
 ﻿'use strict';
-holidayOTReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http'];
-function holidayOTReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http) {
+holidayOTReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$window'];
+function holidayOTReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $window) {
     $rootScope.title = 'Holiday Report';
 
     $scope.path = 'Attendances/WeekOffHolidayOTReport/';
@@ -153,47 +153,55 @@ function holidayOTReportController(cboService, commonMessage, $scope, $rootScope
     $scope.EmployeeListDefault = [];
     $scope.EmployeeListTemp = [];
     $scope.GetEmployeeInformation = function () {
-        $scope.GetEmployeeInformation = function () {
-            var monthName = $scope.monthList.filter(function (mnth) {
-                return mnth.Value == $scope.month;
+        //$scope.GetEmployeeInformation = function () {
+        var monthName = $scope.monthList.filter(function (mnth) {
+            return mnth.Value == $scope.month;
+        });
+        var DropDownListObj = $("#PlantList").data("ejDropDownList");
+        var PlantId = DropDownListObj.getSelectedValue();
+
+        //if (PlantId =='') {
+        //    PlantId = $window.plantId;
+        //}
+
+        $scope.effectiveDate = 1 + '-' + monthName[0].Text + '-' + $scope.year;
+
+        if (angular.isUndefinedOrNull($scope.month)) {
+            ShowResult("Select Month", 'failure');
+        }
+        if (angular.isUndefinedOrNull($scope.year)) {
+            ShowResult("Select Year", 'failure');
+        }
+
+        else {
+
+            var parameters = {
+                'effectiveDate': $scope.effectiveDate,
+                'payRollGroup': $scope.payGroupListSelected,
+                'isActive': $scope.isActive,
+                'isSeperated': $scope.isSeperated,
+                'isMaternity': $scope.isMaternity,
+                'PlantId': PlantId
+            };
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: 'Attendances/WeekOffHolidayOTReport/GetEmpInfo',
+                data: parameters
+            }).then(function successCallback(response) {
+                if (response.data.length > 0) {
+                    $scope.empGrid = true;
+                    $scope.EmployeeListDefault = response.data;//.filter(d => d.isSelect == true);
+                    $scope.EmployeeList = $scope.EmployeeListDefault;
+                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;
+                }
+                else {
+                    $scope.empGrid = false;
+                    ShowResult("No Data Found", 'failure');
+                }
             });
-            $scope.effectiveDate = 1 + '-' + monthName[0].Text + '-' + $scope.year;
-
-            if (angular.isUndefinedOrNull($scope.month)) {
-                ShowResult("Select Month", 'failure');
-            }
-            if (angular.isUndefinedOrNull($scope.year)) {
-                ShowResult("Select Year", 'failure');
-            }
-
-            else {
-
-                var parameters = {
-                    'effectiveDate': $scope.effectiveDate,
-                    'payRollGroup': $scope.payGroupListSelected,
-                    'isActive': $scope.isActive,
-                    'isSeperated': $scope.isSeperated,
-                    'isMaternity': $scope.isMaternity
-                };
-                $http({
-                    method: "POST",
-                    dataType: 'JSON',
-                    url: 'Attendances/AttendanceProcessUI/GetEmpInfo',
-                    data: parameters
-                }).then(function successCallback(response) {
-                    if (response.data.length > 0) {
-                        $scope.empGrid = true;
-                        $scope.EmployeeListDefault = response.data;//.filter(d => d.isSelect == true);
-                        $scope.EmployeeList = $scope.EmployeeListDefault;
-                        $scope.EmployeeListTemp = $scope.EmployeeListDefault;
-                    }
-                    else {
-                        $scope.empGrid = false;
-                        ShowResult("No Data Found", 'failure');
-                    }
-                });
-            }
-        };
+        }
+        /* };*/
     };
 
     $scope.GetMonthWiseWeekExtraOTReport = function () {
@@ -207,22 +215,25 @@ function holidayOTReportController(cboService, commonMessage, $scope, $rootScope
 
                 }
             }
+            if (parameters.length === 0) {
+                filteredRecords = $scope.EmployeeListTemp;
+                //parameters.push({ "Key": "", "Value": "" });
+
+            }
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
                 if (filteredRecords.length > 0) {
                     parameters = [];
                     parameters.push({ "Key": "EmpSystemId", "Value": getString(filteredRecords, "EmpSystemId") });
+                    parameters.push({ "Key": "PlantId", "Value": getString(filteredRecords, "PlantId") });
                 }
             }
-            if (parameters.length === 0) {
-                parameters.push({ "Key": "", "Value": "" });
-
-            }
+            
             $http({
                 method: 'POST',
-                url: $scope.path +'GetMonthWiseHolidayExtraOTReport',
+                url: $scope.path + 'GetMonthWiseHolidayExtraOTReport',
                 data: {
                     'month': $scope.month,
-                    'year': $scope.year,                   
+                    'year': $scope.year,
                     'parameters': parameters,
                     'isActive': $scope.isActive,
                     'isSeperated': $scope.isSeperated,
@@ -379,6 +390,22 @@ function holidayOTReportController(cboService, commonMessage, $scope, $rootScope
     //--------------------------------------//
 
 
-
+    $scope.PlantIdFromUI = null;
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: "humanresource/payrollReports/GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    $scope.PlantIdFromUI = $scope.PlantList[i].PlantName;
+                }
+            }
+            //= $window.plantId;
+        });
+    }
+    $scope.getPlant();
 
 }
