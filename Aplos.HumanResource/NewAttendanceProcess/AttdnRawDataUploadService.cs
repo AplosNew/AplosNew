@@ -26,6 +26,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
+                if (DataToSave.Count() == 0)
+                    return "";
+
                 List<AttdnRawData> items = DataToSave.ToList();
 
                 DataSet dsRef,dsPlant,Device;

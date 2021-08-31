@@ -780,7 +780,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     DataSet OTDayLimit;
                     OTDayLimitRowCreation(Date, out OTDayLimit, PlantValue);
                     if (OTDayLimit.Tables[0].Rows.Count > 0)
-                    {
+                   {
                         var WkDate = OTDayLimit.Tables[0].Rows[0][@"WorkDate"].ToString();
                         var GpId = OTDayLimit.Tables[0].Rows[0][@"GroupID"].ToString();
                         var PlantId = OTDayLimit.Tables[0].Rows[0][@"PlantID"].ToString();
