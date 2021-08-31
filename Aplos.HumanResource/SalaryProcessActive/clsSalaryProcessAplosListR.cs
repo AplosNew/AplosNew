@@ -756,6 +756,12 @@ public class clsSalaryProcessAplosArrear
                             objSlrProc.GetEmployeeWiseOTPolicy(para.FromDate, para.ToDate, sEmpSysIDColl, para.PlantId, out dsOTPol);
                             if (dsOTPol.Tables[0].Rows.Count > 0)
                                 dicOTPol = dsOTPol.Tables[0].ToList<dicOTPol>();
+
+
+                            SendNotification("Fetching Existing salary process values", para.FromDate, TotProcComp, TotSelectEmpForProc);
+                            Dictionary<string, Dictionary<string, DataRow>> dicExistingSalary = new Dictionary<string, Dictionary<string, DataRow>>();
+                            objSlrProc.GetExistingProcessedSalary(para.FromDate, sEmpSysIDColl, out dicExistingSalary);
+
                             //OT entittle
                             SendNotification("Fetching OT Hour", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicOTHour> dicOTHour = new List<global::dicOTHour>();
@@ -2655,6 +2661,8 @@ public class clsSalaryProcessAplosArrear
                                             //I have intentionally set otvalue=0;(because it was necessary) if you have problem with that, please feel free NOT to contact me :)
                                             //Half Blood Prince
                                             DefCur = 0;// _total_ot;
+                                            getExistingSalaryInfo(sEmployeeSysID, sSlrHD, dicExistingSalary, ref sDefCurID, out DefCur);
+
 
                                             if (sEntCurID == sDefCurID)
                                             {
@@ -4050,7 +4058,21 @@ public class clsSalaryProcessAplosArrear
             objSlrProc = null;
         }
     }//End Function
+    public void getExistingSalaryInfo(string EmployeeId, string SalaryHeadId, Dictionary<string, Dictionary<string, DataRow>> dicExistingSalary, ref string CurrencyId, out decimal SalaryAmount)
+    {
+        SalaryAmount = 0;
+        if (dicExistingSalary.ContainsKey(EmployeeId))
+        {
+            Dictionary<string, DataRow> _tempSalary = dicExistingSalary[EmployeeId];
+            if (_tempSalary.ContainsKey(SalaryHeadId))
+            {
+                DataRow dr = _tempSalary[SalaryHeadId];
+                SalaryAmount = (decimal)clsStaticInfo.dbl(dr["DisbusmentAmount"].ToString());
+                CurrencyId = dr["DisbusmentCurrencyID"].ToString();
+            }
+        }
 
+    }
     public void salaryLockValidation(string employeeIds, string Months)
     {
 
@@ -4082,9 +4104,9 @@ public class clsSalaryProcessAplosArrear
             //}//if
 
             strSql = @"SELECT TOP 1 sl.* FROM EmployeeInformation AS ei
-								LEFT JOIN SalaryLock sl ON sl.EmpSystemId=ei.SystemId AND CONCAT(sl.YearNo,sl.MonthNo) IN ("+ Months + @")	
+								LEFT JOIN SalaryLock sl ON sl.EmpSystemId=ei.SystemId AND CONCAT(sl.YearNo,sl.MonthNo) IN (" + Months + @")	
 									
-								WHERE ei.SystemId IN ("+ employeeIds + @") AND (ISNULL(sl.Id,'')='' OR ISNULL(sl.IsLocked,0)=0)";
+								WHERE ei.SystemId IN (" + employeeIds + @") AND (ISNULL(sl.Id,'')='' OR ISNULL(sl.IsLocked,0)=0)";
 
             objCon = new ConnectionManager.DAL.ConManager("1");
             objCon.OpenDataSetThroughAdapter(strSql, out DataSet dsRef, false, false, "", "1");
