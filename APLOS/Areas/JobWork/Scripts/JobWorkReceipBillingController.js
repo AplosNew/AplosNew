@@ -373,10 +373,19 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         try {
 
             ValidationMaster();
+            if (baseService.arrayLength($scope.GriddataMaster) < 0 || baseService.arrayLength($scope.GriddataMaster) == 0) {
+                throw "Inventory Receive data is required";
+            }
             if (baseService.arrayLength($scope.JWPOList) < 0 || baseService.arrayLength($scope.JWPOList) == 0) {
                 throw "Billing detail is required";
             }
-
+            if (baseService.arrayLength($scope.GriddataMaster) > 0) {
+                for (var i = 0; i < $scope.GriddataMaster.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.GriddataMaster[i].Status)) {
+                        throw "GRN No: '" + $scope.GriddataMaster[i].Id+"' is not posted.";
+                    }
+                }
+            }
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
