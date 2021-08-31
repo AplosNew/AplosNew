@@ -109,7 +109,7 @@ namespace Library.MaterialManagement.Inventory
                         SET @totalReceiveAmount=(SELECT ISNULL(SUM(ISNULL(TransactionAmount, 0)),1) FROM [TRN].[PurchaseOrderDetail] WHERE InventoryReceiveId=@inventoryReceiveId)
                         SET @totalServiceAmount=(SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[POService] WHERE InventoryReceiveId=@inventoryReceiveId)
                         SET @totalSvcTaxAmount=(SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveId=@inventoryReceiveId AND InventoryServiceId<>'')
-                       SELECT IRD.Id AS InventoryReceiveDetailId
+                       SELECT IRD.Id,IRD.Id AS InventoryReceiveDetailId
                             , MGM.UserName AS MaterialGroupMasterName
                             , IRD.InventoryMaterialId, MM.UserName
                             , IRD.ArticleId, ART.StandardName

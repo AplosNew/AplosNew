@@ -367,6 +367,34 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
         }
     };
 
+    $scope.UpdateDetail = function (data) {
+        try {
+                $http({
+                    method: 'POST',
+                    url: 'Products/POParameterChange/UpdateDetail',
+                    data: {
+                        'entity': data,
+                    },
+                    dataType: 'JSON'
+                    , contentType: "application/json charset=utf-8"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        getInventoryMaterialList($scope.productNew.Id);
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+           
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
     $scope.Clear = function () {
         ClearFields();
         if (!$rootScope.isCollapsed) $rootScope.toggle();
@@ -397,6 +425,7 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
         $scope.LCRef = null;
         $scope.GRNValue = 0;
         $scope.AcptValue = 0;
+        $scope.inventoryMaterialList = [];
     }
 
     $scope.valuePassInDelModal = function (data) {

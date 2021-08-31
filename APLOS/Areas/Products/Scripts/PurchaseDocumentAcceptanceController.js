@@ -592,7 +592,8 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         PartyPlantId: null,
         IsNonCreditable: false,
         OBCurrencyCode: null,
-        LCOBCurrencyId: null
+        LCOBCurrencyId: null,
+        TotalPOAmount:0
     };
 
     $scope.PurchaseDocAcceptanceDetail = {
@@ -1220,8 +1221,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             });
     }
 
-
-
     $scope.getRecordDoubleClickDetailGRN = function (Id) {
         $scope.seletedLST = [];
         $scope.GetGRNList();
@@ -1238,7 +1237,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             url: 'Products/PurchaseDocumentsAcceptance/GetRecordDoubleClickGRNDetail?Id=' + Id,
         }).then(function successCallback(response) {
             $scope.GetDataDoubleClickDetails = response.data;
-            $scope.inventoryMaterialListPO = $scope.GetDataDoubleClickDetails;
+            $scope.inventoryMaterialListPO = response.data;
             //$scope.inventoryMaterialListPO.TaxList = [];
 
             if ($scope.GridListPO.length > 0) {
@@ -1274,6 +1273,26 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
         });
     };
+
+    $scope.summaryassignGRNRows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionAmount", dataMember: "TransactionAmount", format: "{0:N2}" }],
+        showCaptionSummary: true
+    }];
+
+    $scope.summaryUnassignGRNRows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionAmount", dataMember: "TransactionAmount", format: "{0:N2}" }],
+        showCaptionSummary: true
+    }];
+
+    $scope.summaryassignPORows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionAmount", dataMember: "TransactionAmount", format: "{0:N2}" }],
+        showCaptionSummary: true
+    }];
+
+    $scope.summaryUnassignPORows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionAmount", dataMember: "TransactionAmount", format: "{0:N2}" }],
+        showCaptionSummary: true
+    }];
 
     $scope.getMaterialTax = function (id) {
         $scope.TaxList = [];
@@ -1445,12 +1464,73 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         var i = $scope.GridListPO.length;
         while (i--) {
             if ($scope.GridListPO[i].Active === true) {
+                $scope.PurchaseDocAcceptance.TotalPOAmount += $scope.GridListPO[i].TransactionAmount;
                 $scope.seletedLST.push($scope.GridListPO[i]);
                 $scope.GridListPO[i].Active === false;
                 $scope.GridListPO.splice(i, 1);
             }
         }
     }
+
+    $scope.selectedRoveData = function () {
+        if (baseService.arrayLength($scope.inventoryMaterialListPO) > 0) {
+            for (var i = 0; i < $scope.seletedLST.length; i++) {
+                for (var j = 0; j < $scope.inventoryMaterialListPO.length; j++) {
+                    if ($scope.inventoryMaterialListPO[j].POID === $scope.seletedLST[i].Id) {
+                        ShowResult('First delete materials for this PO');
+                        return false;
+                    }
+                    else if ($scope.seletedLST[i].Active === true) {
+                        // $scope.GridListPO[i].Active = false;
+                        //var x = "#seletedLSTGrid" + seletedLSTGrid;
+                        var gridObj = $("#seletedLSTGrid").data("ejGrid");
+                        $scope.data = gridObj.getSelectedRecords()[0];
+                        // $scope.GridListPO.push($scope.seletedLST[i]);
+                        //$scope.seletedLST.splice($scope.seletedLST[i], 1);
+                        var i = $scope.seletedLST.length;
+                        while (i--) {
+                            if ($scope.seletedLST[i].Active === true) {
+                                $scope.PurchaseDocAcceptance.TotalPOAmount = $scope.PurchaseDocAcceptance.TotalPOAmount - $scope.seletedLST[i].TransactionAmount;
+                                $scope.GridListPO.push($scope.seletedLST[i]);
+                                $scope.seletedLST.splice(i, 1);
+                            }
+                        }
+                        $scope.DeleteACPOmapTabledata($scope.data.Id);
+                    }
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.seletedLST.length; i++) {
+                if ($scope.seletedLST[i].Active === true) {
+                    for (var j = 0; j < $scope.ServicePODetailList.length; j++) {
+                        if ($scope.ServicePODetailList[j].ServicePOMasterId === $scope.seletedLST[i].Id) {
+                            ShowResult('First delete items for this PO');
+                            return false;
+                        }
+                        else if ($scope.seletedLST[i].Active === true) {
+                            // $scope.GridListPO[i].Active = false;
+                            //var x = "#seletedLSTGrid" + seletedLSTGrid;
+                            var gridObj = $("#seletedLSTGrid").data("ejGrid");
+                            $scope.data = gridObj.getSelectedRecords()[0];
+                            // $scope.GridListPO.push($scope.seletedLST[i]);
+                            //$scope.seletedLST.splice($scope.seletedLST[i], 1);
+                            var i = $scope.seletedLST.length;
+                            while (i--) {
+                                if ($scope.seletedLST[i].Active === true) {
+                                    $scope.seletedLST[i].Active = false;
+                                    $scope.GridListPO.push($scope.seletedLST[i]);
+                                    $scope.seletedLST.splice(i, 1);
+                                }
+                            }
+                            //$scope.DeleteACPOmapTabledata($scope.data.Id);
+                        }
+                    }
+                }
+            }
+        }
+    };
+
 
     $scope.recorddoubleclickPO = function ($event) {
         var x = $event;
@@ -1797,64 +1877,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     };
 
-    $scope.selectedRoveData = function () {
-
-        if (baseService.arrayLength($scope.inventoryMaterialListPO) > 0) {
-            for (var i = 0; i < $scope.seletedLST.length; i++) {
-                for (var j = 0; j < $scope.inventoryMaterialListPO.length; j++) {
-                    if ($scope.inventoryMaterialListPO[j].POID === $scope.seletedLST[i].Id) {
-                        ShowResult('First delete materials for this PO');
-                        return false;
-                    }
-                    else if ($scope.seletedLST[i].Active === true) {
-                        // $scope.GridListPO[i].Active = false;
-                        //var x = "#seletedLSTGrid" + seletedLSTGrid;
-                        var gridObj = $("#seletedLSTGrid").data("ejGrid");
-                        $scope.data = gridObj.getSelectedRecords()[0];
-                        // $scope.GridListPO.push($scope.seletedLST[i]);
-                        //$scope.seletedLST.splice($scope.seletedLST[i], 1);
-                        var i = $scope.seletedLST.length;
-                        while (i--) {
-                            if ($scope.seletedLST[i].Active === true) {
-                                $scope.GridListPO.push($scope.seletedLST[i]);
-                                $scope.seletedLST.splice(i, 1);
-                            }
-                        }
-                        $scope.DeleteACPOmapTabledata($scope.data.Id);
-                    }
-                }
-            }
-        }
-        else {
-            for (var i = 0; i < $scope.seletedLST.length; i++) {
-                if ($scope.seletedLST[i].Active === true) {
-                    for (var j = 0; j < $scope.ServicePODetailList.length; j++) {
-                        if ($scope.ServicePODetailList[j].ServicePOMasterId === $scope.seletedLST[i].Id) {
-                            ShowResult('First delete items for this PO');
-                            return false;
-                        }
-                        else if ($scope.seletedLST[i].Active === true) {
-                            // $scope.GridListPO[i].Active = false;
-                            //var x = "#seletedLSTGrid" + seletedLSTGrid;
-                            var gridObj = $("#seletedLSTGrid").data("ejGrid");
-                            $scope.data = gridObj.getSelectedRecords()[0];
-                            // $scope.GridListPO.push($scope.seletedLST[i]);
-                            //$scope.seletedLST.splice($scope.seletedLST[i], 1);
-                            var i = $scope.seletedLST.length;
-                            while (i--) {
-                                if ($scope.seletedLST[i].Active === true) {
-                                    $scope.seletedLST[i].Active = false;
-                                    $scope.GridListPO.push($scope.seletedLST[i]);
-                                    $scope.seletedLST.splice(i, 1);
-                                }
-                            }
-                            //$scope.DeleteACPOmapTabledata($scope.data.Id);
-                        }
-                    }
-                }
-            }
-        }
-    };
+   
 
     $scope.BankAmountFlag = false;
     $scope.ChargesIndex = -1;
