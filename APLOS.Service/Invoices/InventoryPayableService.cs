@@ -6542,6 +6542,7 @@ namespace Library.Service.Invoices
                 receiveData.JWWIPVoucherId = wipVoucherId;
                 receiveData.JWChangeInInvVoucherId = changeInVoucherId;
                 receiveData.JWGRIRVoucherId = giriVoucherId;
+                receiveData.Status = "Posting";
                 _inventoryReceiveRepository.Update(receiveData);
                 _unitOfWork.SaveChanges();
                 flag = false;

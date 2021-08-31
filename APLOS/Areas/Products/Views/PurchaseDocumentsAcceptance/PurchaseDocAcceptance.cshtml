@@ -228,6 +228,10 @@
                         </div>
                         <div class="col-xs-12 col-sm-4">
                             <div class="form-group">
+                                <label class="col-sm-4 control-label">LC Amount</label>
+                                <label class="col-sm-8 control-label">{{productNew.LCAmount}}</label>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label">Customer</label>
                                 <label class="col-sm-8 control-label">{{productNew.CustomerName}}</label>
                             </div>
@@ -243,7 +247,6 @@
                                     <input type="text" name="LCEntryDate" ng-model="productNew.LCExpiryDate" disabled class="form-control" tabindex="5">
                                 </div>
                             </div>
-
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
@@ -300,6 +303,7 @@
                                                 <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="Opening Date" e-width="100"></div>
                                                 <div e-column e-type="date" e-field="LCExpiryDate" e-headertext="Expiry Date" e-width="100"></div>
                                                 <div e-column e-type="string" e-field="LCOpeningBank" e-headertext="Opening Bank" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="LCAmount" e-headertext="Amount" e-width="100"e-textalign="right"></div>
                                                 <div e-column e-type="string" e-field="CurrencyName" e-headertext="Currency" e-width="30"></div>
                                                 <div e-column e-type="string" e-field="AcceptanceFirst" e-headertext="Acceptance First" e-width="100"></div>
                                             </div>
@@ -436,7 +440,8 @@
                                                 <div e-column e-type="string" e-field="POId" e-headertext="PO Id" e-width="80"></div>
                                                 <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
                                                 <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="60"></div>
-                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="Amount" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="TotalMaterialBooksCurrencyAmount" e-headertext="GRN Amount" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="PO Amount" e-width="100"></div>
                                                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
                                             </div>
                                         </div>
@@ -473,7 +478,8 @@
                                                 <div e-column e-type="string" e-field="POId" e-headertext="PO Id" e-width="80"></div>
                                                 <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
                                                 <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="60"></div>
-                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="Amount" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="TotalMaterialBooksCurrencyAmount" e-headertext="GRN Amount" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="PO Amount" e-width="100"></div>
                                                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
 
                                             </div>
@@ -587,11 +593,11 @@
                                             <td>{{x.SecondCharacteristicsValue}}</td>
                                             <td>{{x.ThirdCharacteristicsValue}}</td>
                                             <td>{{x.MaterialDetail}}</td>
-                                            <td class="text-right">{{x.POQty}}</td>
+                                            <td class="text-right">{{x.POQty| number:2}}</td>
                                             <td class="text-right">{{x.TransactionUoM}}</td>
-                                            <td class="text-right">{{x.Otherqty}}</td>
+                                            <td class="text-right">{{x.Otherqty| number:2}}</td>
                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-change="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" ng-disabled="!x.Active"></td>
-                                            <td class="text-right">{{x.Balance}}</td>
+                                            <td class="text-right">{{x.Balance| number:2}}</td>
                                             <td class="text-right"><input type="text" style="width:60px;" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
                                             <td class="text-right">{{x.CurrencyName}}</td>
@@ -700,16 +706,16 @@
                                             <td>{{x.SecondCharacteristicsValue}}</td>
                                             <td>{{x.ThirdCharacteristicsValue}}</td>
                                             <td>{{x.MaterialDetail}}</td>
-                                            <td class="text-right">{{x.POQty}}</td>
+                                            <td class="text-right">{{x.POQty| number:2}}</td>
                                             <td class="text-right">{{x.TransactionUoM}}</td>
-                                            <td class="text-right">{{x.TransactionRate}}</td>
+                                            <td class="text-right">{{x.TransactionRate| number:4}}</td>
                                             @*<td class="text-right"><input type="text" style="width:60px;" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>*@
-                                            <td class="text-right">{{x.CurrentGRNQty}}</td>
+                                        <td class="text-right">{{x.CurrentGRNQty| number:2}}</td>
                                             @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right"  width="200" ng-model="x.TransactionQty" ng-disabled="!x.Active"></td>*@
                                             <td class="text-right">{{x.TransactionQty | number:2}}</td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
-                                            <td class="text-right">{{x.TotalGRN}}</td>
-                                            <td class="text-right">{{x.Otherqty}}</td>
+                                            <td class="text-right">{{x.TotalGRN| number:2}}</td>
+                                            <td class="text-right">{{x.Otherqty| number:2}}</td>
                                             <td class="text-right">{{x.CurrencyName}}</td>
                                             <td class="text-right">{{x.TaxAmount | number:2}}</td>
                                             <td class="text-right">{{x.ChargesTranAmount | number:2}}</td>
@@ -955,20 +961,12 @@
     </div>
 </div>
 
-
 @*//Master Table Data*@
 
 <div class="aplos-grid-toggle">
-
-    <div style="color:black;" id="GridAcceptanceList" ej-grid e-datasource="GridAcceptanceList"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-         e-allowselection="true"
-         e-recorddoubleclick="recorddoubleclickFromMasterGrid"
-         e-filtersettings-filterType="excel"
-         e-enabletouch="true"
-         e-detailstemplate="detailTemp"
-         e-detailsdatabound="detailgrid"
-         e-allowscrolling="true">
+    <div style="color:black;" id="GridAcceptanceList" ej-grid e-datasource="GridAcceptanceList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+         e-allowselection="true" e-recorddoubleclick="recorddoubleclickFromMasterGrid" e-filtersettings-filterType="excel" e-enabletouch="true"
+         e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid" e-allowscrolling="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
             <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="80"></div>
@@ -1268,7 +1266,6 @@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 
-
 <div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1518,7 +1515,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="modal fade site-modal in" id="ContractPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
