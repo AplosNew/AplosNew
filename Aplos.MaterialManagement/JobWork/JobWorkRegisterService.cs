@@ -124,7 +124,7 @@ namespace Library.MaterialManagement.JobWork
                     //,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN order by tc.Id ";
 
                     _sql = @"select tc.Id,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
-,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
 trn.MasterOrder XMOI
 LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
@@ -133,13 +133,16 @@ where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
 ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate, jwa.UserName as JWActivity,JWItemType='Output', jl.LocationName as JWLocation, tc.ContractStatus
 ,mp.Id as ContractLineItemId, mp.JobWorkItemMasterId, jwi.UserName as JWOutputItem, mp.ArticleId,mma.Code as JWOutputArticleCode, mma.StandardName as JWOutputArticle, mm.Id as JWOutputMaterialId
 ,mm.Code as JWOutputMaterialCode, mm.UserName as JWOutputMaterial
-,OutputUnit=case when mp.ArticleId is not null then mmuom.UserName else mpuom.UserName End, mp.Quantity as PlannedQuantity, mp.RateApplyId, c.Code as MPCurrency, mp.RatePerUnit
+,OutputUnit=case when mp.ArticleId is not null then mmuom.UserName else mpuom.UserName End, mp.Quantity as PlannedQuantity, mp.RateApplyId--, c.Code as MPCurrency
+,mp.RatePerUnit,MPCurrency=case when tc.OrderSpecific='Yes' then CC.Code else C.Code End
 ,isnull(mi.TotalGrossConsump,'0') as TotalGrossConsumption
 ,ContractAmount=case when mp.RateApplyId='Output' then (mp.Quantity * mp.RatePerUnit) else (mp.Quantity * mi.TotalGrossConsump * mp.RatePerUnit) End
 ,ISNULL(kk.TotalReceivedQuantity,'0') as TotalReceiptQuantity,TotalBalQuantity= Sum(mp.Quantity)- ISNULL( kk.TotalReceivedQuantity,'0')
 ,TotalReceiptAmount=case when mp.RateApplyId='Output' then ((mp.Quantity * mp.RatePerUnit * ISNULL( kk.TotalReceivedQuantity,'0'))/mp.Quantity) else ((mp.Quantity * mi.TotalGrossConsump * mp.RatePerUnit * ISNULL( kk.TotalReceivedQuantity,'0'))/mp.Quantity) End
-,ReceiptLocation='NIL',ISNULL(mi.TNoOfInputItem,'0') as TotalNoOfInputItem, JWInputPlannnedQuantity=ISNULL((mp.Quantity * mi.TotalGrossConsump),'0'), ISNULL(IQ.TIssuedQty,'0') as JWInputIssueReturnQuantity
+--,ReceiptLocation='NIL'
+,MS.UserName as ReceiptLocation,ISNULL(mi.TNoOfInputItem,'0') as TotalNoOfInputItem, JWInputPlannnedQuantity=ISNULL((mp.Quantity * mi.TotalGrossConsump),'0'), ISNULL(IQ.TIssuedQty,'0') as JWInputIssueReturnQuantity
 ,JWInputBalQty=((mp.Quantity * mi.TotalGrossConsump) - ISNULL(IQ.TIssuedQty,'0')), tc.Remarks as ContractRemarks
+,PLC.LCRef as PurchaseLCNo,B.UserName as OpeningBank
 from dbo.JWTransformationPurchaseOrder tc left join ORG.Plant P on P.Id=tc.PlantId
 left join ORG.Entity E on E.Id=tc.EntityId
 left join HKP.Party Pty on Pty.Id=tc.PartyId
@@ -148,12 +151,12 @@ left join dbo.JobWorkTransformationContractChild mp on tc.Id=mp.JobWorkTransform
 left join HKP.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
 left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
 left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
---left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
 left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId and mm.Id=mp.MaterialMasterId
 left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
+left join SCS.Currency CC on CC.Id=tc.CurrencyId
 left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,JWTCMDId from Trn.InventoryReceiveDetail where JWTCMDId is not null group by JWTCMDId)
@@ -166,10 +169,16 @@ IQ on IQ.Id=mp.Id
 left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
 left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+left join TRN.InventoryReceive IR on IR.TransformationContractId=tc.Id
+left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId
+left join dbo.PurchaseLC PLC on PLC.Id=tc.PurchaseLCId
+left join MST.BankMaster BM on BM.Id=PLC.OpeningBankMasterId
+left join HKP.Bank B on B.Id=BM.BankId
 where (tc.[PODate] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"'))
 group by tc.Id,tc.PODate,P.UserName,E.UserName,Pty.Code,Pty.UserName,tc.ProcessStartDate,tc.ProcessEndDate,tc.ContractClosingDate,jwa.UserName,jl.LocationName,mp.Id,mp.JobWorkItemMasterId, jwi.UserName
 ,mp.ArticleId, mma.StandardName,mm.Id,mm.UserName,mp.Quantity,mp.RateApplyId, c.Code,mp.RatePerUnit,mmuom.UserName,mpuom.UserName,mi.TotalGrossConsump,kk.TotalReceivedQuantity,mi.TNoOfInputItem
-,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN,tc.DocRefNo,tc.DocDate,tc.OrderSpecific,Ct.ContractNo,Prty.UserName,MLC.LCRef,Ct.Id,mma.Code,mm.Code
+,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN,tc.DocRefNo,tc.DocDate,tc.OrderSpecific,Ct.ContractNo,Prty.UserName,MLC.LCRef,Ct.Id,mma.Code,mm.Code,CC.Code,MS.UserName
+,PLC.LCRef,B.UserName,Ct.UDNo
 order by tc.Id";
 
                 }
@@ -213,7 +222,7 @@ order by tc.Id";
                         //,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN order by tc.Id ";
 
                         _sql = @"select tc.Id,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
-,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
 trn.MasterOrder XMOI
 LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
@@ -222,13 +231,16 @@ where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
 ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate, jwa.UserName as JWActivity,JWItemType='Output', jl.LocationName as JWLocation, tc.ContractStatus
 ,mp.Id as ContractLineItemId, mp.JobWorkItemMasterId, jwi.UserName as JWOutputItem, mp.ArticleId,mma.Code as JWOutputArticleCode, mma.StandardName as JWOutputArticle, mm.Id as JWOutputMaterialId
 ,mm.Code as JWOutputMaterialCode, mm.UserName as JWOutputMaterial
-,OutputUnit=case when mp.ArticleId is not null then mmuom.UserName else mpuom.UserName End, mp.Quantity as PlannedQuantity, mp.RateApplyId, c.Code as MPCurrency, mp.RatePerUnit
+,OutputUnit=case when mp.ArticleId is not null then mmuom.UserName else mpuom.UserName End, mp.Quantity as PlannedQuantity, mp.RateApplyId--, c.Code as MPCurrency
+,mp.RatePerUnit,MPCurrency=case when tc.OrderSpecific='Yes' then CC.Code else C.Code End
 ,isnull(mi.TotalGrossConsump,'0') as TotalGrossConsumption
 ,ContractAmount=case when mp.RateApplyId='Output' then (mp.Quantity * mp.RatePerUnit) else (mp.Quantity * mi.TotalGrossConsump * mp.RatePerUnit) End
 ,ISNULL(kk.TotalReceivedQuantity,'0') as TotalReceiptQuantity,TotalBalQuantity= Sum(mp.Quantity)- ISNULL( kk.TotalReceivedQuantity,'0')
 ,TotalReceiptAmount=case when mp.RateApplyId='Output' then ((mp.Quantity * mp.RatePerUnit * ISNULL( kk.TotalReceivedQuantity,'0'))/mp.Quantity) else ((mp.Quantity * mi.TotalGrossConsump * mp.RatePerUnit * ISNULL( kk.TotalReceivedQuantity,'0'))/mp.Quantity) End
-,ReceiptLocation='NIL',ISNULL(mi.TNoOfInputItem,'0') as TotalNoOfInputItem, JWInputPlannnedQuantity=ISNULL((mp.Quantity * mi.TotalGrossConsump),'0'), ISNULL(IQ.TIssuedQty,'0') as JWInputIssueReturnQuantity
+--,ReceiptLocation='NIL'
+,MS.UserName as ReceiptLocation,ISNULL(mi.TNoOfInputItem,'0') as TotalNoOfInputItem, JWInputPlannnedQuantity=ISNULL((mp.Quantity * mi.TotalGrossConsump),'0'), ISNULL(IQ.TIssuedQty,'0') as JWInputIssueReturnQuantity
 ,JWInputBalQty=((mp.Quantity * mi.TotalGrossConsump) - ISNULL(IQ.TIssuedQty,'0')), tc.Remarks as ContractRemarks
+,PLC.LCRef as PurchaseLCNo,B.UserName as OpeningBank
 from dbo.JWTransformationPurchaseOrder tc left join ORG.Plant P on P.Id=tc.PlantId
 left join ORG.Entity E on E.Id=tc.EntityId
 left join HKP.Party Pty on Pty.Id=tc.PartyId
@@ -237,12 +249,12 @@ left join dbo.JobWorkTransformationContractChild mp on tc.Id=mp.JobWorkTransform
 left join HKP.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
 left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
 left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
---left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
 left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId and mm.Id=mp.MaterialMasterId
 left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
+left join SCS.Currency CC on CC.Id=tc.CurrencyId
 left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,JWTCMDId from Trn.InventoryReceiveDetail where JWTCMDId is not null group by JWTCMDId)
@@ -255,10 +267,16 @@ IQ on IQ.Id=mp.Id
 left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
 left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+left join TRN.InventoryReceive IR on IR.TransformationContractId=tc.Id
+left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId
+left join dbo.PurchaseLC PLC on PLC.Id=tc.PurchaseLCId
+left join MST.BankMaster BM on BM.Id=PLC.OpeningBankMasterId
+left join HKP.Bank B on B.Id=BM.BankId
 where (tc.[PODate] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and tc.PartyId='" + PartyVendorId + @"' and tc.Id='" + ContractId + @"'
 group by tc.Id,tc.PODate,P.UserName,E.UserName,Pty.Code,Pty.UserName,tc.ProcessStartDate,tc.ProcessEndDate,tc.ContractClosingDate,jwa.UserName,jl.LocationName,mp.Id,mp.JobWorkItemMasterId, jwi.UserName
 ,mp.ArticleId, mma.StandardName,mm.Id,mm.UserName,mp.Quantity,mp.RateApplyId, c.Code,mp.RatePerUnit,mmuom.UserName,mpuom.UserName,mi.TotalGrossConsump,kk.TotalReceivedQuantity,mi.TNoOfInputItem
-,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN,tc.DocRefNo,tc.DocDate,tc.OrderSpecific,Ct.ContractNo,Prty.UserName,MLC.LCRef,Ct.Id,mma.Code,mm.Code
+,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN,tc.DocRefNo,tc.DocDate,tc.OrderSpecific,Ct.ContractNo,Prty.UserName,MLC.LCRef,Ct.Id,mma.Code,mm.Code,CC.Code,MS.UserName
+,PLC.LCRef,B.UserName,Ct.UDNo
 order by tc.Id ";
 
                     }
@@ -300,7 +318,7 @@ order by tc.Id ";
                         //,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN order by tc.Id ";
 
                         _sql = @"select tc.Id,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
-,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
 trn.MasterOrder XMOI
 LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
@@ -309,13 +327,16 @@ where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
 ,FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as ContractProEndDate, FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as ContractCloseDate, jwa.UserName as JWActivity,JWItemType='Output', jl.LocationName as JWLocation, tc.ContractStatus
 ,mp.Id as ContractLineItemId, mp.JobWorkItemMasterId, jwi.UserName as JWOutputItem, mp.ArticleId,mma.Code as JWOutputArticleCode, mma.StandardName as JWOutputArticle, mm.Id as JWOutputMaterialId
 ,mm.Code as JWOutputMaterialCode, mm.UserName as JWOutputMaterial
-,OutputUnit=case when mp.ArticleId is not null then mmuom.UserName else mpuom.UserName End, mp.Quantity as PlannedQuantity, mp.RateApplyId, c.Code as MPCurrency, mp.RatePerUnit
+,OutputUnit=case when mp.ArticleId is not null then mmuom.UserName else mpuom.UserName End, mp.Quantity as PlannedQuantity, mp.RateApplyId--, c.Code as MPCurrency
+,mp.RatePerUnit,MPCurrency=case when tc.OrderSpecific='Yes' then CC.Code else C.Code End
 ,isnull(mi.TotalGrossConsump,'0') as TotalGrossConsumption
 ,ContractAmount=case when mp.RateApplyId='Output' then (mp.Quantity * mp.RatePerUnit) else (mp.Quantity * mi.TotalGrossConsump * mp.RatePerUnit) End
 ,ISNULL(kk.TotalReceivedQuantity,'0') as TotalReceiptQuantity,TotalBalQuantity= Sum(mp.Quantity)- ISNULL( kk.TotalReceivedQuantity,'0')
 ,TotalReceiptAmount=case when mp.RateApplyId='Output' then ((mp.Quantity * mp.RatePerUnit * ISNULL( kk.TotalReceivedQuantity,'0'))/mp.Quantity) else ((mp.Quantity * mi.TotalGrossConsump * mp.RatePerUnit * ISNULL( kk.TotalReceivedQuantity,'0'))/mp.Quantity) End
-,ReceiptLocation='NIL',ISNULL(mi.TNoOfInputItem,'0') as TotalNoOfInputItem, JWInputPlannnedQuantity=ISNULL((mp.Quantity * mi.TotalGrossConsump),'0'), ISNULL(IQ.TIssuedQty,'0') as JWInputIssueReturnQuantity
+--,ReceiptLocation='NIL'
+,MS.UserName as ReceiptLocation,ISNULL(mi.TNoOfInputItem,'0') as TotalNoOfInputItem, JWInputPlannnedQuantity=ISNULL((mp.Quantity * mi.TotalGrossConsump),'0'), ISNULL(IQ.TIssuedQty,'0') as JWInputIssueReturnQuantity
 ,JWInputBalQty=((mp.Quantity * mi.TotalGrossConsump) - ISNULL(IQ.TIssuedQty,'0')), tc.Remarks as ContractRemarks
+,PLC.LCRef as PurchaseLCNo,B.UserName as OpeningBank
 from dbo.JWTransformationPurchaseOrder tc left join ORG.Plant P on P.Id=tc.PlantId
 left join ORG.Entity E on E.Id=tc.EntityId
 left join HKP.Party Pty on Pty.Id=tc.PartyId
@@ -324,12 +345,12 @@ left join dbo.JobWorkTransformationContractChild mp on tc.Id=mp.JobWorkTransform
 left join HKP.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
 left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
 left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
---left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
 left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId and mm.Id=mp.MaterialMasterId
 left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 left join SCS.UnitOfMeasurement mpuom on mpuom.Id=jwi.UOMId
 left join SCS.Currency c on c.Id=mp.CurrencyId
+left join SCS.Currency CC on CC.Id=tc.CurrencyId
 left join (Select SUM(GrossConsumption) as TotalGrossConsump,COUNT(JobWorkTransformationContractChildMasterId) as TNoOfInputItem, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,JWTCMDId from Trn.InventoryReceiveDetail where JWTCMDId is not null group by JWTCMDId)
@@ -342,10 +363,16 @@ IQ on IQ.Id=mp.Id
 left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
 left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+left join TRN.InventoryReceive IR on IR.TransformationContractId=tc.Id
+left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId
+left join dbo.PurchaseLC PLC on PLC.Id=tc.PurchaseLCId
+left join MST.BankMaster BM on BM.Id=PLC.OpeningBankMasterId
+left join HKP.Bank B on B.Id=BM.BankId
 where (tc.[PODate] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and (tc.PartyId='" + PartyVendorId + @"' or tc.Id='" + ContractId + @"')
 group by tc.Id,tc.PODate,P.UserName,E.UserName,Pty.Code,Pty.UserName,tc.ProcessStartDate,tc.ProcessEndDate,tc.ContractClosingDate,jwa.UserName,jl.LocationName,mp.Id,mp.JobWorkItemMasterId, jwi.UserName
 ,mp.ArticleId, mma.StandardName,mm.Id,mm.UserName,mp.Quantity,mp.RateApplyId, c.Code,mp.RatePerUnit,mmuom.UserName,mpuom.UserName,mi.TotalGrossConsump,kk.TotalReceivedQuantity,mi.TNoOfInputItem
-,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN,tc.DocRefNo,tc.DocDate,tc.OrderSpecific,Ct.ContractNo,Prty.UserName,MLC.LCRef,Ct.Id,mma.Code,mm.Code
+,IQ.TIssuedQty,tc.Remarks,tc.ContractStatus,PP.GSTIN,tc.DocRefNo,tc.DocDate,tc.OrderSpecific,Ct.ContractNo,Prty.UserName,MLC.LCRef,Ct.Id,mma.Code,mm.Code,CC.Code,MS.UserName
+,PLC.LCRef,B.UserName,Ct.UDNo
 order by tc.Id";
                     }
                 }
@@ -398,7 +425,7 @@ order by tc.Id";
                     //order by tc.Id ";
 
                     _sql = @"select tbp.Id,tc.Id as ContractId,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
-,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
 trn.MasterOrder XMOI
 LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
@@ -415,6 +442,7 @@ where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
 , TotalReceiptBalance=((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) - ISNULL(rvbp.TotalReceivedQuantity,'0')
 ,TotalReceiptAmount=case when mp.RateApplyId='Output' then (ISNULL(rvbp.TotalReceivedQuantity,'0') * (((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100)
 else (ISNULL(rvbp.TotalReceivedQuantity,'0') * (mp.Quantity * tmi.TotalGrossConsump * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) End
+,PLC.LCRef as PurchaseLCNo,B.UserName as OpeningBank
 from dbo.JobWorkTransformationContractChild4 tbp left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
 left join MST.MaterialMasterArticle mma on mma.Id=tbp.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
@@ -437,6 +465,9 @@ left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
 left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
 left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+left join dbo.PurchaseLC PLC on PLC.Id=tc.PurchaseLCId
+left join MST.BankMaster BM on BM.Id=PLC.OpeningBankMasterId
+left join HKP.Bank B on B.Id=BM.BankId
 where (tc.PODate between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"'))
 order by tc.Id ";
 
@@ -478,7 +509,7 @@ order by tc.Id ";
                         //order by tc.Id ";
 
                         _sql = @"select tbp.Id,tc.Id as ContractId,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
-,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
 trn.MasterOrder XMOI
 LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
@@ -495,6 +526,7 @@ where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
 , TotalReceiptBalance=((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) - ISNULL(rvbp.TotalReceivedQuantity,'0')
 ,TotalReceiptAmount=case when mp.RateApplyId='Output' then (ISNULL(rvbp.TotalReceivedQuantity,'0') * (((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100)
 else (ISNULL(rvbp.TotalReceivedQuantity,'0') * (mp.Quantity * tmi.TotalGrossConsump * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) End
+,PLC.LCRef as PurchaseLCNo,B.UserName as OpeningBank
 from dbo.JobWorkTransformationContractChild4 tbp left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
 left join MST.MaterialMasterArticle mma on mma.Id=tbp.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
@@ -517,6 +549,9 @@ left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
 left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
 left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+left join dbo.PurchaseLC PLC on PLC.Id=tc.PurchaseLCId
+left join MST.BankMaster BM on BM.Id=PLC.OpeningBankMasterId
+left join HKP.Bank B on B.Id=BM.BankId
 where (tc.PODate between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and tc.PartyId='" + PartyVendorId + @"' and tc.Id='" + ContractId + @"'
 order by tc.Id  ";
 
@@ -556,7 +591,7 @@ order by tc.Id  ";
                         //order by tc.Id ";
 
                         _sql = @"select tbp.Id,tc.Id as ContractId,FORMAT(tc.PODate,'dd-MMM-yyyy') as ContractDate, P.UserName as Plant, E.UserName as Entity,tc.DocRefNo,FORMAT(tc.DocDate,'dd-MMM-yyyy') as DocuDate
-,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
+,tc.OrderSpecific as POOrderSpecific,Ct.ContractNo,Ct.UDNo,Prty.UserName AS CustomerName,MLC.LCRef,[Buyer]=STUFF((select distinct ','+B.UserName from
 trn.MasterOrder XMOI
 LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
@@ -573,6 +608,7 @@ where I.ContractId=Ct.Id for xml path('') ), 1, 1, ''
 , TotalReceiptBalance=((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) - ISNULL(rvbp.TotalReceivedQuantity,'0')
 ,TotalReceiptAmount=case when mp.RateApplyId='Output' then (ISNULL(rvbp.TotalReceivedQuantity,'0') * (((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100)
 else (ISNULL(rvbp.TotalReceivedQuantity,'0') * (mp.Quantity * tmi.TotalGrossConsump * tbp.StandardRate))/ ((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) End
+,PLC.LCRef as PurchaseLCNo,B.UserName as OpeningBank
 from dbo.JobWorkTransformationContractChild4 tbp left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
 left join MST.MaterialMasterArticle mma on mma.Id=tbp.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
@@ -595,6 +631,9 @@ left join HKP.JobWorkLocation jl on jl.Id=mp.MaterialLocationId
 left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
 left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
+left join dbo.PurchaseLC PLC on PLC.Id=tc.PurchaseLCId
+left join MST.BankMaster BM on BM.Id=PLC.OpeningBankMasterId
+left join HKP.Bank B on B.Id=BM.BankId
 where (tc.PODate between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"')) and (tc.PartyId='" + PartyVendorId + @"' or tc.Id='" + ContractId + @"')
 order by tc.Id ";
                     }
