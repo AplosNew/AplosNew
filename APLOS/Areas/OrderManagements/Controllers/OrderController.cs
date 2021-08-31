@@ -7,6 +7,7 @@ using Library.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using OTSBD;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -85,7 +86,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(2);
+                workbook = application.Workbooks.Create(3);
                 workbook.Worksheets[0].Name = "Data";
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder;
@@ -320,19 +321,19 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colLSD].Text = dtOrder.Rows[i]["SOLSD"].ToString();
                     sheet[ROW, colMainrawMaterialDate].Text = dtOrder.Rows[i]["SOMainRawMaterialInhouseDate"].ToString();
                     sheet[ROW, colOtherRawMaterialDate].Text = dtOrder.Rows[i]["SOOtherRawMaterialInhouseDate"].ToString();
-                    sheet[ROW, colRate].Text = dtOrder.Rows[i]["Rate"].ToString();
+                    sheet[ROW, colRate].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["Rate"].ToString());
 
 
-                    sheet[ROW, colCM].Text = dtOrder.Rows[i]["CM"].ToString();
-                    sheet[ROW, colSPT].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SPT"].ToString());
+                    sheet[ROW, colCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
+                    sheet[ROW, colSPT].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Rows[i]["SPT"].ToString());
                     sheet[ROW, colRemarks].Text =dtOrder.Rows[i]["Remarks"].ToString();
-                    sheet[ROW, colSOQty].Text = dtOrder.Rows[i]["SOQty"].ToString();
-                    sheet[ROW, colShippedQty].Text = dtOrder.Rows[i]["ShippedQty"].ToString();
-                    sheet[ROW, colBalShipment].Text = dtOrder.Rows[i]["BalShipment"].ToString();
+                    sheet[ROW, colSOQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["SOQty"].ToString());
+                    sheet[ROW, colShippedQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ShippedQty"].ToString());
+                    sheet[ROW, colBalShipment].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["BalShipment"].ToString());
 
 
-                    sheet[ROW, colPlan].Text = dtOrder.Rows[i]["TotalPlanQty"].ToString();
-                    sheet[ROW, colToPlan].Text = dtOrder.Rows[i]["RemainingPlanQuantity"].ToString();
+                    sheet[ROW, colPlan].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["TotalPlanQty"].ToString());
+                    sheet[ROW, colToPlan].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["RemainingPlanQuantity"].ToString());
                     //sheet[ROW, colProcessStatus].Text = dtOrder.Rows[i]["BuyerReferenceNo"].ToString();
 
                     sheet[ROW, colProductCode].Text = dtOrder.Rows[i]["ProductCode"].ToString();
@@ -354,8 +355,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colNoOfLinePlan].Text = dtOrder.Rows[i]["AllocatedLines"].ToString();
                     sheet[ROW, colPriority].Text = dtOrder.Rows[i]["ProductionPriority"].ToString();
                     sheet[ROW, colLineNo].Text = dtOrder.Rows[i]["RunningOrderLinePreference"].ToString();
-                    sheet[ROW, colOrderValue].Text = dtOrder.Rows[i]["OrderValue"].ToString();
-                    sheet[ROW, colCMValue].Text = dtOrder.Rows[i]["CMValue"].ToString();
+                    sheet[ROW, colOrderValue].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["OrderValue"].ToString());
+                    sheet[ROW, colCMValue].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["CMValue"].ToString());
                     sheet[ROW, colProductionStartDate].Text = dtOrder.Rows[i]["ProductionStartDate"].ToString();
                     sheet[ROW, colProductionOrderCategory].Text = dtOrder.Rows[i]["ProductionOrderCategory"].ToString();
 
@@ -369,7 +370,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-
                 sheet["A" + startRow.ToString()].FreezePanes();
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -378,16 +378,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-
-
-                IListObject table = sheet.ListObjects.Create("Table1", sheet[(1) + (6).ToString() + ":" + (endCol) + (ROW).ToString()]);
-                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
-
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
-                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 
                 sheet.IsGridLinesVisible = false;
@@ -412,14 +404,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 workbook.Worksheets[1].Name = "Report";
                 sheet = workbook.Worksheets[1];
 
-                //DataTable dtOrder = _sqlRepository.GetDataTable(sql);
 
                 ROW = 6; COL = 1;
 
                 #region columns
                 sheet[ROW, COL].Text = "Plant";
                 sheet[ROW, COL].ColumnWidth = 16;
-               int  colPlant = COL;
+                int colPlant = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Entity";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -564,16 +555,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].Text = "Input Status";
                 sheet[ROW, COL].ColumnWidth = 12;
                 colInputStatus = COL;
-      
-
-
-
                 #endregion columns
 
                 endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
-               
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;               
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -605,19 +591,19 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colLSD].Text = dtOrder.Rows[i]["SOLSD"].ToString();
                     sheet[ROW, colMainrawMaterialDate].Text = dtOrder.Rows[i]["SOMainRawMaterialInhouseDate"].ToString();
                     sheet[ROW, colOtherRawMaterialDate].Text = dtOrder.Rows[i]["SOOtherRawMaterialInhouseDate"].ToString();
-                    sheet[ROW, colRate].Text = dtOrder.Rows[i]["Rate"].ToString();
+                    sheet[ROW, colRate].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["Rate"].ToString());
 
 
-                    sheet[ROW, colCM].Text = dtOrder.Rows[i]["CM"].ToString();
-                    sheet[ROW, colSPT].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SPT"].ToString());
+                    sheet[ROW, colCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
+                    sheet[ROW, colSPT].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["SPT"].ToString());
                     sheet[ROW, colRemarks].Text = dtOrder.Rows[i]["Remarks"].ToString();
-                    sheet[ROW, colSOQty].Text = dtOrder.Rows[i]["SOQty"].ToString();
-                    sheet[ROW, colShippedQty].Text = dtOrder.Rows[i]["ShippedQty"].ToString();
-                    sheet[ROW, colBalShipment].Text = dtOrder.Rows[i]["BalShipment"].ToString();
+                    sheet[ROW, colSOQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["SOQty"].ToString());
+                    sheet[ROW, colShippedQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ShippedQty"].ToString());
+                    sheet[ROW, colBalShipment].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["BalShipment"].ToString());
 
 
-                    sheet[ROW, colPlan].Text = dtOrder.Rows[i]["TotalPlanQty"].ToString();
-                    sheet[ROW, colToPlan].Text = dtOrder.Rows[i]["RemainingPlanQuantity"].ToString();
+                    sheet[ROW, colPlan].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["TotalPlanQty"].ToString());
+                    sheet[ROW, colToPlan].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["RemainingPlanQuantity"].ToString());
                     sheet[ROW, colorderRemarks].Text = dtOrder.Rows[i]["OrderRemarks"].ToString();
                     sheet[ROW, colorderStatus].Text = dtOrder.Rows[i]["OrderControlStatus"].ToString();
                     sheet[ROW, colMainMaterialRemarks].Text = dtOrder.Rows[i]["MainRMInhouseRemarks"].ToString();
@@ -635,26 +621,145 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     ROW++;
                 }
 
-
-
+                IListObject table = sheet.ListObjects.Create("Table1", sheet[(1) + (6).ToString() + ":" + (endCol) + (ROW).ToString()]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                reportUtility.PlantHeader(ref sheet, endCol, "Order Report", identity.PlantId);
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet.UsedRange["A7"].FreezePanes();
 
-                sheet["A" + startRow.ToString()].FreezePanes();
+                 identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                 reportUtility = new ReportUtility();
+               // reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "OrderReport", identity.CompanyId, identity.CompanyName, "");
 
-                identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Order Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sheet.IsGridLinesVisible = false;
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
 
 
                 #endregion
+                #region Pivot
+                string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "TempReport" + identity.UserId + ".xlsx";
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(fPath);
+                workbook = application.Workbooks.Open(fPath);
+                try { System.IO.File.Delete(fPath); } catch (Exception) { }
+
+                workbook.Worksheets[2].Name = "Pivot";
+                IWorksheet pivotSheet = workbook.Worksheets[2];
+                IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
+                IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
+
+                pivotTable.Fields[colPlant - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colResponsiblePerson - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colCustomer - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colBuyer - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colCommitmentDate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colBuyerRefNo - 1].Axis = PivotAxisTypes.Row;
+
+                pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colDeliveryDate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPlanExFactoryDate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSalesOrderId - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSalesOrderStatus - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductionStatus - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductionStartDate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProductionOrderCategory - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colLSD - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colMainrawMaterialDate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colOtherRawMaterialDate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSPT - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colRemarks - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colorderRemarks - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colorderStatus - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colMainMaterialRemarks - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colMainMaterialStatus - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colOtherRawMaterialRemarks - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colOtherRawMaterialStatus - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colInputRemarks - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colInputStatus - 1].Axis = PivotAxisTypes.Row;
+
+
+                IPivotField field = pivotTable.Fields[colRate - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat();
+                pivotTable.DataFields.Add(field, "Rate", PivotSubtotalTypes.Sum);
+
+                field = pivotTable.Fields[colCM - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat();
+                pivotTable.DataFields.Add(field, "CM", PivotSubtotalTypes.Sum);
+
+
+                field = pivotTable.Fields[colSOQty - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
+
+                field = pivotTable.Fields[colShippedQty - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.DataFields.Add(field, "Shipped Qty", PivotSubtotalTypes.Sum);
+
+                field = pivotTable.Fields[colBalShipment - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.DataFields.Add(field, "Bal Shipment", PivotSubtotalTypes.Sum);
+
+
+                field = pivotTable.Fields[colPlan - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(0);
+                pivotTable.DataFields.Add(field, "Plan", PivotSubtotalTypes.Sum);
+
+                field = pivotTable.Fields[colToPlan - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(0);
+                pivotTable.DataFields.Add(field, "To Plan", PivotSubtotalTypes.Sum);
+
+
+                for (int i = 0; i < pivotTable.Fields.Count; i++)
+                {
+                    if (i == colPlant - 1 || i == colEntity - 1 || i == colResponsiblePerson - 1 || i == colCustomer - 1 || i == colBuyer - 1)
+                        continue;
+                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                }
+
+                pivotTable.ShowDrillIndicators = false;
+                pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
+                pivotTable.Options.NullString = "";
+                pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
+
+                sheet = workbook.Worksheets[2];
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Order Report", identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+
+                #endregion Buyer Summary
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();
@@ -665,11 +770,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 throw ex;
             }
-
-
         }
-
-
         private void OrderReportSQL(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType, out DataTable dtOrder)
         {
             string date = "";

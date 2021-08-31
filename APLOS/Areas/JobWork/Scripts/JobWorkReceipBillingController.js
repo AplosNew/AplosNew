@@ -21,15 +21,11 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.searchBy = "p.UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'p.UserName', name: "Party Name" }, { value: 'e.UserName', name: "Entity" }, { value: 'Date', name: "Date" }];
 
-    //////// Drop Down
-
     var d = new Date();
     var hh = d.getHours();
     var mm = d.getMinutes();
     mm = (mm < 10 ? '0' + mm : mm);
     var ss = d.getSeconds()
-
-    //   var _Time = hh + ":" + mm + ":" + ss;
     var _Time = hh + ":" + mm;
 
     $scope.ModelTemp = {
@@ -128,7 +124,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     };
     $scope.ReceiptTransformation = Object.assign({}, $scope.ReceiptTransformationModelTemp);
 
-
     $scope.ShowExCurrency = true;
     $scope.CurrencyId = null;
     $scope.currencyList = [];
@@ -136,7 +131,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $scope.currencyList = [];
         $scope.currencyList = result;
         $scope.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
-       
+
     });
 
     $scope.GetCurrencyExchangeRateList = function (CurrencyId) {
@@ -182,7 +177,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
         });
     }
-
 
     $scope.GetData = function () {
         $http({
@@ -264,18 +258,17 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             $scope.TabTypeNew = $scope.Transformation.TabType;
             $scope.ReceiptTransformation.TransformationContractId = $scope.Transformation.Id;
 
-
             if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
                 $scope.ShowExCurrency = false;
             }
 
-            if ($scope.ModelNew.TabType == "Transformation") {
-                $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
-                $scope.ShowJWPOPopUp($scope.ModelNew.JWTransformationPurchaseOrderId);
-            }
-            else {
-                $scope.GetReceiptVAChildData();
-            }
+            //if ($scope.ModelNew.TabType == "Transformation") {
+            $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
+            $scope.ShowJWPOPopUp($scope.ModelNew.JWTransformationPurchaseOrderId);
+            //}
+            //else {
+            //    $scope.GetReceiptVAChildData();
+            //}
             $scope.GetCurrencyExchangeRateList($scope.ModelNew.CurrencyId);
             angular.element(document.querySelector("#ContractPopUp")).modal("hide");
         } catch (e) {
@@ -286,9 +279,9 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.GetJWGRNDataChecking = function (contractId) {
         $scope.GriddataMaster = [];
         $scope.lst = [];
-        if ($scope.GRNbyPOCheckStatus === "ForChecked") {
-            $scope.GRNbyPOCheckStatus = "ForChecked";
-        }
+        //if ($scope.GRNbyPOCheckStatus === "ForChecked") {
+        //    $scope.GRNbyPOCheckStatus = "ForChecked";
+        //}
         $http({
             method: "GET",
             dataType: 'JSON',
@@ -324,8 +317,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     }
 
     $scope.JWPOList = [];
-
-
     $scope.ShowJWPOPopUp = function (contractId) {
         $http({
             method: "GET",
@@ -336,11 +327,9 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         });
     }
 
-
-
     $scope.calculateBalance = function (data) {
         data.BalanceQty = data.ReceiveQty - data.BillingQty;
-        data.Amount = data.BillingQty * data.MaterialTranRate;
+        data.Amount = parseFloat(data.BillingQty * data.MaterialTranRate).toFixed(2);
         var gridObj = $("#GridJWPO").data("ejGrid");
         gridObj.refreshContent(true);
         gridObj.refreshTemplate();
