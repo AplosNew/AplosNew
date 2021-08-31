@@ -94,7 +94,7 @@ namespace Aplos.Areas.Products.Controllers
                                 , P.UserName AS PartyName
                                 , IRD.POId,IRD.PODocRefNo, IR.DocRefNo
                                 , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                                ,IR.GateEntryNo,C.Code Currency,CONVERT(NUMERIC(10,2),IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount,0 AS Active
+                                ,IR.GateEntryNo,C.Code Currency,CONVERT(NUMERIC(10,2),IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount,POD.TransactionAmount,0 AS Active
                                 FROM [TRN].[InventoryReceive] AS IR 
                           JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                           JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId                        
@@ -115,6 +115,7 @@ namespace Aplos.Areas.Products.Controllers
 						  Where PO.PurchaseLCId='" + purchaseLCId + @"'
 						  GROUP BY InventoryReceiveId
 						  ) IRD ON IRD.InventoryReceiveId=IR.Id
+                          JOIN(SELECT SUM(TransactionAmount) TransactionAmount,InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId)POD ON POD.InventoryReceiveId=IRD.POId 
                           WHERE IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1
                           AND IR.Id IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)";
 
@@ -760,11 +761,12 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult CreateGRNAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail)
         {
             string acptDetailId = "";
-            DataSet dsMaster, detailDestination, taxDestination, servicetaxDestination;
-            DataView dvdetailDestination = null;
+            DataSet dsMaster, detailDestination, taxDestination, servicetaxDestination, dsdetailGRN, dsdetailPO;
+            DataView dvdetailDestination, dvdetailGRN, dvdetailPO = null;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
             string inventoryReceiveId = "";
+            string PoId = "";
             foreach (var item in PurchaseDocAcceptanceDetail)
             {
                 if (string.IsNullOrEmpty(inventoryReceiveId))
@@ -775,13 +777,24 @@ namespace Aplos.Areas.Products.Controllers
                 {
                     inventoryReceiveId += "," + item.Id;
                 }
-
+                if (string.IsNullOrEmpty(PoId))
+                {
+                    PoId += "''," + item.POId;
+                }
+                else
+                {
+                    PoId += "," + item.POId;
+                }
             }
 
             SaveData(entity, out dsMaster, out string masterId);
             entity.Id = masterId;
 
-            con.OpenDataSetThroughAdapter("SELECT * FROM TRN.PurchaseDocAcceptanceDetail WHERE PODetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + "))", out detailDestination, false, "1");
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.PurchaseDocAcceptanceDetail WHERE PODetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + "))", out detailDestination, false, "1");
+
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.[InventoryReceiveDetail] WHERE InventoryReceiveId IN (" + inventoryReceiveId + ")", out dsdetailGRN, false, "1");
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.[PurchaseOrderDetail] WHERE InventoryReceiveId IN (" + PoId + ")", out dsdetailPO, false, "1");
+
             //con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceTax] WHERE PurchaseDocAcceptanceDetailId IN (SELECT Id FROM TRN.PurchaseDocAcceptanceDetail Where InventoryReceiveDetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + ")))", out taxDestination, false, "1");
             //con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceService] WHERE PurchaseDocAcceptanceId='" + masterId + "'", out servicetaxDestination, false, "1");
 
@@ -866,13 +879,36 @@ namespace Aplos.Areas.Products.Controllers
 
                 }
 
+                dvdetailGRN = new DataView(dsdetailGRN.Tables[0]);
+                dvdetailGRN.RowFilter = "Id='" + acceptanceDetailSource.Rows[K]["Id"].ToString() + "' AND InventoryReceiveId='"+ acceptanceDetailSource.Rows[K]["InventoryReceiveId"].ToString() + "'";
+                if (dvdetailGRN.Count>0)
+                {
+                    DataRow drGRN = dvdetailGRN[0].Row;
+                    drGRN.BeginEdit();
+
+                    drGRN["PurchaseDocumentAcceptanceId"] = masterId;
+                    drGRN["PurchaseDocumentAcceptanceDetailId"] = acptDetailId;
+
+                    drGRN.EndEdit();
+                }
+
+                dvdetailPO = new DataView(dsdetailPO.Tables[0]);
+                dvdetailPO.RowFilter = "Id='" + acceptanceDetailSource.Rows[K]["PODetailsId"].ToString() + "'";
+                if (dvdetailPO.Count > 0)
+                {
+                    DataRow drPO = dvdetailPO[0].Row;
+                    drPO.BeginEdit();
+
+                    drPO["AcceptanceRcvQty"] = acceptanceDetailSource.Rows[K]["TransactionQty"].ToString();
+                    drPO.EndEdit();
+                }
 
             }
 
             SaveGRNAcceptanceMapData(PurchaseDocAcceptanceDetail, masterId, out DataSet dsGRNAcceptanceMap);
 
             clsStaticInfo _info = new clsStaticInfo();
-            _info.SaveDataSets(dsMaster, detailDestination, dsGRNAcceptanceMap/*, taxDestination,  servicetaxDestination*/);
+            _info.SaveDataSets(dsMaster, detailDestination, dsGRNAcceptanceMap, dsdetailGRN, dsdetailPO/*, taxDestination,  servicetaxDestination*/);
 
             return Json(new { entity, Message = AplosMessage.Insert });
         }
@@ -950,6 +986,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["InvoiceNo"] = data.InvoiceNo;
                     dr["PrePurchaseInvoiceId"] = data.PrePurchaseInvoiceId;
                     dr["EntryDate"] = data.EntryDate;
+                    dr["TotalPOAmount"] = data.TotalPOAmount;
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -983,6 +1020,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["InvoiceNo"] = data.InvoiceNo;
                     dr["PrePurchaseInvoiceId"] = data.PrePurchaseInvoiceId;
                     dr["EntryDate"] = data.EntryDate;
+                    dr["TotalPOAmount"] = data.TotalPOAmount;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -1100,14 +1138,12 @@ namespace Aplos.Areas.Products.Controllers
                 {
                     for (int i = 0; i < dsPO.Tables[0].Rows.Count; i++)
                     {
-
                         objCon.OpenDataSetThroughAdapter(@"Select TransactionQty  FROM TRN.PurchaseDocAcceptanceDetail Where PODetailId='" + dsPO.Tables[0].Rows[i]["Id"].ToString() + "'", out dsPAD, false, "1");
 
                         if (dsPAD.Tables[0].Rows.Count > 0)
                         {
                             Tqty = Convert.ToDecimal(dsPAD.Tables[0].Rows[0]["TransactionQty"].ToString());
                         }
-
 
                         DataView dv = new DataView(dsPO.Tables[0]);
                         dv.RowFilter = "Id='" + dsPO.Tables[0].Rows[i]["Id"].ToString() + "'";
@@ -1132,12 +1168,7 @@ namespace Aplos.Areas.Products.Controllers
                             drmo.EndEdit();
 
                         }
-
-
-
                     }
-
-
                 }
 
                 objCon.ExecuteNonQueryWrapper(strGRNACPTSQL, true, "1");

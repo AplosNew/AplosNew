@@ -1050,12 +1050,12 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
 
     }
 
-    $scope.delete = function (invoiceId, voucherId,type) {
+    $scope.delete = function (gRNId, voucherId, invoiceId, type, tDSTaxVoucherId, tDSVoucherNo) {
         $http({
             method: "POST",
             url: 'accounts/Invoice/DeleteInventoryPayable',
             data: {
-                "grnId": invoiceId, "voucherId": voucherId, "type":type
+                "grnId": gRNId, "voucherId": voucherId, "invoiceId": invoiceId, "type": type, "tDSTaxVoucherId": tDSTaxVoucherId, "tDSVoucherNo": tDSVoucherNo
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -1069,6 +1069,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                 $scope.GRNId = null;
                 $scope.VoucherId = null;
                 $scope.Type = null;
+                $scope.TDSTaxVoucherId = null;                $scope.TDSVoucherNo = null;                $scope.InvoiceId = null;
             }
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
@@ -1076,6 +1077,6 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         return true;
     };
 
-    $scope.onClickDeletePopUp = function (x) {        var data = x;        $scope.GRNId = data.Id;        $scope.VoucherId = data.VoucherId;        $scope.Type = data.Type;        $scope.message_delete_confirmation = "Are you sure to Delete?";        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+    $scope.onClickDeletePopUp = function (x) {        var data = x;        $scope.GRNId = data.Id;        $scope.VoucherId = data.VoucherId;        $scope.TDSTaxVoucherId = data.TDSTaxVoucherId;        $scope.TDSVoucherNo = data.TDSVoucherNo;        $scope.InvoiceId = data.InvoiceId;        $scope.Type = data.GRNType;        $scope.message_delete_confirmation = "Are you sure to Delete?";        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
     };
 }

@@ -90,7 +90,7 @@ namespace Library.MaterialManagement.Inventory
 							 ,PLC.VendorId PartyId
 							 ,PP.Id PartyPlantId, PP.UserName PartyPlant,PLC.LCRef,PLC.CurrencyId,CN.Code CurrencyName,PLC.Tenure,PLC.OpeningBankMasterId
 							 ,BM.CurrencyId LCOBCurrencyId,BMC.Code OBCurrencyCode,ISNULL(C.ContractNo,'')ContractNo,AcceptanceFirst=CASE WHEN PLC.IsAccepptanceFirst=1 THEN 'Yes' ELSE 'No' END
-							  ,ISNULL(PT.UserName,'') CustomerName,ISNULL(C.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,PLC.Amount
+							  ,ISNULL(PT.UserName,'') CustomerName,ISNULL(C.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,PLC.Amount LCAmount
                     FROM dbo.PurchaseLC PLC  
                     LEFT JOIN dbo.[Contract] C On C.Id=PLC.ContractId
                     LEFT JOIN dbo.[MasterLC] MLC ON MLC.Id=C.MasterLCId
@@ -167,7 +167,7 @@ namespace Library.MaterialManagement.Inventory
                                 , P.UserName AS PartyName
                                 , IRD.POId,IRD.PODocRefNo, IR.DocRefNo
                                 , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                                ,IR.GateEntryNo,C.Code Currency,CONVERT(NUMERIC(10,2),IRD.TotalMaterialBooksCurrencyAmount) TransactionAmount,0 AS Active
+                                ,IR.GateEntryNo,C.Code Currency,CONVERT(NUMERIC(10,2),IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount,POD.TransactionAmount,0 AS Active
                                 FROM [TRN].[InventoryReceive] AS IR 
                           JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                           JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId                        
@@ -188,6 +188,7 @@ namespace Library.MaterialManagement.Inventory
 						  Where PO.PurchaseLCId='" + purchaseLCId + @"'
 						  GROUP BY InventoryReceiveId
 						  ) IRD ON IRD.InventoryReceiveId=IR.Id
+                            JOIN(SELECT SUM(TransactionAmount) TransactionAmount,InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId)POD ON POD.InventoryReceiveId=IRD.POId 
                           WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1
                           AND IR.Id NOT IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)";
                 return _sqlRepository.GetDataCollection(Sql);
@@ -1884,7 +1885,7 @@ namespace Library.MaterialManagement.Inventory
                                  ,FORMAT(PDA.InvoiceDate,'dd-MMM-yyyy')InvoiceDate,C.Code CurrencyName,PLC.CurrencyId, P.UserName Party,PDA.PurchaseLCId,PLC.ContractId,PDA.AcceptanceRate
                                  ,PLC.Tenure,PLC.OpeningBankMasterId,BM.CurrencyId LCOBCurrencyId,BMC.Code OBCurrencyCode
                                  ,NonCreditable =case when PDA.IsNonCreditable=1 then 'Yes' else 'No' end
-                                 ,PDA.IsNonCreditable,PLC.LCRef,CN.ContractNo,ISNULL(CN.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end,PCN.UserName CustomerName
+                                 ,PDA.IsNonCreditable,PLC.LCRef,CN.ContractNo,ISNULL(CN.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end,PCN.UserName CustomerName,PDA.TotalPOAmount
                                  FROM TRN.PurchasedocAcceptance AS PDA
                                  LEFT JOIN(SELECT SUM(ISNULL(MaterialTranAmount,0)) MaterialTranAmount,PurchaseDocAcceptanceId 
                                  FROM  TRN.PurchasedocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id
