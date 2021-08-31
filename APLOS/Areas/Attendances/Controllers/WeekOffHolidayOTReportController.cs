@@ -127,7 +127,7 @@ namespace Aplos.Areas.Attendances.Controllers
 									,ISNULL(Department.UserName,'') Department 
 									,ISNULL(Division.UserName,'') Division 
 									,ISNULL(EmpC.UserName,'') EmployeeCategory
-									,ISNULL(Plant.UserName,'') Plant 
+									,ISNULL(Plant.UserName,'') Plant ,ISNULL(Plant.Id,'') PlantId 
 									,ISNULL(Section.UserName,'') Section 
 									,ISNULL(SubSection.UserName,'') SubSection 
 									,ISNULL(Unit.UserName,'') Unit 

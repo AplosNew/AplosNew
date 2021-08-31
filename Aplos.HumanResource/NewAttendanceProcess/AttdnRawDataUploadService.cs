@@ -26,6 +26,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
+                if (DataToSave.Count() == 0)
+                    return "Either Data not in Correct Format or Missing....";
+
                 List<AttdnRawData> items = DataToSave.ToList();
 
                 DataSet dsRef,dsPlant,Device;
@@ -70,8 +73,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             drx["LogDownLoadNum"] = item.LogDownLoadNum;
                             drx["PlantID"] = PlantId;
                             drx["GroupID"] = GpId;
-                            drx["PDate"] = item.PTime.ToString("dd-MMM-yyyy");
-                            drx["PTime"] = item.PTime;
+                            drx["PDate"] =Convert.ToDateTime(item.PTime).ToString("dd-MMM-yyyy");
+                            drx["PTime"] =Convert.ToDateTime(item.PTime);
                             drx["PType"] = clsWebLib.RetValidLen(item.PType);
                             drx["AddedBy"] = "API";
                             drx["DateAdded"] = DateTime.Now;
@@ -105,8 +108,8 @@ namespace Library.HumanResource.NewAttendanceProcess
         public string DeviceId { get; set; }
         public string DevSystemId { get; set; }
         public string LogDownLoadNum { get; set; }
-        public DateTime PDate { get; set; }
-        public DateTime PTime { get; set; }
+        public string PDate { get; set; }
+        public string PTime { get; set; }
         public string PType { get; set; }
         public string ProcessedFlag { get; set; }
         public string FlagSetByProcess { get; set; }

@@ -4378,32 +4378,28 @@ UNION ALL
         private DataTable GetGSTPayableFormat1SQL(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
         {
             string strSql = "";
-            strSql = @"SELECT * FROM (SELECT SourceType= CASE WHEN V.SourceType='VendorInvoice' THEN 'Expense'
-                            WHEN V.SourceType='VendorPayment' THEN 'Vendor Payment'
-                            WHEN V.SourceType='InventoryPayable' THEN 'Material' ELSE '' END
+            strSql = @"--select  distinct sourcetype from trn.voucher
+                        SELECT * FROM (SELECT SourceType= CASE WHEN V.SourceType='CustomerInvoice' THEN 'Expense'
+                            WHEN V.SourceType='CustomerReceipt' THEN 'Customer Receipt' ELSE '' END
                             ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
 							,P.UserName PartyName,PP.GSTIN
 							,NULL GRNNo,pp.UserName PartyPlantName
-                            ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material'
-                            WHEN v.SourceType='VendorInvoice' THEN 'GL'
-                            WHEN v.SourceType='VendorPayment' THEN 'GL'
-                            ELSE '' END
-                            ,Particular=CASE WHEN v.SourceType='VendorInvoice' THEN A.UserName
-                            WHEN v.SourceType='VendorPayment' THEN AP.UserName
-                            ELSE '' END
-                            ,TaxableAmount=case when v.SourceType='InventoryPayable' then 0
-                            when v.SourceType='VendorInvoice' then VD.DrAmount
-                            when v.SourceType='VendorPayment' then IWD.Amount else 0 end
-                            ,IT.Id,DrAmount=case when ITD.AType='Dr' then IT.TaxAmount else 0 end,0 CrAmount
+                            ,LineItemType=case WHEN v.SourceType='CustomerInvoice' THEN 'GL'
+                            WHEN v.SourceType='CustomerReceipt' THEN 'GL' ELSE '' END
+                            ,Particular=CASE WHEN v.SourceType='CustomerInvoice' THEN A.UserName
+                            WHEN v.SourceType='CustomerReceipt' THEN AP.UserName ELSE '' END
+                            ,TaxableAmount=case when v.SourceType='CustomerInvoice' then 0
+                            when v.SourceType='CustomerInvoice' then VD.CrAmount
+                            when v.SourceType='CustomerReceipt' then IWD.Amount else 0 end
+                            ,IT.Id,0 DrAmount,CrAmount=case when ITD.AType='Dr' then IT.TaxAmount else 0 end
 	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
                             ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
                             ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,0 IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                             ,0 [Percentage],NULL HSNCodeId,NULL Material
-							,TaxPercentage= case when v.SourceType='VendorInvoice' then taxc.ValueOfFixed
-												  else 0 end
-												 ,TA.UserName ActivityName,NULL InventoryReceiveDetailId,NULL InventoryServiceId
+							,TaxPercentage= case when v.SourceType='CustomerInvoice' then taxc.ValueOfFixed else 0 end
+												 ,TA.UserName ActivityName,NULL SalesMaterialId,NULL SalesServiceId
                             from TRN.InvoiceTax IT
-                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
                             LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
@@ -4412,122 +4408,176 @@ UNION ALL
                             LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
                             LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
                             LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
-                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId+@")) TAXC ON TAXC.Id=IT.TaxCodeId
                             LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
                             LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
                             LEFT JOIN (SELECT IW.InvoiceWriteOffId,IW.ActivityId,SUM(I.Amount) Amount FROM TRN.InvoiceWriteOffDetail IW
                             JOIN TRN.Invoice I ON I.Id=IW.InvoiceId
                             GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                             LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
-                            where TC.TaxCategoryType='GST' AND TAXC.IsRCM=0 AND  V.IsPark=0 AND V.PlantId='" + plantId + "' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType IN ('VendorInvoice','VendorPayment','CustomerInvoice')
+                            where TC.TaxCategoryType='GST' AND TAXC.IsRCM=0 AND  V.IsPark=0 AND V.PlantId='"+plantId+@"' 
+							and V.PostingDate between '"+fromDate+"' AND '"+toDate+@"'
+                            AND v.SourceType IN ('CustomerReceipt','CustomerInvoice')
                             
                             UNION all
 
-							SELECT SourceType= CASE WHEN V.SourceType='VendorInvoice' THEN 'Expense'
-                            WHEN V.SourceType='VendorPayment' THEN 'Vendor Payment'
-                            WHEN V.SourceType='InventoryPayable' THEN 'Material' ELSE '' END
+							SELECT SourceType= CASE WHEN V.SourceType='SalesInvoice' THEN 'Material' ELSE '' END
                             ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.UserName PartyName,PP.GSTIN
-							,IRD.InventoryReceiveId GRNNo,pp.UserName PartyPlantName
-                            ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material'
-                            WHEN v.SourceType='VendorInvoice' THEN 'GL'
-                            WHEN v.SourceType='VendorPayment' THEN 'GL'
-                            ELSE '' END
-                            ,Particular=CASE WHEN v.SourceType='InventoryPayable' THEN MM.UserName
-                            ELSE '' END
-                            ,TaxableAmount=case when v.SourceType='InventoryPayable' then IRD.MaterialTranAmount
-                            else 0 end
-                            ,IT.Id,DrAmount=case when ITD.AType='Dr' then IRT.TaxAmount else 0 end,0 CrAmount
+							,IRD.SalesId GRNNo,pp.UserName PartyPlantName
+                            ,LineItemType=case when v.SourceType='SalesInvoice' then 'Material' ELSE '' END
+                            ,Particular=CASE WHEN v.SourceType='SalesInvoice' THEN MM.UserName ELSE '' END
+                            ,TaxableAmount=case when v.SourceType='SalesInvoice' then IRD.TaxAmount ELSE 0 END
+                            ,IT.Id,0 DrAmount,CrAmount=case when ITD.AType='Cr' then IRT.Amount else 0 end
 	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
                             ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
-                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
+                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(CP.TaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
-							,TaxPercentage= case  when v.SourceType='InventoryPayable' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
-												 else 0 end
-												 ,TA.UserName ActivityName,IRT.InventoryReceiveDetailId,IRT.InventoryServiceId
+							,TaxPercentage= case  when v.SourceType='SalesInvoice' AND IRT.[Percentage]>0 THEN IRT.[Percentage] ELSE 0 END
+												 ,TA.UserName ActivityName,IRT.SalesMaterialId,IRT.SalesServiceId
                             from TRN.InvoiceTax IT
-                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
                             LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                             --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
                             LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
-							
+							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=IT.PartyId and CP.PartyType='Customer' and CP.PlantId=V.PlantId
                             LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
                             LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
                             LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
-                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") 
-							--and tac.IsRCM=0
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ("+taxyearId+@") 
 							) TAXC ON TAXC.Id=IT.TaxCodeId
-                            --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
-                            LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
-                            LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-                            LEFT JOIN TRN.InventoryReceiveTax IRT ON IRD.Id=IRT.InventoryReceiveDetailId AND IRT.TaxCategoryId=IT.TaxCategoryId
-                            --LEFT JOIN MST.HSNTaxPercentage HSNP ON IRT.HSNCodeId=HSNP.HSNCodeId AND HSNP.TaxCategoryId=IT.TaxCategoryId
-                            LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+                            LEFT JOIN TRN.Sales IR ON IR.VoucherId=V.Id
+                            LEFT JOIN TRN.SalesMaterial IRD ON IRD.SalesId=IR.Id
+                            LEFT JOIN TRN.Salestax IRT ON IRD.Id=IRT.SalesMaterialId AND IRT.TaxCategoryId=IT.TaxCategoryId
+                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=IRD.MaterialMasterId
+                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
+                            LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+                            Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
+                            where TC.TaxCategoryType='GST' AND CP.TaxApplicable IS NULL  AND V.IsPark=0
+							AND V.PlantId = '"+plantId+"' and V.PostingDate between '"+fromDate+"' AND '"+toDate+@"'
+                            AND v.SourceType='SalesInvoice' and IRT.SalesServiceId IS NULL AND IR.Id<>''
+
+                            UNION ALL
+
+                            SELECT SourceType= CASE WHEN V.SourceType='SalesInvoice' THEN 'Material' ELSE '' END
+                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.UserName PartyName,PP.GSTIN
+							,IRD.SalesId GRNNo,pp.UserName PartyPlantName
+                            ,LineItemType=case when v.SourceType='SalesInvoice' then 'Material' ELSE '' END
+                            ,Particular=CASE WHEN v.SourceType='SalesInvoice' THEN MM.UserName ELSE '' END
+                            ,TaxableAmount=case when v.SourceType='SalesInvoice' then IRD.TaxAmount ELSE 0 END
+                            ,IT.Id,0 DrAmount,CrAmount=case when ITD.AType='Cr' then IRT.Amount else 0 end
+	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
+                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
+                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(CP.TaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
+                            ,IRT.[Percentage],NULL HSNCodeId,null Material
+							,TaxPercentage= case  when v.SourceType='SalesInvoice' AND IRT.[Percentage]>0 THEN IRT.[Percentage] ELSE 0 END
+												 ,TA.UserName ActivityName,IRT.SalesMaterialId,IRT.SalesServiceId
+                            from TRN.InvoiceTax IT
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
+                            LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
+                            --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
+                            LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
+                            LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=IT.PartyId and CP.PartyType='Customer' and CP.PlantId=V.PlantId
+                            LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
+                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ('','4') 
+							) TAXC ON TAXC.Id=IT.TaxCodeId
+                            LEFT JOIN TRN.Sales IR ON IR.VoucherId=V.Id
+                            LEFT JOIN TRN.SalesMaterial IRD ON IRD.SalesId=IR.Id
+                            LEFT JOIN TRN.Salestax IRT ON IRD.Id=IRT.SalesMaterialId AND IRT.TaxCategoryId=IT.TaxCategoryId
+                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=IRD.MaterialMasterId
+                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
+                            LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+                            Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
+                            where TC.TaxCategoryType='GST' AND CP.TaxApplicable IS NULL  AND V.IsPark=0
+							AND V.PlantId = '"+plantId+"' and V.PostingDate between '"+fromDate+"' AND '"+toDate+@"'
+                            AND v.SourceType='SalesInvoice' and IRT.SalesMaterialId IS NULL AND IR.Id<>''
+
+
+							 UNION all
+
+							SELECT SourceType= CASE WHEN V.SourceType='SalesInvoice' THEN 'Material' ELSE '' END
+                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.UserName PartyName,PP.GSTIN
+							,IRD.InventorySalesId GRNNo,pp.UserName PartyPlantName
+                            ,LineItemType=case when v.SourceType='SalesInvoice' then 'Material' ELSE '' END
+                            ,Particular=CASE WHEN v.SourceType='SalesInvoice' THEN MM.UserName ELSE '' END
+                            ,TaxableAmount=case when v.SourceType='SalesInvoice' then IRD.TotalSalesAmount ELSE 0 END
+                            ,IT.Id,0 DrAmount,CrAmount=case when ITD.AType='Cr' then IRT.TaxAmount else 0 end
+	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
+                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
+                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(CP.TaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
+                            ,IRT.[Percentage],NULL HSNCodeId,null Material
+							,TaxPercentage= case  when v.SourceType='SalesInvoice' AND IRT.[Percentage]>0 THEN IRT.[Percentage] ELSE 0 END
+												 ,TA.UserName ActivityName,IRT.InventoryReceiveDetailId SalesMaterialId,IRT.InventorySalesServiceId SalesServiceId
+                            from TRN.InvoiceTax IT
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
+                            LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
+                            --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
+                            LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
+                            LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=IT.PartyId and CP.PartyType='Customer' and CP.PlantId=V.PlantId
+                            LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
+                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ("+taxyearId+@") 
+							) TAXC ON TAXC.Id=IT.TaxCodeId
+                            LEFT JOIN TRN.InventorySales IR ON IR.VoucherId=V.Id
+                            LEFT JOIN TRN.InventorySalesDetail IRD ON IRD.InventorySalesId=IR.Id
+                            LEFT JOIN TRN.InventorySalesTax IRT ON IRD.Id=IRT.InventoryReceiveDetailId AND IRT.TaxCategoryId=IT.TaxCategoryId
+							LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
                             LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
                             LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
                             Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
-                            where TC.TaxCategoryType='GST' AND IR.IsTaxApplicable=0 AND V.IsPark=0
-							AND V.PlantId = '" + plantId + "' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType='InventoryPayable' and IRT.InventoryServiceId IS NULL
-                            
-                            UNION all
+                            where TC.TaxCategoryType='GST' AND CP.TaxApplicable IS NULL  AND V.IsPark=0
+							AND V.PlantId = '"+plantId+"' and V.PostingDate between '"+fromDate+"' AND '"+toDate+@"'
+                            AND v.SourceType='SalesInvoice' and IRT.InventorySalesServiceId IS NULL AND IR.Id<>''
+                            UNION ALL
 
-                            SELECT SourceType = CASE WHEN V.SourceType = 'VendorInvoice' THEN 'Expense'
-                            WHEN V.SourceType = 'VendorPayment' THEN 'Vendor Payment'
-                            WHEN V.SourceType = 'InventoryPayable' THEN 'Service' ELSE '' END
-                            ,V.VoucherNo,format(V.PostingDate, 'dd-MMM-yyyy')PostingDate, V.DocRefNo,format(V.DocDate, 'dd-MMM-yyyy')DocDate,P.UserName PartyName, PP.GSTIN
-							, IRD.InventoryReceiveId GRNNo,pp.UserName PartyPlantName
-                              , LineItemType =case when v.SourceType = 'InventoryPayable' then 'Service'
-                            
-                            ELSE '' END
-                            ,Particular = CASE WHEN v.SourceType = 'InventoryPayable' THEN SM.UserName
-                                ELSE '' END
-                            ,TaxableAmount =case when v.SourceType = 'InventoryPayable' then IRD.Amount
-
-                             else 0 end
-                            ,IT.Id,DrAmount =case when ITD.AType = 'Dr' then IRT.TaxAmount else 0 end,0 CrAmount
-	                        ,format(v.VoucherDate, 'dd-MMM-yyyy')VoucherDate
-                            ,TC.TaxCategoryType,TC.Code TaxCode, TC.Sequence TCSequence, TC.UserName + '-' + TC.Code TaxCategory,IsNULL(TAXC.IsRCM, 0) IsRCM,TAXC.UserName TaxCodeName
-                                   , IsNULL(IV.IsExcludingTax, 0) IsExcludingTax,IsNULL(IR.IsTaxApplicable, 0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
+                           SELECT SourceType= CASE WHEN V.SourceType='SalesInvoice' THEN 'Material' ELSE '' END
+                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.UserName PartyName,PP.GSTIN
+							,IRD.InventorySalesId GRNNo,pp.UserName PartyPlantName
+                            ,LineItemType=case when v.SourceType='SalesInvoice' then 'Material' ELSE '' END
+                            ,Particular=CASE WHEN v.SourceType='SalesInvoice' THEN MM.UserName ELSE '' END
+                            ,TaxableAmount=case when v.SourceType='SalesInvoice' then IRD.TotalSalesAmount ELSE 0 END
+                            ,IT.Id,0 DrAmount,CrAmount=case when ITD.AType='Cr' then IRT.TaxAmount else 0 end
+	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
+                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
+                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(CP.TaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
-							,TaxPercentage = case  when v.SourceType = 'InventoryPayable'  THEN IRT.[Percentage]
-
-                                                 else 0 end
-												 ,TA.UserName ActivityName,IRT.InventoryReceiveDetailId,IRT.InventoryServiceId
+							,TaxPercentage= case  when v.SourceType='SalesInvoice' AND IRT.[Percentage]>0 THEN IRT.[Percentage] ELSE 0 END
+												 ,TA.UserName ActivityName,IRT.InventoryReceiveDetailId SalesMaterialId,IRT.InventorySalesServiceId SalesServiceId
                             from TRN.InvoiceTax IT
-                            left
-                            join TRN.InvoiceTaxDetail ITD ON IT.Id = ITD.InvoiceTaxId AND ITD.AType = 'Dr'
-                            LEFT JOIN TRN.Voucher V ON V.Id = IT.VoucherId
-                            LEFT JOIN TRN.Invoice IV ON IV.Id = IT.InvoiceId
-                            LEFT JOIN HKP.Activity TA ON TA.Id = ITD.ActivityId
-                            LEFT JOIN HKP.Party P ON P.Id = IT.PartyId
-							
-                            LEFT JOIN MST.TaxCategory TC ON TC.Id = IT.TaxCategoryId
-                            LEFT JOIN(select TAC.Id, TAC.UserName, TAC.IsRCM, TAY.[Type], TACD.ValueOfFixed from MST.TaxCode TAC
-                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId= TAC.Id
-                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId= TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") 
-							) TAXC ON TAXC.Id = IT.TaxCodeId
-                            LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId = V.Id
-                            LEFT JOIN TRN.InventoryReceiveTax IRT ON IRT.InventoryReceiveId = IR.Id AND IRT.TaxCategoryId = IT.TaxCategoryId
-                            --LEFT JOIN MST.HSNTaxPercentage HSNP ON IRT.HSNCodeId = HSNP.HSNCodeId AND HSNP.TaxCategoryId = IT.TaxCategoryId
-                            LEFT JOIN TRN.InventoryService IRD ON IRD.Id = IRT.InventoryServiceId
-                            LEFT JOIN hkp.ServiceMaster SM ON SM.Id = IRD.ServiceMasterId
-                             Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
-
-                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id = IT.VoucherDetailId
-                            LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
-                            LEFT JOIN(SELECT IW.InvoiceWriteOffId, IW.ActivityId, SUM(I.Amount) Amount FROM TRN.InvoiceWriteOffDetail IW
-                            JOIN TRN.Invoice I ON I.Id= IW.InvoiceId
-                            GROUP BY InvoiceWriteOffId, ActivityId) IWD ON IWD.InvoiceWriteOffId = IT.InvoiceWriteOffId
-                            LEFT JOIN HKP.Activity AP ON AP.Id = IWD.ActivityId
-                            where TC.TaxCategoryType = 'GST' AND IR.IsTaxApplicable = 0 AND V.IsPark = 0
-							 AND V.PlantId = '" + plantId + "' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType = 'InventoryPayable'  and IRT.InventoryReceiveDetailId IS NULL
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
+                            LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
+                            --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
+                            LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
+                            LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=IT.PartyId and CP.PartyType='Customer' and CP.PlantId=V.PlantId
+                            LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
+                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ("+taxyearId+@") 
+							) TAXC ON TAXC.Id=IT.TaxCodeId
+                            LEFT JOIN TRN.InventorySales IR ON IR.VoucherId=V.Id
+                            LEFT JOIN TRN.InventorySalesDetail IRD ON IRD.InventorySalesId=IR.Id
+                            LEFT JOIN TRN.InventorySalesTax IRT ON IRD.Id=IRT.InventoryReceiveDetailId AND IRT.TaxCategoryId=IT.TaxCategoryId
+							LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
+                            LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+                            Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
+                            where TC.TaxCategoryType='GST' AND CP.TaxApplicable IS NULL  AND V.IsPark=0
+							AND V.PlantId = '"+plantId+"' and V.PostingDate between '"+fromDate+"' AND '"+toDate+@"'
+                            AND v.SourceType='SalesInvoice' and IRT.InventoryReceiveDetailId IS NULL AND IR.Id<>''
                             ) x
-							ORDER BY TaxPercentage,VoucherNo, DocDate, ISNULL(InventoryReceiveDetailId,''),ISNULL(InventoryServiceId,'')  ";
+							ORDER BY TaxPercentage,VoucherNo, DocDate, ISNULL(SalesMaterialId,''),ISNULL(SalesServiceId,'')  ";
             return _sqlRepository.GetDataTable(strSql);
 
         }
@@ -4711,15 +4761,15 @@ UNION ALL
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL")
                     {
-                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["SalesMaterialId"].ToString().ToUpper();
 
-                        taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and InventoryReceiveDetailId = '" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + "'";
+                        taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and SalesMaterialId = '" + dtRCMPayable.Rows[i]["SalesMaterialId"].ToString().ToUpper() + "'";
 
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SERVICE")
                     {
-                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper();
-                        taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and InventoryServiceId = '" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + "'";
+                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["SalesServiceId"].ToString().ToUpper();
+                        taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and SalesServiceId = '" + dtRCMPayable.Rows[i]["SalesServiceId"].ToString().ToUpper() + "'";
                     }
 
 
@@ -4853,13 +4903,13 @@ UNION ALL
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL")
                     {
-                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["SalesMaterialId"].ToString().ToUpper();
 
 
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SERVICE")
                     {
-                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper();
+                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["SalesServiceId"].ToString().ToUpper();
 
 
                     }
@@ -5087,32 +5137,46 @@ UNION ALL
         private DataTable GetGSTPayableFormat2SQL(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
         {
             string strSql = "";
-            strSql = @"SELECT * FROM (SELECT SourceType= CASE WHEN V.SourceType='VendorInvoice' THEN 'Expense'
-                            WHEN V.SourceType='VendorPayment' THEN 'Vendor Payment'
-                            WHEN V.SourceType='InventoryPayable' THEN 'Material' ELSE '' END
-                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
+            strSql = @"SELECT * FROM (SELECT SourceType= CASE WHEN V.SourceType='CustomerInvoice' THEN 'Expense'
+                            WHEN V.SourceType='CustomerReceipt' THEN 'Customer Receipt' ELSE '' END
+
+                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate
+							, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
 							,P.UserName PartyName,PP.GSTIN
 							,NULL GRNNo,pp.UserName PartyPlantName
-                            ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material'
-                            WHEN v.SourceType='VendorInvoice' THEN 'GL'
-                            WHEN v.SourceType='VendorPayment' THEN 'GL'
+
+                            ,LineItemType=case when v.SourceType='CustomerInvoice' then 'GL'
+                            WHEN v.SourceType='CustomerReceipt' THEN 'GL'
+                          --  WHEN v.SourceType='CustomerReceipt' THEN 'GL'
                             ELSE '' END
-                            ,Particular=CASE WHEN v.SourceType='VendorInvoice' THEN A.UserName
-                            WHEN v.SourceType='VendorPayment' THEN AP.UserName
+
+                            ,Particular=CASE WHEN v.SourceType='CustomerInvoice' THEN A.UserName
+                            WHEN v.SourceType='CustomerReceipt' THEN AP.UserName
                             ELSE '' END
-                            ,TaxableAmount=case when v.SourceType='InventoryPayable' then 0
-                            when v.SourceType='VendorInvoice' then VD.DrAmount
-                            when v.SourceType='VendorPayment' then IWD.Amount else 0 end
-                            ,IT.Id,DrAmount=case when ITD.AType='Dr' then IT.TaxAmount else 0 end,0 CrAmount
+
+                            ,TaxableAmount=case when v.SourceType='CustomerInvoice' then 0
+                            when v.SourceType='CustomerInvoice' then VD.CrAmount
+                            when v.SourceType='CustomerReceipt' then IWD.Amount else 0 end
+
+                            ,IT.Id
+							,0 DrAmount
+							,CrAmount=case when ITD.AType='Dr' then IT.TaxAmount else 0 end
+
 	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
-                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
+
+                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory
+							,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
                             ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,0 IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                             ,0 [Percentage],NULL HSNCodeId,NULL Material
-							,TaxPercentage= case when v.SourceType='VendorInvoice' then taxc.ValueOfFixed
+
+							,TaxPercentage= case when v.SourceType='CustomerInvoice' then taxc.ValueOfFixed
 												  else 0 end
-												 ,TA.UserName ActivityName,NULL InventoryReceiveDetailId,NULL InventoryServiceId
+
+											--	,TA.UserName ActivityName,NULL InventoryReceiveDetailId,NULL InventoryServiceId
+											 ,TA.UserName ActivityName,NULL SalesMaterialId,NULL SalesServiceId
+
                             from TRN.InvoiceTax IT
-                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
                             LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
@@ -5121,122 +5185,174 @@ UNION ALL
                             LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
                             LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
                             LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
-                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ("+taxyearId+@")) TAXC ON TAXC.Id=IT.TaxCodeId
                             LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
                             LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
                             LEFT JOIN (SELECT IW.InvoiceWriteOffId,IW.ActivityId,SUM(I.Amount) Amount FROM TRN.InvoiceWriteOffDetail IW
                             JOIN TRN.Invoice I ON I.Id=IW.InvoiceId
                             GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                             LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
-                            where TC.TaxCategoryType='GST' AND TAXC.IsRCM=0 AND  V.IsPark=0 AND V.PlantId='" + plantId + "' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType IN ('VendorInvoice','VendorPayment','CustomerInvoice')
+                            where TC.TaxCategoryType='GST' AND TAXC.IsRCM=0 AND  V.IsPark=0 AND V.PlantId='"+plantId+"' and V.PostingDate between '"+fromDate+"' AND '"+toDate+@"'
+                            AND v.SourceType IN ('CustomerReceipt','CustomerInvoice')
                             
-                            UNION all
 
-							SELECT SourceType= CASE WHEN V.SourceType='VendorInvoice' THEN 'Expense'
-                            WHEN V.SourceType='VendorPayment' THEN 'Vendor Payment'
-                            WHEN V.SourceType='InventoryPayable' THEN 'Material' ELSE '' END
-                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.UserName PartyName,PP.GSTIN
-							,IRD.InventoryReceiveId GRNNo,pp.UserName PartyPlantName
-                            ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material'
-                            WHEN v.SourceType='VendorInvoice' THEN 'GL'
-                            WHEN v.SourceType='VendorPayment' THEN 'GL'
+
+                            UNION all
+							SELECT SourceType= CASE WHEN V.SourceType='SalesInvoice' THEN 'Material'
+                           -- WHEN V.SourceType='SalesInvoice' THEN 'Material'
+                           -- WHEN V.SourceType='SalesInvoice' THEN 'Material' 
+							
+							ELSE '' END
+                            ,V.VoucherNo
+							,format( V.PostingDate,'dd-MMM-yyyy')PostingDate
+							, V.DocRefNo
+							,format (V.DocDate,'dd-MMM-yyyy')DocDate
+
+							,P.UserName PartyName,PP.GSTIN
+							,IRD.SalesId GRNNo,pp.UserName PartyPlantName
+
+                            ,LineItemType=case when v.SourceType='SalesInvoice' then 'Material'
+                           -- WHEN v.SourceType='SalesInvoice' THEN 'GL'
+                           -- WHEN v.SourceType='SalesInvoice' THEN 'GL'
                             ELSE '' END
-                            ,Particular=CASE WHEN v.SourceType='InventoryPayable' THEN MM.UserName
+
+                            ,Particular=CASE WHEN v.SourceType='SalesInvoice' THEN MM.UserName
                             ELSE '' END
-                            ,TaxableAmount=case when v.SourceType='InventoryPayable' then IRD.MaterialTranAmount
+                            ,TaxableAmount=case when v.SourceType='SalesInvoice' then IRD.TaxAmount
                             else 0 end
-                            ,IT.Id,DrAmount=case when ITD.AType='Dr' then IRT.TaxAmount else 0 end,0 CrAmount
+
+                            ,IT.Id
+							,0 DrAmount
+							,CrAmount=case when ITD.AType='Cr' then IRT.Amount else 0 end
+							--,0 CrAmount
 	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
                             ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
-                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
+                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(CP.TaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
-							,TaxPercentage= case  when v.SourceType='InventoryPayable' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
+							,TaxPercentage= case  when v.SourceType='SalesInvoice' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
 												 else 0 end
-												 ,TA.UserName ActivityName,IRT.InventoryReceiveDetailId,IRT.InventoryServiceId
+												 --,TA.UserName ActivityName,IRT.InventoryReceiveDetailId,IRT.InventoryServiceId
+												  ,TA.UserName ActivityName,IRT.SalesMaterialId,IRT.SalesServiceId
                             from TRN.InvoiceTax IT
-                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
                             LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                             --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
                             LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
                             LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
-							
+							--LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=IT.PartyId and CP.PartyType='Customer' and CP.PlantId=V.PlantId
                             LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
                             LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
                             LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
-                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") 
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ("+taxyearId+@") 
 							--and tac.IsRCM=0
 							) TAXC ON TAXC.Id=IT.TaxCodeId
                             --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
-                            LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
-                            LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
-                            LEFT JOIN TRN.InventoryReceiveTax IRT ON IRD.Id=IRT.InventoryReceiveDetailId AND IRT.TaxCategoryId=IT.TaxCategoryId
-                            --LEFT JOIN MST.HSNTaxPercentage HSNP ON IRT.HSNCodeId=HSNP.HSNCodeId AND HSNP.TaxCategoryId=IT.TaxCategoryId
-                            LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
-                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+       --                     LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
+       --                     LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
+       --                     LEFT JOIN TRN.InventoryReceiveTax IRT ON IRD.Id=IRT.InventoryReceiveDetailId AND IRT.TaxCategoryId=IT.TaxCategoryId
+       --                     --LEFT JOIN MST.HSNTaxPercentage HSNP ON IRT.HSNCodeId=HSNP.HSNCodeId AND HSNP.TaxCategoryId=IT.TaxCategoryId
+       --                     LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+       --                     LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+       --                     LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
+       --                     LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+       --                     Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
+       --                     where TC.TaxCategoryType='GST' AND IR.IsTaxApplicable=0 AND V.IsPark=0
+							--AND V.PlantId = '202034' and V.PostingDate between '01-May-2021' AND '31-Aug-2021'
+       --                     AND v.SourceType='InventoryPayable' and IRT.InventoryServiceId IS NULL
+                            
+						    LEFT JOIN TRN.Sales IR ON IR.VoucherId=V.Id
+                            LEFT JOIN TRN.SalesMaterial IRD ON IRD.SalesId=IR.Id
+                            LEFT JOIN TRN.Salestax IRT ON IRD.Id=IRT.SalesMaterialId AND IRT.TaxCategoryId=IT.TaxCategoryId
+                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=IRD.MaterialMasterId
                             LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
                             LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
                             Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
-                            where TC.TaxCategoryType='GST' AND IR.IsTaxApplicable=0 AND V.IsPark=0
-							AND V.PlantId = '" + plantId + "' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType='InventoryPayable' and IRT.InventoryServiceId IS NULL
-                            
-                            UNION all
+                            where TC.TaxCategoryType='GST' AND CP.TaxApplicable IS NULL  AND V.IsPark=0
+							AND V.PlantId = '"+plantId+"' and V.PostingDate between '"+fromDate+"' AND '"+toDate+@"'
+                            AND v.SourceType='SalesInvoice' and IRT.SalesServiceId IS NULL AND IR.Id<>''
 
-                            SELECT SourceType = CASE WHEN V.SourceType = 'VendorInvoice' THEN 'Expense'
-                            WHEN V.SourceType = 'VendorPayment' THEN 'Vendor Payment'
-                            WHEN V.SourceType = 'InventoryPayable' THEN 'Service' ELSE '' END
+
+
+                            UNION all
+                            SELECT SourceType = CASE WHEN V.SourceType = 'SalesInvoice' THEN 'Material'
+                            --WHEN V.SourceType = 'VendorPayment' THEN 'Vendor Payment'
+                           -- WHEN V.SourceType = 'InventoryPayable' THEN 'Service' 
+							ELSE '' END
                             ,V.VoucherNo,format(V.PostingDate, 'dd-MMM-yyyy')PostingDate, V.DocRefNo,format(V.DocDate, 'dd-MMM-yyyy')DocDate,P.UserName PartyName, PP.GSTIN
-							, IRD.InventoryReceiveId GRNNo,pp.UserName PartyPlantName
-                              , LineItemType =case when v.SourceType = 'InventoryPayable' then 'Service'
+							, IRD.SalesId GRNNo,pp.UserName PartyPlantName
+
+                              , LineItemType =case when v.SourceType = 'SalesInvoice' then 'Material'
                             
                             ELSE '' END
-                            ,Particular = CASE WHEN v.SourceType = 'InventoryPayable' THEN SM.UserName
+                            ,Particular = CASE WHEN v.SourceType = 'SalesInvoice' THEN MM.UserName
                                 ELSE '' END
-                            ,TaxableAmount =case when v.SourceType = 'InventoryPayable' then IRD.Amount
+                            ,TaxableAmount =case when v.SourceType = 'SalesInvoice' then IRD.TaxAmount
 
                              else 0 end
-                            ,IT.Id,DrAmount =case when ITD.AType = 'Dr' then IRT.TaxAmount else 0 end,0 CrAmount
+
+                            ,IT.Id
+							,0 DrAmount
+							,CrAmount =case when ITD.AType = 'Cr' then IRT.Amount else 0 end
+							--,0 CrAmount
 	                        ,format(v.VoucherDate, 'dd-MMM-yyyy')VoucherDate
                             ,TC.TaxCategoryType,TC.Code TaxCode, TC.Sequence TCSequence, TC.UserName + '-' + TC.Code TaxCategory,IsNULL(TAXC.IsRCM, 0) IsRCM,TAXC.UserName TaxCodeName
-                                   , IsNULL(IV.IsExcludingTax, 0) IsExcludingTax,IsNULL(IR.IsTaxApplicable, 0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
+                                   , IsNULL(IV.IsExcludingTax, 0) IsExcludingTax,IsNULL(CP.TaxApplicable, 0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                             ,IRT.[Percentage],NULL HSNCodeId,null Material
-							,TaxPercentage = case  when v.SourceType = 'InventoryPayable'  THEN IRT.[Percentage]
-
+							,TaxPercentage = case  when v.SourceType = 'SalesInvoice'  THEN IRT.[Percentage]
                                                  else 0 end
-												 ,TA.UserName ActivityName,IRT.InventoryReceiveDetailId,IRT.InventoryServiceId
+
+												-- ,TA.UserName ActivityName,IRT.InventoryReceiveDetailId,IRT.InventoryServiceId
+												 -- ,TA.UserName ActivityName,IRT.InventoryReceiveDetailId SalesMaterialId,IRT.InventorySalesServiceId SalesServiceId
+												  ,TA.UserName ActivityName,IRT.SalesMaterialId,IRT.SalesServiceId
+
                             from TRN.InvoiceTax IT
                             left
-                            join TRN.InvoiceTaxDetail ITD ON IT.Id = ITD.InvoiceTaxId AND ITD.AType = 'Dr'
+                            join TRN.InvoiceTaxDetail ITD ON IT.Id = ITD.InvoiceTaxId AND ITD.AType = 'Cr'
                             LEFT JOIN TRN.Voucher V ON V.Id = IT.VoucherId
                             LEFT JOIN TRN.Invoice IV ON IV.Id = IT.InvoiceId
                             LEFT JOIN HKP.Activity TA ON TA.Id = ITD.ActivityId
                             LEFT JOIN HKP.Party P ON P.Id = IT.PartyId
-							
+							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=IT.PartyId and CP.PartyType='Customer' and CP.PlantId=V.PlantId
                             LEFT JOIN MST.TaxCategory TC ON TC.Id = IT.TaxCategoryId
                             LEFT JOIN(select TAC.Id, TAC.UserName, TAC.IsRCM, TAY.[Type], TACD.ValueOfFixed from MST.TaxCode TAC
                             LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId= TAC.Id
-                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId= TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") 
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId= TAC.Id WHERE TAY.TaxYearId IN ("+taxyearId+@") 
 							) TAXC ON TAXC.Id = IT.TaxCodeId
-                            LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId = V.Id
-                            LEFT JOIN TRN.InventoryReceiveTax IRT ON IRT.InventoryReceiveId = IR.Id AND IRT.TaxCategoryId = IT.TaxCategoryId
-                            --LEFT JOIN MST.HSNTaxPercentage HSNP ON IRT.HSNCodeId = HSNP.HSNCodeId AND HSNP.TaxCategoryId = IT.TaxCategoryId
-                            LEFT JOIN TRN.InventoryService IRD ON IRD.Id = IRT.InventoryServiceId
-                            LEFT JOIN hkp.ServiceMaster SM ON SM.Id = IRD.ServiceMasterId
-                             Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
 
-                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id = IT.VoucherDetailId
-                            LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
-                            LEFT JOIN(SELECT IW.InvoiceWriteOffId, IW.ActivityId, SUM(I.Amount) Amount FROM TRN.InvoiceWriteOffDetail IW
-                            JOIN TRN.Invoice I ON I.Id= IW.InvoiceId
-                            GROUP BY InvoiceWriteOffId, ActivityId) IWD ON IWD.InvoiceWriteOffId = IT.InvoiceWriteOffId
-                            LEFT JOIN HKP.Activity AP ON AP.Id = IWD.ActivityId
-                            where TC.TaxCategoryType = 'GST' AND IR.IsTaxApplicable = 0 AND V.IsPark = 0
-							 AND V.PlantId = '" + plantId + "' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType = 'InventoryPayable'  and IRT.InventoryReceiveDetailId IS NULL
-                            ) x
-							ORDER BY TaxPercentage,VoucherNo, DocDate, ISNULL(InventoryReceiveDetailId,''),ISNULL(InventoryServiceId,'')  ";
+        --                    LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId = V.Id
+        --                    LEFT JOIN TRN.InventoryReceiveTax IRT ON IRT.InventoryReceiveId = IR.Id AND IRT.TaxCategoryId = IT.TaxCategoryId
+        --                    --LEFT JOIN MST.HSNTaxPercentage HSNP ON IRT.HSNCodeId = HSNP.HSNCodeId AND HSNP.TaxCategoryId = IT.TaxCategoryId
+        --                    LEFT JOIN TRN.InventoryService IRD ON IRD.Id = IRT.InventoryServiceId
+        --                    LEFT JOIN hkp.ServiceMaster SM ON SM.Id = IRD.ServiceMasterId
+        --                     Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
+
+        --                    LEFT JOIN TRN.VoucherDetail VD ON VD.Id = IT.VoucherDetailId
+        --                    LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+        --                    LEFT JOIN(SELECT IW.InvoiceWriteOffId, IW.ActivityId, SUM(I.Amount) Amount FROM TRN.InvoiceWriteOffDetail IW
+        --                    JOIN TRN.Invoice I ON I.Id= IW.InvoiceId
+        --                    GROUP BY InvoiceWriteOffId, ActivityId) IWD ON IWD.InvoiceWriteOffId = IT.InvoiceWriteOffId
+        --                    LEFT JOIN HKP.Activity AP ON AP.Id = IWD.ActivityId
+        --                    where TC.TaxCategoryType = 'GST' AND IR.IsTaxApplicable = 0 AND V.IsPark = 0
+							 --AND V.PlantId = '202034' and V.PostingDate between '01-May-2021' AND '31-Aug-2021'
+        --                    AND v.SourceType = 'InventoryPayable'  and IRT.InventoryReceiveDetailId IS NULL
+
+							 LEFT JOIN TRN.Sales IR ON IR.VoucherId=V.Id
+                            LEFT JOIN TRN.SalesMaterial IRD ON IRD.SalesId=IR.Id
+                            LEFT JOIN TRN.Salestax IRT ON IRD.Id=IRT.SalesMaterialId AND IRT.TaxCategoryId=IT.TaxCategoryId
+                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=IRD.MaterialMasterId
+                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
+                            LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+                            Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
+                            where TC.TaxCategoryType='GST' AND CP.TaxApplicable IS NULL  AND V.IsPark=0
+							AND V.PlantId = '"+plantId+"' and V.PostingDate between '"+fromDate+"' AND '"+toDate+@"'
+                            AND v.SourceType='SalesInvoice' and IRT.SalesMaterialId IS NULL AND IR.Id<>''
+
+                            ) 
+							x
+							--ORDER BY TaxPercentage,VoucherNo, DocDate, ISNULL(InventoryReceiveDetailId,''),ISNULL(InventoryServiceId,'')  
+							ORDER BY TaxPercentage,VoucherNo, DocDate, ISNULL(SalesMaterialId,''),ISNULL(SalesServiceId,'')  ";
             return _sqlRepository.GetDataTable(strSql);
 
         }
@@ -5417,15 +5533,15 @@ UNION ALL
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL")
                     {
-                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["SalesMaterialId"].ToString().ToUpper();
 
-                        taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and InventoryReceiveDetailId = '" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + "'";
+                        taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and SalesMaterialId = '" + dtRCMPayable.Rows[i]["SalesMaterialId"].ToString().ToUpper() + "'";
 
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SERVICE")
                     {
-                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper();
-                        taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and InventoryServiceId = '" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + "'";
+                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["SalesServiceId"].ToString().ToUpper();
+                        taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and SalesServiceId = '" + dtRCMPayable.Rows[i]["SalesServiceId"].ToString().ToUpper() + "'";
 
 
 
@@ -5542,13 +5658,13 @@ UNION ALL
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL")
                     {
-                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["SalesMaterialId"].ToString().ToUpper();
 
 
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SERVICE")
                     {
-                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper();
+                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["SalesServiceId"].ToString().ToUpper();
 
 
                     }

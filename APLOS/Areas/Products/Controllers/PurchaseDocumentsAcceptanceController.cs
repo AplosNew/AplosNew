@@ -94,7 +94,7 @@ namespace Aplos.Areas.Products.Controllers
                                 , P.UserName AS PartyName
                                 , IRD.POId,IRD.PODocRefNo, IR.DocRefNo
                                 , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                                ,IR.GateEntryNo,C.Code Currency,CONVERT(NUMERIC(10,2),IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount,0 AS Active
+                                ,IR.GateEntryNo,C.Code Currency,CONVERT(NUMERIC(10,2),IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount,POD.TransactionAmount,0 AS Active
                                 FROM [TRN].[InventoryReceive] AS IR 
                           JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                           JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId                        
@@ -112,10 +112,11 @@ namespace Aplos.Areas.Products.Controllers
                           FROM [TRN].[InventoryReceiveDetail] A
 						   JOIN TRN.POGGRNMap PG ON PG.GRNId=A.InventoryReceiveId
                           LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId
-						  Where PO.PurchaseLCId='"+ purchaseLCId + @"'
+						  Where PO.PurchaseLCId='" + purchaseLCId + @"'
 						  GROUP BY InventoryReceiveId
 						  ) IRD ON IRD.InventoryReceiveId=IR.Id
-                          WHERE IR.PlantId='"+identity.PlantId+@"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1
+                          JOIN(SELECT SUM(TransactionAmount) TransactionAmount,InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId)POD ON POD.InventoryReceiveId=IRD.POId 
+                          WHERE IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1
                           AND IR.Id IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)";
 
 
@@ -211,7 +212,7 @@ namespace Aplos.Areas.Products.Controllers
             entity.CompanyId = identity.CompanyId;
             entity.PlantId = identity.PlantId;
 
-            _purchaseDocumentAcceptance.InsertOrUpdate(entity, PurchaseDocAcceptanceDetail,PurchaseDocAcceptanceServiceDetail, purchaseDocAcceptanceService, purchaseDocAcceptanceServiceTax);
+            _purchaseDocumentAcceptance.InsertOrUpdate(entity, PurchaseDocAcceptanceDetail, PurchaseDocAcceptanceServiceDetail, purchaseDocAcceptanceService, purchaseDocAcceptanceServiceTax);
             return Json(new { entity, Message = AplosMessage.Updated });
         }
 
@@ -340,146 +341,35 @@ namespace Aplos.Areas.Products.Controllers
 
             try
             {
+                string sql = @"SELECT  PAD.Id ,PAD.POId,PAD.PODetailId, MGM.UserName AS MaterialGroupMasterName, MM.Id MaterialMasterId, MM.UserName, PAD.ArticleId, ART.StandardName, PAD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
+                                    , PAD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue, PAD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
+                                    , PAD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue, PAD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
+                                    , PAD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
+                                    , PD.TransactionQty POQty, RD.TransactionQty CurrentGRNQty, RD.TransactionQty AS GRNRcvQty
+                                    , 0 AS PreviousRcvQty,ISNULL(PAD.TransactionQty, 0) AS TransactionQty ,0 Otherqty,(RD.TransactionQty - PAD.TransactionQty) As Balance                       , TotalGRN=RD.TransactionQty
+                                    , PD.TransactionUoMId, TUoM.UserName AS TransactionUoM, PAD.MaterialTranRate TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
+                                    ,PAD.MaterialTranAmount AS TrnAmount,0 AS BaseTaxAmount, 0 AS ChargesAmount,0 AS ServiceCharge, 0 AS ServiceTax ,'True' enableid
+                                    ,null POMaterialTaxList, IR.InvoicingByAddress,IR.DeliveryByAddress,PD.Description MaterialDetail
+                                    ,ISNULL(PAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount,ISNULL(PAD.TaxAmount,0) TaxAmount,ISNULL(PAD.ChargesTranAmount,0) ChargesTranAmount,ISNULL(PAD.ChargesTaxTranAmount,0) ChargesTaxTranAmount,''TaxList
+                                    ,[Active]=CAST (CASE WHEN PAD.Id IS NULL THEN 0 ELSE 1 END AS bit)
 
-                //          var sql = @"DECLARE @inventoryReceiveId VARCHAR(10) = ''
-                //                           , @totalReceiveAmount DECIMAL(18, 4)= 0
-                //                           , @totalServiceAmount DECIMAL(18, 4)= 0
-                //                           , @totalSvcTaxAmount DECIMAL(18, 4)= 0
-                //              -- SET @totalReceiveAmount = (SELECT ISNULL(SUM(ISNULL(TransactionAmount, 0)), 1) FROM[TRN].[PurchaseOrderDetail] WHERE InventoryReceiveId = @inventoryReceiveId)
-                //              -- SET @totalServiceAmount = (SELECT ISNULL(SUM(ISNULL(Amount - GRNServiceAmount, 0)), 0) As Amount FROM[TRN].[POService] WHERE InventoryReceiveId = @inventoryReceiveId)
-                //              --SET @totalSvcTaxAmount = (SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)), 0) FROM[TRN].[PurchaseOrderTax] WHERE InventoryReceiveId = @inventoryReceiveId AND InventoryServiceId<>'')
-                //                  SELECT
+                                    FROM TRN.PurchaseDocAcceptanceDetail PAD
+                                    JOIN TRN.[PurchaseOrderDetail] PD ON PD.InventoryReceiveId=PAD.POId AND PD.Id=PAD.PODetailId
+                                    JOIN TRN.[InventoryReceiveDetail] RD ON RD.PurchaseDocumentAcceptanceId=PAD.PurchaseDocAcceptanceId AND RD.PurchaseDocumentAcceptanceDetailId=PAD.Id
+                                    LEFT JOIN MST.MaterialMaster AS MM ON PAD.MaterialMasterId = MM.Id
+                                    LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                                    LEFT JOIN MST.MaterialMasterArticle AS ART ON PAD.ArticleId = ART.Id
+                                    LEFT JOIN HKP.Characteristics AS FC ON PAD.FirstCharacteristicsId = FC.Id
+                                    LEFT JOIN HKP.Characteristics AS SC ON PAD.SecondCharacteristicsId = SC.Id
+                                    LEFT JOIN HKP.Characteristics AS TC ON PAD.ThirdCharacteristicsId = TC.Id
+                                    LEFT JOIN HKP.CharacteristicsValue AS FCV ON PAD.FirstCharacteristicsValueId = FCV.Id
+                                    LEFT JOIN HKP.CharacteristicsValue AS SCV ON PAD.SecondCharacteristicsValueId = SCV.Id
+                                    LEFT JOIN HKP.CharacteristicsValue AS TCV ON PAD.ThirdCharacteristicsValueId = TCV.Id
+                                    LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON PAD.TransactionUoMId=TUoM.Id
+                                    LEFT JOIN[TRN].[PurchaseOrder] AS IR ON PAD.POId= IR.Id
+                                    LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
+                                    WHERE PAD.PurchaseDocAcceptanceId='" + Id + "'";
 
-                //                PDA.Id
-                //                     ,PDAD.Id As AcceptenceDetailId
-                //                      ,IR.Id AS POID,IRD.Id AS PODetailsID
-                //                  ,IRD.Id AS InventoryReceiveDetailId
-                //                  , MGM.UserName AS MaterialGroupMasterName
-                //                  , MM.Id MaterialMasterId
-                //                  , MM.UserName
-                //                  ,IRD.MaterialStorageId
-                //                  ,IRD.BaseUOMId
-                //                  , IRD.ArticleId, ART.StandardName
-                //                  , IRD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
-                //                  , IRD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue
-                //                  , IRD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
-                //                  , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
-                //                  , IRD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
-                //                  , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
-                //                   ,IRD.TransactionQty AS POQty
-                //         , ISNULL(IRD.AcceptanceRcvQty, 0) AS PreviousRcvQty
-                //                  , ISNULL(PDAD.TransactionQty, 0) AS TransactionQty
-                //                  , (IRD.TransactionQty - PDAD.TransactionQty) As Balance
-                //, (IRD.TransactionQty - PDAD.TransactionQty) As TempBalance
-                // , ISNULL(PDAD.TransactionQty, 0) AS TempTransactionQty
-                //                  , ISNULL(IRD.QtyStatus, 0) QtyStatus
-                //                  , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, PDAD.MaterialTranRate TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
-                //                  ,PDAD.MaterialTranAmount AS TrnAmount
-                //                  ,0 AS BaseTaxAmount
-                //                  , 0 AS ChargesAmount
-                //                  ,0 AS ServiceCharge
-                //                  , 0 AS ServiceTax
-                //                  , IRD.CountryId
-                //                  ,'True' enableid
-                //                  ,null POMaterialTaxList
-                //                  , IR.InvoicingByAddress,IR.DeliveryByAddress
-                //                  ,IRD.RequisitionId
-                //               ,IRD.RequisitionDetailId
-                //                  --,MRD.MaterialDetail
-                //                  ,IRD.Description MaterialDetail
-                //                   ,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount,ISNULL(PDAD.TaxAmount,0) TaxAmount,ISNULL(PDAD.ChargesTranAmount,0) ChargesTranAmount,ISNULL(PDAD.ChargesTaxTranAmount,0) ChargesTaxTranAmount,''TaxList
-                //                 ,[Active]=CAST (CASE WHEN PDAD.Id IS NULL THEN 0 ELSE 1 END AS bit)
-                //                  FROM TRN.PurchaseDocAcceptanceDetail PDAD
-                //               LEFT JOIN TRN.PurchaseOrderDetail AS IRD  ON PDAD.PODetailId=IRD.Id
-                //                  left JOIN MST.MaterialMaster AS MM ON PDAD.MaterialMasterId = MM.Id
-                //              LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                //              LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId = ART.Id
-                //              LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
-                //              LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
-                //              LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
-                //              LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId = FCV.Id
-                //              LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = SCV.Id
-                //              LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
-                //              LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-                //              LEFT JOIN[TRN].[PurchaseOrder] AS IR ON IRD.InventoryReceiveId= IR.Id
-                //              LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
-                //              LEFT JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=PDAD.PurchaseDocAcceptanceId
-                //              WHERE PDA.Id='" + Id + "'";
-                string sql = @"DECLARE @inventoryReceiveId VARCHAR(10) = ''
-	                                , @totalReceiveAmount DECIMAL(18, 4)= 0
-	                                , @totalServiceAmount DECIMAL(18, 4)= 0
-	                                , @totalSvcTaxAmount DECIMAL(18, 4)= 0
-                    -- SET @totalReceiveAmount = (SELECT ISNULL(SUM(ISNULL(TransactionAmount, 0)), 1) FROM[TRN].[PurchaseOrderDetail] WHERE InventoryReceiveId = @inventoryReceiveId)
-                    -- SET @totalServiceAmount = (SELECT ISNULL(SUM(ISNULL(Amount - GRNServiceAmount, 0)), 0) As Amount FROM[TRN].[POService] WHERE InventoryReceiveId = @inventoryReceiveId)
-                    --SET @totalSvcTaxAmount = (SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)), 0) FROM[TRN].[PurchaseOrderTax] WHERE InventoryReceiveId = @inventoryReceiveId AND InventoryServiceId<>'')
-                        SELECT
-                            --IM.Id
-		                    PDA.Id
-                           ,PDAD.Id As AcceptenceDetailId
-                            ,IR.Id AS POID,IRD.Id AS PODetailsID
-                        ,IRD.Id AS InventoryReceiveDetailId
-                        , MGM.UserName AS MaterialGroupMasterName
-                        , MM.Id MaterialMasterId
-                        , MM.UserName
-                        ,IRD.MaterialStorageId
-                        ,IRD.BaseUOMId
-                        , IRD.ArticleId, ART.StandardName
-                        , IRD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
-                        , IRD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue
-                        , IRD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
-                        , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
-                        , IRD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
-                        , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
-                        , IRD.TransactionQty AS POQty
-                        ,GRN.GRNTransactionQty CurrentGRNQty
-                        -- , ISNULL(IRD.AcceptanceRcvQty-PDAD.TransactionQty,0) AS GRNRcvQty
-						  , ISNULL(PAD.AcptTransactionQty-PDAD.TransactionQty,0) AS GRNRcvQty
-			          --  , ISNULL(IRD.AcceptanceRcvQty, 0) AS PreviousRcvQty
-						 , ISNULL(PAD.AcptTransactionQty, 0) AS PreviousRcvQty
-                        ,ISNULL(PDAD.TransactionQty, 0) AS TransactionQty
-						--,ISNULL(IRD.AcceptanceRcvQty-PDAD.TransactionQty,0) Otherqty
-						,ISNULL(PAD.AcptTransactionQty-PDAD.TransactionQty,0) Otherqty
-                      --  ,(IRD.TransactionQty - IRD.AcceptanceRcvQty) As Balance
-						 ,(IRD.TransactionQty - PAD.AcptTransactionQty) As Balance
-                        ,TotalGRN=GRN.GRNTransactionQty+ISNULL(PDAD.TransactionQty, 0)
-                        , ISNULL(IRD.QtyStatus, 0) QtyStatus
-                        , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, PDAD.MaterialTranRate TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
-                           
-                        ,PDAD.MaterialTranAmount AS TrnAmount
-                        ,0 AS BaseTaxAmount
-                        , 0 AS ChargesAmount
-                        ,0 AS ServiceCharge
-                        , 0 AS ServiceTax
-                        , IRD.CountryId
-                        ,'True' enableid
-                        ,null POMaterialTaxList
-                        , IR.InvoicingByAddress,IR.DeliveryByAddress
-                        ,IRD.RequisitionId
-	                    ,IRD.RequisitionDetailId
-                        ,IRD.Description MaterialDetail
-                         ,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount,ISNULL(PDAD.TaxAmount,0) TaxAmount,ISNULL(PDAD.ChargesTranAmount,0) ChargesTranAmount,ISNULL(PDAD.ChargesTaxTranAmount,0) ChargesTaxTranAmount,''TaxList
-                       ,[Active]=CAST (CASE WHEN PDAD.Id IS NULL THEN 0 ELSE 1 END AS bit)
-                        FROM TRN.PurchaseDocAcceptanceDetail PDAD
-						LEFT JOIN (SELECT POId,PODetailId,Sum(TransactionQty) AcptTransactionQty FROM TRN.PurchaseDocAcceptanceDetail GROUP BY POId,PODetailId) PAD ON PAD.POId=PDAD.POId AND PAD.PODetailId=PDAD.PODetailId
-                        LEFT JOIN (SELECT POId,PODetailsId,Sum(TransactionQty) GRNTransactionQty FROM TRN.InventoryReceiveDetail GROUP BY POId,PODetailsId) GRN ON GRN.POId=PDAD.POId AND GRN.PODetailsId=PDAD.PODetailId
-	                    LEFT JOIN TRN.PurchaseOrderDetail AS IRD  ON PDAD.PODetailId=IRD.Id AND PDAD.POId=IRD.InventoryReceiveId
-                        left JOIN MST.MaterialMaster AS MM ON PDAD.MaterialMasterId = MM.Id
-                    LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                    LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId = ART.Id
-                    LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
-                    LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
-                    LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
-                    LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId = FCV.Id
-                    LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = SCV.Id
-                    LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
-                    -- JOIN[TRN].[PurchaseOrderDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id
-                    LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-                    LEFT JOIN[TRN].[PurchaseOrder] AS IR ON IRD.InventoryReceiveId= IR.Id
-                    LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
-                    --LEFT join [trn].MaterialRequsitionDetails MRD on MRD.Id= IRD.RequisitionDetailId
-                    LEFT JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=PDAD.PurchaseDocAcceptanceId
-                    WHERE PDA.Id='" + Id + "'";
-                
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -863,21 +753,20 @@ namespace Aplos.Areas.Products.Controllers
 
         private Dictionary<string, object> GetDetailId(string id)
         {
-            var cmdText = @"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[PurchaseDocAcceptanceDetail]  WHERE PurchaseDocAcceptanceId ='"+id+"'";
+            var cmdText = @"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[PurchaseDocAcceptanceDetail]  WHERE PurchaseDocAcceptanceId ='" + id + "'";
             return _sqlRepository.GetData(cmdText);
         }
 
         [HttpPost]
         public JsonResult CreateGRNAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail)
         {
-
-            DataSet dsMaster, detailDestination, taxDestination, servicetaxDestination;
-            DataView dvdetailDestination = null;
+            string acptDetailId = "";
+            DataSet dsMaster, detailDestination, taxDestination, servicetaxDestination, dsdetailGRN, dsdetailPO;
+            DataView dvdetailDestination, dvdetailGRN, dvdetailPO = null;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-           
-          
             string inventoryReceiveId = "";
+            string PoId = "";
             foreach (var item in PurchaseDocAcceptanceDetail)
             {
                 if (string.IsNullOrEmpty(inventoryReceiveId))
@@ -888,15 +777,24 @@ namespace Aplos.Areas.Products.Controllers
                 {
                     inventoryReceiveId += "," + item.Id;
                 }
-
+                if (string.IsNullOrEmpty(PoId))
+                {
+                    PoId += "''," + item.POId;
+                }
+                else
+                {
+                    PoId += "," + item.POId;
+                }
             }
 
-            
-         
             SaveData(entity, out dsMaster, out string masterId);
             entity.Id = masterId;
 
-            con.OpenDataSetThroughAdapter("SELECT * FROM TRN.PurchaseDocAcceptanceDetail WHERE PODetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + "))", out detailDestination, false, "1");
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.PurchaseDocAcceptanceDetail WHERE PODetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + "))", out detailDestination, false, "1");
+
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.[InventoryReceiveDetail] WHERE InventoryReceiveId IN (" + inventoryReceiveId + ")", out dsdetailGRN, false, "1");
+            con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.[PurchaseOrderDetail] WHERE InventoryReceiveId IN (" + PoId + ")", out dsdetailPO, false, "1");
+
             //con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceTax] WHERE PurchaseDocAcceptanceDetailId IN (SELECT Id FROM TRN.PurchaseDocAcceptanceDetail Where InventoryReceiveDetailId IN (Select  id From TRN.InventoryReceiveDetail Where InventoryReceiveId In (" + inventoryReceiveId + ")))", out taxDestination, false, "1");
             //con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceService] WHERE PurchaseDocAcceptanceId='" + masterId + "'", out servicetaxDestination, false, "1");
 
@@ -927,9 +825,10 @@ namespace Aplos.Areas.Products.Controllers
                     DataRow drDetail = detailDestination.Tables[0].NewRow();
                     CopyRow(acceptanceDetailSource.Rows[K], ref drDetail);
                     drDetail["Id"] = masterId + "-" + IdCount;
+                    acptDetailId = masterId + "-" + IdCount;
                     drDetail["PurchasedocAcceptanceId"] = masterId;
 
-                   
+
                     drDetail["MaterialMasterId"] = bplib.clsWebLib.RetValidLen(acceptanceDetailSource.Rows[K]["MaterialMasterId"].ToString());
                     drDetail["ArticleId"] = bplib.clsWebLib.RetValidLen(acceptanceDetailSource.Rows[K]["ArticleId"].ToString());
                     drDetail["FirstCharacteristicsId"] = bplib.clsWebLib.RetValidLen(acceptanceDetailSource.Rows[K]["FirstCharacteristicsId"].ToString());
@@ -946,7 +845,7 @@ namespace Aplos.Areas.Products.Controllers
 
                     detailDestination.Tables[0].Rows.Add(drDetail);
 
-                   // dvBp.RowFilter = " TaxPolicyID='" + item.TaxPolicyID + "' and plantID='" + item.PlantId + "' ";
+                    // dvBp.RowFilter = " TaxPolicyID='" + item.TaxPolicyID + "' and plantID='" + item.PlantId + "' ";
 
                     //inventoryTaxSource.DefaultView.RowFilter = "InventoryReceiveDetailId='" + acceptanceDetailSource.Rows[K]["Id"].ToString() + "'";
                     //for (int i = 0; i < inventoryTaxSource.DefaultView.Count; i++)
@@ -979,12 +878,37 @@ namespace Aplos.Areas.Products.Controllers
                 {
 
                 }
+
+                dvdetailGRN = new DataView(dsdetailGRN.Tables[0]);
+                dvdetailGRN.RowFilter = "Id='" + acceptanceDetailSource.Rows[K]["Id"].ToString() + "' AND InventoryReceiveId='"+ acceptanceDetailSource.Rows[K]["InventoryReceiveId"].ToString() + "'";
+                if (dvdetailGRN.Count>0)
+                {
+                    DataRow drGRN = dvdetailGRN[0].Row;
+                    drGRN.BeginEdit();
+
+                    drGRN["PurchaseDocumentAcceptanceId"] = masterId;
+                    drGRN["PurchaseDocumentAcceptanceDetailId"] = acptDetailId;
+
+                    drGRN.EndEdit();
+                }
+
+                dvdetailPO = new DataView(dsdetailPO.Tables[0]);
+                dvdetailPO.RowFilter = "Id='" + acceptanceDetailSource.Rows[K]["PODetailsId"].ToString() + "'";
+                if (dvdetailPO.Count > 0)
+                {
+                    DataRow drPO = dvdetailPO[0].Row;
+                    drPO.BeginEdit();
+
+                    drPO["AcceptanceRcvQty"] = acceptanceDetailSource.Rows[K]["TransactionQty"].ToString();
+                    drPO.EndEdit();
+                }
+
             }
 
             SaveGRNAcceptanceMapData(PurchaseDocAcceptanceDetail, masterId, out DataSet dsGRNAcceptanceMap);
 
             clsStaticInfo _info = new clsStaticInfo();
-            _info.SaveDataSets(dsMaster, detailDestination, dsGRNAcceptanceMap/*, taxDestination,  servicetaxDestination*/);
+            _info.SaveDataSets(dsMaster, detailDestination, dsGRNAcceptanceMap, dsdetailGRN, dsdetailPO/*, taxDestination,  servicetaxDestination*/);
 
             return Json(new { entity, Message = AplosMessage.Insert });
         }
@@ -1062,6 +986,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["InvoiceNo"] = data.InvoiceNo;
                     dr["PrePurchaseInvoiceId"] = data.PrePurchaseInvoiceId;
                     dr["EntryDate"] = data.EntryDate;
+                    dr["TotalPOAmount"] = data.TotalPOAmount;
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -1095,6 +1020,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["InvoiceNo"] = data.InvoiceNo;
                     dr["PrePurchaseInvoiceId"] = data.PrePurchaseInvoiceId;
                     dr["EntryDate"] = data.EntryDate;
+                    dr["TotalPOAmount"] = data.TotalPOAmount;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -1181,7 +1107,7 @@ namespace Aplos.Areas.Products.Controllers
 
         public void DeleteData(string Id)
         {
-            string strSQL, strDSQL, strPOSQL, strGRNSQL, strTSQL, strSVSQL, strCSQL;
+            string strSQL, strDSQL, strPOSQL, strGRNSQL, strTSQL, strSVSQL, strCSQL, strGRNACPTSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             DataSet dsPO = null;
             DataSet dsPAD = null;
@@ -1190,20 +1116,21 @@ namespace Aplos.Areas.Products.Controllers
             decimal Tqty = 0;
             try
             {
-                
 
-                strGRNSQL = "delete from TRN.GRNAcceptanceMap Where PurchaseDocumentAcceptanceId ='" + Id + "'";
-                strPOSQL = "delete from TRN.PurchaseDocAcceptancePOMap Where PurchaseDocAcceptanceId ='" + Id + "'";
-                strTSQL = "delete from TRN.[PurchaseDocAcceptanceTax] Where PurchaseDocAcceptanceId ='" + Id + "'";
-                strDSQL = "delete from TRN.PurchaseDocAcceptanceDetail Where PurchaseDocAcceptanceId ='" + Id + "'";
-                strSVSQL = "delete from TRN.[PurchaseDocAcceptanceService] Where PurchaseDocAcceptanceId ='" + Id + "'";
-                strCSQL = "delete from TRN.[PurchaseDocAcceptanceCharges] Where PurchaseDocAcceptanceId ='" + Id + "'";
-                strSQL = "delete from TRN.PurchaseDocAcceptance  Where Id='" + Id + "'";
+
+                strGRNACPTSQL = @"update TRN.[InventoryReceiveDetail] set PurchaseDocumentAcceptanceId=NULL, PurchaseDocumentAcceptanceDetailId=NULL  where PurchaseDocumentAcceptanceId='" + Id + "'";
+                strGRNSQL = @"delete from TRN.GRNAcceptanceMap Where PurchaseDocumentAcceptanceId ='" + Id + "'";
+                strPOSQL = @"delete from TRN.PurchaseDocAcceptancePOMap Where PurchaseDocAcceptanceId ='" + Id + "'";
+                strTSQL = @"delete from TRN.[PurchaseDocAcceptanceTax] Where PurchaseDocAcceptanceId ='" + Id + "'";
+                strDSQL = @"delete from TRN.PurchaseDocAcceptanceDetail Where PurchaseDocAcceptanceId ='" + Id + "'";
+                strSVSQL = @"delete from TRN.[PurchaseDocAcceptanceService] Where PurchaseDocAcceptanceId ='" + Id + "'";
+                strCSQL = @"delete from TRN.[PurchaseDocAcceptanceCharges] Where PurchaseDocAcceptanceId ='" + Id + "'";
+                strSQL = @"delete from TRN.PurchaseDocAcceptance  Where Id='" + Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
 
-              
+
                 objCon.OpenDataSetThroughAdapter(@"Select Id,InventoryReceiveId,AcceptanceRcvQty,AcceptanceRcvStatusQty from TRN.PurchaseOrderDetail 
                     Where Id IN (Select  PODetailId FROM TRN.PurchaseDocAcceptanceDetail Where PurchaseDocAcceptanceId = '" + Id + "')", out dsPO, false, "1");
 
@@ -1211,14 +1138,12 @@ namespace Aplos.Areas.Products.Controllers
                 {
                     for (int i = 0; i < dsPO.Tables[0].Rows.Count; i++)
                     {
-
-                        objCon.OpenDataSetThroughAdapter(@"Select TransactionQty  FROM TRN.PurchaseDocAcceptanceDetail Where PODetailId='"+ dsPO.Tables[0].Rows[i]["Id"].ToString() + "'", out dsPAD, false, "1");
+                        objCon.OpenDataSetThroughAdapter(@"Select TransactionQty  FROM TRN.PurchaseDocAcceptanceDetail Where PODetailId='" + dsPO.Tables[0].Rows[i]["Id"].ToString() + "'", out dsPAD, false, "1");
 
                         if (dsPAD.Tables[0].Rows.Count > 0)
                         {
-                            Tqty= Convert.ToDecimal(dsPAD.Tables[0].Rows[0]["TransactionQty"].ToString());
+                            Tqty = Convert.ToDecimal(dsPAD.Tables[0].Rows[0]["TransactionQty"].ToString());
                         }
-
 
                         DataView dv = new DataView(dsPO.Tables[0]);
                         dv.RowFilter = "Id='" + dsPO.Tables[0].Rows[i]["Id"].ToString() + "'";
@@ -1243,14 +1168,10 @@ namespace Aplos.Areas.Products.Controllers
                             drmo.EndEdit();
 
                         }
-
-
-
                     }
-                  
-
                 }
 
+                objCon.ExecuteNonQueryWrapper(strGRNACPTSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strGRNSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strPOSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strTSQL, true, "1");
@@ -1357,7 +1278,7 @@ namespace Aplos.Areas.Products.Controllers
             {
                 throw new CustomException("Please Select details !");
             }
-            
+
             _purchaseDocumentAcceptance.InsertOrUpdateServicePOAcceptance(entity, PurchaseDocAcceptanceDetail);
             return Json(new { entity, Message = AplosMessage.Success + " Purchase Document Acceptance no <b>" + entity.Id + "</b>" });
         }
@@ -1394,10 +1315,10 @@ namespace Aplos.Areas.Products.Controllers
             {
                 throw ex;
             }
-            
+
         }
 
-       
+
         [Authorize, HttpPost]
         public JsonResult DeleteServicePOItem(string Id)
         {

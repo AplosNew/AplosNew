@@ -213,6 +213,12 @@
                                     <input datepicker type="text" name="AcceptanceDate" ng-model="PurchaseDocAcceptance.AcceptanceDate" class="form-control" tabindex="5" required>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Total PO Amount</label>
+                                <div class="col-sm-8">
+                                    <input type="text" n-decimals="2" name="Total PO Amount" ng-model="PurchaseDocAcceptance.TotalPOAmount" class="form-control">
+                                </div>
+                            </div>
                             <div class="form-group" ng-show="productNew.AcceptanceFirst=='Yes'">
                                 <label class="col-sm-4 control-label">Exchange Rate<sup ng-show="productNew.AcceptanceFirst=='Yes'">*</sup></label>
                                 <div class="col-sm-8">
@@ -221,6 +227,10 @@
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">LC Amount</label>
+                                <label class="col-sm-8 control-label">{{productNew.LCAmount}}</label>
+                            </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Customer</label>
                                 <label class="col-sm-8 control-label">{{productNew.CustomerName}}</label>
@@ -237,7 +247,6 @@
                                     <input type="text" name="LCEntryDate" ng-model="productNew.LCExpiryDate" disabled class="form-control" tabindex="5">
                                 </div>
                             </div>
-
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
@@ -285,15 +294,16 @@
                                             <div e-columns>
                                                 <div e-column e-type="string" e-field="PurchaseLCNO" e-headertext="LC Id" e-width="80" e-visible="false"></div>
                                                 <div e-column e-type="string" e-field="ContractId" e-headertext="ContractId" e-width="100" e-visible="false"></div>
-                                                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="120"></div>
+                                                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="120"></div>
                                                 <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="100"></div>
                                                 <div e-column e-type="string" e-field="MasterLCRef" e-headertext="MasterLC Ref" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="130"></div>
+                                                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="130"></div>
                                                 <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="Opening Date" e-width="100"></div>
                                                 <div e-column e-type="date" e-field="LCExpiryDate" e-headertext="Expiry Date" e-width="100"></div>
                                                 <div e-column e-type="string" e-field="LCOpeningBank" e-headertext="Opening Bank" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="LCAmount" e-headertext="Amount" e-width="100"e-textalign="right"></div>
                                                 <div e-column e-type="string" e-field="CurrencyName" e-headertext="Currency" e-width="30"></div>
                                                 <div e-column e-type="string" e-field="AcceptanceFirst" e-headertext="Acceptance First" e-width="100"></div>
                                             </div>
@@ -350,17 +360,18 @@
                                     <legend class="scheduler-border">LC Wise PO List(Approved)</legend>
                                     <div class="clearfix"></div>
                                     <div class="col-lg-12">
-                                        <div style="color:black;" id="GridListLCPO" ej-grid e-datasource="GridListPO" e-allowscrolling="true"
+                                        <div style="color:black;" id="GridListLCPO" ej-grid e-datasource="GridListPO" e-allowscrolling="true" e-summaryrows="summaryUnassignPORows"
                                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pageSettings-pageSize="10"
                                              e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                                             <div e-columns>
-                                                <div e-column e-template="#checkboxListPO" e-textalign="center" e-width="30"></div>
-                                                <div e-column e-field="Id" e-headertext="PO Id" e-width="80"></div>
-                                                <div e-column e-field="PODate" e-headertext="PO Date" e-width="80"></div>
-                                                <div e-column e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
-                                                <div e-column e-field="DocRefNo" e-headertext="Doc No" e-width="80"></div>
-                                                <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="80"></div>
-                                                <div e-column e-field="Flag" e-headertext="State" e-width="60"></div>
+                                                <div e-column e-template="#checkboxListPO" e-textalign="center" e-width="50"></div>
+                                                <div e-column e-type="string" e-field="Id" e-headertext="PO Id" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="PODate" e-headertext="PO Date" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="DocRefNo" e-headertext="Doc No" e-width="80"></div>
+                                                <div e-column e-type="date" e-field="DocDate" e-headertext="Doc Date" e-width="80"></div>
+                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="Amount" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="Flag" e-headertext="State" e-width="60"></div>
                                             </div>
                                         </div>
                                         <script type="text/template" id="checkboxListPO">
@@ -385,19 +396,20 @@
                                     <legend class="scheduler-border">Selected PO List</legend>
                                     <div class="clearfix"></div>
                                     <div class="col-lg-12">
-                                        <div style="color:black;" id="seletedLSTGrid" ej-grid e-datasource="seletedLST" e-allowscrolling="true"
+                                        <div style="color:black;" id="seletedLSTGrid" ej-grid e-datasource="seletedLST" e-allowscrolling="true" e-summaryrows="summaryassignPORows"
                                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pageSettings-pageSize="10"
                                              e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                                             <div e-columns>
-                                                <div e-column e-template="#checkboxListPO1" e-textalign="center" e-width="30"></div>
+                                                <div e-column e-template="#checkboxListPO1" e-textalign="center" e-width="50"></div>
                                                 <div e-column e-headertext="Actions" e-width="80">
                                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-th-list" title="View PO Material Details" ng-click="$parent.POmaterialDetailsPOPUP(this);" style="margin: -6px;"></i></button>
                                                 </div>
-                                                <div e-column e-field="Id" e-headertext="PO Id" e-width="80"></div>
-                                                <div e-column e-field="PODate" e-headertext="PO Date" e-width="80"></div>
-                                                <div e-column e-field="DocRefNo" e-headertext="Doc No" e-width="80"></div>
-                                                <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="80"></div>
-                                                <div e-column e-field="Flag" e-headertext="State" e-width="60"></div>
+                                                <div e-column e-type="string" e-field="Id" e-headertext="PO Id" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="PODate" e-headertext="PO Date" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="DocRefNo" e-headertext="Doc No" e-width="80"></div>
+                                                <div e-column e-type="date" e-field="DocDate" e-headertext="Doc Date" e-width="80"></div>
+                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="Amount" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="Flag" e-headertext="State" e-width="60"></div>
 
                                             </div>
                                         </div>
@@ -417,19 +429,20 @@
                                     <legend class="scheduler-border">GRN List(Approved)</legend>
                                     <div class="clearfix"></div>
                                     <div class="col-lg-12">
-                                        <div style="color:black;" id="GridListLCPO" ej-grid e-datasource="GridListPO" e-allowscrolling="true"
+                                        <div style="color:black;" id="GridListLCPO" ej-grid e-datasource="GridListPO" e-allowscrolling="true" e-summaryrows="summaryUnassignGRNRows"
                                              e-allowResizing="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pageSettings-pageSize="10"
                                              e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                                             <div e-columns>
-                                                <div e-column e-template="#checkboxListPO" e-textalign="center" e-width="30"></div>
-                                                <div e-column e-field="Id" e-headertext="GRN Id" e-width="80"></div>
-                                                <div e-column e-field="DocRefNo" e-headertext="GRN Doc No" e-width="80"></div>
-                                                <div e-column e-field="DocDate" e-headertext="GRN Doc Date" e-width="80"></div>
-                                                <div e-column e-field="POId" e-headertext="PO Id" e-width="80"></div>
-                                                <div e-column e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
-                                                <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="60"></div>
-                                                <div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Amount" e-width="60"></div>
-                                                <div e-column e-field="Currency" e-headertext="Currency" e-width="60"></div>
+                                                <div e-column e-template="#checkboxListPO" e-textalign="center" e-width="50"></div>
+                                                <div e-column e-type="string" e-field="Id" e-headertext="GRN Id" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="DocRefNo" e-headertext="GRN Doc No" e-width="80"></div>
+                                                <div e-column e-type="date" e-field="DocDate" e-headertext="GRN Doc Date" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="POId" e-headertext="PO Id" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="60"></div>
+                                                <div e-column e-type="number" e-field="TotalMaterialBooksCurrencyAmount" e-headertext="GRN Amount" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="PO Amount" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
                                             </div>
                                         </div>
                                         <script type="text/template" id="checkboxListPO">
@@ -454,19 +467,20 @@
                                     <legend class="scheduler-border">Selected GRN List</legend>
                                     <div class="clearfix"></div>
                                     <div class="col-lg-12">
-                                        <div style="color:black;" id="seletedLSTGrid" ej-grid e-datasource="seletedLST" e-allowscrolling="true"
+                                        <div style="color:black;" id="seletedLSTGrid" ej-grid e-datasource="seletedLST" e-allowscrolling="true" e-summaryrows="summaryassignGRNRows"
                                              e-allowResizing="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pageSettings-pageSize="10"
                                              e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                                             <div e-columns>
-                                                <div e-column e-template="#checkboxListPO1" e-textalign="center" e-width="30"></div>
-                                                <div e-column e-field="Id" e-headertext="GRN Id" e-width="80"></div>
-                                                <div e-column e-field="DocRefNo" e-headertext="GRN Doc No" e-width="80"></div>
-                                                <div e-column e-field="DocDate" e-headertext="GRN Doc Date" e-width="80"></div>
-                                                <div e-column e-field="POId" e-headertext="PO Id" e-width="80"></div>
-                                                <div e-column e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
-                                                <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="60"></div>
-                                                <div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Amount" e-width="60"></div>
-                                                <div e-column e-field="Currency" e-headertext="Currency" e-width="60"></div>
+                                                <div e-column e-template="#checkboxListPO1" e-textalign="center" e-width="50"></div>
+                                                <div e-column e-type="string" e-field="Id" e-headertext="GRN Id" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="DocRefNo" e-headertext="GRN Doc No" e-width="80"></div>
+                                                <div e-column e-type="date" e-field="DocDate" e-headertext="GRN Doc Date" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="POId" e-headertext="PO Id" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
+                                                <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="60"></div>
+                                                <div e-column e-type="number" e-field="TotalMaterialBooksCurrencyAmount" e-headertext="GRN Amount" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="PO Amount" e-width="100"></div>
+                                                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
 
                                             </div>
                                         </div>
@@ -560,7 +574,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length">
+                                        <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length>0">
                                             <td>
                                                 <div class="checkbox-site">
                                                     <label>
@@ -579,11 +593,11 @@
                                             <td>{{x.SecondCharacteristicsValue}}</td>
                                             <td>{{x.ThirdCharacteristicsValue}}</td>
                                             <td>{{x.MaterialDetail}}</td>
-                                            <td class="text-right">{{x.POQty}}</td>
+                                            <td class="text-right">{{x.POQty| number:2}}</td>
                                             <td class="text-right">{{x.TransactionUoM}}</td>
-                                            <td class="text-right">{{x.Otherqty}}</td>
+                                            <td class="text-right">{{x.Otherqty| number:2}}</td>
                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-change="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" ng-disabled="!x.Active"></td>
-                                            <td class="text-right">{{x.Balance}}</td>
+                                            <td class="text-right">{{x.Balance| number:2}}</td>
                                             <td class="text-right"><input type="text" style="width:60px;" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
                                             <td class="text-right">{{x.CurrencyName}}</td>
@@ -673,7 +687,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length">
+                                        <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length>0">
                                             <td>
                                                 <div class="checkbox-site">
                                                     <label>
@@ -682,9 +696,9 @@
                                                     </label>
                                                 </div>
                                             </td>
-                                            <td>{{x.AcceptenceDetailId}}</td>
-                                            <td>{{x.POID}}</td>
-                                            <td>{{x.InventoryReceiveDetailId}}</td>
+                                            <td>{{x.Id}}</td>
+                                            <td>{{x.POId}}</td>
+                                            <td>{{x.PODetailId}}</td>
                                             <td>{{x.MaterialGroupMasterName}}</td>
                                             <td>{{x.UserName}}</td>
                                             <td>{{x.StandardName}}</td>
@@ -692,20 +706,18 @@
                                             <td>{{x.SecondCharacteristicsValue}}</td>
                                             <td>{{x.ThirdCharacteristicsValue}}</td>
                                             <td>{{x.MaterialDetail}}</td>
-                                            <td class="text-right">{{x.POQty}}</td>
+                                            <td class="text-right">{{x.POQty| number:2}}</td>
                                             <td class="text-right">{{x.TransactionUoM}}</td>
-                                            <td class="text-right">{{x.TransactionRate}}</td>
+                                            <td class="text-right">{{x.TransactionRate| number:4}}</td>
                                             @*<td class="text-right"><input type="text" style="width:60px;" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>*@
-                                            <td class="text-right">{{x.CurrentGRNQty}}</td>
-                                            <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" @*ng-change="calculateAmount(x,$index);"*@ width="200" ng-model="x.TransactionQty" ng-disabled="!x.Active"></td>
+                                        <td class="text-right">{{x.CurrentGRNQty| number:2}}</td>
+                                            @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right"  width="200" ng-model="x.TransactionQty" ng-disabled="!x.Active"></td>*@
+                                            <td class="text-right">{{x.TransactionQty | number:2}}</td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
-                                            <td class="text-right">{{x.TotalGRN}}</td>
-                                            <td class="text-right">{{x.Otherqty}}</td>
-                                            @*<td class="text-right">{{x.Balance}}</td>*@
+                                            <td class="text-right">{{x.TotalGRN| number:2}}</td>
+                                            <td class="text-right">{{x.Otherqty| number:2}}</td>
                                             <td class="text-right">{{x.CurrencyName}}</td>
-                                            <td class="text-right">
-                                                {{x.TaxAmount | number:2}}
-                                            </td>
+                                            <td class="text-right">{{x.TaxAmount | number:2}}</td>
                                             <td class="text-right">{{x.ChargesTranAmount | number:2}}</td>
                                             <td class="text-right">{{x.ChargesTaxTranAmount | number:2}}</td>
                                             <td class="text-right">{{x.TotalMaterialTranAmount |number:2}}</td>
@@ -718,29 +730,26 @@
                                             </td>
                                             <td></td>
                                         </tr>
-                                        <tr ng-show="inventoryMaterialListPO.length">
+                                        <tr ng-show="inventoryMaterialListPO.length>0">
                                             <td colspan="6" class="text-right"><strong>Total : </strong></td>
                                             <td></td>
                                             <td></td>
                                             <td></td>
                                             <td></td>
                                             <td></td>
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'POQty' }}</strong></td>
-                                            <td></td>
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'GRNRcvQty' }}</strong></td>
-
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TransactionQty' }}</strong></td>
-
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Balance' }}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'POQty'| number:2 }}</strong></td>
                                             <td></td>
                                             <td></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'CurrentGRNQty' | number:2}}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TransactionQty'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TrnAmount'| number:2 }}</strong></td>
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TaxAmount'| number:2 }}</strong></td>
-
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalGRN'| number:2 }}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Otherqty'| number:2}}</strong></td>
+                                            <td class="text-right"></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TaxAmount'| number:2}}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'ChargesTranAmount'| number:2}}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'ChargesTaxTranAmount'| number:2}}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalMaterialTranAmount'| number:2}}</strong></td>
-                                            <td class="text-right"></td>
                                             <td class="text-right"></td>
 
                                         </tr>
@@ -952,20 +961,12 @@
     </div>
 </div>
 
-
 @*//Master Table Data*@
 
 <div class="aplos-grid-toggle">
-
-    <div style="color:black;" id="GridAcceptanceList" ej-grid e-datasource="GridAcceptanceList"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-         e-allowselection="true"
-         e-recorddoubleclick="recorddoubleclickFromMasterGrid"
-         e-filtersettings-filterType="excel"
-         e-enabletouch="true"
-         e-detailstemplate="detailTemp"
-         e-detailsdatabound="detailgrid"
-         e-allowscrolling="true">
+    <div style="color:black;" id="GridAcceptanceList" ej-grid e-datasource="GridAcceptanceList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+         e-allowselection="true" e-recorddoubleclick="recorddoubleclickFromMasterGrid" e-filtersettings-filterType="excel" e-enabletouch="true"
+         e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid" e-allowscrolling="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
             <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="80"></div>
@@ -1265,7 +1266,6 @@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 
-
 <div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1515,7 +1515,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="modal fade site-modal in" id="ContractPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
