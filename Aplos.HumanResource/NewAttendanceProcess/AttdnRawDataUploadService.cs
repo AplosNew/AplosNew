@@ -27,7 +27,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 if (DataToSave.Count() == 0)
-                    return "";
+                    return "Either Data not in Correct Format or Missing....";
 
                 List<AttdnRawData> items = DataToSave.ToList();
 
