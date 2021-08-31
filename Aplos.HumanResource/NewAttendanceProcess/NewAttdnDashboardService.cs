@@ -140,11 +140,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string empCat = "";
                 string statP = "";
                 string empStat = "";
-                if(EmpCat != null)
+                if (EmpCat != null)
                 {
-                    empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    if (EmpCat.Length > 0)
+                    {
+                        empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    }
+
                 }
-                if(stat == "All")
+                if (stat == "All")
                 {
                     statP = "";
                 }
@@ -249,7 +253,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string statP = "";
                 if (EmpCat != null)
                 {
-                    empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    if (EmpCat.Length > 0)
+                    {
+                        empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    }
+
                 }
                 if (stat == "All")
                 {
@@ -354,7 +362,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string statP = "";
                 if (EmpCat != null)
                 {
-                    empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    if (EmpCat.Length > 0)
+                    {
+                        empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    }
+
                 }
                 if (stat == "All")
                 {
@@ -504,7 +516,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string statP = "";
                 if (EmpCat != null)
                 {
-                    empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    if (EmpCat.Length > 0)
+                    {
+                        empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    }
+
                 }
                 if (stat == "All")
                 {
