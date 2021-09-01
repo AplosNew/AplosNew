@@ -1868,7 +1868,7 @@ namespace Library.MaterialManagement.Inventory
                                  ,FORMAT(PDA.InvoiceDate,'dd-MMM-yyyy')InvoiceDate,C.Code CurrencyName,PLC.CurrencyId, P.UserName Party,PDA.PurchaseLCId,PLC.ContractId,PDA.AcceptanceRate
                                  ,PLC.Tenure,PLC.OpeningBankMasterId,BM.CurrencyId LCOBCurrencyId,BMC.Code OBCurrencyCode
                                  ,NonCreditable =case when PDA.IsNonCreditable=1 then 'Yes' else 'No' end
-                                 ,PDA.IsNonCreditable,PLC.LCRef,CN.ContractNo,ISNULL(CN.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end,PCN.UserName CustomerName,PDA.TotalPOAmount
+                                 ,PDA.IsNonCreditable,PLC.LCRef,CN.ContractNo,ISNULL(CN.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end,PCN.UserName CustomerName,PDA.TotalGRNAmount,PLC.Amount LCAmount
                                  FROM TRN.PurchasedocAcceptance AS PDA
                                  LEFT JOIN(SELECT SUM(ISNULL(MaterialTranAmount,0)) MaterialTranAmount,PurchaseDocAcceptanceId 
                                  FROM  TRN.PurchasedocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id
@@ -2130,7 +2130,7 @@ namespace Library.MaterialManagement.Inventory
                     ,p.UserName PartyName, p.Id PartyId, PP.UserName PartyPlant, PP.Id PartyPlantId, PLC.OpeningBankMasterId, PLC.LCRef, PLC.CurrencyId
                    -- , PO.Id
 					, CN.Code CurrencyName, PLC.Tenure,AcceptanceFirst=CASE WHEN PLC.IsAccepptanceFirst=1 THEN 'Yes' ELSE 'No' END
-                    ,PCN.UserName CustomerName,CNT.ContractNo,CNT.UDNo,MLC.LCRef MasterLCRef
+                    ,PCN.UserName CustomerName,CNT.ContractNo,CNT.UDNo,MLC.LCRef MasterLCRef,PLC.Amount LCAmount
                     FROM dbo.PurchaseLC PLC
                     LEFT JOIN [MST].[BankMaster] BM ON BM.Id=PLC.OpeningBankMasterId
                     LEFT JOIN hkp.Party p ON p.id = PLC.VendorId

@@ -62,8 +62,6 @@ namespace Aplos.Areas.Products.Controllers
         }
         #endregion Aplos
 
-
-
         [Authorize, HttpGet]
         public JsonResult GetPOWithLCList(string PoType)
         {
@@ -112,7 +110,6 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-
         [Authorize, HttpGet]
         public JsonResult GetPrePurchaseInvoiceList(string lcId)
         {
@@ -132,7 +129,6 @@ namespace Aplos.Areas.Products.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_purchaseDocumentAcceptance.QueryOnlyPO(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
         }
-
 
         [Authorize, HttpGet]
         public JsonResult GetAcceptanceCharges()
@@ -183,7 +179,6 @@ namespace Aplos.Areas.Products.Controllers
             return Json(new { entity, Message = AplosMessage.Success + " Purchase Document Acceptance no <b>" + entity.Id + "</b>" });
         }
 
-
         [HttpPost]
         public JsonResult Update(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail
             , IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceServiceDetail
@@ -205,6 +200,7 @@ namespace Aplos.Areas.Products.Controllers
             _purchaseDocumentAcceptance.SaveMaterialTax(purchaseDocAcceptanceTax, PurchaseDocAcceptanceId);
             return Json(new { Message = AplosMessage.Success });
         }
+        
         [HttpPost, Authorize]
         public JsonResult SaveOrUpdateServiceTax(IEnumerable<PurchaseDocAcceptanceTax> purchaseDocAcceptanceServiceTax, string PurchaseDocAcceptanceId, string PurchaseDocAcceptanceServiceId)
         {
@@ -274,7 +270,6 @@ namespace Aplos.Areas.Products.Controllers
 
         }
 
-
         [Authorize, HttpGet]
         public JsonResult GetAcceptanceServiceList(string Id)
         {
@@ -301,15 +296,12 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_purchaseDocumentAcceptance.GetTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId), JsonRequestBehavior.AllowGet);
         }
 
-
         [Authorize, HttpGet]
         public JsonResult GetRecordDoubleClickMaster(string Id, string PoType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_purchaseDocumentAcceptance.GetRecordDoubleClickMaster(identity.PlantId, Id, PoType), JsonRequestBehavior.AllowGet);
         }
-
-
 
         [Authorize, HttpGet]
         public JsonResult GetRecordDoubleClickDetail(string Id, string PoType)
@@ -385,7 +377,6 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException(Resources.IdNotFound);
         }
 
-
         [Authorize, HttpGet]
         public JsonResult LCDetails(string LCID)
         {
@@ -421,7 +412,6 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
         }
 
-
         [Authorize, HttpPost]
         public ActionResult DeleteACPOmapTabledata(string id, string POID, string PODetailsID, string Qty)
         {
@@ -440,7 +430,6 @@ namespace Aplos.Areas.Products.Controllers
             DeleteChargeData(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
-
         public void DeleteChargeData(string Id)
         {
             string strSQL, strTSQL;
@@ -482,7 +471,7 @@ namespace Aplos.Areas.Products.Controllers
             DeleteServiceChargesData(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
-
+       
         public void DeleteServiceChargesData(string Id)
         {
             string strSQL, strTSQL;
@@ -896,6 +885,90 @@ namespace Aplos.Areas.Products.Controllers
             return Json(new { entity, Message = AplosMessage.Insert });
         }
 
+        [HttpPost]
+        public JsonResult UpdateGRNAcceptance(PurchaseDocAcceptance entity, List<Dictionary<string, object>> PurchaseDocAcceptanceDetail)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            try
+            {
+                DataSet dsMaster, dsDetail;
+                SaveData(entity, out dsMaster, out string masterId);
+                entity.Id = masterId;
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceDetail] Where PurchaseDocAcceptanceId='" + masterId + "'", out dsDetail, false, "1");
+
+                if (PurchaseDocAcceptanceDetail != null)
+                {
+
+                    foreach (var item in PurchaseDocAcceptanceDetail)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsDetail);
+                return Json(new { entity, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
         private void CopyRow(DataRow drSource, ref DataRow drDestination)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1010,10 +1083,6 @@ namespace Aplos.Areas.Products.Controllers
 
                     dr.EndEdit();
                 }
-
-
-                //clsStaticInfo obj = new clsStaticInfo();
-                //obj.SaveDataSets(dsMaster);
 
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
