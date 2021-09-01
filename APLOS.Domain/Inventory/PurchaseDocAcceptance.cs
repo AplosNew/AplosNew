@@ -23,7 +23,7 @@ namespace Library.Model.Inventory
         public string AcceptancePaymentSource { get; set; }
         public decimal AcceptanceRate { get; set; }
         public bool IsNonCreditable { get; set; }
-        public decimal TotalPOAmount { get; set; }
+        public decimal AcceptanceAmount { get; set; }
 
         #endregion Scalar Properties
 

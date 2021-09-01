@@ -36,8 +36,8 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat , string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date,  stat,  EmpCat, EmpStat);
-            return Json(data, JsonRequestBehavior.AllowGet);
+            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date,  stat,  EmpCat, EmpStat, out int[] Total);
+            return Json(new { Data = data , Sum = Total}, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -58,8 +58,8 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat , string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet);
+            var data = na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat, EmpStat , out int[] Total);
+            return Json(new {Data = data , Sum = Total }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost , Authorize]
@@ -71,147 +71,150 @@ namespace Aplos.Areas.HumanResource.Controllers
             return JsonData;
         }
 
-        [HttpPost, Authorize]
-        public ActionResult GetPrintReport(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
-        {
+        //#region ReportDownload
 
-            try
-            {
-                var workbook = GetFilterData(ChartColumnList,  seq,  date,  Column, data,  stat,  EmpCat,  EmpStat);
+        //[HttpPost, Authorize]
+        //public ActionResult GetPrintReport(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
+        //{
 
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + "-" + Column + "-" + "EmpReport.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
+        //    try
+        //    {
+        //        var workbook = GetFilterData(ChartColumnList, seq, date, Column, data, stat, EmpCat, EmpStat);
 
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //        var strFileName = DateTime.Now.ToString("yy-MM-dd") + "-" + Column + "-" + "EmpReport.xlsx";
+        //        string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+        //        workbook.SaveAs(fullPath);
 
-        private IWorkbook GetFilterData(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
-        {
-            var excelEngine = new ExcelEngine();
-            var report = new ReportUtility();
-            var workbook = report.GetWorkbook(ref excelEngine, 3);
-            workbook.Version = ExcelVersion.Excel2016;
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sheet = workbook.Worksheets[0];
-            sheet.Name = "Employee Attdn Report";
+        //        return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
-            int ROW = 6;
-            int endCol = 1;
-            int COL = 1;
+        //private IWorkbook GetFilterData(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
+        //{
+        //    var excelEngine = new ExcelEngine();
+        //    var report = new ReportUtility();
+        //    var workbook = report.GetWorkbook(ref excelEngine, 3);
+        //    workbook.Version = ExcelVersion.Excel2016;
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    var sheet = workbook.Worksheets[0];
+        //    sheet.Name = "Employee Attdn Report";
 
-            DataTable dtData = na.ReportDownloadSvc(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat);
+        //    int ROW = 6;
+        //    int endCol = 1;
+        //    int COL = 1;
 
-
-            #region Grid Headers
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 13, ExcelHAlign.HAlignCenter);
-            int ColCode = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 13, ExcelHAlign.HAlignCenter);
-            int ColName = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Day Status", 13, ExcelHAlign.HAlignCenter);
-            int ColDStat = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "In Status", 13, ExcelHAlign.HAlignCenter);
-            int ColInStat = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "In Time", 13, ExcelHAlign.HAlignCenter);
-            int ColITime = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Out Time", 13, ExcelHAlign.HAlignCenter);
-            int ColOTime = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 13, ExcelHAlign.HAlignCenter);
-            int ColDesg = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Budget Code", 15, ExcelHAlign.HAlignCenter);
-            int ColBudCode = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Shift", 13, ExcelHAlign.HAlignCenter);
-            int ColShift = COL;
-            COL++;
+        //    DataTable dtData = na.ReportDownloadSvc(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat);
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Seub Section", 13, ExcelHAlign.HAlignCenter);
-            int ColSubSection = COL;
-            COL++;
+        //    #region Grid Headers
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Section", 13, ExcelHAlign.HAlignCenter);
-            int ColSection = COL;
-            COL++;
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 13, ExcelHAlign.HAlignCenter);
+        //    int ColCode = COL;
+        //    COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 13, ExcelHAlign.HAlignCenter);
-            int ColDepartment = COL;
-            COL++;
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 13, ExcelHAlign.HAlignCenter);
+        //    int ColName = COL;
+        //    COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 13, ExcelHAlign.HAlignCenter);
-            int ColEntity = COL;
-            COL++;
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Day Status", 13, ExcelHAlign.HAlignCenter);
+        //    int ColDStat = COL;
+        //    COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 13, ExcelHAlign.HAlignCenter);
-            int ColPlant = COL;
-            COL++;
-            ROW++;
-            endCol = COL;
-            #endregion Headers
+        //    report.SetHeaderText(ref sheet, ROW, COL, "In Status", 13, ExcelHAlign.HAlignCenter);
+        //    int ColInStat = COL;
+        //    COL++;
 
+        //    report.SetHeaderText(ref sheet, ROW, COL, "In Time", 13, ExcelHAlign.HAlignCenter);
+        //    int ColITime = COL;
+        //    COL++;
 
-            var startRow = 0;
-            var endRow = 0;
-            int RowIndex = ROW;
-            startRow = ROW;
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Out Time", 13, ExcelHAlign.HAlignCenter);
+        //    int ColOTime = COL;
+        //    COL++;
 
-            for (int i = 0; i < dtData.Rows.Count; i++)
-            {
-                sheet[ROW, ColCode].Text = dtData.Rows[i]["EmployeeCode"].ToString();
-                sheet[ROW, ColName].Text = dtData.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColDStat].Text = dtData.Rows[i]["DayStatus"].ToString();
-                sheet[ROW, ColInStat].Text = dtData.Rows[i]["InStatus"].ToString();
-                sheet[ROW, ColITime].Text = dtData.Rows[i]["InTime"].ToString();
-                sheet[ROW, ColOTime].Text = dtData.Rows[i]["OutTime"].ToString();
-                sheet[ROW, ColDesg].Text = dtData.Rows[i]["Designation"].ToString();
-                sheet[ROW, ColBudCode].Text = dtData.Rows[i]["BudgetCode"].ToString();
-                sheet[ROW, ColShift].Text = dtData.Rows[i]["Shift"].ToString();
-                sheet[ROW, ColSubSection].Text = dtData.Rows[i]["SubSection"].ToString();
-                sheet[ROW, ColSection].Text = dtData.Rows[i]["Section"].ToString();
-                sheet[ROW, ColDepartment].Text = dtData.Rows[i]["Department"].ToString();
-                sheet[ROW, ColEntity].Text = dtData.Rows[i]["Entity"].ToString();
-                sheet[ROW, ColPlant].Text = dtData.Rows[i]["Plant"].ToString();
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Designation", 13, ExcelHAlign.HAlignCenter);
+        //    int ColDesg = COL;
+        //    COL++;
+
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Budget Code", 15, ExcelHAlign.HAlignCenter);
+        //    int ColBudCode = COL;
+        //    COL++;
+
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Shift", 13, ExcelHAlign.HAlignCenter);
+        //    int ColShift = COL;
+        //    COL++;
 
 
-                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Seub Section", 13, ExcelHAlign.HAlignCenter);
+        //    int ColSubSection = COL;
+        //    COL++;
 
-                ROW++;
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Section", 13, ExcelHAlign.HAlignCenter);
+        //    int ColSection = COL;
+        //    COL++;
 
-            }
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Department", 13, ExcelHAlign.HAlignCenter);
+        //    int ColDepartment = COL;
+        //    COL++;
 
-            ROW++;
-           
-            endRow = ROW - 1;
-            endRow = ROW - 1;
-             
-            sheet.UsedRange.WrapText = true;
-            sheet.UsedRange.CellStyle.Font.Size = 8;
-            ReportUtility reportUtility = new ReportUtility();
-            reportUtility.PlantHeader(ref sheet, endCol, "Employee Attdn Report", identity.PlantId);
-            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-            return workbook;
-        }
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Entity", 13, ExcelHAlign.HAlignCenter);
+        //    int ColEntity = COL;
+        //    COL++;
+
+        //    report.SetHeaderText(ref sheet, ROW, COL, "Plant", 13, ExcelHAlign.HAlignCenter);
+        //    int ColPlant = COL;
+        //    COL++;
+        //    ROW++;
+        //    endCol = COL;
+        //    #endregion Headers
+
+
+        //    var startRow = 0;
+        //    var endRow = 0;
+        //    int RowIndex = ROW;
+        //    startRow = ROW;
+
+        //    for (int i = 0; i < dtData.Rows.Count; i++)
+        //    {
+        //        sheet[ROW, ColCode].Text = dtData.Rows[i]["EmployeeCode"].ToString();
+        //        sheet[ROW, ColName].Text = dtData.Rows[i]["EmployeeName"].ToString();
+        //        sheet[ROW, ColDStat].Text = dtData.Rows[i]["DayStatus"].ToString();
+        //        sheet[ROW, ColInStat].Text = dtData.Rows[i]["InStatus"].ToString();
+        //        sheet[ROW, ColITime].Text = dtData.Rows[i]["InTime"].ToString();
+        //        sheet[ROW, ColOTime].Text = dtData.Rows[i]["OutTime"].ToString();
+        //        sheet[ROW, ColDesg].Text = dtData.Rows[i]["Designation"].ToString();
+        //        sheet[ROW, ColBudCode].Text = dtData.Rows[i]["BudgetCode"].ToString();
+        //        sheet[ROW, ColShift].Text = dtData.Rows[i]["Shift"].ToString();
+        //        sheet[ROW, ColSubSection].Text = dtData.Rows[i]["SubSection"].ToString();
+        //        sheet[ROW, ColSection].Text = dtData.Rows[i]["Section"].ToString();
+        //        sheet[ROW, ColDepartment].Text = dtData.Rows[i]["Department"].ToString();
+        //        sheet[ROW, ColEntity].Text = dtData.Rows[i]["Entity"].ToString();
+        //        sheet[ROW, ColPlant].Text = dtData.Rows[i]["Plant"].ToString();
+
+
+        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+        //        ROW++;
+
+        //    }
+
+        //    ROW++;
+
+        //    endRow = ROW - 1;
+        //    endRow = ROW - 1;
+
+        //    sheet.UsedRange.WrapText = true;
+        //    sheet.UsedRange.CellStyle.Font.Size = 8;
+        //    ReportUtility reportUtility = new ReportUtility();
+        //    reportUtility.PlantHeader(ref sheet, endCol, "Employee Attdn Report", identity.PlantId);
+        //    reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+        //    return workbook;
+        //}
+        //#endregion ReportDownload
     }
 }

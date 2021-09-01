@@ -469,12 +469,27 @@ namespace Library.HumanResource.Report.OT
                 objRpt.SelectedPlant(PlantId, out dsFactory);
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
+                string Plant = "";
+                try
+                {
+                    if (parameters.Count > 0)
+                    {
+                        if (parameters.Keys.ElementAt(0) != "")
+                        {                            
+                            Plant += parameters["PlantId"];
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
 
                 Dictionary<string, string> dicStrSal = new Dictionary<string, string>();
 
                 Dictionary<string, DataRow> dicHourlyOTH = new Dictionary<string, DataRow>();
 
-                dicHourlyOTH = GetDictionaryHourOTMonthReportWithWeekendORHoliday(Year, Month, PlantId, CompanyId, CompanyGroupId, parameters, isActive, isSeperated, "Holiday");
+                dicHourlyOTH = GetDictionaryHourOTMonthReportWithWeekendORHolidaySaad(Year, Month, CompanyId, CompanyGroupId, parameters, isActive, isSeperated, "Holiday");
 
 
                 if (dicHourlyOTH.Count == 0)
@@ -490,11 +505,11 @@ namespace Library.HumanResource.Report.OT
                 DataSet dsCurrency = null;
 
 
-                Dictionary<string, List<DataRow>> dicSalStructure = LoadSalaryStructure(PlantId, FirstDayOfTheMonth, LastDayOfTheMonth);
-                Dictionary<string, DataRow> dicOTpolicy = LoadOverTimePolicy(PlantId, FirstDayOfTheMonth, LastDayOfTheMonth);
+                Dictionary<string, List<DataRow>> dicSalStructure = LoadSalaryStructure(Plant, FirstDayOfTheMonth, LastDayOfTheMonth);
+                Dictionary<string, DataRow> dicOTpolicy = LoadOverTimePolicy(Plant, FirstDayOfTheMonth, LastDayOfTheMonth);
 
                 clsSalaryInfo objSal = new clsSalaryInfo();
-                objSal.GetLocalCurrency(CompanyGroupId, PlantId, out dsCurrency);
+                objSal.GetLocalCurrency(CompanyGroupId, Plant, out dsCurrency);
                 if (dsCurrency.Tables[0].Rows.Count > 0)
                 {
                     _currencyId = "" + dsCurrency.Tables[0].Rows[0]["LocalCurrency"].ToString().Trim();
@@ -523,6 +538,7 @@ namespace Library.HumanResource.Report.OT
                 var iLine = 0;
                 var totalAmount = 0.00;
                 var iDOJ = 0;
+                var iPlant = 0;
                 var iDepartment = 0;
                 var iDesignation = 0;
                 var itotal = 0;
@@ -553,6 +569,11 @@ namespace Library.HumanResource.Report.OT
                 iName = xlsCol;
                 sheet1.Range[xlsRow, iName].Text = "Emp Name";
                 sheet1.Range[xlsRow, iName].ColumnWidth = 25;
+
+                xlsCol += 1;
+                iPlant = xlsCol;
+                sheet1.Range[xlsRow, iPlant].Text = "Plant";
+                sheet1.Range[xlsRow, iPlant].ColumnWidth = 20;
 
                 xlsCol += 1;
                 iDOJ = xlsCol;
@@ -694,6 +715,7 @@ namespace Library.HumanResource.Report.OT
                     sheet1.Range[xlsRow, isl].Text = SLNo.ToString();
                     sheet1.Range[xlsRow, iName].Text = dtrOTH["EmployeeName"].ToString();
                     sheet1.Range[xlsRow, iEmployeeCode].Text = dtrOTH["EmployeeCode"].ToString();
+                    sheet1.Range[xlsRow, iPlant].Text = dtrOTH["PlantName"].ToString();
                     sheet1.Range[xlsRow, iDOJ].DateTime = Convert.ToDateTime(dtrOTH["DOJ"].ToString());
                     sheet1.Range[xlsRow, iDOJ].NumberFormat = "dd-MMM-yyyy";
                     if (!String.IsNullOrEmpty(dtrOTH["DOS"].ToString()))
@@ -2860,8 +2882,7 @@ namespace Library.HumanResource.Report.OT
                 {
 
                     string _empid = item.Key;//dtemp.Rows[i]["EmpInfoSystemID"].ToString();
-
-
+                                       
                     GetFormula(dsPolicy, dsSalaryStruc, _currencyId, _empid, out nwRate, out wRate, out hRate);
                     dicNW.Add(_empid, nwRate);
                     dicW.Add(_empid, wRate);
@@ -3886,6 +3907,136 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
+        public Dictionary<string, DataRow> GetDictionaryHourOTMonthReportWithWeekendORHolidaySaad(string YearNo, string MonthNo, string companyId, string companyGroupId, Dictionary<string, string> parameters, bool isActive, bool isSeperated, string DayCategory)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            Dictionary<string, DataRow> dicOTPolicy = new Dictionary<string, DataRow>();
+            string strSql = string.Empty;
+            DataSet dsRef = null;
+            string FirstDayOfTheMonth = "01-" + MonthNo + "-" + YearNo;
+            string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+            try
+            {
+                string wcDos = "AND (1=0";
+
+                if (isActive == true && isSeperated == true)
+                {
+                    wcDos = " AND (1=1 ";
+                }
+                else
+                {
+                    if (isActive == true)
+                    {
+                        wcDos += " OR ISNULL(ei.DOS,'') = ''";
+                    }
+                    if (isSeperated == true)
+                    {
+                        wcDos += " OR ISNULL(ei.DOS,'') <> ''";
+                    }
+                }
+
+                wcDos += ")";
+
+                string wcEmpSystemId = "";
+                string Plant = "";
+                try
+                {
+                    if (parameters.Count > 0)
+                    {
+                        if (parameters.Keys.ElementAt(0) != "")
+                        {
+                            wcEmpSystemId += @"and HO.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
+                            Plant += @"AND ei.plantid in (" + parameters["PlantId"] + ")";
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+
+                strSql = @"SELECT Plant.UserName PlantName,ei.SystemId,ei.EmployeeName,ei.EmployeeCode,format(ei.DOJ,'dd-MMM-yyyy') DOJ,format(ei.DOS,'dd-MMM-yyyy') DOS,s.UserName as Section,sb.UserName as SubSection,lg.UserName Designation
+                                ,d.UserName Department,ei.GenderID,HO.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
+                                      ,sum(ho.Duration) AS Duration,SUM(CAST(ho.Duration AS decimal)/60) AS DurationH
+
+                                    ,AD.IsAllDesignation--1
+                                    ,ISNULL(ad.IsFixed,0) AS IsFixed---1--rate--0-farmula
+                                    ,ISNULL(ad.Rate,0) AS Rate
+                                    ,AD.FormulaDesID
+                                    ,ISNULL(dar.IsFixed,0) AS IsFixedFromRate--1--rate--0--farmula
+                                    ,ISNULL(dar.rate,0) AS ratear
+                                    ,dar.FormulaDesID FormulaDesIDFromRate
+		                            ,ISNULL(bb.UserName,'') BankName
+									,ISNULL(PG.UserName,'') PayRollGroup
+                                    ,ISNULL(ebi.IFSCCode,'') IFSCCode
+									,ISNULL(ebi.BankAccNo,'') BankAccNo
+                                    ,ISNULL(ec.UserName,'') EmployeeCategory
+                                      FROM HourlyOT  HO 
+                                      LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+                                    LEFT JOIN ORG.Plant  on Plant.Id=ei.PlantId
+                                      LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
+                                        LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
+                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                        left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
+                                        left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
+                                        left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
+                                        left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
+                                      LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
+                                      LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
+									  LEFT JOIN [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
+									  LEFT JOIN [HKP].[BankBranch] bbranch on bbranch.Id = ebi.BankBranchId
+									  LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = ei.SystemId
+                                        LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+									
+                                      LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
+
+                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND DT.Category IN ('" + DayCategory + @"')  " + wcDos + @" "+ Plant + @" " + wcEmpSystemId + @" 
+                                        --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
+                                    GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
+									,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
+                                    ,ad.IsAllDesignation,Plant.UserName
+                                    ,ad.IsFixed
+                                    ,ad.FormulaDesID
+                                    ,dar.IsFixed
+                                    ,dar.FormulaDesID
+                                    ,ad.Rate
+                                    ,dar.rate
+	                                ,ei.DOS	,bb.UserName
+									,PG.UserName
+                                    ,ebi.IFSCCode
+									,ebi.BankAccNo
+                                    ,ec.UserName
+                                   ORDER BY ei.EmployeeCode
+                                    ";
+
+                ConnectionManager.clsConnectionManager con = new ConnectionManager.clsConnectionManager(600);
+                con.getDataSet(strSql, out dsRef);
+
+                DataTable dt = dsRef.Tables[0];
+
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    dicOTPolicy.Add(dt.Rows[i]["SystemId"].ToString(), dt.Rows[i]);
+                }
+
+                return dicOTPolicy;
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
 
 
 

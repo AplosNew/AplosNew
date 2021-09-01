@@ -3741,6 +3741,8 @@
     <Content Include="POPResources\Templates\JWIssue202026.docx" />
     <Content Include="POPResources\Templates\JWPurchaseOrder202026.docx" />
     <Content Include="POPResources\Templates\InventorySalesReport202032.docx" />
+    <Content Include="POPResources\Templates\JWPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\JWIssue20202.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

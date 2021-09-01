@@ -1,4 +1,4 @@
-﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Consecutive Working Days</h3>
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> {{FormTitle}}</h3>
 <div class="form-elements form-horizontal" ng-form="modelForm">
     <div class="row">
         <div class="form-elements form-horizontal" ng-form="modelForm">
@@ -28,11 +28,11 @@
                 </div>
 
                 @*<div class="form-group">
-                    <label class="col-sm-4 " style="font-weight:normal;">Consider In Out<sup></sup></label>
-                    <div class="col-sm-8">
-                        <input type="checkbox" ej-checkbox class="nodetext" e-value="considerInOut" e-checked="considerInOut" e-model="considerInOut" />
-                    </div>
-                </div>*@
+                        <label class="col-sm-4 " style="font-weight:normal;">Consider In Out<sup></sup></label>
+                        <div class="col-sm-8">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="considerInOut" e-checked="considerInOut" e-model="considerInOut" />
+                        </div>
+                    </div>*@
 
             </div>
             <div class="col-md-12 col-sm-6 col-md-6">
@@ -49,15 +49,21 @@
                         <input type="text" name="Form Date" ng-model="dayCountPresent" class="form-control" ng-change="PreviousDate()">
                     </div>
                 </div>
-                @*<div class="form-group">
-                    <label class="col-sm-4 control-label">Day Status<sup></sup></label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <input id="AttendanceDayStatusList" ej-dropdownlist e-create="create" e-multiselectmode="visualmode" e-datasource="AttendanceDayStatusList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
-
-                        </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Plant</label>
+                    <div class="col-md-8">
+                        <input id="ddlPlantList" />
                     </div>
-                </div>*@
+                </div>
+                @*<div class="form-group">
+                        <label class="col-sm-4 control-label">Day Status<sup></sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <input id="AttendanceDayStatusList" ej-dropdownlist e-create="create" e-multiselectmode="visualmode" e-datasource="AttendanceDayStatusList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+
+                            </div>
+                        </div>
+                    </div>*@
                 <div class="form-group" style="text-align: right; margin-left: 76%;">
                     <div class="col-xs-6" style="margin:1px;">
                         <div class="common-btn">
@@ -67,6 +73,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -83,7 +90,7 @@
                         </li>
                     </ul>
                 </div>
-              
+
             </div>
             <div id="GridPresent" ej-grid
                  e-datasource="DateWisePresentStatusList"
@@ -98,6 +105,7 @@
                 <div e-columns>
                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="50"></div>
                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Plant" e-headertext="Plant" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="50"></div>
                     <div e-column e-field="EmployeeCategorys" e-headertext="Emp Category" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="Entity" e-headertext="Entity" e-allowediting="false" e-width="80"></div>

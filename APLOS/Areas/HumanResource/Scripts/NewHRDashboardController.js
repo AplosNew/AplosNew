@@ -45,8 +45,9 @@ function NewHRDashboardController(cboService, $scope, $rootScope, $routeParams, 
             dataType: 'JSON'
         }).then(function successCallback(response) {
            
-                setList(response.data);
-                
+                setList(response.data.Data);
+            EmpNoChart.data.datasets[0].data = response.data.Sum;
+            EmpNoChart.update();
                 createColList();
            
         });
@@ -76,8 +77,11 @@ function NewHRDashboardController(cboService, $scope, $rootScope, $routeParams, 
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                $scope.DDList = response.data;
-                setList(response.data);
+                $scope.DDList = response.data.Data;
+                setList(response.data.Data);
+
+                EmpNoChart.data.datasets[0].data = response.data.Sum;
+                EmpNoChart.update();
 
                 $scope.index += 1;
                 $scope.stIndex = $scope.index - 1;
@@ -273,9 +277,11 @@ function NewHRDashboardController(cboService, $scope, $rootScope, $routeParams, 
                 'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat,},
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            setList(response.data);
+            setList(response.data.Data);
             $scope.ColList = [];
             createColList();
+            EmpNoChart.data.datasets[0].data = response.data.Sum;
+            EmpNoChart.update();
             $scope.index = -1;
             $scope.stIndex = $scope.index - 1;
         });
@@ -301,8 +307,9 @@ function NewHRDashboardController(cboService, $scope, $rootScope, $routeParams, 
 
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                setList(response.data);
-                
+                setList(response.data.Data);
+                EmpNoChart.data.datasets[0].data = response.data.Sum;
+                EmpNoChart.update();
                 $scope.index = -1;
                 $scope.stIndex = $scope.index - 1;
             });
@@ -380,31 +387,55 @@ function NewHRDashboardController(cboService, $scope, $rootScope, $routeParams, 
     }
 
     // On Downloading the Excel
-    $scope.downloadgriddataUrl = 'GridReports/Download';
-    $scope.printReport = function () {
-        $http({
-            method: 'POST',
-            url: 'NewHRDashboard/GetPrintReport',
-            data: {
-                'ChartColumnList': $scope.ColList,
-                'seq': $scope.index,
-                'date': $scope.Date,
-                'Column': $scope.RptColumn,
-                'data': $scope.RptData,
-                'stat': $scope.Stat,
-                'EmpCat': $scope.EmpCat,
-                'EmpStat': $scope.EmpStat,
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
+    //$scope.downloadgriddataUrl = 'GridReports/Download';
+    //$scope.printReport = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: 'NewHRDashboard/GetPrintReport',
+    //        data: {
+    //            'ChartColumnList': $scope.ColList,
+    //            'seq': $scope.index,
+    //            'date': $scope.Date,
+    //            'Column': $scope.RptColumn,
+    //            'data': $scope.RptData,
+    //            'stat': $scope.Stat,
+    //            'EmpCat': $scope.EmpCat,
+    //            'EmpStat': $scope.EmpStat,
+    //        },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error == true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
+    //}
+
+    //Chart Viewing
+    var EmpNoChart = document.getElementById('EmpNoChart').getContext('2d');
+
+    var EmpNoChart = new Chart(EmpNoChart, {
+        type: 'pie',
+        data:
+        {
+            labels: ['Present','Absent','Late','Leave','OD','Week Off' , 'Others'],
+            datasets: [{
+                label: 'Points',
+                data: [],
+                backgroundColor: ['#01c5c4', '#b8de6f', '#f1e189', '#f39233', '#f39ab3', '#53a2c3','#FFA500'],
+                hoverBorderWidth: 2,
+                hoverBorderColor: '#027373',
+            }]
+        },
+        options: {
+            cutoutPercentage: 30,
+            animation: {
+                animateScale: true
             }
-            else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-    }
+        }
+    });
 }
