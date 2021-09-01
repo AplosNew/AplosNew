@@ -33,7 +33,7 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
 
             }
             $scope.filterComplete();
-            $scope.fileName = "OrderReport.xls";
+            $scope.fileName = "OrderReport.xlsx";
             $http({
                 method: 'POST',
                 url: $scope.path + "GetOrderReport",
