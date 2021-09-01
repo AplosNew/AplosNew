@@ -257,7 +257,7 @@ namespace Aplos.Areas.Productions.Controllers
                 reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
                 //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 5, colDate].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                string strFileName = "Production PLanning Report.xlsx";
+                string strFileName = "Production Planning Report.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
             }
