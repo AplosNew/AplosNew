@@ -156,7 +156,14 @@
 <div class="row" id="overall" style="background-color:white;">
 
     <div class="col-md-12">
-        <div id="Detail" class="col-lg-12" style="padding-left:0%">
+        <div class=" col-lg-4 ">
+            <div style="border : solid; border-color:transparent;  box-shadow: 3px 7px 5px grey; ">
+                <h2 style="text-align:center ; font-style:oblique; font-size:medium;">Attendance</h2>
+                <canvas id="EmpNoChart"></canvas>
+            </div>
+
+        </div>
+        <div id="Detail" class="col-lg-8" style="padding-left:0%">
             <div class="row">
                 <div class="" style="margin-left:0%;  max-height:375px; max-width:100%;">
                     <table class="table table-hover" style="overflow-y:scroll;border:1px solid black; box-shadow:1px 1px 1px 1px grey;">
@@ -172,15 +179,15 @@
                                 <th>OD</th>
                                 <th>Week Off</th>
                                 <th>Other</th>
-                                </tr>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="x in list">
                                 <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="setIndex(x);GetDetailDrillDownTableJS(x)">{{x.UserName}}</td>
                                 <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'BB')">{{x.BB}}</td>
-                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem"  ng-click="TableClick(x,'OnRoll')">{{x.OnRoll}}</td>
-                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem"  ng-click="TableClick(x,'Present')">{{x.Present}}</td>
-                                <td style="padding:2px; cursor:pointer;text-align:center"  class="hoverItem" ng-click="TableClick(x,'Absent')">{{x.Absent}}</td>
+                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'OnRoll')">{{x.OnRoll}}</td>
+                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'Present')">{{x.Present}}</td>
+                                <td style="padding:2px; cursor:pointer;text-align:center" class="hoverItem" ng-click="TableClick(x,'Absent')">{{x.Absent}}</td>
                                 <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'Late')">{{x.Late}}</td>
                                 <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'Leave')">{{x.Leave}}</td>
                                 <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'OD')">{{x.OD}}</td>
