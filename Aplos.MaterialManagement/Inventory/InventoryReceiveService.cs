@@ -22639,7 +22639,123 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
             string strSQL;
             try
             {
-                strSQL = @"SELECT IR.Id IssueNo
+				//         strSQL = @"SELECT IR.Id IssueNo
+				//	,HSNC.Code HSNCode
+				//                         ,IR.CompanyGroupId
+				//                         ,IR.CompanyId
+				//                         ,Plant.GSTIN 
+				//	,null PODepended 
+				//	,IR.Id PONumber  
+				//                      ,IR.IssueRequestMasterId  
+				//                         ,REPLACE(Convert(VARCHAR(11), IR.IssueDate, 106), ' ', '-') AS PODate
+				//                         ,null BaseOnDueDate
+				//                         ,NULL AS MatureDate
+				//                   ,null InvoicingPartyPlantId
+
+				//                        ,null InvoicingPartyName
+				//                                         ,null InvoicePartyAddressMasterId
+				//                                         ,null InvoicingPartyGSTIN
+				//                                         ,null InvoicingByAddress
+				//                   ,null DeliveryByAddress
+				//                   ,null DeliveryParty
+				//                   ,null DeliveryPartyPlantId		
+				//                   ,IOM.MaterialMasterId
+				//                   ,null DocRefNo 
+				//                   ,null DocDate
+				//                   ,IR.AddedBy
+				//                   ,IR.AddedDate
+				//                   ,IR.UpdatedBy
+				//                   ,IR.UpdatedDate
+				//                   ,null IsApproved
+				//                   ,null PartyType
+				//                   ,null VendorName
+				//                         ,null VendorAddressMasterId
+				//                         ,null VendorGSTIN
+				//                         --,Case When null IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
+				//                   ,null IsNonCreditable
+				//                  -- ,'' CurrencyId
+				//                         ,IR.CurrencyId
+				//                      --,null AS CurrencyName
+				//                         ,CUR.Code CurrencyName
+				//                      ,null as ToCurrencyRate
+				//                   ,null AS BaseCurrencyName
+				//                   ,NULL PaymentTerm
+				//                    ,MM.UserName MaterialMaster
+				//                    ,MM.MaterialGroupMasterId
+				//                    ,MGM.UserName MaterialGroupMaster
+				//                    ,IOM.ArticleId
+				//                    ,MMA.StandardName Article
+				//                    ,FC.Id FirstCharId
+				//                    ,FC.UserName FirstChar
+				//                       ,IOM.FirstCharacteristicsValueId
+				//                    ,FCV.UserName AS FirstCharacteristicsValue
+				//                       ,IOM.SecondCharacteristicsValueId
+				//                    ,SCV.UserName AS SecondCharacteristicsValue
+				//                    ,IOM.ThirdCharacteristicsValueId
+				//                    ,TCV.UserName AS ThirdCharacteristicsValue
+				//                    ,SC.Id SecondCharId
+				//                    ,SC.UserName SecondChar
+				//                    ,TC.Id ThirdCharId
+				//                    ,TC.UserName ThirdChar
+				//                     ,ROUND(IIH.Qty, 2) POTransactionQty
+				//                    ,ROUND(IIH.Rate, 2) TransactionRate
+				//                    ,ROUND((IIH.Qty* IIH.Rate), 2) AS TrnAmount
+				// --,ROUND((IIH.Qty*IRD.PolicyRate), 2) AS TrnAmount
+				//                    ,null BaseAmount
+				//                    ,null AS BaseTaxAmount
+				//                    ,TaxAmount = (
+				//                       SELECT SUM(TaxAmount)
+				//                       FROM [TRN].[PurchaseOrderTax]
+				//                       WHERE InventoryReceiveDetailId = IRD.Id
+				//                       )
+				//                    ,ServiceTaxAmount = (
+				//                       SELECT SUM(TotalTaxAmount)
+				//                       FROM [TRN].[POService]
+				//                       WHERE InventoryReceiveId = IOM.Id
+				//                       )
+				//                    ,null ChargesTranAmount
+				//                    ,null CountryId
+				//                    ,IRD.BaseUOMId
+				//                    ,TUoM.UserName AS TransactionUoM
+				//                       ,IRD.Id InventoryReceiveDetailId
+				//  ,IR.IssueType,E.UserName AS Entity,IR.Remarks,EI.EmployeeName +'-'+EI.EmployeeCode As EmployeeName,CC.UserName CostCenter,IRD.Comments 
+				//                       ,IR.ContractId,IR.ProductionOrderId,Con.ContractNo,IR.OrderRefNo
+				//  ,IR.JWContractId,tc.Remarks as TConRemarks,FORMAT(tcon.Date,'dd-MMM-yyyy') as TContractDate
+				//  ,FORMAT(tcon.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,FORMAT(tcon.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate
+				//  ,FORMAT(tcon.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+				//                       ,Ety.UserName as TConEntity,p.Code as PartyCode, p.UserName as PartyName,IR.Types, MS.UserName as MaterialStorage
+				//  ,IssueStatus=case when IR.IsConfirmed=0 then 'Not Confirmed' else 'Confirmed' End
+				//                  FROM TRN.InventoryIssue IR
+				//                  LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
+				//                  LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+				//                  LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
+				//                  LEFT JOIN trn.InventoryIssueDetail IRD ON IR.Id = IRD.InventoryIssueId		
+				//                  LEFT JOIN (Select InventoryIssueDetailId,Sum(Qty) Qty,sum(qty*rate)/Sum(Qty) Rate, sum(qty*rate) TrnAmount from trn.InventoryIssueHistory group by InventoryIssueDetailId)IIH ON IIH.InventoryIssueDetailId = IRD.Id		
+
+				//                  LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
+				//                  INNER JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
+				//LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+				//                  INNER JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
+				//                  INNER JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId
+				//                  LEFT JOIN HKP.Characteristics AS FC ON IOM.FirstCharacteristicsId = FC.Id
+				//                  LEFT JOIN HKP.Characteristics AS SC ON IOM.SecondCharacteristicsId = SC.Id
+				//                  LEFT JOIN HKP.Characteristics AS TC ON IOM.ThirdCharacteristicsId = TC.Id
+				//                  LEFT JOIN HKP.CharacteristicsValue AS FCV ON IOM.FirstCharacteristicsValueId = FCV.Id
+				//                  LEFT JOIN HKP.CharacteristicsValue AS SCV ON IOM.SecondCharacteristicsValueId = SCV.Id
+				//                  LEFT JOIN HKP.CharacteristicsValue AS TCV ON IOM.ThirdCharacteristicsValueId = TCV.Id
+				//                  LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id=IR.CurrencyId
+				//Left JOIN [ORG].[Entity] E On E.id=IR.EntityId
+				//LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
+				//                  JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
+				//LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
+				//left join dbo.Contract Con On Con.Id=IR.ContractId
+				//left join dbo.JobWorkTransformationContract tcon on tcon.Id=IR.JWContractId
+				//left join ORG.Entity Ety on Ety.Id=tcon.EntityId
+				//   left join HKP.Party p on p.Id=tcon.VendorPartyId
+				//left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId
+				//                  WHERE IR.Id ='" + OrderMasterID + "'";
+
+				strSQL = @"SELECT IR.Id IssueNo
 								,HSNC.Code HSNCode
                                 ,IR.CompanyGroupId
                                 ,IR.CompanyId
@@ -22720,7 +22836,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                               ,IRD.Id InventoryReceiveDetailId
 							  ,IR.IssueType,E.UserName AS Entity,IR.Remarks,EI.EmployeeName +'-'+EI.EmployeeCode As EmployeeName,CC.UserName CostCenter,IRD.Comments 
                               ,IR.ContractId,IR.ProductionOrderId,Con.ContractNo,IR.OrderRefNo
-							  ,IR.JWContractId,tc.Remarks as TConRemarks,FORMAT(tcon.Date,'dd-MMM-yyyy') as TContractDate
+							  ,IR.JWContractId,tc.Remarks as TConRemarks,FORMAT(tcon.PODate,'dd-MMM-yyyy') as TContractDate
 							  ,FORMAT(tcon.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,FORMAT(tcon.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate
 							  ,FORMAT(tcon.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
                               ,Ety.UserName as TConEntity,p.Code as PartyCode, p.UserName as PartyName,IR.Types, MS.UserName as MaterialStorage
@@ -22749,13 +22865,13 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                          JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
 						 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
 						 left join dbo.Contract Con On Con.Id=IR.ContractId
-						 left join dbo.JobWorkTransformationContract tcon on tcon.Id=IR.JWContractId
+						 left join dbo.JWTransformationPurchaseOrder tcon on tcon.Id=IR.JWContractId
 						 left join ORG.Entity Ety on Ety.Id=tcon.EntityId
-					     left join HKP.Party p on p.Id=tcon.VendorPartyId
+					     left join HKP.Party p on p.Id=tcon.PartyId
 						 left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId
                          WHERE IR.Id ='" + OrderMasterID + "'";
 
-                return _sqlRepository.GetDataTable(strSQL);
+				return _sqlRepository.GetDataTable(strSQL);
 
             }
             catch (System.Exception ex)

@@ -672,12 +672,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                         else
                         {
-                            ReturnLockedEmp += ",'" + item.EmpSystemID + "'";
+                            ReturnLockedEmp += "," + item.EmpSystemID + " ";
                         }
                     }
                     else
                     {
-                        ReturnLockedEmp += ",'" + item.EmpSystemID + "'";
+                        ReturnLockedEmp += "," + item.EmpSystemID + " ";
                     }
 
                 }
@@ -690,7 +690,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 else
                 {
-                    return i+" Rows Updated Succesfully.Entry of :-"+ ReturnLockedEmp+ " isn't Allowed";
+                    return i+" Rows Updated Succesfully. Entry of :- "+ ReturnLockedEmp+ " isn't Allowed";
                 }
             }
             catch (Exception ex)

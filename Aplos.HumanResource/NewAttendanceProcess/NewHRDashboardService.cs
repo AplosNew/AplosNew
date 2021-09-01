@@ -142,7 +142,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string empStat = "";
                 if(EmpCat != null)
                 {
-                    empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    if(EmpCat.Length>0)
+                    {
+                        empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    }
+                    
                 }
                 if(stat == "All")
                 {
@@ -172,15 +176,13 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
                 var str = @"Select c.Id , c.UserName, cg.Id  as ComapnyGroupId , cg.UserName as GroupName ,Sum(case when BudgetId is not null then 1 else 0 end) as BB , Count( distinct EmpSystemID) as OnRoll,
-                             Sum(Case When InStatus = 'IN' or InStatus = 'EI' or InStatus='LI' then 1 else 0 end) as OTIN,
-                            Sum(Case When InStatus = 'IN' then 1 else 0 end) as InStat,
-                            Sum(Case When InStatus ='EI' then 1 else 0 end) as EarlyIn,
-                            Sum(Case When InStatus ='LI'then 1 else 0 end) as LateIn,
-                            Sum(Case When InStatus ='IM'  then 1 else 0 end) as InMissing,
-                            Sum(Case When IsOD=1 then 1 else 0 end) as OD,
-                            Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
-                            Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
-                            Sum(Case When InStatus ='O' then 1 else 0 end) as Other
+                             Sum(Case When DayStatus = 'P' then 1 else 0 end) as Present
+							 ,Sum(Case When DayStatus = 'A' then 1 else 0 end) as Absent
+							 ,Sum(Case When DayStatus = 'L' then 1 else 0 end) as Late
+							 ,Sum(Case When DayStatus = 'LV' then 1 else 0 end) as Leave
+							 ,Sum(Case When DayStatus = 'W' then 1 else 0 end) as WeekOff
+							 ,Sum(Case When DayStatus = 'OD' then 1 else 0 end) as OD
+							 ,Sum(Case When DayStatus not in ('OD','W','LV','L','A','P') then 1 else 0 end) as Other
                             from dbo.AttdnProcessData apd
                             left join org.Plant p on p.Id = apd.PlantID
                             left join org.Company c on c.Id = p.CompanyId
@@ -249,7 +251,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string statP = "";
                 if (EmpCat != null)
                 {
-                    empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    if (EmpCat.Length > 0)
+                    {
+                        empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    }
+
                 }
                 if (stat == "All")
                 {
@@ -278,15 +284,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
 
                 var str = @"Select "+selSt+ @"Sum(case when BudgetId is not null then 1 else 0 end) as BB , Count( distinct EmpSystemID) as OnRoll,
-                           Sum(Case When InStatus = 'IN' or InStatus = 'EI' or InStatus='LI' then 1 else 0 end) as OTIN,
-                            Sum(Case When InStatus = 'IN' then 1 else 0 end) as InStat,
-                            Sum(Case When InStatus ='EI' then 1 else 0 end) as EarlyIn,
-                            Sum(Case When InStatus='LI' then 1 else 0 end) as LateIn,
-                            Sum(Case When InStatus ='IM'  then 1 else 0 end) as InMissing,
-                            Sum(Case When IsOD=1 then 1 else 0 end) as OD,
-                            Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
-                            Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
-                            Sum(Case When InStatus ='O' then 1 else 0 end) as Other
+                            Sum(Case When DayStatus = 'P' then 1 else 0 end) as Present
+							 ,Sum(Case When DayStatus = 'A' then 1 else 0 end) as Absent
+							 ,Sum(Case When DayStatus = 'L' then 1 else 0 end) as Late
+							 ,Sum(Case When DayStatus = 'LV' then 1 else 0 end) as Leave
+							 ,Sum(Case When DayStatus = 'W' then 1 else 0 end) as WeekOff
+							 ,Sum(Case When DayStatus = 'OD' then 1 else 0 end) as OD
+							 ,Sum(Case When DayStatus not in ('OD','W','LV','L','A','P') then 1 else 0 end) as Other
                             from dbo.AttdnProcessData apd
                             left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
@@ -354,7 +358,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string statP = "";
                 if (EmpCat != null)
                 {
-                    empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    if (EmpCat.Length > 0)
+                    {
+                        empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                    }
+
                 }
                 if (stat == "All")
                 {
@@ -378,42 +386,36 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     whereCol = " and apd.BudgetId is not null";
                 }
-                if (Column == "InStat")
+                if (Column == "Present")
                 {
-                    whereCol = " and apd.InStatus = 'IN'";
+                    whereCol = " and apd.DayStatus = 'P'";
                 }
-                if (Column == "EarlyIn")
+                if (Column == "Absent")
                 {
-                    whereCol = " and apd.InStatus ='EI'";
+                    whereCol = " and apd.DayStatus = 'A'";
                 }
-                if (Column == "LateIn")
+                if (Column == "Late")
                 {
-                    whereCol = " and  apd.InStatus ='LI'";
-                }
-                if (Column == "InMissing")
-                {
-                    whereCol = "  and apd.InStatus = 'IM'";
-                }
-                if (Column == "OD")
-                {
-                    whereCol = " and IsOD=1";
-                }
-                if (Column == "DayStatus")
-                {
-                    whereCol = " and (DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW')";
+                    whereCol = " and apd.DayStatus = 'L'";
                 }
                 if (Column == "Leave")
                 {
-                    whereCol = " and LeaveStatus is not null";
+                    whereCol = " and apd.DayStatus = 'LV'";
                 }
-                if (Column == "Other")
+                if (Column == "OD")
                 {
-                    whereCol = " and InStatus ='O'";
+                    whereCol = " and apd.DayStatus = 'OD'";
                 }
-                if (Column == "OTIN")
+                if (Column == "WeekOff")
                 {
-                    whereCol = " and  (apd.InStatus='IN' or apd.InStatus='EI' or apd.InStatus='LI' )";
+                    whereCol = " and apd.DayStatus = 'W'";
                 }
+                if(Column == "Other")
+                {
+                    whereCol = " and apd.DayStatus not in ('OD', 'W', 'LV', 'L', 'A', 'P')";
+
+                }
+
                 #endregion settingTheColumnStat
 
 
@@ -468,152 +470,157 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         #endregion DetailedListOfColumn
 
-        #region ReportDownload
-        public DataTable ReportDownloadSvc(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
-        {
-            try
-            {
+       // #region ReportDownload
+       // public DataTable ReportDownloadSvc(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
+       // {
+       //     try
+       //     {
 
-                //seq += 1;
-                string selSt = string.Empty;
-                string whereSt = string.Empty;
-                string groupSt = string.Empty;
-                string whereCol = string.Empty;
-                string empStat = "";
-                foreach (var item in ChartColumnList)
-                {
-                    if (item.Sequence < seq && item.Sequence != -2)
-                    {
-                        whereSt = whereSt + " and " + item.ColumnName + @".Id= '" + item.Id + @"'";
-                    }
-                    if (item.Sequence == seq)
-                    {
-                        if (item.Sequence == 7)
-                        {
-                            whereSt = whereSt + " and " + item.ColumnName + @".SystemId ='" + data["Id"] + "'";
-                        }
-                        else
-                        {
-                            whereSt = whereSt + " and " + item.ColumnName + @".Id ='" + data["Id"] + "'";
-                        }
+       //         //seq += 1;
+       //         string selSt = string.Empty;
+       //         string whereSt = string.Empty;
+       //         string groupSt = string.Empty;
+       //         string whereCol = string.Empty;
+       //         string empStat = "";
+       //         foreach (var item in ChartColumnList)
+       //         {
+       //             if (item.Sequence < seq && item.Sequence != -2)
+       //             {
+       //                 whereSt = whereSt + " and " + item.ColumnName + @".Id= '" + item.Id + @"'";
+       //             }
+       //             if (item.Sequence == seq)
+       //             {
+       //                 if (item.Sequence == 7)
+       //                 {
+       //                     whereSt = whereSt + " and " + item.ColumnName + @".SystemId ='" + data["Id"] + "'";
+       //                 }
+       //                 else
+       //                 {
+       //                     whereSt = whereSt + " and " + item.ColumnName + @".Id ='" + data["Id"] + "'";
+       //                 }
 
-                    }
-                }
+       //             }
+       //         }
 
-                string empCat = "";
-                string statP = "";
-                if (EmpCat != null)
-                {
-                    empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
-                }
-                if (stat == "All")
-                {
-                    statP = "";
-                }
-                if (stat == "Direct")
-                {
-                    statP = " and pos.IsDirect = 1";
-                }
-                if (stat == "InDirect")
-                {
-                    statP = "and pos.IsDirect = 0";
-                }
+       //         string empCat = "";
+       //         string statP = "";
+       //         if (EmpCat != null)
+       //         {
+       //             if (EmpCat.Length > 0)
+       //             {
+       //                 empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+       //             }
 
-                #region settingTheColumnStat
-                if (Column == "OnRoll")
-                {
-                    whereCol = "";
-                }
-                if (Column == "BB")
-                {
-                    whereCol = " and apd.BudgetId is not null";
-                }
-                if (Column == "InStat")
-                {
-                    whereCol = " and apd.InStatus = 'IN'";
-                }
-                if (Column == "EarlyIn")
-                {
-                    whereCol = " and apd.InStatus ='EI'";
-                }
-                if (Column == "LateIn")
-                {
-                    whereCol = " and  apd.InStatus ='LI'";
-                }
-                if (Column == "InMissing")
-                {
-                    whereCol = "  and apd.InStatus = 'IM'";
-                }
-                if (Column == "OD")
-                {
-                    whereCol = " and IsOD=1";
-                }
-                if (Column == "DayStatus")
-                {
-                    whereCol = " and (DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW')";
-                }
-                if (Column == "Leave")
-                {
-                    whereCol = " and LeaveStatus is not null";
-                }
-                if (Column == "Other")
-                {
-                    whereCol = " and InStatus ='O'";
-                }
-                if (Column == "OTIN")
-                {
-                    whereCol = " and  (apd.InStatus='IN' or apd.InStatus='EI' or apd.InStatus='LI' )";
-                }
-                #endregion settingTheColumnStat
+       //         }
+       //         if (stat == "All")
+       //         {
+       //             statP = "";
+       //         }
+       //         if (stat == "Direct")
+       //         {
+       //             statP = " and pos.IsDirect = 1";
+       //         }
+       //         if (stat == "InDirect")
+       //         {
+       //             statP = "and pos.IsDirect = 0";
+       //         }
 
-
-                if (EmpStat == "Active")
-                {
-                    empStat = " and  ei.EmployeeCurrentStatus is null";
-                }
-                if (EmpStat == "TBS")
-                {
-                    empStat = " and  ei.EmployeeCurrentStatus = 'TBS'";
-                }
-                if (EmpStat == "LA")
-                {
-                    empStat = " and  ei.EmployeeCurrentStatus ='LONG ABSENTEEISM'";
-                }
-
-                var str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
-                            FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
-                            ,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
-                            subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity
-                            from dbo.AttdnProcessData apd
-                             left join org.Plant plant on plant.Id = apd.PlantID
-                            left join org.Company company on company.Id = plant.CompanyId
-                            left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
-                            left join org.Position pos on pos.Id = mb.PositionId
-                            left join org.Division division on division.Id = pos.DivisionId
-                            left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
-                            left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
-                            left join org.Unit unit on unit.Id = ei.UnitId
-							left join org.Entity e on e.UnitId = ei.UnitId and e.CompanyId = ei.CompanyId and e.PlantId = ei.PlantId and ei.DivisionId = e.DivisionId
-                            left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
-                            left join org.Department department on department.Id = pos.DepartmentId
-                            left join org.Section section on section.Id = pos.SectionId
-                            left join org.SubSection subsection on subsection.id = pos.SubSectionId
-                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
-                            left join hkp.Designation desg on desg.Id = dm.DesignationId
-                            left join org.Department dept on dept.id = pos.DepartmentId
-                            left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
-                            " + whereCol + @"
-                            ";
+       //         #region settingTheColumnStat
+       //         if (Column == "OnRoll")
+       //         {
+       //             whereCol = "";
+       //         }
+       //         if (Column == "BB")
+       //         {
+       //             whereCol = " and apd.BudgetId is not null";
+       //         }
+       //         if (Column == "InStat")
+       //         {
+       //             whereCol = " and apd.InStatus = 'IN'";
+       //         }
+       //         if (Column == "EarlyIn")
+       //         {
+       //             whereCol = " and apd.InStatus ='EI'";
+       //         }
+       //         if (Column == "LateIn")
+       //         {
+       //             whereCol = " and  apd.InStatus ='LI'";
+       //         }
+       //         if (Column == "InMissing")
+       //         {
+       //             whereCol = "  and apd.InStatus = 'IM'";
+       //         }
+       //         if (Column == "OD")
+       //         {
+       //             whereCol = " and IsOD=1";
+       //         }
+       //         if (Column == "DayStatus")
+       //         {
+       //             whereCol = " and (DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW')";
+       //         }
+       //         if (Column == "Leave")
+       //         {
+       //             whereCol = " and LeaveStatus is not null";
+       //         }
+       //         if (Column == "Other")
+       //         {
+       //             whereCol = " and InStatus ='O'";
+       //         }
+       //         if (Column == "OTIN")
+       //         {
+       //             whereCol = " and  (apd.InStatus='IN' or apd.InStatus='EI' or apd.InStatus='LI' )";
+       //         }
+       //         #endregion settingTheColumnStat
 
 
-                return _sqlRepository.GetDataTable(str);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion ReportDownload
+       //         if (EmpStat == "Active")
+       //         {
+       //             empStat = " and  ei.EmployeeCurrentStatus is null";
+       //         }
+       //         if (EmpStat == "TBS")
+       //         {
+       //             empStat = " and  ei.EmployeeCurrentStatus = 'TBS'";
+       //         }
+       //         if (EmpStat == "LA")
+       //         {
+       //             empStat = " and  ei.EmployeeCurrentStatus ='LONG ABSENTEEISM'";
+       //         }
+
+       //         var str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
+       //                     FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
+       //                     ,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
+       //                     subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity
+       //                     from dbo.AttdnProcessData apd
+       //                      left join org.Plant plant on plant.Id = apd.PlantID
+       //                     left join org.Company company on company.Id = plant.CompanyId
+       //                     left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
+       //                     left join org.Position pos on pos.Id = mb.PositionId
+       //                     left join org.Division division on division.Id = pos.DivisionId
+       //                     left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
+       //                     left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
+       //                     left join org.Unit unit on unit.Id = ei.UnitId
+							//left join org.Entity e on e.UnitId = ei.UnitId and e.CompanyId = ei.CompanyId and e.PlantId = ei.PlantId and ei.DivisionId = e.DivisionId
+       //                     left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
+       //                     left join org.Department department on department.Id = pos.DepartmentId
+       //                     left join org.Section section on section.Id = pos.SectionId
+       //                     left join org.SubSection subsection on subsection.id = pos.SubSectionId
+       //                     left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+       //                     left join hkp.Designation desg on desg.Id = dm.DesignationId
+       //                     left join org.Department dept on dept.id = pos.DepartmentId
+       //                     left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+       //                     where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
+       //                     " + whereCol + @"
+       //                     ";
+
+
+       //         return _sqlRepository.GetDataTable(str);
+       //     }
+       //     catch (Exception ex)
+       //     {
+       //         throw ex;
+       //     }
+       // }
+       // #endregion ReportDownload
+
     }
 }

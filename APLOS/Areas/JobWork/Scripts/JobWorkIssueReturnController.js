@@ -176,6 +176,9 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			});
 
 			$scope.setTab(1);
+			if (!$rootScope.isCollapsed) {
+		    $rootScope.toggle();
+		}
 		}
 		$scope.ModelNew.Type = $scope.TabTypeNew;
 		//if (!$rootScope.isCollapsed) {
@@ -1682,14 +1685,14 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	// PRINT JOB WORK TRANSFORMATION REPORT
 
-	//$scope.AllTabPrint = function (z) {
-	//	//debugger;
-	//	var x = "#" + z;
-	//	var gridObj = $(x).data("ejGrid");
-	//	var data = gridObj.getSelectedRecords()[0];
-	//	location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+	$scope.PrintIssueTemplateReport = function (data) {
+		//debugger;
+		//var x = "#" + z;
+		//var gridObj = $(x).data("ejGrid");
+		//var data = gridObj.getSelectedRecords()[0];
+		location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
 
-	//};
+	};
 
 	$scope.ConfirmIssueReportPrint = function (data) {
 		try {

@@ -52,8 +52,8 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
 
         var formDate = new Date($scope.hrPresentJSFromDate);
 
-
-
+        var DropDownListObj = $("#PlantList").data("ejDropDownList");
+        var PlantId = DropDownListObj.getSelectedValue();
 
         var oneDay = 24 * 60 * 60 * 1000;
 
@@ -89,6 +89,7 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
                     'CompanyId': $scope.companyId,
                     'dayStatus': dayStatus,
                     'considerInOut': $scope.considerInOut
+                    , 'PlantId': PlantId
                 }
             }).then(function successCallback(response) {
 
@@ -151,6 +152,10 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
             //var DropDownListObj = $("#AttendanceDayStatusList").data("ejDropDownList");
             //var dayStatus = DropDownListObj.getSelectedValue();
             //dayStatus = '\'' + dayStatus.split(',').join('\',\'') + '\'';
+
+            var DropDownListObj = $("#PlantList").data("ejDropDownList");
+            var PlantId = DropDownListObj.getSelectedValue();
+
             var dayStatus = null;
             $http({
                 method: 'POST',
@@ -162,7 +167,8 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
                     'presentComparator': $scope.presentComparator,
                     'companyId': $scope.companyId,
                     'dayStatus': dayStatus,
-                    'considerInOut': $scope.considerInOut
+                    'considerInOut': $scope.considerInOut,
+                    'PlantId': PlantId
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -480,4 +486,23 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
         }
         $($("#GridShiftSelect .rowCheckbox")[args.rowIndex]).ejCheckBox({ "change": checkChangeemployee4 });
     }
+
+    $scope.PlantIdFromUI = null;
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: "humanresource/payrollReports/GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    $scope.PlantIdFromUI = $scope.PlantList[i].PlantName;
+                }
+            }
+            //= $window.plantId;
+        });
+    }
+    $scope.getPlant();
+
 }

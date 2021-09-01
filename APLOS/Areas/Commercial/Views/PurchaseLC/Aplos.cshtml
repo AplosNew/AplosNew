@@ -345,16 +345,19 @@
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
                 <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="10"></div>
-                <div e-column e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
-                <div e-column e-field="LCRef" e-headertext="LC No" e-width="40"></div>
-                <div e-column e-field="Version" e-headertext="Last Version" e-width="20"></div>
-                <div e-column e-field="LCDate" e-headertext="Opening Date" e-width="30"></div>
-                <div e-column e-field="Amount" e-headertext="Opening Value" e-width="30"></div>
-                <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-width="30"></div>
-                <div e-column e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="30"></div>
-                <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
-                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="50"></div>
-                <div e-column e-field="OpeningBank" e-headertext="Opening Bank" e-width="50"></div>
+                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
+                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="40"></div>
+                <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="20"></div>
+                <div e-column e-type="date" e-field="LCDate" e-headertext="Opening Date" e-width="30"></div>
+                <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="30"></div>
+                <div e-column e-type="date" e-field="AmendmentDate" e-headertext="Amendment Date" e-width="30"></div>
+                <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="30"></div>
+                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
+                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="50"></div>
+                <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="50"></div>
+                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="50"></div>
+                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="50"></div>
+                <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="50"></div>
                 @*<div e-column e-headertext="Actions" e-width="10">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
