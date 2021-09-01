@@ -22,7 +22,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             ConManager = new ConnectionManager.clsConnectionManager();
         }
       
-        public string SaveData(List<AttdnRawData> DataToSave)
+        public string SaveDataWithEmpId(List<AttdnRawData> DataToSave)
         {
             try
             {
@@ -87,17 +87,104 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 clsStaticInfo info = new clsStaticInfo();
                 info.SaveDataSets(dsRef);
+                var Counter = dsRef.Tables[0].Rows.Count;
+                if (Counter <= 1)
+                {
+                    return Counter.ToString() + " Row Uploaded... ";
+                }
+                else
+                {
+                    return Counter.ToString() + " Rows Uploaded... ";
+                }
                 
-                return dsRef.Tables[0].Rows.Count.ToString()+" Rows Uploaded !!";
-               
             }
             catch (Exception ex)
             {
                 return ex.ToString();
             }
         }
-        
-      
+
+        public string SaveDataWithCardNumber(List<AttdnRawData> DataToSave)
+        {
+            try
+            {
+                if (DataToSave.Count() == 0)
+                    return "Either Data not in Correct Format or Missing....";
+
+                List<AttdnRawData> items = DataToSave.ToList();
+
+                DataSet dsRef, dsPlant, Device;
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                string strSql = @"select * from dbo.AttdnRawData where 1=2";
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+
+                string CardNo = "''";
+                foreach (AttdnRawData item in DataToSave)
+                {
+                    CardNo += ",'" + item.LogDownLoadNum + "'";
+                }
+
+                string Sql = @"select * from EmployeeInformation where CardNumber IN(" + CardNo + ")";
+                objCon.OpenDataSetThroughAdapter(Sql, out dsPlant, false, "1");
+
+                var sqlx = @"select top 1 * from mst.AccessControllerList";
+                objCon.OpenDataSetThroughAdapter(sqlx, out Device, false, "1");
+                var DeviceSystemId = clsWebLib.RetValidLen(Device.Tables[0].Rows[0][@"Id"]).ToString();
+
+                foreach (AttdnRawData item in DataToSave)
+                {
+
+                    if (clsWebLib.RetValidLen(item.LogDownLoadNum).ToString() != "" &&
+                        clsWebLib.RetValidLen(item.PTime).ToString() != "")
+                    {
+                        dsPlant.Tables[0].DefaultView.RowFilter = @"CardNumber='" + item.LogDownLoadNum + "'";
+                        if (dsPlant.Tables[0].DefaultView.Count > 0)
+                        {
+                            string PlantId = clsWebLib.RetValidLen(dsPlant.Tables[0].DefaultView[0][@"PlantId"]).ToString();
+                            string GpId = clsWebLib.RetValidLen(dsPlant.Tables[0].DefaultView[0][@"GroupID"]).ToString();
+                            string EmpId= clsWebLib.RetValidLen(dsPlant.Tables[0].DefaultView[0][@"SystemId"]).ToString();
+
+                            DataRow drx = dsRef.Tables[0].NewRow();
+
+                            clsGenID genid = new clsGenID();
+                            genid.GenID("AttdnRawData", out string _Idx);
+
+                            drx["Id"] = "ARD" + _Idx;
+                            drx["DeviceID"] = DBNull.Value;
+                            drx["DevSystemID"] = DeviceSystemId;
+                            drx["LogDownLoadNum"] = EmpId;
+                            drx["PlantID"] = PlantId;
+                            drx["GroupID"] = GpId;
+                            drx["PDate"] = Convert.ToDateTime(item.PTime).ToString("dd-MMM-yyyy");
+                            drx["PTime"] = Convert.ToDateTime(item.PTime);
+                            drx["PType"] = clsWebLib.RetValidLen(item.PType);
+                            drx["AddedBy"] = "API";
+                            drx["DateAdded"] = DateTime.Now;
+                            drx["FlagSetByProcess"] = DBNull.Value;
+                            drx["ProcessedFlag"] = false;
+                            dsRef.Tables[0].Rows.Add(drx);
+
+                        }
+                    }
+                }
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsRef);
+                var Counter = dsRef.Tables[0].Rows.Count;
+                if (Counter <= 1)
+                {
+                    return Counter.ToString() + " Row Uploaded... ";
+                }
+                else
+                {
+                    return Counter.ToString() + " Rows Uploaded... ";
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
     }
 
     public class AttdnRawData 
