@@ -398,12 +398,20 @@ function holidayOTReportController(cboService, commonMessage, $scope, $rootScope
             url: "humanresource/payrollReports/GetPlantList",
         }).then(function successCallback(response) {
             $scope.PlantList = response.data;
+            var index = 0;
             for (var i = 0; i < $scope.PlantList.length; i++) {
                 if ($scope.PlantList[i].PlantId == $window.plantId) {
-                    $scope.PlantIdFromUI = $scope.PlantList[i].PlantName;
+                    index = i;
                 }
             }
-            //= $window.plantId;
+
+            $('#PlantList').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
         });
     }
     $scope.getPlant();

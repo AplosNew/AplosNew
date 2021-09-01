@@ -85,7 +85,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
 
 
-                DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE pwal.LockedDate='" + workdate + "' AND pwal.PlantId='" + identity.PlantId + "'");
+                DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE pwal.LockedDate='" + workdate + "' AND pwal.PlantId='" + identity.PlantId + "' and IsActive=1 ");
                 if (dtLock.Rows.Count > 0)
                     throw new Exception("Day locked");
 

@@ -89,7 +89,7 @@ namespace Aplos.Areas.Accounts.Controllers
 									,PostingDate= CASE WHEN IR.EmployeeId <>'' THEN REPLACE(CONVERT(CHAR(11), VE.PostingDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') END
                                     ,MS.UserName MaterialStorageName, IR.IsFOC, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
                                     ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.InventoryReceiveId IS NULL THEN '' ELSE 'Parked' end
-									,VT.VoucherNo TDSVoucherNo,V.IsPark
+									,VT.VoucherNo TDSVoucherNo,V.IsPark,IV.WrittenOffAmount
 						FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -295,6 +295,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         #endregion
+
 
         #region Service Payable
         [Authorize, HttpGet]

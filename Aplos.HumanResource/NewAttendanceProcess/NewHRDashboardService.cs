@@ -132,7 +132,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         #region GroupWiseSummaryOfDashboard
 
-        public IEnumerable<object> GroupWiseCompanyList(string companyGroupId,string date, string stat, string EmpCat, string EmpStat)
+        public IEnumerable<object> GroupWiseCompanyList(string companyGroupId,string date, string stat, string EmpCat, string EmpStat , out int[] Total)
         {
             try
             {
@@ -199,8 +199,24 @@ namespace Library.HumanResource.NewAttendanceProcess
                             group by c.Id , c.UserName , cg.id , cg.userName
                             order by c.UserName asc
                             ";
-                var jj = _sqlRepository.GetDataCollection(str);
-                return jj;
+                DataTable dtTable = _sqlRepository.GetDataTable(str);
+
+                int[] Tot = new int[7];
+
+                for (var i = 0; i < dtTable.Rows.Count; i++)
+                {
+                    Tot[0] = (int)(Tot[0] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["Present"].ToString()));
+                    Tot[1] = (int)(Tot[1] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["Absent"].ToString()));
+                    Tot[2] = (int)(Tot[2] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["Late"].ToString()));
+                    Tot[3] = (int)(Tot[3] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["Leave"].ToString()));
+                    Tot[4] = (int)(Tot[4] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["OD"].ToString()));
+                    Tot[5] = (int)(Tot[5] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["WeekOff"].ToString()));
+                    Tot[6] = (int)(Tot[6] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["Other"].ToString()));
+                }
+
+                Total = Tot;
+
+                return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtTable);
             }
             catch(Exception e)
             {
@@ -212,7 +228,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         #region DetailDrillDownOfDashboard
 
-        public IEnumerable<object> DetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string stat, string EmpCat, string EmpStat)
+        public IEnumerable<object> DetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string stat, string EmpCat, string EmpStat, out int[] Total)
         {
             try
             {
@@ -310,9 +326,25 @@ namespace Library.HumanResource.NewAttendanceProcess
                             where company.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate = '"+date+ @"'  " + empStat + @" " + whereSt+ @"  " + empCat + @" " + statP + @"
                             " + groupSt+@"
                             ";
-                
-                
-                return _sqlRepository.GetDataCollection(str);
+
+                DataTable dtTable = _sqlRepository.GetDataTable(str);
+
+                int[] Tot = new int[7];
+
+                for(var i = 0; i<dtTable.Rows.Count; i++)
+                {
+                    Tot[0] = (int)(Tot[0] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["Present"].ToString()));
+                    Tot[1] = (int)(Tot[1] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["Absent"].ToString()));
+                    Tot[2] = (int)(Tot[2] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["Late"].ToString()));
+                    Tot[3] = (int)(Tot[3] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["Leave"].ToString()));
+                    Tot[4] = (int)(Tot[4] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["OD"].ToString()));
+                    Tot[5] = (int)(Tot[5] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["WeekOff"].ToString()));
+                    Tot[6] = (int)(Tot[6] + OTSBD.clsStaticInfo.dbl(dtTable.Rows[i]["Other"].ToString()));
+                }
+
+                Total = Tot;
+
+                return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtTable);
             }            
             catch (Exception ex)
             {
