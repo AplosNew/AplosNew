@@ -277,20 +277,22 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetWorkingHoursDaily(string companyId, string wrHrFromDate, string wrHrToDate, string hours, string presentComparator)
+        public ActionResult GetWorkingHoursDaily(string companyId, string wrHrFromDate, string wrHrToDate, string hours, string presentComparator, string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(GetWorkingHoursDailyData(wrHrFromDate, wrHrToDate, identity.CompanyId, identity.PlantId, presentComparator, hours), JsonRequestBehavior.AllowGet);
+            string PlantsId = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+            var jsondata = Json(GetWorkingHoursDailyData(wrHrFromDate, wrHrToDate, identity.CompanyId, PlantsId, presentComparator, hours), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
 
             return jsondata;
             //return Json(_HRDashboardService.GetEEmpJobCardInfoWithInDateTimes(wrHrDate, companyId, hours, presentComparator), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
-        public ActionResult GetWorkingHoursPeriod(string companyId, string wrHrFromDate, string wrHrToDate, string hours, string presentComparator)
+        public ActionResult GetWorkingHoursPeriod(string companyId, string wrHrFromDate, string wrHrToDate, string hours, string presentComparator, string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(GetGetWorkingHoursPeriodData(wrHrFromDate, wrHrToDate, identity.CompanyId, identity.PlantId, presentComparator, hours), JsonRequestBehavior.AllowGet);
+            string PlantsId = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+            var jsondata = Json(GetGetWorkingHoursPeriodData(wrHrFromDate, wrHrToDate, identity.CompanyId, PlantsId, presentComparator, hours), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
 
             return jsondata;
@@ -476,8 +478,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 LEFT JOIN HKP.LegalDesignation LG ON E.LegalDesignationId = LG.Id
                             
                                 	left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
-left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
-left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
+                                left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
+                                left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                 left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId
                                 AND AR.WorkDate = ES.WorkDate
                                 left join(
@@ -504,7 +506,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
 
 
-                                WHERE E.CompanyId = '" + companyId + @"' AND E.PlantId = '" + plantId + @"'
+                                WHERE E.CompanyId = '" + companyId + @"' AND E.PlantId in (" + plantId + @")
                                      AND AR.WorkDate BETWEEN '" + wrHrFromDate + @"'
                                         AND '" + ToDate + @"' AND (EmployeeStatus = 'Active' OR COnvert(date,DOS) >= Convert(Date,'" + wrHrFromDate + @"'))
                                 ) A
@@ -518,7 +520,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                 strSql = @"Select  *,DATEDIFF(second, InTime, OutTime) / 3600.0  WorkHour
                             FROM
 						(
-                                SELECT E.EmployeeCode EmployeeCode
+                                SELECT p.Id PlantId,p.UserName Plant,E.EmployeeCode EmployeeCode
                                     , E.EmployeeName
                                     ,E.EmployeeStatus
                                     , REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJS
@@ -566,7 +568,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                 FROM 
 								  dbo.AttdnProcessData AR 
 									LEFT JOIN	dbo.EmployeeInformation E ON E.SystemID = AR.EmpSystemID
-
+                                    Left join ORG.Plant p on p.Id = e.PlantId
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
@@ -597,7 +599,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
 
 
-                                WHERE E.CompanyId = '" + companyId + @"' AND E.PlantId = '" + plantId + @"'
+                                WHERE E.CompanyId = '" + companyId + @"' AND E.PlantId in (" + plantId + @")
                                      AND AR.WorkDate BETWEEN '" + wrHrFromDate + @"'
                                         AND '" + ToDate + @"' 
 										AND (E.DOJ<='" + ToDate + @"'and (isnull(E.DOS,'')='' or E.DOS>='" + wrHrFromDate + @"'))
@@ -632,14 +634,14 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
 
 
-                strSql = @"SELECT EmployeeCode , EmployeeName, EmployeeStatus, DOJS,  DOSS,  Unit, Division,  Department
-	, Section,   SubSection,  Entity,   Line
-	, LegalDesignation,  EmployeeCategorys , Sum(WorkHour) WorkHour
-FROM (
-	SELECT E.EmployeeCode EmployeeCode, E.EmployeeName, E.EmployeeStatus, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJS
-	, REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOSS, U.UserName Unit, Dv.UserName Division, Dp.UserName Department
-	, S.UserName Section, ar.IsHalfDayLeave, SB.UserName SubSection, EN.UserName Entity, datename(dw, AR.WorkDate) AS PDay
-	, AR.WorkDate PDate, AR.DayStatus, ISNULL(ar.InTime, EOT.FromDate) AS InTime, CASE 
+                strSql = @"SELECT  PlantId,Plant,EmployeeCode , EmployeeName, EmployeeStatus, DOJS,  DOSS,  Unit, Division,  Department
+	                , Section,   SubSection,  Entity,   Line
+	                , LegalDesignation,  EmployeeCategorys , Sum(WorkHour) WorkHour
+                        FROM (
+	                    SELECT p.Id PlantId,p.UserName Plant,E.EmployeeCode EmployeeCode, E.EmployeeName, E.EmployeeStatus, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJS
+	                    , REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOSS, U.UserName Unit, Dv.UserName Division, Dp.UserName Department
+	                    , S.UserName Section, ar.IsHalfDayLeave, SB.UserName SubSection, EN.UserName Entity, datename(dw, AR.WorkDate) AS PDay
+	                    , AR.WorkDate PDate, AR.DayStatus, ISNULL(ar.InTime, EOT.FromDate) AS InTime, CASE 
 			WHEN ISNULL(ar.OutTime, '') = ''
 				THEN EOT.ToDate
 			ELSE CASE 
@@ -664,7 +666,7 @@ FROM (
                                 FROM 
 								  dbo.AttdnProcessData AR 
 									LEFT JOIN	dbo.EmployeeInformation E ON E.SystemID = AR.EmpSystemID
-
+                                    Left join ORG.Plant p on p.Id = e.PlantId
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
@@ -680,8 +682,8 @@ FROM (
                                 LEFT JOIN HKP.LegalDesignation LG ON E.LegalDesignationId = LG.Id
                             
                                 	left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=e.LegalDesignationId
-left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
-left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
+                                    left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
+                                    left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                                 left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId
                                    AND CONVERT(DATE,AR.WorkDate) = CONVERT(DATE,ES.WorkDate)
                                
@@ -695,7 +697,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
 
 
-                                WHERE E.CompanyId = '" + companyId + @"' AND E.PlantId = '" + plantId + @"'
+                                WHERE E.CompanyId = '" + companyId + @"' AND E.PlantId in (" + plantId + @")
                                      AND AR.WorkDate BETWEEN '" + wrHrFromDate + @"'
                                         AND '" + ToDate + @"' 
 										AND (E.DOJ<='" + ToDate + @"'and (isnull(E.DOS,'')='' or E.DOS>='" + wrHrFromDate + @"'))
@@ -703,7 +705,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 					 
                                 ) A
 								Group By 
-                            	EmployeeCode , EmployeeName, EmployeeStatus, DOJS,  DOSS,  Unit, Division,  Department
+                            	PlantId,Plant,EmployeeCode , EmployeeName, EmployeeStatus, DOJS,  DOSS,  Unit, Division,  Department
                             	, Section,   SubSection,  Entity,   Line
                             	, LegalDesignation,  EmployeeCategorys   
                             
@@ -735,7 +737,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                strSql = GetGetWorkingHoursDailyDataSql(wrHrFromDate, ToDate, identity.CompanyId, identity.PlantId, comparator, workingHour);
+                strSql = GetGetWorkingHoursDailyDataSql(wrHrFromDate, ToDate, identity.CompanyId, plantId, comparator, workingHour);
 
                 return _sqlRepository.GetDataCollection(strSql);
             }
@@ -760,7 +762,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                strSql = GetGetWorkingHoursPeriodDataSql(wrHrFromDate, ToDate, identity.CompanyId, identity.PlantId, comparator, workingHour);
+                strSql = GetGetWorkingHoursPeriodDataSql(wrHrFromDate, ToDate, identity.CompanyId, plantId, comparator, workingHour);
 
                 return _sqlRepository.GetDataCollection(strSql);
             }
@@ -776,18 +778,18 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
 
         [HttpPost, Authorize]
-        public ActionResult PrintEmployeeWorkHourReport(string wrHrFromDate, string ToDate, string comparator, string workingHour)
+        public ActionResult PrintEmployeeWorkHourReport(string wrHrFromDate, string ToDate, string comparator, string workingHour, string PlantId)
         {
             try
             {
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-
+                string PlantsId = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
                 var fileName = "workHour" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
-                var workbook = GetEmployeeWorkHourReport(wrHrFromDate, ToDate, identity.CompanyId, identity.PlantId, comparator, workingHour, identity.Name);
+                var workbook = GetEmployeeWorkHourReport(wrHrFromDate, ToDate, identity.CompanyId, PlantsId, comparator, workingHour, identity.Name);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
 
@@ -800,18 +802,18 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
             }
         }
         [HttpPost, Authorize]
-        public ActionResult PrintEmployeeWorkHourReportPeriod(string wrHrFromDate, string ToDate, string comparator, string workingHour)
+        public ActionResult PrintEmployeeWorkHourReportPeriod(string wrHrFromDate, string ToDate, string comparator, string workingHour, string PlantId)
         {
             try
             {
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-
+                string PlantsId = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
                 var fileName = "workHour" + workingHour + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
-                var workbook = GetEmployeeWorkHourReportPeriod(wrHrFromDate, ToDate, identity.CompanyId, identity.PlantId, comparator, workingHour, identity.Name);
+                var workbook = GetEmployeeWorkHourReportPeriod(wrHrFromDate, ToDate, identity.CompanyId, PlantsId, comparator, workingHour, identity.Name);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
 
@@ -834,7 +836,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
             DataTable dtEmployees = null;
 
-
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -890,9 +892,9 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
 
 
-                objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
+                objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
 
-                objRpt.SelectedPlant(plantId, out dsFactory);
+                objRpt.SelectedPlant(identity.PlantId, out dsFactory);
 
                 #endregion DataSet
 
@@ -930,6 +932,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
 
                 SetCellValue("Employee Name", sheet1, xlsRow, 35, ref xlsCol, out int ColName);
+                SetCellValue("Plant", sheet1, xlsRow, 35, ref xlsCol, out int ColPlantName);
                 SetCellValue("DOJ", sheet1, xlsRow, ref xlsCol, out int ColDOJ);
 
                 SetCellValue("DOS", sheet1, xlsRow, ref xlsCol, out int ColDOS);
@@ -1074,6 +1077,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                         sheet1.Range[xlsRow, ColSr].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, ColSr].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         //2                     
+                        sheet1.Range[xlsRow, ColPlantName].Text = dtEmployees.Rows[i]["Plant"].ToString();
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeCode"].ToString()) == false)
                             sheet1.Range[xlsRow, ColemployeeCode].Text = dtEmployees.Rows[i]["EmployeeCode"].ToString();
                         sheet1.Range[xlsRow, ColemployeeCode].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -1260,7 +1264,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
             try
             {
-
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string strPath = "";
                 Image companyLogo = null;
                 string companyLogoName = _sqlRepository.GetDataTable(@"select * from ORG.Company where Id = '" + companyId + @"'").Rows[0]["Image"].ToString();
@@ -1298,9 +1302,9 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
 
 
-                objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
+                objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
 
-                objRpt.SelectedPlant(plantId, out dsFactory);
+                objRpt.SelectedPlant(identity.PlantId, out dsFactory);
 
                 #endregion DataSet
 
@@ -1338,6 +1342,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
 
                 SetCellValue("Employee Name", sheet1, xlsRow, 35, ref xlsCol, out int ColName);
+                SetCellValue("Plant", sheet1, xlsRow, 35, ref xlsCol, out int ColPlant);
                 SetCellValue("DOJ", sheet1, xlsRow, ref xlsCol, out int ColDOJ);
 
                 SetCellValue("DOS", sheet1, xlsRow, ref xlsCol, out int ColDOS);
@@ -1485,6 +1490,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                         sheet1.Range[xlsRow, ColemployeeCode].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, ColemployeeCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         //3
+                        sheet1.Range[xlsRow, ColPlant].Text = dtEmployees.Rows[i]["Plant"].ToString();
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmployeeName"].ToString()) == false)
                             sheet1.Range[xlsRow, ColName].Text = dtEmployees.Rows[i]["EmployeeName"].ToString();
                         sheet1.Range[xlsRow, ColName].HorizontalAlignment = ExcelHAlign.HAlignLeft;

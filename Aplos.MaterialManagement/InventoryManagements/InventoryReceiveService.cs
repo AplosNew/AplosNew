@@ -17444,7 +17444,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
 							,PO.UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank,ISNULL(Pr.UserName ,'') CustomerName
 							,EI2.EmployeeName ByWhomName
-									,EI2.SystemId ByWhomEmployeeId,EI2.SystemId EmpCode,IR.JWWIPVoucherId,IR.[Status]
+									,EI2.SystemId ByWhomEmployeeId,EI2.SystemId EmpCode,IR.JWChangeInInvVoucherId,IR.[Status]
 							FROM [TRN].[InventoryReceive] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId

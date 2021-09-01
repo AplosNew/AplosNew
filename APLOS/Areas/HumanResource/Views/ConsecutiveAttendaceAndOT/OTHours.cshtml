@@ -12,11 +12,17 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Plant</label>
+                    <div class="col-md-8">
+                        <input id="ddlPlantList" />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <br />
-
-
+    
     <div class="row">
         <div class="form-elements form-horizontal" ng-form="modelForm">
             <div class="col-md-12 col-sm-6 col-md-6">
@@ -63,6 +69,12 @@
                     </div>
                 </div>
 
+                @*<div class="form-group">
+                        <label class="col-sm-4 control-label">Plant</label>
+                        <div class="col-md-8">
+                            <input id="ddlPlantList" />
+                        </div>
+                    </div>*@
 
                 <div class="common-btn">
                     <ul class="list-inline text-right">
@@ -74,7 +86,7 @@
             </div>
         </div>
         <div id="conPresentDiv">
-            <div  ng-show="timeShow" class="col-xs-12 col-sm-12 col-md-12">
+            <div ng-show="timeShow" class="col-xs-12 col-sm-12 col-md-12">
 
                 <div id="GridWorkingHours" ej-grid
                      e-datasource="WorkingHoursList"
@@ -89,6 +101,7 @@
                     <div e-columns>
                         <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="50"></div>
                         <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Plant" e-headertext="Plant Name" e-allowediting="false" e-width="80"></div>
                         <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="50"></div>
                         <div e-column e-field="EmployeeCategorys" e-headertext="Emp Category" e-allowediting="false" e-width="80"></div>
 
@@ -103,12 +116,12 @@
                 </div>
 
 
-                
+
             </div>
 
             <div ng-show="timeNotShow" class="col-xs-12 col-sm-12 col-md-12">
 
-                <div  id="GridWorkingHours" ej-grid
+                <div id="GridWorkingHours" ej-grid
                      e-datasource="WorkingHoursPeriodList"
                      e-allowscrolling="true"
                      e-pageSettings-pageSize="15"
@@ -121,6 +134,7 @@
                     <div e-columns>
                         <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="50"></div>
                         <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Plant" e-headertext="Plant Name" e-allowediting="false" e-width="80"></div>
                         <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="50"></div>
                         <div e-column e-field="EmployeeCategorys" e-headertext="Emp Category" e-allowediting="false" e-width="80"></div>
 
