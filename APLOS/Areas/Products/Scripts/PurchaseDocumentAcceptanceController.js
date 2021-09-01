@@ -589,7 +589,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         IsNonCreditable: false,
         OBCurrencyCode: null,
         LCOBCurrencyId: null,
-        TotalPOAmount: 0
+        TotalGRNAmount: 0
     };
 
     $scope.PurchaseDocAcceptanceDetail = {
@@ -702,11 +702,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.Save1 = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.PurchaseDocAcceptance.TotalPOAmount)) {
+            if (baseService.isUndefinedOrNull($scope.PurchaseDocAcceptance.TotalGRNAmount)) {
                 throw "Total PO Amount is required.";
             }
-            if ($scope.PurchaseDocAcceptance.TotalPOAmount > $scope.productNew.LCAmount) {
-                throw "Total PO Amount can't greater than LC Amount.";
+            if ($scope.PurchaseDocAcceptance.TotalGRNAmount > $scope.productNew.LCAmount) {
+                throw "Total GRN Amount can't greater than LC Amount.";
             }
             $scope.CalculateMaterialAmount();
             if ($scope.productNew.AcceptanceFirst == 'Yes') {
@@ -1268,12 +1268,12 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     };
 
     $scope.summaryassignGRNRows = [{
-        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialBooksCurrencyAmount", dataMember: "TotalMaterialBooksCurrencyAmount", format: "{0:N2}" }],
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialTranAmount", dataMember: "TotalMaterialTranAmount", format: "{0:N2}" }],
         showCaptionSummary: true
     }];
 
     $scope.summaryUnassignGRNRows = [{
-        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialBooksCurrencyAmount", dataMember: "TotalMaterialBooksCurrencyAmount", format: "{0:N2}" }],
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialTranAmount", dataMember: "TotalMaterialTranAmount", format: "{0:N2}" }],
         showCaptionSummary: true
     }];
 
@@ -1415,7 +1415,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.PurchaseDocAcceptance.ServiceVoucherId = $event.data.ServiceVoucherId;
         $scope.PurchaseDocAcceptance.PartyId = $event.data.PartyId;
         $scope.PurchaseDocAcceptance.PartyPlantId = $event.data.PartyPlantId;
-        $scope.PurchaseDocAcceptance.TotalPOAmount = $event.data.TotalPOAmount;
+        $scope.PurchaseDocAcceptance.TotalGRNAmount = $event.data.TotalGRNAmount;
 
         $scope.productNew.AcceptanceFirst = $event.data.AcceptanceFirst;
         if ($scope.productNew.AcceptanceFirst == 'No') {
@@ -1450,9 +1450,9 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         var i = $scope.GridListPO.length;
         while (i--) {
             if ($scope.GridListPO[i].Active === true) {
-                if (checkExistPOId($scope.seletedLST, $scope.GridListPO[i].POId)) {
-                    $scope.PurchaseDocAcceptance.TotalPOAmount += $scope.GridListPO[i].TransactionAmount;
-                }
+                //if (checkExistPOId($scope.seletedLST, $scope.GridListPO[i].POId)) {
+                    $scope.PurchaseDocAcceptance.TotalGRNAmount += $scope.GridListPO[i].TotalMaterialTranAmount;
+                //}
                 $scope.seletedLST.push($scope.GridListPO[i]);
                 $scope.GridListPO[i].Active === false;
                 $scope.GridListPO.splice(i, 1);
@@ -1488,7 +1488,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                             var i = $scope.seletedLST.length;
                             while (i--) {
                                 if ($scope.seletedLST[i].Active === true) {
-                                    $scope.PurchaseDocAcceptance.TotalPOAmount = $scope.PurchaseDocAcceptance.TotalPOAmount - $scope.seletedLST[i].TransactionAmount;
+                                    $scope.PurchaseDocAcceptance.TotalGRNAmount = $scope.PurchaseDocAcceptance.TotalGRNAmount - $scope.seletedLST[i].TotalMaterialTranAmount;
                                     $scope.GridListPO.push($scope.seletedLST[i]);
                                     $scope.seletedLST.splice(i, 1);
                                 }
@@ -1536,9 +1536,9 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                     var i = $scope.seletedLST.length;
                     while (i--) {
                         if ($scope.seletedLST[i].Active === true) {
-                            if (checkExistsPOId($scope.GridListPO, $scope.seletedLST[i].POId)) {
-                                $scope.PurchaseDocAcceptance.TotalPOAmount = $scope.PurchaseDocAcceptance.TotalPOAmount - $scope.seletedLST[i].TransactionAmount;
-                            }
+                           // if (checkExistsPOId($scope.GridListPO, $scope.seletedLST[i].POId)) {
+                                $scope.PurchaseDocAcceptance.TotalGRNAmount = $scope.PurchaseDocAcceptance.TotalGRNAmount - $scope.seletedLST[i].TotalMaterialTranAmount;
+                            //}
                             $scope.GridListPO.push($scope.seletedLST[i]);
                             $scope.seletedLST.splice(i, 1);
                         }
