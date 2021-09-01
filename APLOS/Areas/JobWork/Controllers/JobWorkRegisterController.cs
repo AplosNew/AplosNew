@@ -286,6 +286,10 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColTotalNoOfInputItem = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "JW Input Total Gross Consumption", 20, ExcelHAlign.HAlignLeft);
+            int ColTotalGrossConsumption = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "JW Input Plannned Quantity", 15, ExcelHAlign.HAlignLeft);
             int ColJWInputPlannnedQuantity = COL;
             COL++;
@@ -461,6 +465,8 @@ namespace Aplos.Areas.JobWork.Controllers
                 sheet[ROW, ColTotalReceiptAmount].Text = data.Rows[i]["TotalReceiptAmount"].ToString();
                 sheet[ROW, ColJWReceiptLocation].Text = data.Rows[i]["ReceiptLocation"].ToString();
                 sheet[ROW, ColTotalNoOfInputItem].Text = data.Rows[i]["TotalNoOfInputItem"].ToString();
+
+                sheet[ROW, ColTotalGrossConsumption].Text = data.Rows[i]["TotalGrossConsumption"].ToString();
 
                 sheet[ROW, ColJWInputPlannnedQuantity].Text = data.Rows[i]["JWInputPlannnedQuantity"].ToString();
                 sheet[ROW, ColJWJWInputIssueReturnQuantity].Text = data.Rows[i]["JWInputIssueReturnQuantity"].ToString();
