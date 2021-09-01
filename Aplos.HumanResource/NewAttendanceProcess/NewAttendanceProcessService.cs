@@ -2971,12 +2971,12 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"
-select O.RowId,o.PlantID,o.EmpSystemID,Format(o.WorkDate,'yyyy-MMM-dd')WorkDate,s.firstSlab
-from OTProcessDayLimit o 
-left join org.Plant p on o.PlantID=p.Id left join
-OTSlabDefineGeneral s on s.PlantID=p.Id and s.DayType=o.DayType
-where p.Id='202016' and o.WorkDate='2021-08-31'";
+                var sql = @"select O.RowId,o.PlantID,o.EmpSystemID,
+                Format(o.WorkDate,'yyyy-MMM-dd')WorkDate,s.firstSlab
+                from OTProcessDayLimit o 
+                left join org.Plant p on o.PlantID=p.Id left join
+                OTSlabDefineGeneral s on s.PlantID=p.Id and s.DayType=o.DayType
+                where p.Id='"+PlantId+"' and o.WorkDate='"+Date+"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -3785,7 +3785,7 @@ where p.Id='202016' and o.WorkDate='2021-08-31'";
                     if (FixedOTSetting.Tables[0].Rows.Count > 0)
                     {
                         var WkDate = FixedOTSetting.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
                         var PlantId = FixedOTSetting.Tables[0].Rows[0][@"PlantId"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -3795,7 +3795,7 @@ where p.Id='202016' and o.WorkDate='2021-08-31'";
                         {
                             string EmpId = FixedOTSetting.Tables[0].Rows[i][@"EmpSystemID"].ToString();
                             string WeekOffOT = FixedOTSetting.Tables[0].Rows[i][@"WeekOffOT"].ToString();
-                            string NormalDayOT = FixedOTSetting.Tables[0].Rows[i][@"WeekOT"].ToString();
+                            string NormalDayOT = FixedOTSetting.Tables[0].Rows[i][@"NormalDayOT"].ToString();
                             string HolidayOT = FixedOTSetting.Tables[0].Rows[i][@"HolidayOT"].ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
@@ -3830,7 +3830,43 @@ where p.Id='202016' and o.WorkDate='2021-08-31'";
                     }
                     #endregion
 
+                    #region SlabOT Entry
+                    DataSet SlabOT;
+                    SlabOTSource(PreviousDay, out SlabOT, PlantValue);
+                    if (SlabOT.Tables[0].Rows.Count > 0)
+                    {
+                        var WkDate = SlabOT.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                        var PlantId = SlabOT.Tables[0].Rows[0][@"PlantId"].ToString();
 
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "' and isnull(DayType,'')!=''", out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < SlabOT.Tables[0].Rows.Count; i++)
+                        {
+                            string RowId = SlabOT.Tables[0].Rows[i][@"RowId"].ToString();
+                            string firstSlab = SlabOT.Tables[0].Rows[i][@"firstSlab"].ToString();
+                         
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId +"' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
+                                if (DayType != "")
+                                {
+                                    dr.BeginEdit();                                    
+                                    dr["SlabOT"] = firstSlab;                    
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
+                            }
+
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+                    #endregion
+                    
                     #endregion
 
 
