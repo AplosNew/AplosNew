@@ -708,7 +708,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 $scope.inventoryMaterialListPOnew = [];
 
                 var mlsddate = new Date($scope.PurchaseDocAcceptance.AcceptanceDate);
-                $scope.PurchaseDocAcceptance.POId = $scope.POId;
+                //$scope.PurchaseDocAcceptance.POId = $scope.POId;
                 $scope.PurchaseDocAcceptance.PurchaseLCId = $scope.productNew.PurchaseLCNO;
                 $scope.PurchaseDocAcceptance.PartyId = $scope.productNew.PartyId;
                 $scope.PurchaseDocAcceptance.PartyPlantId = $scope.productNew.PartyPlantId;
@@ -1130,6 +1130,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             }
             $scope.POId = $scope.GetDataDoubleClickMaster[0].POId;
             $scope.productNew.PurchaseLCNO = $scope.GetDataDoubleClickMaster[0].PurchaseLCNO;
+            $scope.productNew.PurchaseLCId = $scope.GetDataDoubleClickMaster[0].PurchaseLCId;
             $scope.productNew.LCRef = $scope.GetDataDoubleClickMaster[0].LCRef;
             $scope.productNew.PaymentTermName = $scope.GetDataDoubleClickMaster[0].PaymentTermName;
             $scope.productNew.LCOpeningBank = $scope.GetDataDoubleClickMaster[0].LCOpeningBank;
@@ -1405,6 +1406,8 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.Id = $event.data.Id;
         $scope.productNew = $event.data;
         $scope.productNew.PurchaseLCNO = $event.data.PurchaseLCId;
+        $scope.productNew.PurchaseLCId = $event.data.PurchaseLCId;
+        $scope.PurchaseDocAcceptance.PurchaseLCId = $event.data.PurchaseLCId;
         $scope.productNew.LCRef = $event.data.LCRef;
         $scope.productNew.PaymentTermName = $event.data.PaymentTermName;
         $scope.LCOpeningBank = $event.data.LCOpeningBank;
@@ -1438,6 +1441,9 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.PurchaseDocAcceptance.InvoiceNo = $event.data.InvoiceNo;
         $scope.PurchaseDocAcceptance.VoucherId = $event.data.VoucherId;
         $scope.PurchaseDocAcceptance.ServiceVoucherId = $event.data.ServiceVoucherId;
+        $scope.PurchaseDocAcceptance.PlantId = $event.data.PlantId;
+        $scope.PurchaseDocAcceptance.CompanyId = $event.data.CompanyId;
+        $scope.PurchaseDocAcceptance.CompanyGroupId = $event.data.CompanyGroupId;
         $scope.PurchaseDocAcceptance.PartyId = $event.data.PartyId;
         $scope.PurchaseDocAcceptance.PartyPlantId = $event.data.PartyPlantId;
         $scope.PurchaseDocAcceptance.TotalGRNAmount = $event.data.TotalGRNAmount;
@@ -1781,7 +1787,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
             if (baseService.arrayLength(response.data) > 0) {
                 $scope.productNew = response.data[0];
-
+                $scope.productNew.PurchaseLCId = response.data[0].PurchaseLCNO;
                 if ($scope.productNew.AcceptanceFirst == 'No') {
                     $scope.productNew.GRNFirst = 'Yes';
                     $scope.productNew.AcceptanceFirst = 'No';
