@@ -126,9 +126,9 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS FCV ON CTC.FirstCharacteristicsValueId = FCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
-                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMDId,MaterialTranRate from TRN.InventoryReceiveDetail GROUP BY JWTCMDId,MaterialTranRate) IRD ON IRD.JWTCMDId=CTC.Id
+                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMDId from TRN.InventoryReceiveDetail GROUP BY JWTCMDId,MaterialTranRate) IRD ON IRD.JWTCMDId=CTC.Id
                             LEFT JOIN (Select JWTransformationContractChildId,SUM(BillingQty) BillingQty from dbo.JWReceiveBillingDetail WHERE JWReceiveBillingId<>'" + masterId + @"' GROUP BY JWTransformationContractChildId ) B ON B.JWTransformationContractChildId=CTC.Id
-                            WHERE RBD.JWReceiveBillingId='" + masterId + "'";
+                            WHERE RBD.JWReceiveBillingId='" + masterId + "' ORDER BY MM.UserName";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -180,7 +180,7 @@ namespace Aplos.Areas.JobWork.Controllers
                             ,ART.Id ArticleId,ART.StandardName Article,CTC.FirstCharacteristicsId,FC.UserName AS SKU1 ,CTC.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue
                             ,CTC.SecondCharacteristicsId,SC.UserName AS SKU2,CTC.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue
                             ,CTC.ThirdCharacteristicsId,TC.UserName AS SKU3,CTC.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue
-                            ,CTC.Quantity OrderQty,IRD.TransactionQty ReceiveQty,ISNULL(B.BillingQty,0) OtherBillingQty,0 BillingQty,(IRD.TransactionQty-ISNULL(B.BillingQty,0)) BalanceQty,IRD.MaterialTranRate
+                            ,CTC.Quantity OrderQty,IRD.TransactionQty ReceiveQty,ISNULL(B.BillingQty,0) OtherBillingQty,0 BillingQty,(IRD.TransactionQty-ISNULL(B.BillingQty,0)) BalanceQty, CTC.RatePerUnit MaterialTranRate
                             from [dbo].[JobWorkTransformationContractChild] CTC 
                             --LEFT JOIN dbo.JobWorkTransformationContract JWTC ON JWTC.Id=CTC.JobWorkTransformationContractMasterId
                             LEFT JOIN [dbo].[JWTransformationPurchaseOrder] JWPO ON JWPO.Id=CTC.JobWorkTransformationContractMasterId
@@ -192,9 +192,9 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS FCV ON CTC.FirstCharacteristicsValueId = FCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
-                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMDId,MaterialTranRate,MaterialFor from TRN.InventoryReceiveDetail GROUP BY JWTCMDId,MaterialTranRate,MaterialFor) IRD ON IRD.JWTCMDId=CTC.Id
+                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMDId,MaterialFor from TRN.InventoryReceiveDetail GROUP BY JWTCMDId,MaterialFor) IRD ON IRD.JWTCMDId=CTC.Id
                             LEFT JOIN (Select JWTransformationContractChildId,SUM(BillingQty) BillingQty from dbo.JWReceiveBillingDetail GROUP BY JWTransformationContractChildId) B ON B.JWTransformationContractChildId=CTC.Id
-                            WHERE  CTC.JobWorkTransformationContractMasterId ='" + contractId + "' AND IRD.MaterialFor='JWOUTPUTMaterial'";
+                            WHERE  CTC.JobWorkTransformationContractMasterId ='" + contractId + "' AND IRD.MaterialFor='JWOUTPUTMaterial' ORDER BY MM.UserName";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;

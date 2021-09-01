@@ -449,7 +449,6 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
         return string;
     };
     //--------------------------------------//
-    $scope.PlantIdFromUI = null;
     $scope.PlantList = [];
     $scope.getPlant = function () {
         $http({
