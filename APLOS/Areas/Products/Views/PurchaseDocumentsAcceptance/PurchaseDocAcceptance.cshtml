@@ -303,7 +303,7 @@
                                                 <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="Opening Date" e-width="100"></div>
                                                 <div e-column e-type="date" e-field="LCExpiryDate" e-headertext="Expiry Date" e-width="100"></div>
                                                 <div e-column e-type="string" e-field="LCOpeningBank" e-headertext="Opening Bank" e-width="100"></div>
-                                                <div e-column e-type="number" e-field="LCAmount" e-headertext="Amount" e-width="100"e-textalign="right"></div>
+                                                <div e-column e-type="number" e-field="LCAmount" e-headertext="Amount" e-width="100" e-textalign="right"></div>
                                                 <div e-column e-type="string" e-field="CurrencyName" e-headertext="Currency" e-width="30"></div>
                                                 <div e-column e-type="string" e-field="AcceptanceFirst" e-headertext="Acceptance First" e-width="100"></div>
                                             </div>
@@ -440,8 +440,8 @@
                                                 <div e-column e-type="string" e-field="POId" e-headertext="PO Id" e-width="80"></div>
                                                 <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
                                                 <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="60"></div>
-                                                <div e-column e-type="number" e-field="TotalMaterialTranAmount" e-headertext="GRN Amount"  e-textalign="right" e-width="100"></div>
-                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="PO Amount"  e-textalign="right" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="TotalMaterialTranAmount" e-headertext="GRN Amount" e-textalign="right" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="PO Amount" e-textalign="right" e-width="100"></div>
                                                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
                                             </div>
                                         </div>
@@ -479,7 +479,7 @@
                                                 <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
                                                 <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="60"></div>
                                                 <div e-column e-type="number" e-field="TotalMaterialTranAmount" e-headertext="GRN Amount" e-textalign="right" e-width="100"></div>
-                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="PO Amount"  e-textalign="right" e-width="100"></div>
+                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="PO Amount" e-textalign="right" e-width="100"></div>
                                                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
 
                                             </div>
@@ -614,7 +614,7 @@
                                             </td>
                                             <td></td>
                                         </tr>
-                                        <tr ng-show="inventoryMaterialListPO.length">
+                                        <tr ng-show="inventoryMaterialListPO.length>0">
                                             <td colspan="6" class="text-right"><strong>Total : </strong></td>
                                             <td></td>
                                             <td></td>
@@ -647,7 +647,7 @@
                             <div class="table-responsive modal-table" ng-show="productNew.AcceptanceFirst=='No'">
                                 <table class="table table-striped">
                                     <thead>
-                                        <tr ng-show="inventoryMaterialListPO.length">
+                                        <tr ng-show="inventoryMaterialListPO.length>0">
                                             <th>
                                                 @*<input type="checkbox" ng-model="selectAll" ng-click="checkAll()" />*@
                                                 <div class="checkbox-site text-center">
@@ -710,7 +710,7 @@
                                             <td class="text-right">{{x.TransactionUoM}}</td>
                                             <td class="text-right">{{x.TransactionRate| number:4}}</td>
                                             @*<td class="text-right"><input type="text" style="width:60px;" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>*@
-                                        <td class="text-right">{{x.CurrentGRNQty| number:2}}</td>
+                                            <td class="text-right">{{x.CurrentGRNQty| number:2}}</td>
                                             @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right"  width="200" ng-model="x.TransactionQty" ng-disabled="!x.Active"></td>*@
                                             <td class="text-right">{{x.TransactionQty | number:2}}</td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
