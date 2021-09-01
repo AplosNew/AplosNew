@@ -229,11 +229,17 @@ JobWorkTransformationContractChildMasterId,GrossConsumption
 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,JWTCMDId from Trn.InventoryReceiveDetail where JWTCMDId is not null group by JWTCMDId)
 kk on kk.JWTCMDId=mp.Id
-left join (select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
-left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
-left join dbo.JobWorkTransformationContractChild om on om.JobWorkTransformationContractMasterId=ii.JWContractId
-left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
-IQ on IQ.Id=mp.Id
+left join (
+--select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
+--left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
+--left join dbo.JobWorkTransformationContractChild om on om.JobWorkTransformationContractMasterId=ii.JWContractId
+--left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id
+select SUM(iid.TransactionQty) as TIssuedQty,JWTCMID
+from Trn.inventoryIssueDetail iid 
+group by JWTCMID
+)
+--IQ on IQ.Id=mp.Id
+IQ on IQ.JWTCMID=mp.Id
 left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
 left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
@@ -395,11 +401,17 @@ JobWorkTransformationContractChildMasterId,GrossConsumption
 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,JWTCMDId from Trn.InventoryReceiveDetail where JWTCMDId is not null group by JWTCMDId)
 kk on kk.JWTCMDId=mp.Id
-left join (select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
-left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
-left join dbo.JobWorkTransformationContractChild om on om.JobWorkTransformationContractMasterId=ii.JWContractId
-left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
-IQ on IQ.Id=mp.Id
+left join (
+--select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
+--left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
+--left join dbo.JobWorkTransformationContractChild om on om.JobWorkTransformationContractMasterId=ii.JWContractId
+--left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id
+select SUM(iid.TransactionQty) as TIssuedQty,JWTCMID
+from Trn.inventoryIssueDetail iid 
+group by JWTCMID
+)
+--IQ on IQ.Id=mp.Id
+IQ on IQ.JWTCMID=mp.Id
 left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
 left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
@@ -559,11 +571,17 @@ JobWorkTransformationContractChildMasterId,GrossConsumption
 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
 left join (select Sum(TransactionQty) as TotalReceivedQuantity,JWTCMDId from Trn.InventoryReceiveDetail where JWTCMDId is not null group by JWTCMDId)
 kk on kk.JWTCMDId=mp.Id
-left join (select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
-left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
-left join dbo.JobWorkTransformationContractChild om on om.JobWorkTransformationContractMasterId=ii.JWContractId
-left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id)
-IQ on IQ.Id=mp.Id
+left join (
+--select SUM(iid.TransactionQty) as TIssuedQty,om.Id from Trn.inventoryIssueDetail iid left join TRN.InventoryIssue ii on ii.Id=iid.InventoryIssueId
+--left join TRN.InventoryMaterial im on im.Id=iid.InventoryMaterialId
+--left join dbo.JobWorkTransformationContractChild om on om.JobWorkTransformationContractMasterId=ii.JWContractId
+--left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=om.Id and mi.ArticleId=im.ArticleId  group by om.Id
+select SUM(iid.TransactionQty) as TIssuedQty,JWTCMID
+from Trn.inventoryIssueDetail iid 
+group by JWTCMID
+)
+--IQ on IQ.Id=mp.Id
+IQ on IQ.JWTCMID=mp.Id
 left join [dbo].[Contract] Ct on Ct.Id=tc.ContractId
 left JOIN [HKP].[Party] AS Prty ON Ct.CustomerId=Prty.Id
 LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Ct.MasterLCId
