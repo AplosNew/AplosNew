@@ -2966,7 +2966,26 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
             }
 
         }
+        public void SlabOTSource(string Date, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"
+select O.RowId,o.PlantID,o.EmpSystemID,Format(o.WorkDate,'yyyy-MMM-dd')WorkDate,s.firstSlab
+from OTProcessDayLimit o 
+left join org.Plant p on o.PlantID=p.Id left join
+OTSlabDefineGeneral s on s.PlantID=p.Id and s.DayType=o.DayType
+where p.Id='202016' and o.WorkDate='2021-08-31'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
 
+        }
         #endregion
 
         #region DayStatus Process
