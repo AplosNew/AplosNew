@@ -8,6 +8,33 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     var firstDay = new Date(y, m, 1);
 
+    $scope.PlantIdFromUI = null;
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: "humanresource/payrollReports/GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+            var index = 0;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#ddlPlantList').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
+
+        });
+    }
+    $scope.getPlant();
+
     $scope.ShiftReport = {
         FromDate: $filter('dateFiltering')(firstDay),
         ToDate: $filter('dateFiltering')(Date.now()),
@@ -40,6 +67,7 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
     $scope.presentComparator = ">=";
     $scope.DateWisePresentStatusList = [];
     $scope.GetGruopWiseDateWisePresentStatus = function () {
+
         //var DropDownListObj = $("#AttendanceDayStatusList").data("ejDropDownList");
         //var dayStatus = DropDownListObj.getSelectedValue();
         //dayStatus = '\'' + dayStatus.split(',').join('\',\'') + '\'';
@@ -52,7 +80,7 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
 
         var formDate = new Date($scope.hrPresentJSFromDate);
 
-        var DropDownListObj = $("#PlantList").data("ejDropDownList");
+        var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
         var PlantId = DropDownListObj.getSelectedValue();
 
         var oneDay = 24 * 60 * 60 * 1000;
@@ -95,6 +123,7 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
 
                 if (response.data.length > 0) {
                     $scope.DateWisePresentStatusList = response.data;
+
                 }
                 else {
                     ShowResult("No Data Found", 'failure');
@@ -153,7 +182,7 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
             //var dayStatus = DropDownListObj.getSelectedValue();
             //dayStatus = '\'' + dayStatus.split(',').join('\',\'') + '\'';
 
-            var DropDownListObj = $("#PlantList").data("ejDropDownList");
+            var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
             var PlantId = DropDownListObj.getSelectedValue();
 
             var dayStatus = null;
@@ -187,8 +216,8 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
         //var DropDownListObj = $("#AttendanceDayStatusList").data("ejDropDownList");
         //var dayStatus = DropDownListObj.getSelectedValue();
         //dayStatus = '\'' + dayStatus.split(',').join('\',\'') + '\'';
-       var dayStatus = null;
-        $scope.ADGLUrl = 'HumanResource/ConsecutiveAttendaceAndOT/ModalEmployeeWisePresentDateList?companyId=' + $scope.companyId + "&plantId=" + $scope.plantId + "&hrFromDate=" + $scope.hrPresentJSFromDate + "&hrToDate=" + $scope.hrPresentJSToDate + "&EmpSystemId=" + data.EmpSystemID + "&dayCount=" + $scope.dayCountPresent + "&comparator=" + $scope.presentComparator + "&dayStatus=" + dayStatus + "&considerInOut=" + $scope.considerInOut ;
+        var dayStatus = null;
+        $scope.ADGLUrl = 'HumanResource/ConsecutiveAttendaceAndOT/ModalEmployeeWisePresentDateList?companyId=' + $scope.companyId + "&plantId=" + $scope.plantId + "&hrFromDate=" + $scope.hrPresentJSFromDate + "&hrToDate=" + $scope.hrPresentJSToDate + "&EmpSystemId=" + data.EmpSystemID + "&dayCount=" + $scope.dayCountPresent + "&comparator=" + $scope.presentComparator + "&dayStatus=" + dayStatus + "&considerInOut=" + $scope.considerInOut;
         $scope.label = data.EmployeeName;
         $scope.empCode = data.EmployeeCode;
         $http({
@@ -206,7 +235,7 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
         //var dayStatus = DropDownListObj.getSelectedValue();
         //dayStatus = '\'' + dayStatus.split(',').join('\',\'') + '\'';
         var dayStatus = null;
-        $scope.ADGLUrl = 'HumanResource/ConsecutiveAttendaceAndOT/ModalEmployeeWisePresentStatusDateWiseList?companyId=' + $scope.companyId + "&plantId=" + $scope.plantId + "&hrFromDate=" + data.fromDate + "&hrToDate=" + data.toDate + "&EmpSystemId=" + data.EmpSystemID + "&dayCount=" + $scope.dayCountPresent + "&comparator=" + $scope.presentComparator +  " &dayStatus=" + dayStatus + " &considerInOut=" + $scope.considerInOut;
+        $scope.ADGLUrl = 'HumanResource/ConsecutiveAttendaceAndOT/ModalEmployeeWisePresentStatusDateWiseList?companyId=' + $scope.companyId + "&plantId=" + $scope.plantId + "&hrFromDate=" + data.fromDate + "&hrToDate=" + data.toDate + "&EmpSystemId=" + data.EmpSystemID + "&dayCount=" + $scope.dayCountPresent + "&comparator=" + $scope.presentComparator + " &dayStatus=" + dayStatus + " &considerInOut=" + $scope.considerInOut;
         $scope.label = data.EmployeeName;
         $scope.empCode = data.EmployeeCode;
         $http({
@@ -218,7 +247,7 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
         });
         angular.element(document.querySelector('#LateDateWiseList')).modal('show');
     };
-       
+
     $scope.ShiftName = [];
     $scope.selectedShif = function () {
         var eDialog = $("#dialogShiftSelect").data("ejDialog");
@@ -486,23 +515,5 @@ function consecutiveAttendaceController(commonMessage, $scope, $rootScope, baseS
         }
         $($("#GridShiftSelect .rowCheckbox")[args.rowIndex]).ejCheckBox({ "change": checkChangeemployee4 });
     }
-
-    $scope.PlantIdFromUI = null;
-    $scope.PlantList = [];
-    $scope.getPlant = function () {
-        $http({
-            method: 'GET',
-            url: "humanresource/payrollReports/GetPlantList",
-        }).then(function successCallback(response) {
-            $scope.PlantList = response.data;
-            for (var i = 0; i < $scope.PlantList.length; i++) {
-                if ($scope.PlantList[i].PlantId == $window.plantId) {
-                    $scope.PlantIdFromUI = $scope.PlantList[i].PlantName;
-                }
-            }
-            //= $window.plantId;
-        });
-    }
-    $scope.getPlant();
 
 }

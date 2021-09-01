@@ -458,15 +458,24 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
         }).then(function successCallback(response) {
             $scope.PlantList = response.data;
            
-            //}
+            var index = 0;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#CWPlant').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 180
+                });
 
 
         });
     }
     $scope.getPlant();
-    $scope.defaultSelection = function (args) {
-        var DropDownListObj = $("#CWPlant").data("ejDropDownList");
-        DropDownListObj.selectItemByValue($window.plantId);
-    };
 
 }
