@@ -87,8 +87,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(3);
-                workbook.Worksheets[0].Name = "Data";
-                sheet = workbook.Worksheets[0];
+                workbook.Worksheets[2].Name = "Data";
+                sheet = workbook.Worksheets[2];
                 DataTable dtOrder;
                 OrderReportSQL(parameters, fromDate, toDate, dateType, out dtOrder);
 
@@ -352,8 +352,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colInputRemarks].Text = dtOrder.Rows[i]["InputRemarks"].ToString();
                     sheet[ROW, colInputStatus].Text = dtOrder.Rows[i]["InputStatus"].ToString();
                     sheet[ROW, colLineTarget].Text = dtOrder.Rows[i]["PlannedLinePreference"].ToString();
-                    sheet[ROW, colNoOfLinePlan].Text = dtOrder.Rows[i]["AllocatedLines"].ToString();
-                    sheet[ROW, colPriority].Text = dtOrder.Rows[i]["ProductionPriority"].ToString();
+                    sheet[ROW, colNoOfLinePlan].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["AllocatedLines"].ToString());
+                    sheet[ROW, colPriority].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ProductionPriority"].ToString());
                     sheet[ROW, colLineNo].Text = dtOrder.Rows[i]["RunningOrderLinePreference"].ToString();
                     sheet[ROW, colOrderValue].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["OrderValue"].ToString());
                     sheet[ROW, colCMValue].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["CMValue"].ToString());
@@ -366,7 +366,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     ROW++;
 
                 }
-
+                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -381,8 +382,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-
                 sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
 
                 //#endregion ******************Report Header******************
@@ -621,7 +623,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     ROW++;
                 }
 
-                IListObject table = sheet.ListObjects.Create("Table1", sheet[(1) + (6).ToString() + ":" + (endCol) + (ROW).ToString()]);
+                //IListObject table = sheet.ListObjects.Create("Table1", sheet[(1) + (6).ToString() + ":" + (endCol) + (ROW).ToString()]);
+                 table = sheet.ListObjects.Create("Table2", sheet.Range[6,1, ROW, endCol]);
                 table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
                 reportUtility.PlantHeader(ref sheet, endCol, "Order Report", identity.PlantId);
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
@@ -641,6 +644,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 
                 sheet.IsGridLinesVisible = false;
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
 
                 //#endregion ******************Report Header******************
@@ -665,8 +669,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 workbook = application.Workbooks.Open(fPath);
                 try { System.IO.File.Delete(fPath); } catch (Exception) { }
 
-                workbook.Worksheets[2].Name = "Pivot";
-                IWorksheet pivotSheet = workbook.Worksheets[2];
+                workbook.Worksheets[0].Name = "Order";
+
+                IWorksheet pivotSheet = workbook.Worksheets[0];
                 IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
                 IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
 
@@ -688,27 +693,27 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionStartDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionOrderCategory - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colLSD - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colMainrawMaterialDate - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colOtherRawMaterialDate - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colSPT - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colRemarks - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colorderRemarks - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colorderStatus - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colMainMaterialRemarks - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colMainMaterialStatus - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colOtherRawMaterialRemarks - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colOtherRawMaterialStatus - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colInputRemarks - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colInputStatus - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colLSD - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colMainrawMaterialDate - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colOtherRawMaterialDate - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colSPT - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colRemarks - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colorderRemarks - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colorderStatus - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colMainMaterialRemarks - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colMainMaterialStatus - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colOtherRawMaterialRemarks - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colOtherRawMaterialStatus - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colInputRemarks - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colInputStatus - 1].Axis = PivotAxisTypes.Row;
 
 
                 IPivotField field = pivotTable.Fields[colRate - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat();
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 pivotTable.DataFields.Add(field, "Rate", PivotSubtotalTypes.Sum);
 
                 field = pivotTable.Fields[colCM - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat();
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 pivotTable.DataFields.Add(field, "CM", PivotSubtotalTypes.Sum);
 
 
@@ -746,7 +751,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 pivotTable.Options.NullString = "";
                 pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
 
-                sheet = workbook.Worksheets[2];
+                sheet = workbook.Worksheets[0];
                 reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Order Report", identity.CompanyId, identity.CompanyName, "");
 
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
@@ -756,6 +761,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.IsGridLinesVisible = false;
+                workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
 
 
                 #endregion Buyer Summary
