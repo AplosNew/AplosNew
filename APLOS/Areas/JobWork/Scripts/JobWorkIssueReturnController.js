@@ -1031,12 +1031,13 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.ClearIssueTransformationChildTab = function () {
 		ClearFieldsIssueTransformation();
 		$scope.TransformationTypeList = [];
-		$scope.materialStockList = [];
+		//$scope.materialStockList = [];
 		$scope.IssueTransformationChildList = [];
 
 		$scope.MaterialInputList = [];
 		$scope.detailList = [];
 		$scope.getData();
+		$scope.materialStockList = [];
 
 	}
 

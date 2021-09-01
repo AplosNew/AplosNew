@@ -149,6 +149,13 @@ namespace Aplos.Areas.Accounts.Controllers
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                 }
+                if (sourceType == SourceType.EmployeeAdvance.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var advanceSql = @"UPDATE [TRN].Advance SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(advanceSql);
+                }
                 _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                 _unitOfWork.SaveChanges();
                 flag = false;
