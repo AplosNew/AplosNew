@@ -195,6 +195,7 @@
                 </div>
             </div>
         </div>
+
         <div class="col-lg-12" ng-show="GriddataMaster.length>0">
             <div class="content-container-fluid" style="color:black;overflow:scroll">
                 <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GriddataMaster" e-templaterefresh="refreshTemplateMasterOrderOperation"
@@ -216,6 +217,20 @@
                     </div>
                 </div>
             </div>
+            <script id="tabGridContents" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
+                        <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
+                    </ul>
+                    <div id="gridTab{{:Id}}">
+                        <div id="detailGrid"></div>
+                    </div>
+                    <div id="gridTab1{{:Id}}">
+                        <div id="detailGrid1" style="width:800px;"></div>
+                    </div>
+                </div>
+            </script>
         </div>
         <div class="clearfix"></div>
         <div class="col-lg-12" ng-show="JWPOList.length>0">
@@ -240,20 +255,7 @@
                 </div>
             </script>
         </div>
-        <script id="tabGridContents" type="text/x-jsrender">
-            <div class="tabcontrol" id="Test">
-                <ul>
-                    <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                    <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-                </ul>
-                <div id="gridTab{{:Id}}">
-                    <div id="detailGrid"></div>
-                </div>
-                <div id="gridTab1{{:Id}}">
-                    <div id="detailGrid1" style="width:800px;"></div>
-                </div>
-            </div>
-        </script>
+        
         <div class="col-lg-12">
             <div class="common-btn">
                 <ul class="list-inline text-right">

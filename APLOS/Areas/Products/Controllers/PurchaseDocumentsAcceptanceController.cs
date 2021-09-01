@@ -1042,7 +1042,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["InvoiceNo"] = data.InvoiceNo;
                     dr["PrePurchaseInvoiceId"] = data.PrePurchaseInvoiceId;
                     dr["EntryDate"] = data.EntryDate;
-                    dr["TotalGRNAmount"] = data.TotalGRNAmount;
+                    dr["AcceptanceAmount"] = data.AcceptanceAmount;
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -1076,7 +1076,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["InvoiceNo"] = data.InvoiceNo;
                     dr["PrePurchaseInvoiceId"] = data.PrePurchaseInvoiceId;
                     dr["EntryDate"] = data.EntryDate;
-                    dr["TotalGRNAmount"] = data.TotalGRNAmount;
+                    dr["AcceptanceAmount"] = data.AcceptanceAmount;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
