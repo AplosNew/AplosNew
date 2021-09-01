@@ -90,34 +90,17 @@ namespace Aplos.Areas.Products.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var Sql = @"SELECT  IR.Id
-                                , P.UserName AS PartyName
-                                , IRD.POId,IRD.PODocRefNo, IR.DocRefNo
-                                , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                                ,IR.GateEntryNo,C.Code Currency,CONVERT(NUMERIC(10,2),IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount,POD.TransactionAmount,0 AS Active
-                                FROM [TRN].[InventoryReceive] AS IR 
-                          JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                          JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId                        
-                          JOIN 
-						  (Select SUM(A.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount,A.InventoryReceiveId
-						    ,PODocRefNo= STUFF((select distinct ','+PO.DocRefNo
-						   from TRN.POGGRNMap PG 
-                            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-							where PG.GRNId=A.InventoryReceiveId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-							 ,POId= STUFF((select distinct ','+PG.POId
-						   from TRN.POGGRNMap PG 
-                            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-							where PG.GRNId=A.InventoryReceiveId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                          FROM [TRN].[InventoryReceiveDetail] A
-						   JOIN TRN.POGGRNMap PG ON PG.GRNId=A.InventoryReceiveId
-                          LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId
-						  Where PO.PurchaseLCId='" + purchaseLCId + @"'
-						  GROUP BY InventoryReceiveId
-						  ) IRD ON IRD.InventoryReceiveId=IR.Id
-                          JOIN(SELECT SUM(TransactionAmount) TransactionAmount,InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId)POD ON POD.InventoryReceiveId=IRD.POId 
-                          WHERE IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1
-                          AND IR.Id IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)";
+                var Sql = @"SELECT Convert(bit,0) Active,IR.Id,RD.TotalMaterialTranAmount,PO.Id POId, PO.DocRefNo PODocRefNo,IR.DocRefNo
+                            ,P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+                            ,IR.GateEntryNo,C.Code Currency,POD.TransactionAmount
+                            FROM [TRN].[InventoryReceive] AS IR 
+                            JOIN (SELECT SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,InventoryReceiveId,POId FROM [TRN].[InventoryReceiveDetail] GROUP BY InventoryReceiveId,POId) RD ON RD.InventoryReceiveId=IR.Id
+                            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=RD.POId
+                            JOIN(SELECT SUM(TransactionAmount) TransactionAmount,InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId)POD ON POD.InventoryReceiveId=PO.Id
+                            JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                            JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId
+                            WHERE IR.PlantId='"+identity.PlantId+@"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1 AND PO.PurchaseLCId='"+ purchaseLCId +@"' 
+                            AND IR.Id IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)";
 
 
                 return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
@@ -986,7 +969,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["InvoiceNo"] = data.InvoiceNo;
                     dr["PrePurchaseInvoiceId"] = data.PrePurchaseInvoiceId;
                     dr["EntryDate"] = data.EntryDate;
-                    dr["TotalPOAmount"] = data.TotalPOAmount;
+                    dr["TotalGRNAmount"] = data.TotalGRNAmount;
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -1020,7 +1003,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["InvoiceNo"] = data.InvoiceNo;
                     dr["PrePurchaseInvoiceId"] = data.PrePurchaseInvoiceId;
                     dr["EntryDate"] = data.EntryDate;
-                    dr["TotalPOAmount"] = data.TotalPOAmount;
+                    dr["TotalGRNAmount"] = data.TotalGRNAmount;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
