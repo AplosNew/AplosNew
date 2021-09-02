@@ -394,11 +394,12 @@ namespace Library.MaterialManagement.Inventory
 					itemDetail.PlantId = identity.PlantId;
 					Temppodetailid = itemDetail.InventoryReceiveDetailId;
 					itemDetail.IsNonCreditable = entity.IsNonCreditable;
+					
 					if (CheckItemExist(itemDetail))
 						throw new CustomException(itemDetail.MaterialMasterName + " already received");
 
 					ResetCurrencyRate(itemDetail);
-
+					itemDetail.ToCurrencyRate = entity.ToCurrencyRate;
 					if (itemDetail.IsNotNull())
 					{
 						//Added DAte 22-10-2019
@@ -516,8 +517,8 @@ namespace Library.MaterialManagement.Inventory
 							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
 
 							//added date 22-10-2019
-							itemDetail.BaseUoMFactor = 1;
-							//itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							//itemDetail.BaseUoMFactor = 1;
+							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
 							itemDetail.BaseQty = Convert.ToDecimal(itemDetail.NetQty * itemDetail.BaseUoMFactor);//Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
 																												 //itemDetail.TotalMaterialTranAmount = itemDetail.TransactionAmount;
 							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
