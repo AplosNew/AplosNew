@@ -36,8 +36,8 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat , string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date,  stat,  EmpCat, EmpStat);
-            return Json(data, JsonRequestBehavior.AllowGet);
+            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date,  stat,  EmpCat, EmpStat, out int[] Total);
+            return Json(new { Data = data , Sum = Total}, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -58,8 +58,8 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat , string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet);
+            var data = na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat, EmpStat , out int[] Total);
+            return Json(new {Data = data , Sum = Total }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost , Authorize]

@@ -1,6 +1,6 @@
 ﻿JobWorkConfig.$inject = ['$routeProvider', '$locationProvider'];
 function JobWorkConfig($routeProvider, $locationProvider) {
-    $routeProvider       
+    $routeProvider
         .when('/jobwork-item', {
             templateUrl: 'JobWork/jobworkitem/aplos',
             controller: 'jobWorkItemController'
@@ -62,11 +62,11 @@ function JobWorkConfig($routeProvider, $locationProvider) {
         .when('/jw-transformation', {
             templateUrl: 'JobWork/JWTransformationMaster',
             controller: 'jwTransformationMasterController'
-        })   
+        })
         .when('/jw-item', {
             templateUrl: 'JobWork/JWItem',
             controller: 'jwItemController'
-        }) 
+        })
         .when('/jw-po', {
             templateUrl: 'JobWork/JWTransformationPurchaseOrder',
             controller: 'jwTransformationPurchaseOrderController'
@@ -76,5 +76,9 @@ function JobWorkConfig($routeProvider, $locationProvider) {
             controller: 'jwPOIssueController'
         })
         //--------------------
+        .when('/outsource-billing-post', {
+            templateUrl: 'JobWork/OutSourceBillingPost/aplos',
+            controller: 'OutsourceBillingPostController'
+        })
         ;
 }

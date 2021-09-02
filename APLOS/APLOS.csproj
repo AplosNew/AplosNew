@@ -637,6 +637,7 @@
     <Compile Include="Areas\JobWork\Controllers\JobWorkIssueReturnController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkItemController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkLocationController.cs" />
+    <Compile Include="Areas\JobWork\Controllers\OutSourceBillingPostController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkReceiveBillingController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkReceiptValueAddedController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkRegisterController.cs" />
@@ -1852,6 +1853,7 @@
     <Content Include="Areas\JobWork\Scripts\JobWorkIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkItemController.js" />
     <Content Include="Areas\JobWork\Scripts\jobWorkLocationController.js" />
+    <Content Include="Areas\JobWork\Scripts\OutsourceBillingPostController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkReceipBillingController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkReceiptValueAddedController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkRegisterController.js" />
@@ -3663,6 +3665,8 @@
     <Content Include="Areas\Accounts\Views\GLItem\_InventoryInTransitGL.cshtml" />
     <Content Include="Areas\Accounts\Views\_PartyFiscalInvoiceAmountPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\TaxReport\GSTPayableReport.cshtml" />
+    <Content Include="Areas\JobWork\Views\OutsourceBillingPost\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\OutsourceBillingPost\_OutsourceBillingPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

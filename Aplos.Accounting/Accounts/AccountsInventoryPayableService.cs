@@ -4108,7 +4108,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                     , Particular= P.UserName
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
-	                                ,VD.DrAmount Amount
+	                          ,V.Id VoucherId ,VD.DrAmount Amount
 									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
@@ -4126,7 +4126,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                     , Particular= P.UserName
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
-	                                ,VD.DrAmount Amount
+	                           ,V.Id VoucherId	     ,VD.DrAmount Amount
 									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
@@ -4144,7 +4144,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                     , Particular= P.UserName
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
-	                                ,VD.DrAmount Amount
+	                               ,V.Id VoucherId ,VD.DrAmount Amount
 									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
