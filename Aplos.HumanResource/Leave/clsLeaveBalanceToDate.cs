@@ -39,12 +39,13 @@ namespace Library.HumanResource.Leave
             try
             {
                 string strSQL = string.Empty;
-                strSQL = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.BudgetCode,E.UserName EntityName,LGD.UserName Designation,
+                strSQL = @"SELECT p.Id PlantId,p.UserName Plant,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.BudgetCode,E.UserName EntityName,LGD.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
                                         , L.UserName Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,ec.UserName EmpCategory,
                                         EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
                                         FROM EmployeeInformation EMP
+                                        Left join ORG.Plant p on p.Id = emp.PlantId
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
@@ -57,7 +58,7 @@ namespace Library.HumanResource.Leave
 										left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
 										 left join HKP.Designation DeG on DeG.Id=dm.DesignationId
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
-                                        WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' 
+                                        WHERE emp.PlantID in (" + plantId + @")  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' 
                                         and EMP.DOJ <= ( '" + _ToDate + @"') and (emp.DOS is null or emp.DOS >= '" + _FromDate + @"')
                                         ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
                 return _sqlRepository.GetDataCollection(strSQL);
@@ -93,8 +94,8 @@ namespace Library.HumanResource.Leave
             }
 
             workbook.Version = ExcelVersion.Excel2016;
-            objRpt.SelectedPlantWiseCompany(PlantId, out dsCmp);
-            objRpt.SelectedPlant(PlantId, out dsFactory);
+            objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
+            objRpt.SelectedPlant(identity.PlantId, out dsFactory);
             var sheet = workbook.Worksheets[0];
 
             sheet.Name = "LeaveRegisterReport";
@@ -116,6 +117,10 @@ namespace Library.HumanResource.Leave
 
             report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 25, ExcelHAlign.HAlignLeft);
             int ColEmployeeName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 25, ExcelHAlign.HAlignLeft);
+            int ColPlant = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "DOJ", 25, ExcelHAlign.HAlignLeft);
@@ -183,6 +188,7 @@ namespace Library.HumanResource.Leave
             {
                 sheet[ROW, ColEmployeeCode].Text = item.EmployeeCode;
                 sheet[ROW, ColEmployeeName].Text = item.EmployeeName;
+                sheet[ROW, ColPlant].Text = item.PlantName;
                 sheet[ROW, ColDoj].Text = item.DOJ;
                 sheet[ROW, ColLegalDesignation].Text = item.Designation;
                 sheet[ROW, ColDepartment].Text = item.Department;
@@ -385,6 +391,7 @@ namespace Library.HumanResource.Leave
                         //drLocal["EmployeeCode"] = dsLvAllo.Tables[0].Rows[i]["EmployeeCode"].ToString().Trim();
                         _ob_r.EmployeeCode = _ob_source.EmployeeCode;
                         _ob_r.EmployeeName = _ob_source.EmployeeName;
+                        _ob_r.PlantName = _ob_source.PlantName;
                         _ob_r.DOJ = _ob_source.DOJ;
                         //drLocal["EmployeeName"] = dsLvAllo.Tables[0].Rows[i]["EmployeeName"].ToString().Trim();
                         _ob_r.Designation = _ob_source.Designation;
@@ -644,7 +651,7 @@ namespace Library.HumanResource.Leave
                 parameters = new GridParameter
                 {
                     ExportType = "DATASET",
-                    CmdText = @"SELECT	els.CalanderYearID,EMP.EmployeeName,EMP.EmployeeCode, D.UserName Designation, DEPT.UserName Department, ec.UserName EmployeeCategory, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed,
+                    CmdText = @"SELECT	els.CalanderYearID,PL.Id PlantId,PL.UserName PlantName,EMP.EmployeeName,EMP.EmployeeCode, D.UserName Designation, DEPT.UserName Department, ec.UserName EmployeeCategory, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed,
 										 els.Id SystemID,format(EMP.DOJ,'dd-MMM-yyyy')DOJ,
                                          els.LeaveTypeId LTSystemID,
                                          els.EmployeeID,
@@ -700,7 +707,7 @@ namespace Library.HumanResource.Leave
 ELSE CONVERT(BIT,0) END  ---No
 
 ----------------------------------------------------------------------------------------------------------------------
-                                          FROM (select * from trn.EmployeeLeaveSummary where CalanderYearId='" + calYearId + @"' and PlantId ='"+ sPlantID +@"' --and EmployeeId IN( '206835','206828' )
+                                          FROM (select * from trn.EmployeeLeaveSummary where CalanderYearId in (select Id from YearlyCalendar where PlantId in (" + sPlantID + @") and YearNo =year('"+ ToDate + "')) and PlantId in (" + sPlantID + @") --and EmployeeId IN( '206835','206828' )
 										  ) els
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
 										 left outer join (
@@ -752,7 +759,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                                  )--1
 												 ltd on ltd.LTSystemID = lt.Id and ltd.empsystemid=els.EmployeeId
 
-										left JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId and els.PlantId ='" + sPlantID + @"' 
+										left JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId and els.PlantId in (" + sPlantID + @") 
 										LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
@@ -767,7 +774,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 												(emp.DOJ <= '" + _ToDate + @"') 
 												--and els.EmployeeID IN( '206835','206828' )
                                               AND 
-											  CalanderYearID = '" + calYearId + @"'
+											  CalanderYearID in(select Id from YearlyCalendar where PlantId in (" + sPlantID + @")  and YearNo =year('" + ToDate + @"'))
                                               --AND els.LeaveTypeId IN 
                                             --(select id from LeaveType where IsGeneral=1 or IsESIC = 1) 
                                             AND lt.LeaveType <>'Maternity' and lt.Code in('CL','PL')
@@ -960,7 +967,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 																										FROM MST.DesignationMaster DM
 																										LEFT JOIN SCS.DesignationMasterConfiguration DC 
 																													ON DM.Id=DC.DesignationMasterId
-																						where dc.plantid='" + sPlantID + @"'
+																						where dc.plantid in (" + sPlantID + @")
 
 																		 ) dm where dm.DesignationId =(select givendesignationId 
 																									 from dbo.EmployeeInformation 
@@ -979,15 +986,15 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                                        (
                                                          SELECT LTSystemID FROM dbo.LeavePolicyDetail AS LPD
                                                       LEFT JOIN  (SELECT DC.LeavePolicyMasterId,DM.DesignationId FROM MST.DesignationMaster DM
-                                    LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId WHERE DC.PlantId='" + sPlantID + @"') AS DM ON DM.LeavePolicyMasterId=LPD.LPMSystemID
+                                    LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId WHERE DC.PlantId in (" + sPlantID + @")) AS DM ON DM.LeavePolicyMasterId=LPD.LPMSystemID
                                                       LEFT JOIN dbo.EmployeeInformation AS EI ON EI.GivenDesignationId=DM.DesignationId
-                                                      WHERE EI.SystemID='" + EmpSystemID + @"' AND EI.GroupID='" + sGroupID + @"' AND EI.PlantID='" + sPlantID + @"'
+                                                      WHERE EI.SystemID='" + EmpSystemID + @"' AND EI.GroupID='" + sGroupID + @"' AND EI.PlantID in (" + sPlantID + @")
                                                        )
                                                     AND
                                                     EPLT.ESICPolicyMasterID IN (
                                                      SELECT DM.ESICPolicyMasterID FROM (SELECT DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
                                     LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
-                                    WHERE DC.PlantId='" + sPlantID + @"') DM
+                                    WHERE DC.PlantId in (" + sPlantID + @")) DM
                                                      WHERE DM.DesignationId IN (
                                                       SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'
                                                       )
@@ -1105,7 +1112,7 @@ ELSE CONVERT(BIT,0) END  ---No
 																										FROM MST.DesignationMaster DM
 																										LEFT JOIN SCS.DesignationMasterConfiguration DC 
 																													ON DM.Id=DC.DesignationMasterId
-																						where dc.plantid='" + sPlantID + @"'
+																						where dc.plantid in (" + sPlantID + @")
 
 																		 ) dm where dm.DesignationId =(select givendesignationId 
 																									 from dbo.EmployeeInformation 

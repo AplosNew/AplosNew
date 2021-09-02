@@ -60,13 +60,17 @@ namespace Aplos.Areas.Leave.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult GetEmp(string YearId,string ToDate)
+        public ActionResult GetEmp(string YearId,string ToDate,string PlantId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string PlantsId = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
                 clsLeaveBalanceToDate ep = new clsLeaveBalanceToDate();
-                return Json(ep.GetEmp(identity.PlantId, identity.CompanyId, YearId,ToDate), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(ep.GetEmp(PlantsId, identity.CompanyId, YearId,ToDate), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+
+                return jsondata;
             }
             catch (Exception ex)
             {
@@ -75,13 +79,14 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetLeaveBalance(string year, string empId,string ToDate)
+        public ActionResult GetLeaveBalance(string year, string empId,string ToDate,string PlantId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string PlantsId = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
                 clsLeaveBalanceToDate ep = new clsLeaveBalanceToDate();
-                return Json(ep.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, empId, year,ToDate), JsonRequestBehavior.AllowGet);
+                return Json(ep.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, PlantsId, empId, year,ToDate), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -92,14 +97,15 @@ namespace Aplos.Areas.Leave.Controllers
         #region Report
 
         [HttpGet, Authorize]
-        public ActionResult GetReport(ReportFormat reportFormat, string Year,string ToDate)
+        public ActionResult GetReport(ReportFormat reportFormat, string Year,string ToDate,string PlantId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string PlantsId = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
                 clsLeaveBalanceToDate ep = new clsLeaveBalanceToDate();
                 var reportFileName = "Leave Register Report";
-                var workbook = ep.XlsLeaveBalanceRpt(identity.PlantId, identity.CompanyId ,Year,ToDate);
+                var workbook = ep.XlsLeaveBalanceRpt(PlantsId, identity.CompanyId ,Year,ToDate);
                 switch (reportFormat)
                 {
                     case ReportFormat.Pdf:
