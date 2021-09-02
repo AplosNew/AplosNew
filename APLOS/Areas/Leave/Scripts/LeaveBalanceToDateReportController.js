@@ -36,9 +36,9 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
         try {
             var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
             var PlantId = DropDownListObj.getSelectedValue();
-            if ($scope.YearId == "" || $scope.YearId == null) {
-                throw "Select Year";
-            }
+            //if ($scope.YearId == "" || $scope.YearId == null) {
+            //    throw "Select Year";
+            //}
             if ($scope.selectedValues.ToDate == "" || $scope.selectedValues.ToDate == null) {
                 throw "Select Date";
             }
@@ -53,9 +53,9 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
     $scope.EmpData = [];
     $scope.LoadData = function () {
         try {
-            if ($scope.YearId == "" || $scope.YearId == null) {
-                throw "Select Year";
-            }
+            //if ($scope.YearId == "" || $scope.YearId == null) {
+            //    throw "Select Year";
+            //}
 
             if ($scope.selectedValues.ToDate == "" || $scope.selectedValues.ToDate == null) {
                 throw "Select Date";

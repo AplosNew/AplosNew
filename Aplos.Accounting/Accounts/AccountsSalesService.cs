@@ -852,7 +852,7 @@ namespace Library.Accounting.Accounts
 
 		private Dictionary<string, object> GetCompanyPartyGroup(string partyId, string plantId)
 		{
-			var cmdText = @"select PartyAccountGroupId FROM HKP.CompanyParty where PartyId = '" + partyId + "' AND PlantId='" + plantId + @"' and PartyType='Vendor'";
+			var cmdText = @"select PartyAccountGroupId FROM HKP.CompanyParty where PartyId = '" + partyId + "' AND PlantId='" + plantId + @"' and PartyType='Customer'";
 			return _sqlRepository.GetData(cmdText);
 		}
 		public IEnumerable<object> GetBudgetActivityInSalesMaterial(string companyId, string plantId, string inveReveiveId, string partyId)

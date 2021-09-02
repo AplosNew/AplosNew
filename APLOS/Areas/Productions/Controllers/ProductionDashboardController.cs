@@ -68,6 +68,19 @@ namespace Aplos.Areas.Productions.Controllers
             }
 
         }
+        [HttpPost, Authorize]
+        public ActionResult GetProductionBookingPeriod()
+        {
+            try
+            {
+                var _master = _sqlRepository.GetDataCollection("select Id ProductionBookingPeriodId,UserName ProductionBookingPeriod From HKP.ProductionBookingPeriod order by Sequence");
+                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         [HttpGet, Authorize]
         public ActionResult GetAllCompaniesAndPlants()
         {
