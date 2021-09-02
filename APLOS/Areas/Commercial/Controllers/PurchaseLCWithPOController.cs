@@ -67,7 +67,7 @@ namespace Aplos.Areas.Commercial.Controllers
                          FORMAT(PLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate, PLC.Amount, PLC.[Type], PLC.Tenure, PLC.CurrencyId, PLC.Rate, PLC.FinalDestination, 
                          PLC.PortOfLandingId, PLC.[Status], PLC.AddedBy, FORMAT(PLC.AddedDate,'dd-MMM-yyyy') AddedDate, PLC.AddedFromIP, PLC.UpdatedBy, FORMAT(PLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, PLC.UpdatedFromIP
 						,P.UserName PartyName, OB.AccountTitle OpeningBank,CN.Code Currency,PLC.LCANo,PLC.LIBOUR,PLC.InsuranceCoverNoteNo,PLC.InsuranceAttachment,PLC.PaymentBasedOn,C.ContractNo , PLC.InsuranceValue,PLC.IsAccepptanceFirst,PLC.PortOfLoading,PT.UserName CustomerName
-						,FORMAT(PLC.ShipmentDate,'dd-MMM-yyyy') ShipmentDate,PLC.PINo,OB.CurrencyId BankCurrency,MLC.LCRef MasterLCNo,C.Description
+						,FORMAT(PLC.ShipmentDate,'dd-MMM-yyyy') ShipmentDate,PLC.PINo,OB.CurrencyId BankCurrency,MLC.LCRef MasterLCNo,C.Remarks
 						 FROM [dbo].[PurchaseLC] PLC
                         LEFT JOIN dbo.[Contract] C ON C.Id=PLC.ContractId
                         LEFT JOIN dbo.MasterLC MLC ON MLC.Id=C.MasterLCId
