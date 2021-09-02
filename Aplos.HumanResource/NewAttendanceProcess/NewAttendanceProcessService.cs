@@ -2998,27 +2998,42 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                
                 IF @WeekNo='1'
                 begin
-                select PlantID,'"+Date+@"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
-                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as WeekOT
-                from OTLimitSetting where PlantID='"+PlantId+ @"' AND UserName='OT Time Setting (W-1)'  
+                select o.RowId,o.PlantID,'"+Date+ @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
+                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as NormalDayOT from OTProcessDayLimit O 
+                left join org.Plant p 
+                on p.Id=o.PlantID left join 
+                OTLimitSetting ol on ol.PlantID=p.Id
+                where o.PlantID='" + PlantId+ @"' AND ol.UserName='OT Time Setting (W-1)'
                 end
+
                 Else IF @WeekNo='2'
                 begin
-                select PlantID,'" + Date + @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
-                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as WeekOT
-                from OTLimitSetting where PlantID='" + PlantId + @"' AND UserName='OT Time Setting (W-2)'  
+                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
+                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as NormalDayOT from OTProcessDayLimit O 
+                left join org.Plant p 
+                on p.Id=o.PlantID left join 
+                OTLimitSetting ol on ol.PlantID=p.Id
+                where o.PlantID='" + PlantId + @"' AND ol.UserName='OT Time Setting (W-2)'
                 end
+
                 Else IF @WeekNo='3'
                 begin
-                select PlantID,'" + Date + @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
-                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as WeekOT
-                from OTLimitSetting where PlantID='" + PlantId + @"' AND UserName='OT Time Setting (W-3)'  
+                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
+                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as NormalDayOT from OTProcessDayLimit O 
+                left join org.Plant p 
+                on p.Id=o.PlantID left join 
+                OTLimitSetting ol on ol.PlantID=p.Id
+                where o.PlantID='" + PlantId + @"' AND ol.UserName='OT Time Setting (W-3)'
                 end
+
                 else
                 begin
-                select PlantID,'" + Date + @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
-                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as WeekOT
-                from OTLimitSetting where PlantID='" + PlantId + @"' AND UserName='OT Time Setting (W-4)'  
+                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
+                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as NormalDayOT from OTProcessDayLimit O 
+                left join org.Plant p 
+                on p.Id=o.PlantID left join 
+                OTLimitSetting ol on ol.PlantID=p.Id
+                where o.PlantID='" + PlantId + @"' AND ol.UserName='OT Time Setting (W-4)'
                 end";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -3875,25 +3890,24 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                     #endregion
 
                     #region WeeklyOT Entry
-                    DataSet WeekOT;
-                    WeekLimitOTSource(PreviousDay, out WeekOT, PlantValue);
-                    if (WeekOT.Tables[0].Rows.Count > 0)
+                    DataSet WeekOTSource;
+                    WeekLimitOTSource(PreviousDay, out WeekOTSource, PlantValue);
+                    if (WeekOTSource.Tables[0].Rows.Count > 0)
                     {
-                        var WkDate = WeekOT.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-                        var PlantId = FixedOTSetting.Tables[0].Rows[0][@"PlantId"].ToString();
+                        var WkDate = WeekOTSource.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        var PlantId = WeekOTSource.Tables[0].Rows[0][@"PlantID"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "' and isnull(DayType,'')!=''", out DataSet dsRef, false, false, "", "1");
 
-                        for (int i = 0; i < FixedOTSetting.Tables[0].Rows.Count; i++)
+                        for (int i = 0; i < WeekOTSource.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = FixedOTSetting.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                            string WeekOffOT = FixedOTSetting.Tables[0].Rows[i][@"WeekOffOT"].ToString();
-                            string NormalDayOT = FixedOTSetting.Tables[0].Rows[i][@"NormalDayOT"].ToString();
-                            string HolidayOT = FixedOTSetting.Tables[0].Rows[i][@"HolidayOT"].ToString();
+                            string RowId = WeekOTSource.Tables[0].Rows[i][@"RowId"].ToString();
+                            string WeekOffOT = WeekOTSource.Tables[0].Rows[i][@"WeekOffOT"].ToString();
+                            string NormalDayOT = WeekOTSource.Tables[0].Rows[i][@"NormalDayOT"].ToString();
+                            string HolidayOT = WeekOTSource.Tables[0].Rows[i][@"HolidayOT"].ToString();
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
@@ -3903,15 +3917,15 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                     dr.BeginEdit();
                                     if (DayType == "H")
                                     {
-                                        dr["FixedOT"] = HolidayOT;
+                                        dr["LimitSettingOT"] = HolidayOT;
                                     }
                                     else if (DayType == "W")
                                     {
-                                        dr["FixedOT"] = WeekOffOT;
+                                        dr["LimitSettingOT"] = WeekOffOT;
                                     }
                                     else
                                     {
-                                        dr["FixedOT"] = NormalDayOT;
+                                        dr["LimitSettingOT"] = NormalDayOT;
                                     }
 
                                     dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
