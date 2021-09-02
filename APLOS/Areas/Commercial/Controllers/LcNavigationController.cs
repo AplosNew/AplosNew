@@ -592,7 +592,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (  select
+            string sql = @"select top 100 * from (select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
@@ -607,12 +607,12 @@ namespace Aplos.Areas.Commercial.Controllers
 						,PO.JWPOAmount
 						,PO.POCount
                         ,PL.AddedDate
-                        ,ac.AcceptanceValue
-						,invpy.InvPayment SetOff 
-						,Loan.Amount Loan
-						,LoanSetOff.LoanSetOff
+                        ,Isnull(ac.AcceptanceValue,0) AcceptanceValue
+						,Isnull(invpy.InvPayment,0) SetOff 
+						,Isnull(Loan.Amount,0) Loan
+						,Isnull(LoanSetOff.LoanSetOff,0) LoanSetOff
 						,ac.AcceptanceCount
-						,grn.GRNTotalAmount as GRNValue
+						,ISNULL(grn.GRNTotalAmount,0) as GRNValue
                         ,grn.GRNCount
 	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
 						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END ,
@@ -633,6 +633,8 @@ namespace Aplos.Areas.Commercial.Controllers
                         left outer join MST.Destination as D on PL.CurrencyId=D.Id
                         left outer join HKP.Party as P on PL.VendorId = p.Id
 						left outer join MasterLC ML on ML.Id=con.MasterLCId
+						left outer  join (Select COUNT(Id) AcceptanceCount,AcceptanceAmount AcceptanceValue,PurchaseLCId from TRN.PurchaseDocAcceptance GROUP BY AcceptanceAmount,PurchaseLCId) AC on AC.PurchaseLCId=PL.Id
+
                         left join (
 						        select k.PurchaseLCId,sum(MaterialPOAmount) AS MaterialPOAmount,sum(JWPOAmount) AS JWPOAmount,sum(ServicePOAmount) AS ServicePOAmount
 								,count(distinct k.Id) AS POCount from (  
@@ -671,12 +673,7 @@ namespace Aplos.Areas.Commercial.Controllers
 									group by po.PurchaseLCId
 
                         ) as grn on grn.LCId = PL.Id 
-                        left join (
-									select sum(AD.TotalMaterialTranAmount) as AcceptanceValue,A.PurchaseLCId,count(distinct A.Id) AcceptanceCount  from TRN.PurchaseDocAcceptanceDetail as AD
-									 inner join trn.PurchaseDocAcceptance as A on A.Id=AD.PurchaseDocAcceptanceId
-									group by A.PurchaseLCId
-                        ) as ac on ac.PurchaseLCId = PL.Id
-
+                       
 	left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount
 										from TRN.LoanAgainstAcceptance LAA 
 											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId											
