@@ -6290,7 +6290,7 @@ namespace Library.Service.Invoices
                     voucherWiP.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + voucherWiP.Id;
                     _voucherService.InsertVoucher(voucherWiP, voucherVM.FiscalYearPrefix);
                     var currentVoucherDetaiRecord = 0;
-                    foreach (var voucherDetailVMWIP in changeInInventoryList.Where(r => r.Amount > 0))
+                    foreach (var voucherDetailVMWIP in inventoryJobWorkWIPList.Where(r => r.Amount > 0))
                     {
                         if (voucherDetailVMWIP.TrnType == "Dr")
                         {
