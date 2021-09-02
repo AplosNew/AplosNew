@@ -15,14 +15,14 @@
                                  e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
                                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                                 <div e-columns>
-                                    <div e-column e-field="Id" e-headertext="ContractId" e-width="50"></div>
-                                    <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
-                                    <div e-column e-field="UDNo" e-headertext="UD No" e-width="100"></div>
-                                    <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
-                                    <div e-column e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
-                                    <div e-column e-field="MasterOrderId" e-headertext="MasterOrder No" e-width="150"></div>
+                                    <div e-column e-type="string" e-field="Id" e-headertext="ContractId" e-width="50"></div>
+                                    <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                    <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
+                                    <div e-column e-type="string" e-field="MasterOrderId" e-headertext="MasterOrder No" e-width="150"></div>
                                     <div e-column e-field="IsLC" e-headertext="IsLC" e-width="50"></div>
-
+                                    <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="100"></div>
 
                                     <div e-column e-headertext="Actions" e-width="100">
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Details" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.MasterOrderReport(this);"></i></button>
@@ -32,17 +32,17 @@
                                     </div>
 
                                     @*<div e-column e-headertext="Summary" e-width="30">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.GetDetailsReport(this);" style="margin: -6px;"></i></button>
+            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.GetDetailsReport(this);" style="margin: -6px;"></i></button>
 
-                                        </div>
-                                        <div e-column e-headertext="Proforma" e-width="30">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport(this);" style="margin: -6px;"></i></button>
+        </div>
+        <div e-column e-headertext="Proforma" e-width="30">
+            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport(this);" style="margin: -6px;"></i></button>
 
-                                        </div>
-                                        <div e-column e-headertext="Proform" e-width="30">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport1(this);" style="margin: -6px;"></i></button>
+        </div>
+        <div e-column e-headertext="Proform" e-width="30">
+            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.ProformaInvoiceReport1(this);" style="margin: -6px;"></i></button>
 
-                                        </div>*@
+        </div>*@
                                 </div>
                             </div>
                         </div>
