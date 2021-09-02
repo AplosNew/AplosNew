@@ -702,7 +702,9 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.Save1 = function () {
         try {
-
+            if (baseService.isUndefinedOrNull($scope.PurchaseDocAcceptance.AcceptanceAmount)) {
+                throw "Acceptance Amount is required.";
+            }
             $scope.CalculateMaterialAmount();
             if ($scope.productNew.AcceptanceFirst == 'Yes') {
                 $scope.inventoryMaterialListPOnew = [];
@@ -715,6 +717,9 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
                 $scope.$broadcast('show-errors-check-validity');
                 if ($scope.productNewForm.$valid) {
+                    if ($scope.PurchaseDocAcceptance.AcceptanceAmount > $scope.TotalPOAmount) {
+                        throw "Acceptance Amount can't greater than Total PO Amount.";
+                    }
                     if ($scope.Action === 'Save') {
                         var mlsd = mlsddate.setDate(mlsddate.getDate() + $scope.Tenure);
                         $scope.PurchaseDocAcceptance.DueDate = $filter('dateFiltering')(new Date(mlsd), 'dd-MM-yyyy');
@@ -837,9 +842,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 }
             }
             else {
-                if (baseService.isUndefinedOrNull($scope.PurchaseDocAcceptance.AcceptanceAmount)) {
-                    throw "Acceptance Amount is required.";
-                }
+
                 if ($scope.PurchaseDocAcceptance.AcceptanceAmount > $scope.TotalGRNAmount) {
                     throw "Acceptance Amount can't greater than Total GRN Amount.";
                 }
@@ -1161,6 +1164,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.GetDataDoubleClickDetails = [];
     $scope.getRecordDoubleClickDetail = function (Id) {
+        $scope.TotalPOAmount = 0;
         $scope.seletedLST = [];
         $scope.getPOList();
         $scope.GetDataDoubleClickDetails = [];
@@ -1204,10 +1208,9 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             //var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.serviceList), 'Amount');
             //var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount');
 
-            //for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-            //    $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = ((parseFloat(TotalServiceAmount) / parseFloat(TotalTrnAmount)) * $scope.inventoryMaterialListPO[i].TrnAmount) + $scope.inventoryMaterialListPO[i].TrnAmount + $scope.inventoryMaterialListPO[i].TaxAmount;
-            //    $scope.inventoryMaterialListPO[i].ChargesTranAmount = ((parseFloat(TotalServiceAmount) / parseFloat(TotalTrnAmount)) * $scope.inventoryMaterialListPO[i].TrnAmount);
-            //}
+            for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
+                $scope.TotalPOAmount += $scope.inventoryMaterialListPO[i].TrnAmount;
+            }
 
         });
     };
@@ -1481,15 +1484,22 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         var i = $scope.GridListPO.length;
         while (i--) {
             if ($scope.GridListPO[i].Active === true) {
-                //if (checkExistPOId($scope.seletedLST, $scope.GridListPO[i].POId)) {
-                $scope.PurchaseDocAcceptance.AcceptanceAmount += $scope.GridListPO[i].TotalMaterialTranAmount;
-                //}
+                if ($scope.productNew.AcceptanceFirst == 'Yes') {
+                    $scope.PurchaseDocAcceptance.AcceptanceAmount += $scope.GridListPO[i].TransactionAmount;
+                }
+                else {
+                    $scope.PurchaseDocAcceptance.AcceptanceAmount += $scope.GridListPO[i].TotalMaterialTranAmount;
+                }
                 $scope.seletedLST.push($scope.GridListPO[i]);
                 $scope.GridListPO[i].Active === false;
                 $scope.GridListPO.splice(i, 1);
             }
         }
-        $scope.TotalGRNAmount = $scope.PurchaseDocAcceptance.AcceptanceAmount;
+        if ($scope.productNew.AcceptanceFirst == 'Yes') {
+            $scope.TotalPOAmount = $scope.PurchaseDocAcceptance.AcceptanceAmount;
+        } else {
+            $scope.TotalGRNAmount = $scope.PurchaseDocAcceptance.AcceptanceAmount;
+        }
     }
 
     function checkExistPOId(list, POId) {
@@ -2048,6 +2058,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.ServicePODetailList = [];
         $scope.SavedServicePODetailList = [];
         $scope.TotalGRNAmount = 0;
+        $scope.TotalPOAmount = 0;
     }
     $scope.productNew = {
         FixedAssetOrInventory: 'Inventory'
