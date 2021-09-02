@@ -2934,7 +2934,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select EmpSystemID,WorkDate,PreallocatedOTHr as 
+                var sql = @"select EmpSystemID,WorkDate,PreallocatedOTHr*60 as 
                 PreAllocatedOTMinutes,PlantID
                 from [dbo].[PreallocatedOT] where WorkDate='" + Date + @"'
                 and PlantID='" + PlantId + "' and ISNULL(ExtendTheDayLimit,'')! =''";
@@ -2953,8 +2953,8 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
             try
             {
                 var sql = @"Select EmpSystemId,'" + Date + @"' AS WorkDate,PlantId,
-                MaximumOTLimitPerWeekend as WeekOffOT,MaximumOTLimitPerHoliDay AS HolidayOT,
-                MaximumOTLimitPerWeekDay AS NormalDayOT
+                MaximumOTLimitPerWeekend*60 as WeekOffOT,MaximumOTLimitPerHoliDay*60 AS HolidayOT,
+                MaximumOTLimitPerWeekDay*60 AS NormalDayOT
                 from EmployeeWiseFixedOTSetting 
                 WHERE PlantId='" + PlantId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -2972,11 +2972,11 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
             try
             {
                 var sql = @"select O.RowId,o.PlantID,o.EmpSystemID,
-                Format(o.WorkDate,'yyyy-MMM-dd')WorkDate,s.firstSlab
+                Format(o.WorkDate,'yyyy-MMM-dd')WorkDate,s.firstSlab*60 as firstSlab
                 from OTProcessDayLimit o 
                 left join org.Plant p on o.PlantID=p.Id left join
                 OTSlabDefineGeneral s on s.PlantID=p.Id and s.DayType=o.DayType
-                where p.Id='"+PlantId+"' and o.WorkDate='"+Date+"'";
+                where p.Id='" + PlantId+"' and o.WorkDate='"+Date+"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
