@@ -540,6 +540,7 @@
     <Compile Include="Areas\HumanResource\Controllers\AttendanceSourceConfigController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeBudgetUpdateController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\NewAttdnDashboardController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\NewHRDashboardController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTUpdateConfigurationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DayStatusMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionProcessController.cs" />
@@ -636,6 +637,7 @@
     <Compile Include="Areas\JobWork\Controllers\JobWorkIssueReturnController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkItemController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkLocationController.cs" />
+    <Compile Include="Areas\JobWork\Controllers\OutSourceBillingPostController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkReceiveBillingController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkReceiptValueAddedController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkRegisterController.cs" />
@@ -1786,6 +1788,7 @@
     <Content Include="Areas\HumanResource\Scripts\AttendanceSourceConfig.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeBudgetUpdateController.js" />
     <Content Include="Areas\HumanResource\Scripts\NewAttdnDashboardController.js" />
+    <Content Include="Areas\HumanResource\Scripts\NewHRDashboardController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTUpdateConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionProcessController.js" />
@@ -1850,6 +1853,7 @@
     <Content Include="Areas\JobWork\Scripts\JobWorkIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkItemController.js" />
     <Content Include="Areas\JobWork\Scripts\jobWorkLocationController.js" />
+    <Content Include="Areas\JobWork\Scripts\OutsourceBillingPostController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkReceipBillingController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkReceiptValueAddedController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkRegisterController.js" />
@@ -3657,9 +3661,12 @@
     <Content Include="Areas\HumanResource\Views\EmployeeBudgetUpdate\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\AttendanceDashboard\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttdnProcessLock\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\NewHRDashboard\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\GLItem\_InventoryInTransitGL.cshtml" />
     <Content Include="Areas\Accounts\Views\_PartyFiscalInvoiceAmountPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\TaxReport\GSTPayableReport.cshtml" />
+    <Content Include="Areas\JobWork\Views\OutsourceBillingPost\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\OutsourceBillingPost\_OutsourceBillingPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3738,6 +3745,8 @@
     <Content Include="POPResources\Templates\JWIssue202026.docx" />
     <Content Include="POPResources\Templates\JWPurchaseOrder202026.docx" />
     <Content Include="POPResources\Templates\InventorySalesReport202032.docx" />
+    <Content Include="POPResources\Templates\JWPurchaseOrder20202.docx" />
+    <Content Include="POPResources\Templates\JWIssue20202.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

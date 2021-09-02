@@ -90,7 +90,7 @@ namespace Library.MaterialManagement.Inventory
 							 ,PLC.VendorId PartyId
 							 ,PP.Id PartyPlantId, PP.UserName PartyPlant,PLC.LCRef,PLC.CurrencyId,CN.Code CurrencyName,PLC.Tenure,PLC.OpeningBankMasterId
 							 ,BM.CurrencyId LCOBCurrencyId,BMC.Code OBCurrencyCode,ISNULL(C.ContractNo,'')ContractNo,AcceptanceFirst=CASE WHEN PLC.IsAccepptanceFirst=1 THEN 'Yes' ELSE 'No' END
-							  ,ISNULL(PT.UserName,'') CustomerName,ISNULL(C.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,PLC.Amount
+							  ,ISNULL(PT.UserName,'') CustomerName,ISNULL(C.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,PLC.Amount LCAmount
                     FROM dbo.PurchaseLC PLC  
                     LEFT JOIN dbo.[Contract] C On C.Id=PLC.ContractId
                     LEFT JOIN dbo.[MasterLC] MLC ON MLC.Id=C.MasterLCId
@@ -122,8 +122,11 @@ namespace Library.MaterialManagement.Inventory
                                             , P.UserName AS PartyName
                                             , IR.MaterialStorageId, IR.DocRefNo
                                             , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+                                            ,PD.TransactionAmount
                                             ,0 AS 'Active'
-                                            FROM [TRN].[PurchaseOrder] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                                            FROM [TRN].[PurchaseOrder] AS IR 
+                                            JOIN (SELECT SUM(TransactionAmount) TransactionAmount,InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId) PD ON PD.InventoryReceiveId=IR.Id
+                                            JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                                             LEFT JOIN dbo.PurchaseLC PLC ON PLC.id= IR.PurchaseLCId
                                             LEFT JOIN [MST].[BankMaster] BM ON BM.Id=PLC.OpeningBankMasterId
                                            WHERE IR.PlantId='" + plantId + @"' 
@@ -136,8 +139,11 @@ namespace Library.MaterialManagement.Inventory
                                             , P.UserName AS PartyName
                                             , IR.MaterialStorageId, IR.DocRefNo
                                             , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+                                            ,PD.TransactionAmount
                                             ,0 AS 'Active'
-                                            FROM [TRN].[ServicePOMaster] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                                            FROM [TRN].[ServicePOMaster] AS IR 
+                                            JOIN (SELECT SUM(Amount) TransactionAmount,ServicePOMasterId FROM [TRN].[ServicePODetail] GROUP BY ServicePOMasterId) PD ON PD.ServicePOMasterId=IR.Id
+                                            JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                                             LEFT JOIN dbo.PurchaseLC PLC ON PLC.id= IR.PurchaseLCId
                                             LEFT JOIN [MST].[BankMaster] BM ON BM.Id=PLC.OpeningBankMasterId
                                            WHERE IR.PlantId='" + plantId + @"'
@@ -157,33 +163,17 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
-                var Sql = @"SELECT  IR.Id
-                                , P.UserName AS PartyName
-                                , IRD.POId,IRD.PODocRefNo, IR.DocRefNo
-                                , REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                                ,IR.GateEntryNo,C.Code Currency,CONVERT(NUMERIC(10,2),IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount,0 AS Active
-                                FROM [TRN].[InventoryReceive] AS IR 
-                          JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                          JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId                        
-                          JOIN 
-						  (Select SUM(A.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount,A.InventoryReceiveId
-						    ,PODocRefNo= STUFF((select distinct ','+PO.DocRefNo
-						   from TRN.POGGRNMap PG 
-                            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-							where PG.GRNId=A.InventoryReceiveId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-							 ,POId= STUFF((select distinct ','+PG.POId
-						   from TRN.POGGRNMap PG 
-                            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-							where PG.GRNId=A.InventoryReceiveId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                          FROM [TRN].[InventoryReceiveDetail] A
-						   JOIN TRN.POGGRNMap PG ON PG.GRNId=A.InventoryReceiveId
-                          LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId
-						  Where PO.PurchaseLCId='" + purchaseLCId + @"'
-						  GROUP BY InventoryReceiveId
-						  ) IRD ON IRD.InventoryReceiveId=IR.Id
-                          WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1
-                          AND IR.Id NOT IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)";
+                var Sql = @"SELECT Convert(bit,0) Active,IR.Id,RD.TotalMaterialTranAmount,PO.Id POId, PO.DocRefNo PODocRefNo,IR.DocRefNo
+                            ,P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+                            ,IR.GateEntryNo,C.Code Currency,POD.TransactionAmount
+                            FROM [TRN].[InventoryReceive] AS IR 
+                            JOIN (SELECT SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,InventoryReceiveId,POId FROM [TRN].[InventoryReceiveDetail] GROUP BY InventoryReceiveId,POId) RD ON RD.InventoryReceiveId=IR.Id
+                            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=RD.POId
+                            JOIN(SELECT SUM(TransactionAmount) TransactionAmount,InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId)POD ON POD.InventoryReceiveId=PO.Id
+                            JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                            JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId
+                            WHERE IR.PlantId='"+plantId+@"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1 AND PO.PurchaseLCId='"+purchaseLCId+@"'
+                            AND IR.Id NOT IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)";
                 return _sqlRepository.GetDataCollection(Sql);
             }
             catch (Exception ex)
@@ -1868,17 +1858,11 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
-                var sql = @"SELECT 
-                                 PDA.Id
-                                 ,REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate		
-                                 ,PDA.Remarks
-                                 ,PDA.AcceptanceNo,V.VoucherNo,PDA.VoucherId
-                                 ,PDA.InvoiceNo
-                                 ,PDAD.MaterialTranAmount Amount,PDA.PurchaseLCId,PDA.AcceptancePaymentSource,FORMAT(PDA.DueDate,'dd-MMM-yyyy') DueDate
-                                 ,FORMAT(PDA.InvoiceDate,'dd-MMM-yyyy')InvoiceDate,C.Code CurrencyName,PLC.CurrencyId, P.UserName Party,PDA.PurchaseLCId,PLC.ContractId,PDA.AcceptanceRate
+                var sql = @"SELECT PDA.Id, PDA.CompanyGroupId, PDA.CompanyId, PDA.PlantId, PDA.AcceptanceNo, FORMAT(PDA.EntryDate,'dd-MMM-yyyy') EntryDate, PDA.AddedBy, FORMAT(PDA.AddedDate,'dd-MMM-yyyy') AddedDate, PDA.AddedFromIP, PDA.UpdatedBy, FORMAT(PDA.UpdatedDate,'dd-MMM-yyyy') UpdatedFromIP, FORMAT(PDA.AcceptanceDate,'dd-MMM-yyyy')AcceptanceDate, PDA.POId, PDA.CheckedBy, PDA.CheckedByStatus, PDA.AuthorizedBy, PDA.AuthorizedByStatus, PDA.Remarks, PDA.PurchaseLCId, PDA.AcceptancePaymentSource, FORMAT(PDA.DueDate,'dd-MMM-yyyy') DueDate, FORMAT(PDA.InvoiceDate,'dd-MMM-yyyy') InvoiceDate, PDA.VoucherId, PDA.PartyId, PDA.PartyPlantId, PDA.AcceptanceRate, PDA.IsNonCreditable, PDA.InvoiceNo, PDA.PrePurchaseInvoiceId, PDA.ServiceVoucherId, PDA.AcceptanceAmount
+                                 ,V.VoucherNo,PDAD.MaterialTranAmount Amount,C.Code CurrencyName,PLC.CurrencyId, P.UserName Party,PLC.ContractId
                                  ,PLC.Tenure,PLC.OpeningBankMasterId,BM.CurrencyId LCOBCurrencyId,BMC.Code OBCurrencyCode
                                  ,NonCreditable =case when PDA.IsNonCreditable=1 then 'Yes' else 'No' end
-                                 ,PDA.IsNonCreditable,PLC.LCRef,CN.ContractNo,ISNULL(CN.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end,PCN.UserName CustomerName
+                                 ,PLC.LCRef,CN.ContractNo,ISNULL(CN.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end,PCN.UserName CustomerName,PLC.Amount LCAmount
                                  FROM TRN.PurchasedocAcceptance AS PDA
                                  LEFT JOIN(SELECT SUM(ISNULL(MaterialTranAmount,0)) MaterialTranAmount,PurchaseDocAcceptanceId 
                                  FROM  TRN.PurchasedocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id
@@ -2140,7 +2124,7 @@ namespace Library.MaterialManagement.Inventory
                     ,p.UserName PartyName, p.Id PartyId, PP.UserName PartyPlant, PP.Id PartyPlantId, PLC.OpeningBankMasterId, PLC.LCRef, PLC.CurrencyId
                    -- , PO.Id
 					, CN.Code CurrencyName, PLC.Tenure,AcceptanceFirst=CASE WHEN PLC.IsAccepptanceFirst=1 THEN 'Yes' ELSE 'No' END
-                    ,PCN.UserName CustomerName,CNT.ContractNo,CNT.UDNo,MLC.LCRef MasterLCRef
+                    ,PCN.UserName CustomerName,CNT.ContractNo,CNT.UDNo,MLC.LCRef MasterLCRef,PLC.Amount LCAmount
                     FROM dbo.PurchaseLC PLC
                     LEFT JOIN [MST].[BankMaster] BM ON BM.Id=PLC.OpeningBankMasterId
                     LEFT JOIN hkp.Party p ON p.id = PLC.VendorId

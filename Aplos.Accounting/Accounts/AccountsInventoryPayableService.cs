@@ -3960,13 +3960,13 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					var sql = @"DECLARE @receiveId varchar(10)= '"+ inveReveiveId + @"',@plantId varchar(10)='" + plantId + @"'
 
 						SELECT  'JobWork' AS OtherName, 'Dr' AS TrnType
-							,GLGeneralInfoId =SVGL.ExpenseGLId
+							,GLGeneralInfoId =SVGL.ServiceGLId
 							,GLGeneralInfoCode =GLF.AccountCode
 							,GLGeneralInfoName =GLF.UserName
-							,BudgetMasterId =SVGL.ExpenseBudgetMasterId
+							,BudgetMasterId =SVGL.ServiceBudgetMasterId
 							,BudgetCode =BF.Code
 							,BudgetName =BF.UserName
-							,ActivityId =SVGL.ExpenseActivityId
+							,ActivityId =SVGL.ServiceActivityId
 							,ActivityCode =AF.Code 
 							,ActivityName = AF.UserName 
 							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Dr, NULL Cr
@@ -3985,18 +3985,18 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial' AND IR.PlantId=@plantId
 						GROUP BY SVGL.ServiceGLId,SVGL.ServiceBudgetMasterId,SVGL.ServiceActivityId,GLF.AccountCode,GLF.UserName
 						,BF.Code,BF.UserName
-						,AF.Code,AF.UserName,IRD.Id
+						,AF.Code,AF.UserName
 
 						UNION
 
 						SELECT  'GRIR' AS OtherName, 'Cr' AS TrnType
-							,GLGeneralInfoId =SVGL.ExpenseGLId
+							,GLGeneralInfoId =SVGL.ClearingAccountGLId
 							,GLGeneralInfoCode =GLF.AccountCode
 							,GLGeneralInfoName =GLF.UserName
-							,BudgetMasterId =SVGL.ExpenseBudgetMasterId
+							,BudgetMasterId =SVGL.ClearingAccountBudgetMasterId
 							,BudgetCode =BF.Code
 							,BudgetName =BF.UserName
-							,ActivityId =SVGL.ExpenseActivityId
+							,ActivityId =SVGL.ClearingAccountActivityId
 							,ActivityCode =AF.Code 
 							,ActivityName = AF.UserName 
 							, NULL Dr, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Cr
@@ -4013,9 +4013,9 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
 						LEFT JOIN [HKP].[Activity] AS AF ON SVGL.ClearingAccountActivityId= AF.Id
 						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial' AND IR.PlantId=@plantId
-						GROUP BY SVGL.ExpenseGLId,SVGL.ExpenseBudgetMasterId,SVGL.ExpenseActivityId,GLF.AccountCode,GLF.UserName
+						GROUP BY SVGL.ClearingAccountGLId,SVGL.ClearingAccountBudgetMasterId,SVGL.ClearingAccountActivityId,GLF.AccountCode,GLF.UserName
 						,BF.Code,BF.UserName
-						,AF.Code,AF.UserName,IRD.Id";
+						,AF.Code,AF.UserName";
 					return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -4108,7 +4108,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                     , Particular= P.UserName
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
-	                                ,VD.DrAmount Amount
+	                          ,V.Id VoucherId ,VD.DrAmount Amount
 									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
@@ -4126,7 +4126,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                     , Particular= P.UserName
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
-	                                ,VD.DrAmount Amount
+	                           ,V.Id VoucherId	     ,VD.DrAmount Amount
 									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
@@ -4144,7 +4144,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                     , Particular= P.UserName
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
-	                                ,VD.DrAmount Amount
+	                               ,V.Id VoucherId ,VD.DrAmount Amount
 									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')

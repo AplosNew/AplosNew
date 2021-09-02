@@ -164,6 +164,7 @@
                                     <th>Delivery Date</th>
                                     <th>GRN Amount</th>
                                     <th>Acceptance Amount</th>
+                                    <th>Tolerance</th>
                                     <th class="col-sm-1"></th>
                                 </tr>
                             </thead>
@@ -189,9 +190,11 @@
                                     <td>{{x.DeliveryDate}}</td>
                                     <td class="text-right" style="width:150px;">{{x.GRNAmount| number:2}}</td>
                                     <td class="text-right" style="width:150px;">{{x.ACPTAmount| number:2}}</td>
+                                    <td class="text-right" style="width:150px;"><input type="text" name="Tolerance" ng-model="x.Tolerance" class="form-control"></td>
                                     <td class="text-right">
                                         <ul class="list-inline action-list">
-                                            <li><button ng-click="valuePassInDelModal(x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                            <li><button ng-click="UpdateDetail(x)" class="btn btn-action tooltip-here" data-placement="top" title="Update"><i class="glyphicon glyphicon-floppy-saved"></i></button></li>
+                                            <li><button ng-click="valuePassInDelModal(x)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash"></i></button></li>
                                         </ul>
                                     </td>
                                 </tr>
@@ -209,6 +212,7 @@
                                     <td></td>
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'GRNAmount'| setDecimal:2| number:2}}</strong></td>
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'ACPTAmount'| setDecimal:2| number:2}}</strong></td>
+                                    <td class="text-right"></td>
                                     <td class="text-right"></td>
                                 </tr>
                             </tbody>

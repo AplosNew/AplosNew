@@ -486,7 +486,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
                 }
             }
             else if (!baseService.isUndefinedOrNull($scope.modelNew.OrderRefNo) && $scope.modelNew.Types =='InventoryJWIssue') {
-                var getRowDr = $filter("filter")($scope.inventoryMaterialList, { "BudgetMasterId": $scope.inventoryIssueGLList[d].JWGLGeneralInfoId, "ActivityId": $scope.inventoryIssueGLList[d].JWActivityId });
+                var getRowDr = $filter("filter")($scope.inventoryMaterialList, { "BudgetMasterId": $scope.inventoryIssueGLList[d].JWBudgetMasterId, "ActivityId": $scope.inventoryIssueGLList[d].JWActivityId });
                 if (getRowDr.length == 0 && $scope.inventoryIssueGLList[d].JWBudgetMasterId != null) {
                     $scope.invGLDr.GLGeneralInfoId = $scope.inventoryIssueGLList[d].JWGLGeneralInfoId;
                     $scope.invGLDr.GLGeneralInfoCode = $scope.inventoryIssueGLList[d].JWGLGeneralInfoCode;

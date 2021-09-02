@@ -599,7 +599,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/new-attdnprocess-lock', {
             templateUrl: 'humanresource/NewAttdnProcessLock/Aplos',
             controller: 'NewAttdnProcessLockController'
-        });     
-
+        })    
+        .when('/new-HRDashboard', {
+            templateUrl: 'humanresource/NewHRDashboard/Aplos',
+            controller: 'NewHRDashboardController'
+        }); 
+    
 
 }

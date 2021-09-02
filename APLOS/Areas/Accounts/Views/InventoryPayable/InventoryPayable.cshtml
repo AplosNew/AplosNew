@@ -532,6 +532,7 @@
                 </div>
 
             </div>
+
             @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)">
                     <div class="clearfix"></div>
                     <div class="row">
@@ -567,6 +568,19 @@
         </div>
     </div>
     <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-4 col-md-4" ng-show="modelNew.PartyId">
+        <div class="form-group" show-errors>
+            <label class="col-sm-6 control-label">Total Invoice Amount(Fiscal Year)<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <div class="input-group">
+                    <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right " readonly name="TotalAdvanceAmount" ng-model="TotalfiscalinvoiceAmountByParty" style="color:red">
+                    <span class="input-group-btn">
+                        <button ng-click="showFiscalInvoiceAmountByParty();" class="btn single-small-btn" tabindex="5"><i class="glyphicon glyphicon-list"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="common-btn">
         <ul class="common-btn list-inline text-right">
             <li> <button ng-click="Post();" class="btn"> Post</button></li>
@@ -621,23 +635,58 @@
                 <div e-column e-field="IsTDSTaxPost" e-headertext="Tax Status" e-width="100" textAlign='Right'></div>
                 @*<div e-column e-headertext="AdditionalTax" e-commands="additionalTaxPop" e-isunbound=true e-textalign="center" e-width="100"></div>*@
 
-                <div e-column e-headertext="AdditionalTax" e-template="#AdditionalTaxTemplate" e-width="100"></div>
+                @*<div e-column e-headertext="AdditionalTax" e-template="#AdditionalTaxTemplate" e-width="100"></div>*@
 
-
-                <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
-                <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
-                <div e-column e-headertext="GRN" e-commands="commandGRN" e-isunbound=true e-textalign="left" e-width="60"></div>
+                @*<div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
+                    <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="center" e-width="60"></div>
+                    <div e-column e-headertext="GRN" e-commands="commandGRN" e-isunbound=true e-textalign="center" e-width="60"></div>*@
+                <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
+                <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>
 
             </div>
 
 
         </div>
 
-        <script id="AdditionalTaxTemplate" type="text/template">
-            <ul class="common-btn list-inline text-right">
-                <li> <button type="button" class="btn" ng-disabled="data.AdditionalTaxId==null" ng-click="$parent.onClickadditionalTaxPop(data);">TDS Post</button></li>
-            </ul>
+        @*<script id="AdditionalTaxTemplate" type="text/template">
+                <ul class="common-btn list-inline text-right">
+                </ul>
 
+            </script>*@
+        <script id="ReportTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                            <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                            <i class="fa fa-file-excel-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickGRNID(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="GRN">
+                            <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
+
+        <script id="DeleteTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-disabled="data.AdditionalTaxId==null" ng-click="$parent.onClickadditionalTaxPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="TDS">
+                            TDS
+                        </button>
+                        <button ng-disabled="data.IsPark==false" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                            <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                        </button>
+                        <button ng-show="data.WrittenOffAmount" ng-click="$parent.getInvoiceSetOffDetailByInvoice(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="SetOff">
+                            <i class="glyphicon glyphicon-eye-open" style="color:orangered;"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </script>
     </div>
     <i>**Showing top 100 Posted GRN  order by PostingDate</i>
@@ -645,4 +694,9 @@
 
 @Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedGRNDetailPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AdditionalTaxPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_PartyFiscalInvoiceAmountPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_InvoiceSetOffDetailByInvoicePopUp.cshtml")
+
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(GRNId,VoucherId,InvoiceId,Type,TDSTaxVoucherId,TDSVoucherNo)"></confirm-archive-generic>
+
 

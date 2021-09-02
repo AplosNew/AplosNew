@@ -23,11 +23,26 @@ namespace Aplos.Controllers
 
       
         [HttpPost]
-        public string SaveData([FromBody] List<AttdnRawData> DataToSave)
+        public string SaveDataWithEmpId([FromBody] List<AttdnRawData> DataToSave)
         {
             try
             {
-                string Id = app.SaveData(DataToSave);
+                string Id = app.SaveDataWithEmpId(DataToSave); // Expecting EmpSystemId as LogDownLoadNum
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        [HttpPost]
+        public string SaveDataWithCardNumber([FromBody] List<AttdnRawData> DataToSave)
+        {
+            try
+            {
+                string Id = app.SaveDataWithCardNumber(DataToSave); // Expecting Card Number as LogDownLoadNum
                 return Id;
             }
             catch (Exception ex)
