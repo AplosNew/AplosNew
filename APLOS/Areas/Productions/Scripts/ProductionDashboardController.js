@@ -805,6 +805,19 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
         }
     }
 
-
+    //#region Saad's Part
+    $scope.HourlyProductionList = [];
+    $scope.getHourlyProduction = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetProductionBookingPeriod",
+            data: { },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.HourlyProductionList = response.data.master;
+        });
+    }
+    $scope.getHourlyProduction();
+    //#endregion
 
 }

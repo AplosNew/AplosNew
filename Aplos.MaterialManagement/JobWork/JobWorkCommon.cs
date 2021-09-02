@@ -3267,7 +3267,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         //    }
         //}
 
-        public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate)
+        public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate, string JWPOType)
         {
             string  JWOutId = " ";
             //string  JWBOQId = " ";
@@ -3416,7 +3416,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                             clsStaticInfo _info = new clsStaticInfo();
                             _info.SaveDataSets(dsMaster);
-                            SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty, ABC);
+                            SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty, ABC, JWPOType);
                             SaveJWServiceTaxes(JWOutId, JWPurchaseOrderId, JWPODate, TQty, TRate, JWPOIsNonCreditable);
                             JPOBOQMAPCreate(dataBoq, JWOutId, userName, IPAddress, out dsPOBOQMap, detailBoq);
 
@@ -3493,7 +3493,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             {
                                 clsStaticInfo _info = new clsStaticInfo();
                                 _info.SaveDataSets(dsMaster);
-                                SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty, ABC);
+                                SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty, ABC, JWPOType);
                                 SaveJWServiceTaxes(JWOutId, JWPurchaseOrderId, JWPODate, TQty, TRate, JWPOIsNonCreditable);
                                 JPOBOQMAPCreate(dataBoq, JWOutId, userName, IPAddress, out dsPOBOQMap, detailBoq);
                             }
@@ -3734,7 +3734,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             return sID;
         }
 
-        public void SaveJWBOQChild(string JWOutId, string  JWBOQId, string JWBOQReqQty, string ABC)
+        public void SaveJWBOQChild(string JWOutId, string  JWBOQId, string JWBOQReqQty, string ABC, string JWPOType)
         {
             
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3742,8 +3742,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             var BB = "''";
             BB += ",'" + JWBOQId + "' ";
             try
-            {
+            {  
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (JWPOType == "OSTransformationPO")
+                {
                 DataSet JWBOQ;
                 DataSet JWOutMat;
                 DataSet DelJWMatInput;
@@ -3874,7 +3876,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(JWOutMat);
 
-
+                }
             }
             catch (Exception ex)
             {

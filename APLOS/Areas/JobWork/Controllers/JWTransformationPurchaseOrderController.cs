@@ -168,7 +168,7 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId,string JWActivityId,string OrderSpecific,string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate)
+        public JsonResult detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId,string JWActivityId,string OrderSpecific,string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate, string JWPOType)
         {
 
             try
@@ -176,7 +176,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
-                data = JobWorkCommon.detailcreate(data,  JWPurchaseOrderId, JWActivityId,identity.Name,identity.IPAddress,OrderSpecific,type, taxCategoryList, JWPOToCurrencyRate, JWPOIsNonCreditable, JWPODate);
+                data = JobWorkCommon.detailcreate(data,  JWPurchaseOrderId, JWActivityId,identity.Name,identity.IPAddress,OrderSpecific,type, taxCategoryList, JWPOToCurrencyRate, JWPOIsNonCreditable, JWPODate, JWPOType);
                 return Json(new { Data = data, Message = AplosMessage.Success });
             }
             catch (Exception ex)

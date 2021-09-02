@@ -17316,7 +17316,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 								UNION ALL
 
-								SELECT IM.Id
+								SELECT  IM.Id
 									,IRD.Id AS InventoryReceiveDetailId
 									,IRD.id AS RCBDetailsID
 									,IRD.PODetailsId
@@ -17418,7 +17418,7 @@ namespace Library.MaterialManagement.InventoryManagements
         {
             try
             {
-				string sql = @"SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+				string sql = @"SELECT Active=CAST(0 AS bit),(ROW_NUMBER() OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id InventoryReceiveId
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
                                      ,IR.GRNDate
                                     , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
