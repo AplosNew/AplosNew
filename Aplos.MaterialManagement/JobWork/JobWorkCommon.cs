@@ -2800,6 +2800,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
                         data["POType"] = data["POType"];
+                        data["IsApproved"] = false;
 
                     }
                     else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
@@ -2809,6 +2810,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
                         data["POType"] = data["POType"];
+                        data["IsApproved"] = true;
                     }
                     else
                     {
@@ -2818,10 +2820,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         data["AuthorizedBy"] = null;
                         data["AuthorizedByStatus"] = null;
                         data["POType"] = data["POType"];
+                        data["IsApproved"] = false;
 
                     }
 
-                    data["IsApproved"] = false;
+                    
                     data["IsClosed"] = false;
                     data["IsClosed"] = null;
 
