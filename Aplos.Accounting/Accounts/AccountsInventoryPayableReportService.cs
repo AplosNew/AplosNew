@@ -1224,13 +1224,83 @@ namespace Library.Accounting.Accounts
 
         public Dictionary<string, object> GetOutSourcingHeader(string companyGroupId, string companyId, string plantId, string voucherId)
         {
-            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
-                            , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.AddedBy, V.PostedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
+            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo
+
+                        , REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                        , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
+                        , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate
+							, V.DocRefNo, V.AddedBy, V.PostedBy
+							,[Type]=CASE WHEN IR.EmployeeId<>'' THEN 'Employee' Else 'Vendor' END
+							, UPPER(V.Narration) AS Narration
+							, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
                             , V.CurrencyId, C.Code AS CurrencyCode
+						    		,IR.TransformationContractId POId
+							
+								--,POId=STUFF((select distinct ','+PO.Id from
+								--	TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								--	LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+									,PDA.AcceptanceNo,
+									PDA.AcceptanceDate
+									,IR.GRNType
+									,IR.Id GRNNo, IR.JWGRIRVoucherId
+
+								--,PODate=	STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') from
+								--						TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								--						LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								--,POVendorRefNo=	STUFF((select distinct ','+PO.DocRefNo from
+								--						TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								--						LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								--,LCNo=	STUFF((select distinct ','+LC.LCRef from
+								--						TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								--						LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+								--						LEFT JOIN DBO.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+								--						for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								-- ,PurchaseLCId=	STUFF((select distinct ','+LC.Id from
+								--						TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								--						LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+								--						LEFT JOIN DBO.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+								--						for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,ContractNo=	STUFF((select distinct ','+C.ContractNo from
+														TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+														LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+														LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+														LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
+														for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								 ,CustomerName=	STUFF((select distinct ','+P.UserName from
+														TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+														LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+														LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+														LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
+														LEFT JOIN HKP.Party P ON P.Id=C.CustomerId
+														for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+
                             FROM  [TRN].[Voucher] AS V 
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
-                            WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.Id='" + voucherId + "' AND V.SourceType='InventoryJWReceipt'";
+							left join trn.InventoryReceive IR ON IR.JWGRIRVoucherId =V.Id
+
+
+					  LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
+     --               LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+     --               LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+     --               LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+     --               LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+     --               LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+     --               LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+     --               LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+     --               LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+     --               LEFT JOIN [TRN].GateEntry GE ON GE.Id=IR.GateEntryNo
+					--LEFT JOIN dbo.PlantWiseGate PG ON PG.Id=GE.PlantWiseGateId
+					LEFT JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=IR.PurchaseDocumentAcceptanceId
+					LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
+
+                    WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId+"' AND V.CompanyId='"+companyId+"' AND V.PlantId='"+plantId+@"' 
+					AND V.Id='"+voucherId+@"' 
+					AND V.SourceType='InventoryJWReceipt'";
             return _sqlRepository.GetData(cmdText);
         }
 
@@ -1321,22 +1391,39 @@ namespace Library.Accounting.Accounts
             reportUtility.SetText(ref sheet, row, 7, header["DocDate"].ToString());
             sheet.Range[row, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
-
             row++;
-           
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
-            reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "PO No");
+            reportUtility.SetText(ref sheet, row, 2, header["POId"].ToString());
             sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
             sheet.Range[row, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 6, "GRN No");
+            reportUtility.SetText(ref sheet, row, 7, header["GRNNo"].ToString());
+            sheet.Range[row, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
+            row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Contract No");
+            reportUtility.SetText(ref sheet, row, 2, header["ContractNo"].ToString());
+            sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+            sheet.Range[row, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Doc Ref");
             reportUtility.SetText(ref sheet, row, 7, header["DocRefNo"].ToString());
             sheet.Range[row, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
             row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
+            reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
+            sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+            sheet.Range[row, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Status");
             reportUtility.SetText(ref sheet, row, 7, header["Status"].ToString());

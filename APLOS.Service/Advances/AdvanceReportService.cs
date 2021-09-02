@@ -4,6 +4,7 @@ using Library.Service.Currencies;
 using Library.Service.Extension.Accounts;
 using Library.Service.Helpers;
 using Library.Service.Organizations;
+using OTSBD;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
@@ -1598,6 +1599,7 @@ namespace Library.Service.Advances
             reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
 
             var dsLocal = GetAdvanceData(voucherId);
+            var dsLocalARS = GetAdvanceReqSheduleData(voucherId);
 
             var transcationCurrency = header["CurrencyId"].ToString();
             _companyParallelCurrencyService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
@@ -1808,7 +1810,13 @@ namespace Library.Service.Advances
 
                 reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId,plantId, plantName, null);
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
+
+                //ToDo
+
+
             }
+
+
             else
             {
                 sheet.UsedRange.WrapText = true;
@@ -1816,6 +1824,149 @@ namespace Library.Service.Advances
                 reportUtility.CompanyPlantHeader(ref sheet, 5, header["VoucherTypeName"].ToString(), companyId,plantId, plantName, null);
                 reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
             }
+
+            row++;
+            row++;
+            row++;
+            int COL = 1; 
+            int ROW = row;
+
+            //int startCol = COL;
+            //sheet[ROW, COL].Text = "SL. No";
+            //int colSLNO = COL;
+            //sheet[ROW, COL].ColumnWidth = 7;
+            //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //COL++;
+
+            //sheet[ROW, COL].Text = "Voucher Id";
+            //int colVoucherId = COL;
+            //sheet[ROW, COL].ColumnWidth = 12;
+            ////worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //COL++;
+
+            //sheet[ROW, COL].Text = "Party Type";
+            //int colPartyType = COL;
+            //sheet[ROW, COL].ColumnWidth = 25;
+            //COL++;
+
+            //sheet[ROW, COL].Text = "Transaction Type";
+            //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //int colTransactionType = COL;
+            //sheet[ROW, COL].ColumnWidth = 25;
+            //COL++;
+
+            sheet[ROW, COL].Text = "Installment Date";
+            //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            int colInstallmentDate = COL;
+            sheet[ROW, COL].ColumnWidth = 25;
+            COL++;
+
+            sheet[ROW, COL].Text = "Installment No";
+            //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            int colInstallmentNo = COL;
+            sheet[ROW, COL].ColumnWidth = 25;
+            COL++;
+
+           
+            sheet[ROW, COL].Text = "InstallmentAmount";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            int colInstallmentAmount = COL;
+            sheet[ROW, COL].ColumnWidth = 15;
+            COL++;
+
+            sheet[ROW, COL].Text = "ProfitAmount";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            int colProfitAmount = COL;
+            sheet[ROW, COL].ColumnWidth = 15;
+            COL++;
+
+
+            sheet[ROW, COL].Text = "PrincipalAmount";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            int colPrincipalAmount = COL;
+            sheet[ROW, COL].ColumnWidth = 15;
+            COL++;
+
+            //sheet[ROW, COL].Text = "OtherAmount";
+            //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //int colOtherAmount = COL;
+            //sheet[ROW, COL].ColumnWidth = 15;
+            //COL++;
+
+            //sheet[ROW, COL].Text = "TaxAmount";
+            //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //int colTaxAmountt = COL;
+            //sheet[ROW, COL].ColumnWidth = 15;
+            //COL++;
+
+            sheet[ROW, COL].Text = "Balance";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            int colBalance = COL;
+            sheet[ROW, COL].ColumnWidth = 15;
+            COL++;
+
+            sheet[ROW, COL].Text = "YearNo";
+            //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            int colYearNo = COL;
+            sheet[ROW, COL].ColumnWidth = 10;
+            COL++;
+
+            sheet[ROW, COL].Text = "MonthNo";
+           // sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            int colMonthNo = COL;
+            sheet[ROW, COL].ColumnWidth = 10;
+            //COL++;
+
+            // ,ARS.InstallmentDate,ARS.InstallmentNo, ARS.InstallmentAmount,ARS.ProfitAmount
+            //  ,ARS.PrincipalAmount,ARS.OtherAmount,ars.TaxAmount,ARS.Balance, ARS.YearNo, ARS.MonthNo
+
+            ROW++;
+            int endCol = COL;
+
+            int StartDataRow = ROW;
+
+            for (int i = 0; i < dsLocalARS.Rows.Count; i++)
+            {
+                //int i = 0; i < dsLocal.Rows.Count; i++
+                //worksheet[ROW, colSLNO].Number = (i + 1);
+               //sheet[ROW, colSLNO].Number = i + 1;
+               //sheet[ROW, 1].Number = clsStaticInfo.dbl(dsLocalARS.Rows[i]["NoOfInvoice"].ToString());
+               //sheet[ROW, colVoucherId].Text = dsLocalARS.Rows[i]["VoucherId"].ToString();
+                //sheet[ROW, colPartyType].Text = dsLocalARS.Rows[i]["PartyType"].ToString();
+                //sheet[ROW, colTransactionType].Text = dsLocalARS.Rows[i]["TransactionType"].ToString();
+               // sheet[ROW, colInstallmentDate].Text = dsLocalARS.Rows[i]["InstallmentDate"].ToString();
+
+                sheet[ROW, colInstallmentDate].DateTime = Convert.ToDateTime(dsLocalARS.Rows[i]["InstallmentDate"].ToString());
+                sheet[ROW, colInstallmentDate].NumberFormat = "dd-MMM-yyyy";
+                sheet[ROW, colInstallmentNo].Text = dsLocalARS.Rows[i]["InstallmentNo"].ToString();
+           
+                sheet[ROW, colInstallmentAmount].Number = clsStaticInfo.dbl(dsLocalARS.Rows[i]["InstallmentAmount"].ToString());
+                sheet[ROW, colInstallmentAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet[ROW, colProfitAmount].Number = clsStaticInfo.dbl(dsLocalARS.Rows[i]["ProfitAmount"].ToString());
+                sheet[ROW, colProfitAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet[ROW, colPrincipalAmount].Number = clsStaticInfo.dbl(dsLocalARS.Rows[i]["PrincipalAmount"].ToString());
+                sheet[ROW, colPrincipalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                //sheet[ROW, colOtherAmount].Number = clsStaticInfo.dbl(dsLocalARS.Rows[i]["OtherAmount"].ToString());
+                //sheet[ROW, colOtherAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                //sheet[ROW, colTaxAmountt].Number = clsStaticInfo.dbl(dsLocalARS.Rows[i]["TaxAmount"].ToString());
+                //sheet[ROW, colTaxAmountt].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colBalance].Number = clsStaticInfo.dbl(dsLocalARS.Rows[i]["Balance"].ToString());
+                sheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+       
+
+                sheet[ROW, colYearNo].Text = dsLocalARS.Rows[i]["YearNo"].ToString();
+                sheet[ROW, colMonthNo].Text = dsLocalARS.Rows[i]["MonthNo"].ToString();
+
+                ROW++;
+            }
+
+            sheet[StartDataRow-1, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+            sheet[StartDataRow-1, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+
+
             return workbook;
         }
 
@@ -1870,7 +2021,23 @@ namespace Library.Service.Advances
             }
         }
 
-
+        private DataTable GetAdvanceReqSheduleData(string voucherId)
+        {
+            try
+            {
+                var sql = @"select ESA.VoucherId, ESA.EmployeeId,ESA.PartyType,ESA.TransactionType,ESA.SourceType,ESA.VoucherDate,ESA.PostingDate,ESA.DocDate,esa.DocRefNo
+                            ,ESA.Narration,ESA.Amount,ARS.Id AdvanceReqScheduleId,ARS.InstallmentDate,ARS.InstallmentNo, ARS.InstallmentAmount,ARS.ProfitAmount
+                            ,ARS.PrincipalAmount,ARS.OtherAmount,ars.TaxAmount,ARS.Balance, ARS.YearNo, ARS.MonthNo
+                            from TRN.EmployeeSalaryAdvance ESA 
+                            LEFT JOIN dbo.AdvanceReqSchedule ARS ON ESA.Id = ARS.EmployeeSalaryAdvanceId
+                            where ESA.VoucherId='"+voucherId+@"'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public IWorkbook GetEmployeeAdvanceWriteOffReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId)
         {
             var excelEngine = new ExcelEngine();
