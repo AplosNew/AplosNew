@@ -2881,29 +2881,56 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 										  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
 										  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
 							                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-							, InvoiceAmount=SUM(isnull(I.Amount,0))
-							, RealizeAmount=SUM(isnull(I.WrittenOffAmount,0))
-							, BalanceAmount=SUM(isnull(I.Amount - I.WrittenOffAmount,0))
-							,'' RealizeDate
-							--, RealizeDate=STUFF((select distinct ','+IW.PostingDate
-                            --from trn.InvoiceWriteOffDetail IWD									 
-							--			 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
-							--			  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
-							--                                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							, InvoiceAmount=isnull(I.Amount,0)
+							, RealizeAmount=isnull(I.WrittenOffAmount,0)
+					
+							, BalanceAmount=isnull(I.Amount - I.WrittenOffAmount,0)
+
+							, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
+                                         from trn.InvoiceWriteOffDetail IWD									 
+										 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
+										  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
+						                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
                                          from trn.SalesMaterial SMX									 
 										 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
 										  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
 										  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-							                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,PSI.ExpDate,PSI.CNFBLAWB BLAWBNo,PSI.CNFBLAWBDate BLAWBDate,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate
+							,CNfA.UserName CNFAgent
+							,TA.UserName TransportAgent
+							
+							,PSI.ExFactoryDate
+							,PSI.CNFContainerNo,PSI.CNFVesselTrackingNo
+							
+							,PTM.UserName PaymentTerm,FORMAT(SA.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
+							,SA.BaseNoOfDays NoOfDays
+							,FORMAT(SA.MatureDate,'dd-MMM-yyyy') MatureDate
+							,SA.EXPFromNo,SA.ComercialInvoiceNo
+							
+							
+							,PL.Amount LCAmount,CON.ContractNo
+							,ML.LCRef MasterLcNo
+
+							
+
 							FROM TRN.Sales AS SA
+							--left outer join TRN.SalesMaterial SM on SM.SalesId=SA.Id
 							LEFT JOIN (select Id,SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
+							left outer join TRN.SalesOrder So on SO.Id=SMD.SalesOrderId
+							left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+							left outer join [Contract] CON on CON.Id=MOI.ContractId
+							left outer join PurchaseLC PL on PL.ContractId=CON.Id
+							Left outer join MasterLC ML on ML.Id=CON.MasterLCId
+							left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
+							left outer join MST.PaymentTerm PTM on PTM.Id=SA.PartyId
+
+							left outer join HKP.Party CNfA on CNfA.Id=SA.PartyId
+							left outer join HKP.Party TA on TA.Id=SA.PartyId
+
 							LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
-							LEFT JOIN TRN.Invoice I ON I.VoucherId=V.Id--LEFT JOIN [TRN].[SalesOrder] AS SO ON SMD.SalesOrderId=SO.Id
-							--LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
-							--LEFT JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
-							--LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-							--LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId	
+							--LEFT JOIN TRN.Invoice I ON I.VoucherId=SA.VoucherId
 							LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
 							--LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON SM.BaseUOMId=BUoM.Id
 							--LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
@@ -2917,7 +2944,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
 							LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=SA.PlantId
 							Left JOIN [ORG].[Entity] E On E.id= SA.EntityId
-							
+							LEFT JOIN (SELECT SUM(Amount) Amount,SUM(WrittenOffAmount) WrittenOffAmount,VoucherId 
+										FROM TRN.Invoice GROUP BY VoucherId) I ON I.VoucherId=SA.VoucherId
 							LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount ,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
 										FROM [TRN].[SalesTax] A
 										LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
@@ -2977,9 +3005,18 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 									group by ISS.SalesId
 									)ServiceData on ServiceData.SalesId=SA.Id
 							
-							WHERE SA.PlantId='"+identity.PlantId+ @"' AND convert(Date,SA.InvoiceDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'-- and sm.SalesId='202110'
+							WHERE SA.PlantId='" + identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN   '" + fromDate + @"' AND '" + toDate + @"'-- and sm.SalesId='202110'
 							Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName
-							,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,E.UserName,SA.VoucherId
+							,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,E.UserName,SA.VoucherId,I.Amount,I.WrittenOffAmount,PSI.ExpDate,PSI.CNFBLAWB,PSI.CNFBLAWBDate 
+							,PSI.ExFactoryDate,PSI.TransportDocRefNo
+							,PSI.CNFContainerNo,PSI.CNFVesselTrackingNo
+							
+							,PTM.UserName ,SA.BaseOnDueDate,SA.BaseNoOfDays,SA.MatureDate,SA.EXPFromNo,SA.ComercialInvoiceNo
+							,CNfA.UserName,TA.UserName 
+							
+							,PL.Amount,CON.ContractNo
+							,ML.LCRef,PSI.TransportDocDate
+
 						UNION ALL
 						SELECT 
 
@@ -3050,18 +3087,36 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						,'' SONumber
 						,'' PONumber
 						,'' MasterOrder
-						, InvoiceAmount=SUM(isnull(I.Amount,0))
-						, RealizeAmount=SUM(isnull(I.WrittenOffAmount,0))
-							, BalanceAmount=SUM(isnull(I.Amount - I.WrittenOffAmount,0))
-							,'' RealizeDate
-							--, RealizeDate=STUFF((select distinct ','+IW.PostingDate
-       --                                  from trn.InvoiceWriteOffDetail IWD									 
-							--			 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
-							--			  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
-							--                                where XI.VoucherId=II.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						, InvoiceAmount=isnull(I.Amount,0)
+						, RealizeAmount=isnull(I.WrittenOffAmount,0)
+							, BalanceAmount=isnull(I.Amount - I.WrittenOffAmount,0)
+
+							, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
+                                         from trn.InvoiceWriteOffDetail IWD									 
+										 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
+										  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
+							                                where XI.VoucherId=II.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							,'' OwnReferenceNo
-						FROM[TRN].[InventorySales] AS II
+							,''ExpDate,''BLAWBNo,''BLAWBDate,''TransportDocDate
+							,''CNFAgent
+							,''TransportAgent
+							
+							,''ExFactoryDate
+							,''CNFContainerNo,''CNFVesselTrackingNo
+							
+							,''PaymentTerm,''BaseOnDueDate
+							,0 NoOfDays
+							,''MatureDate
+							,''EXPFromNo,''ComercialInvoiceNo
+							
+							
+							,0 LCAmount,''ContractNo
+							,''MasterLcNo
+						FROM [TRN].[InventorySales] AS II
 						left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
+						
+						
+						
 						left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
 						left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 						left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
@@ -3073,7 +3128,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
 						Left Join [ORG].[Company] Com  ON Com.Id=II.CompanyId
 						Left Join [ORG].[CompanyGroup] ComG  ON ComG.Id=II.CompanyGroupId
-						LEFT JOIN TRN.Invoice I ON I.InventorySalesId=II.Id
+							LEFT JOIN (SELECT SUM(Amount) Amount,SUM(WrittenOffAmount) WrittenOffAmount,InventorySalesId 
+										FROM TRN.Invoice GROUP BY InventorySalesId) I ON I.InventorySalesId=II.Id
 						LEFT JOIN(Select sum(Amount) ServiceAmount, sum(TotalTaxAmount) TotalTaxAmount,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,Sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount,InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
 						LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
 
@@ -3131,7 +3187,9 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						LEFT JOIN trn.Voucher V On V.Id=II.VoucherId
 						WHERE II.PlantId='" + identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '"+fromDate+@"' AND '"+toDate+@"'
 						GROUP BY p.Code	,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName 
-						,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,II.VoucherId";
+						,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,II.VoucherId,I.Amount,I.WrittenOffAmount
+
+";
 						return _sqlRepository.GetDataTable(sql);
 					}
 					else
@@ -4509,6 +4567,126 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
+					worksheet[ROW, COL].Text = "Contract";
+					int colContract = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "MastrerLC Ref No";
+					int colMastrerLCRefNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Commercial Invoice No";
+					int colComercialInvoiceNo= COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Expiry Date";
+					int colExpiryDatet = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "BL/AWB No.";
+					int colBLAWBNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "BL/AWB Date";
+					int colBLAWBDate= COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Payment Term";
+					int colPaymentTerm = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Base on Due Date";
+					int colBaseOnDueDate= COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "No Of Days";
+					int colNoOfDays = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Mature Date";
+					int colMatureDate = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "LC Amount";
+					int colLCAmount= COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "ExFactory Date";
+					int colExFactoryDate = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Transport Agent";
+					int colTransportAgent = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Transport Doc Date";
+					int colTransportDocDate = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "CNF Agent";
+					int colCNFAgent = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Container No.";
+					int colContainerNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Vessel Tracking No.";
+					int colVesselTrackingNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
 					worksheet[ROW, COL].Text = "Own Order Ref.";
 					int colOwnOrderRef = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
@@ -4539,6 +4717,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
 					//COL++;
 
 					int endCol = COL;
@@ -4665,6 +4844,23 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet.Range[ROW, colBalance].NumberFormat = NumberFormatTwoDecimal;
 
 								worksheet[ROW, colOwnOrderRef].Text = dtInventorySalesReportList.Rows[i]["OwnReferenceNo"].ToString();
+								worksheet[ROW, colContract].Text = dtInventorySalesReportList.Rows[i]["ContractNo"].ToString();
+								worksheet[ROW, colMastrerLCRefNo].Text = dtInventorySalesReportList.Rows[i]["MasterLcNo"].ToString();
+								worksheet[ROW, colComercialInvoiceNo].Text = dtInventorySalesReportList.Rows[i]["ComercialInvoiceNo"].ToString();
+								worksheet[ROW, colExpiryDatet].Text = dtInventorySalesReportList.Rows[i]["ExpDate"].ToString();
+								worksheet[ROW, colBLAWBNo].Text = dtInventorySalesReportList.Rows[i]["BLAWBNo"].ToString();
+								worksheet[ROW, colBLAWBDate].Text = dtInventorySalesReportList.Rows[i]["BLAWBDate"].ToString();
+								worksheet[ROW, colPaymentTerm].Text = dtInventorySalesReportList.Rows[i]["PaymentTerm"].ToString();
+								worksheet[ROW, colBaseOnDueDate].Text = dtInventorySalesReportList.Rows[i]["BaseOnDueDate"].ToString();
+								worksheet[ROW, colNoOfDays].Text = dtInventorySalesReportList.Rows[i]["NoOfDays"].ToString();
+								worksheet[ROW, colMatureDate].Text = dtInventorySalesReportList.Rows[i]["MatureDate"].ToString();
+								worksheet[ROW, colLCAmount].Number =clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["LCAmount"].ToString());
+								worksheet[ROW, colExFactoryDate].Text = dtInventorySalesReportList.Rows[i]["ExFactoryDate"].ToString();
+								worksheet[ROW, colTransportAgent].Text = dtInventorySalesReportList.Rows[i]["TransportAgent"].ToString();
+								worksheet[ROW, colTransportDocDate].Text = dtInventorySalesReportList.Rows[i]["TransportDocDate"].ToString();
+								worksheet[ROW, colCNFAgent].Text = dtInventorySalesReportList.Rows[i]["CNFAgent"].ToString();
+								worksheet[ROW, colContainerNo].Text = dtInventorySalesReportList.Rows[i]["CNFContainerNo"].ToString();
+								worksheet[ROW, colVesselTrackingNo].Text = dtInventorySalesReportList.Rows[i]["CNFVesselTrackingNo"].ToString();
 
 
 
