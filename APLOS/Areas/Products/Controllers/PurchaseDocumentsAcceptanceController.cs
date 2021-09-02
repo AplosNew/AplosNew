@@ -316,7 +316,7 @@ namespace Aplos.Areas.Products.Controllers
 
             try
             {
-                string sql = @"SELECT  PAD.Id ,PAD.POId,PAD.PODetailId, MGM.UserName AS MaterialGroupMasterName, MM.Id MaterialMasterId, MM.UserName, PAD.ArticleId, ART.StandardName, PAD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
+                string sql = @"SELECT  PAD.Id ,PAD.POId,PAD.PODetailId, RD.InventoryReceiveId, MGM.UserName AS MaterialGroupMasterName, MM.Id MaterialMasterId, MM.UserName, PAD.ArticleId, ART.StandardName, PAD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
                                     , PAD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue, PAD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
                                     , PAD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue, PAD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
                                     , PAD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
