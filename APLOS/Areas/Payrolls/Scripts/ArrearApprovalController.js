@@ -25,22 +25,17 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
     $scope.EmployeeListUnApproved = [];
     $scope.GetEmployeeInformation = function () {
 
+        try {
 
-        if (baseService.isUndefinedOrNull($scope.FromDate)) {
-            manualValidation('div_FromDate', true, "From Date is required.");
-        }
-        else if (baseService.isUndefinedOrNull($scope.ToDate)) {
-            manualValidation('div_ToDate', true, "To Date is required.");
-        }
-        else if (new Date($scope.FromDate) > new Date($scope.ToDate)) {
-            manualValidation('div_FromDate', true, "From date must be below or equal to To Date");
-        }
-        else if (new Date($scope.ToDate) < new Date($scope.FromDate)) {
-            manualValidation('div_ToDate', true, "To date must be above or equal to From Date.");
-        }
-        else {
-            $scope.searchbyonRoleEmpList = [];
-            var parameters = { 'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate };
+            var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
+            var _selectedBatch = DropDownListYear.getSelectedValue();
+
+
+            if (baseService.isUndefinedOrNull(_selectedBatch)) {
+                throw 'Please select batch';
+            }
+
+            var parameters = { 'batchId': $scope.FromDate, 'ToDate': $scope.ToDate };
             $http({
                 method: "POST",
                 dataType: 'JSON',
@@ -65,13 +60,21 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
 
                 $scope.EmployeeListApproved = ej.DataManager(response.data).executeLocal(ej.Query().where("IsApproved", "equal", true));
                 $scope.EmployeeListUnApproved = ej.DataManager(response.data).executeLocal(ej.Query().where("IsApproved", "equal", false));
-               
-            });
-        }
 
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     $scope.ProcessAll = function (isApprove) {
+
+
+
+    }
+
+    $scope.deleteArrear = function (EmpSystemID) {
 
 
 

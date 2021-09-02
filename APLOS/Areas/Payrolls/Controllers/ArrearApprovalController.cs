@@ -56,7 +56,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetEmpList(string FromDate, string ToDate)
+        public ActionResult GetEmpList(string batchId)
         {
 
             try
@@ -65,7 +65,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ArrearProcess obj = new ArrearProcess();
 
-                JsonResult json = Json(obj.GetEmployee(FromDate, ToDate, identity.PlantId));
+                JsonResult json = Json(obj.GetEmployeeForApproval(batchId));
                 json.MaxJsonLength = int.MaxValue;
                 return json;
             }

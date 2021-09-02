@@ -43,6 +43,7 @@
                         <div e-columns>
 
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateUnApproved" e-template="#checkboxTemplateUnApproved" e-textalign="center" e-width="30"></div>
+                            <div e-column e-headertext="" e-template="#btnTemplateDeleteEmployee" e-textalign="center" e-width="30"></div>
                             <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
                             <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
                             <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
@@ -59,6 +60,19 @@
 
                     <script type="text/template" id="checkboxTemplateUnApproved">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                    </script>
+                    <script type="text/template" id="btnTemplateDeleteEmployee">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
+
+                                <li>
+                                    <button ng-click="$parent.deleteArrear(data.EmpSystemID);" class="btn small" style="height: 20px;width: 20px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-trash"></i>
+                                    </button>
+                                </li>
+
+                            </ul>
+                        </div>
                     </script>
 
                     <script type="text/x-jsrender" id="headerTemplateUnApproved">
