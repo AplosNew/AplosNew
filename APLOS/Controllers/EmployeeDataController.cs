@@ -91,12 +91,8 @@ namespace Aplos.Controllers
                 return Id;
             }
             catch (Exception ex)
-            {
-                // Console.WriteLine(ex);
+            {                
                 return ex.ToString();
-
-                //return resp.ToString();
-
             }
         }
 
