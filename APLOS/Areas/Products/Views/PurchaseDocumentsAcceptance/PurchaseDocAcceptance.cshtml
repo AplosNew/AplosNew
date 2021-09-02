@@ -212,11 +212,19 @@
                                     <input datepicker type="text" name="AcceptanceDate" ng-model="PurchaseDocAcceptance.AcceptanceDate" class="form-control" tabindex="5" required>
                                 </div>
                             </div>
-                            <div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
-                                <label class="col-sm-4 control-label">Total GRN Amount</label>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Acceptance Amount</label>
                                 <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="Total GRN Amount" ng-model="PurchaseDocAcceptance.TotalGRNAmount" class="form-control">
+                                    <input type="text" n-decimals="2" name="Acceptance Amount" ng-model="PurchaseDocAcceptance.AcceptanceAmount" class="form-control">
                                 </div>
+                            </div>
+                            <div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
+                                <label class="col-sm-4 control-label">GRN Amount:</label>
+                                <label class="col-sm-8 control-label">{{TotalGRNAmount | number:2}}</label>
+                            </div>
+                            <div class="form-group" ng-show="productNew.AcceptanceFirst=='Yes'">
+                                <label class="col-sm-4 control-label">PO Amount:</label>
+                                <label class="col-sm-8 control-label">{{TotalPOAmount | number:2}}</label>
                             </div>
                             <div class="form-group" ng-show="productNew.AcceptanceFirst=='Yes'">
                                 <label class="col-sm-4 control-label">Exchange Rate<sup ng-show="productNew.AcceptanceFirst=='Yes'">*</sup></label>
@@ -669,14 +677,8 @@
                                             <th colspan="2">PO Qty</th>
                                             <th>Rate</th>
                                             <th>Current GRN Qty</th>
-
                                             <th>Current Acceptance Qty</th>
                                             <th>Amount</th>
-                                            <th ng-hide="false">Total GRN Qty</th>
-                                            <th ng-hide="false">Other Acceptance Qty</th>
-                                            @*<th ng-hide="false">Balance</th>*@
-
-
                                             <th>Currency</th>
                                             <th>Tax Amount</th>
                                             <th>Service Charge</th>
@@ -708,13 +710,9 @@
                                             <td class="text-right">{{x.POQty| number:2}}</td>
                                             <td class="text-right">{{x.TransactionUoM}}</td>
                                             <td class="text-right">{{x.TransactionRate| number:4}}</td>
-                                            @*<td class="text-right"><input type="text" style="width:60px;" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>*@
                                             <td class="text-right">{{x.CurrentGRNQty| number:2}}</td>
-                                            @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right"  width="200" ng-model="x.TransactionQty" ng-disabled="!x.Active"></td>*@
                                             <td class="text-right">{{x.TransactionQty | number:2}}</td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
-                                            <td class="text-right">{{x.TotalGRN| number:2}}</td>
-                                            <td class="text-right">{{x.Otherqty| number:2}}</td>
                                             <td class="text-right">{{x.CurrencyName}}</td>
                                             <td class="text-right">{{x.TaxAmount | number:2}}</td>
                                             <td class="text-right">{{x.ChargesTranAmount | number:2}}</td>
@@ -742,8 +740,6 @@
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'CurrentGRNQty' | number:2}}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TransactionQty'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TrnAmount'| number:2 }}</strong></td>
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalGRN'| number:2 }}</strong></td>
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Otherqty'| number:2}}</strong></td>
                                             <td class="text-right"></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TaxAmount'| number:2}}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'ChargesTranAmount'| number:2}}</strong></td>

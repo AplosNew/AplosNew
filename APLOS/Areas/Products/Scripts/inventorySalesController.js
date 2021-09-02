@@ -12,6 +12,10 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$scope.ApprovedStockBeyondIssueDateList = [];
 	$scope.UnApprovedStockList = [];
 	$scope.ApprovedStockList = [];
+
+	$scope.tax = {		
+		IncludingTax: true
+	};
 	
 	$scope.partyType = "Customer";
 	$scope.path1 = 'Products/PurchaseOrder/';
@@ -795,7 +799,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 
 		var reportFormat = "Excel";
 		//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery, '_blank');
+		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery + '&WithTax=' + $scope.tax.IncludingTax);
 	};
 
 	$scope.InventorySalesRepoReportPdf = function (id, reportFormat) {
@@ -861,7 +865,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 
 		var reportFormat = "Pdf";
 		//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery, '_blank');
+		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery + '&WithTax=' + $scope.tax.IncludingTax);
 
 	};
 

@@ -1,0 +1,39 @@
+﻿<style>
+    .modellgModify1 {
+        width: 1300px;
+    }
+</style>
+
+<div class="modal fade site-modal in" id="OutSourceBillingpopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"> OutSource Billing <button type="button" class="close" ng-click="closeGRNPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        <div style="color:black;" id="GridPurchaseLC" ej-grid e-datasource="billingNonPostedList" e-recorddoubleclick="Get"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="20" e-visible="true"></div>
+                                <div e-column e-field="JWTransformationPurchaseOrderId" e-headertext="OutSourcePOId" e-width="20"></div>
+                                <div e-column e-field="TabType" e-headertext="Type" e-width="30"></div>
+                                <div e-column e-field="ValueAddedDate" e-headertext="Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="VACTime" e-headertext="Time" e-width="20"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="30"></div>
+                                <div e-column e-field="PartyName" e-headertext="Party" e-width="40"></div>
+                                <div e-column e-field="VAProcessStartDate" e-headertext="Process Start Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="VAProcessEndDate" e-headertext="Process End Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="VAContractClosingDate" e-headertext="Contract Closing Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeGRNPopUp();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
