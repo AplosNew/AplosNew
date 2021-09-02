@@ -27,11 +27,6 @@ namespace Aplos.Controllers
 
         #endregion Constructor
 
-        /// <summary>
-        /// monir@s API
-        /// </summary>
-        ///
-
         [HttpGet]
         public List<ServiceTypeAndCategory> GetList(string Service)
         {
