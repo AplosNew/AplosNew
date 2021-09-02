@@ -30,6 +30,11 @@ namespace Library.HumanResource.Leave
         {
             string _FromDate = string.Empty;
             string _ToDate = ToDate;
+
+            var startFromDate = Convert.ToDateTime(ToDate);
+            var y = startFromDate.Year;
+            _FromDate = "1-Jan-" + y;
+
             var dsCalYear = GetCalYearInfo(calYearId);
             if (dsCalYear.Tables[0].Rows.Count > 0)
             {
@@ -83,7 +88,9 @@ namespace Library.HumanResource.Leave
             string _FromDate = string.Empty;
             string _ToDate = ToDate;
             string _YearNo = string.Empty;
-
+            var startFromDate = Convert.ToDateTime(ToDate);
+            var y = startFromDate.Year;
+            _FromDate = "1-Jan-" + y;
             // var esic = GetESICEligibleEmployee(EmpSystemID);
             var dsCalYear = GetCalYear(Year);
             if (dsCalYear.Tables[0].Rows.Count > 0)
@@ -500,7 +507,9 @@ namespace Library.HumanResource.Leave
                 string _FromDate = string.Empty;
                 string _ToDate = ToDate;
                 string CalToDate = string.Empty;
-
+                var startFromDate = Convert.ToDateTime(ToDate);
+                var y = startFromDate.Year;
+                _FromDate = "1-Jan-" + y;
                 // var esic = GetESICEligibleEmployee(EmpSystemID);
                 var dsCalYear = GetCalYearInfo(calYearId);
                 if (dsCalYear.Tables[0].Rows.Count > 0)
@@ -510,7 +519,7 @@ namespace Library.HumanResource.Leave
                 }
                 else
                 {
-                    throw new Exception("No Year found...");
+                    //throw new Exception("No Year found...");
                 }
                 #region -- For esic leave --
                 //var esic = GetESICEligibleEmployeeFromEnum(EmpSystemID, _FromDate);
@@ -712,7 +721,7 @@ ELSE CONVERT(BIT,0) END  ---No
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
 										 left outer join (
 															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
-                            where  (FromDate between '" + _FromDate + @"' and '" + CalToDate + @"') and (FromDate between '" + _FromDate + @"' and '" + CalToDate + @"')
+                            where  (FromDate between '" + _FromDate + @"' and '" + CalToDate + @"') and (FromDate between '" + _FromDate + @"' and '" + ToDate + @"')
                                                     group by EmpSystemID,LTSystemID
 														)ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
 										 left outer join (
@@ -722,7 +731,7 @@ ELSE CONVERT(BIT,0) END  ---No
 																	left outer join
 																		(
 																		Select SUM(d.LeaveDuration) c,d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where
-																			IsAvailed = 1 and WorkDate between '" + _FromDate + @"' and '" + CalToDate + @"'
+																			IsAvailed = 1 and WorkDate between '" + _FromDate + @"' and '" + ToDate + @"'
                                                                         group by LvTrnsSystemID
 																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
 																)x group by EmpSystemID,LTSystemID
@@ -737,7 +746,7 @@ ELSE CONVERT(BIT,0) END  ---No
 inner join MST.DesignationMasterLegalDesignation dml on dml.LegalDesignationId = e.LegalDesignationId
 inner join MST.DesignationMaster dm on dm.Id = dml.DesignationMasterId
 inner join SCS.DesignationMasterConfiguration DC on DC.DesignationMasterId = dm.Id and dc.PlantId = e.PlantId
-inner join LeavePolicyMaster lm on lm.SystemID = dc.LeavePolicyMasterId
+inner join LeavePolicyMaster lm on lm.SystemID = dc.LeavePolicyMasterId and e.PlantId=lm.PlantId
 inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 
 
@@ -771,7 +780,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 
                                                 WHERE 
 												(emp.DOS is null or emp.DOS >= '" + _FromDate + @"') and
-												(emp.DOJ <= '" + CalToDate + @"') and emp.PlantId in (" + sPlantID + @") 
+												(emp.DOJ <= '" + ToDate + @"') and emp.PlantId in (" + sPlantID + @") 
 												--and els.EmployeeID IN( '206835','206828' )
                                               AND 
 											  CalanderYearID in(select Id from YearlyCalendar where PlantId in (" + sPlantID + @")  and YearNo =year('" + ToDate + @"'))
@@ -849,7 +858,9 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
             {
                 string _FromDate = string.Empty;
                 string _ToDate = ToDate;
-
+                var startFromDate = Convert.ToDateTime(ToDate);
+                var y = startFromDate.Year;
+                _FromDate = "1-Jan-" + y;
                 // var esic = GetESICEligibleEmployee(EmpSystemID);
                 var dsCalYear = GetCalYearInfo(calYearId);
                 if (dsCalYear.Tables[0].Rows.Count > 0)
@@ -859,9 +870,9 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                 }
                 else
                 {
-                    throw new Exception("No Year found...");
+                    //throw new Exception("No Year found...");
                 }
-                var esic = GetESICEligibleEmployeeFromEnum(EmpSystemID, _FromDate);
+                var esic = GetESICEligibleEmployeeFromEnum(EmpSystemID, ToDate);
 
                 if (esic.Tables[0].Rows.Count > 0)
                 {
