@@ -661,7 +661,8 @@ namespace Library.MaterialManagement.JobWork
                         ,0 DiscountAmount
                         ,'' QualityStatus
                         ,null POUoMId
-                        ,0 Tolerance,sum(CC3.GrossConsumption*vvvv.Rate) GrossConsumption--,sum(vvvv.Rate) Rate
+                        ,0 Tolerance--,sum(CC3.GrossConsumption*vvvv.Rate) GrossConsumption--,sum(vvvv.Rate) Rate
+                        ,(CC3.GrossConsumption*vvvv.Rate) GrossConsumption
                         from dbo.JobWorkTransformationContractChild mp 
                         left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
                         left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
@@ -680,7 +681,15 @@ namespace Library.MaterialManagement.JobWork
                         	LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON mp.TransactionUoMId=TUoM1.Id
                         left join (select Sum(IRD.TransactionQty) as TotalReceivedQuantity,IR.TransformationContractId from TRN.InventoryReceiveDetail IRD left join TRN.InventoryReceive IR
                         on IRD.InventoryReceiveId=IR.Id where MaterialFor='JWOUTPUTMaterial' group by IR.TransformationContractId)kk on kk.TransformationContractId=mp.JobWorkTransformationContractMasterId
-                        left join (select JobWorkTransformationContractChildMasterId, Sum(GrossConsumption) GrossConsumption  from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)CC3 ON CC3.JobWorkTransformationContractChildMasterId=mp.Id
+                        left join (
+                        --select JobWorkTransformationContractChildMasterId, Sum(GrossConsumption) GrossConsumption  from dbo.JobWorkTransformationContractChild3 
+                        --group by JobWorkTransformationContractChildMasterId
+                         select Sum(x.GrossConsumption) as GrossConsumption ,x.JobWorkTransformationContractChildMasterId
+									from (
+									Select GrossConsumption, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 
+									group by ArticleId, JobWorkTransformationContractChildMasterId,GrossConsumption
+									) x group by x.JobWorkTransformationContractChildMasterId
+                         )CC3 ON CC3.JobWorkTransformationContractChildMasterId=mp.Id
                         left join(select JWTCMDId, Sum(isnull(TransactionQty,0)) TransactionQty from trn.InventoryReceiveDetail group by JWTCMDId)rcvqty ON rcvqty.JWTCMDId=mp.Id
                         left join( select  mp1.Id ,II.JWContractId 
 								 ,sum(IID.PolicyAmount/IID.TransactionQty) Rate
@@ -692,7 +701,9 @@ namespace Library.MaterialManagement.JobWork
 								 left join dbo.JWTransformationPurchaseOrder tc on tc.Id=II.JWContractId
 								 left join dbo.JobWorkTransformationContractChild mp1 ON mp1.JobWorkTransformationContractMasterId=Tc.Id								
 								 group by  mp1.Id,II.JWContractId )vvvv ON vvvv.JWContractId=tc.Id 
-                        where tc.Id='" + PKId + @"' group by mp.Quantity ,ISNULL(rcvqty.TransactionQty,'0'),mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity, MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id,TUoM1.Id,TUoM1.UserName,mp.TransactionUoMId , mp.OutputMaterialUOMId";
+                        where tc.Id='" + PKId + @"' group by mp.Quantity ,ISNULL(rcvqty.TransactionQty,'0'),mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity
+                        , MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id,TUoM1.Id,TUoM1.UserName,mp.TransactionUoMId , mp.OutputMaterialUOMId
+                         ,CC3.GrossConsumption,vvvv.Rate";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
