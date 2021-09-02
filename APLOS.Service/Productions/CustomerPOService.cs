@@ -69,9 +69,11 @@ namespace Library.Service.Productions
                 var dbList = base.Query(t => t.MasterOrderId == entity.MasterOrderId && !t.Archive).Select().ToList();
                 if (dbList.Any(t => t.PONumber == entity.PONumber)) throw new CustomException(entity.PONumber + " already inserted");
 
-                var count = _repository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[CustomerPO] WHERE MasterOrderId='{entity.MasterOrderId}'").First();
+                //var count = _repository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[CustomerPO] WHERE MasterOrderId='{entity.MasterOrderId}'").First();
+                var count = _repository.SqlQuery<int>($"SELECT ISNULL(CAST (MAX(Id) AS int),0) Id FROM [TRN].[CustomerPO]").First();
                 count++;
-                entity.Id = MakePK(entity.MasterOrderId, count, 2);
+                //entity.Id = MakePK(entity.MasterOrderId, count, 2);
+                entity.Id = count.ToString();
                 entity.Active = true;
                 base.Insert(entity);
                 return Tuple.Create(entity.Id, entity.PONumber);
