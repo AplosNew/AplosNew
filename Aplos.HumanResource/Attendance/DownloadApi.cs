@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Attendance
 {
-   public class DownloadApi
+    public class DownloadApi
     {
         public DownloadApi()
         {
@@ -19,7 +19,7 @@ namespace Attendance
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                @strSQL = @"   select * from  AttdnRawData   where  pdate='"+DateTime.Now.ToString("dd-MMM-yyyy")+"'";
+                @strSQL = @"   select * from  AttdnRawData   where  pdate='" + DateTime.Now.ToString("dd-MMM-yyyy") + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.getDataSet(strSQL, out dsRef);
             }
@@ -130,9 +130,9 @@ namespace Attendance
         {
             try
             {
-                if (v!=null && v.Trim().Length == 8)
-                {                   
-                return v.Substring(6, 2) + "-" + GetMonthName(v.Substring(4, 2)) + "-" + v.Substring(0, 4);
+                if (v != null && v.Trim().Length == 8)
+                {
+                    return v.Substring(6, 2) + "-" + GetMonthName(v.Substring(4, 2)) + "-" + v.Substring(0, 4);
                 }
                 return string.Empty;
             }
@@ -201,8 +201,8 @@ namespace Attendance
             try
             {
                 if (v != null && v.Trim().Length == 6)
-                {                    
-                return v.Substring(0, 2) + ":" + v.Substring(2, 2) + ":" + v.Substring(4, 2);
+                {
+                    return v.Substring(0, 2) + ":" + v.Substring(2, 2) + ":" + v.Substring(4, 2);
                 }
                 return "00:00:00";
             }
@@ -245,7 +245,7 @@ namespace Attendance
                         }
                         catch (Exception exx)
                         {
-                            throw new Exception("DateConvert: "+exx);
+                            throw new Exception("DateConvert: " + exx);
                         }
                         rd.DeviceId = _deviceid;
                         rd.EmpCard = _cardno.ToString();
@@ -283,13 +283,13 @@ namespace Attendance
                 objCon = null;
             }
         }//End Function 
-        void GetDevicePK(DataSet dsAccessController, string _DeviceId,out string DevicePK,out bool IsOK)
+        void GetDevicePK(DataSet dsAccessController, string _DeviceId, out string DevicePK, out bool IsOK)
         {
             try
             {
                 IsOK = false;
-                   DevicePK = string.Empty;
-              DataView  dvAC = new DataView(dsAccessController.Tables[0]);
+                DevicePK = string.Empty;
+                DataView dvAC = new DataView(dsAccessController.Tables[0]);
                 dvAC.RowFilter = "MachineID=" + _DeviceId + "";
                 if (dvAC.Count > 0)
                 {
@@ -357,7 +357,7 @@ namespace Attendance
             System.Globalization.DateTimeFormatInfo USER_TERMINAL_DATE_FORMAT = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat;
             return USER_TERMINAL_DATE_FORMAT.ShortDatePattern.ToString();
         }
-        void GetEmpInfo(DataSet dsEmpInfo, string cardno, out string groupId, out string Plantid, out string EmpPK,out bool IsShiftBasedPunchFlag, out bool IsOK)
+        void GetEmpInfo(DataSet dsEmpInfo, string cardno, out string groupId, out string Plantid, out string EmpPK, out bool IsShiftBasedPunchFlag, out bool IsOK)
         {
             try
             {
@@ -396,9 +396,9 @@ namespace Attendance
 
                 drLocal["Id"] = _pk;
                 drLocal["DeviceID"] = iDeviceID;
-                if(string.IsNullOrEmpty(sDevSystemID)==false)
+                if (string.IsNullOrEmpty(sDevSystemID) == false)
                 {
-                drLocal["DevSystemID"] = sDevSystemID;
+                    drLocal["DevSystemID"] = sDevSystemID;
                 }
                 else
                 {
@@ -408,13 +408,13 @@ namespace Attendance
                 drLocal["PDate"] = sDate;
                 drLocal["PTime"] = sTime;
 
-                if(string.IsNullOrEmpty(sPType))
+                if (string.IsNullOrEmpty(sPType))
                 {
                     drLocal["PType"] = DBNull.Value;
                 }
                 else
                 {
-                drLocal["PType"] = sPType;
+                    drLocal["PType"] = sPType;
                 }
 
                 drLocal["GroupID"] = GroupSysID.Trim();
@@ -498,7 +498,7 @@ namespace Attendance
                 drLocal = null;
             }
         }
-        public void GetEmpCodes(List<RawData> EmpList,out string empcodes)
+        public void GetEmpCodes(List<RawData> EmpList, out string empcodes)
         {
             empcodes = "''";
             try
@@ -578,7 +578,7 @@ namespace Attendance
                 }
                 catch (Exception exx)
                 {
-                    throw new Exception("PK: "+exx);
+                    throw new Exception("PK: " + exx);
                 }
                 dvLocal = new DataView(dsLocal.Tables[0]);
                 bool IsFirst = true;
@@ -604,27 +604,27 @@ namespace Attendance
                     }
                     catch (Exception eex)
                     {
-                        throw new Exception("DateConvert2: "+eex);
+                        throw new Exception("DateConvert2: " + eex);
                     }
-                    
-                        _DateTime = punch.DateTime;
-                        GetDevicePK(dsAccessController, punch.DeviceId, out DevicePK, out IsDeviceOK);
-                        GetEmpInfo(dsEmpInfo, punch.EmpCard, out _groupId, out _PlantId, out _EmpPK,out IsShiftBasedPunchFlag, out IsEmpOK);
+
+                    _DateTime = punch.DateTime;
+                    GetDevicePK(dsAccessController, punch.DeviceId, out DevicePK, out IsDeviceOK);
+                    GetEmpInfo(dsEmpInfo, punch.EmpCard, out _groupId, out _PlantId, out _EmpPK, out IsShiftBasedPunchFlag, out IsEmpOK);
                     if (IsShiftBasedPunchFlag)//as per hr setting
                     {
                         punch.Flag = string.Empty;
                     }
 
                     dvLocal.RowFilter = "LogDownLoadNum = '" + _EmpPK + "' and DeviceID='" + punch.DeviceId + "' AND PDate = '" + punch.Date + "' AND PTime = '" + punch.DateTime + "' ";
-                        if (dvLocal.Count == 0 && IsEmpOK == true)
-                        {
-                            Count++;
-                            drLocal = dsLocal.Tables[0].NewRow();
-                            string _systemid = _pk + "-" + Count.ToString();
-                            UpdateAttdnRawData(punch.Flag,"ADDNEW", _systemid, _groupId, punch.DeviceId, DevicePK, _EmpPK, punch.Date, punch.DateTime, _PlantId, ref drLocal);
-                            dsLocal.Tables[0].Rows.Add(drLocal);
-                        }
-                        dvLocal.RowFilter = null;
+                    if (dvLocal.Count == 0 && IsEmpOK == true)
+                    {
+                        Count++;
+                        drLocal = dsLocal.Tables[0].NewRow();
+                        string _systemid = _pk + "-" + Count.ToString();
+                        UpdateAttdnRawData(punch.Flag, "ADDNEW", _systemid, _groupId, punch.DeviceId, DevicePK, _EmpPK, punch.Date, punch.DateTime, _PlantId, ref drLocal);
+                        dsLocal.Tables[0].Rows.Add(drLocal);
+                    }
+                    dvLocal.RowFilter = null;
                 }//foreach
                 try
                 {
@@ -632,18 +632,18 @@ namespace Attendance
                 }
                 catch (Exception s)
                 {
-                    throw new Exception("Save: "+s);
+                    throw new Exception("Save: " + s);
                 }
                 //call setINOUT flagging func
                 ExecuteFlagSetting(_groupId, _minDate, _maxDate);
             }
             catch (Exception ex)
-            { 
+            {
                 throw ex;
             }
         }
 
-        void ExecuteFlagSetting(string GetCompanyGroupId,DateTime FromDate, DateTime ToDate)
+        void ExecuteFlagSetting(string GetCompanyGroupId, DateTime FromDate, DateTime ToDate)
         {
             DataSet dsPlant = null;
             try
@@ -667,10 +667,10 @@ namespace Attendance
             }
             catch (Exception ex)
             {
-                throw new Exception("Error (Flag setting): "+ex);
+                throw new Exception("Error (Flag setting): " + ex);
             }
         }
-        public void Execute(DateTime FromDate,DateTime ToDate,string _plantId,string _companyGroupId)
+        public void Execute(DateTime FromDate, DateTime ToDate, string _plantId, string _companyGroupId)
         {
             try
             {
@@ -678,9 +678,9 @@ namespace Attendance
                 DateTime _fromD = FromDate.AddDays(-1);
                 FromDate = _fromD;
                 while (FromDate <= ToDate)
-                {     
-                  sio.SetRawINOUT(_plantId, _companyGroupId, ToDate.ToString("dd-MMM-yyyy"), "");                   
-                  ToDate = ToDate.AddDays(-1);
+                {
+                    sio.SetRawINOUT(_plantId, _companyGroupId, ToDate.ToString("dd-MMM-yyyy"), "");
+                    ToDate = ToDate.AddDays(-1);
                 }
             }
             catch (Exception ex)
