@@ -8,7 +8,7 @@
                     <label class="col-sm-4 control-label">Year <sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select ng-disabled="yearList.length==1" class="form-control" name="Voucher Type" ng-model="voucher.YearNo" tabindex="2" ng-change="changeVoucherType(advance.VoucherTypeId)" required>
+                            <select ng-disabled="yearList.length==1" class="form-control" name="Year" ng-model="voucher.YearNo" tabindex="2" ng-change="changeVoucherType(advance.VoucherTypeId)" required>
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in yearList" value="{{option.Text}}">{{option.Text}}</option>
                             </select>
@@ -27,7 +27,7 @@
                     <label class="col-sm-4 control-label">Month <sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select ng-disabled="monthList.length==1" class="form-control" name="Voucher Type" ng-model="voucher.MonthNo" tabindex="2" ng-change="changeMonth()" required>
+                            <select ng-disabled="monthList.length==1" class="form-control" name="Month" ng-model="voucher.MonthNo" tabindex="2" ng-change="changeMonth()" required>
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in monthList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>

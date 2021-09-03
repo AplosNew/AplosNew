@@ -227,5 +227,49 @@ namespace Library.HumanResource.Payroll.Arrear
             }
 
         }
+
+        public List<Dictionary<string, object>> GetEmployeeForApproval(string BatchSystemId)
+        {
+
+            try
+            {
+
+                string sql = @"SELECT 
+                                CONVERT(BIT,ISNULL(b.IsApproved,0)) AS IsApproved,
+                                 [CheckBoxSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'false'),EMP.SystemID AS EmpSystemID,
+                                FORMAT(emp.DOJ,'dd-MMM-yyyy') AS DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') AS DOS,EMP.EmployeeStatus,DIV.UserName AS Division,
+                                EMP.EmployeeName,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric
+                                ,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation, PR.UserName PositionName,
+                                DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection,PL.UserName Plant
+                                  
+
+                                FROM ArrearSummaryBatchWise AS B
+                                JOIN ArrearProcMaster AS apm ON apm.ArrearProcessBatchId=b.ArrearProcessBatchId AND apm.SystemID=(SELECT TOP 1 SystemId FROM ArrearProcMaster AS X WHERE x.ArrearProcessBatchId=b.ArrearProcessBatchId)
+                                JOIN EmployeeInformation AS EMP ON EMP.SystemId=b.EmployeeSystemId
+
+                                LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                                LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                LEFT JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
+                                LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+                                LEFT JOIN org.Division AS DIV ON DIV.Id=emp.DivisionId
+
+                                WHERE B.ArrearProcessBatchId='" + BatchSystemId + @"' ";
+
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
     }
 }
