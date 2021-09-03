@@ -1858,17 +1858,11 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
-                var sql = @"SELECT 
-                                 PDA.Id
-                                 ,REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate		
-                                 ,PDA.Remarks
-                                 ,PDA.AcceptanceNo,V.VoucherNo,PDA.VoucherId
-                                 ,PDA.InvoiceNo
-                                 ,PDAD.MaterialTranAmount Amount,PDA.PurchaseLCId,PDA.AcceptancePaymentSource,FORMAT(PDA.DueDate,'dd-MMM-yyyy') DueDate
-                                 ,FORMAT(PDA.InvoiceDate,'dd-MMM-yyyy')InvoiceDate,C.Code CurrencyName,PLC.CurrencyId, P.UserName Party,PDA.PurchaseLCId,PLC.ContractId,PDA.AcceptanceRate
+                var sql = @"SELECT PDA.Id, PDA.CompanyGroupId, PDA.CompanyId, PDA.PlantId, PDA.AcceptanceNo, FORMAT(PDA.EntryDate,'dd-MMM-yyyy') EntryDate, PDA.AddedBy, FORMAT(PDA.AddedDate,'dd-MMM-yyyy') AddedDate, PDA.AddedFromIP, PDA.UpdatedBy, FORMAT(PDA.UpdatedDate,'dd-MMM-yyyy') UpdatedFromIP, FORMAT(PDA.AcceptanceDate,'dd-MMM-yyyy')AcceptanceDate, PDA.POId, PDA.CheckedBy, PDA.CheckedByStatus, PDA.AuthorizedBy, PDA.AuthorizedByStatus, PDA.Remarks, PDA.PurchaseLCId, PDA.AcceptancePaymentSource, FORMAT(PDA.DueDate,'dd-MMM-yyyy') DueDate, FORMAT(PDA.InvoiceDate,'dd-MMM-yyyy') InvoiceDate, PDA.VoucherId, PDA.PartyId, PDA.PartyPlantId, PDA.AcceptanceRate, PDA.IsNonCreditable, PDA.InvoiceNo, PDA.PrePurchaseInvoiceId, PDA.ServiceVoucherId, PDA.AcceptanceAmount
+                                 ,V.VoucherNo,PDAD.MaterialTranAmount Amount,C.Code CurrencyName,PLC.CurrencyId, P.UserName Party,PLC.ContractId
                                  ,PLC.Tenure,PLC.OpeningBankMasterId,BM.CurrencyId LCOBCurrencyId,BMC.Code OBCurrencyCode
                                  ,NonCreditable =case when PDA.IsNonCreditable=1 then 'Yes' else 'No' end
-                                 ,PDA.IsNonCreditable,PLC.LCRef,CN.ContractNo,ISNULL(CN.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end,PCN.UserName CustomerName,PDA.TotalGRNAmount,PLC.Amount LCAmount
+                                 ,PLC.LCRef,CN.ContractNo,ISNULL(CN.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end,PCN.UserName CustomerName,PLC.Amount LCAmount
                                  FROM TRN.PurchasedocAcceptance AS PDA
                                  LEFT JOIN(SELECT SUM(ISNULL(MaterialTranAmount,0)) MaterialTranAmount,PurchaseDocAcceptanceId 
                                  FROM  TRN.PurchasedocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id

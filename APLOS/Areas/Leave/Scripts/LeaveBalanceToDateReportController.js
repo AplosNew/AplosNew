@@ -1,6 +1,6 @@
 ﻿'use strict';
-LeaveBalanceToDateReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
-function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
+LeaveBalanceToDateReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$window'];
+function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $window) {
     $rootScope.title = 'Leave Register';
     $scope.Action = 'Save';
     $scope.path = 'Leave/LeaveBalanceToDateReport/';
@@ -34,13 +34,15 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
     $scope.Report = function () {
         var reportFormat = "Excel";
         try {
-            if ($scope.YearId == "" || $scope.YearId == null) {
-                throw "Select Year";
-            }
+            var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
+            var PlantId = DropDownListObj.getSelectedValue();
+            //if ($scope.YearId == "" || $scope.YearId == null) {
+            //    throw "Select Year";
+            //}
             if ($scope.selectedValues.ToDate == "" || $scope.selectedValues.ToDate == null) {
                 throw "Select Date";
             }
-            var url = $scope.path+ '/GetReport?reportFormat=' + reportFormat + "&Year=" + $scope.YearId + "&ToDate=" + $scope.selectedValues.ToDate;
+            var url = $scope.path + '/GetReport?reportFormat=' + reportFormat + "&Year=" + $scope.YearId + "&ToDate=" + $scope.selectedValues.ToDate + '&PlantId=' + PlantId;
 
             $rootScope.report(url);
         } catch (e) {
@@ -51,16 +53,20 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
     $scope.EmpData = [];
     $scope.LoadData = function () {
         try {
-            if ($scope.YearId == "" || $scope.YearId == null) {
-                throw "Select Year";
-            }
+            //if ($scope.YearId == "" || $scope.YearId == null) {
+            //    throw "Select Year";
+            //}
 
             if ($scope.selectedValues.ToDate == "" || $scope.selectedValues.ToDate == null) {
                 throw "Select Date";
             }
+
+            var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
+            var PlantId = DropDownListObj.getSelectedValue();
+
             $http({
                 method: 'GET',
-                url: $scope.path + 'GetEmp?YearId=' + $scope.YearId + '&ToDate=' + $scope.selectedValues.ToDate,
+                url: $scope.path + 'GetEmp?YearId=' + $scope.YearId + '&ToDate=' + $scope.selectedValues.ToDate + '&PlantId=' + PlantId,
             }).then(function successCallback(response) {
                 $scope.EmpData = response.data;
                 for (var i = 0; i < $scope.EmpData.length; i++) {
@@ -81,7 +87,9 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
 
     $scope.LeaveBalanceList = [];
     $scope.LeaveTypes = function () {
-        $http.get($scope.path+ '/GetLeaveBalance?YearId=' + $scope.YearNo + "&ToDate=" + $scope.selectedValues.ToDate)
+        var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
+        var PlantId = DropDownListObj.getSelectedValue();
+        $http.get($scope.path + '/GetLeaveBalance?YearId=' + $scope.YearNo + "&ToDate=" + $scope.selectedValues.ToDate + '&PlantId=' + PlantId)
             .then(function (response) {
                 $scope.LeaveBalanceList = response.data;
             });
@@ -104,12 +112,40 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
     };
 
     $scope.LeaveTypes = function (empId) {
-        $http.get($scope.path+ '/GetLeaveBalance?year=' + $scope.YearId + '&empId=' + empId + "&ToDate=" + $scope.selectedValues.ToDate)
+        var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
+        var PlantId = DropDownListObj.getSelectedValue();
+        $http.get($scope.path + '/GetLeaveBalance?year=' + $scope.YearId + '&empId=' + empId + "&ToDate=" + $scope.selectedValues.ToDate + '&PlantId=' + PlantId)
             .then(function (response) {
                 $scope.LeaveBalanceList = response.data;
             });
     };
 
     //#endregion
+
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: "humanresource/payrollReports/GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+            var index = 0;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#ddlPlantList').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 340
+                });
+
+        });
+    }
+    $scope.getPlant();
 
 }

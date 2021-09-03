@@ -316,7 +316,7 @@ namespace Aplos.Areas.Products.Controllers
 
             try
             {
-                string sql = @"SELECT  PAD.Id ,PAD.POId,PAD.PODetailId, MGM.UserName AS MaterialGroupMasterName, MM.Id MaterialMasterId, MM.UserName, PAD.ArticleId, ART.StandardName, PAD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
+                string sql = @"SELECT  PAD.Id ,PAD.POId,PAD.PODetailId, RD.InventoryReceiveId, MGM.UserName AS MaterialGroupMasterName, MM.Id MaterialMasterId, MM.UserName, PAD.ArticleId, ART.StandardName, PAD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
                                     , PAD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue, PAD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
                                     , PAD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue, PAD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
                                     , PAD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
@@ -1042,7 +1042,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["InvoiceNo"] = data.InvoiceNo;
                     dr["PrePurchaseInvoiceId"] = data.PrePurchaseInvoiceId;
                     dr["EntryDate"] = data.EntryDate;
-                    dr["TotalGRNAmount"] = data.TotalGRNAmount;
+                    dr["AcceptanceAmount"] = data.AcceptanceAmount;
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -1076,7 +1076,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["InvoiceNo"] = data.InvoiceNo;
                     dr["PrePurchaseInvoiceId"] = data.PrePurchaseInvoiceId;
                     dr["EntryDate"] = data.EntryDate;
-                    dr["TotalGRNAmount"] = data.TotalGRNAmount;
+                    dr["AcceptanceAmount"] = data.AcceptanceAmount;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;

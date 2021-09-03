@@ -952,6 +952,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 
 public class EmployeeDetails
 {
+    public string PlantName { get; set; }
     public string EmployeeName { get; set; }
     public string DOJ { get; set; }
     public string EmployeeCode { get; set; }
@@ -971,6 +972,7 @@ public class EmployeeDetails
 public class EmployeeDetailsVM
 {
     public string SystemID { get; set; }
+    public string PlantName { get; set; }
     public string EmployeeName { get; set; }
     public string DOJ { get; set; }
     public string EmployeeCode { get; set; }

@@ -1853,8 +1853,8 @@ UNION
 							,A.Code ActivityCode
 							,A.UserName ActivityName
 
-							, SUM(ISH.SalesRate*ISH.Qty)   AS  Dr, 0 Cr
-							, SUM(ISH.SalesRate*ISH.Qty)  AS Amount
+							, SUM(ISD.SalesRate*ISH.Qty)   AS  Dr, 0 Cr
+							, SUM(ISD.SalesRate*ISH.Qty)  AS Amount
 						FROM [TRN].[InventorySalesDetail] AS ISD 
 						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
 						LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=ISD.Id
@@ -1892,36 +1892,38 @@ UNION
                     
 
 						union
-                        SELECT  OtherName=case when (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 then 'Gain on Sales'  
-											when (SUM(ird.MaterialTranRate)-SUM(ISH.SalesRate))*SUM(ISH.Qty)>0 then 'Loss on Sales'
+                        SELECT  OtherName=case when (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 then 'Gain on Sales'  
+											when (SUM(ird.MaterialTranRate)-SUM(ISD.SalesRate))*SUM(ISH.Qty)>0 then 'Loss on Sales'
 											  end
-							,TrnType=case when (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 then 'Cr'  
-											when (SUM(ird.MaterialTranRate)-SUM(ISH.SalesRate))*SUM(ISH.Qty)>0 then 'Dr'
+							,TrnType=case when (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 then 'Cr'  
+											when (SUM(ird.MaterialTranRate)-SUM(ISD.SalesRate))*SUM(ISH.Qty)>0 then 'Dr'
 											  end
 											  , NULL MaterialGroupMasterId
-							,GLGeneralInfoId=CASE WHEN (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GAD.GLGeneralInfoId ELSE GADL.GLGeneralInfoId END
-							,GLGeneralInfoCode=CASE WHEN (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GL.AccountCode  ELSE GLL.AccountCode END
-							,GLGeneralInfoName=CASE WHEN (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GL.UserName   ELSE GLL.UserName  END
-							,BudgetMasterId=CASE WHEN (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GAD.BudgetMasterId   ELSE GADL.BudgetMasterId  END
-							,BudgetCode=CASE WHEN (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN B.Code   ELSE BL.Code  END
-							,BudgetName=CASE WHEN (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN B.UserName   ELSE BL.UserName  END
-							, ActivityId=CASE WHEN (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GAD.ActivityId  ELSE GADL.ActivityId END
-							,ActivityCode=CASE WHEN (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN A.Code   ELSE AL.Code  END
-							,ActivityName=CASE WHEN (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN A.UserName   ELSE AL.UserName  END
+							,GLGeneralInfoId=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GAD.GLGeneralInfoId ELSE GADL.GLGeneralInfoId END
+							,GLGeneralInfoCode=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GL.AccountCode  ELSE GLL.AccountCode END
+							,GLGeneralInfoName=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GL.UserName   ELSE GLL.UserName  END
+							,BudgetMasterId=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GAD.BudgetMasterId   ELSE GADL.BudgetMasterId  END
+							,BudgetCode=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN B.Code   ELSE BL.Code  END
+							,BudgetName=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN B.UserName   ELSE BL.UserName  END
+							, ActivityId=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN GAD.ActivityId  ELSE GADL.ActivityId END
+							,ActivityCode=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN A.Code   ELSE AL.Code  END
+							,ActivityName=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN A.UserName   ELSE AL.UserName  END
 							
-							, 0 Dr, (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty) AS Cr
-							, (SUM(ISH.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty) AS Amount
+							, Dr=CASE WHEN (SUM(ird.MaterialTranRate)-SUM(ISD.SalesRate))*SUM(ISH.Qty)>0 THEN (SUM(ird.MaterialTranRate)-SUM(ISD.SalesRate))*SUM(ISH.Qty) ELSE 0 END
+							, Cr=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty) ELSE 0 END
+							, Amount=CASE WHEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty)>0 THEN (SUM(ISD.SalesRate)-SUM(ird.MaterialTranRate))*SUM(ISH.Qty) ELSE (SUM(ird.MaterialTranRate)-SUM(ISD.SalesRate))*SUM(ISH.Qty) END
 						FROM [TRN].[InventorySalesDetail] AS ISD
 						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
 						LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=ISD.Id
 						LEFT JOIN [TRN].InventoryReceiveDetail IRD ON IRD.Id=ISH.InventoryReceiveDetailId
-						LEFT JOIN [HKP].[GeneralAccountDeterminate] GAD ON GAD.PlantId=IR.PlantId and GAD.Id='GainOnInventorySales'
+						LEFT JOIN ORG.Company C ON C.Id=IR.CompanyId
+						LEFT JOIN [HKP].[GeneralAccountDeterminate] GAD ON C.COAId=GAD.COAId and GAD.Id='GainOnInventorySales'
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
 						LEFT JOIN[MST].[BudgetMaster] AS BMF ON GAD.BudgetMasterId= BMF.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BMF.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
 
-						LEFT JOIN [HKP].[GeneralAccountDeterminate] GADL ON GADL.PlantId=IR.PlantId and GADL.Id='LossOnInventorySales'
+						LEFT JOIN [HKP].[GeneralAccountDeterminate] GADL ON GADL.COAId=C.COAId and GADL.Id='LossOnInventorySales'
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GLL ON GADL.GLGeneralInfoId=GLL.Id
 						LEFT JOIN[MST].[BudgetMaster] AS BMFL ON GADL.BudgetMasterId= BMFL.Id
 						LEFT JOIN [HKP].[Budget] AS BL ON BMFL.BudgetId= BL.Id
@@ -4108,7 +4110,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                     , Particular= P.UserName
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
-	                                ,VD.DrAmount Amount
+	                          ,V.Id VoucherId ,VD.DrAmount Amount
 									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
@@ -4126,7 +4128,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                     , Particular= P.UserName
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
-	                                ,VD.DrAmount Amount
+	                           ,V.Id VoucherId	     ,VD.DrAmount Amount
 									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
@@ -4144,7 +4146,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                     , Particular= P.UserName
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
-	                                ,VD.DrAmount Amount
+	                               ,V.Id VoucherId ,VD.DrAmount Amount
 									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
