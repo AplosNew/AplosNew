@@ -2133,7 +2133,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         taxCategoryList: $scope.taxCategoryList,
                         JWPOToCurrencyRate: $scope.productNew.ToCurrencyRate,
                         JWPOIsNonCreditable: $scope.productNew.IsNonCreditable,
-                        JWPODate: $scope.productNew.PODate
+                        JWPODate: $scope.productNew.PODate,
+                        JWPOType: $scope.productNew.POType
 
                     },
                     dataType: 'JSON'

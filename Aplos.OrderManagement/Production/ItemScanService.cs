@@ -482,6 +482,20 @@ namespace Library.Service.EmployeeServices
             }
         }
 
+        public IEnumerable<object> GetBookedQtyMsg(string PackingId)
+        {
+            try
+            {
+                var sql = @"select Count(refno)CartonQty,
+                isnull(Floor(Sum(netweight)),0)BookedQty from itemscanchild 
+                where PackingId='"+PackingId+"'and Booked=1";                
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         public string CreateDispatch(IEnumerable<ItemScanChildData> DataToSave)
         {
