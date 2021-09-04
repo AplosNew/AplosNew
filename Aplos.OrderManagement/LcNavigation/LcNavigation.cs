@@ -57,10 +57,10 @@ namespace Library.OrderManagement.LcNavigation
 						,Isnull(invpy.InvPayment,0) SetOff 
 						,Isnull(Loan.Amount,0) Loan
 						,Isnull(LoanSetOff.LoanSetOff,0) LoanSetOff
-						,ac.AcceptanceCount
+						,Isnull(ac.AcceptanceCount,0) AcceptanceCount
 						,ISNULL(grn.GRNTotalAmount,0) as GRNValue
-                        ,grn.GRNCount
-	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
+                        ,ISNULL(grn.GRNCount,0) GRNCount
+	                    ,IsClosed=case when PL.Status='Active' then 'No' else 'Yes' END
 						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END ,
                         con.ContractNo,
                         cus.Customer,
@@ -69,8 +69,7 @@ namespace Library.OrderManagement.LcNavigation
 						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
 						--,variance=po.POAmount-grn.GRNTotalAmount
 						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
-						
-					
+										
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
                         left outer join HKP.Bank as B on OBank.BankId=b.Id
@@ -579,13 +578,25 @@ order by PO.PODate desc";
         private string GRNBreakDownSql(string GRNID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"select IRD.POId,sum( IRD.TotalMaterialTranAmount ) GRNValue,Format(IR.GRNDate,'dd-MMM-yyyy') GRNDate
-from trn.InventoryReceive IR 
+            return @"select A.Id,Isnull(A.POId,'')POId,A.GRNValue,A.GRNDate from  (
+                            select IR.Id, IRD.POId,sum( IRD.TotalMaterialTranAmount ) GRNValue,Format(IR.GRNDate,'dd-MMM-yyyy') GRNDate from trn.InventoryReceive IR 
 							left outer join trn.InventoryReceiveDetail IRD on IRD.InventoryReceiveId=IR.Id
 							left outer join trn.PurchaseOrder PO on PO.id=IRD.POId
-							--left outer join trn.PurchaseOrderDetail POD on POD.InventoryReceiveId=PO.Id
-							where IR.Id='" + GRNID + @"'
-							group by IRD.POId,IR.GRNDate";
+							group by IR.Id,IRD.POId,IR.GRNDate
+
+
+							union all
+							select IR.Id,IRD.Jwtcmid,sum( IRD.TotalMaterialTranAmount ) GRNValue,Format(IR.GRNDate,'dd-MMM-yyyy') GRNDate from trn.InventoryReceive IR 
+							left outer join trn.InventoryReceiveDetail IRD on IRD.InventoryReceiveId=IR.Id
+							left outer join [dbo].[JWTransformationPurchaseOrder]  PO  on PO.id=IRD.Jwtcmid
+							group by IR.Id,IRD.Jwtcmid,IR.GRNDate
+							union all
+							select IR.Id,IRD.ServiceAcknowledgementMasterId,sum( IRD.TotalAmount ) GRNValue,Format(IR.DocDate,'dd-MMM-yyyy') GRNDate from trn.ServiceAcknowledgementMaster IR 
+							left outer join trn.ServiceAcknowledgementDetail IRD on IRD.ServiceAcknowledgementMasterId=IR.Id
+							left outer join trn.ServicePOMaster  PO  on PO.id=IRD.ServicePOMasterId
+							group by IR.Id,IRD.ServiceAcknowledgementMasterId,IR.DocDate
+					
+							) A where A.Id='"+GRNID+@"' and A.POId<>''";
         }
 
 
@@ -611,42 +622,93 @@ from trn.InventoryReceive IR
 distinct gn.GRNNo,PL.Id as PurchaseLCId
                     ,c.Code as Currency,Gn.GateEntryNo,Gn.GateName,gn.GRNDate,gn.GRNValue
 					
-,POIDs=STUFF((select distinct ','+xPO.Id from
+,POIDs= concat(STUFF((select distinct ','+xPO.Id from
 trn.PurchaseOrder AS xPO
 Left outer JOIN trn.InventoryReceiveDetail AS xIRD ON xIRD.POId=xPO.Id
 where xIRD.InventoryReceiveId=gn.GRNNo for xml path('') ), 1, 1, '')
 
-,vendorRefs=STUFF((select distinct ','+xPO.DocRefNo from
+ ,STUFF((select distinct ','+xPO.Id from
+[dbo].[JWTransformationPurchaseOrder] AS xPO
+Left outer JOIN trn.InventoryReceiveDetail AS xIRD ON xIRD.JWTCMId=xPO.Id
+where xIRD.InventoryReceiveId=gn.GRNNo for xml path('') ), 1, 1, '')
+
+ ,STUFF((select distinct ','+xPO.Id from
+ trn.ServicePOMaster AS xPO
+Left outer JOIN trn.ServiceAcknowledgementDetail AS xIRD ON xIRD.ServiceAcknowledgementMasterId=xPO.Id
+where xIRD.ServiceAcknowledgementMasterId=gn.GRNNo for xml path('') ), 1, 1, ''))
+
+,vendorRefs=Concat(STUFF((select distinct ','+xPO.DocRefNo from
 trn.PurchaseOrder AS xPO
 Left outer JOIN trn.InventoryReceiveDetail AS xIRD ON xIRD.POId=xPO.Id
+where xIRD.InventoryReceiveId=gn.GRNNo for xml path('')), 1, 1, '')
+ ,STUFF((select distinct ','+xPO.DocRefNo from
+[dbo].[JWTransformationPurchaseOrder] AS xPO
+Left outer JOIN trn.InventoryReceiveDetail AS xIRD ON xIRD.JWTCMId=xPO.Id
 where xIRD.InventoryReceiveId=gn.GRNNo for xml path('') ), 1, 1, '')
+
+ ,STUFF((select distinct ','+xPO.DocRefNo from
+ trn.ServicePOMaster AS xPO
+Left outer JOIN trn.ServiceAcknowledgementDetail AS xIRD ON xIRD.ServiceAcknowledgementMasterId=xPO.Id
+where xIRD.ServiceAcknowledgementMasterId=gn.GRNNo for xml path('') ), 1, 1, ''))
+
+
 
 					from PurchaseLC as PL 
 					 
 					 left outer join (
 					 select  
-					 po.PurchaseLCId, sum(IRD.TotalMaterialTranAmount) as GRNValue,IRD.InventoryReceiveId as GRNNo,
+					po.PurchaseLCId, sum(IRD.TotalMaterialTranAmount) as GRNValue,IRD.InventoryReceiveId as GRNNo,
 					FORMAT( IR.GRNDate,'dd-MMM-yyyy') as GRNDate
 					,Gate.UserName GateName
 					,IR.GateEntryNo
 					from  TRN.PurchaseOrder as PO
 					left outer join TRN.InventoryReceiveDetail as IRD on IRD.POId=po.Id
-                     join TRN.InventoryReceive as IR on IR.Id=IRD.InventoryReceiveId
+                    left join TRN.InventoryReceive as IR on IR.Id=IRD.InventoryReceiveId
 					left outer join trn.GateEntry as G on G.Id=IR.GateEntryNo
-                    left outer join dbo.PlantWiseGate as  gate on gate.Id=g.PlantWiseGateId
+                    left outer join dbo.PlantWiseGate as  gate on gate.Id=g.PlantWiseGateId	
 					 group by  
 					 IRD.InventoryReceiveId ,po.PurchaseLCId
 					 ,IR.GRNDate,Gate.UserName,IR.GateEntryNo
+
+					 Union ALL
+
+					  select  
+					 po.PurchaseLCId, sum(IRD.TotalMaterialTranAmount) as GRNValue,IRD.InventoryReceiveId as GRNNo,
+					FORMAT( IR.GRNDate,'dd-MMM-yyyy') as GRNDate
+					,Gate.UserName GateName
+					,IR.GateEntryNo
+					from [dbo].[JWTransformationPurchaseOrder] as PO
+					left outer join TRN.InventoryReceiveDetail as IRD on IRD.JWTCMId=po.Id
+                    left join TRN.InventoryReceive as IR on IR.Id=IRD.InventoryReceiveId
+					left outer join trn.GateEntry as G on G.Id=IR.GateEntryNo
+                    left outer join dbo.PlantWiseGate as  gate on gate.Id=g.PlantWiseGateId
+	
+					 group by  
+					 IRD.InventoryReceiveId ,po.PurchaseLCId
+					 ,IR.GRNDate,Gate.UserName,IR.GateEntryNo
+
+
+					Union ALL
+					  select  
+					 po.PurchaseLCId, sum(IRD.TotalMaterialTranAmount) as GRNValue,IRD.InventoryReceiveId as GRNNo,
+					FORMAT( IR.GRNDate,'dd-MMM-yyyy') as GRNDate
+					,Gate.UserName GateName
+					,IR.GateEntryNo
+					from trn.ServicePOMaster as PO
+					left outer join TRN.InventoryReceiveDetail as IRD on IRD.POId=po.Id
+                    left join TRN.InventoryReceive as IR on IR.Id=IRD.InventoryReceiveId
+					left outer join trn.GateEntry as G on G.Id=IR.GateEntryNo
+                    left outer join dbo.PlantWiseGate as  gate on gate.Id=g.PlantWiseGateId
+	
+					 group by  
+					 IRD.InventoryReceiveId ,po.PurchaseLCId
+					 ,IR.GRNDate,Gate.UserName,IR.GateEntryNo
+					
 					 ) gn on gn.PurchaseLCId=PL.Id
 
                     left join SCS.Currency as c on c.id=PL.CurrencyId
-					join TRN.PurchaseOrder as PO on po.PurchaseLCId=pl.Id
-                    where pl.Id='"+PurchaseLCId+@"'
-					  group by PL.Id,c.Code
-					  
-					  ,gn.GateEntryNo
-					  ,gn.GateName,gn.GRNDate
-					  ,gn.GRNNo,gn.GRNValue";
+					left join TRN.PurchaseOrder as PO on po.PurchaseLCId=pl.Id
+                    where pl.Id='" + PurchaseLCId+@"'";
 
         }
         public List<Dictionary<string, object>> GetPurchaseLCACList(string PurchaseLCId)

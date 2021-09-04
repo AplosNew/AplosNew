@@ -524,7 +524,8 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		JWContractId: null,
 		ContractType: null,
 		MaterialStorageIdInventory: null,
-		RefferenceNo: null
+		RefferenceNo: null,
+		OrderRefNo:null,
 
 	};
 	$scope.IssueTransformation = Object.assign({}, $scope.IssueTransformationModelTemp);
@@ -621,6 +622,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.IssueTransformationChildList = [];
 	$scope.MaterialInputList = [];
 	$scope.detailList = [];
+	$scope.MatInputListLocal = [];
 
 	$scope.SelectMaterialPlanning = function () {
 		//$scope.product = Object.assign({}, $scope.productNew);
@@ -705,6 +707,23 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			url: $scope.path + 'GetMaterialInputData'
 		}).then(function successCallback(response) {
 			$scope.MaterialInputList = response.data;
+			$scope.MatInputListLocal = response.data;
+			if ($scope.MaterialInputList.length > 0) {
+				for (var a = 0; a < $scope.MaterialInputList.length; a++) {
+					var Id = $scope.MaterialInputList[a].JWTCMId;
+					var ArticleId = $scope.MaterialInputList[a].ArticleId;
+
+					for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
+						if ($scope.MatInputListLocal[b].JWTCMId != Id) {
+							if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
+								ShowResult("Common Input Material is there");
+								return false;
+                            }
+                        }
+                    }
+                }
+            }
+			
 			$scope.detailList = response.data;
 			for (var i = 0; i < $scope.detailList.length; i++) {
 				$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
@@ -1780,6 +1799,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.qtyFunc = function (x, index) {
 		//debugger;
 		// alert('qtyalert');
+		var BaltoIssue;
 		for (var i = 0; i < $scope.detailList.length; i++) {
 			if (($scope.detailList[index].MaterialMasterName === $scope.detailList[i].MaterialMstId) && $scope.detailList[index].ArticleId === $scope.detailList[i].ArticleId) {
 
@@ -1803,10 +1823,81 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 				//	return false;
 				//	//throw 'Issue qty must be less than or equal Ready for Issue Qty.';
 				//}
-				$scope.detailList[i].BalanceToIssue = ($scope.detailList[i].RequiredQuantity - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+				BaltoIssue = ($scope.detailList[i].RequiredQuantity - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+
+				$scope.detailList[i].BalanceToIssue = BaltoIssue.toFixed(4);
 			}
 
 		}
 
 	}
+
+	//#region Order Ref
+	$scope.masterOrderCustomerList = [];
+	$scope.GetMasterOrderByContractList = function () {
+		//debugger;
+		$http({
+			method: "GET",
+			dataType: 'JSON',
+			//url: $scope.getSearchListUrl,
+			url: 'Products/InventoryIssue/GetMasterOrderList',
+		}).then(function successCallback(response) {
+			$scope.masterOrderCustomerList = response.data;
+			//entrydata = copy(searchdata);
+
+		});
+		angular.element(document.querySelector('#MasterOrderPopUp')).modal('show');
+	}
+
+	$scope.SelectedOrder = function (obj) {
+		//debugger;
+		//var data = obj.data.ContractId;
+	//	$scope.productNew.OrderRefNo = obj.data.MasterOrderNo;
+		$scope.IssueTransformation.OrderRefNo = obj.data.MasterOrderNo;
+		angular.element(document.querySelector('#MasterOrderPopUp')).modal('hide');
+	}
+	$scope.ClearMasterOrder = function () {
+		$scope.IssueTransformation.OrderRefNo = "";
+
+	};
+
+	$scope.CloseMasterOrder = function () {
+		angular.element(document.querySelector('#MasterOrderPopUp')).modal('hide');
+
+	};
+
+	$scope.productNewPOpUPModelTemp = {
+		MasterOrderNo1: null,
+		TotalQty1: null,
+		CustomerName1: null,
+		Contract1: null,
+		MasterLCNo1: null,
+
+	};
+	$scope.productNewPOpUP = Object.assign({}, $scope.productNewPOpUPModelTemp);
+
+	$scope.GetPopUpMasterOrderDetails = function () {
+		//debugger;
+		$http({
+			method: "GET",
+			dataType: 'JSON',
+			//url: $scope.getSearchListUrl,
+			url: 'Products/InventoryIssue/GetMasterOrderDetailsList?MasterOrderId=' + $scope.IssueTransformation.OrderRefNo,
+		}).then(function successCallback(response) {
+			//$scope.productNew.masterOrderCustomerList = response.data;
+			$scope.productNewPOpUP.MasterOrderNo1 = response.data[0].MasterOrderNo;
+			$scope.productNewPOpUP.TotalQty1 = response.data[0].TotalQty;
+			$scope.productNewPOpUP.CustomerName1 = response.data[0].CustomerName;
+			$scope.productNewPOpUP.Contract1 = response.data[0].ContractNo;
+			$scope.productNewPOpUP.MasterLCNo1 = response.data[0].MasterLCNo;
+			angular.element(document.querySelector('#MasterOrderPopUp1')).modal('show');
+
+		});
+
+	};
+	$scope.CloseMasterOrder1 = function () {
+		angular.element(document.querySelector('#MasterOrderPopUp1')).modal('hide');
+
+	};
+	//#endregions
 }

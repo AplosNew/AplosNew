@@ -81,7 +81,7 @@ namespace OTSBD
                 strSQL = @"select * from (
                                         SELECT Id,SalaryHeadEnum,EmpSystemId ,SalaryStructureId,IsEligible FROM EmployeeEligibleForSalaryHeadEnum
                                         ) x
-                              where (" + EmpSystemId + ") ";
+                              where EmpSystemId IN (" + EmpSystemId + ") ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -1444,13 +1444,13 @@ namespace OTSBD
 								                    SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
 								                    from SalaryInfoDefineMaster SDM
 								                    JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
-                                                    WHERE (" + sEmpInfo + @") AND SDM.IsApproved=1
+                                                    WHERE EmpInfoSystemID IN (" + sEmpInfo + @") AND SDM.IsApproved=1
 								                    union ALL
 								                    select SD.SystemID,SDM.PlantID,EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, EffectiveDate,IsApproved, DateApproved,
 								                    SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
 								                     from SalaryInfoBackMaster SDM
 								                    JOIN SalaryInfoBack AS SD ON sdm.SystemID=SD.SalaryID 
-                                                    WHERE (" + sEmpInfo + @") AND SDM.IsApproved=1
+                                                    WHERE EmpInfoSystemID IN (" + sEmpInfo + @") AND SDM.IsApproved=1
 							
 			                    ) AS SDM
 			
@@ -1489,14 +1489,15 @@ namespace OTSBD
                                                                                      OR E.DOS = '' OR E.DOS = '01/01/1901')
                                                     AND SEFD.IsApproved = 1 AND SEFD.EffectiveDate <= '" + para.ToDate + @"'
                                           ) A 
-                                        WHERE (" + sEmpInfo + @") ";
+                                        --WHERE EmpInfoSystemID IN (" + sEmpInfo + @") ";
 
                 if (para.PlantID != "ALL" & para.PlantID != "")
                 {
                     strSql += @" AND PlantID = '" + para.PlantID + @"' ";
                 }
 
-                strSql += @" ORDER BY EmpInfoSystemID, HeadType DESC";
+                strSql += @"
+                            ORDER BY EmpInfoSystemID, HeadType DESC";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
@@ -1904,13 +1905,13 @@ namespace OTSBD
                                     }
                                     if (string.IsNullOrEmpty(sEmpInfoSysIDColl) == true)
                                     {
-                                        sEmpInfoSysIDColl = "EmpInfoSystemID = '" + dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim() + "'";
-                                        sEmpSystemID = "EmpSystemID = '" + dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim() + "'";
+                                        sEmpInfoSysIDColl = "'" + dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim() + "'";
+                                        sEmpSystemID = "'" + dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim() + "'";
                                     }
                                     else
                                     {
-                                        sEmpInfoSysIDColl += " OR EmpInfoSystemID = '" + dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim() + "'";
-                                        sEmpSystemID += " OR EmpSystemID = '" + dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim() + "'";
+                                        sEmpInfoSysIDColl += ",'" + dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim() + "'";
+                                        sEmpSystemID += ",'" + dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim() + "'";
                                     }
                                     EmpCntForLoop++;
                                 }

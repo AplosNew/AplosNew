@@ -3423,7 +3423,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 		$scope.IsOwnVendor = 'OwnVendor';
 		$scope.GetBOQItemList();
-	
+
 		$scope.tab1 = newTab;
 
 	};
@@ -3466,12 +3466,12 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		$scope.taxCategoryList = [];
 		$scope.groupList = [];
 		$scope.Action1 = 'Save';
-	
+
 
 		$scope.getalldataListForBOQList();
 		$scope.ActionPOBOQ = 'Save';
 
-			//$scope.uom();
+		//$scope.uom();
 		//$scope.processgroupList111();
 		// $scope.GerRequisition();
 
@@ -3498,7 +3498,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	$scope.GetListForMasterOrder = [];
 	$scope.getalldataListForBOQList = function () {
 		//debugger;
-		var gridObj = $("#GridReq").data("ejGrid");		
+		var gridObj = $("#GridReq").data("ejGrid");
 		gridObj.clearFiltering();
 		//$("#GridReq").ejGrid("clearFiltering");
 
@@ -3516,8 +3516,8 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		}).then(function successCallback(response) { //datagatefun			
 			$scope.GetListForMasterOrder = [];
 			$scope.GetListForMasterOrder = response.data;
-			gridObj.refreshContent(true);			
-			gridObj.refreshTemplate();	
+			gridObj.refreshContent(true);
+			gridObj.refreshTemplate();
 			$scope.processgroupList111();
 		});
 		$scope.Action1 = 'Save';
@@ -3653,7 +3653,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 					ShowResult('Have you selected Same UOM?', 'failure', 'ListOfPOMaterial');
 					return true;
 				}
-				
+
 
 			}
 
@@ -3679,7 +3679,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			if ($scope.GetListForMasterOrder[i].CheckedStatus === true) {
 				aa++;
 
-			}			
+			}
 		}
 		if (aa === 0) {
 			ShowResult('Please select atleast one material', 'failure', 'ListOfPOMaterial');
@@ -3693,20 +3693,20 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			$scope.check();
 			$scope.GetListForMasterOrdernew = [];
 			for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
-				if ($scope.GetListForMasterOrder[i].CheckedStatus === false && $scope.GetListForMasterOrder[i].TransactionQty > 0) {//(!(baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty) ||
-					if ($scope.ActionPOBOQ === 'Update') {
-						ShowResult('Select the Material', 'failure', 'ListOfPOMaterial1');
-						return false;
-					}
+				//if ($scope.GetListForMasterOrder[i].CheckedStatus === false && $scope.GetListForMasterOrder[i].TransactionQty > 0) {//(!(baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty) ||
+				//	if ($scope.ActionPOBOQ === 'Update') {
+				//		ShowResult('Select the Material', 'failure', 'ListOfPOMaterial1');
+				//		return false;
+				//	}
 
-					else {
-						ShowResult('Select the Material', 'failure', 'ListOfPOMaterial');
-						return false;
-					}
-				}
-				
+				//	else {
+				//		ShowResult('Select the Material', 'failure', 'ListOfPOMaterial');
+				//		return false;
+				//	}
+				//}
+
 				if ((baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty) || $scope.GetListForMasterOrder[i].TransactionQty === 0) && $scope.GetListForMasterOrder[i].CheckedStatus === true) {
-					
+
 					if ($scope.ActionPOBOQ === 'Update') {
 
 						ShowResult('Enter the Selected  Material Qty', 'failure', 'ListOfPOMaterial1');
@@ -3717,7 +3717,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 						return false;
 					}
 				}
-				
+
 				if ($scope.GetListForMasterOrder[i].CheckedStatus === true && $scope.GetListForMasterOrder[i].RequiredQtyApproved === 'Yes' && $scope.GetListForMasterOrder[i].IncompleteMaterial === 'No') {
 					if ($scope.ActionPOBOQ === 'Save') {
 						if ((parseFloat($scope.GetListForMasterOrder[i].TransactionQty) + parseFloat($scope.GetListForMasterOrder[i].OtherPOQty)) > parseFloat($scope.GetListForMasterOrder[i].RequiredQtyPO)) {
@@ -3729,23 +3729,23 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 							ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial');
 							return false;
 						}
-						else if ($scope.GetListForMasterOrder[i].TransactionQty === 0 || $scope.GetListForMasterOrder[i].TransactionQty === 0.00 || $scope.GetListForMasterOrder[i].TransactionQty === 0.0) {
+						if ($scope.GetListForMasterOrder[i].TransactionQty === 0 || $scope.GetListForMasterOrder[i].TransactionQty === 0.00 || $scope.GetListForMasterOrder[i].TransactionQty === 0.0) {
 							ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial');
 							return false;
 						}
-						else if (baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionRate)) {
+						if (baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionRate)) {
 							ShowResult('Enter the current rate.Zero not allowed', 'failure', 'ListOfPOMaterial');
 							return false;
 						}
-						else if ($scope.GetListForMasterOrder[i].TransactionRate === 0 || $scope.GetListForMasterOrder[i].TransactionRate === 0.0 || $scope.GetListForMasterOrder[i].TransactionRate === 0.00) {
+						if ($scope.GetListForMasterOrder[i].TransactionRate === 0 || $scope.GetListForMasterOrder[i].TransactionRate === 0.0 || $scope.GetListForMasterOrder[i].TransactionRate === 0.00) {
 							ShowResult('Enter the current rate.Zero not allowed', 'failure', 'ListOfPOMaterial');
 							return false;
 						}
-						else if ($scope.GetListForMasterOrder[i].RequiredQtyApproved === 'No') {
+						if ($scope.GetListForMasterOrder[i].RequiredQtyApproved === 'No') {
 							ShowResult('Required Qty not yet Approved.So you can not take this material', 'failure', 'ListOfPOMaterial');
 							return false;
 						}
-						else if ($scope.GetListForMasterOrder[i].IncompleteMaterial === 'Yes') {
+						if ($scope.GetListForMasterOrder[i].IncompleteMaterial === 'Yes') {
 							ShowResult('This is incomplete material.So you can not take this material', 'failure', 'ListOfPOMaterial');
 							return false;
 						}
@@ -3760,28 +3760,28 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 							ShowResult('Trasaction qty can not grater than required Qty', 'failure', 'ListOfPOMaterial1');
 							return false;
 						}
-						else if (baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty)) {
+						if (baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionQty)) {
 							ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial1');
 							return false;
 						}
-						else if ($scope.GetListForMasterOrder[i].TransactionQty === '0' || $scope.GetListForMasterOrder[i].TransactionQty === '0.00' || $scope.GetListForMasterOrder[i].TransactionQty === '0.0') {
+						if ($scope.GetListForMasterOrder[i].TransactionQty === '0' || $scope.GetListForMasterOrder[i].TransactionQty === '0.00' || $scope.GetListForMasterOrder[i].TransactionQty === '0.0') {
 							ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial1');
 							return false;
 						}
-						else if (baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionRate)) {
+						if (baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionRate)) {
 							ShowResult('Enter the current rate.Zero not allowed', 'failure', 'ListOfPOMaterial1');
 							return false;
 						}
-						else if ($scope.GetListForMasterOrder[i].TransactionRate === 0 || $scope.GetListForMasterOrder[i].TransactionRate === 0.0 || $scope.GetListForMasterOrder[i].TransactionRate === 0.00) {
+						if ($scope.GetListForMasterOrder[i].TransactionRate === 0 || $scope.GetListForMasterOrder[i].TransactionRate === 0.0 || $scope.GetListForMasterOrder[i].TransactionRate === 0.00) {
 							ShowResult('Enter the current rate.Zero not allowed', 'failure', 'ListOfPOMaterial1');
 							return false;
 						}
 
-						else if ($scope.GetListForMasterOrder[i].RequiredQtyApproved === 'No') {
+						if ($scope.GetListForMasterOrder[i].RequiredQtyApproved === 'No') {
 							ShowResult('Required Qty not yet Approved.So you can not take this material', 'failure', 'ListOfPOMaterial1');
 							return false;
 						}
-						else if ($scope.GetListForMasterOrder[i].IncompleteMaterial === 'Yes') {
+						if ($scope.GetListForMasterOrder[i].IncompleteMaterial === 'Yes') {
 							ShowResult('This is incomplete material.So you can not take this material', 'failure', 'ListOfPOMaterial1');
 							return false;
 						}
@@ -3792,15 +3792,15 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 				}
 
-				for (var j = 0; j < $scope.GetListForMasterOrdernew.length; j++) {
-					if ($scope.GetListForMasterOrdernew[j].CheckedStatus === true) {
-						$scope.tempList.push($scope.GetListForMasterOrdernew[j]);
-					}
-				}
 
 
 			}
-			
+			for (var j = 0; j < $scope.GetListForMasterOrdernew.length; j++) {
+				if ($scope.GetListForMasterOrdernew[j].CheckedStatus === true) {
+					$scope.tempList.push($scope.GetListForMasterOrdernew[j]);
+				}
+			}
+
 			if ($scope.GetListForMasterOrdernew.length === 0) {
 				if ($scope.ActionPOBOQ === 'Update') {
 
@@ -3811,7 +3811,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 					ShowResult('Please select atleast one material', 'failure', 'ListOfPOMaterial');
 					return false;
 				}
-					
+
 			}
 			$scope.UOMValidation();
 			$scope.groupList = [];
@@ -3822,34 +3822,34 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 			for (var i = 0; i < $scope.groupList.length; i++) {
 				$scope.groupList[i].Tolerance = $scope.productNew.Tolerance;
 			}
-			
-			
+
+
 			if ($scope.ActionPOBOQ === 'Save') {
 				$scope.materialValidationForBOQItem();
 				if (!$scope.UOMValidation()) {//$scope.invalid && 
 
-					$http({
-						method: 'POST',
-						url: 'Products/PurchaseOrder/detailPOSaveForBOQ',
-						data: {
-							entity: JSON.stringify($scope.GetListForMasterOrdernew)
-							, taxCategoryList: $scope.taxCategoryList
-							, PoId: $scope.productNew.Id
-							, groupList: JSON.stringify($scope.groupList)
-						},
-						dataType: 'JSON'
-					}).then(function successCallback(response) {
-						if (response.data.Error === true)
-							ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
-						else {
-							ShowResult(response.data.Message, 'success', 'ListOfPOMaterial');
-							getInventoryMaterialList($scope.productNew.Id);
-							angular.element(document.querySelector('#ListOfPOMaterial')).modal('hide');
-
-						}
-					}), function errorCallBack(response) {
+				$http({
+					method: 'POST',
+					url: 'Products/PurchaseOrder/detailPOSaveForBOQ',
+					data: {
+						entity: JSON.stringify($scope.GetListForMasterOrdernew)
+						, taxCategoryList: $scope.taxCategoryList//$scope.taxCategoryList
+						, PoId: $scope.productNew.Id
+						, groupList: JSON.stringify($scope.groupList)
+					},
+					dataType: 'JSON'
+				}).then(function successCallback(response) {
+					if (response.data.Error === true)
 						ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
-					};
+					else {
+						ShowResult(response.data.Message, 'success', 'ListOfPOMaterial');
+						getInventoryMaterialList($scope.productNew.Id);
+						angular.element(document.querySelector('#ListOfPOMaterial')).modal('hide');
+
+					}
+				}), function errorCallBack(response) {
+					ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
+				};
 
 				}
 			}
@@ -3952,8 +3952,8 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 	};
 	function getInventoryMaterialListForUpdate(inveReveiveId, MaterialMasterId, ArticleId, FirstCharacteristicsValueId, SecondCharacteristicsValueId, ThirdCharacteristicsValueId) {
 		$scope.masterId = inveReveiveId;
-		
-			$http.get($scope.path + 'GetBOQItemsListForUpdate?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&inveReveiveId=' + inveReveiveId + '&inveReveiveMasterId=' + $scope.productNew.Id + '&MaterialMasterId=' + MaterialMasterId + '&ArticleId=' + ArticleId + '&FirstCharacteristicsValueId=' + FirstCharacteristicsValueId + '&SecondCharacteristicsValueId=' + SecondCharacteristicsValueId + '&ThirdCharacteristicsValueId=' + ThirdCharacteristicsValueId)
+
+		$http.get($scope.path + 'GetBOQItemsListForUpdate?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&inveReveiveId=' + inveReveiveId + '&inveReveiveMasterId=' + $scope.productNew.Id + '&MaterialMasterId=' + MaterialMasterId + '&ArticleId=' + ArticleId + '&FirstCharacteristicsValueId=' + FirstCharacteristicsValueId + '&SecondCharacteristicsValueId=' + SecondCharacteristicsValueId + '&ThirdCharacteristicsValueId=' + ThirdCharacteristicsValueId)
 			.then(function (response) {
 				$scope.GetListForMasterOrder = [];
 				$scope.GetListForMasterOrder = response.data;
@@ -3993,6 +3993,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 				if ($scope.GetListForMasterOrder[i].BOQId === $scope.ConvertedDataRowList.data.BOQId) {
 					$scope.GetListForMasterOrder[i].RequiredQtyPO = $scope.ConvertedDataRowList.data.RequiredQtyPO;
 					$scope.GetListForMasterOrder[i].OtherPOQty = $scope.ConvertedDataRowList.data.OtherPOQty;
+					$scope.GetListForMasterOrder[i].TransactionQty = $scope.ConvertedDataRowList.data.TransactionQty;
 
 				}
 			}
@@ -4214,7 +4215,63 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 		}), function (response) {
 			ShowResult(response.data.Message, 'failure');
 		};
-		
+
 	};
+
+
+
+
+
+
+
+	// #region checkbox all
+
+
+
+	$scope.refreshTemplateemployee = function (args) {
+		$("#headchk111").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+	};
+
+
+
+	function CheckBoxSelectAllEmolyeeWise(e) {
+		var ChkOrUnchk = false;
+		if (e.model.checkState === "check") {
+			ChkOrUnchk = true;
+
+
+
+		}
+
+
+
+		var filtered = $("#GridReq").data("ejGrid").getFilteredRecords();
+		if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+			for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
+				$scope.GetListForMasterOrder[i].CheckedStatus = ChkOrUnchk;
+			}
+		}
+		else {
+
+
+
+			for (var j = 0; j < filtered.length; j++) {
+
+
+
+				filtered[j].CheckBoxSelect = ChkOrUnchk;
+			}
+
+
+
+
+		}
+		var gridObj = $("#GridReq").data("ejGrid");
+		gridObj.refreshContent();
+	};
+
+
+
+    // #endregion checkbox all
 
 }//End Of main
