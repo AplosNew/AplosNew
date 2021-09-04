@@ -4218,4 +4218,60 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 
 	};
 
+
+
+
+
+
+
+	// #region checkbox all
+
+
+
+	$scope.refreshTemplateemployee = function (args) {
+		$("#headchk111").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+	};
+
+
+
+	function CheckBoxSelectAllEmolyeeWise(e) {
+		var ChkOrUnchk = false;
+		if (e.model.checkState === "check") {
+			ChkOrUnchk = true;
+
+
+
+		}
+
+
+
+		var filtered = $("#GridReq").data("ejGrid").getFilteredRecords();
+		if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+			for (var i = 0; i < $scope.GetListForMasterOrder.length; i++) {
+				$scope.GetListForMasterOrder[i].CheckedStatus = ChkOrUnchk;
+			}
+		}
+		else {
+
+
+
+			for (var j = 0; j < filtered.length; j++) {
+
+
+
+				filtered[j].CheckBoxSelect = ChkOrUnchk;
+			}
+
+
+
+
+		}
+		var gridObj = $("#GridReq").data("ejGrid");
+		gridObj.refreshContent();
+	};
+
+
+
+    // #endregion checkbox all
+
 }//End Of main
