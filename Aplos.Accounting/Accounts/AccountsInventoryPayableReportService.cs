@@ -1224,13 +1224,53 @@ namespace Library.Accounting.Accounts
 
         public Dictionary<string, object> GetOutSourcingHeader(string companyGroupId, string companyId, string plantId, string voucherId)
         {
-            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
-                            , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.AddedBy, V.PostedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
+            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo
+                            , REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
+                            , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate
+							                            , V.DocRefNo, V.AddedBy, V.PostedBy
+							,[Type]=CASE WHEN IR.EmployeeId<>'' THEN 'Employee' Else 'Vendor' END
+							, UPPER(V.Narration) AS Narration
+							, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
                             , V.CurrencyId, C.Code AS CurrencyCode
+						    	,POId= case when IR.JWGRIRVoucherId<>'' then  IR.TransformationContractId 
+											when IR1.JWChangeInInvVoucherId<>'' then IR1.TransformationContractId
+											else IR2.TransformationContractId end
+								,GRNType= case when IR.JWGRIRVoucherId<>'' then  IR.GRNType 
+											when IR1.JWChangeInInvVoucherId<>'' then IR1.GRNType
+											else IR2.GRNType end
+								,GRNNo= case when IR.JWGRIRVoucherId<>'' then  IR.Id 
+											when IR1.JWChangeInInvVoucherId<>'' then IR1.Id
+											else IR2.Id end
+								
+								,ContractNo=	STUFF((select distinct ','+C.ContractNo from
+														TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+														LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+														LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+														LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
+														for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								 ,CustomerName=	STUFF((select distinct ','+P.UserName from
+														TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+														LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+														LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+														LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
+														LEFT JOIN HKP.Party P ON P.Id=C.CustomerId
+														for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+
                             FROM  [TRN].[Voucher] AS V 
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
-                            WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.Id='" + voucherId + "' AND V.SourceType='InventoryJWReceipt'";
+							left join trn.InventoryReceive IR ON IR.JWGRIRVoucherId =V.Id
+							left join trn.InventoryReceive IR1 ON IR1.JWChangeInInvVoucherId =V.Id
+							left join trn.InventoryReceive IR2 ON IR2.JWWIPVoucherId =V.Id
+								
+					  LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
+
+                    WHERE V.Archive=0 AND V.CompanyGroupId='"+companyGroupId+"' AND V.CompanyId='"+companyId+"' AND V.PlantId='"+plantId+@"' 
+						AND V.Id='"+voucherId+@"' 
+					AND V.SourceType='InventoryJWReceipt'";
             return _sqlRepository.GetData(cmdText);
         }
 
@@ -1321,22 +1361,39 @@ namespace Library.Accounting.Accounts
             reportUtility.SetText(ref sheet, row, 7, header["DocDate"].ToString());
             sheet.Range[row, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
-
             row++;
-           
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
-            reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "PO No");
+            reportUtility.SetText(ref sheet, row, 2, header["POId"].ToString());
             sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
             sheet.Range[row, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 6, "GRN No");
+            reportUtility.SetText(ref sheet, row, 7, header["GRNNo"].ToString());
+            sheet.Range[row, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
+            row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Contract No");
+            reportUtility.SetText(ref sheet, row, 2, header["ContractNo"].ToString());
+            sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+            sheet.Range[row, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Doc Ref");
             reportUtility.SetText(ref sheet, row, 7, header["DocRefNo"].ToString());
             sheet.Range[row, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
             row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
+            reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
+            sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+            sheet.Range[row, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 6, "Status");
             reportUtility.SetText(ref sheet, row, 7, header["Status"].ToString());

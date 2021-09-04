@@ -60,14 +60,14 @@ namespace Library.Planning.PlanningType1
                 sheet[ROW, COL].ColumnWidth = 9;
                 int colEntity = COL;
                 COL++;
-             
+
                 sheet[ROW, COL].Text = "Work Center";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colWorkCenter = COL;
                 COL++;
                 sheet[ROW, COL].Text = "DailyFixedCost";
-                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;               
-                sheet[ROW, COL].ColumnWidth = 13;               
+                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 13;
                 int colDailyFixedCost = COL;
 
                 COL++;
@@ -125,7 +125,7 @@ namespace Library.Planning.PlanningType1
                 sheet[ROW, COL].Text = "Currency";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colCurrency = COL;
-               
+
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
@@ -141,13 +141,13 @@ namespace Library.Planning.PlanningType1
                     sheet[ROW, colEntity].Text = dtProfitability.Rows[i]["Entity"].ToString();
                     sheet[ROW, colWorkCenter].Text = dtProfitability.Rows[i]["Workcenter"].ToString();
                     sheet[ROW, colDailyFixedCost].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["DailyFixedCost"].ToString());
-                    sheet[ROW, colAdditionalCost].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["AdditionalCostPerHour"].ToString());                   
+                    sheet[ROW, colAdditionalCost].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["AdditionalCostPerHour"].ToString());
                     sheet[ROW, colWcHour].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["StandardTimePerDay"].ToString());
                     sheet[ROW, colPlanHour].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["PlanHour"].ToString());
                     sheet[ROW, colTotalWC].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["TotalWCCost"].ToString());
                     sheet[ROW, colTgtQty].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["TargetQuantity"].ToString());
-                    sheet[ROW, colCMTarget].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["CMTarget"].ToString());                    
-                    sheet[ROW, colRevenueonTarget].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["RevenueOnTarget"].ToString());                    
+                    sheet[ROW, colCMTarget].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["CMTarget"].ToString());
+                    sheet[ROW, colRevenueonTarget].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["RevenueOnTarget"].ToString());
                     sheet[ROW, colProdQty].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["ProductionQuantity"].ToString());
                     sheet[ROW, colCMProduction].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["CMProduction"].ToString());
                     sheet[ROW, colRevenueOnProduction].Number = clsStaticInfo.dbl(dtProfitability.Rows[i]["RevenueOnProduction"].ToString());
@@ -477,7 +477,7 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
                                               row["WorkCenterMasterId"] = x.Key.WorkCenterMasterId;
                                               row["WorkCenter"] = x.Key.WorkCenter;
                                               row["Capacity"] = x.Key.Capacity;
-                                              row["AlignedWithPlan"] =x.Min(r=>(decimal)OTSBD.clsStaticInfo.dbl(r["AlignedWithPlan"]));
+                                              row["AlignedWithPlan"] = x.Min(r => (decimal)OTSBD.clsStaticInfo.dbl(r["AlignedWithPlan"]));
                                               row["MaxValue"] = (decimal)x.Key.Capacity > x.Max(r => (decimal)OTSBD.clsStaticInfo.dbl(r["WIP"])) ? x.Key.Capacity : x.Max(r => (decimal)OTSBD.clsStaticInfo.dbl(r["WIP"]));
 
                                               row["InQuantity"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["InQuantity"]));
@@ -498,15 +498,15 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
             return dt;
 
         }
-        public DataTable GetWorkCenterWiseWIPForGraph(string PlantId, string EntityId,string ProcessId, DataTable dt)
+        public DataTable GetWorkCenterWiseWIPForGraph(string PlantId, string EntityId, string ProcessId, DataTable dt)
         {
 
             DataTable _dtWC = _sqlRepository.GetDataTable(@" SELECT E.UserName AS Entity,P.UserName AS Plant, WCM.* FROM scs.WorkCenterMaster AS wcm 
                                                              JOIN org.Entity AS e ON e.Id=wcm.EntityId
-                                                             JOIN org.Plant AS p ON p.Id=e.PlantId where WCM.plantid='" + PlantId + @"' AND WCM.ProcessId='"+ ProcessId + @"' ORDER BY WCM.Sequence");
+                                                             JOIN org.Plant AS p ON p.Id=e.PlantId where WCM.plantid='" + PlantId + @"' AND WCM.ProcessId='" + ProcessId + @"' ORDER BY WCM.Sequence");
 
 
-           
+
 
             if (string.IsNullOrEmpty(EntityId) == false && EntityId != "null")
             {
@@ -884,6 +884,62 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
 
             return _sqlRepository.GetDataCollection(sql);
         }
+        #endregion
+
+        #region Hourly Production Display
+
+        public IEnumerable<object> HourlyProductionBookingPeriod(string Date, string PlantId, string ProcessId, string EntityId)
+        {
+            try
+            {
+                var entity = "";
+                var Dates = "09-Aug-2021";
+                if (!string.IsNullOrEmpty(EntityId))
+                {
+                    entity = "and ps.EntityId = '" + EntityId + "'";
+                }
+                var sql = @"select wc.UserName WorkCenterMasterName,pb.UserName ProductionBookingPeriodName ,sum(ps.Quantity)Quantity,pb.Id ProductionBookingPeriodId,wc.Id WorkCenterMasterId
+                            From HKP.ProductionBookingPeriod pb
+                            left join TRN.ProductionSummary ps on ps.ProductionBookingPeriodId = pb.Id
+                            left join SCS.WorkCenterMaster wc on wc.Id = ps.WorkCenterMasterId
+                            where ps.ProductionDate = '" + Date + "' and ps.PlantId = '" + PlantId + "' and ps.ProcessId = '" + ProcessId + "' " + entity + @"
+                            group by pb.UserName, wc.UserName, pb.Id, wc.Id, wc.Sequence, pb.Sequence
+                            order by pb.Sequence, wc.Sequence ";
+
+                DataTable dt = _sqlRepository.GetDataTable(sql);
+
+                //DataTable dtTemp = dt.Clone();
+                //if (dt.Rows.Count > 0)
+                //{
+                //    dtTemp = dt.AsEnumerable().GroupBy(x => new
+                //    {
+                //        WorkCenterMasterName = x["WorkCenterMasterName"],
+                //        ProductionBookingPeriodName = x["ProductionBookingPeriodName"],
+                //        Quantity = x["Quantity"]
+
+                //    })
+                //.Select(x =>
+                //{
+                //    DataRow row = dt.NewRow();
+                //    row["WorkCenterMasterName"] = x.Key.WorkCenterMasterName; row["ProductionBookingPeriodName"] = x.Key.ProductionBookingPeriodName;
+                //    row["Quantity"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["Quantity"]));
+                //    return row;
+                //}
+                //                      ).CopyToDataTable();
+                //}
+
+
+                //dt.Merge(dtTemp);
+
+
+                return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dt);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
     }
