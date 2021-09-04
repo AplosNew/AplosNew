@@ -501,10 +501,14 @@ namespace Library.Service.EmployeeServices
         {
             try
             {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                string ErrorList = "";
 
                 if (DataToSave.Count() == 0)
                 {
-                    return "";
+                    return "No Data Found";
                 }
 
                 string RefNo = "''";
@@ -515,19 +519,36 @@ namespace Library.Service.EmployeeServices
 
                 var items=DataToSave.ToList();
 
-                string date= DateTime.Now.ToString();
-               
-                var sql = @"Update dbo.ItemScanChild Set BookedDate=GetDate(),UpdatedBy='" + items[0].UpdatedBy+ "' ,PackingId ='" + items[0].PackingId+"',Booked=1 " +
-                        "where RefNo IN("+RefNo+@") and Booked=0 AND IsDespatch=0";
-                
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
+                var sqlx = @"select * from dbo.ItemScanChild where Booked=0 AND IsDespatch=0 and RefNo IN(" + RefNo + @")";
+                con.OpenDataSetThroughAdapter(sqlx, out dsMaster, false, "1");
 
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                objCone.CommitTransaction();
+                foreach (ItemScanChildData item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["BookedDate"] = DateTime.Now;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["PackingId"] = item.PackingId;
+                        dr["Booked"] = true;
+                        dr.EndEdit();
 
+                    }
+                    else
+                    {
+                        ErrorList += item.RefNo+"...";
+                    }
+
+
+                }
+                SaveDataSets(dsMaster);
+                if(ErrorList!="")
+                {
+                    return "Their are issues with these Cartons:- " + ErrorList;
+                }
+              
                 return "true";
 
               
@@ -557,7 +578,6 @@ namespace Library.Service.EmployeeServices
        
         private static void SaveDataSets(params DataSet[] dsRef)
         {
-            //throw new Exception("test");
             bool IsTransactionStarted = false;
             ConnectionManager.DAL.ConManager objCon = null;
             try
