@@ -17,7 +17,7 @@
                 </div>
             </div>
         </div>
-        @*<div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Voucher Type<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
@@ -29,15 +29,14 @@
                         </div>
                     </div>
                 </div>
-            </div>*@
+            </div>
     </fieldset>
 
     <div class="tab-design">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Info</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Service Info</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
                 @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="address" role="tab" data-toggle="tab" ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)">Parallel Currency</a></li>*@
             </ul>
         </div>
@@ -55,8 +54,7 @@
                                 <th>Receive Qty</th>
                                 <th>Other Billing Qty</th>
                                 <th>BillingQty</th>
-                                @*<th>Service Charge</th>*@
-                                @*<th>Service Tax</th>*@
+                                <th>Rate</th>
                                 <th>Amount (BC)</th>
                             </tr>
                         </thead>
@@ -78,6 +76,7 @@
                                 <td class="text-right"><strong>{{outSourceBillingDetailList | sumByKey : 'ReceiveQty'| number| setDecimal:2 }}</strong></td>
                                 <td class="text-right"><strong>{{outSourceBillingDetailList | sumByKey : 'OtherBillingQty'| number| setDecimal:2 }}</strong></td>
                                 <td class="text-right"></td>
+                                <td class="text-right"></td>
                                 <td class="text-right"><strong>{{outSourceBillingDetailList | sumByKey : 'Amount'| number| setDecimal:2 }}</strong></td>
                             </tr>
                         </tbody>
@@ -89,61 +88,9 @@
                 <div class="clearfix"></div>
 
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div ng-form="tabForm2">
-                    <div class="table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Amount (TRN)</th>
-                                    <th>Total Tax Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in chargesList" ng-show="chargesList.length">
-                                    <td>{{x.ServiceMasterName}}</td>
-                                    <td class="text-right">{{x.Amount}}</td>
-                                    <td class="text-right">{{x.TotalTaxAmount}}</td>
-                                </tr>
-
-                                <tr ng-show="chargesList.length">
-                                    <td class="text-right"><strong>Total : </strong></td>
-                                    <td class="text-right"><strong>{{chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision| number }}</strong></td>
-                                    <td class="text-right"><strong>{{chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision| number }}</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-
+            
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" ng-keypress="materialConfigMassege()">
-                @*<div class="form-group" style="margin-bottom: 0px;color:red">
-                        <label class="col-sm-9 control-label">{{MaterialAssetBudgetMessage}}</label>
-
-                    </div>*@
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="common-btn">
-                        <ul class="common-btn list-inline text-left">
-                            <li> <button ng-click="materialConfigMassege();" class="btn"> Show Reason</button></li>
-                        </ul>
-
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                </div>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Additional Tax</label>
-                        <label class="switch col-sm-8" style="margin-left:18px;">
-                            <input type="checkbox" ng-disabled="modelNew.IsInvoice==false" ng-model="modelNew.AddtionalTax">
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
-                </div>
+               
                 <div class="clearfix"></div>
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
@@ -157,7 +104,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in newList| orderBy:'Dr'| groupBy: 'MaterialGroupMasterId'">
+                            <tr ng-repeat="x in billingJV| orderBy:'Dr'">
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>

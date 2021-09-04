@@ -51,6 +51,15 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
 
         });
     }
+    $scope.billingJV = [];
+
+    $scope.GetOutsourcingBillingJV=function (billingId) {
+        $http.get('JobWork/OutSourceBillingPost/GetOutsourcingBillingJV?billingId=' + billingId)
+            .then(function (response) {
+                $scope.billingJV = [];
+                $scope.billingJV = response.data;
+            });
+    }
     $scope.model = {
 
         Id: null,
@@ -123,17 +132,11 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
 
 
     $scope.Get = function (obj) {
-        //$scope.ModelNew = Object.assign({}, obj.data);
-        //$scope.GetDetailData($scope.ModelNew.Id);
-        //$scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
-        //if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
-        //    $scope.ShowExCurrency = false;
-        //}
+        $scope.ModelNew = Object.assign({}, obj.data);
+        $scope.GetDetailData($scope.ModelNew.Id);
+        $scope.GetOutsourcingBillingJV($scope.ModelNew.Id);
+        angular.element(document.querySelector('#OutSourceBillingpopUp')).modal('hide');
 
-        //$scope.Action = 'Update';
-        //if (!$rootScope.isCollapsed) {
-        //    $rootScope.toggle();
-        //}
     }
 
 

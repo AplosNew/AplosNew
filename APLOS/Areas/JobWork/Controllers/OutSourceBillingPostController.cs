@@ -2,7 +2,6 @@
 using Aplos.Properties;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
-using Library.Service.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,9 +9,7 @@ using System.Threading;
 using System.Web.Mvc;
 using OTSBD;
 using Library.MaterialManagement.JobWork;
-using Library.Model.Enums;
-using Syncfusion.XlsIO;
-using Library.Data;
+using Library.Accounting.Accounts;
 
 namespace Aplos.Areas.JobWork.Controllers
 {
@@ -104,6 +101,13 @@ namespace Aplos.Areas.JobWork.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetOutsourcingBillingJV(string billingId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsOutsourceBillingService _accountsOutsourceBillingService = new AccountsOutsourceBillingService(_sqlRepository);
+            return Json(_accountsOutsourceBillingService.GetOutsourceBillingJV(identity.CompanyId, identity.PlantId, billingId), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetReceiptTransChildData(string PKId)

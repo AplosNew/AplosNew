@@ -216,7 +216,8 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
     $scope.getTaxCodeByTaxYear = function (date) {
         $http({
             method: "get",
-            url: "accounts/TaxCode/GetWithholdOutputTaxCodeCbo?postingDate=" + $filter("dateFiltering")(date)
+            //url: "accounts/TaxCode/GetWithholdOutputTaxCodeCbo?postingDate=" + $filter("dateFiltering")(date)
+            url: "accounts/TaxCode/GetOutputTDSTaxCodeCbo?postingDate=" + $filter("dateFiltering")(date)
         }).then(
             function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1000,7 +1001,10 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         }
         else {
             $scope.advanceTax.TaxName = $.grep($scope.taxCodCboList, function (item) {
-                return item.Value === $scope.advanceTax.TaxCodeId;
+                return item.Id === $scope.advanceTax.TaxCodeId;
+            })[0].Text;
+            $scope.advanceTax.TaxName = $.grep($scope.taxCodCboList, function (item) {
+                return item.Id === $scope.advanceTax.TaxCodeId;
             })[0].Text;
             $scope.advanceTaxesList.push($scope.advanceTax);
             $scope.advanceTax = {};
