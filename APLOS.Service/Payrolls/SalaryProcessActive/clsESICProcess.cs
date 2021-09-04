@@ -1141,14 +1141,15 @@ namespace OTSBD
                                                                                OR E.DOS = '' OR E.DOS = '01/01/1901')
                                               AND SEFD.IsApproved = 1 AND SEFD.EffectiveDate <= '" + para.ToDate + @"'
                                     ) A 
-                                  WHERE (" + sEmpInfo + @") ";
+                                 -- WHERE (" + sEmpInfo + @") ";
 
                 if (para.PlantID != "ALL" & para.PlantID != "")
                 {
                     strSql += @" AND PlantID = '" + para.PlantID + @"' ";
                 }
 
-                strSql += @" ORDER BY EmpInfoSystemID, HeadType DESC";
+                strSql += @" 
+                            ORDER BY EmpInfoSystemID, HeadType DESC";
 
                 objCon = new ConnectionManager.DAL.ConManager("1"); 
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");

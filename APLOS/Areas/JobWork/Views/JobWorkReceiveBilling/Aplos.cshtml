@@ -189,18 +189,18 @@
             <fieldset class="scheduler-border">
                 <legend class="scheduler-border">GRN List</legend>
                 <div class="content-container-fluid" style="color:black;overflow:scroll">
-                    <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GriddataMaster" e-templaterefresh="refreshTemplateMasterOrderOperation"
+                    <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GriddataMaster" e-templaterefresh="refreshJWPOTemplate"
                          e-recorddoubleclick="recorddoubleclickFromMasterGrid"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                          e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
                          e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid">
                         <div e-columns>
                             <div e-column e-headertext="" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                            <div e-column e-type="string" e-field="Id" e-headertext="GRN No" e-width="150"></div>
+                            <div e-column e-type="string" e-field="InventoryReceiveId" e-headertext="GRN No" e-width="150"></div>
                             <div e-column e-type="date" e-field="GRNDate1" e-headertext="GRN Date" e-width="150" e-format="{0:dd-MMM-yyyy}"></div>
                             <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
                             <div e-column e-type="number" e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="100"></div>
-                            <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="100"></div>
+                            <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="60"></div>
                             <div e-column e-type="string" e-field="JWChangeInInvVoucherId" e-headertext="VoucherNo" e-width="100"></div>
                             <div e-column e-type="string" e-field="Status" e-headertext="Status" e-width="100"></div>
                             <div e-column e-headertext="Actions" e-width="50">
@@ -212,7 +212,7 @@
                 <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
                 </script>
-                
+
                 <script id="tabGridContents" type="text/x-jsrender">
                     <div class="tabcontrol" id="Test">
                         <ul>
@@ -227,6 +227,11 @@
                         </div>
                     </div>
                 </script>
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="LoadGRNDetail();" class="btn"><i class="glyphicon glyphicon-search"></i> GRN Detail</button></li>
+                    </ul>
+                </div>
             </fieldset>
         </div>
         <div class="clearfix"></div>

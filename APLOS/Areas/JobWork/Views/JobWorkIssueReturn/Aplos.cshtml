@@ -370,59 +370,74 @@
 
 								<div class="col-xs-12">
 									<input type="hidden" ng-model="IssueTransformation.Id">
-									<div class="col-xs-12 col-sm-6 col-md-6">
-										<div class="form-group" show-errors>
-											<label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
-											<div class="col-sm-8 show-message">
-												<input type="text" name="Date" ng-model="IssueTransformation.IssueDate" ng-change="ValidateIssueDate();" datepicker class="form-control" required tabindex="2">
-											</div>
-										</div>
-										@*<div class="form-group" show-errors>
-												<label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
-												<div class="col-sm-8 show-message">
-													<div class="select-style">
-														<select class="form-control" ng-model="IssueTransformation.Types" name="Issue/ Return" required tabindex="5">
-															<option value="">--Select--</option>
-															<option value="InventoryJWIssue">Issue</option>
-															<option value="InventoryJWReturn">Return</option>
-														</select>
-													</div>
-												</div>
-											</div>*@
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" name="Date" ng-model="IssueTransformation.IssueDate" ng-change="ValidateIssueDate();" datepicker class="form-control" required tabindex="2">
+                                            </div>
+                                        </div>
+                                        @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="IssueTransformation.Types" name="Issue/ Return" required tabindex="5">
+                        <option value="">--Select--</option>
+                        <option value="InventoryJWIssue">Issue</option>
+                        <option value="InventoryJWReturn">Return</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
 
-										<div class="form-group" show-errors>
-											<label class="col-sm-4 control-label">Job Work Location<sup>*</sup></label>
-											<div class="col-sm-8 show-message">
-												<div class="select-style">
-													<select class="form-control" ng-model="IssueTransformation.MaterialStorageId" name="Job Work Location" required
-															ng-options="item.Value as item.Text for item in JobWorkLocList" tabindex="3" ng-change="GetSelectedMaterialStorage();">
-														<option value="">--Select--</option>
-													</select>
-												</div>
-											</div>
-										</div>
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Job Work Location<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="IssueTransformation.MaterialStorageId" name="Job Work Location" required
+                                                            ng-options="item.Value as item.Text for item in JobWorkLocList" tabindex="3" ng-change="GetSelectedMaterialStorage();">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
 
-										<div class="form-group" show-errors>
-											<label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
-											<div class="col-sm-8 show-message">
-												<div class="select-style">
-													<select class="form-control" ng-model="IssueTransformation.IssueType" name="Issue Type" required tabindex="5">
-														<option value="">--Select--</option>
-														<option value="Revenue">Revenue</option>
-														<option value="Capital">Capital</option>
-													</select>
-												</div>
-											</div>
-										</div>
-										<div class="form-group">
-											<label class="col-sm-4 control-label">Remarks</label>
-											<div class="col-sm-8">
-												<textarea class="form-control" rows="1" ng-model="IssueTransformation.Remarks" maxlength="250" tabindex="6"></textarea>
-											</div>
-										</div>
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="IssueTransformation.IssueType" name="Issue Type" required tabindex="5">
+                                                        <option value="">--Select--</option>
+                                                        <option value="Revenue">Revenue</option>
+                                                        <option value="Capital">Capital</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" id="div_docNo1">
+                                            <label class="col-sm-4 control-label">Order Ref No<sup></sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="input-group">
+                                                    <input type="text" name="Order Ref No" ng-model="IssueTransformation.OrderRefNo" class="form-control" maxlength="300" tabindex="2" autocomplete="on" readonly>
+                                                    <span class="input-group-btn">
+
+                                                        <button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                        <button ng-click="ClearMasterOrder()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                        <button ng-click="GetPopUpMasterOrderDetails()" class="btn single-small-btn" ng-disabled="IssueTransformation.OrderRefNo===null"><i class="glyphicon glyphicon-list-alt"></i></button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Remarks</label>
+                                            <div class="col-sm-8">
+                                                <textarea class="form-control" rows="1" ng-model="IssueTransformation.Remarks" maxlength="250" tabindex="6"></textarea>
+                                            </div>
+                                        </div>
 
 
-									</div>
+                                    </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6">
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
@@ -1162,6 +1177,104 @@
 			</div>
 		</div>
 	</div>
+</div>
+
+<div class="modal fade site-modal in" id="MasterOrderPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Master Order <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridMasterOrder" ej-grid e-datasource="masterOrderCustomerList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="SelectedOrder"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="MasterOrderNo" e-headertext="Master Order No" e-width="150"></div>
+                                <div e-column e-field="UserName" e-headertext="Plant" e-width="150"></div>
+                                <div e-column e-field="OrderType" e-headertext="Order Type" e-headertext-color="black" e-textalign="left" e-width="150"></div>
+                                <div e-column e-field="CustomerName" e-hesadertext="Customer Name" e-width="150"></div>
+                                <div e-column e-field="OrderYear" e-headertext="Order Year" e-width="150"></div>
+                                <div e-column e-field="TotalQty" e-headertext="Total Quantity" e-width="150"></div>
+                                <div e-column e-field="NoOfLineItem" e-headertext="Line Item No" e-width="150"></div>
+                                <div e-column e-field="ResponsiblePersonName" e-headertext="Responsible Person" e-width="150"></div>
+                                <div e-column e-field="InvoicingPartyPlant" e-headertext="Bill To" e-width="150"></div>
+                                <div e-column e-field="DeliveryPartyPlant" e-headertext="Ship To" e-width="150"></div>
+                                <div e-column e-field="BuyerOrd" e-headertext="Buyer Ord#" e-width="150"></div>
+                                <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="150"></div>
+                                <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="150"></div>
+                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="150"></div>
+                                <div e-column e-field="MasterLCNo" e-headertext="Master LC No" e-width="150"></div>
+
+
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateChild">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseMasterOrder();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="MasterOrderPopUp1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">Master Order Details Info <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold;">Master Order No</span>:{{productNewPOpUP.MasterOrderNo1}}</label>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold;">Total Qty</span>:{{productNewPOpUP.TotalQty1}}</label>
+                    </div>
+                </div>
+                @*<div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Buyer Name:<sup>*</sup></label>
+                        </div>
+                    </div>*@
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold;">Customer Name</span>:{{productNewPOpUP.CustomerName1}}</label>
+
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold;">Contract</span>:{{productNewPOpUP.Contract1}}</label>
+
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold;">Master LC No</span>:{{productNewPOpUP.MasterLCNo1}}</label>
+
+                    </div>
+
+                </div>
+
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseMasterOrder1();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")

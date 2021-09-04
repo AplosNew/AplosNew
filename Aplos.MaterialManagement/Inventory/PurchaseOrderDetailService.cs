@@ -2861,7 +2861,8 @@ namespace Library.MaterialManagement.Inventory
 								ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId,
 								AcceptanceRcvQty = 0,
 								AcceptanceRcvStatusQty = false,
-								RefferenceNo = refferenceNo//itemDetail.RefferenceNo
+								RefferenceNo = refferenceNo,//itemDetail.RefferenceNo
+								Tolerance= itemDetail.Tolerance
 							};
 							NewId1 = receiveDetail.Id;
 

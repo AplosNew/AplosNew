@@ -647,7 +647,7 @@ namespace Library.Accounting.Accounts
 						JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
 						WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  ) ESA ON ESA.EmployeeId=SL.EmpSystemId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
-                        AND ISNULL(sh.SalaryHead,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
+                        AND ISNULL(sh.HeadCategory,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='D' 
                         ) x
 						ORDER BY x.HeadType desc,x.[Sequence] asc";
@@ -711,7 +711,7 @@ namespace Library.Accounting.Accounts
 						JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
 						WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  ) ESA ON ESA.EmployeeId=SL.EmpSystemId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
-                        AND ISNULL(sh.SalaryHead,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
+                        AND ISNULL(sh.HeadCategory,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='D' 
                         ) x
 						ORDER BY x.HeadType desc,x.[Sequence] asc";
