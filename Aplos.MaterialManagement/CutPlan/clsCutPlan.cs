@@ -209,5 +209,20 @@ namespace Library.MaterialManagement.CutPlan
                 throw e;
             }
         }
-    }
+		public IEnumerable<object> GetOtherSkuDetailList(string OtherSkuId,string MaterialMasterId)
+		{
+			try
+			{
+				var _sql = @"select c.UserName Characteristicsvalue ,c.Id CharacteristicsId
+								From hkp.Characteristicsvalue c
+								left join hkp.Characteristics ch on ch.Id=c.CharacteristicsId
+								where  ch.Id='"+OtherSkuId+"' and c.MaterialMasterId='"+MaterialMasterId+"'";
+				return _sqlRepository.GetDataCollection(_sql, null);
+			}
+			catch (Exception e)
+			{
+				throw e;
+			}
+		}
+	}
 }

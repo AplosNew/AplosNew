@@ -81,6 +81,16 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetHourlyProductionBookingPeriod(string Date, string PlantId, string ProcessId, string EntityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //string Dates = "09-Aug-2021";
+            return Json(new Library.Planning.PlanningType1.ProductionDashboard().HourlyProductionBookingPeriod(Date, PlantId, ProcessId, EntityId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetAllCompaniesAndPlants()
         {
@@ -390,7 +400,7 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDateAtPR,MAX(s.ProductionDate) AS ProductionEndDateAtPR
 											FROM  trn.ProductionSummary S 
-											where s.ProcessId='"+ProcessId+@"'
+											where s.ProcessId='" + ProcessId + @"'
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS CurrentProcessPR ON  CurrentProcessPR.ProductionOrderId=po.id AND CurrentProcessPR.ProcessId=PSS.ProcessId
 							
@@ -433,7 +443,7 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
             }
             else
             {
-                string sql = @"SELECT convert(bit,case when  PLST.processId='"+ProcessId+ @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
+                string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
 convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId,NPR.Id NPRId ,convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess
 ,CP.UserName CurrentProcess,NP.UserName NextProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
@@ -722,7 +732,7 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
                 COL++;
                 sheet[ROW, COL].Text = "Previous Process Start Date";
                 sheet[ROW, COL].ColumnWidth = 10;
-                int colPreviousProcessStartDate  = COL;
+                int colPreviousProcessStartDate = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Completion Date";
                 sheet[ROW, COL].ColumnWidth = 10;
@@ -749,7 +759,7 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
                 sheet.Range[5, colPreviousProcess, 5, colCompletedBy].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
                 sheet.Range[5, colPreviousProcess, 5, colCompletedBy].BorderAround(ExcelLineStyle.Thick);
                 sheet.Range[5, colPreviousProcess, 5, colCompletedBy].BorderInside(ExcelLineStyle.Thick);
-               
+
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
@@ -850,7 +860,7 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (string.IsNullOrEmpty(EntityId) || EntityId.ToUpper() == "NULL")
             {
-               return @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
+                return @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
 convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId,NPR.Id NPRId ,convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess
 ,CP.UserName CurrentProcess,NP.UserName NextProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
@@ -993,12 +1003,12 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
                             AND ((ISNULL(ppr.Id,'')<>'' AND ISNULL(ppr.StartDate,'')<>'') OR ISNULL(ppr.Id,'')=''  OR ISNULL(ppr.IsCompleted,0)=1)
                              AND EN.PlantId ='" + PlantId + @"' AND PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0 
                             ORDER BY st.LSD";
-                
+
 
             }
             else
             {
-               return @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
+                return @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
 convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId,NPR.Id NPRId ,convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess
 ,CP.UserName CurrentProcess,NP.UserName NextProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
@@ -1140,7 +1150,7 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
                             WHERE isnull(s.username,'') IN ('RUNNING') 
                             AND ((ISNULL(ppr.Id,'')<>'' AND ISNULL(ppr.StartDate,'')<>'') OR ISNULL(ppr.Id,'')=''  OR ISNULL(ppr.IsCompleted,0)=1)
                              AND EN.PlantId ='" + PlantId + @"' AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0 
-                            ORDER BY st.LSD";                
+                            ORDER BY st.LSD";
 
             }
 

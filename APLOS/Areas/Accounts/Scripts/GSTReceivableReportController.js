@@ -1,7 +1,7 @@
 ﻿"use strict";
 GSTReceivableReportController.$inject = ["addressService", "cboService", "$scope", "$rootScope", "$filter", "bankService", "$window", "baseService"];
 function GSTReceivableReportController(addressService, cboService, $scope, $rootScope, $filter, bankService, $window, baseService) {
-    $rootScope.title = "TDS Receivable";
+    $rootScope.title = "GST Receivable";
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     var firstDay = new Date(y, m, 1);
 
