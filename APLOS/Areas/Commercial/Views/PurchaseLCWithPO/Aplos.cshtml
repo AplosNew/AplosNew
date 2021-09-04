@@ -15,12 +15,12 @@
 
                         <div e-columns>
                             <div e-column e-template="#checkboxTemplate" e-textalign="center" e-width="40"></div>
-                            <div e-column e-field="Id" e-headertext="POId" e-width="40"></div>
-                            <div e-column e-field="PODate" e-headertext="PODate" e-width="50"></div>
-                            <div e-column e-field="StandardName" e-headertext="Vendor" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="POId" e-width="50"></div>
+                            <div e-column e-field="PODate" e-headertext="PODate" e-width="60"></div>
+                            <div e-column e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
                             <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="90" e-textalign="right"></div>
                             <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
-                            <div e-column e-field="OrderSpecifi" e-headertext="Order Specific" e-width="50"></div>
+                            <div e-column e-field="OrderSpecifi" e-headertext="Order Specific" e-width="70"></div>
                             <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
                             <div e-column e-field="Flag" e-headertext="State" e-width="60"></div>
                         </div>
@@ -43,12 +43,12 @@
 
                         <div e-columns>
                             <div e-column e-template="#checkboxTemplate" e-textalign="center" e-width="40"></div>
-                            <div e-column e-field="Id" e-headertext="POId" e-width="40"></div>
-                            <div e-column e-field="PODate" e-headertext="PODate" e-width="50"></div>
-                            <div e-column e-field="StandardName" e-headertext="Vendor" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="POId" e-width="50"></div>
+                            <div e-column e-field="PODate" e-headertext="PODate" e-width="60"></div>
+                            <div e-column e-field="StandardName" e-headertext="Vendor" e-width="100"></div>
                             <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="80" e-textalign="right"></div>
                             <div e-column e-field="Currency" e-headertext="Currency" e-width="30"></div>
-                            <div e-column e-field="OrderSpecifi" e-headertext="Order Specific" e-width="50"></div>
+                            <div e-column e-field="OrderSpecifi" e-headertext="Order Specific" e-width="70"></div>
                             <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
                             <div e-column e-field="Flag" e-headertext="State" e-width="60"></div>
                         </div>
@@ -97,10 +97,10 @@
             <label class="col-sm-4 control-label">Benificiary Bank<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 @*<div class="select-style">
-                        <select name="Benificiary Bank" class="form-control" ng-model="purchaseLCNew.BenificiaryBank" ng-options="item.Value as item.Text for item in bankList" required tabindex="1">
-                            <option value="">--Select--</option>
-                        </select>
-                    </div>*@
+                    <select name="Benificiary Bank" class="form-control" ng-model="purchaseLCNew.BenificiaryBank" ng-options="item.Value as item.Text for item in bankList" required tabindex="1">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>*@
                 <input type="text" name="Benificiary Bank" ng-model="purchaseLCNew.BenificiaryBank" class="form-control" required tabindex="3" maxlength="100">
             </div>
         </div>
@@ -108,10 +108,10 @@
             <label class="col-sm-4 control-label" title="On behalf of Purchaser">Lein Bank/At Confirm</label>
             <div class="col-sm-8">
                 @*<div class="select-style">
-                        <select name="Lein Bank" class="form-control" ng-model="purchaseLCNew.LeinBankId" ng-options="item.Value as item.Text for item in bankList" tabindex="5">
-                            <option value="">--Select--</option>
-                        </select>
-                    </div>*@
+                    <select name="Lein Bank" class="form-control" ng-model="purchaseLCNew.LeinBankId" ng-options="item.Value as item.Text for item in bankList" tabindex="5">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>*@
                 <input type="text" name="Lein Bank" ng-model="purchaseLCNew.LeinBank" class="form-control" tabindex="6" maxlength="50">
             </div>
         </div>
@@ -164,6 +164,12 @@
                         <span class="cr"><i class="cr-icon"></i></span>GRN/Ack First
                     </label>
                 </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="purchaseLCNew.Remarks" maxlength="250" tabindex="6"></textarea>
             </div>
         </div>
     </div>
@@ -412,21 +418,22 @@
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
-                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="10"></div>
+                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="20"></div>
                 <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
-                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="40"></div>
+                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="60"></div>
                 <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="20"></div>
-                <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="30"></div>
-                <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="30" e-textalign="right"></div>
-                <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="30"></div>
-                <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="30" e-textalign="right"></div>
+                <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="40" e-textalign="right"></div>
+                <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="40" e-textalign="right"></div>
                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
-                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="50"></div>
-                <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="50"></div>
+                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="60"></div>
+                <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="60"></div>
                 <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="50"></div>
-                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="50"></div>
+                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="60"></div>
                 <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="50"></div>
                 <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                <div e-column e-type="string" e-field="ContractRemarks" e-headertext="Contract Remarks" e-width="100"></div>
                 @*<div e-column e-field="IsAccepptanceFirst" e-headertext="Accepptance First" e-width="30"></div>*@
                 @*<div e-column e-headertext="Actions" e-width="10">
             <div class="common-btn">
