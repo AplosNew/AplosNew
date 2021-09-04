@@ -1008,10 +1008,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
     $scope.givenDesignationChange = function () {
         $http.get('humanresource/employeepromotionNew/GivenDesignationChange?GivenDesignationId=' + $scope.budgetCodeChangeNew.GivenDesignationId)
             .then(function (response) {
-
                 $scope.EmpSalaryInfo.SalaryRuleMasterSystemID = response.data[0].SalaryRuleMasterId;
-
-
             });
     };
 
@@ -1593,66 +1590,15 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
         }
     };
 
-    //$scope.xGet = function (data, index) {
-    //    //Confirmation
-    //    if ($scope.qempid !== null && $scope.qstatus === 'Confirmation') {
-    //        $scope.divFreshEntry = false;
-
-
-    //        //$scope.budgetCodeChange = $filter("filter")($scope.employees, { SystemId: $scope.qempid });
-    //        //$scope.budgetCodeChangeOld = $filter("filter")($scope.employees, { SystemId: $scope.qempid });
-
-    //        $scope.budgetCodeChange = $scope.employees;
-    //        $scope.budgetCodeChangeOld = $scope.employees;
-    //        // angular.copy($scope.budgetCodeChange, $scope.budgetCodeChangeNew);
-    //        $scope.budgetCodeChangeNew = $scope.budgetCodeChange;
-    //        $scope.budgetCodeChangeNew.Code = $scope.budgetCodeChange.Code;
-    //        $scope.budgetCodeChangeNew.GivenDesignationId = $scope.budgetCodeChange.GivenDesignationId;
-
-    //        $scope.Action = 'Update';
-    //        $scope.EntryShow();
-    //        $scope.getEmpSalaryInfoDefineData($scope.qempid);
-    //    }
-    //    else {
-    //        $scope.index = index;
-    //        $scope.budgetCodeChange = $scope.employees[$scope.index];
-    //        $scope.budgetCodeChangeOld = $scope.employees[$scope.index];
-
-    //        //if (data.IsExceptionalDesigApplicable === 1)
-    //        //    $scope.budgetCodeChange.IsExceptionalDesigApplicable = true;
-    //        //else if (data.IsExceptionalDesigApplicable === 0)
-    //        //    $scope.budgetCodeChange.IsExceptionalDesigApplicable = false;
-
-    //        //if ($scope.budgetCodeChange.IsExceptionalDesigApplicable)
-    //        //    $scope.uppderGivenDesignationCbo(data.DesignationId, data.GivenDesignationId);
-    //        //else
-    //        //    $scope.lowerGivenDesignationCbo(data.DesignationId, data.GivenDesignationId);
-    //        angular.copy($scope.budgetCodeChange, $scope.budgetCodeChangeNew);
-    //        $scope.budgetCodeChangeNew.Code = $scope.budgetCodeChange.Code;
-    //        $scope.budgetCodeChangeNew.GivenDesignationId = $scope.budgetCodeChange.GivenDesignationId;
-
-    //        $scope.Action = 'Update';
-    //        $scope.EntryShow();
-    //        $scope.getEmpSalaryInfoDefineData(data.SystemId);
-    //    }
-
-
-
-
-    //};
+    
     $scope.Get = function (data) {
         //Confirmation
         if ($scope.qempid !== null && $scope.qstatus === 'Confirmation') {
             $scope.divFreshEntry = false;
 
-
-            //$scope.budgetCodeChange = $filter("filter")($scope.employees, { SystemId: data.data.SystemId });
-            //$scope.budgetCodeChangeOld = $filter("filter")($scope.employees, { SystemId: data.data.SystemId});
-
             $scope.budgetCodeChange = $scope.employees;
             $scope.budgetCodeChangeOld = $scope.employees;
-            // angular.copy($scope.budgetCodeChange, $scope.budgetCodeChangeNew);
-
+           
 
             $scope.budgetCodeChangeNew = $scope.budgetCodeChange;
             $scope.budgetCodeChangeNew.Code = $scope.budgetCodeChange.Code;
@@ -1660,7 +1606,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
 
             $scope.imageSrc = virtualPath.EmployeePic + $scope.budgetCodeChangeOld.EmpPicPath;
 
-
+            
             $scope.Action = 'Update';
             $scope.EntryShow();
             $scope.getEmpSalaryInfoDefineData($scope.qempid);
@@ -1718,9 +1664,6 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             $scope.EntryShow();
             $scope.getEmpSalaryInfoDefineData(data.data.SystemId);
         }
-
-
-
 
     };
     $scope.EntryShow = function () {
@@ -1897,7 +1840,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                         $scope.ShowResultCustom(response.data.Message, "success", 'EntryDiv');
                         $scope.Clear();
                         //angular.element(document.querySelector('#EntryPopUp')).modal('hide');
-                        $scope.getData();
+                        //$scope.getData();
 
 
                         $scope.NewbudgetCodeChange = {};
@@ -2180,11 +2123,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
 
 
     $scope.CloseAdditionalPolicyDialog = function () {
-
-
-
         try {
-
             if ($scope.SettingModel.length > 0) {
                 for (var i = 0; i < $scope.SettingModel.length; i++) {
                     if ($scope.SettingModel[i].SalaryHeadEnum.toUpperCase() === 'VPF') {
@@ -2209,40 +2148,37 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                 eDialog.close();
                 $scope.calculateSalary();
             }
-
         } catch (e) {
             $scope.ShowResultCustom(e, "failure");
         }
-
-
-
-
-
-
-
-
-
-
-
-
     };
+
     $scope.LoadAdditionalPolicySettingData = function () {
-
+        
         try {
-            $.ajax({
-                type: "Post",
-                url: "humanresource/employeepromotionNew/GetSettingsByRule?SalaryRuleId=" + $scope.SelectedSalaryRole[0].SalaryRuleMasterSystemID,
-                //data: { 'SalaryRuleId': $scope.SelectedSalaryRole },
-                dataType: "json",
-                success: function (response) {
-                    $scope.SettingModel = response.data;
+            $http.get('humanresource/employeepromotionNew/GivenDesignationChange?GivenDesignationId=' + $scope.budgetCodeChangeNew.GivenDesignationId)
+                .then(function (response) {
+                    $scope.EmpSalaryInfo.SalaryRuleMasterSystemID = response.data[0].SalaryRuleMasterId;
 
-                    if ($scope.SettingModel.length > 0) {
-                        $scope.ShowPFButton = true;
-                    }
-                }
 
-            });
+                    $.ajax({
+                        type: "Post",
+                        //url: "humanresource/employeepromotionNew/GetSettingsByRule?SalaryRuleId=" + $scope.SelectedSalaryRole[0].SalaryRuleMasterSystemID,
+                        url: "humanresource/employeepromotionNew/GetSettingsByRule?SalaryRuleId=" + $scope.EmpSalaryInfo.SalaryRuleMasterSystemID,
+                        //data: { 'SalaryRuleId': $scope.SelectedSalaryRole },
+                        dataType: "json",
+                        success: function (response) {
+                            $scope.SettingModel = response.data;
+
+                            if ($scope.SettingModel.length > 0) {
+                                $scope.ShowPFButton = true;
+                            }
+                        }
+
+                    });
+
+                });
+   
 
         } catch (e) {
             ShowResult(e.Message, "failure");
