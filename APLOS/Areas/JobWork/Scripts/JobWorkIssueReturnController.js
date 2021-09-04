@@ -524,7 +524,8 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		JWContractId: null,
 		ContractType: null,
 		MaterialStorageIdInventory: null,
-		RefferenceNo: null
+		RefferenceNo: null,
+		OrderRefNo:null,
 
 	};
 	$scope.IssueTransformation = Object.assign({}, $scope.IssueTransformationModelTemp);
@@ -1809,4 +1810,73 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		}
 
 	}
+
+	//#region Order Ref
+	$scope.masterOrderCustomerList = [];
+	$scope.GetMasterOrderByContractList = function () {
+		//debugger;
+		$http({
+			method: "GET",
+			dataType: 'JSON',
+			//url: $scope.getSearchListUrl,
+			url: 'Products/InventoryIssue/GetMasterOrderList',
+		}).then(function successCallback(response) {
+			$scope.masterOrderCustomerList = response.data;
+			//entrydata = copy(searchdata);
+
+		});
+		angular.element(document.querySelector('#MasterOrderPopUp')).modal('show');
+	}
+
+	$scope.SelectedOrder = function (obj) {
+		//debugger;
+		//var data = obj.data.ContractId;
+	//	$scope.productNew.OrderRefNo = obj.data.MasterOrderNo;
+		$scope.IssueTransformation.OrderRefNo = obj.data.MasterOrderNo;
+		angular.element(document.querySelector('#MasterOrderPopUp')).modal('hide');
+	}
+	$scope.ClearMasterOrder = function () {
+		$scope.IssueTransformation.OrderRefNo = "";
+
+	};
+
+	$scope.CloseMasterOrder = function () {
+		angular.element(document.querySelector('#MasterOrderPopUp')).modal('hide');
+
+	};
+
+	$scope.productNewPOpUPModelTemp = {
+		MasterOrderNo1: null,
+		TotalQty1: null,
+		CustomerName1: null,
+		Contract1: null,
+		MasterLCNo1: null,
+
+	};
+	$scope.productNewPOpUP = Object.assign({}, $scope.productNewPOpUPModelTemp);
+
+	$scope.GetPopUpMasterOrderDetails = function () {
+		//debugger;
+		$http({
+			method: "GET",
+			dataType: 'JSON',
+			//url: $scope.getSearchListUrl,
+			url: 'Products/InventoryIssue/GetMasterOrderDetailsList?MasterOrderId=' + $scope.IssueTransformation.OrderRefNo,
+		}).then(function successCallback(response) {
+			//$scope.productNew.masterOrderCustomerList = response.data;
+			$scope.productNewPOpUP.MasterOrderNo1 = response.data[0].MasterOrderNo;
+			$scope.productNewPOpUP.TotalQty1 = response.data[0].TotalQty;
+			$scope.productNewPOpUP.CustomerName1 = response.data[0].CustomerName;
+			$scope.productNewPOpUP.Contract1 = response.data[0].ContractNo;
+			$scope.productNewPOpUP.MasterLCNo1 = response.data[0].MasterLCNo;
+			angular.element(document.querySelector('#MasterOrderPopUp1')).modal('show');
+
+		});
+
+	};
+	$scope.CloseMasterOrder1 = function () {
+		angular.element(document.querySelector('#MasterOrderPopUp1')).modal('hide');
+
+	};
+	//#endregions
 }

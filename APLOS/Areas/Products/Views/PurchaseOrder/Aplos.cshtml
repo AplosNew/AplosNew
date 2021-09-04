@@ -1878,7 +1878,7 @@
 											 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
 											 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
 											<div e-columns>
-												<div e-column e-template="#CheckBoxTemp" e-headertext="Chk" e-width="40" textAlign='center'></div>
+												<div e-column e-template="#CheckBoxTemp" e-headertemplateid="#headerTemplate11" @*e-headertext="Chk"*@ e-width="40" textAlign='center'></div>
 												<div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="80"></div>
 												<div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="80"></div>
 												<div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="80"></div>
@@ -1891,7 +1891,7 @@
 												<div e-column e-field="RequiredQtyPO" e-headertext="Booking Qty" e-width="70"></div>
 												<div e-column e-field="OtherPOQty" e-headertext="Other PO Qty" e-width="80" textAlign='Right'></div>
 												<div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
-												<div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" textAlign='right' e-headertext="Current Qty" e-width="100"></div>
+												<div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" textAlign='right' e-headertext="CurrentQty" e-width="100"></div>
 												@*<div e-column e-field="TransactionRate" textAlign='right' e-headertext="BOQRate" e-width="100"></div>*@
 												<div e-column e-template="#BOQQRate" e-field="TransactionRate" textAlign='right' e-headertext="CurrentRate" e-width="100"></div>
 												<div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" textAlign='Right'></div>
@@ -1912,9 +1912,11 @@
 
 										</div>
 
-
+										<script type="text/x-jsrender" id="headerTemplate11">
+											<input type="checkbox" ej-checkbox class="rowCheckbox" id="headchk1" />
+										</script>
 										<script type="text/template" id="CheckBoxTemp">
-											<input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" e-value="data.CheckedStatus" e-change="$parent.getTaxCategoryList1" /> @*e-enabled="{{data.RequiredQtyApproved==='1'}}"*@
+											<input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" e-value="data.CheckedStatus" @*e-change="$parent.getTaxCategoryList1"*@ /> @*e-enabled="{{data.RequiredQtyApproved==='1'}}"*@
 										</script>
 										<script type="text/template" id="CurrentTextBOQ">
 											<input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
@@ -2129,7 +2131,7 @@
 									 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-rowdatabound="rowDataBound">
 
 									<div e-columns>
-										<div e-column e-template="#CheckBoxTemp12" e-headertext="Chk" e-width="40" textAlign='center'></div>
+										<div e-column e-template="#CheckBoxTemp12" e-headertemplateid="#headerTemplate1" @*e-headertext="Chk"*@ e-width="40" textAlign='center'></div>
 
 										<div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
 										<div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="150"></div>
@@ -2149,7 +2151,7 @@
 										@*<div e-column e-field="POUoM" e-headertext="POUoM" e-width="80" textAlign='Right'></div>*@
 										<div e-column e-template="#UOMEdit" e-field="UOM" e-headertext="UoM" e-width="150"></div>
 										<div e-column e-template="#CurrentText" e-field="TransactionQty" textAlign='right' e-headertext="CurrentQty" e-width="150"></div>
-										
+
 										@*<div e-column e-field="TransactionRate" textAlign='right' e-headertext="Rate" e-width="100"></div>*@
 										<div e-column e-template="#CurrentRate" e-field="TransactionRate" textAlign='right' e-headertext="CurrentRate" e-width="150"></div>
 										<div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
@@ -2166,9 +2168,11 @@
 									</div>
 
 								</div>
-
+								<script type="text/x-jsrender" id="headerTemplate1">
+									<input type="checkbox" ej-checkbox class="rowCheckbox" id="headchk1" />
+								</script>
 								<script type="text/template" id="CheckBoxTemp12">
-									<input type="checkbox" e-change="$parent.getTaxCategoryList1" e-value="data.CheckedStatus" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" />
+									<input type="checkbox" @*e-change="$parent.getTaxCategoryList1"*@ e-value="data.CheckedStatus" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" />
 								</script>
 								<script type="text/template" id="CurrentText">
 									<input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
