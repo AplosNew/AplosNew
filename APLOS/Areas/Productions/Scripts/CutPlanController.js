@@ -77,6 +77,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         }).then(function successCallback(response) {
             $scope.recipeMaterialListSelected = response.data;
             GetMarker(response.data[0].MaterialMasterId);
+            
         });
     }
 
@@ -98,6 +99,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                 $scope.CharacteristicsId = $scope.MarkerList[i].SKUId;
             }
         }
+        $scope.getFGCharacteristicsLists($scope.recipeMaterialListSelected[0].MaterialMasterId);
     };
     $scope.getFGCharacteristics = function () {
         $http({
@@ -106,6 +108,34 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         }).then(function successCallback(response) {
             $scope.FGCharacteristicsValueList = response.data;
             //getProductionProcessSetList();
+        });
+    };
+    $scope.getFGCharacteristicsLists = function (id) {
+        //$scope.clearCharNames();
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
+            params: {
+                materialMasterId: id
+            }
+        }).then(function (response) {
+            $scope.characteristicsList = [];
+            $scope.characteristicsList = response.data.charData;
+            for (var i = 0; i < $scope.characteristicsList.length; i++) {
+                if ($scope.characteristicsList[i].Value === $scope.CharacteristicsId ) {
+                    $scope.characteristicsList.splice(i,1);
+                }
+            }
+            $scope.getOtherFGCharacteristics($scope.characteristicsList[0].Value, $scope.recipeMaterialListSelected[0].MaterialMasterId);
+        });
+    };
+    $scope.SkuValueList = [];
+    $scope.getOtherFGCharacteristics = function (skuId, materialMasterId) {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetSkuDetails?OtherSku=' + skuId + '&MaterialMasterId=' + materialMasterId
+        }).then(function successCallback(response) {
+            $scope.SkuValueList = response.data;
         });
     };
 }
