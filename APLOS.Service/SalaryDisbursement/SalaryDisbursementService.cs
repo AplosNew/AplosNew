@@ -252,7 +252,7 @@ namespace Library.Service.SalaryDisbursement
                     foreach (var directVoucherDetailVM in directJVList)
                     {
                         currentVoucherDetailId++;
-                        if (directVoucherDetailVM.SalaryHeadCategory != "Advance" || directVoucherDetailVM.SalaryHeadCategory != "Interest Deduction")
+                        if (directVoucherDetailVM.SalaryHeadCategory != "Advance" && directVoucherDetailVM.SalaryHeadCategory != "Interest Deduction")
                         {
                             var directVoucherDetailDr = _voucherService.InsertVoucherDetail(voucherdirect, new VoucherDetail
                             {
@@ -478,7 +478,7 @@ namespace Library.Service.SalaryDisbursement
                     foreach (var voucherDetailVM in inDirectJVList)
                     {
                         currentVoucherDetailId++;
-                        if (voucherDetailVM.SalaryHeadCategory != "Advance" || voucherDetailVM.SalaryHeadCategory != "Interest Deduction")
+                        if (voucherDetailVM.SalaryHeadCategory != "Advance" && voucherDetailVM.SalaryHeadCategory != "Interest Deduction")
                         {
 
                             var voucherDetailDr = _voucherService.InsertVoucherDetail(voucherI, new VoucherDetail
@@ -564,7 +564,10 @@ namespace Library.Service.SalaryDisbursement
                                         ActivityId = voucherDetailVM.ActivityId,
                                         DrAmount = voucherDetailVM.DrAmount,
                                         CrAmount = item.Amount,
-                                        TrnNature = voucherDetailVM.SalaryHead
+                                        EmployeeId = item.EmployeeId,
+                                        TrnNature = voucherDetailVM.SalaryHead,
+                                        AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
+                                        PartyType = "Employee"
                                     }, currentVoucherDetailId);
 
                                     currentVoucherDetailId++;

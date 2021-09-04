@@ -86,10 +86,20 @@ namespace Aplos.Areas.EmployeeServices.Controllers
            
 
             string sql = @"select top 100 * from (select distinct est.*,uom.Username as UOM,sh.SalaryHead as SalaryHead
+                                                 ,SelectMode=case when SelectionMode=0 then 'Entry' else 'Scan' End
                                                  from dbo.EmpServiceType est left join SCS.UnitOfMeasurement uom on est.UOMId=uom.Id
 												 left join dbo.SalaryHead sh on est.SalaryHeadId=sh.SalaryHeadID) AS TEMP WHERE " + strkey + " order by Service ";
 
           return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
+        private string GetPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmpServiceType", out sID);
+            return sID;
         }
 
         [HttpPost]
@@ -118,7 +128,8 @@ namespace Aplos.Areas.EmployeeServices.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "EST" + _Id;
+                //    data["Id"] = "EST" + _Id;
+                    data["Id"] = "EST" + GetPK();
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else

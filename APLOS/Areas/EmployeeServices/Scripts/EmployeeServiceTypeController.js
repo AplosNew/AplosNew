@@ -60,12 +60,20 @@ function EmployeeServiceTypeController(cboService, commonMessage, $scope, $rootS
         Form: null,
         UOMId: null,
         SalaryHeadId: null,
+        SelectionMode: null,
+        SelectMode: null,
 };
     $scope.ServiceType = Object.assign({}, $scope.ModelTemp);
 
     $scope.Get = function (args) {
 
         $scope.ServiceType = Object.assign({}, args.data);
+        if ($scope.ServiceType.SelectionMode == "0") {
+            $scope.ServiceType.SelectionMode = '0';
+        }
+        else {
+            $scope.ServiceType.SelectionMode = '1';
+        }
         $scope.getServiceCategoryData($scope.ServiceType.Id);
         $scope.setTab(1);
         $scope.Action = 'Update';

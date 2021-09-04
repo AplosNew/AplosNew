@@ -3943,8 +3943,10 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			}
 
 		}
-		[HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+
 		//public JsonResult detailPOSaveForBOQ(IEnumerable<InventoryMaterialViewModel> entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
+		//[HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+		[HttpPost, Authorize]
 		public JsonResult detailPOSaveForBOQ(string entity, string groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

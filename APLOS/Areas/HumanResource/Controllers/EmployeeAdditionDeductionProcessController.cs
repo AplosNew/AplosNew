@@ -361,7 +361,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster); // , dsAmtMaster, dsAmtChild
+                _info.SaveDataSets(dsMaster, dsAmtMaster, dsAmtChild); // 
 
 
                 return Json(Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtTrial), JsonRequestBehavior.AllowGet);
