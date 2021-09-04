@@ -2611,7 +2611,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 //    sheet[GRNROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TransactionQty"].ToString());
 
                 sheet[GRNROW, ColBaseCurrency].Text = TransformationIssueGRNdata.Rows[i]["BaseCurrency"].ToString();
-                sheet[GRNROW, ColBaseRate].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TransactionRate"].ToString());
+                sheet[GRNROW, ColBaseRate].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["BaseRate"].ToString());
 
                 sheet.Range[GRNROW, 1, GRNROW, GRNendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[GRNROW, 1, GRNROW, GRNendCol].BorderAround(ExcelLineStyle.Hair);
@@ -2766,7 +2766,8 @@ left join (select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId
         private DataTable GetTransformationGRNDataById(string IssueId)
         {
             var sql = @"select om.Id, IRD.InventoryReceiveId as GRNNo,IRD.Id as GRNRowId,uom.UserName as IssueUoM,IIH.Qty as GRNIssueQty,mm.UserName as JWInputMaterial
-                        , mma.StandardName as JWInputArticle, C.Code as TransactionCurrency, IR.ToCurrencyRate as TransactionRate, CC.Code as BaseCurrency
+                        , mma.StandardName as JWInputArticle, C.Code as TransactionCurrency, IIH.Rate as TransactionRate, IR.ToCurrencyRate as BaseRate
+                         , CC.Code as BaseCurrency
                         from dbo.JobWorkTransformationContractChild om left join TRN.InventoryIssueDetail IID on om.Id=IID.JWTCMID
                         left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
                         left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
@@ -2777,7 +2778,7 @@ left join (select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId
                         left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
                         left join SCS.Currency C on C.Id=IR.CurrencyId
                         left join SCS.Currency CC on CC.Id=IR.BaseCurrencyId
-                        where IID.InventoryIssueId='"+ IssueId + @"'";
+                        where IID.InventoryIssueId='" + IssueId + @"'";
 
             return _sqlRepository.GetDataTable(sql);
         }
