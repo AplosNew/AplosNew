@@ -127,7 +127,7 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS FCV ON CTC.FirstCharacteristicsValueId = FCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
-                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMDId from TRN.InventoryReceiveDetail GROUP BY JWTCMDId,MaterialTranRate) IRD ON IRD.JWTCMDId=CTC.Id
+                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMId from TRN.InventoryReceiveDetail GROUP BY JWTCMId) IRD ON IRD.JWTCMId=CTC.JobWorkTransformationContractMasterId
                             LEFT JOIN (Select JWTransformationContractChildId,SUM(BillingQty) BillingQty from dbo.JWReceiveBillingDetail WHERE JWReceiveBillingId<>'" + masterId + @"' GROUP BY JWTransformationContractChildId ) B ON B.JWTransformationContractChildId=CTC.Id
                             WHERE RBD.JWReceiveBillingId='" + masterId + "' ORDER BY MM.UserName";
 
@@ -194,7 +194,7 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS FCV ON CTC.FirstCharacteristicsValueId = FCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
-                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMDId,MaterialFor from TRN.InventoryReceiveDetail GROUP BY JWTCMDId,MaterialFor) IRD ON IRD.JWTCMDId=CTC.Id
+                            LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMId,MaterialFor from TRN.InventoryReceiveDetail GROUP BY JWTCMId,MaterialFor) IRD ON IRD.JWTCMId=CTC.JobWorkTransformationContractMasterId
                             LEFT JOIN (Select JWTransformationContractChildId,SUM(BillingQty) BillingQty from dbo.JWReceiveBillingDetail GROUP BY JWTransformationContractChildId) B ON B.JWTransformationContractChildId=CTC.Id
                             WHERE  CTC.JobWorkTransformationContractMasterId ='" + contractId + "' AND IR.Id "+ inventoryReceiveIds + " AND IRD.MaterialFor='JWOUTPUTMaterial' ORDER BY MM.UserName";
 

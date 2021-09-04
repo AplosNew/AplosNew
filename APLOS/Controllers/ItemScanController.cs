@@ -255,6 +255,24 @@ namespace Aplos.Controllers
             }
         }
 
+        [HttpGet]
+        public IHttpActionResult GetBookQtyMsg(string PackingId)
+        {
+            try
+            {
+                var result = _scan.GetBookedQtyMsg(PackingId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
         [HttpPost]
         public string CreateDispatch([FromBody] IEnumerable<ItemScanChildData> DataToSave)
         {

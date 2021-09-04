@@ -339,7 +339,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
     $scope.JWPOList = [];
     $scope.GetGRNDetailData = function (contractId, InventoryReceiveIds) {
-
         $http({
             method: "GET",
             dataType: 'JSON',
@@ -387,8 +386,8 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
     function ValidationMaster() {
         CheckField("OutSource POID", $scope.ModelNew.JWTransformationPurchaseOrderId);
-        CheckField("Invoice No", $scope.ModelNew.InvoiceNo);
         CheckField("Invoice Date", $scope.ModelNew.InvoiceDate);
+        CheckField("Invoice No", $scope.ModelNew.InvoiceNo);
     }
 
     $scope.Save = function () {
@@ -398,16 +397,24 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             if (baseService.arrayLength($scope.GriddataMaster) < 0 || baseService.arrayLength($scope.GriddataMaster) == 0) {
                 throw "Inventory Receive data is required";
             }
-            if (baseService.arrayLength($scope.JWPOList) < 0 || baseService.arrayLength($scope.JWPOList) == 0) {
-                throw "Billing detail is required";
-            }
-            if (baseService.arrayLength($scope.GriddataMaster) > 0) {
-                for (var i = 0; i < $scope.GriddataMaster.length; i++) {
-                    if (baseService.isUndefinedOrNull($scope.GriddataMaster[i].Status)) {
-                        throw "GRN No: '" + $scope.GriddataMaster[i].Id + "' is not posted.";
+            if (baseService.arrayLength($scope.TempList) > 0) {
+                for (var i = 0; i < $scope.TempList.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.TempList[i].Status)) {
+                        throw "GRN No: '" + $scope.TempList[i].InventoryReceiveId + "' is not posted.";
                     }
                 }
             }
+
+            if (baseService.arrayLength($scope.JWPOList) < 0 || baseService.arrayLength($scope.JWPOList) == 0) {
+                throw "Billing detail is required";
+            }
+            //if (baseService.arrayLength($scope.GriddataMaster) > 0) {
+            //    for (var i = 0; i < $scope.GriddataMaster.length; i++) {
+            //        if (baseService.isUndefinedOrNull($scope.GriddataMaster[i].Status)) {
+            //            throw "GRN No: '" + $scope.GriddataMaster[i].Id + "' is not posted.";
+            //        }
+            //    }
+            //}
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
