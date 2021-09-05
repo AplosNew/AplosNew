@@ -3947,7 +3947,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     drlog["AddedBy"] = identity.Name;
                     drlog["AddedDate"] = System.DateTime.Now.ToString();
                     drlog["AddedFromIP"] = identity.IPAddress;
-                    drlog["UpdatedBy"] = identity.Name; ;
+                    drlog["UpdatedBy"] = identity.Name;
                     drlog["UpdatedDate"] = DateTime.Now;
                     drlog["UpdatedFromIP"] = identity.IPAddress;
                     drlog["POID"] = MasterId.ToString();
