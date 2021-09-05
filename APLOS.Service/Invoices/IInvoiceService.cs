@@ -60,5 +60,6 @@ namespace Library.Service.Invoices
 
         string InsertMultiplePaymnet(MultiplePayment entity, IEnumerable<MultiplePaymentDetail> multiplePaymentDetailList);
         void DeleteInventoryPayable(string grnId, string invoiceId, string voucherId);
+        void DeleteServicePayable(string serviceAckId, string invoiceId, string voucherId);
     }
 }
