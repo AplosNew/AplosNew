@@ -8,6 +8,15 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
 
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.FromDate = new Date();
     $scope.ToDate = new Date();
 
@@ -35,7 +44,7 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
                 throw 'Please select batch';
             }
 
-            var parameters = { 'batchId': $scope.FromDate, 'ToDate': $scope.ToDate };
+            var parameters = { 'batchId': _selectedBatch };
             $http({
                 method: "POST",
                 dataType: 'JSON',
@@ -70,13 +79,64 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.ProcessAll = function (isApprove) {
 
+        var ListModel = $scope.EmployeeListUnApproved;
+        if (isApprove == false)
+            ListModel = $scope.EmployeeListApproved;
+
+        ListModel = ej.DataManager(ListModel).executeLocal(ej.Query().where("CheckBoxSelect", "equal", true));
+        ListModel = ej.DataManager(ListModel).executeLocal(ej.Query().select(["EmpSystemID"]));
+
+        try {
+
+            var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
+            var _selectedBatch = DropDownListYear.getSelectedValue();
 
 
+            if (baseService.isUndefinedOrNull(_selectedBatch)) {
+                throw 'Please select batch';
+            }
+
+
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: $scope.path + 'ApprovelUnapprove',
+                data: { data: ListModel, ArrearProcessBatchId: _selectedBatch, isApprove: isApprove }
+            }).then(function successCallback(response) {
+                $scope.GetEmployeeInformation();
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
+
+
 
     $scope.deleteArrear = function (EmpSystemID) {
 
 
+        try {
+
+            var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
+            var _selectedBatch = DropDownListYear.getSelectedValue();
+
+
+            if (baseService.isUndefinedOrNull(_selectedBatch)) {
+                throw 'Please select batch';
+            }
+
+
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: $scope.path + 'DeleteEmployeeArrear',
+                data: { EmployeeSystemId: EmpSystemID, ArrearProcessBatchId: _selectedBatch }
+            }).then(function successCallback(response) {
+                $scope.GetEmployeeInformation();
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
 
     }
 }
