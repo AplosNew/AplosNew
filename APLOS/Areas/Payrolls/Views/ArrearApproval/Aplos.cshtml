@@ -7,22 +7,17 @@
 </style>
 <div class="form-elements form-horizontal">
     <div class="row">
-        <div class="col-xs-12">
-            <div class="col-xs-4"><h3 class="site-heading"><span class="glyphicon glyphicon-file"></span>Salary Sheet vs Arrear</h3></div>
-            <div class="col-md-8">
+        <div class="col-md-12">
+            <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="col-md-12">
-                    <div class="col-xs-6 col-sm-6 col-md-6">
-                        <div class="col-md-12">
-                            <input id="ddlYearList" e-watermarktext="Arrear Detail" ej-dropdownlist e-datasource="ArrearProcessInfo" e-enablefiltersearch="true" e-value="SelectedArrearProcessBatchId" e-fields-value="ArrearProcessBatchId" e-fields-text="ArrearDesc" e-width="100%" />
-                        </div>
-                    </div>
+                    <input id="ddlYearList" e-watermarktext="Arrear Detail" ej-dropdownlist e-datasource="ArrearProcessInfo" e-enablefiltersearch="true" e-value="SelectedArrearProcessBatchId" e-fields-value="ArrearProcessBatchId" e-fields-text="ArrearDesc" e-width="100%" />
+                </div>
+            </div>
 
-                    <div class="col-xs- col-sm-1 col-md-1">
-                        <div class="form-group">
-                            <div class="common-btn">
-                                <button ng-click="GetEmployeeInformation();" class="btn"> <i class="glyphicon glyphicon-download"></i>Go</button>
-                            </div>
-                        </div>
+            <div class="col-xs- col-sm-1 col-md-1">
+                <div class="form-group">
+                    <div class="common-btn">
+                        <button ng-click="GetEmployeeInformation();" class="btn"> <i class="glyphicon glyphicon-download"></i>Go</button>
                     </div>
                 </div>
             </div>
@@ -37,9 +32,9 @@
             </div>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                    <div id="empInfoGridUnApproved" ng-init="chkinit()" ej-grid e-datasource="EmployeeListUnApproved" e-gridlines="vertical" e-templaterefresh="dataBoundemployee"
+                    <div id="empInfoGridUnApproved" ng-init="chkinit()" ej-grid e-datasource="EmployeeListUnApproved" e-gridlines="vertical" 
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-pagesettings-pagesize="15">
+                         e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
 
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateUnApproved" e-template="#checkboxTemplateUnApproved" e-textalign="center" e-width="30"></div>

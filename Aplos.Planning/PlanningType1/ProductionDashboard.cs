@@ -5,6 +5,7 @@ using OTSBD;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -888,7 +889,7 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
 
         #region Hourly Production Display
 
-        public IEnumerable<object> HourlyProductionBookingPeriod(string Date, string PlantId, string ProcessId, string EntityId)
+        public Dictionary<string,object> HourlyProductionBookingPeriod(string Date, string PlantId, string ProcessId, string EntityId)
         {
             try
             {
@@ -898,41 +899,63 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
                 {
                     entity = "and ps.EntityId = '" + EntityId + "'";
                 }
-                var sql = @"select wc.UserName WorkCenterMasterName,pb.UserName ProductionBookingPeriodName ,sum(ps.Quantity)Quantity,pb.Id ProductionBookingPeriodId,wc.Id WorkCenterMasterId
+                var sql = @"select wc.UserName WorkCenterMasterName,WC.EntityId,E.UserName AS Entity,pb.UserName ProductionBookingPeriodName ,sum(ps.Quantity)Quantity,pb.Id ProductionBookingPeriodId,wc.Id WorkCenterMasterId
                             From HKP.ProductionBookingPeriod pb
                             left join TRN.ProductionSummary ps on ps.ProductionBookingPeriodId = pb.Id
                             left join SCS.WorkCenterMaster wc on wc.Id = ps.WorkCenterMasterId
+                            left join org.Entity E on e.Id=wc.EntityId
                             where ps.ProductionDate = '" + Date + "' and ps.PlantId = '" + PlantId + "' and ps.ProcessId = '" + ProcessId + "' " + entity + @"
-                            group by pb.UserName, wc.UserName, pb.Id, wc.Id, wc.Sequence, pb.Sequence
-                            order by pb.Sequence, wc.Sequence ";
+                            group by pb.UserName, wc.UserName, pb.Id, wc.Id, wc.Sequence, pb.Sequence,WC.EntityId,E.UserName
+                            order by E.UserName,wc.Sequence,pb.Sequence  ";
 
                 DataTable dt = _sqlRepository.GetDataTable(sql);
 
-                //DataTable dtTemp = dt.Clone();
-                //if (dt.Rows.Count > 0)
-                //{
-                //    dtTemp = dt.AsEnumerable().GroupBy(x => new
-                //    {
-                //        WorkCenterMasterName = x["WorkCenterMasterName"],
-                //        ProductionBookingPeriodName = x["ProductionBookingPeriodName"],
-                //        Quantity = x["Quantity"]
+                DataTable dtAllPeriod = _sqlRepository.GetDataTable("Select * from HKP.ProductionBookingPeriod");
 
-                //    })
-                //.Select(x =>
-                //{
-                //    DataRow row = dt.NewRow();
-                //    row["WorkCenterMasterName"] = x.Key.WorkCenterMasterName; row["ProductionBookingPeriodName"] = x.Key.ProductionBookingPeriodName;
-                //    row["Quantity"] = x.Sum(r => (decimal)OTSBD.clsStaticInfo.dbl(r["Quantity"]));
-                //    return row;
-                //}
-                //                      ).CopyToDataTable();
-                //}
+                DataTable dtPivot = new DataTable("Temp");
+                dtPivot.Columns.Add("EntityId");
+                dtPivot.Columns.Add("Entity");
+                dtPivot.Columns.Add("WorkCenterMasterId");
+                dtPivot.Columns.Add("WorkCenterMasterName");
+                foreach (DataRow item in dtAllPeriod.Rows)
+                    dtPivot.Columns.Add(item["UserName"].ToString(),typeof(double));
+
+                string WCId = "";
+                DataRow dr = null;
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (WCId != dt.Rows[i]["WorkCenterMasterId"].ToString())
+                    {
+                        dr = dtPivot.NewRow();
+                        dr["WorkCenterMasterId"] = dt.Rows[i]["WorkCenterMasterId"].ToString();
+                        dr["WorkCenterMasterName"] = dt.Rows[i]["WorkCenterMasterName"].ToString();
+                        dr["EntityId"] = dt.Rows[i]["EntityId"].ToString();
+                        dr["Entity"] = dt.Rows[i]["Entity"].ToString();
+                        dtPivot.Rows.Add(dr);
+
+                        dr = dtPivot.Rows[dtPivot.Rows.Count - 1];
+                    }
+
+                    dr[dt.Rows[i]["ProductionBookingPeriodName"].ToString()] = clsStaticInfo.dbl(dt.Rows[i]["Quantity"].ToString());
+                    WCId = dt.Rows[i]["WorkCenterMasterId"].ToString();
+                }
 
 
-                //dt.Merge(dtTemp);
+                Dictionary<string, object> dicData = new Dictionary<string, object>();
+                StringCollection strCol = new StringCollection();
+                for (int i = 0; i < dtPivot.Rows.Count; i++)
+                {
+                    if (strCol.Contains(dtPivot.Rows[i]["EntityId"].ToString()))
+                        continue;
+                    strCol.Add(dtPivot.Rows[i]["EntityId"].ToString());
 
+                    dtPivot.DefaultView.RowFilter = "EntityId='"+ dtPivot.Rows[i]["EntityId"].ToString() + "'";
+                    DataTable dtTemp = dtPivot.DefaultView.ToTable();
 
-                return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dt);
+                    dicData.Add(dtPivot.Rows[i]["Entity"].ToString(), Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtPivot));
+                }
+
+                return dicData;
             }
             catch (Exception ex)
             {

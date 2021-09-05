@@ -84,7 +84,7 @@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">SKU</label>
+                    <label class="col-sm-2 control-label">Marker SKU</label>
                     <label class="col-sm-2 control-label">{{CharacteristicsName}}</label>
                     <span class="col-sm-8">
                         <button ng-click="getFGCharacteristics();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-send"></i></button>
@@ -99,10 +99,12 @@
                     <tr>
                         <th>{{CharacteristicsName}}</th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
+                        <th>Total</th>
                     </tr>
                     <tr>
                         <th>Ratio</th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
+                        <th >{{totalRatio}}</th>
                     </tr>
                 </thead>
                 <tbody>
