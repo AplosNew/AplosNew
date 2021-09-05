@@ -792,8 +792,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
                                                     SELECT tt.TaskTemplateMasterId FROM TaskTemplate AS tt WHERE tt.Id = '" + TaskTemplateId + @"'
                                             ))", out ds, false, "1");
 
-                bool isReccursion = Reccursion(taskTemplate["PreTaskTemplateId"].ToString(), TaskTemplateId, ds.Tables[0]);
-                if (isReccursion)
+                bool isRecursion = Reccursion(taskTemplate["PreTaskTemplateId"].ToString(), TaskTemplateId, ds.Tables[0]);
+                if (isRecursion)
                     throw new Exception("Cyclic task dependency will be created. Cannot update data");
 
 

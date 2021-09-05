@@ -131,6 +131,13 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetGRNDetailData(GridParameter parameters, string inveReveiveId, string PurchaseDocAcceptanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_purchaseDocumentAcceptance.GetGRNDetailData(parameters, inveReveiveId, PurchaseDocAcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetAcceptanceCharges()
         {
             return Json(_purchaseDocumentAcceptance.GetAcceptanceCharges(), JsonRequestBehavior.AllowGet);
@@ -886,7 +893,7 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateGRNAcceptance(PurchaseDocAcceptance entity, List<Dictionary<string, object>> PurchaseDocAcceptanceDetail)
+        public JsonResult CreateAndUpdateGRNAcceptance(PurchaseDocAcceptance entity, List<Dictionary<string, object>> PurchaseDocAcceptanceDetail)
         {
             ConnectionManager.DAL.ConManager objCon;
             objCon = new ConnectionManager.DAL.ConManager("1");
@@ -896,20 +903,28 @@ namespace Aplos.Areas.Products.Controllers
                 SaveData(entity, out dsMaster, out string masterId);
                 entity.Id = masterId;
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceDetail] Where PurchaseDocAcceptanceId='" + masterId + "'", out dsDetail, false, "1");
-
+                int IdCount = 0;
                 if (PurchaseDocAcceptanceDetail != null)
                 {
 
                     foreach (var item in PurchaseDocAcceptanceDetail)
                     {
+                        IdCount++;
                         DataView dv = new DataView(dsDetail.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                        if (dv.Count > 0)
+                         
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = masterId + "-" + IdCount;
+                            item["PurchaseDocAcceptanceId"] = masterId;
+                            AddNewRow(dsDetail.Tables[0], item);
+                        }
+                        else
                         {
                             DataRow drmo = dv[0].Row;
                             EditRow(drmo, item);
                         }
+
                     }
                 }
 

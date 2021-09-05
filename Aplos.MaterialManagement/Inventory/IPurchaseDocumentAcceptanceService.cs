@@ -37,6 +37,7 @@ namespace Library.MaterialManagement.Inventory
 
 
         GridModel QueryOnlyPO(GridParameter parameters, string inveReveiveId);
+        GridModel GetGRNDetailData(GridParameter parameters, string inveReveiveId, string PurchaseDocAcceptanceId);
         IEnumerable<object> GetAcceptanceCharges();
         void InsertOrUpdateGraphNew(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail
             //, IEnumerable<PurchaseDocAcceptanceTax> purchaseDocAcceptanceTax
