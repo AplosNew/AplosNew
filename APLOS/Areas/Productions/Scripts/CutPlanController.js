@@ -101,15 +101,20 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         }
         $scope.getFGCharacteristicsLists($scope.recipeMaterialListSelected[0].MaterialMasterId);
     };
+    $scope.totalRatio = 0;
     $scope.getFGCharacteristics = function () {
         $http({
             method: 'GET',
             url: $scope.path + 'GetMarkerDetails?MarkerId=' + $scope.MarkerId
         }).then(function successCallback(response) {
             $scope.FGCharacteristicsValueList = response.data;
-            //getProductionProcessSetList();
+            $scope.totalRatio = 0;
+            for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
+                $scope.totalRatio = parseFloat($scope.FGCharacteristicsValueList[i].Ratio) + parseFloat($scope.totalRatio);
+            }
         });
     };
+    $scope.SOIDs = "";
     $scope.getFGCharacteristicsLists = function (id) {
         //$scope.clearCharNames();
         $http({
@@ -120,20 +125,29 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             }
         }).then(function (response) {
             $scope.characteristicsList = [];
+            $scope.SOIDs = "";
             $scope.characteristicsList = response.data.charData;
             for (var i = 0; i < $scope.characteristicsList.length; i++) {
                 if ($scope.characteristicsList[i].Value === $scope.CharacteristicsId ) {
                     $scope.characteristicsList.splice(i,1);
                 }
             }
-            $scope.getOtherFGCharacteristics($scope.characteristicsList[0].Value, $scope.recipeMaterialListSelected[0].MaterialMasterId);
+            for (var i = 0; i < $scope.recipeMaterialListSelected.length; i++) {
+                if ($scope.SOIDs === "") {
+                    $scope.SOIDs += "'" + $scope.recipeMaterialListSelected[i].SalesOrderId + "'";
+                }
+                else {
+                    $scope.SOIDs += ", '" + $scope.recipeMaterialListSelected[i].SalesOrderId + "'";
+                }               
+            }
+            $scope.getOtherFGCharacteristics($scope.characteristicsList[0].Value, $scope.characteristicsList[0].Sequence, $scope.SOIDs);
         });
     };
     $scope.SkuValueList = [];
-    $scope.getOtherFGCharacteristics = function (skuId, materialMasterId) {
+    $scope.getOtherFGCharacteristics = function (skuId, Sequence, SOIDs) {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetSkuDetails?OtherSku=' + skuId + '&MaterialMasterId=' + materialMasterId
+            url: $scope.path + 'GetSkuDetails?OtherSku=' + skuId + '&SOId=' + SOIDs + '&Sequence=' + Sequence
         }).then(function successCallback(response) {
             $scope.SkuValueList = response.data;
         });
