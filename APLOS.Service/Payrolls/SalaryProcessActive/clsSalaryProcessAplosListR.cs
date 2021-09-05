@@ -7246,7 +7246,9 @@ public class clsSalaryProcessAplosR
                         inner join (
                         select * from EmpDateWiseShiftAssign where DayType=@W and EmpSystemID in (" + sEmpInfo + @") and WorkDate between @fd and @td
                         ) s on s.WorkDate=d.OffDayDate
+                        LEFT JOIN [TRN].[HolidayAbsentismAssignment] ABH ON abh.WorkDate=s.WorkDate AND ABH.EmpSystemID=s.EmpSystemID
                         where m.PlantId=@plant and d.OffDayDate between @fd and @td and m.OffDayType=@H and s.EmpSystemID in (" + sEmpInfo + @")
+                              AND ISNULL(abh.Id,'')=''
                         group by s.EmpSystemID
                         order by s.EmpSystemID";
 

@@ -239,6 +239,10 @@
             templateUrl: 'Payrolls/Arrear/Aplos',
             controller: 'ArrearController'
         })
+        .when('/arrear-approval', {
+            templateUrl: 'Payrolls/ArrearApproval/Aplos',
+            controller: 'ArrearApprovalController'
+        })
 
         .when('/tax-policy', {
             templateUrl: 'Payrolls/TaxPolicy/Aplos',
