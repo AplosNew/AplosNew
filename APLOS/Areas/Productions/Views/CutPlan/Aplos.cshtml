@@ -43,7 +43,7 @@
                 <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
 
                 @*<div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU 1" e-width="180"></div>
-                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU 2" e-width="180"></div>*@
+                    <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU 2" e-width="180"></div>*@
                 <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
                 <div e-column e-field="DestinationDescription" e-headertext="Dest. Description" e-width="80"></div>
                 <div e-column e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100"></div>
@@ -97,23 +97,52 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>{{CharacteristicsName}}</th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
-                        <th>Total</th>
+                        @*<th>Total</th>*@
                     </tr>
                     <tr>
+                        <th></th>
                         <th>Ratio</th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
-                        <th >{{totalRatio}}</th>
+                        @*<th >{{totalRatio}}</th>*@
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="x in SkuValueList">
+                        <td>
+                            <div class="col-sm-12" style="margin-top: 10px;">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" name="WithFatherName" ng-model="IsSelect" tabindex="8" ng-change="CalculatePly(x.Qty,x.Characteristicsvalue)">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </td>
                         <td>{{x.Characteristicsvalue}}</td>
+                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{x.Qty}}" class="form-control" autocomplete="off"></td>
                     </tr>
                 </tbody>
             </table>
 
+        </div>
+        <div class="table-responsive modal-table" ng-show="CalculationArryWithData.length>0" >
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Minimum Ply</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in CalculationArryWithData">
+                        <td>{{x.MinimumPlyValueName}}</td>
+                        <td>{{x.MinimumPlyValue}}</td>                        
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

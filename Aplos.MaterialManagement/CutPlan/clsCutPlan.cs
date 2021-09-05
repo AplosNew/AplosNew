@@ -217,19 +217,19 @@ namespace Library.MaterialManagement.CutPlan
 
                 if (Sequence == "1")
                 {
-                    _sql = @"select c.UserName Characteristicsvalue ,c.Id CharacteristicsId
+                    _sql = @"select c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(fc.Qty)Qty
 								From TRN.FirstCharacteristics fc
 								left join hkp.Characteristicsvalue c on c.Id = fc.CharacteristicsValueId
 								left join hkp.Characteristics ch on ch.Id=c.CharacteristicsId and ch.Id=fc.CharacteristicsId
-								where  ch.Id='" + OtherSkuId + "' and fc.SalesOrderId in (" + SOId + @")";
+								where  ch.Id='" + OtherSkuId + "' and fc.SalesOrderId in (" + SOId + @") group by  c.UserName  ,c.Id ";
                 }
                 else
                 {
-                    _sql = @"select c.UserName Characteristicsvalue ,c.Id CharacteristicsId
+                    _sql = @"select  c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(sc.Qty)Qty
 								From TRN.SecondCharacteristics sc
 								left join hkp.Characteristicsvalue c on c.Id = sc.CharacteristicsValueId
 								left join hkp.Characteristics ch on ch.Id=c.CharacteristicsId and ch.Id=sc.CharacteristicsId
-								where  ch.Id='" + OtherSkuId + "' and sc.SalesOrderId in (" + SOId + @")";
+								where  ch.Id='" + OtherSkuId + "' and sc.SalesOrderId in (" + SOId + @") group by  c.UserName  ,c.Id ";
                 }
 
                 return _sqlRepository.GetDataCollection(_sql, null);
