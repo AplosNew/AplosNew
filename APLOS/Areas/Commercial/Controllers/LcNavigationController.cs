@@ -614,7 +614,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						,ac.AcceptanceCount
 						,ISNULL(grn.GRNTotalAmount,0) as GRNValue
                         ,grn.GRNCount
-	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
+	                    ,IsClosed=case when PL.Status='Active' then 'No' else 'Yes' END
 						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END ,
                         con.ContractNo,
                         cus.Customer,

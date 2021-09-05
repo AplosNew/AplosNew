@@ -716,7 +716,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 					for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
 						if ($scope.MatInputListLocal[b].JWTCMId != Id) {
 							if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
-								ShowResult("Comman Input Material is there");
+								ShowResult("Common Input Material is there");
 								return false;
                             }
                         }
