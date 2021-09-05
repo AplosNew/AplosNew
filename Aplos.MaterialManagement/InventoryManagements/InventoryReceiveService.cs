@@ -3681,14 +3681,14 @@ namespace Library.MaterialManagement.InventoryManagements
 						Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
                         WHERE ISNULL(IR.[Status],'')<>'Posting' " +
 						"AND IR.OpeningBalanceId IS NULL   " +
-						"And IR.IsApproved =1 " +
-						"AND IR.CheckedBy is not NULL " +
-						"AND IR.CheckedByStatus='Checked'" +
-						"AND IR.AuthorizedByStatus = 'Approved'" +
+						"And IR.IsApproved =1 " +						
 						"AND IRD.TransactionQty>0 " +
 						"Order by IR.GRNDate DESC";
 				return _sqlRepository.GetDataCollection(Sql);
 			}
+			//"AND IR.CheckedBy is not NULL " +
+			//			"AND IR.CheckedByStatus='Checked'" +
+			//			"AND IR.AuthorizedByStatus = 'Approved'" +
 			catch (Exception ex)
 			{
 				throw new CustomException(ex.Message, ex,

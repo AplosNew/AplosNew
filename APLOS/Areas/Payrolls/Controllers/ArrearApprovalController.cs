@@ -76,7 +76,51 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
 
         }
+        [HttpPost, Authorize]
+        public ActionResult ApprovelUnapprove(List<string> data, string ArrearProcessBatchId, bool isApprove)
+        {
 
-   
+            try
+            {
+                for (int i = 0; i < data.Count; i++)
+                {
+                    if (isApprove == true)
+                        _sqlRepository.ExecuteSqlCommand("Update ArrearSummaryBatchWise set IsApproved=1 where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId='" + data[i] + @"'");
+                    else
+                        _sqlRepository.ExecuteSqlCommand("Update ArrearSummaryBatchWise set IsApproved=0 where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId='" + data[i] + @"'");
+
+                }
+
+
+                return Json(new { Message = "Data updated successfully", Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteEmployeeArrear(string ArrearProcessBatchId, string EmployeeSystemId)
+        {
+
+            try
+            {
+
+                _sqlRepository.ExecuteSqlCommand("Delete from ArrearSummaryBatchWise where isnull(IsApproved,0)=0 AND ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId='" + EmployeeSystemId + @"'");
+
+
+                return Json(new { Message = "Data deleted successfully", Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+
     }
 }
