@@ -121,6 +121,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 					//$scope.GetIndividualReportData();
 					$scope.GetJWGRNDataChecking();
 					$scope.GRNListDetails();
+					$scope.GetTransformationReceiptCurrency();
 				}
 
 			});
@@ -163,6 +164,21 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 		//    $rootScope.toggle();
 		//}
 	};
+
+	$scope.currencyList = [];
+	$scope.GetTransformationReceiptCurrency = function () {
+		$scope.currencyList = [];
+		$http({
+			method: 'GET',
+			url: $scope.path + 'GetTransformationReceiptCurrency?Id=' + $scope.Transformation.Id,
+		}).then(function successCallback(response) {
+			$scope.currencyList = response.data;
+			if ($scope.currencyList.length > 0) {
+				$scope.ReceiptTransformation.CurrencyId = $scope.currencyList[0].Value;
+				$scope.getToCurrencyRate();
+            }
+		});
+	}
 
 	$scope.GetIndividualReportData = function () {
 		$scope.IndividualReportList = [];

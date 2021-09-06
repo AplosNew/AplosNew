@@ -38,12 +38,8 @@
              e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel" @*e-summaryrows="summaryRows"*@ @*e-editsettings-allowediting="true" e-editsettings-editmode="batch"*@>
             <div e-columns>
                 <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="120"></div>
-
                 <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
                 <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
-
-                @*<div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU 1" e-width="180"></div>
-                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU 2" e-width="180"></div>*@
                 <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
                 <div e-column e-field="DestinationDescription" e-headertext="Dest. Description" e-width="80"></div>
                 <div e-column e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100"></div>
@@ -84,7 +80,7 @@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">SKU</label>
+                    <label class="col-sm-2 control-label">Marker SKU</label>
                     <label class="col-sm-2 control-label">{{CharacteristicsName}}</label>
                     <span class="col-sm-8">
                         <button ng-click="getFGCharacteristics();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-send"></i></button>
@@ -92,26 +88,103 @@
                 </div>
             </div>
         </div>
-        <br />
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" ng-model="CalculateOn" id="Round" value="Round">
+                    <label class="form-check-label" for="Round">
+                        Round
+                    </label>
+
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" ng-model="CalculateOn" id="RoundUp" value="RoundUp">
+                    <label class="form-check-label" for="RoundUp">
+                        Round Up
+                    </label>
+
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" ng-model="CalculateOn" id="Down" value="Down">
+                    <label class="form-check-label" for="Down">
+                        Down
+                    </label>
+                </div>
+            </div>
+        </div>
         <div class="table-responsive modal-table" ng-show="FGCharacteristicsValueList.length>0">
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>{{CharacteristicsName}}</th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
+                        @*<th>Total</th>*@
                     </tr>
                     <tr>
+                        <th></th>
                         <th>Ratio</th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
+                        @*<th >{{totalRatio}}</th>*@
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="x in SkuValueList">
+                        <td>
+                            <div class="col-sm-12" style="margin-top: 10px;">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" name="WithFatherName" ng-model="x.IsSelect" tabindex="8" @*ng-change="CalculatePly(x.Qty,x.Characteristicsvalue)"*@>
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </td>
                         <td>{{x.Characteristicsvalue}}</td>
+                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{x.Qty}}" class="form-control" autocomplete="off"></td>
                     </tr>
                 </tbody>
             </table>
-
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="CalculatePly();" class="btn single-small-btn" tabindex="6"><i class="fa fa-calculator" aria-hidden="true"></i> Calculate</button></li>
+                </ul>
+            </div>
+            
+        </div>
+        <div class="table-responsive modal-table" ng-show="Clicked">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>{{CharacteristicsName}}</th>
+                        <th></th>
+                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
+                        @*<th>Total</th>*@
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th>Ratio</th>
+                        <th>Minimum Ply Value</th>
+                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
+                        @*<th >{{totalRatio}}</th>*@
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in SkuValueList">
+                        <td>
+                            <div class="col-sm-12" style="margin-top: 10px;">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" name="WithFatherName" ng-model="x.IsSelect" tabindex="8" @*ng-change="CalculatePly(x.Qty,x.Characteristicsvalue)"*@>
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{x.Characteristicsvalue}}</td>
+                        <td>{{x.MinimumPlyActualValue}}</td>
+                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{x.Qty}}" class="form-control" autocomplete="off"></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

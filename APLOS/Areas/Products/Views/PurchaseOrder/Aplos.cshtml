@@ -1922,8 +1922,7 @@
 											</script>
 
 											<script type="text/template" id="CheckBoxTemp">
-												<input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" @*e-value="data.CheckedStatus"*@ @*e-change="$parent.getTaxCategoryList1"*@ /> @*e-enabled="{{data.RequiredQtyApproved==='1'}}"*@
-												@*<input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />*@
+												<input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" e-value="data.CheckedStatus" @*e-change="$parent.getTaxCategoryList1"*@ /> @*e-enabled="{{data.RequiredQtyApproved==='1'}}"*@
 											</script>
 											<script type="text/template" id="CurrentTextBOQ">
 												<input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />

@@ -1187,6 +1187,8 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	//#endregion
 
 	$scope.Save = function () {
+
+
 		//debugger;
 		// $scope.SavePOPUpConfirm();
 		$scope.productNew.ToCurrencyRate = $scope.productNew.ToCurrencyRate;
@@ -1828,7 +1830,10 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 
 					for (var i = 0; i < $scope.materialtaxCategoryListRes.length; i++) {
 						if ($scope.materialtaxCategoryListRes[i].Id === $scope.TaxIdDeletefromList) {
-							$scope.materialtaxCategoryListRes.splice($scope.materialtaxCategoryList[i].Id);
+							//$scope.materialtaxCategoryListRes.splice($scope.materialtaxCategoryList[i].Id);
+							$scope.materialtaxCategoryListRes.splice($scope.materialtaxCategoryListRes[i].Id);
+							
+							//$scope.specificStockList.splice(i, 1);
 						}
 					}
 					ShowResult(response.data.Message, 'success');
