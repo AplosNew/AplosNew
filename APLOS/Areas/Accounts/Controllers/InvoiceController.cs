@@ -344,6 +344,19 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Deleted });
         }
 
+        [HttpPost]
+        public ActionResult DeleteServicePayable(string serviceAckId, string voucherId, string invoiceId, string tDSTaxVoucherId, string tDSVoucherNo)
+        {
+            if (tDSTaxVoucherId != null)
+                throw new CustomException("TDS voucher no  " + tDSVoucherNo + "need to delete first!");
+
+            //if (type == NewBeneficiaryType.Vendor.ToString())
+                _invoiceService.DeleteServicePayable(serviceAckId, invoiceId, voucherId);
+            //if (type == NewBeneficiaryType.Employee.ToString())
+               // _employeePayableService.DeleteServiceBeneficiaryEmployee(serviceAckId, invoiceId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
 
         #endregion
 

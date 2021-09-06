@@ -54,5 +54,6 @@ namespace Library.Service.Employees
         GridModel GetEmployeeReconAssetGLBudgetActivity(GridParameter parameters, string companyGroupId, string companyId);
         void DeleteInvoiceBeneficiaryEmployee(string invoiceId, string voucherId);
         void DeleteGRNBeneficiaryEmployee(string grnId, string invoiceId, string voucherId);
+        void DeleteServiceBeneficiaryEmployee(string serviceAckId, string invoiceId, string voucherId);
     }
 }

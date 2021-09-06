@@ -57,10 +57,6 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/SandwichAbsent/Aplos',
             controller: 'SandwichAbsentController'
         })
-        .when('/sandwich-absent', {
-            templateUrl: 'Attendances/SandwichAbsent/Aplos',
-            controller: 'SandwichAbsentController'
-        })
         .when('/extra-ot', {
             templateUrl: 'Attendances/ExtraOT/Aplos',
             controller: 'ExtraOTController'
