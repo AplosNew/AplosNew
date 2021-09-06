@@ -514,7 +514,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.budgetCodeChangeNew.LegalDesignationId = null;
         $scope.budgetCodeChangeNew.LegalDesignation = null;
     };
-    
+
     $scope.GetGivenDesignationByLegalDesignaiton = function (legalDesignationId) {
         $http({
             method: 'GET',
@@ -606,18 +606,22 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $http.get('employees/employeeinformation/getlocallanguagelabel?plantId=' + $window.plantId)
             .then(function (response) {
                 $scope.LocalLabel = response.data;
-                $scope.NameLabel = $scope.LocalLabel.NameLabel;
-                $scope.FatherNameLabel = $scope.LocalLabel.FatherNameLabel;
-                $scope.IdentificationMarksLabel = $scope.LocalLabel.IdentificationMarksLabel;
-                $scope.PAddressLabel = $scope.LocalLabel.PAddressLabel;
-                $scope.SpouseNameLabel = $scope.LocalLabel.SpouseNameLabel;
-                $scope.MotherNameLabel = $scope.LocalLabel.MotherNameLabel;
-                $scope.PermanentLabel = $scope.LocalLabel.PermanentLabel + " " + $scope.LocalLabel.AddressLabel;
-                $scope.AddressLabel = $scope.LocalLabel.AddressLabel;
-                $scope.DependantLabel = $scope.LocalLabel.DependantLabel;
-                $scope.LandLabel = $scope.LocalLabel.LandLabel;
-                $scope.MobileNoLabel = $scope.LocalLabel.MobileNoLabel;
-                $scope.PAddressLabel = $scope.LocalLabel.PAddressLabel;
+
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.NameLabel)) $scope.NameLabel = $scope.LocalLabel.NameLabel; else $scope.NameLabel = "Employee Name";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.FatherNameLabel)) $scope.FatherNameLabel = $scope.LocalLabel.FatherNameLabel; else $scope.FatherNameLabel = "Father Name";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.IdentificationMarksLabel)) $scope.IdentificationMarksLabel = $scope.LocalLabel.IdentificationMarksLabel; else $scope.IdentificationMarksLabel = "Identification Marks";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.PAddressLabel)) $scope.PAddressLabel = $scope.LocalLabel.PAddressLabel; else $scope.PAddressLabel = "Present Address";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.SpouseNameLabel)) $scope.SpouseNameLabel = $scope.LocalLabel.SpouseNameLabel; else $scope.SpouseNameLabel = "Spouse Name";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.MotherNameLabel)) $scope.MotherNameLabel = $scope.LocalLabel.MotherNameLabel; else $scope.MotherNameLabel = "Mother Name";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.PermanentLabel)) $scope.PermanentLabel = $scope.LocalLabel.PermanentLabel + " " + $scope.LocalLabel.AddressLabel; else $scope.PermanentLabel = "Permanent Address";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.AddressLabel)) $scope.AddressLabel = $scope.LocalLabel.AddressLabel; else $scope.AddressLabel = "Address";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.DependantLabel)) $scope.DependantLabel = $scope.LocalLabel.DependantLabel; else $scope.DependantLabel = "Dependant";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.LandLabel)) $scope.LandLabel = $scope.LocalLabel.LandLabel; else $scope.LandLabel = "Land";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.MobileNoLabel)) $scope.MobileNoLabel = $scope.LocalLabel.MobileNoLabel; else $scope.MobileNoLabel = "MobileNo";
+                if (!baseService.isUndefinedOrNull($scope.LocalLabel.MobileNoLabel)) $scope.MobileNoLabel = $scope.LocalLabel.MobileNoLabel; else $scope.MobileNoLabel = "MobileNo";
+                
+                
+               // $scope.PAddressLabel = $scope.LocalLabel.PAddressLabel;
                 //$scope.OperationSetting = $scope.LocalLabel.OperationSetting;
 
             });
