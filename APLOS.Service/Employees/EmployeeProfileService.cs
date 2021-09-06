@@ -4506,9 +4506,11 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dr["BloodGroup"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PermanentAddress", dr["ParmanentAddress"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", cnDgt(dr["CellPhnNo"].ToString(), langName), "Kalpurush", 8);
-                    //ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dr["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dr["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", cnDgt(dr["NationalID"].ToString(), langName), "Kalpurush", 8);
-
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherOrSpouse", dr["FatherOrSpouse"].ToString(), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "PresentAddress", dr["PresentAddress"].ToString(), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dr["BloodGroup"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Name", dr["EmployeeName"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "DESIG", dr["DesignationName"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", cnDgt(dr["EmployeeCode"].ToString(), langName), "Kalpurush", 8);
@@ -4572,7 +4574,17 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 
 
                     }
+                    try
+                    {
+                        CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+                        System.Drawing.Image barcodeImg = qrCode.Draw(dr["BarCodeId"].ToString(), 200, 2);
+                        ConvertPresentationToPdf.SetQRCode(presentation.Slides[i], "EmpQR", barcodeImg);
 
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
 
                 }
 
@@ -5135,6 +5147,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                     ,E.EmpPicPath EmployeePic,E.NationalID,BG.UserName BloodGroup
                                     ,CASE WHEN ISNULL(CG.Id,'')='' THEN ISNULL(E.ParmanentAddress1Local,E.ParmanentAddress1) ELSE ParmanentAddress1 END AS ParmanentAddress
                                     ,ISNULL(WSEC.Name,WT.UserName) EmployeeWorkType, ISNULL(PLL.Name,PL.UserName) PlantName, ISNULL(LN.Name,L.UserName) Line, ISNULL(LSGA.Name,GD.ShortName) Grade ,P.AuthorizedSignature
+                                    ,EmrCntPer1CellNo,FatherOrSpouse = case when E.FatherName is null then e.SpouseName else E.FatherName  end,CONCAT(e.SystemId,'#',e.EmployeeCode,'#',e.EmployeeName)BarCodeId
+                                    ,case when isnull(cg.Id,'')='' THEN isnull(E.PresentAddress1Local,E.PresentAddress1) ELSE PresentAddress1 END AS PresentAddress
                                     FROM EmployeeInformation E
                                     LEFT JOIN ORG.CompanyGroup CG ON E.GroupID=cg.Id and CG.LanguageId='" + languageId + @"'
                                     LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
