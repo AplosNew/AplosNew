@@ -9,6 +9,7 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
     $scope.IndividualReportList = [];
     $scope.GateEntryNoList = [];
     $scope.GateEntryList = [];
+    $scope.voucherTypeList = [];
     $scope.TransformationTypeList = [];
     $scope.EntityList = [];
     $scope.MaterialLocationList = [];
@@ -62,8 +63,8 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
     }
     $scope.model = {
 
-        Id: null,
-        GRNDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy')
+        Id: null
+        , InvoiceDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy')
         , CompanyGroupId: null
         , CompanyId: null
         , PlantId: null
@@ -133,13 +134,80 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
 
     $scope.Get = function (obj) {
         $scope.ModelNew = Object.assign({}, obj.data);
+        $scope.ModelNew.PostingDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+        $scope.ModelNew.DocDate = obj.data.DocDate;
+        $scope.ModelNew.DocRefNo = obj.data.InvoiceNo;
         $scope.GetDetailData($scope.ModelNew.Id);
         $scope.GetOutsourcingBillingJV($scope.ModelNew.Id);
         angular.element(document.querySelector('#OutSourceBillingpopUp')).modal('hide');
 
     }
 
+    $scope.invalidDocDate = false;
+    $scope.checkDocDate = function () {
+        var msg = "";
+        if (new Date($scope.modelNew.DocDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "Doc date must be below or equal to current Date!";
+        }
+        else if (new Date($scope.modelNew.PostingDate) < new Date($scope.modelNew.DocDate)) {
+            msg = "Doc date must be below or equal to Posting Date!";
+            $scope.invalidDocDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.modelNew.DocDate)) {
+            msg = "Doc Date is required.";
+            $scope.invalidDocDate = true;
+        }
+        else $scope.invalidDocDate = false;
+        return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
+    };
 
+    $scope.invalidPostingDate = false;
+    $scope.checkPostingDate = function () {
+        var msg = "";
+        if (new Date($scope.modelNew.PostingDate) > new Date()) {
+            msg = "Posting date must be below or equal to current Date!";
+            $scope.currencyExchangeRate = [];
+            $scope.invalidPostingDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.modelNew.PostingDate)) {
+            msg = "Posting Date is required.";
+            $scope.invalidPostingDate = true;
+        }
+        else {
+            $scope.invalidPostingDate = false;
+        }
+        return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
+    };
+
+    cboService.getCboVoucherTypeOutSourceBillingList(function (result) {
+        $scope.voucherTypeList = result;
+        if (baseService.arrayLength($scope.voucherTypeList) === 1)
+            $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
+    });
+    $scope.Post = function () {
+        if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
+
+        $http({
+            method: 'POST',
+            url: $scope.saveUrl,
+            data: {
+                'outsourceBillingId': $scope.modelNew.Id
+                ,'voucherVM': $scope.modelNew
+                , 'voucherDetailVMList': $scope.billingJV
+            },
+            dataType: 'JSON'
+        }).then(function (response) {
+            if (response.data.Error === true)
+                ShowResult(response.data.Message, 'failure');
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getDataList();
+            }
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;

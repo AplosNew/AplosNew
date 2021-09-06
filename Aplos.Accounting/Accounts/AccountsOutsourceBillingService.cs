@@ -25,36 +25,41 @@ namespace Library.Accounting.Accounts
 		{
 			try
 			{
-				var sql = @"DECLARE @billingId varchar(10)= '"+ billingId + "',@plantId varchar(10)='" + plantId + @"'
+				var sql = @"DECLARE @billingId varchar(10)= '"+ billingId + "',@companyId varchar(10)='"+ companyId + "',@plantId varchar(10)='"+ plantId + @"'
 
-						SELECT  'JobWork' AS OtherName, 'Cr' AS TrnType
-							,GLGeneralInfoId =SVGL.ServiceGLId
-							,GLGeneralInfoCode =GLF.AccountCode
-							,GLGeneralInfoName =GLF.UserName
-							,BudgetMasterId =SVGL.ServiceBudgetMasterId
-							,BudgetCode =BF.Code
-							,BudgetName =BF.UserName
-							,ActivityId =SVGL.ServiceActivityId
-							,ActivityCode =AF.Code 
-							,ActivityName = AF.UserName 
-							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Dr, NULL Cr
-							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Amount
-						FROM [TRN].[InventoryReceiveDetail] AS IRD
+						SELECT  'Vendor' AS OtherName, 'Cr' AS TrnType
+							,GLGeneralInfoId =MGPGL.GLGeneralInfoId
+							,GLGeneralInfoCode =GL.AccountCode
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =MGPGL.BudgetMasterId
+							,BudgetCode =B.Code
+							,BudgetName =B.UserName
+							,ActivityId =MGPGL.ActivityId
+							,ActivityCode =A.Code 
+							,ActivityName = A.UserName 
+							, SUM(JRBD.Amount) AS Dr, NULL Cr
+							, SUM(JRBD.Amount) AS Amount
+						FROM   dbo.JWReceiveBillingDetail JRBD 
+						LEFT JOIN [dbo].[JWReceiveBilling] JRB ON  JRBD.JWReceiveBillingId=JRB.Id
+						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=JRBD.JWTransformationContractChildId
+						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.JWTCMDId=JWTCC.Id
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
-						LEFT JOIN [dbo].[JWReceiveBilling] JRB ON JRB.JWTransformationPurchaseOrderId=IRD.JWTCMId
-						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.JWTCMDId
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
 						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON SVGL.ServiceGLId=GLF.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BMF ON SVGL.ServiceBudgetMasterId= BMF.Id
-						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
-						LEFT JOIN [HKP].[Activity] AS AF ON SVGL.ServiceActivityId= AF.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[ServiceGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON SVG.Id = MGGL.ServiceGroupId
+								LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Vendor')AS CP ON IR.PartyId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN [HKP].[ServiceGroupPartyAccountGroupGL] AS MGPGL ON MGGL.ServiceGroupId = MGPGL.ServiceGroupId AND MGPGL.PartyAccountGroupId= PACG.Id
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
 						WHERE JRB.Id=@billingId and IRD.MaterialFor='JWOUTPUTMaterial' AND IR.PlantId=@plantId
-						GROUP BY SVGL.ServiceGLId,SVGL.ServiceBudgetMasterId,SVGL.ServiceActivityId,GLF.AccountCode,GLF.UserName
-						,BF.Code,BF.UserName
-						,AF.Code,AF.UserName
+						GROUP BY MGPGL.GLGeneralInfoId,MGPGL.BudgetMasterId,MGPGL.ActivityId,GL.AccountCode,GL.UserName
+						,B.Code,B.UserName
+						,A.Code,A.UserName
 
 						UNION
 
@@ -68,13 +73,13 @@ namespace Library.Accounting.Accounts
 							,ActivityId =SVGL.ClearingAccountActivityId
 							,ActivityCode =AF.Code 
 							,ActivityName = AF.UserName 
-							, NULL Dr, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Cr
-							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Amount
-						FROM [TRN].[InventoryReceiveDetail] AS IRD
+							, NULL Dr, SUM(JRBD.Amount) AS Cr
+							, SUM(JRBD.Amount) AS Amount
+						FROM   dbo.JWReceiveBillingDetail JRBD 
+						LEFT JOIN [dbo].[JWReceiveBilling] JRB ON  JRBD.JWReceiveBillingId=JRB.Id
+						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=JRBD.JWTransformationContractChildId
+						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.JWTCMDId=JWTCC.Id
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
-						LEFT JOIN [dbo].[JWReceiveBilling] JRB ON JRB.JWTransformationPurchaseOrderId=IRD.JWTCMId
-						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.JWTCMDId
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
 						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id
