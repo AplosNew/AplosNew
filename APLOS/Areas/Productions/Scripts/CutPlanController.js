@@ -160,15 +160,18 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.MinimumPlyValue = null;
     $scope.MinimumPlyValueName = null;
     $scope.CalculationArryWithData = [];
-    $scope.CalculatePly = function (index, name) {
-        $scope.MinimumPlyValueName = name;
+    $scope.Clicked = false;
+    $scope.CalculatePly = function () {
         var CalculationArry = [];
-        for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
-            CalculationArry.push(parseFloat(index) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
+        $scope.Clicked = true;
+        for (var j = 0; j < $scope.SkuValueList.length; j++) {
+            if ($scope.SkuValueList[j].IsSelect && $scope.SkuValueList[j].MinimumPlyActualValue == "") {
+                for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
+                    CalculationArry.push(parseFloat($scope.SkuValueList[j].Qty) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
+                }
+                $scope.MinimumPlyValue = Math.min.apply(null, CalculationArry);
+                $scope.SkuValueList[j].MinimumPlyActualValue = ($scope.MinimumPlyValue);
+            }
         }
-        $scope.MinimumPlyValue = null;
-        $scope.MinimumPlyValue = Math.min.apply(null, CalculationArry);
-        $scope.CalculationArryWithData.push({ "MinimumPlyValueName": name, "MinimumPlyValue": $scope.MinimumPlyValue });
-
     };
 }
