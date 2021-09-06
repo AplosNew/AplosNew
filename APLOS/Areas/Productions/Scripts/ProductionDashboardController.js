@@ -36,7 +36,7 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
         $scope.CompanyList = response.data.Company;
         $scope.SelectedCompany = response.data.CompanyId;
         $scope.getAllEntitiesAndProcess();
-        $scope.getHourlyProduction();
+        //$scope.getHourlyProduction();
     });
 
     $scope.getAllEntitiesAndProcess = function () {

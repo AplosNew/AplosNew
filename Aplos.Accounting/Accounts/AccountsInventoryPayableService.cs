@@ -3532,6 +3532,9 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 								,V.VoucherNo,IR.VoucherId, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
                                     ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.ServiceAcknowledgementMasterId IS NULL THEN '' ELSE 'Parked' end
 									,VT.VoucherNo TDSVoucherNo
+									,iv.Id InvoiceId
+									,V.IsPark
+
                     FROM [TRN].[ServiceAcknowledgementMaster] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                     LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C
 					 LEFT JOIN [HKP].[PartyAccountGroup] AS PAG

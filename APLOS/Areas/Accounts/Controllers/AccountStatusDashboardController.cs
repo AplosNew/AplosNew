@@ -1669,5 +1669,18 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #endregion Others Liability
+
+        #region GRN With Out INvoice
+        [HttpPost, Authorize]
+        public ActionResult GetGRNWithOutInvoiceDataList(string toDate)
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //return Json(new { DATA = accountsStatusDashboardService.GetGRNWithOutInvoiceDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            var jsondata = Json(new { DATA = accountsStatusDashboardService.GetGRNWithOutInvoiceDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+        #endregion Grn with out invoice
     }
 }
