@@ -10,6 +10,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
 
+    $scope.CalculateOn = 'Round';
     $scope.MarkerId = null;
     $scope.CharacteristicsName = null;
     $scope.CharacteristicsId = null;
