@@ -345,10 +345,10 @@ function UpdatePlantController(addressService, cboService, commonMessage, $scope
 
     $scope.showContactMaster = true;
 
-    //Local Language Part Start
+    //#region Local Language Part Start
     $scope._languageIndex = -1;
     $scope.languageTbl = false;
-    $scope.LanguageCaption = "Update Row";
+    $scope.LanguageCaption = "Add Row";
     $scope.languageDataList = [];
     $scope.updateLanguage = function (languageId, languageName) {
         $scope.languageDataList[$scope._languageIndex].Name = languageName;
@@ -454,6 +454,8 @@ function UpdatePlantController(addressService, cboService, commonMessage, $scope
         $scope._languageIndex = -1;
         $scope.LanguageCaption = "Update Row";
     }
+
+     //#endregion Local Language Part End
 
     $scope.Clear = function () {
         ClearFields($scope.getSequence());

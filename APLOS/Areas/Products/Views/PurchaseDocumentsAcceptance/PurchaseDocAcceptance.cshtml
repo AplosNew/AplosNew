@@ -632,7 +632,7 @@
                                             <td>{{x.MaterialDetail}}</td>
                                             <td class="text-right">{{x.POQty| number:2}}</td>
                                             <td class="text-right">{{x.TransactionUoM}}</td>
-                                            <td class="text-right">{{x.GRNQty| number:2}}</td>
+                                            <td class="text-right">{{x.GRNRcvQty| number:2}}</td>
                                             <td class="text-right">{{x.Otherqty| number:2}}</td>
                                             <td class="text-right">
                                                 <input type="text" n-decimals="2" class="form-control text-right" ng-change="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="!x.Active"*@>
