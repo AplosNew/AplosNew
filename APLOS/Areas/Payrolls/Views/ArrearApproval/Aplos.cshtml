@@ -32,7 +32,7 @@
             </div>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                    <div id="empInfoGridUnApproved" ng-init="chkinit()" ej-grid e-datasource="EmployeeListUnApproved" e-gridlines="vertical" 
+                    <div id="empInfoGridUnApproved" ng-init="chkinit()" ej-grid e-datasource="EmployeeListUnApproved" e-gridlines="vertical" e-templaterefresh="dataBoundemployeeUnApproved"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
@@ -49,6 +49,7 @@
                             <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
                             <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
                             <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="ArrearAmount" e-textalign="right" e-headertext="ArrearAmount" e-allowediting="false" e-width="80"></div>
                             <div e-column e-type="string" e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
                         </div>
                     </div>
@@ -71,18 +72,20 @@
                     </script>
 
                     <script type="text/x-jsrender" id="headerTemplateUnApproved">
-                        <input type="checkbox" id="headchk" />
+                        <input type="checkbox" id="headchkUnApproved" />
                     </script>
-                    <div class="col-md-12 col-sm-12">
-                        <div class="common-btn">
-                            <ul class="common-btn list-inline text-right">
-                                <li><button ng-click="ProcessAll(true)" class="btn" tabindex="10"><i class="glyphicon glyphicon-ok"> Approve</i></button></li>
-                            </ul>
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <div class="common-btn">
+                                <ul class="common-btn list-inline text-right">
+                                    <li><button ng-click="ProcessAll(true)" class="btn" tabindex="10"><i class="glyphicon glyphicon-ok"> Approve</i></button></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                    <div id="empInfoGridApproved" ng-init="chkinit()" ej-grid e-datasource="EmployeeListApproved" e-gridlines="vertical" e-templaterefresh="dataBoundemployee"
+                    <div id="empInfoGridApproved" ng-init="chkinit()" ej-grid e-datasource="EmployeeListApproved" e-gridlines="vertical" e-templaterefresh="dataBoundemployeeApproved"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-pagesettings-pagesize="15">
                         <div e-columns>
@@ -98,6 +101,7 @@
                             <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
                             <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
                             <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="ArrearAmount" e-textalign="right" e-headertext="ArrearAmount" e-allowediting="false" e-width="80"></div>
                             <div e-column e-type="string" e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
                         </div>
                     </div>
@@ -107,16 +111,18 @@
                     </script>
 
                     <script type="text/x-jsrender" id="headerTemplateApproved">
-                        <input type="checkbox" id="headchk" />
+                        <input type="checkbox" id="headchkApproved" />
                     </script>
-                    <div class="col-md-12 col-sm-12">
-                        <div class="common-btn">
-                            <ul class="common-btn list-inline text-right">
-                                <li><button ng-click="ProcessAll(false)" class="btn" tabindex="10"><i class="glyphicon glyphicon-ok"> Un Approve</i></button></li>
-                            </ul>
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <div class="common-btn">
+                                <ul class="common-btn list-inline text-right">
+                                    <li><button ng-click="ProcessAll(false)" class="btn" tabindex="10"><i class="glyphicon glyphicon-ok"> Un Approve</i></button></li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
 
+                    </div>
                 </div>
             </div>
         </div>
