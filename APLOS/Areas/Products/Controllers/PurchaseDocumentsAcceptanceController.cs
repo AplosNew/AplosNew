@@ -969,7 +969,7 @@ namespace Aplos.Areas.Products.Controllers
                         //}
 
                         dvdetailPO = new DataView(dsdetailPO.Tables[0]);
-                        dvdetailPO.RowFilter = "Id='" + item["PODetailsID"].ToString() + "'";
+                        dvdetailPO.RowFilter = "Id='" + item["PODetailId"].ToString() + "'";
                         if (dvdetailPO.Count > 0)
                         {
                             DataRow drPO = dvdetailPO[0].Row;

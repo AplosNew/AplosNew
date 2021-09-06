@@ -94,6 +94,14 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             if (baseService.arrayLength(response.data) > 0) {
                 $scope.seletedLST = response.data;
 
+                for (var i = 0; i < $scope.GridListPO.length; i++) {
+                    for (var j = 0; j < $scope.seletedLST.length; j++) {
+                        if ($scope.GridListPO[i].Id == $scope.seletedLST[j].Id) {
+                            $scope.GridListPO.splice(i, 1);
+                        }
+                    }
+                }
+
                 if ($scope.seletedLST.length > 0) {
                     var uniqueInventoryReceiveId = removeDuplicates($scope.seletedLST, 'Id');
                     var wcInventoryReceiveId = "";
@@ -1649,7 +1657,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $http.get('Products/PurchaseDocumentsAcceptance/GetGRNDetailData?inveReveiveId=' + $scope.sqlInStatement + '&PurchaseDocAcceptanceId=' + $scope.Id)
             .then(function (response) {
                 $scope.inventoryMaterialListPO = response.data.Rows;
-                console.log($scope.inventoryMaterialListPO);
 
                 if (!baseService.isUndefinedOrNull($scope.Id)) {
                     $scope.getMaterialTax($scope.Id);
