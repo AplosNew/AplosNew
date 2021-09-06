@@ -96,7 +96,7 @@
                                     <label class="col-sm-2 control-label">Marker SKU</label>
                                     <label class="col-sm-2 control-label">{{CharacteristicsName}}</label>
                                     <span class="col-sm-8">
-                                        <button ng-click="getFGCharacteristics();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-send"></i></button>
+                                        <button ng-click="getFGCharacteristics();" class="btn single-small-btn" tabindex="6" data-parent="#accordion" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"><i class="cr-icon glyphicon glyphicon-send"></i> Step 2</button>
                                     </span>
                                 </div>
                             </div>
@@ -107,47 +107,66 @@
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="headingTwo">
                     <h4 class="panel-title">
-                        <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                            Step 2
+                        <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Back @*Step 1*@
                         </button>
+                        @*<button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Step 2
+                            </button>*@
                     </h4>
                 </div>
                 <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
                     <div class="panel-body">
-                        <div class="table-responsive modal-table" ng-show="FGCharacteristicsValueList.length>0">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>{{CharacteristicsName}}</th>
-                                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
-                                        @*<th>Total</th>*@
-                                    </tr>
-                                    <tr>
-                                        <th></th>
-                                        <th>Ratio</th>
-                                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
-                                        @*<th >{{totalRatio}}</th>*@
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in SkuValueList">
-                                        <td>
-                                            <div class="col-sm-12" style="margin-top: 10px;">
-                                                <div class="checkbox-site">
-                                                    <label>
-                                                        <input type="checkbox" name="WithFatherName" ng-model="IsSelect" tabindex="8" ng-change="CalculatePly(x.Qty,x.Characteristicsvalue)">
-                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                    </label>
+                        <div class="row col-md-6">
+                            <label>
+                                <input type="radio" name="saad" ng-model="CalculateOn" value="Round">
+                                <span class="cr"><i class="cr-icon"></i></span>Round
+                            </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <label>
+                                <input type="radio" name="saad" ng-model="CalculateOn" value="RoundUp">
+                                <span class="cr"><i class="cr-icon"></i></span>Round Up
+                            </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <label>
+                                <input type="radio" name="saad" ng-model="CalculateOn" value="Down">
+                                <span class="cr"><i class="cr-icon"></i></span>Down
+                            </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div>
+                        <div class=" row col-md-12">
+                            <div class="table-responsive modal-table" ng-show="FGCharacteristicsValueList.length>0">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>{{CharacteristicsName}}</th>
+                                            <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
+                                            @*<th>Total</th>*@
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th>Ratio</th>
+                                            <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
+                                            @*<th >{{totalRatio}}</th>*@
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in SkuValueList">
+                                            <td>
+                                                <div class="col-sm-12" style="margin-top: 10px;">
+                                                    <div class="checkbox-site">
+                                                        <label>
+                                                            <input type="checkbox" name="WithFatherName" ng-model="IsSelect" tabindex="8" ng-change="CalculatePly(x.Qty,x.Characteristicsvalue)">
+                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td>{{x.Characteristicsvalue}}</td>
-                                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{x.Qty}}" class="form-control" autocomplete="off"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                            </td>
+                                            <td>{{x.Characteristicsvalue}}</td>
+                                            <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{x.Qty}}" class="form-control" autocomplete="off"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
 
+                            </div>
                         </div>
                         <div class="table-responsive modal-table" ng-show="CalculationArryWithData.length>0">
                             <table class="table table-striped">
@@ -210,46 +229,46 @@
 
 
 @*<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-    <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="headingOne">
-            <h4 class="panel-title">
-                <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    Step 1
-                </button>
-            </h4>
-        </div>
-        <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-            <div class="panel-body">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingOne">
+                <h4 class="panel-title">
+                    <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Step 1
+                    </button>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                <div class="panel-body">
+                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                </div>
             </div>
         </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="headingTwo">
-            <h4 class="panel-title">
-                <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    Step 2
-                </button>
-            </h4>
-        </div>
-        <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-            <div class="panel-body">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingTwo">
+                <h4 class="panel-title">
+                    <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Step 2
+                    </button>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                <div class="panel-body">
+                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                </div>
             </div>
         </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="headingThree">
-            <h4 class="panel-title">
-                <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    Step 3
-                </button>
-            </h4>
-        </div>
-        <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-            <div class="panel-body">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingThree">
+                <h4 class="panel-title">
+                    <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Step 3
+                    </button>
+                </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                <div class="panel-body">
+                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                </div>
             </div>
         </div>
-    </div>
-</div>*@
+    </div>*@
