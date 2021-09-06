@@ -150,6 +150,21 @@ namespace Aplos.Areas.JobWork.Controllers
 
 		}
 
+		[Authorize, HttpGet]
+		public JsonResult GetTransformationReceiptCurrency(string Id)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				return Json(R.GetTransformationReceiptCurrency(Id), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+
+		}
+
 
 		[Authorize, HttpPost]
 		public ActionResult Get(string Id)
