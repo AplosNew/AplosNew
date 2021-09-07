@@ -1,4 +1,4 @@
-﻿@*<togglable name="{{FormTitle}}"></togglable>*@
+﻿
 <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
 <div class="form-horizontal" ng-form name="ModelNewForm">
     <div class="form-elements" id="Marker">
@@ -90,7 +90,7 @@
         </div>
 
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-8" ng-show="CalculationOption">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="flexRadioDefault" ng-model="CalculateOn" id="Round" value="Round">
                     <label class="form-check-label" for="Round">
@@ -102,9 +102,9 @@
                         Round Up
                     </label>
 
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" ng-model="CalculateOn" id="Down" value="Down">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" ng-model="CalculateOn" id="Down" value="RoundDown">
                     <label class="form-check-label" for="Down">
-                        Down
+                        Round Down
                     </label>
                 </div>
             </div>
@@ -131,7 +131,7 @@
                             <div class="col-sm-12" style="margin-top: 10px;">
                                 <div class="checkbox-site">
                                     <label>
-                                        <input type="checkbox" name="WithFatherName" ng-model="x.IsSelect" tabindex="8" @*ng-change="CalculatePly(x.Qty,x.Characteristicsvalue)"*@>
+                                        <input type="checkbox" name="WithFatherName" ng-model="x.IsSelect" tabindex="8" >
                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                     </label>
                                 </div>
@@ -153,35 +153,26 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th></th>
                         <th>{{CharacteristicsName}}</th>
+                        <th></th>
                         <th></th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
                         @*<th>Total</th>*@
                     </tr>
                     <tr>
-                        <th></th>
                         <th>Ratio</th>
-                        <th>Minimum Ply Value</th>
+                        <th>Min. Ply Value</th>
+                        <th>{{CalculateOn}} Ply Value</th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
                         @*<th >{{totalRatio}}</th>*@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="x in SkuValueList">
-                        <td>
-                            <div class="col-sm-12" style="margin-top: 10px;">
-                                <div class="checkbox-site">
-                                    <label>
-                                        <input type="checkbox" name="WithFatherName" ng-model="x.IsSelect" tabindex="8" @*ng-change="CalculatePly(x.Qty,x.Characteristicsvalue)"*@>
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </td>
+                    <tr ng-repeat="x in CalculatedSkuValueList">
                         <td>{{x.Characteristicsvalue}}</td>
                         <td>{{x.MinimumPlyActualValue}}</td>
-                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{x.Qty}}" class="form-control" autocomplete="off"></td>
+                        <td>{{x.MinimumPlyOptionValue}}</td>
+                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{x.MinimumPlyOptionValue * y.Ratio}}" class="form-control" autocomplete="off"></td>
                     </tr>
                 </tbody>
             </table>
