@@ -7228,7 +7228,7 @@ namespace Library.HumanResource.Payroll
 
 
         #region PaySlip
-        public IWorkbook GetEmployeePaySlip(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity,bool IsIncludingZeroHeads)
+        public IWorkbook GetEmployeePaySlip(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads)
         {
             #region Variable
             ReportUtility ru = null;
@@ -7339,7 +7339,7 @@ namespace Library.HumanResource.Payroll
                 #endregion DataSet
                 if (dtEmpInfo.Rows.Count > 0)
                 {
-                   
+
 
                     #region Variable For Data
                     double EL = 0.00;
@@ -7799,13 +7799,13 @@ namespace Library.HumanResource.Payroll
                         {
                             drSalaryHeadCollection = dicEmpSalry[dtEmpInfo.Rows[i]["EmpSystemID"].ToString()];
                         }
-                        if (drSalaryHeadCollection == null) 
+                        if (drSalaryHeadCollection == null)
                             continue;
 
                         // dvStruct.RowFilter = "SystemID='" + x + "'";//SystemId = EmployeeSystemId
                         //dvSheet.RowFilter = "EmpInfoSystemID='" + x + "'";//SystemId = EmployeeSystemId
 
-                        
+
                         DataTable dtTemp = drSalaryHeadCollection[0].Table.Clone();
 
                         for (int dt = 0; dt < drSalaryHeadCollection.Count; dt++)
@@ -7954,7 +7954,7 @@ namespace Library.HumanResource.Payroll
                         //{
                         //    startRow = _maxRow + 5;
                         //}
-                        _maxRow++;
+                        _maxRow += 3;
                         sheet1.Range[_maxRow + 2, 1].Text = "— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — ";
                         sheet1.Range[_maxRow + 2, 1, _maxRow + 2, xlsColTot + 1].Merge();
 
@@ -13051,7 +13051,7 @@ INNER JOIN
             }
         }//End Function
 
-        public Dictionary<string, List<DataRow>> GetEmployeeSalaryInfoDetailPaySlipWithZeroHeads(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string languageId, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity,bool IsIncludingZeroHeads, out DataTable distinctSalaryHead)
+        public Dictionary<string, List<DataRow>> GetEmployeeSalaryInfoDetailPaySlipWithZeroHeads(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string languageId, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool IsIncludingZeroHeads, out DataTable distinctSalaryHead)
         {
             string strSQL;
             DataSet dsRef = null;
@@ -13135,7 +13135,7 @@ INNER JOIN
                                                                        ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
 
-                                                WHERE "+ ZeroHeads +@"
+                                                WHERE " + ZeroHeads + @"
                                     EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"'";
                 if (parameters.Count > 0)
                 {
@@ -13561,7 +13561,7 @@ INNER JOIN
             {
                 if (isActive == true)
                 {
-                    wcEmpStatus += " OR case when  ISNULL(SalaryProcFlag,'Regular') ='' then 'Regular' else ISNULL(SalaryProcFlag,'Regular') end = 'Regular' "; 
+                    wcEmpStatus += " OR case when  ISNULL(SalaryProcFlag,'Regular') ='' then 'Regular' else ISNULL(SalaryProcFlag,'Regular') end = 'Regular' ";
                 }
                 if (isSeperated == true)
                 {
@@ -13900,7 +13900,7 @@ INNER JOIN
                 DataTable dtSalaryHeadSheet;
                 List<SalarySheetReportUD> listdsSlrProc = new List<SalarySheetReportUD>();
                 GetEmployeeInfoDetailSalaryLogWiseDirectInDirect(companyGroupId, companyId, plantId, fdateOfMonth, ldateOfMonth, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, out dsEmpLoyeeInfo, IsDirectInDirect);//Sql Query For Salary  Data
-                if (dsEmpLoyeeInfo.Tables[0].Rows.Count ==0)
+                if (dsEmpLoyeeInfo.Tables[0].Rows.Count == 0)
                 {
                     throw new Exception("No Data Found..");
                 }
