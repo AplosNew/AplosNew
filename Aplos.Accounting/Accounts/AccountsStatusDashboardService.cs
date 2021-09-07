@@ -21048,7 +21048,8 @@ group by Id) O60 ON O60.Id=IV.Id
                     --,IR.POId
                     -- IR.PurchaseDocumentAcceptanceId
                     ,GAM.PurchaseDocumentAcceptanceId
-                    ,IR.IsInvoice,IR.GRNType, IR.GRNDate
+                    ,IR.IsInvoice,IR.GRNType
+                    ,isnull(format( IR.GRNDate,'dd-MMM-yyyy'),'')GRNDate
                     ,IR.EmployeeId
 
                     ,IRD.InventoryMaterialId

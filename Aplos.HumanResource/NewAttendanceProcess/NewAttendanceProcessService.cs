@@ -2640,6 +2640,29 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 throw (ex);
             }
         }
+        public void OverUnderStaySameDay(string SameDay, out DataSet ds, string Plant)
+        {
+
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+
+                var sql = @"select ap.EmpSystemID,Format(ap.WorkDate,'yyyy-MMM-dd')WorkDate,
+                ap.Duration,ap.ShiftSystemID,
+                (ap.Duration-isnull(ap.ShiftHoursWithoutOT,'0'))OverUnderStay
+                from attdnprocessdata ap
+                where WorkDate='" + SameDay + "' and Duration >0 and ap.PlantID='" + Plant + "'";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void PrevDurationStatusCal(string PreviousDay, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3759,6 +3782,56 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                     TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
                                     dr["LateOut"] = ts.TotalMinutes;
                                     dr["EarlyLateOut"] = "LO";
+                                }
+
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+
+                    #endregion
+
+                    #region SameDay OverStay UnderStay 
+                    DataSet SameDayOverStay;
+                    OverUnderStaySameDay(Date, out SameDayOverStay, PlantValue);
+                    if (SameDayOverStay.Tables[0].Rows.Count > 0)
+                    {
+                        string WorkDate = SameDayOverStay.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and Duration >0 and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < SameDayOverStay.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = SameDayOverStay.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(SameDayOverStay.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                if (OverUnderStay > 0)
+                                {
+                                    dr["OverStay"] = OverUnderStay;
+                                    dr["UnderStay"] = 0;
+                                }
+                                else if (OverUnderStay == 0)
+                                {
+                                    dr["OverStay"] = 0;
+                                    dr["UnderStay"] = 0;
+                                }
+                                else
+                                {
+                                    dr["OverStay"] = 0;
+                                    dr["UnderStay"] = OverUnderStay;
                                 }
 
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
