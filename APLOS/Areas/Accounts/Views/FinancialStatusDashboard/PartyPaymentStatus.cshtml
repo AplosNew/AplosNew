@@ -1860,29 +1860,38 @@
                                      e-allowsorting="true">
 
                                     <div e-columns>
-                                        <div e-column e-type="string" e-field="GRNType" e-headertext="GRN Type" e-width="50"></div>
                                         <div e-column e-type="string" e-field="InventoryReceiveId" e-headertext="GRN No." e-width="50"></div>
-                                        <div e-column e-type="string" e-field="DocRefNo" e-headertext="DocRefNo" e-width="50"></div>
-                                        <div e-column e-type="date" e-field="DocDate" e-headertext="Doc Date" e-format="{0:dd-MMM-yyyy}" e-width="50"></div>
 
                                         <div e-column e-type="date" e-field="GRNDate" e-headertext="GRN Date" e-format="{0:dd-MMM-yyyy}" e-width="70"></div>
-                                        @*<div e-column e-field="MasterLCDate" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="LC Date" e-width="80"></div>*@
-                                        <div e-column e-type="string" e-field="PartyType" e-headertext="PartyType" e-width="120"></div>
-                                        <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="DocRefNo" e-headertext="Doc RefNo" e-width="50"></div>
+                                        <div e-column e-type="date" e-field="DocDate" e-headertext="Doc Date" e-format="{0:dd-MMM-yyyy}" e-width="50"></div>
 
-                                        <div e-column e-type="string" e-field="TransactionUoMId" e-headertext="TransactionUoMId" e-width="80"></div>
-                                        <div e-column e-type="string" e-field="TransactionQty" e-headertext="TransactionQty" e-width="100"></div>
-                                        <div e-column e-type="string" e-field="MaterialTranRate" e-headertext="MaterialTranRate" e-width="100"></div>
+                                        <div e-column e-type="string" e-field="PartyTyp" e-headertext="vendor" e-width="120"></div>
+
+                                        <div e-column e-type="string" e-field="TransactionQty" e-headertext="Qty" e-width="100"></div>
+                                        <div e-column e-type="string" e-field="BaseUOM" e-headertext="UOM" e-width="80"></div>
+                                        <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="BooksCurrencyBaseRate" e-headertext="Rate" e-width="90"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Books Amount" e-textalign="right" e-width="100"></div>
+
+                                        <div e-column e-type="string" e-field="POId" e-headertext="PO NO" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO DocRefNo" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="LCRef" e-headertext="LCRef" e-width="90"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="LCAmount" e-headertext="LCAmount" e-textalign="right" e-width="100"></div>
+                                        <div e-column e-type="string" e-field="ContractId" e-headertext="Contract Id" e-width="90"></div>
+                                        <div e-column e-type="string" e-field="GRNType" e-headertext="GRN Type" e-width="50"></div>
+
+
+
+
+                                        @*<div e-column e-type="string" e-field="MaterialTranRate" e-headertext="MaterialTranRate" e-width="100"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="MaterialTranAmount" e-headertext="MaterialTranAmount" e-textalign="right" e-width="100"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalTaxAmount" e-headertext="TotalTaxAmount" e-textalign="right" e-width="100"></div>
 
-                                        <div e-column @*e-template="#LoanAmountTemp"*@ e-field="TotalMaterialTranAmount" textAlign='right' e-headertext="TotalMaterialTranAmount" e-width="100"></div>
+                                        <div e-column e-template="#LoanAmountTemp" e-field="TotalMaterialTranAmount" textAlign='right' e-headertext="TotalMaterialTranAmount" e-width="100"></div>
 
-                                        <div e-column e-type="string" e-field="BaseUOMId" e-headertext="BaseUOMId" e-width="80"></div>
-                                        <div e-column e-type="string" e-field="BaseQty" e-headertext="BaseQty" e-width="90"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ChargesTranAmount" e-headertext="ChargesTranAmount" e-textalign="right" e-width="100"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ChargesTaxTranAmount" e-headertext="ChargesTaxTranAmount" e-textalign="right" e-width="100"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalMaterialBooksCurrencyAmount" e-headertext="TotalMaterialBooksCurrencyAmount" e-textalign="right" e-width="100"></div>
 
 
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="IssueQty" e-headertext="Issue Qty" e-textalign="right" e-width="100"></div>
@@ -1894,21 +1903,16 @@
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="GrossAmount" e-headertext="GrossAmount" e-textalign="right" e-width="100"></div>
 
 
-                                        <div e-column e-type="string" e-field="POId" e-headertext="PO NO" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="POType" e-headertext="PO Type" e-width="50"></div>
                                         <div e-column e-type="string" e-field="OrderSpecific" e-headertext="Order Specific" e-width="50"></div>
 
-                                        <div e-column e-type="string" e-field="LCRef" e-headertext="LCRef" e-width="90"></div>
                                         <div e-column e-type="string" e-field="LCANo" e-headertext="LCANo" e-width="90"></div>
                                         <div e-column e-type="date" e-field="LCDate" e-headertext="LC Date" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
 
-                                        <div e-column e-type="string" e-field="LCRef" e-headertext="LCRef" e-width="90"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="LCAmount" e-headertext="LCAmount" e-textalign="right" e-width="100"></div>
+                                        <div e-column e-type="string" e-field="LCRef" e-headertext="LCRef" e-width="90"></div>*@
 
-                                        
-                                        <div e-column e-type="string" e-field="ContractId" e-headertext="Contract Id" e-width="90"></div>
 
-                                        
+
+
 
 
                                     </div>

@@ -93,6 +93,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             //getProductionProcessSetList();
         });
     }
+    $scope.CalculationOption = false;
     $scope.getSKU = function () {
         for (var i = 0; i < $scope.MarkerList.length; i++) {
             if ($scope.MarkerList[i].Value == $scope.MarkerId) {
@@ -109,6 +110,8 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             url: $scope.path + 'GetMarkerDetails?MarkerId=' + $scope.MarkerId
         }).then(function successCallback(response) {
             $scope.FGCharacteristicsValueList = response.data;
+            $scope.CalculationOption = true;
+            $scope.Clicked = false;
             $scope.SOIDs = "";
             $scope.totalRatio = 0;
             for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
@@ -160,17 +163,46 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.MinimumPlyValue = null;
     $scope.MinimumPlyValueName = null;
     $scope.CalculationArryWithData = [];
+    $scope.CalculatedSkuValueList = [];
     $scope.Clicked = false;
     $scope.CalculatePly = function () {
-        var CalculationArry = [];
-        $scope.Clicked = true;
+        $scope.CalculatedSkuValueList = [];
         for (var j = 0; j < $scope.SkuValueList.length; j++) {
-            if ($scope.SkuValueList[j].IsSelect && $scope.SkuValueList[j].MinimumPlyActualValue == "") {
+            if ($scope.SkuValueList[j].IsSelect /*&& $scope.SkuValueList[j].MinimumPlyActualValue == ""*/) {
+                var CalculationArry = [];
+                $scope.CalculatedSkuValueList.push($scope.SkuValueList[j]);
                 for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
                     CalculationArry.push(parseFloat($scope.SkuValueList[j].Qty) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
                 }
+
                 $scope.MinimumPlyValue = Math.min.apply(null, CalculationArry);
-                $scope.SkuValueList[j].MinimumPlyActualValue = ($scope.MinimumPlyValue);
+                var MiniValue = parseFloat($scope.MinimumPlyValue).toFixed(2);
+                var OptionBasedMinValue = '';
+                if ($scope.CalculateOn == 'Round') {
+                    OptionBasedMinValue = parseFloat(Math.round($scope.MinimumPlyValue)).toFixed(2);
+                }
+                else if ($scope.CalculateOn == 'RoundUp') {
+                    OptionBasedMinValue = parseFloat(Math.ceil($scope.MinimumPlyValue)).toFixed(2);
+                }
+                else {
+                    OptionBasedMinValue = parseFloat(Math.floor($scope.MinimumPlyValue)).toFixed(2);
+                }
+
+                $scope.Clicked = true;
+
+                for (var k = 0; k < $scope.CalculatedSkuValueList.length; k++) {
+                    if ($scope.SkuValueList[j].CharacteristicsId == $scope.CalculatedSkuValueList[k].CharacteristicsId) {
+                        $scope.CalculatedSkuValueList[k].MinimumPlyActualValue = MiniValue;
+                        $scope.CalculatedSkuValueList[k].MinimumPlyOptionValue = OptionBasedMinValue;
+                    }
+                }
+
+            }
+
+        }
+        for (var m = 0; m < $scope.FGCharacteristicsValueList.length; m++) {
+            for (var n = 0; n < $scope.CalculatedSkuValueList.length; n++) {
+                $scope.CalculatedSkuValueList[n].xx = parseFloat($scope.FGCharacteristicsValueList[m].Ratio) * parseFloat($scope.CalculatedSkuValueList[n].Qty);
             }
         }
     };
