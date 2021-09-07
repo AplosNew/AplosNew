@@ -2498,14 +2498,47 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TotalIssuedQty"].ToString());
                 sheet[MPChildROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TransactionQty"].ToString());
 
-                sheet[MPChildROW, ColAvgRate].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AvgRate"].ToString());
-                sheet[MPChildROW, ColAvgAmount].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AvgAmount"].ToString());
+                sheet[MPChildROW, ColAvgRate].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AverageIssueRate"].ToString());
+                sheet[MPChildROW, ColAvgAmount].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AverageAmount"].ToString());
 
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderAround(ExcelLineStyle.Hair);
                 JWOutputItem = TransformationIssueReturnChilddata.Rows[i]["JWOutputItem"].ToString();
 
                 MPChildROW++;
+            }
+
+            int ColTotal = 1;
+            report.SetHeaderText(ref sheet, MPChildROW, ColTotal, "Total", 10, ExcelHAlign.HAlignLeft);
+     //       int ColAvgAmount = MPChildCOL;
+     //       MPChildROW++;
+
+            // SUM OF TOTAL ISSUED QUANTITY
+            int ColTotalIssQty = 8;
+            var p = 0;
+            var q = 0;
+            var r = 0;
+            for (int j = 0; j < TransformationIssueReturnChilddata.Rows.Count; j++)
+            {
+
+                p = Convert.ToInt32(TransformationIssueReturnChilddata.Rows[j]["TransactionQty"]);
+                r = p + q;
+                q = r;
+                sheet[MPChildROW, ColTotalIssQty].Number = clsStaticInfo.dbl(q);
+            }
+
+            // SUM OF TOTAL Amount
+            int ColTotalRecQty = 10;
+            var x = 0;
+            var y = 0;
+            var z = 0;
+            for (int j = 0; j < TransformationIssueReturnChilddata.Rows.Count; j++)
+            {
+
+                x = Convert.ToInt32(TransformationIssueReturnChilddata.Rows[j]["AverageAmount"]);
+                z = x + y;
+                y = z;
+                sheet[MPChildROW, ColTotalRecQty].Number = clsStaticInfo.dbl(y);
             }
 
             EndRows = MPChildROW - 1;
@@ -2519,7 +2552,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
             // GRN DETAILS
 
-            int GRNROW = MPChildROW + 1;
+            int GRNROW = MPChildROW + 2;
             int GRNendCol = 1;
             int GRNCOL = 1;
 
@@ -2570,6 +2603,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
             report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base Rate", 10, ExcelHAlign.HAlignLeft);
             int ColBaseRate = GRNCOL;
+            GRNCOL++;
+
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Total Amount", 10, ExcelHAlign.HAlignLeft);
+            int ColTotalAmount = GRNCOL;
             GRNROW++;
             GRNendCol = GRNCOL;
             #endregion Headers
@@ -2613,11 +2650,46 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 sheet[GRNROW, ColBaseCurrency].Text = TransformationIssueGRNdata.Rows[i]["BaseCurrency"].ToString();
                 sheet[GRNROW, ColBaseRate].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["BaseRate"].ToString());
 
+                sheet[GRNROW, ColTotalAmount].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TotalAmount"].ToString());
+
                 sheet.Range[GRNROW, 1, GRNROW, GRNendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[GRNROW, 1, GRNROW, GRNendCol].BorderAround(ExcelLineStyle.Hair);
                 Id = TransformationIssueGRNdata.Rows[i]["Id"].ToString();
 
                 GRNROW++;
+            }
+
+            int ColGRNTotal = 1;
+            report.SetHeaderText(ref sheet, GRNROW, ColGRNTotal, "Total", 10, ExcelHAlign.HAlignLeft);
+            //       int ColAvgAmount = MPChildCOL;
+            //       GRNROW++;
+
+            // SUM OF TOTAL GRN ISSUED QUANTITY
+            int ColTotalGRNIssQty = 7;
+            var a = 0;
+            var b = 0;
+            var c = 0;
+            for (int j = 0; j < TransformationIssueGRNdata.Rows.Count; j++)
+            {
+
+                a = Convert.ToInt32(TransformationIssueGRNdata.Rows[j]["GRNIssueQty"]);
+                c = a + b;
+                b = c;
+                sheet[GRNROW, ColTotalGRNIssQty].Number = clsStaticInfo.dbl(b);
+            }
+
+            // SUM OF TOTAL GRN Amount
+            int ColTotalGRNAmount = 12;
+            var xx = 0;
+            var yy = 0;
+            var zz = 0;
+            for (int j = 0; j < TransformationIssueGRNdata.Rows.Count; j++)
+            {
+
+                xx = Convert.ToInt32(TransformationIssueGRNdata.Rows[j]["TotalAmount"]);
+                zz = xx + yy;
+                yy = zz;
+                sheet[GRNROW, ColTotalGRNAmount].Number = clsStaticInfo.dbl(yy);
             }
 
             GRNEndRows = GRNROW - 1;
@@ -2729,7 +2801,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 --,mi.Id as JwInputId,jwii.UserName as JWInputItem
 ,RequiredQuantity=(mp.Quantity * JWMi.GrossConsump)
 ,BalanceToIssue=(mp.Quantity * JWMi.GrossConsump)-(ISNULL(kk.TotalIssuedQty,'0'))
-,IID.TransactionQty,IID.AvgRate,IID.AvgAmount
+,IID.TransactionQty--,IID.AvgRate,IID.AvgAmount
+,AA.TQty,AA.AverageIssueRate,AverageAmount=(AA.AverageIssueRate * IID.TransactionQty)
 from TRN.InventoryIssueDetail IID left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
 left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
 left join dbo.JobWorkTransformationContractChild mp on mp.JobWorkTransformationContractMasterId=II.JWContractId and mp.Id=IID.JWTCMID
@@ -2750,6 +2823,11 @@ left join (select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId
 										where II.JWContractId='" + PrintTabId + @"'
 										group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName)
 										kk on kk.InventoryMaterialId=IM.Id
+                                        left join (select Sum(IIH.Qty) as TQty,IIH.InventoryIssueDetailId,Sum(IIH.Rate * IIH.Qty) as TotalAmount
+										           ,AverageIssueRate=(Sum(IIH.Rate * IIH.Qty) /Sum(IIH.Qty))
+													from TRN.InventoryIssueHistory IIH left join TRN.InventoryIssueDetail IID on IID.Id=IIH.InventoryIssueDetailId 
+													group by IIH.InventoryIssueDetailId)
+													AA on AA.InventoryIssueDetailId=IID.Id
 										where mp.JobWorkTransformationContractMasterId='" + PrintTabId + @"' and II.Id='" + IssueId + @"' --and mi.Id is not null 
 										and II.Types='InventoryJWIssue' and JWMi.GrossConsump is not null
 										group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id
@@ -2757,7 +2835,8 @@ left join (select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId
 										--,jwii.UserName
 										,mp.Quantity--, mi.GrossConsumption
 										,IID.TransactionQty
-										,JWMi.GrossConsump,IID.AvgRate,IID.AvgAmount
+										,JWMi.GrossConsump--,IID.AvgRate,IID.AvgAmount
+                                        ,AA.TQty,AA.AverageIssueRate
 										order by mp.Id";
 
             return _sqlRepository.GetDataTable(sql);
@@ -2767,7 +2846,7 @@ left join (select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId
         {
             var sql = @"select om.Id, IRD.InventoryReceiveId as GRNNo,IRD.Id as GRNRowId,uom.UserName as IssueUoM,IIH.Qty as GRNIssueQty,mm.UserName as JWInputMaterial
                         , mma.StandardName as JWInputArticle, C.Code as TransactionCurrency, IIH.Rate as TransactionRate, IR.ToCurrencyRate as BaseRate
-                         , CC.Code as BaseCurrency
+                         , CC.Code as BaseCurrency,(IIH.Rate * IIH.Qty) as TotalAmount
                         from dbo.JobWorkTransformationContractChild om left join TRN.InventoryIssueDetail IID on om.Id=IID.JWTCMID
                         left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
                         left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId

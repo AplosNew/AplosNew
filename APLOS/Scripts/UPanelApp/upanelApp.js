@@ -733,6 +733,7 @@ var upanelApp = angular
     .controller('rePrintCashCheckController', rePrintCashCheckController)
     .controller('MissedPunchReportController', MissedPunchReportController)
     .controller('ArrearController', ArrearController)
+    .controller('ArrearApprovalController', ArrearApprovalController)
     .controller('BulkIncrementSalaryStructureDataUploadController', BulkIncrementSalaryStructureDataUploadController)
     .controller('chourlyOTReportController', chourlyOTReportController)
     .controller('ProcessAndResourcesConstraintController', ProcessAndResourcesConstraintController)

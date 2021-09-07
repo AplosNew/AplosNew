@@ -274,6 +274,7 @@
         <thead>
             <tr>
                 <th>VoucherNo</th>
+                <th>Party Type</th>
                 <th>Party</th>
                 <th>Posting Date</th>
                 <th>Doc Ref No</th>
@@ -286,6 +287,7 @@
         <tbody>
             <tr dir-paginate="x in voucherList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id);">
                 <td>{{x.VoucherNo}}</td>
+                <td>{{x.PartyType}}</td>
                 <td>{{x.PartyCode}} - {{x.PartyName}}</td>
                 <td>{{x.PostingDate| dateFiltering}}</td>
                 <td>{{x.DocRefNo}}</td>

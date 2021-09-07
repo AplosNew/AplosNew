@@ -72,9 +72,9 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(cp.GetMarkerDetailList(MarkerId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public JsonResult GetSkuDetails(string OtherSku,string MaterialMasterId)
+        public JsonResult GetSkuDetails(string OtherSku,string SOId, string Sequence)
         {
-            return Json(cp.GetOtherSkuDetailList(OtherSku, MaterialMasterId), JsonRequestBehavior.AllowGet);
+            return Json(cp.GetOtherSkuDetailList(OtherSku, SOId, Sequence), JsonRequestBehavior.AllowGet);
         }
         #endregion
     }

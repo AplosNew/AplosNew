@@ -184,45 +184,62 @@ namespace Library.MaterialManagement.CutPlan
         {
             try
             {
-				var _sql = @"select M.Id [Value],M.UserName [Text],c.Id SKUId ,c.UserName SKU From MarkerMaster M
+                var _sql = @"select M.Id [Value],M.UserName [Text],c.Id SKUId ,c.UserName SKU From MarkerMaster M
 								left join HKP.Characteristics c on M.CharacteristicsId=c.Id
 								where M.FGMaterialMasterId='" + MaterialId + "'";
-				return _sqlRepository.GetDataCollection(_sql, null);
-			}
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
             catch (Exception e)
             {
                 throw e;
             }
         }
-		public IEnumerable<object> GetMarkerDetailList(string MarkerId)
+        public IEnumerable<object> GetMarkerDetailList(string MarkerId)
         {
             try
             {
-				var _sql = @"select M.Id,M.Ratio,CharacteristicsValueId ,C.UserName Characteristicsvalue 
+                var _sql = @"select M.Id,M.Ratio,CharacteristicsValueId ,C.UserName Characteristicsvalue 
 								From MarkerDetails M
 								Left Join hkp.Characteristicsvalue c on c.Id=M.CharacteristicsValueId 
-								where MarkerMasterId='" + MarkerId+"'";
-				return _sqlRepository.GetDataCollection(_sql, null);
-			}
+								where MarkerMasterId='" + MarkerId + "'";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
             catch (Exception e)
             {
                 throw e;
             }
         }
-		public IEnumerable<object> GetOtherSkuDetailList(string OtherSkuId,string MaterialMasterId)
-		{
-			try
-			{
-				var _sql = @"select c.UserName Characteristicsvalue ,c.Id CharacteristicsId
-								From hkp.Characteristicsvalue c
-								left join hkp.Characteristics ch on ch.Id=c.CharacteristicsId
-								where  ch.Id='"+OtherSkuId+"' and c.MaterialMasterId='"+MaterialMasterId+"'";
-				return _sqlRepository.GetDataCollection(_sql, null);
-			}
-			catch (Exception e)
-			{
-				throw e;
-			}
-		}
-	}
+        public IEnumerable<object> GetOtherSkuDetailList(string OtherSkuId, string SOId, string Sequence)
+        {
+            try
+            {
+                var _sql = "";
+
+                if (Sequence == "1")
+                {
+                    _sql = @"select IsSelect=Convert(bit, 'False'), c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(fc.Qty)Qty
+                                , '' MinimumPlyActualValue, '' MinimumPlyOptionValue
+								From TRN.FirstCharacteristics fc
+								left join hkp.Characteristicsvalue c on c.Id = fc.CharacteristicsValueId
+								left join hkp.Characteristics ch on ch.Id=c.CharacteristicsId and ch.Id=fc.CharacteristicsId
+								where  ch.Id='" + OtherSkuId + "' and fc.SalesOrderId in (" + SOId + @") group by  c.UserName  ,c.Id ";
+                }
+                else
+                {
+                    _sql = @"select IsSelect=Convert(bit, 'False'), c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(sc.Qty)Qty
+                                , '' MinimumPlyActualValue, '' MinimumPlyOptionValue
+								From TRN.SecondCharacteristics sc
+								left join hkp.Characteristicsvalue c on c.Id = sc.CharacteristicsValueId
+								left join hkp.Characteristics ch on ch.Id=c.CharacteristicsId and ch.Id=sc.CharacteristicsId
+								where  ch.Id='" + OtherSkuId + "' and sc.SalesOrderId in (" + SOId + @") group by  c.UserName  ,c.Id ";
+                }
+
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+    }
 }

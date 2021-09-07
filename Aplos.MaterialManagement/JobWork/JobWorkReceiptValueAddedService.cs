@@ -225,6 +225,22 @@ namespace Library.MaterialManagement.JobWork
             }
         }
 
+        public IEnumerable<object> GetTransformationReceiptCurrency(string Id)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select c.Id as Value, c.Code as Text from SCS.Currency c left join dbo.JWTransformationPurchaseOrder po on c.Id=po.CurrencyId
+                               where po.Id='"+ Id + @"' ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         private string GetPK()
         {
             string sID = string.Empty;

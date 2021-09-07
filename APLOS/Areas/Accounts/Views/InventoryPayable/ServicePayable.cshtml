@@ -428,40 +428,62 @@
     </div>
 
     <div class="content-container-fluid" style="color:black;">
-       
-            <div style="color:black;" id="GridPrint" ej-grid e-datasource="products" e-allowfiltering="true" e-allowpaging="true"
-                 e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
-                 e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
-                <div e-columns>
-                    <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
-                    <div e-column e-field="Id" e-headertext="Acknowledge No" e-width="100" textAlign='Center'></div>
-                    <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
-                    <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                    <div e-column e-field="POId" e-headertext="PO Id" e-width="60"></div>
-                    <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
-                    <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                    <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
-                    <div e-column e-field="TransactionAmount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
-                    <div e-column e-field="TDSTax" e-headertext=" TDS " e-width="100" textAlign='Right'></div>
-                    <div e-column e-field="TDSVoucherNo" e-headertext="TDS VoucherNo" e-width="100" textAlign='Right'></div>
-                    <div e-column e-field="IsTDSTaxPost" e-headertext="Tax Status" e-width="100" textAlign='Right'></div>
-                    <div e-column e-headertext="AdditionalTax" e-template="#AdditionalTaxTemplate" e-width="100"></div>
 
-                    <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
-                    <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
+        <div style="color:black;" id="GridPrint" ej-grid e-datasource="products" e-allowfiltering="true" e-allowpaging="true"
+             e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+             e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+            <div e-columns>
+                <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
+                <div e-column e-field="Id" e-headertext="Acknowledge No" e-width="100" textAlign='Center'></div>
+                <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="POId" e-headertext="PO Id" e-width="60"></div>
+                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
+                <div e-column e-field="TransactionAmount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
+                <div e-column e-field="TDSTax" e-headertext=" TDS " e-width="100" textAlign='Right'></div>
+                <div e-column e-field="TDSVoucherNo" e-headertext="TDS VoucherNo" e-width="100" textAlign='Right'></div>
+                <div e-column e-field="IsTDSTaxPost" e-headertext="Tax Status" e-width="100" textAlign='Right'></div>
+                <div e-column e-headertext="AdditionalTax" e-template="#AdditionalTaxTemplate" e-width="100"></div>
 
-                </div>
+                <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
+                <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
+                <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>
+
+
             </div>
-            <script id="AdditionalTaxTemplate" type="text/template">
-                <ul class="common-btn list-inline text-right">
-                    <li> <button type="button" class="btn" ng-disabled="data.AdditionalTaxId==null" ng-click="$parent.onClickadditionalTaxPop(data);">TDS Post</button></li>
-                </ul>
-
-            </script>
         </div>
+        <script id="AdditionalTaxTemplate" type="text/template">
+            <ul class="common-btn list-inline text-right">
+                <li> <button type="button" class="btn" ng-disabled="data.AdditionalTaxId==null" ng-click="$parent.onClickadditionalTaxPop(data);">TDS Post</button></li>
+            </ul>
+
+        </script>
+
+        <script id="DeleteTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        @*<button ng-disabled="data.AdditionalTaxId==null" ng-click="$parent.onClickadditionalTaxPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="TDS">
+                            TDS
+                        </button>*@
+                        <button ng-disabled="data.IsPark==false" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                            <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                        </button>
+                        @*<button ng-show="data.WrittenOffAmount" ng-click="$parent.getInvoiceSetOffDetailByInvoice(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="SetOff">
+                            <i class="glyphicon glyphicon-eye-open" style="color:orangered;"></i>
+                        </button>*@
+                    </li>
+                </ul>
+            </div>
+        </script>
+
+    </div>
 </div>
 
 @Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedServiceAcKnowledgeDetailPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AdditionalTaxPopUp.cshtml")
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(ServiceAckId,VoucherId,InvoiceId,TDSTaxVoucherId,TDSVoucherNo)"></confirm-archive-generic>
 
 

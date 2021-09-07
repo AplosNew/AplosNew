@@ -416,7 +416,7 @@ function PlantController(addressService, cboService, commonMessage, $scope, $roo
 
     $scope.showContactMaster = true;
 
-    //Local Language Part Start
+    //#region Local Language Part Start
     $scope._languageIndex = -1;
     $scope.languageTbl = false;
     $scope.LanguageCaption = 'Add Row';
@@ -536,7 +536,7 @@ function PlantController(addressService, cboService, commonMessage, $scope, $roo
         $scope._languageIndex = -1;
         $scope.LanguageCaption = 'Add Row';
     }
-    //Local Language Part End
+    //#endregion Local Language Part End
 
     // #region Clear
 
