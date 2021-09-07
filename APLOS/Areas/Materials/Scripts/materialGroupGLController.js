@@ -1664,8 +1664,11 @@ function MaterialGroupGLController(cboService, commonMessage, $scope, $rootScope
         $scope.DownPaymentGLInfo = null;
         $scope.DownPaymentGLGLId = null;
         $scope.ClearingAccGLInfo = null;
-        $scope.ClearingAccGLGLId = null;
+        $scope.ClearingAccountGLId = null;
+        $scope.InventoryInTransitInfo = null;
+        $scope.InventoryInTransitGLId = null;
         $scope.refreshInventoryGL();
+        $scope.refreshInventoryInTransit();
         $scope.refreshExpenseGL();
         $scope.refreshRevenueGL();
         $scope.refreshDebitNoteGL();

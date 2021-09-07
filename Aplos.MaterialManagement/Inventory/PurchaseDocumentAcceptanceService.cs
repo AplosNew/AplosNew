@@ -2368,16 +2368,20 @@ namespace Library.MaterialManagement.Inventory
 					DECLARE @plantId VARCHAR(10) = '" + plantId + @"'
 	                              
 					SELECT
-                           MGPGL.GLGeneralInfoId,MGPGL.BudgetMasterId,MGPGL.ActivityId,MGGL.ClearingAccountGLId,MGGL.ClearingAccountBudgetMasterId,MGGL.ClearingAccountActivityId
-		                    ,NULL TrnType,PDA.Id
-                           ,PDAD.Id As AcceptenceDetailId
-                            ,IR.Id AS POID,IRD.Id AS PODetailsID
-                        ,IRD.Id AS InventoryReceiveDetailId
-                        , MGM.UserName AS MaterialGroupMasterName
-                        , MM.Id MaterialMasterId
-                        , MM.UserName
-                        ,IRD.MaterialStorageId
-                        ,IRD.BaseUOMId
+                              MGPGL.GLGeneralInfoId,MGPGL.BudgetMasterId,MGPGL.ActivityId
+                            , ClearingAccountGLId=CASE WHEN PLC.IsAccepptanceFirst=1 THEN MGGL.InventoryInTransitGLId ELSE GRNMAP.PostCRGLGeneralInfoId END
+							,ClearingAccountBudgetMasterId=CASE WHEN PLC.IsAccepptanceFirst=1 THEN MGGL.InventoryInTransitBudgetMasterId ELSE GRNMAP.PostCRBudgetMasterId END
+                            ,ClearingAccountActivityId= CASE WHEN PLC.IsAccepptanceFirst=1 THEN MGGL.InventoryInTransitActivityId ELSE GRNMAP.PostCRActivityId END
+							, PLC.IsAccepptanceFirst
+		                    , NULL TrnType,PDA.Id
+                            , PDAD.Id As AcceptenceDetailId
+                            , IR.Id AS POID,IRD.Id AS PODetailsID
+                        ,  IRD.Id AS InventoryReceiveDetailId
+                        ,  MGM.UserName AS MaterialGroupMasterName
+                        ,  MM.Id MaterialMasterId
+                        ,  MM.UserName
+                        ,  IRD.MaterialStorageId
+                        , IRD.BaseUOMId
                         , IRD.ArticleId, ART.StandardName
                         , IRD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
                         , IRD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue
@@ -2430,12 +2434,17 @@ namespace Library.MaterialManagement.Inventory
                     LEFT JOIN[TRN].[PurchaseOrder] AS IR ON IRD.InventoryReceiveId= IR.Id
                     LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
                     LEFT JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=PDAD.PurchaseDocAcceptanceId
+					LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
 					LEFT JOIN (SELECT MGGL1.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL1 ON C.COAId=MGGL1.COAId WHERE C.Id=@companyId)
 								AS MGGL1 ON MM.MaterialGroupMasterId = MGGL1.MaterialGroupMasterId
 						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Vendor')AS CP ON PDA.PartyId = CP.PartyId
 						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN ( SELECT DISTINCT IRD.PostCRGLGeneralInfoId,IRD.PostCRBudgetMasterId,IRD.PostCRActivityId,GRM.PurchaseDocumentAcceptanceId FROM TRN.InventoryReceiveDetail IRD 
+									LEFT JOIN TRN.GRNAcceptanceMap GRM ON GRM.GRNId=IRD.InventoryReceiveId
+									
+						) GRNMAP ON GRNMAP.PurchaseDocumentAcceptanceId=PDA.Id
 						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id
-LEFT JOIN (SELECT POId,PODetailId,Sum(TransactionQty) AcptTransactionQty FROM TRN.PurchaseDocAcceptanceDetail GROUP BY POId,PODetailId) PAD ON PAD.POId=IRD.InventoryReceiveId AND PAD.PODetailId=IRD.Id
+                    LEFT JOIN (SELECT POId,PODetailId,Sum(TransactionQty) AcptTransactionQty FROM TRN.PurchaseDocAcceptanceDetail GROUP BY POId,PODetailId) PAD ON PAD.POId=IRD.InventoryReceiveId AND PAD.PODetailId=IRD.Id
                     WHERE PDA.Id=@docAcceptanceId";
                 return _sqlRepository.GetDataCollection(Sql);
             }
