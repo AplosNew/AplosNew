@@ -41,7 +41,7 @@ namespace Library.OrderManagement.LcNavigation
             return @" select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
-                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
+                        FORMAT(PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
                         P.UserName as  Vendor,
                         PL.Amount as Value,
                         Cur.Code as Currency,
@@ -78,7 +78,7 @@ namespace Library.OrderManagement.LcNavigation
                         left outer join MST.Destination as D on PL.CurrencyId=D.Id
                         left outer join HKP.Party as P on PL.VendorId = p.Id
 						left outer join MasterLC ML on ML.Id=con.MasterLCId
-						left outer  join (Select COUNT(Id) AcceptanceCount,AcceptanceAmount AcceptanceValue,PurchaseLCId from TRN.PurchaseDocAcceptance GROUP BY AcceptanceAmount,PurchaseLCId) AC on AC.PurchaseLCId=PL.Id
+						left outer  join (Select COUNT(Id) AcceptanceCount,sum(AcceptanceAmount) AcceptanceValue,PurchaseLCId from TRN.PurchaseDocAcceptance GROUP BY PurchaseLCId) AC on AC.PurchaseLCId=PL.Id
 
                         left join (
 						        select k.PurchaseLCId,sum(MaterialPOAmount) AS MaterialPOAmount,sum(JWPOAmount) AS JWPOAmount,sum(ServicePOAmount) AS ServicePOAmount
@@ -255,7 +255,7 @@ left outer join hkp.Party P on P.Id=PO.PartyId
 							group by IRD.POId)
                             as grn on grn.POId=PO.Id
 							where PO.PurchaseLCId is null and  PO.PlantId='"+identity.PlantId+@"' and PT.PaymentMode='LC'
-							and PO.PODate between '"+fromDate+ @"' and '" + toDate + @"'
+							and PO.PODate between '"+fromDate+@"' and '"+toDate+ @"'
 
 union all
 select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
@@ -264,8 +264,8 @@ select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
 ,GRN.GRNTotalAmount
 ,PO.AddedDate,PT.UserName PaymentTerm
 from [dbo].[JWTransformationPurchaseOrder] PO
-left outer join (select sum(TransactionAmount) POAmount,InventoryReceiveId from  TRN.PurchaseOrderDetail
-group by InventoryReceiveId)POD on POD.InventoryReceiveId=PO.Id
+left outer join (select sum(TransactionAmount) POAmount,JobWorkTransformationContractMasterId from  [dbo].[JobWorkTransformationContractChild]
+group by JobWorkTransformationContractMasterId)POD on POD.JobWorkTransformationContractMasterId=PO.Id
 left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
 left outer join SCS.Currency C on c.Id=PO.CurrencyId
 left outer join hkp.Party P on P.Id=PO.PartyId
@@ -277,8 +277,26 @@ left outer join hkp.Party P on P.Id=PO.PartyId
                             as grn on grn.POId=PO.Id
 							where PO.PurchaseLCId is null and  PO.PlantId='"+identity.PlantId+@"' and PT.PaymentMode='LC'
 							and PO.PODate between '" + fromDate + @"' and '" + toDate + @"'
-
-) a
+union all
+select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
+,PT.PaymentMode,PO.DocRefNo VendorRef
+, POD.POAmount,c.Code Currency,P.UserName Vendor
+,GRN.GRNTotalAmount
+,PO.AddedDate,PT.UserName PaymentTerm
+from TRN.ServicePOMaster PO
+left outer join (select sum(Amount) POAmount,ServicePOMasterId from TRN.ServicePODetail
+group by ServicePOMasterId)POD on POD.ServicePOMasterId=PO.Id
+left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
+left outer join SCS.Currency C on c.Id=PO.CurrencyId
+left outer join hkp.Party P on P.Id=PO.PartyId
+                            left join
+                             (select  IRD.ServicePOMasterId,sum(IRD.Amount) as GRNTotalAmount
+							 ,count(distinct IRD.ServiceAcknowledgementMasterId) as GRNCount
+							from TRN.ServiceAcknowledgementDetail IRD
+							group by IRD.ServicePOMasterId)
+                            as grn on grn.ServicePOMasterId=PO.Id
+							where PO.PurchaseLCId is null and  PO.PlantId='"+identity.PlantId+@"' and PT.PaymentMode='LC'
+							and PO.PODate between '" + fromDate + @"' and '" + toDate + @"') a
 order by a.PODate desc";
         }
 
