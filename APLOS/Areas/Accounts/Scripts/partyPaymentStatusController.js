@@ -4406,17 +4406,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
 
-    //$scope.TotalAcceptanceLiabilityMaturity = [{
-    //    title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceAmount", dataMember: "AcceptanceAmount", format: "{0:N2}" },
-    //    { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOff", dataMember: "SetOff", format: "{0:N2}" },
-    //    { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
-    //    { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" },
-    //    { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LCAmount", dataMember: "LCAmount", format: "{0:N2}" }
-
-    //    ],
-    //    showCaptionSummary: true
-    //}];
-
     //$scope.GetAcceptanceLiabilityMaturityReport = function () {
     //    try {
     //        //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
