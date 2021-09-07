@@ -139,4 +139,77 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
         }
 
     }
+
+    
+    $scope.dataBoundemployeeUnApproved = function (args) {
+        if (args.rowIndex == 0) {
+            $("#headchkUnApproved").ejCheckBox({"change": headCheckChangeUnApproved });
+        }
+    }
+    function headCheckChangeUnApproved(e) {
+        if (!e.isInteraction)
+            return;
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#empInfoGridUnApproved").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.EmployeeListUnApproved.length; i++) {
+                $scope.EmployeeListUnApproved[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+
+
+        }
+        var gridObj = $("#empInfoGridUnApproved").data("ejGrid");
+        gridObj.refreshContent();
+
+    }
+
+    $scope.dataBoundemployeeApproved = function (args) {
+        if (args.rowIndex == 0) {
+            $("#headchkApproved").ejCheckBox({ "change": headCheckChangeApproved });
+        }
+    }
+    function headCheckChangeApproved(e) {
+        if (!e.isInteraction)
+            return;
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#empInfoGridApproved").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.EmployeeListApproved.length; i++) {
+                $scope.EmployeeListApproved[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+
+
+        }
+        var gridObj = $("#empInfoGridApproved").data("ejGrid");
+        gridObj.refreshContent();
+
+    }
+
+
 }

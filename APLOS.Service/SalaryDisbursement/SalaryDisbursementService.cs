@@ -283,6 +283,7 @@ namespace Library.Service.SalaryDisbursement
                             {
                                 var directdata = voucherVM;
                                 directdata.VoucherId = directVoucherId;
+                                directdata.PartyType = "Employee";
                                 directdata.Amount = directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance").Sum(r => r.Amount);
                                 var advanceWriteOff = InsertAdvanceWriteOff(directdata);
                                 foreach (var item in directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"))
@@ -367,7 +368,7 @@ namespace Library.Service.SalaryDisbursement
                                         AdvanceId = null,
                                         EmployeeId = item.EmployeeId,
                                         EmployeeTransactionTypeId = item.EmployeeTransactionTypeId,
-                                        AdvanceWriteOffId = null,
+                                        AdvanceWriteOffId = advanceWriteOff.Id,
                                         EmployeePayableWriteOffId = null,
                                         EmployeePayableId = null,
                                         PartyType = "Employee",
@@ -510,6 +511,7 @@ namespace Library.Service.SalaryDisbursement
                             {
                                 var indirectdata = voucherVM;
                                 indirectdata.VoucherId = InDirectVoucherId;
+                                indirectdata.PartyType = "Employee";
                                 indirectdata.Amount = indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance").Sum(r => r.Amount);
                                 var indirectadvanceWriteOff = InsertAdvanceWriteOff(indirectdata);
                                 foreach (var item in indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"))

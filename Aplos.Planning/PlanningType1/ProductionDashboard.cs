@@ -889,12 +889,12 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
 
         #region Hourly Production Display
 
-        public Dictionary<string,object> HourlyProductionBookingPeriod(string Date, string PlantId, string ProcessId, string EntityId)
+        public Dictionary<string, object> HourlyProductionBookingPeriod(string Date, string PlantId, string ProcessId, string EntityId)
         {
             try
             {
                 var entity = "";
-                var Dates = "09-Aug-2021";
+                //Date = "05-Aug-2021";
                 if (!string.IsNullOrEmpty(EntityId))
                 {
                     entity = "and ps.EntityId = '" + EntityId + "'";
@@ -918,7 +918,8 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
                 dtPivot.Columns.Add("WorkCenterMasterId");
                 dtPivot.Columns.Add("WorkCenterMasterName");
                 foreach (DataRow item in dtAllPeriod.Rows)
-                    dtPivot.Columns.Add(item["UserName"].ToString(),typeof(double));
+                    dtPivot.Columns.Add(item["UserName"].ToString(), typeof(double));
+                dtPivot.Columns.Add("Total", typeof(double));
 
                 string WCId = "";
                 DataRow dr = null;
@@ -940,6 +941,15 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
                     WCId = dt.Rows[i]["WorkCenterMasterId"].ToString();
                 }
 
+                for (int i = 0; i < dtPivot.Rows.Count; i++)
+                {
+                    double total = 0;
+                    for (int COL = 4; COL < dtPivot.Columns.Count; COL++)
+                        total += clsStaticInfo.dbl(dtPivot.Rows[i][COL].ToString());
+
+                    dtPivot.Rows[i]["Total"] = total;
+                }
+
 
                 Dictionary<string, object> dicData = new Dictionary<string, object>();
                 StringCollection strCol = new StringCollection();
@@ -949,12 +959,11 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
                         continue;
                     strCol.Add(dtPivot.Rows[i]["EntityId"].ToString());
 
-                    dtPivot.DefaultView.RowFilter = "EntityId='"+ dtPivot.Rows[i]["EntityId"].ToString() + "'";
+                    dtPivot.DefaultView.RowFilter = "EntityId='" + dtPivot.Rows[i]["EntityId"].ToString() + "'";
                     DataTable dtTemp = dtPivot.DefaultView.ToTable();
 
-                    dicData.Add(dtPivot.Rows[i]["Entity"].ToString(), Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtPivot));
+                    dicData.Add(dtPivot.Rows[i]["Entity"].ToString(), Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtTemp));
                 }
-
                 return dicData;
             }
             catch (Exception ex)

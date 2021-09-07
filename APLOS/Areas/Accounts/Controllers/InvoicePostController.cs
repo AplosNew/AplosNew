@@ -126,8 +126,6 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Service Payable
 
-
-
         [HttpPost]
         public JsonResult ServicePost(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
         , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList
@@ -177,9 +175,6 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(new { Message = AplosMessage.Insert });
         }
-
-
-
 
 
         #endregion

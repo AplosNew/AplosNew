@@ -6284,7 +6284,7 @@ namespace Library.Service.Invoices
                         IsPark = voucherVM.IsPark,
                         Narration = voucherVM.Narration,
                         PostingDate = voucherVM.PostingDate,
-                        SourceType = "InventoryJWReceipt",
+                        SourceType = SourceType.OutSourceReceived.ToString(),
                         VoucherTypeId = voucherVM.VoucherTypeId,
                     };
                     voucherWiP.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + voucherWiP.Id;

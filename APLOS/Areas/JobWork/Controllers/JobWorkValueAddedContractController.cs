@@ -3365,7 +3365,8 @@ namespace Aplos.Areas.JobWork.Controllers
 									, mma.StandardName as ArticleCode, tcc.OrderSpecific as OutputOrderSpecific, tcc.RequiredCapacity,tcc.ByProductApplicable ,tcc.RateApplyId, c.Code as Currency
 									,tcc.RatePerUnit, tcc.Rejection,tcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,tcc.Remarks as TCCRemarks,MS.UserName as MaterialLocation,tcc.MaterialType,tcc.FinalOutputCategory
 									, mi.TotalGrossConsumptionPerUnit, TotalGrossInputQuantity=(mi.TotalGrossConsumptionPerUnit * tcc.Quantity)
-									, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
+									--, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
+                                    , Amount= (tcc.Quantity * tcc.RatePerUnit)
                                     from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join ORG.Plant Pnt on Pnt.Id=tc.PlantId
 									left join HKP.Party p on p.Id=tc.PartyId

@@ -422,8 +422,8 @@
                                                     <input type="text" name="Order Ref No" ng-model="IssueTransformation.OrderRefNo" class="form-control" maxlength="300" tabindex="2" autocomplete="on" readonly>
                                                     <span class="input-group-btn">
 
-                                                        <button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                        <button ng-click="ClearMasterOrder()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                        <button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn" ng-disabled="Transformation.OrderSpecific=='No'"><i class="glyphicon glyphicon-search"></i></button>
+                                                        <button ng-click="ClearMasterOrder()" class="btn single-small-btn" ng-disabled="Transformation.OrderSpecific=='No'"><i class="glyphicon glyphicon-refresh"></i></button>
                                                         <button ng-click="GetPopUpMasterOrderDetails()" class="btn single-small-btn" ng-disabled="IssueTransformation.OrderRefNo===null"><i class="glyphicon glyphicon-list-alt"></i></button>
                                                     </span>
                                                 </div>
