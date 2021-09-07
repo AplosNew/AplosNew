@@ -1658,7 +1658,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         FinalInOut(PreviousDay, PlantValue);
                         #endregion
 
-                        #region Exception Final PrevDay In/Out                  
+                        #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
                         ExceptionFinalInOut(PreviousDay, PlantValue);
                         #endregion
 
@@ -1868,7 +1868,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         }
                         #endregion
 
-                        #region Final Day In/Out  (Wrong Entry Handling)           
+                        #region Final Day In/Out    
                         FinalInOut(Date, PlantValue);
                         #endregion
 
