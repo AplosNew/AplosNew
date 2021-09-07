@@ -1658,6 +1658,10 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         FinalInOut(PreviousDay, PlantValue);
                         #endregion
 
+                        #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
+                        ExceptionFinalInOut(PreviousDay, PlantValue);
+                        #endregion
+
                         #region Getting flagged InPunch of the Day
                         DataSet FlaggedIn;
                         ConfirmedInFlagForDay(Date, out FlaggedIn, PlantValue);
@@ -1864,8 +1868,12 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         }
                         #endregion
 
-                        #region Final Day In/Out               
+                        #region Final Day In/Out    
                         FinalInOut(Date, PlantValue);
+                        #endregion
+
+                        #region Exception Final Day In/Out  (Wrong Entry Handling)                
+                        ExceptionFinalInOut(Date, PlantValue);
                         #endregion
 
                         #region In Status Logic
@@ -2440,7 +2448,30 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 var sql = @"update AttdnProcessData set InTime=ISNULL(ManualInTime,PunchInTime),OutTime=
 				 ISNULL(ManualOutTime,PunchOutTime),UpdatedBy='Schedule',DateUpdated=GETDATE()
 				 WHERE WorkDate='" + Date + @"' 
-				 and PlantID='" + Plant + "'";
+				 and PlantID='" + Plant + "' and OutTime>Intime";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ExceptionFinalInOut(string Date, string Plant)
+        {
+            try
+            {
+                var sql = @"update AttdnProcessData	set Intime=null,OutTime=null				 
+				 from AttdnProcessData 
+				 WHERE WorkDate='"+Date+@"' 
+				 and PlantID='"+Plant+@"' and 
+				 ISNULL(ManualInTime,PunchInTime)> ISNULL(ManualOutTime,PunchOutTime)";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -3951,7 +3982,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                     #region Today Status Code              
                     TodayStatusCodeData(Date, PlantValue);
                     #endregion
-
+                    
                     #region DayLimitProcess 
 
                     #region DayType Updation
@@ -4470,7 +4501,6 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 throw (ex);
             }
         }
-
         public void CheckerFunction(ref string ManualFlagRowId, string Value)
         {
             if (ManualFlagRowId.Contains(Value))
