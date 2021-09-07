@@ -11,9 +11,13 @@ using Library.Data.Sql;
 
 namespace OTSBD
 {
+    public enum DateType
+    {
+        FirstDayOfMonth, LastDayOfMonth, Default
+    }
     public class clsStaticInfo
     {
-        ISqlRepository _sqlRepository=new SqlRepository();
+        ISqlRepository _sqlRepository = new SqlRepository();
         private string REMOTESERVERNAME = "";
         private string REMOTEDATABASENAME = "";
         private string REMOTELINKSERVER = "";
@@ -99,6 +103,25 @@ namespace OTSBD
             {
                 return;
             }
+        }
+        public static string GetDate(string Date, DateType Type, string Format = "dd-MMM-yyyy")
+        {
+            if (string.IsNullOrEmpty(Date))
+                return "";
+
+            if (DateTime.TryParse(Date, out DateTime dateTime) == false)
+                return "";
+
+            dateTime = Convert.ToDateTime(Date);
+
+            if (Type == DateType.FirstDayOfMonth)
+                return new DateTime(dateTime.Year, dateTime.Month, 1).ToString(Format);
+
+            if (Type == DateType.LastDayOfMonth)
+              return new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month)).ToString(Format);
+
+            return Convert.ToDateTime(Date).ToString(Format);
+            
         }
         public static bool emailValidation(string emailID)
         {
@@ -1006,7 +1029,7 @@ namespace OTSBD
             }
 
         }//End Function
-        
+
 
         public void GetDataPlantWiseHRMSSetting(string sGroupID, string PlantID, out DataSet dsRef)
         {
@@ -2096,7 +2119,7 @@ namespace OTSBD
                 str = "";
             if (str.ToLower() == "null")
                 str = "";
-            
+
 
             return str;
         }//this function returns an empty string(not a null) from null or empty '&nbsp;' from the page
