@@ -5,6 +5,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Productions/CutPlan/';
+    $scope.saveUrl = $scope.path + 'Save';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -206,4 +207,27 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             }
         }
     };
+
+    $scope.Save = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'CalculatedValueList': $scope.CalculatedSkuValueList, 'FGCharacteristicsValueList': $scope.FGCharacteristicsValueList, 'MasterData': $scope, modelNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
 }
