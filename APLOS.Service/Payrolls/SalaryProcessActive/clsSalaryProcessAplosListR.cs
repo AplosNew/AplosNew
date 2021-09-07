@@ -2064,13 +2064,21 @@ public class clsSalaryProcessAplosR
                                                                     //decimal DivFactor = DaysInMonth - LocalWeekOff;
                                                                     //DisbCur = (DefCur / DivFactor) * (TotalDaysSlr - _Week_off_count);//www
 
+                                                                    ////New Calculation (Tarek)
+                                                                    //int _MonthlyTotalWeekoffCount = 0;
+                                                                    //GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _MonthlyTotalWeekoffCount);
+                                                                    //int _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
+                                                                    //decimal _PerDaySalary = DefCur / (DaysInMonth - _MonthlyTotalWeekoffCount);
+                                                                    //DisbCur = _PerDaySalary * (TotalDaysSlr - _WeekoffCountAfterJoin);
+
+
                                                                     //New Calculation (Tarek)
                                                                     int _MonthlyTotalWeekoffCount = 0;
-                                                                    GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _MonthlyTotalWeekoffCount);
                                                                     int _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
+                                                                    GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim(), ref _WeekoffCountAfterJoin, out _MonthlyTotalWeekoffCount);
+
                                                                     decimal _PerDaySalary = DefCur / (DaysInMonth - _MonthlyTotalWeekoffCount);
                                                                     DisbCur = _PerDaySalary * (TotalDaysSlr - _WeekoffCountAfterJoin);
-
 
                                                                     if (IsRefAbsentism == true)
                                                                     {
@@ -5621,7 +5629,7 @@ public class clsSalaryProcessAplosR
             throw ex;
         }
     }
-    void GetWeekoffCout(DataSet dsWeekOffAll, Dictionary<string, int> WeekOffList, string _emp, out int _Week_off_count)
+    void GetWeekoffCout(DataSet dsWeekOffAll, Dictionary<string, int> WeekOffList, string _emp, string DOJ, ref int WeekOffAfterJoin, out int _Week_off_count)
     {
         _Week_off_count = 0;
         try
@@ -5632,6 +5640,17 @@ public class clsSalaryProcessAplosR
             {
                 string _wo = dvWO[0]["OffDay"].ToString().ToUpper();
                 _Week_off_count = WeekOffList[_wo];
+
+                WeekOffAfterJoin = 0;
+                DateTime dtFrom = Convert.ToDateTime(DOJ);
+                DateTime dtTo = new DateTime(dtFrom.Year, dtFrom.Month, DateTime.DaysInMonth(dtFrom.Year, dtFrom.Month));
+                while (dtFrom <= dtTo)
+                {
+                    if (dtFrom.ToString("dddd").ToUpper() == _wo.ToUpper())
+                        WeekOffAfterJoin++;
+                    dtFrom = dtFrom.AddDays(1);
+                }
+
             }
             else
             {
@@ -6324,21 +6343,21 @@ public class clsSalaryProcessAplosR
 							                                    SELECT EmpInfoSystemID,SDM.EffectiveDate
 								                                    from SalaryInfoDefineMaster SDM
 								                                    JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
-                                                                    WHERE SDM.IsApproved=1 AND sdm.EmpInfoSystemID IN ("+ allEmpIds + @")
+                                                                    WHERE SDM.IsApproved=1 AND sdm.EmpInfoSystemID IN (" + allEmpIds + @")
 										                             union ALL
 								                                    select EmpInfoSystemID,SDM.EffectiveDate
 								                                    from SalaryInfoBackMaster SDM
 								                                    JOIN SalaryInfoBack AS SD ON sdm.SystemID=SD.SalaryID 
-                                                                    WHERE SDM.IsApproved=1 AND sdm.EmpInfoSystemID IN ("+ allEmpIds + @")
+                                                                    WHERE SDM.IsApproved=1 AND sdm.EmpInfoSystemID IN (" + allEmpIds + @")
 							
 			                                    ) AS SDM
 			
 			                            ) AS SDM 
-                                        WHERE EffectiveDate <= '"+ EffectiveDate + @"' AND rnk=1 
+                                        WHERE EffectiveDate <= '" + EffectiveDate + @"' AND rnk=1 
             
                             ) AS SL ON sl.EmpInfoSystemID=ei.SystemId  
 
-                            WHERE ISNULL(sl.EmpInfoSystemID,'')='' AND ei.SystemId IN ("+ allEmpIds + @")  ";
+                            WHERE ISNULL(sl.EmpInfoSystemID,'')='' AND ei.SystemId IN (" + allEmpIds + @")  ";
 
             objCon = new ConnectionManager.DAL.ConManager("1");
             objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
@@ -6353,7 +6372,7 @@ public class clsSalaryProcessAplosR
             }
             if (EmployeeIds != "")
                 throw new Exception(string.Format("No approved salary structure found before {0} for following employees {1}", EffectiveDate, EmployeeIds));
-           
+
             #endregion Must have approved salary structure before [Salary To Date]
 
         }

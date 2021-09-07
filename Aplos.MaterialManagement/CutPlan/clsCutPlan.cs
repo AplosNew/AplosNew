@@ -1,6 +1,8 @@
 ﻿using Library.Data.Sql;
+using Library.Service.Extension;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -241,5 +243,26 @@ namespace Library.MaterialManagement.CutPlan
                 throw e;
             }
         }
+        public void Save(List<Dictionary<string, object>> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData)
+        {
+            try
+            {
+                DataSet dsMaster;
+                //GetTexPolicyMaster(master.SystemID, out dsMaster);
+                //_TexMaster(ref dsMaster, master);
+
+                clsStaticInfo _info = new clsStaticInfo();
+                //_info.SaveDataSets(dsMaster);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
+}
+public class CutPlanMaster
+{
+    public string ProductionEntityId { get; set; }
+    public string ProductionOrderId { get; set; }
 }

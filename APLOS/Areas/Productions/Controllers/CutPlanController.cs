@@ -76,6 +76,21 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(cp.GetOtherSkuDetailList(OtherSku, SOId, Sequence), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult Create(List<Dictionary<string, object>> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData)
+        {
+            try
+            {
+                cp.Save(CalculatedValueList, FGCharacteristicsValueList,MasterData);
+                return Json(new { Error = false, data = CalculatedValueList, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         #endregion
     }
 }
