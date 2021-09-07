@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Accounts\AccountsDocAcceptanceService.cs" />
+    <Compile Include="Accounts\AccountsOutsourceBillingService.cs" />
     <Compile Include="Accounts\AccountsSalaryPayableService.cs" />
     <Compile Include="Accounts\AccountsEmployeePayableService.cs" />
     <Compile Include="Accounts\AccountsInventorySalesService.cs" />

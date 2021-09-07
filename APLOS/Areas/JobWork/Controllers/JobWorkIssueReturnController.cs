@@ -2508,6 +2508,39 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 MPChildROW++;
             }
 
+            int ColTotal = 1;
+            report.SetHeaderText(ref sheet, MPChildROW, ColTotal, "Total", 10, ExcelHAlign.HAlignLeft);
+     //       int ColAvgAmount = MPChildCOL;
+     //       MPChildROW++;
+
+            // SUM OF TOTAL ISSUED QUANTITY
+            int ColTotalIssQty = 8;
+            var p = 0;
+            var q = 0;
+            var r = 0;
+            for (int j = 0; j < TransformationIssueReturnChilddata.Rows.Count; j++)
+            {
+
+                p = Convert.ToInt32(TransformationIssueReturnChilddata.Rows[j]["TransactionQty"]);
+                r = p + q;
+                q = r;
+                sheet[MPChildROW, ColTotalIssQty].Number = clsStaticInfo.dbl(q);
+            }
+
+            // SUM OF TOTAL Amount
+            int ColTotalRecQty = 10;
+            var x = 0;
+            var y = 0;
+            var z = 0;
+            for (int j = 0; j < TransformationIssueReturnChilddata.Rows.Count; j++)
+            {
+
+                x = Convert.ToInt32(TransformationIssueReturnChilddata.Rows[j]["AverageAmount"]);
+                z = x + y;
+                y = z;
+                sheet[MPChildROW, ColTotalRecQty].Number = clsStaticInfo.dbl(y);
+            }
+
             EndRows = MPChildROW - 1;
 
             if (RowIndexNo < MPChildROW - 1)
@@ -2519,7 +2552,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
             // GRN DETAILS
 
-            int GRNROW = MPChildROW + 1;
+            int GRNROW = MPChildROW + 2;
             int GRNendCol = 1;
             int GRNCOL = 1;
 
@@ -2624,6 +2657,39 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 Id = TransformationIssueGRNdata.Rows[i]["Id"].ToString();
 
                 GRNROW++;
+            }
+
+            int ColGRNTotal = 1;
+            report.SetHeaderText(ref sheet, GRNROW, ColGRNTotal, "Total", 10, ExcelHAlign.HAlignLeft);
+            //       int ColAvgAmount = MPChildCOL;
+            //       GRNROW++;
+
+            // SUM OF TOTAL GRN ISSUED QUANTITY
+            int ColTotalGRNIssQty = 7;
+            var a = 0;
+            var b = 0;
+            var c = 0;
+            for (int j = 0; j < TransformationIssueGRNdata.Rows.Count; j++)
+            {
+
+                a = Convert.ToInt32(TransformationIssueGRNdata.Rows[j]["GRNIssueQty"]);
+                c = a + b;
+                b = c;
+                sheet[GRNROW, ColTotalGRNIssQty].Number = clsStaticInfo.dbl(b);
+            }
+
+            // SUM OF TOTAL GRN Amount
+            int ColTotalGRNAmount = 12;
+            var xx = 0;
+            var yy = 0;
+            var zz = 0;
+            for (int j = 0; j < TransformationIssueGRNdata.Rows.Count; j++)
+            {
+
+                xx = Convert.ToInt32(TransformationIssueGRNdata.Rows[j]["TotalAmount"]);
+                zz = xx + yy;
+                yy = zz;
+                sheet[GRNROW, ColTotalGRNAmount].Number = clsStaticInfo.dbl(yy);
             }
 
             GRNEndRows = GRNROW - 1;

@@ -77,7 +77,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         , EmployeeId: null
         , EmployeeCode: null
         , EmployeeName: null
-
+        , PaymentMode:null
         , PartyId: null
         , PartyPlantId: null
         , PartyName: null
@@ -214,6 +214,12 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
             $scope.modelNew.IsInvoice = false;
             $scope.IsPaymentTermHide = true;
         }
+        else if ($scope.modelNew.PaymentMode=='LC') {
+            $scope.IsInvoiceDisable = true;
+            $scope.modelNew.IsInvoice = false;
+            $scope.IsPaymentTermHide = true;
+            
+        }
         else if ($scope.TempEmployeeId != null) {
             $scope.IsInvoiceDisable = true;
             $scope.modelNew.IsInvoice = true;
@@ -252,7 +258,6 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                 }
             }
         }
-
     }
 
 
@@ -266,6 +271,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         $scope.AcceptanceDate = data.data.AcceptanceDate;
         $scope.PurchaseLCId = data.data.PurchaseLCId;
         $scope.LCNo = data.data.LCNo;
+        $scope.modelNew.PaymentMode = data.data.PaymentMode;
         $scope.ContractId = data.data.ContractNo;
         $scope.modelNew.IsFOC = data.data.IsFOC;
         $scope.modelNew.IsInvoice = true;
@@ -518,7 +524,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                 if (!has)
                     newList.push(list[i]);
             }
-            else if (row.OtherName !== 'Svc' && row.OtherName === 'Vendor' && $scope.AcceptanceId === null && $scope.PurchaseLCId == null) {
+             else if (row.OtherName !== 'Svc' && row.OtherName === 'Vendor' && $scope.AcceptanceId === null && $scope.PurchaseLCId == null && $scope.modelNew.PaymentMode == null) {
                 newList.push(list[i]);
                 $scope.TotalPayableAmount += list[i].Amount;
             }
@@ -526,6 +532,10 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                 newList.push(list[i]);
                 $scope.TotalPayableAmount += list[i].Amount;
             }
+             else if (row.OtherName !== 'Svc' && row.OtherName === 'LCBase' &&  $scope.modelNew.PaymentMode == 'LC') {
+                 newList.push(list[i]);
+                 $scope.TotalPayableAmount += list[i].Amount;
+             }
             //else if (row.OtherName !== 'Svc' && row.OtherName === 'Acceptance' && $scope.AcceptanceId !== null)
             //    newList.push(list[i]);
             //else newList.push(list[i]);

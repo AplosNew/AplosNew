@@ -1558,7 +1558,7 @@ UNION
 	                            , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId
 								, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
-                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName
+                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName,PT.PaymentMode
 								, CP.TaxApplicable, IR.IsTaxApplicable, IR.ToCurrencyRate, IR.ToCurrencyRate CompanyCurrencyRate
 								,[Type]=CASE WHEN IR.EmployeeId<>'' THEN 'Employee' Else 'Vendor' END
 								,IR.NoteForAccounts Narration

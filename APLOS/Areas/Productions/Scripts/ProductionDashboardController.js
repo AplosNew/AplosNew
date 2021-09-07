@@ -820,7 +820,7 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
     //    });
     //}
     //$scope.getHourlyProduction();
-
+    $scope.summaryRowHours = [];
     $scope.HourlyProductionDisplayList = [];
     $scope.getHourlyProduction = function () {
         $http({
@@ -830,6 +830,31 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.HourlyProductionDisplayList = response.data;
+
+
+            var summaryCols = [];
+            var keys = Object.keys($scope.HourlyProductionDisplayList);
+
+            for (var K = 0; K < keys.length; K++) {
+                var data = $scope.HourlyProductionDisplayList[keys[K]][0];
+                var columns = Object.keys(data);
+                for (var COL = 4; COL < columns.length; COL++) {
+                    summaryCols.push({ summaryType: ej.Grid.SummaryType.Sum, displayColumn: columns[COL], dataMember: columns[COL], format: "{0:N0}" });
+                }
+                break;
+            }
+
+
+            $scope.summaryRowHours = [{
+                title: "Total Qty", summaryColumns: summaryCols,
+                showCaptionSummary: true
+            }];
+
+            for (var K = 0; K < keys.length; K++) {
+                var gridObjRunning = $("#" + keys[K]).ejGrid("instance");
+                gridObjRunning.refreshContent(true);
+                gridObjRunning.refreshTemplate();
+            }
         });
     }
     //$scope.ChangeEntity = function () {

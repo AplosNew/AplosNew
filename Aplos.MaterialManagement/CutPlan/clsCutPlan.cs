@@ -217,7 +217,8 @@ namespace Library.MaterialManagement.CutPlan
 
                 if (Sequence == "1")
                 {
-                    _sql = @"select c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(fc.Qty)Qty
+                    _sql = @"select IsSelect=Convert(bit, 'False'), c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(fc.Qty)Qty
+                                , '' MinimumPlyActualValue, '' MinimumPlyOptionValue
 								From TRN.FirstCharacteristics fc
 								left join hkp.Characteristicsvalue c on c.Id = fc.CharacteristicsValueId
 								left join hkp.Characteristics ch on ch.Id=c.CharacteristicsId and ch.Id=fc.CharacteristicsId
@@ -225,7 +226,8 @@ namespace Library.MaterialManagement.CutPlan
                 }
                 else
                 {
-                    _sql = @"select  c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(sc.Qty)Qty
+                    _sql = @"select IsSelect=Convert(bit, 'False'), c.UserName Characteristicsvalue ,c.Id CharacteristicsId,sum(sc.Qty)Qty
+                                , '' MinimumPlyActualValue, '' MinimumPlyOptionValue
 								From TRN.SecondCharacteristics sc
 								left join hkp.Characteristicsvalue c on c.Id = sc.CharacteristicsValueId
 								left join hkp.Characteristics ch on ch.Id=c.CharacteristicsId and ch.Id=sc.CharacteristicsId

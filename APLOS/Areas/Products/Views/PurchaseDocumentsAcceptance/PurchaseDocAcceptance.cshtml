@@ -621,8 +621,8 @@
                                     <tbody>
                                         <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length>0">
                                             <td>{{x.Id}}</td>
-                                            <td>{{x.POID}}</td>
-                                            <td>{{x.PODetailsID}}</td>
+                                            <td>{{x.POId}}</td>
+                                            <td>{{x.PODetailId}}</td>
                                             <td>{{x.MaterialGroupMasterName}}</td>
                                             <td>{{x.UserName}}</td>
                                             <td>{{x.StandardName}}</td>
@@ -632,7 +632,7 @@
                                             <td>{{x.MaterialDetail}}</td>
                                             <td class="text-right">{{x.POQty| number:2}}</td>
                                             <td class="text-right">{{x.TransactionUoM}}</td>
-                                            <td class="text-right">{{x.GRNQty| number:2}}</td>
+                                            <td class="text-right">{{x.GRNRcvQty| number:2}}</td>
                                             <td class="text-right">{{x.Otherqty| number:2}}</td>
                                             <td class="text-right">
                                                 <input type="text" n-decimals="2" class="form-control text-right" ng-change="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="!x.Active"*@>
