@@ -894,7 +894,7 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
             try
             {
                 var entity = "";
-                Date = "05-Aug-2021";
+                //Date = "05-Aug-2021";
                 if (!string.IsNullOrEmpty(EntityId))
                 {
                     entity = "and ps.EntityId = '" + EntityId + "'";

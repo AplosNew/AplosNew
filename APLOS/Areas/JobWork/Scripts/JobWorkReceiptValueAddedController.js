@@ -1749,7 +1749,9 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.calculateAmount = function (data, index) {
 		debugger;
 		if ($scope.Action === 'Save') {
-			data.TransactionRate = (data.GrossConsumption * data.TransactionQty) / data.TransactionQty;
+			//	data.TransactionRate = (data.GrossConsumption * data.TransactionQty) / data.TransactionQty;
+			var MatTranRate = (data.GrossConsumption) / data.PlanQuantity;
+			data.TransactionRate = MatTranRate.toFixed(4);
 		}
 			
 		

@@ -841,10 +841,11 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
                 for (var COL = 4; COL < columns.length; COL++) {
                     summaryCols.push({ summaryType: ej.Grid.SummaryType.Sum, displayColumn: columns[COL], dataMember: columns[COL], format: "{0:N0}" });
                 }
+                break;
             }
 
 
-            $scope.summaryRowsProduction = [{
+            $scope.summaryRowHours = [{
                 title: "Total Qty", summaryColumns: summaryCols,
                 showCaptionSummary: true
             }];

@@ -1,191 +1,183 @@
-﻿@*<togglable name="{{FormTitle}}"></togglable>*@
+﻿
 <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
 <div class="form-horizontal" ng-form name="ModelNewForm">
     <div class="form-elements" id="Marker">
-        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="headingOne">
-                    <h4 class="panel-title">
-                        <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Step 1
-                        </button>
-                    </h4>
-                </div>
-                <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="modelNew.ProductionEntityId" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
-                                    <div class="col-sm-8">
-                                        <div class="input-group">
-                                            <input type="text" name="ProductionOrder" ng-model="modelNew.ProductionOrderId" class="form-control" readonly>
-                                            <span class="input-group-btn">
-                                                <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="GridSOItemSelected" ng-init="chkinit()" ej-grid e-datasource="recipeMaterialListSelected"
-                             e-allowscrolling="true" e-actioncomplete="actionCompleteSelected"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                             e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel" @*e-summaryrows="summaryRows"*@ @*e-editsettings-allowediting="true" e-editsettings-editmode="batch"*@>
-                            <div e-columns>
-                                <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="120"></div>
-
-                                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
-                                <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
-
-                                @*<div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU 1" e-width="180"></div>
-                                    <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU 2" e-width="180"></div>*@
-                                <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
-                                <div e-column e-field="DestinationDescription" e-headertext="Dest. Description" e-width="80"></div>
-                                <div e-column e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100"></div>
-                                <div e-column e-field="BuyerReferenceNo" e-headertext="Customer Item#" e-width="100"></div>
-                                <div e-column e-field="DeliveryWeek" e-headertext="Del. Week" e-width="80"></div>
-                                <div e-column e-field="DeliveryDate" e-headertext="Del. Date" e-width="80"></div>
-                                <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
-                                <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
-                                <div e-column e-field="MasterOrderNo" e-headertext="M. Order No" e-width="120"></div>
-                                <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
-                                <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
-                                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
-                                <div e-column e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
-                                <div e-column e-field="OwnReferenceNo" e-headertext="Own Item#" e-width="100"></div>
-                                <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
-                                <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
-                                <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
-                                <div e-column e-field="PONumber" e-headertext="PO No" e-width="80"></div>
-                                <div e-column e-field="OrderStatusName" e-headertext="Ord. Status" e-width="80"></div>
-                                <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>
-                                <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
-                            </div>
-                        </div>
-                        <br />
-                        <div class="row" ng-show="recipeMaterialListSelected.length>0">
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Marker</label>
-                                    <div class="col-sm-8">
-                                        <div class="select-style">
-                                            <select class="form-control" id="MarkerId" ng-model="MarkerId" ng-change="getSKU();">
-                                                <option value=""></option>
-                                                <option ng-repeat="option in MarkerList" value="{{option.Value}}">{{option.Text}}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label">Marker SKU</label>
-                                    <label class="col-sm-2 control-label">{{CharacteristicsName}}</label>
-                                    <span class="col-sm-8">
-                                        <button ng-click="getFGCharacteristics();" class="btn single-small-btn" tabindex="6" data-parent="#accordion" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"><i class="cr-icon glyphicon glyphicon-send"></i> Step 2</button>
-                                    </span>
-                                </div>
-                            </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="modelNew.ProductionEntityId" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                                <option value=""></option>
+                            </select>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="headingTwo">
-                    <h4 class="panel-title">
-                        <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Back @*Step 1*@
-                        </button>
-                        @*<button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                Step 2
-                            </button>*@
-                    </h4>
-                </div>
-                <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-                    <div class="panel-body">
-                        <div class="row col-md-6">
-                            <label>
-                                <input type="radio" name="saad" ng-model="CalculateOn" value="Round">
-                                <span class="cr"><i class="cr-icon"></i></span>Round
-                            </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <label>
-                                <input type="radio" name="saad" ng-model="CalculateOn" value="RoundUp">
-                                <span class="cr"><i class="cr-icon"></i></span>Round Up
-                            </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <label>
-                                <input type="radio" name="saad" ng-model="CalculateOn" value="Down">
-                                <span class="cr"><i class="cr-icon"></i></span>Down
-                            </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        </div>
-                        <div class=" row col-md-12">
-                            <div class="table-responsive modal-table" ng-show="FGCharacteristicsValueList.length>0">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>{{CharacteristicsName}}</th>
-                                            <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
-                                            @*<th>Total</th>*@
-                                        </tr>
-                                        <tr>
-                                            <th></th>
-                                            <th>Ratio</th>
-                                            <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
-                                            @*<th >{{totalRatio}}</th>*@
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="x in SkuValueList">
-                                            <td>
-                                                <div class="col-sm-12" style="margin-top: 10px;">
-                                                    <div class="checkbox-site">
-                                                        <label>
-                                                            <input type="checkbox" name="WithFatherName" ng-model="IsSelect" tabindex="8" ng-change="CalculatePly(x.Qty,x.Characteristicsvalue)">
-                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>{{x.Characteristicsvalue}}</td>
-                                            <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{x.Qty}}" class="form-control" autocomplete="off"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </div>
-                        </div>
-                        <div class="table-responsive modal-table" ng-show="CalculationArryWithData.length>0">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Minimum Ply</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in CalculationArryWithData">
-                                        <td>{{x.MinimumPlyValueName}}</td>
-                                        <td>{{x.MinimumPlyValue}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <input type="text" name="ProductionOrder" ng-model="modelNew.ProductionOrderId" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            </span>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div id="GridSOItemSelected" ng-init="chkinit()" ej-grid e-datasource="recipeMaterialListSelected"
+             e-allowscrolling="true" e-actioncomplete="actionCompleteSelected"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel" @*e-summaryrows="summaryRows"*@ @*e-editsettings-allowediting="true" e-editsettings-editmode="batch"*@>
+            <div e-columns>
+                <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="120"></div>
+                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
+                <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
+                <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
+                <div e-column e-field="DestinationDescription" e-headertext="Dest. Description" e-width="80"></div>
+                <div e-column e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100"></div>
+                <div e-column e-field="BuyerReferenceNo" e-headertext="Customer Item#" e-width="100"></div>
+                <div e-column e-field="DeliveryWeek" e-headertext="Del. Week" e-width="80"></div>
+                <div e-column e-field="DeliveryDate" e-headertext="Del. Date" e-width="80"></div>
+                <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
+                <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
+                <div e-column e-field="MasterOrderNo" e-headertext="M. Order No" e-width="120"></div>
+                <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
+                <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
+                <div e-column e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
+                <div e-column e-field="OwnReferenceNo" e-headertext="Own Item#" e-width="100"></div>
+                <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
+                <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
+                <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
+                <div e-column e-field="PONumber" e-headertext="PO No" e-width="80"></div>
+                <div e-column e-field="OrderStatusName" e-headertext="Ord. Status" e-width="80"></div>
+                <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>
+                <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
+            </div>
+        </div>
+        <br />
+        <div class="row" ng-show="recipeMaterialListSelected.length>0">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Marker</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" id="MarkerId" ng-model="MarkerId" ng-change="getSKU();">
+                                <option value=""></option>
+                                <option ng-repeat="option in MarkerList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Marker SKU</label>
+                    <label class="col-sm-2 control-label">{{CharacteristicsName}}</label>
+                    <span class="col-sm-8">
+                        <button ng-click="getFGCharacteristics();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-send"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8" ng-show="CalculationOption">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" ng-model="CalculateOn" id="Round" value="Round">
+                    <label class="form-check-label" for="Round">
+                        Round
+                    </label>
+
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" ng-model="CalculateOn" id="RoundUp" value="RoundUp">
+                    <label class="form-check-label" for="RoundUp">
+                        Round Up
+                    </label>
+
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" ng-model="CalculateOn" id="Down" value="RoundDown">
+                    <label class="form-check-label" for="Down">
+                        Round Down
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive modal-table" ng-show="FGCharacteristicsValueList.length>0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>{{CharacteristicsName}}</th>
+                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
+                        @*<th>Total</th>*@
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th>Ratio</th>
+                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
+                        @*<th >{{totalRatio}}</th>*@
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in SkuValueList">
+                        <td>
+                            <div class="col-sm-12" style="margin-top: 10px;">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" name="WithFatherName" ng-model="x.IsSelect" tabindex="8" >
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{x.Characteristicsvalue}}</td>
+                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" maxlength="50" name="Doc Ref" value="{{x.Qty}}" class="form-control" autocomplete="off"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="CalculatePly();" class="btn single-small-btn" tabindex="6"><i class="fa fa-calculator" aria-hidden="true"></i> Calculate</button></li>
+                </ul>
+            </div>
+            
+        </div>
+        <div class="table-responsive modal-table" ng-show="Clicked">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{CharacteristicsName}}</th>
+                        <th></th>
+                        <th></th>
+                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
+                        @*<th>Total</th>*@
+                    </tr>
+                    <tr>
+                        <th>Ratio</th>
+                        <th>Min. Ply Value</th>
+                        <th>{{CalculateOn}} Ply Value</th>
+                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
+                        @*<th >{{totalRatio}}</th>*@
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in CalculatedSkuValueList">
+                        <td>{{x.Characteristicsvalue}}</td>
+                        <td>{{x.MinimumPlyActualValue}}</td>
+                        <td>{{x.MinimumPlyOptionValue}}</td>
+                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" value="{{x.MinimumPlyOptionValue * y.Ratio}}" class="form-control"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                </ul>
             </div>
         </div>
     </div>
@@ -226,49 +218,3 @@
         </div>
     </div>
 </div>
-
-
-@*<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-        <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingOne">
-                <h4 class="panel-title">
-                    <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        Step 1
-                    </button>
-                </h4>
-            </div>
-            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-                <div class="panel-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-                </div>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingTwo">
-                <h4 class="panel-title">
-                    <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                        Step 2
-                    </button>
-                </h4>
-            </div>
-            <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-                <div class="panel-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-                </div>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingThree">
-                <h4 class="panel-title">
-                    <button class="btn btn-primary" type="button" data-parent="#accordion" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        Step 3
-                    </button>
-                </h4>
-            </div>
-            <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-                <div class="panel-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-                </div>
-            </div>
-        </div>
-    </div>*@

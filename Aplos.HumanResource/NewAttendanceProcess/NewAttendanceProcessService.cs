@@ -1658,6 +1658,10 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         FinalInOut(PreviousDay, PlantValue);
                         #endregion
 
+                        #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
+                        ExceptionFinalInOut(PreviousDay, PlantValue);
+                        #endregion
+
                         #region Getting flagged InPunch of the Day
                         DataSet FlaggedIn;
                         ConfirmedInFlagForDay(Date, out FlaggedIn, PlantValue);
@@ -1864,8 +1868,12 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         }
                         #endregion
 
-                        #region Final Day In/Out               
+                        #region Final Day In/Out    
                         FinalInOut(Date, PlantValue);
+                        #endregion
+
+                        #region Exception Final Day In/Out  (Wrong Entry Handling)                
+                        ExceptionFinalInOut(Date, PlantValue);
                         #endregion
 
                         #region In Status Logic
@@ -2440,7 +2448,30 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 var sql = @"update AttdnProcessData set InTime=ISNULL(ManualInTime,PunchInTime),OutTime=
 				 ISNULL(ManualOutTime,PunchOutTime),UpdatedBy='Schedule',DateUpdated=GETDATE()
 				 WHERE WorkDate='" + Date + @"' 
-				 and PlantID='" + Plant + "'";
+				 and PlantID='" + Plant + "' and OutTime>Intime";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void ExceptionFinalInOut(string Date, string Plant)
+        {
+            try
+            {
+                var sql = @"update AttdnProcessData	set Intime=null,OutTime=null				 
+				 from AttdnProcessData 
+				 WHERE WorkDate='"+Date+@"' 
+				 and PlantID='"+Plant+@"' and 
+				 ISNULL(ManualInTime,PunchInTime)> ISNULL(ManualOutTime,PunchOutTime)";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -2640,6 +2671,29 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 throw (ex);
             }
         }
+        public void OverUnderStaySameDay(string SameDay, out DataSet ds, string Plant)
+        {
+
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+
+                var sql = @"select ap.EmpSystemID,Format(ap.WorkDate,'yyyy-MMM-dd')WorkDate,
+                ap.Duration,ap.ShiftSystemID,
+                (ap.Duration-isnull(ap.ShiftHoursWithoutOT,'0'))OverUnderStay
+                from attdnprocessdata ap
+                where WorkDate='" + SameDay + "' and Duration >0 and ap.PlantID='" + Plant + "'";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void PrevDurationStatusCal(string PreviousDay, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -2669,6 +2723,32 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 								+ISNULL(LeaveStatus,'')),DateUpdated=GETDATE() 
                         WHERE PlantID='" + Plant + @"'
 								AND WorkDate='" + PreDay + "'";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void TodayStatusCodeData(string Today, string Plant)
+        {
+
+            try
+            {
+                var sql = @"UPDATE AttdnProcessData Set DayStatusCode=(ISNULL(HolidayStatus,'')+	
+											ISNULL(WeeklyStatus,'')+ISNULL(DurationStatus,'')+
+								ISNULL(EarlyLateIn,'')+ISNULL(EarlyLateOut,'')
+								+ISNULL(LeaveStatus,'')),DateUpdated=GETDATE() 
+                        WHERE PlantID='"+Plant+@"'
+								AND WorkDate='"+Today+@"' and isnull(intime,'')!=''
+								and ISNULL(outtime,'')!=''";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -2883,6 +2963,24 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 						where WorkDate='"+PreDay+ @"' 
 						and dt.DayType=p.DayStatus and (dt.EarnedCL>0 or dt.EarnedPL>0)
 						and ei.PlantId='" + Plant+"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void TodayDurationStatusCal(string Today, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select p.EmpSystemID,Format(p.WorkDate,'yyyy-MMM-dd')WorkDate,p.Duration
+                ,p.ShiftHalfDayDuration,p.ShiftFullDayDuration,p.InTime,p.OutTime,
+                p.ShiftShortDuration from AttdnProcessData p 
+                where WorkDate='"+Today+@"' 
+                and p.PlantID='"+Plant+"' and ISNULL(intime,'')!='' and ISNULL(outtime,'')!=''";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -3771,6 +3869,120 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                     #endregion
 
+                    #region SameDay OverStay UnderStay 
+                    DataSet SameDayOverStay;
+                    OverUnderStaySameDay(Date, out SameDayOverStay, PlantValue);
+                    if (SameDayOverStay.Tables[0].Rows.Count > 0)
+                    {
+                        string WorkDate = SameDayOverStay.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and Duration >0 and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < SameDayOverStay.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = SameDayOverStay.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(SameDayOverStay.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                if (OverUnderStay > 0)
+                                {
+                                    dr["OverStay"] = OverUnderStay;
+                                    dr["UnderStay"] = 0;
+                                }
+                                else if (OverUnderStay == 0)
+                                {
+                                    dr["OverStay"] = 0;
+                                    dr["UnderStay"] = 0;
+                                }
+                                else
+                                {
+                                    dr["OverStay"] = 0;
+                                    dr["UnderStay"] = OverUnderStay;
+                                }
+
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+
+                    #endregion
+
+                    #region Today DurationStatus Flagging
+                    DataSet TodayDurationStat;
+                    TodayDurationStatusCal(Date, out TodayDurationStat, PlantValue);
+                    if (TodayDurationStat.Tables[0].Rows.Count > 0)
+                    {
+                        string WorkDate = TodayDurationStat.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < TodayDurationStat.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = TodayDurationStat.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            string ShortDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftShortDuration"]).ToString();
+                            string FullDayDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftFullDayDuration"]).ToString();
+                            string HalfDayDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftHalfDayDuration"]).ToString();
+                            string Duration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"Duration"]).ToString();
+                            
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                if (Duration.ToString() != "" &&
+                                    FullDayDuration.ToString() != ""
+                                    && ShortDuration.ToString() != ""
+                                    && HalfDayDuration.ToString() != "")
+                                {
+                                    if (Convert.ToDouble(Duration) >= Convert.ToDouble(FullDayDuration))
+                                    {
+                                        dr["DurationStatus"] = "FD";
+                                    }
+                                    else if (Convert.ToDouble(Duration) >= Convert.ToDouble(HalfDayDuration))
+                                    {
+                                        dr["DurationStatus"] = "HD";
+                                    }
+                                    else if (Convert.ToDouble(Duration) >= Convert.ToDouble(ShortDuration))
+                                    {
+                                        dr["DurationStatus"] = "SD";
+                                    }
+                                    else if (Convert.ToDouble(Duration) < Convert.ToDouble(ShortDuration))
+                                    {
+                                        dr["DurationStatus"] = "A";
+                                    }
+                                }                                
+
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+
+                            }
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+
+                    #endregion
+                    
+                    #region Today Status Code              
+                    TodayStatusCodeData(Date, PlantValue);
+                    #endregion
+                    
                     #region DayLimitProcess 
 
                     #region DayType Updation
@@ -4289,7 +4501,6 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 throw (ex);
             }
         }
-
         public void CheckerFunction(ref string ManualFlagRowId, string Value)
         {
             if (ManualFlagRowId.Contains(Value))

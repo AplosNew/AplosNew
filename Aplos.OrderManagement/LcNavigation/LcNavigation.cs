@@ -41,7 +41,7 @@ namespace Library.OrderManagement.LcNavigation
             return @" select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
-                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
+                        FORMAT(PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
                         P.UserName as  Vendor,
                         PL.Amount as Value,
                         Cur.Code as Currency,
@@ -78,7 +78,7 @@ namespace Library.OrderManagement.LcNavigation
                         left outer join MST.Destination as D on PL.CurrencyId=D.Id
                         left outer join HKP.Party as P on PL.VendorId = p.Id
 						left outer join MasterLC ML on ML.Id=con.MasterLCId
-						left outer  join (Select COUNT(Id) AcceptanceCount,AcceptanceAmount AcceptanceValue,PurchaseLCId from TRN.PurchaseDocAcceptance GROUP BY AcceptanceAmount,PurchaseLCId) AC on AC.PurchaseLCId=PL.Id
+						left outer  join (Select COUNT(Id) AcceptanceCount,sum(AcceptanceAmount) AcceptanceValue,PurchaseLCId from TRN.PurchaseDocAcceptance GROUP BY PurchaseLCId) AC on AC.PurchaseLCId=PL.Id
 
                         left join (
 						        select k.PurchaseLCId,sum(MaterialPOAmount) AS MaterialPOAmount,sum(JWPOAmount) AS JWPOAmount,sum(ServicePOAmount) AS ServicePOAmount
@@ -239,7 +239,7 @@ namespace Library.OrderManagement.LcNavigation
         private string NonTagLCSearchByDateSql(string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
+            return @"select * from (select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
 ,PT.PaymentMode,PO.DocRefNo VendorRef
 , POD.POAmount,c.Code Currency,P.UserName Vendor
 ,GRN.GRNTotalAmount
@@ -254,9 +254,50 @@ left outer join hkp.Party P on P.Id=PO.PartyId
 							from TRN.InventoryReceiveDetail IRD
 							group by IRD.POId)
                             as grn on grn.POId=PO.Id
-							where PO.PurchaseLCId is null and  PO.PlantId='20171' and PT.PaymentMode='LC'
+							where PO.PurchaseLCId is null and  PO.PlantId='"+identity.PlantId+@"' and PT.PaymentMode='LC'
+							and PO.PODate between '"+fromDate+@"' and '"+toDate+ @"'
+
+union all
+select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
+,PT.PaymentMode,PO.DocRefNo VendorRef
+, POD.POAmount,c.Code Currency,P.UserName Vendor
+,GRN.GRNTotalAmount
+,PO.AddedDate,PT.UserName PaymentTerm
+from [dbo].[JWTransformationPurchaseOrder] PO
+left outer join (select sum(TransactionAmount) POAmount,JobWorkTransformationContractMasterId from  [dbo].[JobWorkTransformationContractChild]
+group by JobWorkTransformationContractMasterId)POD on POD.JobWorkTransformationContractMasterId=PO.Id
+left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
+left outer join SCS.Currency C on c.Id=PO.CurrencyId
+left outer join hkp.Party P on P.Id=PO.PartyId
+                            left join
+                             (select  IRD.POId,sum(IRD.TotalMaterialTranAmount) as GRNTotalAmount
+							 ,count(distinct IRD.InventoryReceiveId) as GRNCount
+							from TRN.InventoryReceiveDetail IRD
+							group by IRD.POId)
+                            as grn on grn.POId=PO.Id
+							where PO.PurchaseLCId is null and  PO.PlantId='"+identity.PlantId+@"' and PT.PaymentMode='LC'
 							and PO.PODate between '" + fromDate + @"' and '" + toDate + @"'
-order by PO.PODate desc";
+union all
+select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
+,PT.PaymentMode,PO.DocRefNo VendorRef
+, POD.POAmount,c.Code Currency,P.UserName Vendor
+,GRN.GRNTotalAmount
+,PO.AddedDate,PT.UserName PaymentTerm
+from TRN.ServicePOMaster PO
+left outer join (select sum(Amount) POAmount,ServicePOMasterId from TRN.ServicePODetail
+group by ServicePOMasterId)POD on POD.ServicePOMasterId=PO.Id
+left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
+left outer join SCS.Currency C on c.Id=PO.CurrencyId
+left outer join hkp.Party P on P.Id=PO.PartyId
+                            left join
+                             (select  IRD.ServicePOMasterId,sum(IRD.Amount) as GRNTotalAmount
+							 ,count(distinct IRD.ServiceAcknowledgementMasterId) as GRNCount
+							from TRN.ServiceAcknowledgementDetail IRD
+							group by IRD.ServicePOMasterId)
+                            as grn on grn.ServicePOMasterId=PO.Id
+							where PO.PurchaseLCId is null and  PO.PlantId='"+identity.PlantId+@"' and PT.PaymentMode='LC'
+							and PO.PODate between '" + fromDate + @"' and '" + toDate + @"') a
+order by a.PODate desc";
         }
 
         private void Json(object p, object allowGet)
@@ -393,6 +434,23 @@ order by PO.PODate desc";
             }
 
         }
+
+        public List<Dictionary<string, object>> ACBreakDownList(string ACID)
+        {
+
+            try
+            {
+                string sql = ACBreakDownSql(ACID);
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
 
 
         private string PurchaseLCPOSql(string PurchaseLCId)
@@ -599,6 +657,18 @@ order by PO.PODate desc";
 							) A where A.Id='"+GRNID+@"' and A.POId<>''";
         }
 
+        private string ACBreakDownSql(string ACID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @" select PA.Id,isnull(PAD.POId,'') POId,sum( PAD.TotalMaterialTranAmount ) AcceptanceValue
+							,Format(PA.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate from trn.PurchaseDocAcceptance PA 
+							left outer join trn.PurchaseDocAcceptanceDetail  PAD on PAD.PurchaseDocAcceptanceId=PA.Id
+							left outer join trn.PurchaseOrder PO on PO.id=PAD.POId
+							where pA.Id='"+ACID+@"' and pAd.POId<>''
+							group by PA.Id,PAD.POId,PA.AcceptanceDate";
+        }
+
+
 
         public List<Dictionary<string, object>> GetPurchaseLCGRNList(string PurchaseLCId)
         {
@@ -727,27 +797,37 @@ where xIRD.ServiceAcknowledgementMasterId=gn.GRNNo for xml path('') ), 1, 1, '')
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"select
-PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' ) as AcceptanceDate
-,Format(PO.PODate,'dd-MMM-yyyy') PODate,PO.Id PONo
-                        ,c.Code as Currency,PA.AcceptanceAmount AcceptanceValue,SetOff.InvPayment SetOffValue
+PL.Id as PurchaseLCId,AC.AcceptanceDate,AC.AcceptanceNo,AC.AcceptanceValue,AC.PODate
+,c.Code as Currency,SetOff.InvPayment SetOffValue,AC.ACID
+--,sum(PA.AcceptanceAmount) AcceptanceValue
+,PONo=STUFF((select distinct ','+xPO.Id from
+						trn.PurchaseOrder AS xPO
+						Left outer JOIN trn.PurchaseDocAcceptanceDetail AS xPD ON xPD.POId=xPO.Id
+						where xPD.PurchaseDocAcceptanceId=AC.ACID for xml path('') ), 1, 1, '')
+
 						from PurchaseLC as PL
 						join SCS.Currency as c on PL.CurrencyId=c.Id
-						left outer join trn.PurchaseDocAcceptance as PA on PA.PurchaseLCId=PL.Id
+						left outer join (
+						select PA.PurchaseLCId,PA.AcceptanceAmount AcceptanceValue,PA.Id ACID
+						,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' ) as AcceptanceDate
+						,Format(PO.PODate,'dd-MMM-yyyy') PODate from trn.PurchaseDocAcceptance as PA						
 						left outer join trn.PurchaseDocAcceptancedetail as PD on PD.PurchaseDocAcceptanceId=PA.Id
 						left outer join trn.PurchaseOrderDetail POD on POD.Id = PD.PODetailId
-						left outer join trn.PurchaseOrder PO on PO.Id = PD.POId						
-						left outer join (
+						left outer join trn.PurchaseOrder PO on PO.Id = PD.POId	
+						--group by PA.PurchaseLCId,PA.Id,PA.AcceptanceNo, PA.AcceptanceDate,PO.PODate
+						)AC on AC.PurchaseLCId=PL.Id
+				    	left outer join (
 						select PDA.PurchaseLCId,sum(isnull(IWD.Amount,0)) InvPayment,PDA.Id PurchaseDocAccId
 										from TRN.PurchaseDocAcceptance PDA
 											LEFT JOIN TRN.Invoice I ON I.PurchaseDocAcceptanceId=PDA.Id 
 											LEFT JOIN TRN.InvoiceWriteOffDetail IWD ON IWD.InvoiceId=I.Id
 											where IWD.Amount>0 and PDA.PurchaseLCId<>''
 											group by PDA.PurchaseLCId,PDA.Id
-						) SetOff on SetOff.PurchaseDocAccId=PA.Id
+						) SetOff on SetOff.PurchaseDocAccId=AC.ACID
+                        where PL.Id ='" + PurchaseLCId+@"'
+						group by PL.Id,c.Code,AC.ACID,AC.AcceptanceDate,AC.AcceptanceNo,AC.AcceptanceValue,AC.PODate,SetOff.InvPayment
 
-                        where PL.Id ='"+PurchaseLCId+@"'
-						group by PL.Id,PA.AcceptanceNo,PA.AcceptanceDate,c.Code,PO.PODate,PO.Id
-						,PA.AcceptanceAmount,SetOff.InvPayment";
+						";
 
         }
 

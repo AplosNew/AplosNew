@@ -3221,7 +3221,8 @@ namespace Library.MaterialManagement.Inventory
 							)PO ON PO.GRNId = IR.Id
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+						         left JOIN dbo.MasterLC MLC ON MLC.CustomerId=IR.PartyId
                         WHERE (IR.GRNType='GRNBYPO' OR IR.GRNType='GRNBYREQPO') AND (IR.AuthorizedByStatus='Hold' OR IR.AuthorizedByStatus='Reject') AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 order by IR.GRNDate ASC";
 				}
 
@@ -3353,7 +3354,8 @@ namespace Library.MaterialManagement.Inventory
 							)PO ON PO.GRNId = IR.Id
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+						         left JOIN dbo.MasterLC MLC ON MLC.CustomerId=IR.PartyId
                         WHERE (IR.GRNType='GRNBYPO' OR IR.GRNType='GRNBYREQPO')  AND (IR.AuthorizedByStatus IS Null  AND IR.CheckedByStatus IS Null)
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
@@ -3486,7 +3488,8 @@ namespace Library.MaterialManagement.Inventory
 							)PO ON PO.GRNId = IR.Id
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+						         left JOIN dbo.MasterLC MLC ON MLC.CustomerId=IR.PartyId
                         WHERE (IR.GRNType='GRNBYPO' OR IR.GRNType='GRNBYREQPO') AND (IR.CheckedByStatus Is Null  AND IR.AuthorizedByStatus='Approved')
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
@@ -3619,7 +3622,8 @@ namespace Library.MaterialManagement.Inventory
 							)PO ON PO.GRNId = IR.Id
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+						         left JOIN dbo.MasterLC MLC ON MLC.CustomerId=IR.PartyId
                         WHERE (IR.GRNType='GRNBYPO' OR IR.GRNType='GRNBYREQPO') AND (IR.CheckedByStatus ='Checked'  AND IR.AuthorizedByStatus='Approved') 
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
@@ -3761,7 +3765,8 @@ namespace Library.MaterialManagement.Inventory
 							)PO ON PO.GRNId = IR.Id
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+						left JOIN dbo.MasterLC MLC ON MLC.CustomerId=IR.PartyId
                         WHERE (IR.GRNType='GRNBYPO' OR IR.GRNType='GRNBYREQPO') AND IR.Status='Posting'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 1 order by IR.GRNDate ASC";
 				}
 
