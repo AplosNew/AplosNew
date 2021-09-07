@@ -21040,7 +21040,9 @@ group by Id) O60 ON O60.Id=IV.Id
                 var sql = @"select IR.Id InventoryReceiveId
                     --,IR.CurrencyId
                     ,C.Code Currency
+					
                     ,IR.PartyId
+					,p.UserName Vendor
 					,IR.PartyType
                     , IR.DocRefNo
 					,isnull( format( IR.DocDate, 'dd-MMM-yyyy'),'')DocDate
@@ -21059,16 +21061,17 @@ group by Id) O60 ON O60.Id=IV.Id
                     ,SUM(ISNULL( IRD.TransactionQty ,0))TransactionQty
 					--,IRD.TransactionUoMId
 					--,IRD.BaseUOMId
-                    ,SUM(IRD.TrnCurrencyBaseRate)TrnCurrencyBaseRate
-                    ,SUM(IRD.MaterialTranRate)MaterialTranRate
+                    --,SUM(IRD.TrnCurrencyBaseRate)TrnCurrencyBaseRate
+                   -- ,SUM(IRD.MaterialTranRate)MaterialTranRate
 					,SUM(IRD.MaterialTranAmount)MaterialTranAmount
                     ,SUM(IRD.TotalTaxAmount)TotalTaxAmount
 					,SUM(IRD.ChargesTranAmount)ChargesTranAmount
 					,SUM(IRD.ChargesTaxTranAmount)ChargesTaxTranAmount
 					,SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount
 
+					,cc.Code ComCurrency
 					--,IRD.BaseQty
-					,SUM(IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
+				--	,SUM(IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
                     ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
              
 				
@@ -21108,8 +21111,11 @@ group by Id) O60 ON O60.Id=IV.Id
                     LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
                     left join trn.PurchaseOrder po on po.Id =IR.POId
                     left join PurchaseLC plc on plc.Id = po.PurchaseLCId
-
                     LEFT JOIN TRN.GRNAcceptanceMap GAM ON GAM.GRNId =IR.Id
+					left join HKP.party p on p.Id = ir.PartyId
+					left join org.Company Com on Com.Id = IR.CompanyId
+                    LEFT JOIN SCS.Currency CC ON CC.Id = Com.BaseCurrencyId
+					
                     where IR.CompanyGroupId = '"+companyGroupId+"' AND IR.CompanyId ='"+companyId+"' AND IR.PlantId='"+plantId+@"'
                     AND  IR.IsInvoice=0 
 					and GAM.PurchaseDocumentAcceptanceId is null
@@ -21118,6 +21124,7 @@ group by Id) O60 ON O60.Id=IV.Id
 					
 					group by 
 					IR.Id 
+					,cc.Code
                     ,C.Code 
                     ,IR.PartyId
 					,IR.PartyType
@@ -21148,7 +21155,8 @@ group by Id) O60 ON O60.Id=IV.Id
                     ,plc.LCANo
                     ,plc.IsAccepptanceFirst
                     ,plc.LCDate
-					,plc.Type";
+					,plc.Type
+						,p.UserName";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
