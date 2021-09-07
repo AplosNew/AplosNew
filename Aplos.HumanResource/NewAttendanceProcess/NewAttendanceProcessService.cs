@@ -2706,6 +2706,32 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 throw (ex);
             }
         }
+        public void TodayStatusCodeData(string Today, string Plant)
+        {
+
+            try
+            {
+                var sql = @"UPDATE AttdnProcessData Set DayStatusCode=(ISNULL(HolidayStatus,'')+	
+											ISNULL(WeeklyStatus,'')+ISNULL(DurationStatus,'')+
+								ISNULL(EarlyLateIn,'')+ISNULL(EarlyLateOut,'')
+								+ISNULL(LeaveStatus,'')),DateUpdated=GETDATE() 
+                        WHERE PlantID='"+Plant+@"'
+								AND WorkDate='"+Today+@"' and isnull(intime,'')!=''
+								and ISNULL(outtime,'')!=''";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void PrevDayStatus(string PreDay, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3920,6 +3946,10 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                     }
 
+                    #endregion
+                    
+                    #region Today Status Code              
+                    TodayStatusCodeData(Date, PlantValue);
                     #endregion
 
                     #region DayLimitProcess 
