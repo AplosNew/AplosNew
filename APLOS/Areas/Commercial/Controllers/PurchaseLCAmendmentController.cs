@@ -59,9 +59,10 @@ namespace Aplos.Areas.Commercial.Controllers
                          PLC.LeinBank, PLC.LeinBankDescription, PLC.OrderSpecific, PLC.LCRef, FORMAT(PLC.LCDate,'dd-MMM-yyyy') LCDate,
                          FORMAT(PLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate, PLC.Amount, PLC.[Type], PLC.Tenure, PLC.CurrencyId, PLC.Rate, PLC.FinalDestination, FORMAT(PLC.AmendmentDate,'dd-MMM-yyyy') AmendmentDate, 
                          PLC.PortOfLandingId, PLC.[Status], PLC.AddedBy, FORMAT(PLC.AddedDate,'dd-MMM-yyyy') AddedDate, PLC.AddedFromIP, PLC.UpdatedBy, FORMAT(PLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, PLC.UpdatedFromIP
-                        ,PLC.LCANo,PLC.LIBOUR,PLC.InsuranceCoverNoteNo,PLC.InsuranceAttachment,PLC.PaymentBasedOn,C.Id ContractId,ISNULL(C.ContractNo,'')ContractNo,PLC.PortOfLoading,PLC.InsuranceValue,PT.UserName CustomerName,FORMAT(PLC.ShipmentDate,'dd-MMM-yyyy') ShipmentDate,PLC.PINo,OB.CurrencyId BankCurrency
+                        ,PLC.LCANo,PLC.LIBOUR,PLC.InsuranceCoverNoteNo,PLC.InsuranceAttachment,PLC.PaymentBasedOn,C.Id ContractId,ISNULL(C.ContractNo,'')ContractNo,PLC.PortOfLoading,PLC.InsuranceValue,PT.UserName CustomerName,FORMAT(PLC.ShipmentDate,'dd-MMM-yyyy') ShipmentDate,PLC.PINo,OB.CurrencyId BankCurrency,MLC.LCRef MasterLCNo,C.Remarks ContractRemarks ,PLC.Remarks
                         FROM [dbo].[PurchaseLC] PLC
                         LEFT JOIN dbo.[Contract] C ON C.Id=PLC.ContractId
+                        LEFT JOIN dbo.MasterLC MLC ON MLC.Id=C.MasterLCId
 						LEFT JOIN HKP.Party PT ON PT.Id=C.CustomerId
                         LEFT JOIN HKP.Party P  ON P.Id=PLC.VendorId
                         LEFT JOIN MST.BankMaster OB  ON OB.Id=PLC.OpeningBankMasterId
@@ -703,7 +704,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         dr["FinalDestination"] = dsMaster.Tables[0].Rows[0]["FinalDestination"];
                         dr["PortOfLandingId"] = dsMaster.Tables[0].Rows[0]["PortOfLandingId"];
                         dr["Status"] = dsMaster.Tables[0].Rows[0]["Status"];
-
+                        dr["Remarks"] = dsMaster.Tables[0].Rows[0]["Remarks"];
                         dr["LCANo"] = dsMaster.Tables[0].Rows[0]["LCANo"];
                         dr["LIBOUR"] = dsMaster.Tables[0].Rows[0]["LIBOUR"];
                         dr["InsuranceCoverNoteNo"] = dsMaster.Tables[0].Rows[0]["InsuranceCoverNoteNo"];
@@ -759,7 +760,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["FinalDestination"] = data.FinalDestination;
                     dr["PortOfLandingId"] = data.PortOfLandingId;
                     dr["Status"] = data.Status;
-
+                    dr["Remarks"] = data.Remarks;
                     dr["AmendmentDate"] = data.AmendmentDate == null ? System.DBNull.Value : (object)data.AmendmentDate;
                     dr["LCANo"] = data.LCANo;
                     dr["LIBOUR"] = data.LIBOUR;
@@ -810,7 +811,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["FinalDestination"] = data.FinalDestination;
                     dr["PortOfLandingId"] = data.PortOfLandingId;
                     dr["Status"] = data.Status;
-
+                    dr["Remarks"] = data.Remarks;
                     dr["AmendmentDate"] = data.AmendmentDate == null ? System.DBNull.Value : (object)data.AmendmentDate;
                     dr["LCANo"] = data.LCANo;
                     dr["LIBOUR"] = data.LIBOUR;

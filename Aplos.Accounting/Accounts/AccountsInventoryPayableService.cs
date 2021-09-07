@@ -1558,7 +1558,7 @@ UNION
 	                            , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId
 								, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
-                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName
+                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName,PT.PaymentMode
 								, CP.TaxApplicable, IR.IsTaxApplicable, IR.ToCurrencyRate, IR.ToCurrencyRate CompanyCurrencyRate
 								,[Type]=CASE WHEN IR.EmployeeId<>'' THEN 'Employee' Else 'Vendor' END
 								,IR.NoteForAccounts Narration
@@ -3532,6 +3532,9 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 								,V.VoucherNo,IR.VoucherId, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
                                     ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.ServiceAcknowledgementMasterId IS NULL THEN '' ELSE 'Parked' end
 									,VT.VoucherNo TDSVoucherNo
+									,iv.Id InvoiceId
+									,V.IsPark
+
                     FROM [TRN].[ServiceAcknowledgementMaster] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                     LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C
 					 LEFT JOIN [HKP].[PartyAccountGroup] AS PAG

@@ -36,6 +36,7 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
         $scope.CompanyList = response.data.Company;
         $scope.SelectedCompany = response.data.CompanyId;
         $scope.getAllEntitiesAndProcess();
+        //$scope.getHourlyProduction();
     });
 
     $scope.getAllEntitiesAndProcess = function () {
@@ -164,6 +165,7 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
                 chartObj.redraw();
 
                 $scope.GetDailyPlanVsProduction();
+                $scope.getHourlyProduction();
             });
         } catch (e) {
             ShowResult(e, 'failure');
@@ -301,7 +303,7 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
         $rootScope.openPopup('dialogWorkcenterWiseWIP');
     }
 
-    
+
     //$scope.SelectedProcess = null;
     //$scope.GetProductionRelay = function (args) {
     //    $scope.WorkcenterWiseWIPList = [];
@@ -345,7 +347,7 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
 
                 $scope.ProductionRelayList = response.data;
             })
-            $rootScope.openPopup('dialogProductionRelay');            
+            $rootScope.openPopup('dialogProductionRelay');
 
         } catch (e) {
             ShowResult(e, 'failure');
@@ -447,9 +449,9 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
     $scope.ProductionRelayReport = function () {
 
         try {
-          
 
-            var file_src = $scope.path + 'GetProductionRelayReport?PlantId=' + $scope.SelectedPlant + '&EntityId=' + $scope.SelectedEntity + '&ProcessId=' + $scope.SelectedProcess.Id ;
+
+            var file_src = $scope.path + 'GetProductionRelayReport?PlantId=' + $scope.SelectedPlant + '&EntityId=' + $scope.SelectedEntity + '&ProcessId=' + $scope.SelectedProcess.Id;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -806,18 +808,58 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
     }
 
     //#region Saad's Part
-    $scope.HourlyProductionList = [];
+    //$scope.HourlyProductionList = [];
+    //$scope.getHourlyProduction = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + "GetProductionBookingPeriod",
+    //        data: {},
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        $scope.HourlyProductionList = response.data.master;
+    //    });
+    //}
+    //$scope.getHourlyProduction();
+    $scope.summaryRowHours = [];
+    $scope.HourlyProductionDisplayList = [];
     $scope.getHourlyProduction = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetProductionBookingPeriod",
-            data: { },
+            url: $scope.path + "GetHourlyProductionBookingPeriod",
+            data: { 'Date': $scope.FromDateParameter, 'PlantId': $scope.SelectedPlant, 'ProcessId': $scope.BaseProcessId, 'EntityId': $scope.SelectedEntity },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.HourlyProductionList = response.data.master;
+            $scope.HourlyProductionDisplayList = response.data;
+
+
+            var summaryCols = [];
+            var keys = Object.keys($scope.HourlyProductionDisplayList);
+
+            for (var K = 0; K < keys.length; K++) {
+                var data = $scope.HourlyProductionDisplayList[keys[K]][0];
+                var columns = Object.keys(data);
+                for (var COL = 4; COL < columns.length; COL++) {
+                    summaryCols.push({ summaryType: ej.Grid.SummaryType.Sum, displayColumn: columns[COL], dataMember: columns[COL], format: "{0:N0}" });
+                }
+                break;
+            }
+
+
+            $scope.summaryRowHours = [{
+                title: "Total Qty", summaryColumns: summaryCols,
+                showCaptionSummary: true
+            }];
+
+            for (var K = 0; K < keys.length; K++) {
+                var gridObjRunning = $("#" + keys[K]).ejGrid("instance");
+                gridObjRunning.refreshContent(true);
+                gridObjRunning.refreshTemplate();
+            }
         });
     }
-    $scope.getHourlyProduction();
+    //$scope.ChangeEntity = function () {
+    //    $scope.getHourlyProduction();
+    //}
     //#endregion
 
 }

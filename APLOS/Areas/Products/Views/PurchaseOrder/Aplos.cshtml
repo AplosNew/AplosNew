@@ -1873,70 +1873,76 @@
 										 e-responsive="true">*@
 									<div class="content-container-fluid" style="color:black;overflow:scroll">
 										<div style="color:black;" id="GridReq" ej-grid e-datasource="GetListForMasterOrder"
-											 e-templaterefresh="refreshTemplateMasterOrderOperation"
+											 @*e-templaterefresh="refreshTemplateMasterOrderOperation"*@ e-templaterefresh="refreshTemplateemployee"
 											 e-recorddoubleclick=""
 											 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-											 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-											<div e-columns>
-												<div e-column e-template="#CheckBoxTemp" e-headertemplateid="#headerTemplate11" @*e-headertext="Chk"*@ e-width="40" textAlign='center'></div>
-												<div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="80"></div>
-												<div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="80"></div>
-												<div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="80"></div>
-												<div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="80"></div>
-												<div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="80"></div>
-												<div e-column e-field="UserName" e-headertext="Material" e-width="100"></div>
-												<div e-column e-field="StandardName" e-headertext="Article" e-width="200"></div>
-												<div e-column e-field="BOMQty" e-headertext="BOQ" e-width="80" textAlign='Right'></div>
-												<div e-column e-field="BOQUOM" e-headertext="UoM" e-width="70"></div>
-												<div e-column e-field="RequiredQtyPO" e-headertext="Booking Qty" e-width="70"></div>
-												<div e-column e-field="OtherPOQty" e-headertext="Other PO Qty" e-width="80" textAlign='Right'></div>
-												<div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
-												<div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" textAlign='right' e-headertext="CurrentQty" e-width="100"></div>
-												@*<div e-column e-field="TransactionRate" textAlign='right' e-headertext="BOQRate" e-width="100"></div>*@
-												<div e-column e-template="#BOQQRate" e-field="TransactionRate" textAlign='right' e-headertext="CurrentRate" e-width="100"></div>
-												<div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" textAlign='Right'></div>
-												<div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-												<div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-												<div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-												<div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
-												<div e-column e-field="IncompleteMaterial" e-headertext="Incomplete" e-width="120"></div>
-												<div e-column e-field="DeliveryDate" e-headertext="DeliveryDate" e-width="100"></div>
-												<div e-column e-field="PONumber" e-headertext="PONumber" e-width="100"></div>
-												<div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
-												<div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
-												<div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
-												<div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
+											 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-gridlines="vertical" e-allowtouch="true" e-allowResizing="true">
+											
 
+												<div e-columns>
+													<div e-column e-template="#CheckBoxTemp" e-headertemplateid="#headerTemplate11" @*e-headertext="Chk"*@ e-width="40" textAlign='center'></div>
+													<div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="80"></div>
+													<div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="80"></div>
+													<div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="80"></div>
+													<div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="80"></div>
+													<div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="80"></div>
+													<div e-column e-field="UserName" e-headertext="Material" e-width="100"></div>
+													<div e-column e-field="StandardName" e-headertext="Article" e-width="200"></div>
+													<div e-column e-field="BOMQty" e-headertext="BOQ" e-width="80" textAlign='Right'></div>
+													<div e-column e-field="BOQUOM" e-headertext="UoM" e-width="70"></div>
+													<div e-column e-field="RequiredQtyPO" e-headertext="Booking Qty" e-width="70"></div>
+													<div e-column e-field="OtherPOQty" e-headertext="Other PO Qty" e-width="80" textAlign='Right'></div>
+													<div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
+													<div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" textAlign='right' e-headertext="CurrentQty" e-width="100"></div>
+													@*<div e-column e-field="TransactionRate" textAlign='right' e-headertext="BOQRate" e-width="100"></div>*@
+													<div e-column e-template="#BOQQRate" e-field="TransactionRate" textAlign='right' e-headertext="CurrentRate" e-width="100"></div>
+													<div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" textAlign='Right'></div>
+													<div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
+													<div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
+													<div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
+													<div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
+													<div e-column e-field="IncompleteMaterial" e-headertext="Incomplete" e-width="120"></div>
+													<div e-column e-field="DeliveryDate" e-headertext="DeliveryDate" e-width="100"></div>
+													<div e-column e-field="PONumber" e-headertext="PONumber" e-width="100"></div>
+													<div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
+													<div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
+													<div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
+													<div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
+
+
+												</div>
 
 											</div>
+
+											@*<script type="text/template" id="headerTemplate11">
+			<input type="checkbox" id="headchk" />
+		</script>*@
+											<script type="text/x-jsrender" id="headerTemplate11">
+												<input type="checkbox" id="headchk111" />
+											</script>
+
+											<script type="text/template" id="CheckBoxTemp">
+												<input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" e-value="data.CheckedStatus" @*e-change="$parent.getTaxCategoryList1"*@ /> @*e-enabled="{{data.RequiredQtyApproved==='1'}}"*@
+											</script>
+											<script type="text/template" id="CurrentTextBOQ">
+												<input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
+
+											</script>
+											<script type="text/template" id="BOQQRate">
+												<input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="80" ng-change="$parent.calculateRequisitionData(this)" />
+
+											</script>
+											<script type="text/template" id="UOM">
+												<div class="select-style">
+													<select name="Entity" ng-model="data.TransactionUoMId" class="form-control" ng-change="$parent.ConvertedDataRow(data)"
+															ng-options="item.Value as item.Text for item in data.uoMList">
+													</select>
+												</div>
+
+											</script>
+											@*<div id="GridT"></div>*@
 
 										</div>
-
-										<script type="text/x-jsrender" id="headerTemplate11">
-											<input type="checkbox" ej-checkbox class="rowCheckbox" id="headchk1" />
-										</script>
-										<script type="text/template" id="CheckBoxTemp">
-											<input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" e-value="data.CheckedStatus" @*e-change="$parent.getTaxCategoryList1"*@ /> @*e-enabled="{{data.RequiredQtyApproved==='1'}}"*@
-										</script>
-										<script type="text/template" id="CurrentTextBOQ">
-											<input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
-
-										</script>
-										<script type="text/template" id="BOQQRate">
-											<input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="80" ng-change="$parent.calculateRequisitionData(this)" />
-
-										</script>
-										<script type="text/template" id="UOM">
-											<div class="select-style">
-												<select name="Entity" ng-model="data.TransactionUoMId" class="form-control" ng-change="$parent.ConvertedDataRow(data)"
-														ng-options="item.Value as item.Text for item in data.uoMList">
-												</select>
-											</div>
-
-										</script>
-										@*<div id="GridT"></div>*@
-
-									</div>
 									</div>
 							</div>
 
@@ -2169,7 +2175,7 @@
 
 								</div>
 								<script type="text/x-jsrender" id="headerTemplate1">
-									<input type="checkbox" ej-checkbox class="rowCheckbox" id="headchk1" />
+									<input type="checkbox" ej-checkbox class="rowCheckbox" id="headchk11" />
 								</script>
 								<script type="text/template" id="CheckBoxTemp12">
 									<input type="checkbox" @*e-change="$parent.getTaxCategoryList1"*@ e-value="data.CheckedStatus" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" />

@@ -8533,9 +8533,10 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 	
 					,TUoM.UserName UOM,main.IssueType
 					,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') RcvDate
-					,Round(IRD.TransactionQty,2) RcvQty
+					,Round(IRD.BaseQty,2) RcvQty
 					,Round(IRD.BooksCurrencyBaseRate,2) RcvRate
-					,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
+					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
+					,Round((Round(IRD.BaseQty,2)*Round(IRD.BooksCurrencyBaseRate,4)),2) RcvAmount	
 
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
 					,main.IssueNo IssueNo
@@ -8567,10 +8568,10 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
 
-					,Round(((((IRD.TransactionQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)),2) BalanceQty
+					,Round(((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)),2) BalanceQty
 
-					,CASE WHEN Round((IRD.TransactionQty- isnull(main.IssueQty,0)),2)>0 then Round(IRD.BooksCurrencyBaseRate,2) else 0 END BalanceRate
-					,Round((((((IRD.TransactionQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0))* IRD.BooksCurrencyBaseRate),2) BalanceAmount
+					,CASE WHEN Round((IRD.BaseQty- isnull(main.IssueQty,0)),2)>0 then Round(IRD.BooksCurrencyBaseRate,4) else 0 END BalanceRate
+					,Round((((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0))* Round(IRD.BooksCurrencyBaseRate,4)),2) BalanceAmount
 
 					,IRD.IsAsset						
 					,CASE WHEN IRD.IsAsset=1 THEN 'Asset' ELSE 'Inventory' END IsAssetStatus

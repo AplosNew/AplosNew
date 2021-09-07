@@ -235,8 +235,8 @@ namespace Library.HumanResource.Payroll.Arrear
             {
 
                 string sql = @"SELECT 
-                                CONVERT(BIT,ISNULL(b.IsApproved,0)) AS IsApproved,
-                                 [CheckBoxSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'false'),EMP.SystemID AS EmpSystemID,
+                                CONVERT(BIT,ISNULL(b.IsApproved,0)) AS IsApproved,B.Diff AS ArrearAmount,
+                                 [CheckBoxSelect] = Convert(bit, 'False'),[isToBeSelect] = Convert(bit, 'false'),EMP.SystemID AS EmpSystemID,
                                 FORMAT(emp.DOJ,'dd-MMM-yyyy') AS DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') AS DOS,EMP.EmployeeStatus,DIV.UserName AS Division,
                                 EMP.EmployeeName,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric
                                 ,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation, PR.UserName PositionName,

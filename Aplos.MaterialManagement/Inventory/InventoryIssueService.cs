@@ -7833,6 +7833,7 @@ namespace Library.MaterialManagement.Inventory
                                                 itemTax.Percentage = itemTax.Percentage;
                                                 itemTax.TaxAmount = itemTax.TaxAmount;
                                                 itemTax.InventorySalesId = inventoryIssue.Id;
+
                                                 itemTax.BooksCurrencyTaxAmount = Math.Round((inventoryIssue.ToCurrencyRate * itemTax.TaxAmount), 2);
 
                                                 AuditService.AddedLog(itemTax);

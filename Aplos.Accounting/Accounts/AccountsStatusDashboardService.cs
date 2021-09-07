@@ -21019,5 +21019,86 @@ group by Id) O60 ON O60.Id=IV.Id
 
         #endregion Others Liability
 
+        #region GRN with out invoice
+        public IEnumerable<object> GetGRNWithOutInvoiceDataList(string companyGroupId, string companyId, string plantId, string toDate)
+
+        {
+            try
+            {
+                string dateStatus = " ";
+                //if (dateRange == true)
+                //{
+                //    dateStatus = " AND V.PostingDate Between '" + fromDate + "' AND '" + toDate + @"'";
+                //}
+                //else
+                //{
+
+                //    dateStatus = " AND V.PostingDate <= '" + fromDate + @"' ";
+
+                //}
+
+                var sql = @"select IR.Id InventoryReceiveId
+                    --,IR.CurrencyId
+                    ,C.Code Currency
+                    ,IR.PartyId,IR.PartyType
+                    , IR.DocRefNo
+                    ,format( IR.DocDate, 'dd-MMM-yyyy')DocDate
+                    ,IR.GateEntryNo,IR.EntryDate
+                    ,IR.IsApproved
+                    --,IR.POId
+                    -- IR.PurchaseDocumentAcceptanceId
+                    ,GAM.PurchaseDocumentAcceptanceId
+                    ,IR.IsInvoice,IR.GRNType, IR.GRNDate
+                    ,IR.EmployeeId
+
+                    ,IRD.InventoryMaterialId
+                    ,IRD.TransactionQty,IRD.TransactionUoMId,IRD.BaseQty,IRD.BaseUOMId
+                    ,IRD.MaterialTranRate,IRD.MaterialTranAmount,IRD.IssueQty
+                    ,IRD.TotalTaxAmount,IRD.TotalMaterialTranAmount
+                    ,IRD.TotalMaterialBooksCurrencyAmount
+                    ,IRD.ChargesTranAmount,IRD.ChargesTaxTranAmount
+                    ,IRD.TrnCurrencyBaseRate,IRD.BooksCurrencyBaseRate
+                    --,IRD.POId
+                    ,IRD.BaseIssueQty,IRD.IsAsset
+                    , IRD.GRNQty, IRD.GRNTotalAmount
+                    ,IRD.GrossAmount,IRD.DiscountAmount
+
+                     ,po.Id POId ,po.DocRefNo PODocRefNo,po.DocDate PODocDate
+                    ,po.PODate,po.POType,po.OrderSpecific
+
+                    --,IR.FixedAssetOrInventory
+                    --,IR.AlongwithInvoice,IR.InvoiceNo,IR.InvoiceDate,IR.BaseOnDueDate
+                    --,IR.BaseNoOfDays,IR.MatureDate,IR.Status,IR.BaseCurrencyId,IR.ToCurrencyRate
+                    --,IR.JWWIPVoucherId,IR.JWGRIRVoucherId,IR.JWChangeInInvVoucherId
+
+                    ,plc.Id PurchaseLCId,plc.ContractId, plc.LCRef
+                    ,plc.LCANo
+                    ,isnull( plc.IsAccepptanceFirst,0)IsAccepptanceFirst
+                    ,plc.LCDate,plc.Type,plc.Amount LCAmount
+
+                    from trn.InventoryReceive IR  
+                    left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId = IR.Id
+                    LEFT JOIN SCS.Currency C ON C.Id = IR.CurrencyId
+                    left join trn.PurchaseOrder po on po.Id =IR.POId
+                    left join PurchaseLC plc on plc.Id = po.PurchaseLCId
+
+                    LEFT JOIN TRN.GRNAcceptanceMap GAM ON GAM.GRNId =IR.Id
+                    where IR.CompanyGroupId = '" + companyGroupId+"' AND IR.CompanyId ='"+companyId+"' AND IR.PlantId='"+plantId+@"'
+                    AND  IR.IsInvoice=0 
+					and GAM.PurchaseDocumentAcceptanceId is null
+                          and IR.GRNDate <='"+toDate+@"'
+			                    --and plc.IsAccepptanceFirst=0";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        #endregion 
+
     }
 }
