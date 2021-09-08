@@ -603,7 +603,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/new-HRDashboard', {
             templateUrl: 'humanresource/NewHRDashboard/Aplos',
             controller: 'NewHRDashboardController'
-        }); 
+        })
+        .when('/credit-limit-opening', {
+            templateUrl: 'humanresource/CreditLimitOpening/Aplos',
+            controller: 'CreditLimitOpeningController'
+        });
     
 
 }

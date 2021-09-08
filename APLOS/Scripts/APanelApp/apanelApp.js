@@ -260,6 +260,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("costCenterCategoryController", costCenterCategoryController)
     .controller("costCenterSubCategoryController", costCenterSubCategoryController)
     .controller("plantDesignationGroupSalaryRuleController", plantDesignationGroupSalaryRuleController)
+    .controller('CreditLimitOpeningController', CreditLimitOpeningController)
     .controller("plantSalaryHeadSequenceController", PlantSalaryHeadSequenceController)
     .controller("brandController", BrandController)
     .controller("paymentModeController", PaymentModeController)
