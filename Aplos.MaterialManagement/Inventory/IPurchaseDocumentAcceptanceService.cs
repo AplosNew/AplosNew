@@ -37,6 +37,7 @@ namespace Library.MaterialManagement.Inventory
 
 
         GridModel QueryOnlyPO(GridParameter parameters, string inveReveiveId);
+        GridModel GetGRNDetailData(GridParameter parameters, string inveReveiveId, string PurchaseDocAcceptanceId);
         IEnumerable<object> GetAcceptanceCharges();
         void InsertOrUpdateGraphNew(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail
             //, IEnumerable<PurchaseDocAcceptanceTax> purchaseDocAcceptanceTax
@@ -60,7 +61,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetAcceptanceChargesTaxList(string plantId, string Id);
         IEnumerable<object> GetPurchaseDocAcceptanceTax(string Id);
         IEnumerable<object> GetPurchaseDocAcceptanceServiceTax(string Id);
-
+        IEnumerable<object> GetOtherAcptQtyValue(string POId, string PurchaseDocAcceptanceId);
         void InsertOrUpdateServicePOAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail);
         #region Document Acceptance Posting
         IEnumerable<object> GetAcceptanceDetailForPost(string companyId, string plantId, string Id, string PoType);

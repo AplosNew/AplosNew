@@ -55,12 +55,42 @@ namespace Aplos.Areas.Payrolls.Controllers
             //});
         }
 
+        private void GetDateFromMonth(ref string FromDate, ref string ToDate)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(FromDate))
+                    throw new Exception("Invalid from date");
+
+                if (string.IsNullOrEmpty(ToDate))
+                    throw new Exception("Invalid to date");
+
+
+
+                DateTime dtFromDateTemp = Convert.ToDateTime(FromDate);
+                FromDate = new DateTime(dtFromDateTemp.Year, dtFromDateTemp.Month, 1).ToString("dd-MMM-yyyy");
+
+                DateTime dtToDateTemp = Convert.ToDateTime(ToDate);
+                ToDate = new DateTime(dtToDateTemp.Year, dtToDateTemp.Month, DateTime.DaysInMonth(dtToDateTemp.Year, dtToDateTemp.Month)).ToString("dd-MMM-yyyy");
+
+
+                if (Convert.ToDateTime(FromDate) > Convert.ToDateTime(ToDate))
+                    throw new Exception("To date is earlier than from date");
+
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+        }
         [HttpPost, Authorize]
         public ActionResult GetEmpList(string FromDate, string ToDate)
         {
 
             try
             {
+                GetDateFromMonth(ref FromDate, ref ToDate);
                 string sql = string.Empty;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ArrearProcess obj = new ArrearProcess();
@@ -128,64 +158,64 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
 
         }
+
+        private void ValidateAndClearArrear(string ArrearDesc, string ArrearFromDate, string ArrearToDate, string AllEmployees)
+        {
+            try
+            {
+
+
+                DataSet dsLocal;
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+
+                string sql = @"Select top 1 * FROM ArrearSummaryBatchWise WHERE isnull(IsApproved,0)=1 AND EmployeeSystemId IN (" + AllEmployees + @") AND ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))";
+                con.getDataSet(sql, out dsLocal);
+                if (dsLocal.Tables[0].Rows.Count > 0)
+                    throw new Exception(string.Format("Arrear has been approved between the period from {0} and {1} for the selected employee(s), please unapprove the arrear then reprocess", Convert.ToDateTime(ArrearFromDate).ToString("MMMM yyyy"), Convert.ToDateTime(ArrearToDate).ToString("MMMM yyyy")));
+
+
+                con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery(@"DELETE FROM ArrearSummaryBatchWise WHERE EmployeeSystemId IN (" + AllEmployees + @") AND ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
+                con.executeQuery(@"DELETE FROM ArrearSummaryMonthWise WHERE EmployeeSystemId IN (" + AllEmployees + @") AND ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
+                con.executeQuery(@"DELETE FROM ArrearProcChild WHERE EmpInfoSystemID IN (" + AllEmployees + @") AND SlrProcMstSystemID IN (SELECT SystemID FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
+                //con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate) OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "')");
+                con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE SystemID IN (
+                                    SELECT APM.SystemID FROM ArrearProcMaster AS apm
+                                    LEFT JOIN ArrearProcChild AS apc ON apm.SystemID=apc.SlrProcMstSystemID AND apc.SystemID=(SELECT TOP 1 SystemId FROM ArrearProcChild AS apc2 WHERE apc2.SlrProcMstSystemID=apm.SystemID)
+                                    WHERE ISNULL(apc.SystemID,'')=''
+                                    )");
+                con.CommitTransaction();
+
+                con = new ConnectionManager.clsConnection();
+                con.getDataSet("select * from ArrearProcMaster M where M.Description='" + ArrearDesc.Trim() + @"'", out dsLocal);
+                if (dsLocal.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same description has been used in another arrear process. Please change your description");
+
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+        }
+
         [HttpPost, Authorize]
         public async Task<JsonResult> ProcessAll(string FromDate, string ToDate, string pDescription, AllDataset palldataset)
         {
+
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.ArrearProcess, "", 60);
             _lock.LockProcess();
             try
             {
-
-
-                List<Tuple<string, string>> MonthList = new List<Tuple<string, string>>();
-                //construct fromtodates for each month
-                //16-Jan-2020 to 23-May-2020
-
-                string ArrearFromDate = FromDate;
-                string ArrearToDate = ToDate;
-
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery(@"DELETE FROM ArrearSummaryBatchWise WHERE ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
-                con.executeQuery(@"DELETE FROM ArrearSummaryMonthWise WHERE ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
-                con.executeQuery(@"DELETE FROM ArrearProcChild WHERE SlrProcMstSystemID IN (SELECT SystemID FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
-                con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate) OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "')");
-                con.CommitTransaction();
-
-
-                con = new ConnectionManager.clsConnection();
-                con.getDataSet("select * from ArrearProcMaster M where M.Description='" + pDescription.Trim() + @"'", out DataSet dsLocal);
-                if (dsLocal.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same description has been used in another arrear process. Please change your description");
-
-                string ProcessMonths = "''";
-                do
-                {
-                    DateTime dtFromDateTemp = Convert.ToDateTime(FromDate);
-                    MonthList.Add(Tuple.Create(
-                        new DateTime(dtFromDateTemp.Year, dtFromDateTemp.Month, 1).ToString("dd-MMM-yyyy"),
-                        new DateTime(dtFromDateTemp.Year, dtFromDateTemp.Month, DateTime.DaysInMonth(dtFromDateTemp.Year, dtFromDateTemp.Month)).ToString("dd-MMM-yyyy")));
-
-                    ProcessMonths += dtFromDateTemp.Year.ToString() + dtFromDateTemp.Month.ToString();
-
-                    dtFromDateTemp = new DateTime(dtFromDateTemp.Year, dtFromDateTemp.Month, 1);
-                    FromDate = dtFromDateTemp.AddMonths(1).ToString("dd-MMM-yyyy");
-
-
-
-                } while (Convert.ToDateTime(FromDate) < Convert.ToDateTime(ToDate));
-
-
-
-
                 return await Task.Factory.StartNew(() =>
-                {
-                    //there will be a loop for months and years
+                {  
                     try
                     {
-                        
+                        GetDateFromMonth(ref FromDate, ref ToDate);
 
                         var alldataset = palldataset;
                         string _active_emps = string.Empty;
@@ -193,6 +223,35 @@ namespace Aplos.Areas.Payrolls.Controllers
                         GetEmpDelimitedActiveAndNewlyJoined(alldataset.dtActive, alldataset.dtNewlyJoined, out _active_emps);
                         GetEmpDelimited(alldataset.dtPresetZero, ref _active_emps);
                         _all_emps = _active_emps;
+
+                        List<Tuple<string, string>> MonthList = new List<Tuple<string, string>>();
+                        //construct fromtodates for each month
+                        //16-Jan-2020 to 23-May-2020
+
+                        string ArrearFromDate = FromDate;
+                        string ArrearToDate = ToDate;
+
+                        ValidateAndClearArrear(pDescription, ArrearFromDate, ArrearToDate, _all_emps);
+
+                        //there will be a loop for months and years
+                        string ProcessMonths = "''";
+                        do
+                        {
+                            DateTime dtFromDateTemp = Convert.ToDateTime(FromDate);
+                            MonthList.Add(Tuple.Create(
+                                new DateTime(dtFromDateTemp.Year, dtFromDateTemp.Month, 1).ToString("dd-MMM-yyyy"),
+                                new DateTime(dtFromDateTemp.Year, dtFromDateTemp.Month, DateTime.DaysInMonth(dtFromDateTemp.Year, dtFromDateTemp.Month)).ToString("dd-MMM-yyyy")));
+
+                            ProcessMonths += dtFromDateTemp.Year.ToString() + dtFromDateTemp.Month.ToString();
+
+                            dtFromDateTemp = new DateTime(dtFromDateTemp.Year, dtFromDateTemp.Month, 1);
+                            FromDate = dtFromDateTemp.AddMonths(1).ToString("dd-MMM-yyyy");
+
+
+
+                        } while (Convert.ToDateTime(FromDate) < Convert.ToDateTime(ToDate));
+
+
 
                         #region MLV RETURN
                         SendNotification("MLV Return");
@@ -728,7 +787,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 }//null
                 if (empids.Length == 0)
                 {
-                    throw new Exception("No active or newly joined employee is selected...");
+                    throw new Exception("No employee is selected...");
                 }
             }
             catch (Exception ex)

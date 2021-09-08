@@ -4361,6 +4361,69 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
     //---------------#endregion others liability-------------------
+
+    //**********************#GRN With out Invoice**************************
+    $scope.GRNWithOutInvoiceList = [];
+    $scope.GetGRNWithOutInvoiceData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetGRNWithOutInvoiceDataList",
+                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                //for (var i = 0; i < response.data.DATA.length; i++) {
+                //    try {
+                //        if (angular.isUndefinedOrNull(response.data.DATA[i].PostingDate) == false)
+                //            response.data.DATA[i].PostingDate = new Date(response.data.DATA[i].PostingDate);
+
+                //        if (angular.isUndefinedOrNull(response.data.DATA[i].ActualDueDate) == false)
+                //            response.data.DATA[i].ActualDueDate = new Date(response.data.DATA[i].ActualDueDate);
+
+
+                //        if (angular.isUndefinedOrNull(response.data.DATA[i].DueDateBaseON) == false)
+                //            response.data.DATA[i].DueDateBaseON = new Date(response.data.DATA[i].DueDateBaseON);
+
+                //    } catch (e) {
+
+                //    }
+                //}
+
+                $scope.GRNWithOutInvoiceList = response.data.DATA;
+
+                //$scope.cashOutflowInvPayBooksBalance = $filter("sumByKey")($filter("filter")($scope.MasterCashOutFlowList, { SourceType: "InventoryPayable" }), "BooksBalance");
+                //$scope.cashOutflowVenInvBooksBalance = $filter("sumByKey")($filter("filter")($scope.MasterCashOutFlowList, { SourceType: "VendorInvoice" }), "BooksBalance");
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+
+
+    //$scope.GetAcceptanceLiabilityMaturityReport = function () {
+    //    try {
+    //        //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
+    //        var file_src = $scope.path + 'GetAcceptanceLiabilityMaturityReport?toDate=' + $scope.report.ToDate;
+    //        $rootScope.report(file_src);
+
+    //    } catch (e) {
+
+    //    }
+    //}
+    //********************#endregion GRN With Out Invoice***************************************
+
+
+
+
+
+
+
 }
 
 

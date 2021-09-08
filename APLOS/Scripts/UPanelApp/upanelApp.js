@@ -733,6 +733,7 @@ var upanelApp = angular
     .controller('rePrintCashCheckController', rePrintCashCheckController)
     .controller('MissedPunchReportController', MissedPunchReportController)
     .controller('ArrearController', ArrearController)
+    .controller('ArrearApprovalController', ArrearApprovalController)
     .controller('BulkIncrementSalaryStructureDataUploadController', BulkIncrementSalaryStructureDataUploadController)
     .controller('chourlyOTReportController', chourlyOTReportController)
     .controller('ProcessAndResourcesConstraintController', ProcessAndResourcesConstraintController)
@@ -1108,7 +1109,7 @@ var upanelApp = angular
 
                 }
                 else {
-                    $rootScope.FormTitle = "Aplos";
+                    $rootScope.FormTitle = $rootScope.title;
                     $rootScope.SelectedHref = null;
                     for (var i = 0; i < $rootScope.ListMenuSearch.length; i++) {
                         if ('/' + $rootScope.ListMenuSearch[i].Href == href) {

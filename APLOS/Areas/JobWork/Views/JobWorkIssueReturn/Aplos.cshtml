@@ -422,8 +422,8 @@
                                                     <input type="text" name="Order Ref No" ng-model="IssueTransformation.OrderRefNo" class="form-control" maxlength="300" tabindex="2" autocomplete="on" readonly>
                                                     <span class="input-group-btn">
 
-                                                        <button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                        <button ng-click="ClearMasterOrder()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                        <button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn" ng-disabled="Transformation.OrderSpecific=='No'"><i class="glyphicon glyphicon-search"></i></button>
+                                                        <button ng-click="ClearMasterOrder()" class="btn single-small-btn" ng-disabled="Transformation.OrderSpecific=='No'"><i class="glyphicon glyphicon-refresh"></i></button>
                                                         <button ng-click="GetPopUpMasterOrderDetails()" class="btn single-small-btn" ng-disabled="IssueTransformation.OrderRefNo===null"><i class="glyphicon glyphicon-list-alt"></i></button>
                                                     </span>
                                                 </div>
@@ -515,7 +515,7 @@
 							<div class="common-btn" style="padding-right: 15px;">
 								<ul class="list-inline text-right">
 									<li>
-										<button ng-click="SelectMaterialPlanning();" @*ng-disabled="IssueTransformation.Id==null"*@ tabindex="17" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Select</button>
+										<button ng-click="SelectMaterialPlanning();" @*ng-disabled="IssueTransformation.Id==null"*@ tabindex="17" class="btn">Select</button>
 
 									</li>
 								</ul>
@@ -1186,7 +1186,7 @@
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="Grid" ej-grid e-datasource="masterOrderCustomerList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="SelectedOrder"
+                        <div style="color:black;" id="GridMasterOrder" ej-grid e-datasource="masterOrderCustomerList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="SelectedOrder"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>

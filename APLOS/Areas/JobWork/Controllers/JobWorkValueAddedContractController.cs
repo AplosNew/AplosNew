@@ -2765,6 +2765,10 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColLineItemId = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Type", 12, ExcelHAlign.HAlignLeft);
+            int ColOutputMaterialType = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Job Work Item", 12, ExcelHAlign.HAlignLeft);
             int ColJobWorkItem = COL;
             COL++;
@@ -2916,6 +2920,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColVCCRemarks].Text = data.Rows[i]["TCCRemarks"].ToString();
+                sheet[ROW, ColOutputMaterialType].Text = data.Rows[i]["OutputMaterialType"].ToString();
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -3049,7 +3054,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
             #region Material Input Child Headers
 
-            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Material Input", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MIChildROW, MIChildCOL, "Input Material", 12, ExcelHAlign.HAlignLeft);
         //    int ColMaterial = MIChildCOL;
             MIChildROW++;
 
@@ -3298,7 +3303,7 @@ namespace Aplos.Areas.JobWork.Controllers
             sheet.UsedRange.NumberFormat = "#,##0.000";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            report.CompanyPlantHeader(ref sheet, endCol, "Transformation Contract", identity.CompanyId, identity.PlantName, null);
+            report.CompanyPlantHeader(ref sheet, endCol, "Outsource PO (Transformation)", identity.CompanyId, identity.PlantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -3352,7 +3357,7 @@ namespace Aplos.Areas.JobWork.Controllers
             //mi on mi.JobWorkTransformationContractChildMasterId=tcc.Id		
             //                           where tc.Id = '" + PrintTabId + @"' ";
 
-            var sql = @"select tc.*,tcc.Id as LineItemId, TabType='Transformation',FORMAT(tc.PODate,'dd-MMM-yyyy') as TransformationDate,CONVERT(varchar(5),tc.[Time],108)[TCTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as TCProcessStartDate,
+            var sql = @"select tc.*,tcc.Id as LineItemId, TabType='Transformation',OutputMaterialType='Service',FORMAT(tc.PODate,'dd-MMM-yyyy') as TransformationDate,CONVERT(varchar(5),tc.[Time],108)[TCTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as TCProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as TCProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as TCContractClosingDate,
                                     Pnt.UserName as Plant,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,jwi.UserName as JobWorkItem, tcc.MaterialSpecification, tcc.MaterialReference
 									--,uom.UserName as UOM
@@ -3360,7 +3365,8 @@ namespace Aplos.Areas.JobWork.Controllers
 									, mma.StandardName as ArticleCode, tcc.OrderSpecific as OutputOrderSpecific, tcc.RequiredCapacity,tcc.ByProductApplicable ,tcc.RateApplyId, c.Code as Currency
 									,tcc.RatePerUnit, tcc.Rejection,tcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,tcc.Remarks as TCCRemarks,MS.UserName as MaterialLocation,tcc.MaterialType,tcc.FinalOutputCategory
 									, mi.TotalGrossConsumptionPerUnit, TotalGrossInputQuantity=(mi.TotalGrossConsumptionPerUnit * tcc.Quantity)
-									, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
+									--, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
+                                    , Amount= (tcc.Quantity * tcc.RatePerUnit)
                                     from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join ORG.Plant Pnt on Pnt.Id=tc.PlantId
 									left join HKP.Party p on p.Id=tc.PartyId

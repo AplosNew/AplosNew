@@ -85,7 +85,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						--,RefferenceNo=ISNULL(moi.OwnReferenceNo,'') 
 						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  
 						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
-                        ,ISNULL(uom1.UserName,'') POUoM,b.RequiredQtyPO  TrnsactionQty,0 Tolerance
+                        ,ISNULL(uom1.UserName,'') POUoM,Round(ISNULL(b.RequiredQtyPO,0)-Round(ISNULL(OtherPOData.TransactionQty,0),2),2) TransactionQty,0 Tolerance
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -3947,7 +3947,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     drlog["AddedBy"] = identity.Name;
                     drlog["AddedDate"] = System.DateTime.Now.ToString();
                     drlog["AddedFromIP"] = identity.IPAddress;
-                    drlog["UpdatedBy"] = identity.Name; ;
+                    drlog["UpdatedBy"] = identity.Name;
                     drlog["UpdatedDate"] = DateTime.Now;
                     drlog["UpdatedFromIP"] = identity.IPAddress;
                     drlog["POID"] = MasterId.ToString();

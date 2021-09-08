@@ -225,6 +225,22 @@ namespace Library.MaterialManagement.JobWork
             }
         }
 
+        public IEnumerable<object> GetTransformationReceiptCurrency(string Id)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select c.Id as Value, c.Code as Text from SCS.Currency c left join dbo.JWTransformationPurchaseOrder po on c.Id=po.CurrencyId
+                               where po.Id='"+ Id + @"' ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         private string GetPK()
         {
             string sID = string.Empty;
@@ -663,7 +679,8 @@ namespace Library.MaterialManagement.JobWork
                         ,null POUoMId
                         ,0 Tolerance--,sum(CC3.GrossConsumption*vvvv.Rate) GrossConsumption--,sum(vvvv.Rate) Rate
                         --,(CC3.GrossConsumption*vvvv.Rate) GrossConsumption
-                        ,GrossConsumption=isnull((CC3.GrossConsumption*vvvv.Rate),'0')
+                        --,GrossConsumption=isnull((CC3.GrossConsumption*vvvv.Rate),'0')
+						,vvvv.ConsumptionAmount as GrossConsumption
                         from dbo.JobWorkTransformationContractChild mp 
                         left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
                         left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
@@ -713,6 +730,7 @@ namespace Library.MaterialManagement.JobWork
                                    select  IID.JWTCMID,II.JWContractId 
 								 ,sum(IID.PolicyAmount) PolicyAmt,sum(IID.TransactionQty) TQty
 								 ,Rate=round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)),4)
+                                 ,ConsumptionAmount= (round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)),4) * sum(IID.TransactionQty))
 								 FROM trn.InventoryIssueDetail IID
 								 left join trn.InventoryIssue II On II.Id=IID.InventoryIssueId
 								 left join trn.InventoryMaterial IM ON IM.Id=IID.InventoryMaterialId
@@ -724,7 +742,7 @@ namespace Library.MaterialManagement.JobWork
                                  )vvvv ON vvvv.JWContractId=tc.Id 
                         where tc.Id='" + PKId + @"' group by mp.Quantity ,ISNULL(rcvqty.TransactionQty,'0'),mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity
                         , MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id,TUoM1.Id,TUoM1.UserName,mp.TransactionUoMId , mp.OutputMaterialUOMId
-                         ,CC3.GrossConsumption,vvvv.Rate";
+                         ,CC3.GrossConsumption,vvvv.Rate,vvvv.ConsumptionAmount";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }

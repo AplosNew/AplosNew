@@ -111,7 +111,7 @@
                                         @*<input type="text" name="PurchaseLCNO" disabled ng-model="productNew.PurchaseLCNO" hidden class="form-control" tabindex="4">*@
                                         <input type="text" name="LCRef" disabled ng-model="productNew.LCRef" class="form-control" tabindex="4">
                                         @*<input type="text" ng-hide="POId1 !=null" name="Vendor" ng-model="POId" class="form-control" readonly >
-                                            <input type="text" ng-hide="POId1==null" name="Vendor1" ng-model="POId1" class="form-control" readonly>*@
+                    <input type="text" ng-hide="POId1==null" name="Vendor1" ng-model="POId1" class="form-control" readonly>*@
                                         <span class="input-group-btn">
                                             <button name="submit" ng-disabled="inventoryMaterialList.length>0" ng-click="POPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                         </span>
@@ -136,22 +136,14 @@
                                     <input type="text" name="Invoicing Vendor" disabled ng-model="productNew.PartyPlant" class="form-control" tabindex="4">
                                 </div>
                             </div>
-
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Acceptance Id</label>
                                 <div class="col-sm-8">
                                     <input type="text" name="AcceptanceId" readonly ng-model="PurchaseDocAcceptance.Id" class="form-control" tabindex="4">
                                 </div>
                             </div>
-
-                            <div class="form-group" id="div_docDate">
-                                <label class="col-sm-4 control-label">Currency</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="PoDate" disabled ng-model="PurchaseDocAcceptance.CurrencyName" end-date="currentDate" id="cutOffDate" class="form-control">
-                                </div>
-                            </div>
                             <div class="form-group" show-errors>
-                                <label class="col-md-4 control-label">Acceptance Payment Source<sup>*</sup></label>
+                                <label class="col-md-4 control-label" title="Acceptance Payment Source">Payment Source<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="PurchaseDocAcceptance.AcceptancePaymentSource" name="Acceptance Payment Source"
@@ -161,7 +153,21 @@
                                     </div>
                                 </div>
                             </div>
-
+                            @*<div class="form-group" id="div_docDate">
+                                <label class="col-sm-4 control-label">Currency</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="PoDate" disabled ng-model="PurchaseDocAcceptance.CurrencyName" end-date="currentDate" id="cutOffDate" class="form-control">
+                                </div>
+                            </div>*@
+                        @*<div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
+                            <label class="col-sm-4 control-label">Other Amount:</label>
+                            <label class="col-sm-8 control-label">{{OtherTotalAcptValue | number:2}} {{PurchaseDocAcceptance.CurrencyName}}</label>
+                        </div>*@
+                            
+                            <div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
+                                <label class="col-sm-4 control-label">GRN Amount:</label>
+                                <label class="col-sm-8 control-label">{{TotalGRNAmount | number:2}} {{PurchaseDocAcceptance.CurrencyName}}</label>
+                            </div>
                         </div>
                         <div class="col-xs-12 col-sm-4">
                             <div class="form-group">
@@ -187,10 +193,10 @@
                                 </div>
                             </div>
 
-                            <div class="form-group" show-errors>
+                            <div class="form-group">
                                 <input type="text" value="GRNBYPO" id="GRNIdLoad" ng-hide="true" />
-                                <label class="col-sm-4 control-label"><span style="color:maroon;font-weight:bold;">Pre Purchase Invoice:</span><sup></sup></label>
-                                <div class="col-sm-8 show-message">
+                                <label class="col-sm-4 control-label"><span style="color: maroon;font-weight: bold;font-size: 14px;" title="Pre Purchase Invoice">Pre Purchase Invoice</span></label>
+                                <div class="col-sm-8">
                                     <div class="input-group">
                                         <input type="text" name="LCRef" disabled ng-model="PurchaseDocAcceptance.PrePurchaseInvoice" class="form-control" tabindex="4">
                                         <span class="input-group-btn">
@@ -200,10 +206,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Acceptance No<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="AcceptanceNo" ng-model="PurchaseDocAcceptance.AcceptanceNo" class="form-control" tabindex="4" required>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Acceptance No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="AcceptanceNo" ng-model="PurchaseDocAcceptance.AcceptanceNo" class="form-control" tabindex="4">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -212,16 +218,23 @@
                                     <input datepicker type="text" name="AcceptanceDate" ng-model="PurchaseDocAcceptance.AcceptanceDate" class="form-control" tabindex="5" required>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Acceptance Amount</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="Acceptance Amount" ng-model="PurchaseDocAcceptance.AcceptanceAmount" class="form-control">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Acceptance Value<sup>*</sup></label>
+                                <div class="col-sm-5 show-message">
+                                    <input type="text" n-decimals="2" name="Current Acceptance Amount" ng-model="PurchaseDocAcceptance.AcceptanceAmount" class="form-control" required>
+                                </div>
+                                <div class="col-sm-3" style="margin-left:-30px">
+                                    <input type="text" name="PoDate" disabled ng-model="PurchaseDocAcceptance.CurrencyName" end-date="currentDate" id="cutOffDate" class="form-control">
                                 </div>
                             </div>
-                            <div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
-                                <label class="col-sm-4 control-label">GRN Amount:</label>
-                                <label class="col-sm-8 control-label">{{TotalGRNAmount | number:2}}</label>
-                            </div>
+                            @*<div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
+            <label class="col-sm-4 control-label">Other Qty:</label>
+            <label class="col-sm-8 control-label">{{OtherTotalQty | number:2}}</label>
+        </div>*@
+                            @*<div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
+            <label class="col-sm-4 control-label">Current Qty:</label>
+            <label class="col-sm-8 control-label">{{PurchaseDocAcceptance.CurrentQty | number:2}}</label>
+        </div>*@
                             <div class="form-group" ng-show="productNew.AcceptanceFirst=='Yes'">
                                 <label class="col-sm-4 control-label">PO Amount:</label>
                                 <label class="col-sm-8 control-label">{{TotalPOAmount | number:2}}</label>
@@ -236,7 +249,9 @@
                         <div class="col-xs-12 col-sm-4">
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">LC Amount</label>
-                                <label class="col-sm-8 control-label">{{productNew.LCAmount}}</label>
+                                <label class="col-sm-8 control-label">{{productNew.LCAmount | number:2}} {{PurchaseDocAcceptance.CurrencyName}}</label>
+                                <label class="col-sm-4 control-label">Total Acpt. Amount</label>
+                                <label class="col-sm-8 control-label">{{TotalAcptValue| number:2}} {{PurchaseDocAcceptance.CurrencyName}}</label>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Customer</label>
@@ -288,76 +303,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal fade site-modal in" id="POPopUp" role="dialog" data-backdrop="static">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">Purchase LC List<button type="button" class="close" ng-click="POPopUpClose();">&times;</button></div>
-                            <div class="modal-body form-elements form-horizontal">
-                                <div class="col-lg-12">
-                                    <div class="content-container-fluid" style="color:black;">
-                                        <div style="color:black;" id="Grid" ej-grid e-datasource="Griddata"
-                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                             e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="false">
-                                            <div e-columns>
-                                                <div e-column e-type="string" e-field="PurchaseLCNO" e-headertext="LC Id" e-width="80" e-visible="false"></div>
-                                                <div e-column e-type="string" e-field="ContractId" e-headertext="ContractId" e-width="100" e-visible="false"></div>
-                                                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="120"></div>
-                                                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="120"></div>
-                                                <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="MasterLCRef" e-headertext="MasterLC Ref" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="130"></div>
-                                                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="130"></div>
-                                                <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="Opening Date" e-width="100"></div>
-                                                <div e-column e-type="date" e-field="LCExpiryDate" e-headertext="Expiry Date" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="LCOpeningBank" e-headertext="Opening Bank" e-width="100"></div>
-                                                <div e-column e-type="number" e-field="LCAmount" e-headertext="Amount" e-width="100" e-textalign="right"></div>
-                                                <div e-column e-type="string" e-field="CurrencyName" e-headertext="Currency" e-width="30"></div>
-                                                <div e-column e-type="string" e-field="AcceptanceFirst" e-headertext="Acceptance First" e-width="100"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li><button ng-click="POPopUpClose();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal fade site-modal in" id="PrePurchaseInvoicePopUp" role="dialog" data-backdrop="static">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">Pre Purchase Invoice<button type="button" class="close" ng-click="PrePurchaseInvoicePopUpClose();">&times;</button></div>
-                            <div class="modal-body form-elements form-horizontal">
-                                <div class="col-lg-12">
-                                    <div class="content-container-fluid" style="color:black;">
-                                        <div style="color:black;" id="Grid" ej-grid e-datasource="PrePurchaseInvoicedata"
-                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                             e-allowselection="true" e-recorddoubleclick="prePurchaseInvoicedoubleclick" e-filtersettings-filterType="excel" e-enabletouch="false">
-                                            <div e-columns>
-                                                <div e-column e-field="Id" e-headertext="Pre Invoice No" e-width="120"></div>
-                                                <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="100"></div>
-                                                <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="100" e-da></div>
-                                                <div e-column e-field="PurchaseLCNo" e-headertext="LC No" e-width="100"></div>
-                                                <div e-column e-field="ShipmentMode" e-headertext="Shipment Mode" e-width="100"></div>
-                                                <div e-column e-field="VesselTrackingNo" e-headertext="Vessel Tracking No" e-width="100"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li><button ng-click="PrePurchaseInvoicePopUpClose();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
                 <div class="clearfix"></div>
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -433,7 +379,7 @@
                         <div class="row" ng-show="productNew.AcceptanceFirst=='No'">
                             <div class="col-xs-12 col-sm-5" id="Unassign">
                                 <fieldset class="scheduler-border">
-                                    <legend class="scheduler-border">GRN List(Approved)</legend>
+                                    <legend class="scheduler-border">GRN List(Approved & Posted)</legend>
                                     <div class="clearfix"></div>
                                     <div class="col-lg-12">
                                         <div style="color:black;" id="GridListLCPO" ej-grid e-datasource="GridListPO" e-allowscrolling="true" e-summaryrows="summaryUnassignGRNRows"
@@ -448,7 +394,6 @@
                                                 <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
                                                 <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="60"></div>
                                                 <div e-column e-type="number" e-field="TotalMaterialTranAmount" e-headertext="GRN Amount" e-textalign="right" e-width="100"></div>
-                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="PO Amount" e-textalign="right" e-width="100"></div>
                                                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
                                             </div>
                                         </div>
@@ -486,7 +431,6 @@
                                                 <div e-column e-type="string" e-field="PODocRefNo" e-headertext="PO Doc No" e-width="80"></div>
                                                 <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="60"></div>
                                                 <div e-column e-type="number" e-field="TotalMaterialTranAmount" e-headertext="GRN Amount" e-textalign="right" e-width="100"></div>
-                                                <div e-column e-type="number" e-field="TransactionAmount" e-headertext="PO Amount" e-textalign="right" e-width="100"></div>
                                                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
 
                                             </div>
@@ -546,16 +490,15 @@
                             <div class="table-responsive modal-table" ng-show="productNew.AcceptanceFirst=='Yes'">
                                 <table class="table table-striped">
                                     <thead>
-                                        <tr ng-show="inventoryMaterialListPO.length">
-                                            <th>
-                                                @*<input type="checkbox" ng-model="selectAll" ng-click="checkAll()" />*@
+                                        <tr ng-show="inventoryMaterialListPO.length>0">
+                                            @*<th>
                                                 <div class="checkbox-site text-center">
                                                     <label>
                                                         <input type="checkbox" ng-click="CheckAll($event);">
                                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                                     </label>
                                                 </div>
-                                            </th>
+                                            </th>*@
                                             <th>Id</th>
                                             <th>POID</th>
                                             <th>PODetailId</th>
@@ -582,15 +525,15 @@
                                     </thead>
                                     <tbody>
                                         <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length>0">
-                                            <td>
+                                            @*<td>
                                                 <div class="checkbox-site">
                                                     <label>
                                                         <input type="checkbox" ng-model="x.Active" ng-disabled="x.Balance===null || x.Balance==='' || x.Balance==='0'">
                                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                                     </label>
                                                 </div>
-                                            </td>
-                                            <td>{{x.AcceptenceDetailId}}</td>
+                                            </td>*@
+                                            <td>{{x.Id}}</td>
                                             <td>{{x.POID}}</td>
                                             <td>{{x.InventoryReceiveDetailId}}</td>
                                             <td>{{x.MaterialGroupMasterName}}</td>
@@ -603,7 +546,7 @@
                                             <td class="text-right">{{x.POQty| number:2}}</td>
                                             <td class="text-right">{{x.TransactionUoM}}</td>
                                             <td class="text-right">{{x.Otherqty| number:2}}</td>
-                                            <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-change="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" ng-disabled="!x.Active"></td>
+                                            <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-change="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="!x.Active"*@></td>
                                             <td class="text-right">{{x.Balance| number:2}}</td>
                                             <td class="text-right"><input type="text" style="width:60px;" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
@@ -656,7 +599,6 @@
                                     <thead>
                                         <tr ng-show="inventoryMaterialListPO.length>0">
                                             @*<th>
-                                                <input type="checkbox" ng-model="selectAll" ng-click="checkAll()" />
                                                 <div class="checkbox-site text-center">
                                                     <label>
                                                         <input type="checkbox" ng-click="CheckAll($event);">
@@ -667,7 +609,6 @@
                                             <th>Id</th>
                                             <th>POID</th>
                                             <th>PODetailId</th>
-                                            <th>GRN No</th>
                                             <th>Material Group</th>
                                             <th>Material Master</th>
                                             <th>Article</th>
@@ -676,9 +617,14 @@
                                             <th>Sku3</th>
                                             <th>Material Detail</th>
                                             <th colspan="2">PO Qty</th>
-                                            <th>Rate</th>
-                                            <th>Current GRN Qty</th>
+                                            <th>Total PO Value</th>
+                                            <th>Total Accep. Value</th>
+                                            <th>GRN Qty</th>
+                                            <th>Total GRN Value</th>
+                                            <th ng-hide="false">Other Acceptance Qty</th>
                                             <th>Current Acceptance Qty</th>
+                                            <th ng-hide="false">Balance Qty</th>
+                                            <th>Rate</th>
                                             <th>Amount</th>
                                             <th>Currency</th>
                                             <th>Tax Amount</th>
@@ -690,18 +636,9 @@
                                     </thead>
                                     <tbody>
                                         <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length>0">
-                                            @*<td>
-                                                <div class="checkbox-site">
-                                                    <label>
-                                                        <input type="checkbox" ng-model="x.Active" ng-disabled="x.Balance===null || x.Balance==='' || x.Balance==='0'">
-                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                    </label>
-                                                </div>
-                                            </td>*@
                                             <td>{{x.Id}}</td>
                                             <td>{{x.POId}}</td>
                                             <td>{{x.PODetailId}}</td>
-                                            <td>{{x.InventoryReceiveId}}</td>
                                             <td>{{x.MaterialGroupMasterName}}</td>
                                             <td>{{x.UserName}}</td>
                                             <td>{{x.StandardName}}</td>
@@ -711,9 +648,16 @@
                                             <td>{{x.MaterialDetail}}</td>
                                             <td class="text-right">{{x.POQty| number:2}}</td>
                                             <td class="text-right">{{x.TransactionUoM}}</td>
+                                            <td class="text-right">{{x.TotalPOValue| number:2}}</td>
+                                            <td class="text-right">{{x.TotalAcptValue| number:2}}</td>
+                                            <td class="text-right">{{x.GRNRcvQty| number:2}}</td>
+                                            <td class="text-right">{{x.TotalGRNValue| number:2}}</td>
+                                            <td class="text-right">{{x.Otherqty| number:2}}</td>
+                                            <td class="text-right">
+                                                <input type="text" n-decimals="2" class="form-control text-right" ng-change="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="!x.Active"*@>
+                                            </td>
+                                            <td class="text-right">{{x.Balance| number:2}}</td>
                                             <td class="text-right">{{x.TransactionRate| number:4}}</td>
-                                            <td class="text-right">{{x.CurrentGRNQty| number:2}}</td>
-                                            <td class="text-right">{{x.TransactionQty | number:2}}</td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
                                             <td class="text-right">{{x.CurrencyName}}</td>
                                             <td class="text-right">{{x.TaxAmount | number:2}}</td>
@@ -735,13 +679,20 @@
                                             <td></td>
                                             <td></td>
                                             <td></td>
-                                            <td></td>
+
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'POQty'| number:2 }}</strong></td>
                                             <td></td>
-                                            <td></td>
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'CurrentGRNQty' | number:2}}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalPOValue'| number:2 }}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalAcptValue'| number:2 }}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'GRNRcvQty'| number:2 }}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalGRNValue'| number:2 }}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Otherqty' | number:2}}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TransactionQty'| number:2 }}</strong></td>
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TrnAmount'| number:2 }}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Balance'| number:2 }}</strong></td>
+
+                                            <td class="text-right"></td>
+
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TrnAmount'| number:2}}</strong></td>
                                             <td class="text-right"></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TaxAmount'| number:2}}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'ChargesTranAmount'| number:2}}</strong></td>
@@ -965,19 +916,20 @@
          e-allowselection="true" e-recorddoubleclick="recorddoubleclickFromMasterGrid" e-filtersettings-filterType="excel" e-enabletouch="true"
          e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid" e-allowscrolling="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
-            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="80"></div>
-            <div e-column e-field="Party" e-headertext="Party" e-width="140"></div>
-            <div e-column e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="100"></div>
-            <div e-column e-field="AcceptanceDate" e-headertext="Acceptance Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-            <div e-column e-field="InvoiceNo" e-headertext="InvoiceNo" e-width="80"></div>
-            <div e-column e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-            <div e-column e-field="LCRef" e-headertext="PurchaseLCNo" e-width="120"></div>
-            <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="120"></div>
-            <div e-column e-field="MasterLCNo" e-headertext="MasterLC No" e-width="120"></div>
-            <div e-column e-field="Amount" e-headertext="Amount" e-width="120"></div>
-            <div e-column e-field="NonCreditable" e-headertext="NonCreditable" e-width="50"></div>
-            <div e-column e-field="AcceptanceFirst" e-headertext="AcceptanceFirst" e-width="50"></div>
+            <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80"></div>
+            <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No" e-width="80"></div>
+            <div e-column e-type="string" e-field="Party" e-headertext="Party" e-width="140"></div>
+            <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="100"></div>
+            <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Acceptance Date" e-width="80" e-format="{0:dd-MMM-yyyy}"></div>
+            <div e-column e-type="string" e-field="InvoiceNo" e-headertext="InvoiceNo" e-width="80"></div>
+            <div e-column e-type="date" e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="80" e-format="{0:dd-MMM-yyyy}"></div>
+            <div e-column e-type="string" e-field="LCRef" e-headertext="PurchaseLCNo" e-width="120"></div>
+            <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="120"></div>
+            <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLC No" e-width="120"></div>
+            <div e-column e-type="number" e-field="AcceptanceAmount" e-headertext="Amount" e-width="120" e-textalign="right"></div>
+            <div e-column e-type="string" e-field="NonCreditable" e-headertext="NonCreditable" e-width="50"></div>
+            <div e-column e-type="string" e-field="AcceptanceFirst" e-headertext="AcceptanceFirst" e-width="50"></div>
+            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
             <div e-column e-headertext="Actions" e-width="50">
                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
             </div>
@@ -996,7 +948,76 @@
     </script>
 
 </div>
-
+<div class="modal fade site-modal in" id="POPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Purchase LC List<button type="button" class="close" ng-click="POPopUpClose();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-lg-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="Griddata"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="PurchaseLCNO" e-headertext="LC Id" e-width="80" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="ContractId" e-headertext="ContractId" e-width="100" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="120"></div>
+                                <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="100"></div>
+                                <div e-column e-type="string" e-field="MasterLCRef" e-headertext="MasterLC Ref" e-width="100"></div>
+                                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="130"></div>
+                                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="130"></div>
+                                <div e-column e-type="date" e-field="LCOpeningDate" e-headertext="Opening Date" e-width="100"></div>
+                                <div e-column e-type="date" e-field="LCExpiryDate" e-headertext="Expiry Date" e-width="100"></div>
+                                <div e-column e-type="string" e-field="LCOpeningBank" e-headertext="Opening Bank" e-width="100"></div>
+                                <div e-column e-type="number" e-field="LCAmount" e-headertext="Amount" e-width="100" e-textalign="right"></div>
+                                <div e-column e-type="string" e-field="CurrencyName" e-headertext="Currency" e-width="30"></div>
+                                <div e-column e-type="string" e-field="AcceptanceFirst" e-headertext="Acceptance First" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="POPopUpClose();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="PrePurchaseInvoicePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Pre Purchase Invoice<button type="button" class="close" ng-click="PrePurchaseInvoicePopUpClose();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-lg-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="PrePurchaseInvoicedata"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="true" e-recorddoubleclick="prePurchaseInvoicedoubleclick" e-filtersettings-filterType="excel" e-enabletouch="false">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Pre Invoice No" e-width="120"></div>
+                                <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="100"></div>
+                                <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="100" e-da></div>
+                                <div e-column e-field="PurchaseLCNo" e-headertext="LC No" e-width="100"></div>
+                                <div e-column e-field="ShipmentMode" e-headertext="Shipment Mode" e-width="100"></div>
+                                <div e-column e-field="VesselTrackingNo" e-headertext="Vessel Tracking No" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="PrePurchaseInvoicePopUpClose();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
 <div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

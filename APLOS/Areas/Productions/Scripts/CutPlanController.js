@@ -5,11 +5,13 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Productions/CutPlan/';
+    $scope.saveUrl = $scope.path + 'Save';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
 
+    $scope.CalculateOn = 'Round';
     $scope.MarkerId = null;
     $scope.CharacteristicsName = null;
     $scope.CharacteristicsId = null;
@@ -31,9 +33,11 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.getAllEntities();
 
     $scope.modelNew = {
+        Id: null,
         ProductionEntityId: null,
         ProductionOrderId: null
     }
+    
 
     $scope.ProductionOrderList = [];
     $scope.ProdOrderList = [];
@@ -77,6 +81,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         }).then(function successCallback(response) {
             $scope.recipeMaterialListSelected = response.data;
             GetMarker(response.data[0].MaterialMasterId);
+
         });
     }
 
@@ -91,6 +96,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             //getProductionProcessSetList();
         });
     }
+    $scope.CalculationOption = false;
     $scope.getSKU = function () {
         for (var i = 0; i < $scope.MarkerList.length; i++) {
             if ($scope.MarkerList[i].Value == $scope.MarkerId) {
@@ -98,14 +104,151 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                 $scope.CharacteristicsId = $scope.MarkerList[i].SKUId;
             }
         }
+        $scope.getFGCharacteristicsLists($scope.recipeMaterialListSelected[0].MaterialMasterId);
     };
+    $scope.totalRatio = 0;
     $scope.getFGCharacteristics = function () {
         $http({
             method: 'GET',
             url: $scope.path + 'GetMarkerDetails?MarkerId=' + $scope.MarkerId
         }).then(function successCallback(response) {
             $scope.FGCharacteristicsValueList = response.data;
-            //getProductionProcessSetList();
+            $scope.CalculationOption = true;
+            $scope.Clicked = false;
+            $scope.SOIDs = "";
+            $scope.totalRatio = 0;
+            for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
+                $scope.totalRatio = parseFloat($scope.FGCharacteristicsValueList[i].Ratio) + parseFloat($scope.totalRatio);
+            }
+            for (var i = 0; i < $scope.recipeMaterialListSelected.length; i++) {
+                if ($scope.SOIDs === "") {
+                    $scope.SOIDs += "'" + $scope.recipeMaterialListSelected[i].SalesOrderId + "'";
+                }
+                else {
+                    $scope.SOIDs += ", '" + $scope.recipeMaterialListSelected[i].SalesOrderId + "'";
+                }
+            }
+            $scope.getOtherFGCharacteristics($scope.characteristicsList[0].Value, $scope.characteristicsList[0].Sequence, $scope.SOIDs);
         });
     };
+    $scope.IsSelect = false;
+    $scope.SOIDs = "";
+    $scope.getFGCharacteristicsLists = function (id) {
+        //$scope.clearCharNames();
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
+            params: {
+                materialMasterId: id
+            }
+        }).then(function (response) {
+            $scope.characteristicsList = [];
+
+            $scope.characteristicsList = response.data.charData;
+            for (var i = 0; i < $scope.characteristicsList.length; i++) {
+                if ($scope.characteristicsList[i].Value === $scope.CharacteristicsId) {
+                    $scope.characteristicsList.splice(i, 1);
+                }
+            }
+
+        });
+    };
+    $scope.SkuValueList = [];
+    $scope.getOtherFGCharacteristics = function (skuId, Sequence, SOIDs) {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetSkuDetails?OtherSku=' + skuId + '&SOId=' + SOIDs + '&Sequence=' + Sequence
+        }).then(function successCallback(response) {
+            $scope.SkuValueList = [];
+            $scope.SkuValueList = response.data;
+        });
+    };
+    $scope.MinimumPlyValue = null;
+    $scope.MinimumPlyValueName = null;
+    $scope.CalculationArryWithData = [];
+    $scope.CalculatedSkuValueList = [];
+    $scope.Clicked = false;
+    $scope.CalculatePly = function () {
+        $scope.CalculatedSkuValueList = [];
+        for (var j = 0; j < $scope.SkuValueList.length; j++) {
+            if ($scope.SkuValueList[j].IsSelect /*&& $scope.SkuValueList[j].MinimumPlyActualValue == ""*/) {
+                var CalculationArry = [];
+                $scope.CalculatedSkuValueList.push($scope.SkuValueList[j]);
+                for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
+                    CalculationArry.push(parseFloat($scope.SkuValueList[j].Qty) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
+                }
+
+                $scope.MinimumPlyValue = Math.min.apply(null, CalculationArry);
+                var MiniValue = parseFloat($scope.MinimumPlyValue).toFixed(2);
+                var OptionBasedMinValue = '';
+                if ($scope.CalculateOn == 'Round') {
+                    OptionBasedMinValue = parseFloat(Math.round($scope.MinimumPlyValue)).toFixed(2);
+                }
+                else if ($scope.CalculateOn == 'RoundUp') {
+                    OptionBasedMinValue = parseFloat(Math.ceil($scope.MinimumPlyValue)).toFixed(2);
+                }
+                else {
+                    OptionBasedMinValue = parseFloat(Math.floor($scope.MinimumPlyValue)).toFixed(2);
+                }
+
+                $scope.Clicked = true;
+
+                for (var k = 0; k < $scope.CalculatedSkuValueList.length; k++) {
+                    if ($scope.SkuValueList[j].CharacteristicsId == $scope.CalculatedSkuValueList[k].CharacteristicsId) {
+                        $scope.CalculatedSkuValueList[k].MinimumPlyActualValue = MiniValue;
+                        $scope.CalculatedSkuValueList[k].MinimumPlyOptionValue = OptionBasedMinValue;
+                    }
+                }
+
+            }
+
+        }
+        for (var m = 0; m < $scope.FGCharacteristicsValueList.length; m++) {
+            for (var n = 0; n < $scope.CalculatedSkuValueList.length; n++) {
+                $scope.CalculatedSkuValueList[n].xx = parseFloat($scope.FGCharacteristicsValueList[m].Ratio) * parseFloat($scope.CalculatedSkuValueList[n].Qty);
+            }
+        }
+    };
+
+    $scope.CutPlanMarkerDetails = {
+        Id: null,
+        CutPlanMasterId: null,
+        MarkerId: null,
+        MarkerCharacteristicsId: null,
+        RoundingType: null,
+    }
+
+    $scope.Save = function () {
+
+        //#region CutPlanMarkerDetails Model 
+        $scope.CutPlanMarkerDetails.CutPlanMasterId = $scope.modelNew.Id;
+        $scope.CutPlanMarkerDetails.MarkerId= $scope.MarkerId;
+        $scope.CutPlanMarkerDetails.MarkerCharacteristicsId =$scope.CharacteristicsId;
+        $scope.CutPlanMarkerDetails.RoundingType = $scope.CalculateOn;
+        //#endregion
+
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: {
+                    'CalculatedValueList': $scope.CalculatedSkuValueList, 'FGCharacteristicsValueList': $scope.FGCharacteristicsValueList,
+                    'MasterData': $scope, modelNew, 'CPMarkerDetails': $scope.CutPlanMarkerDetails, 'SkuValueList': $scope.SkuValueList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
 }

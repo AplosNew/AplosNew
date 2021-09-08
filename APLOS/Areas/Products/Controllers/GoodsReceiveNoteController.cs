@@ -717,7 +717,10 @@ namespace Aplos.Areas.Products.Controllers
 		public JsonResult GetListForMasterData2(string GRNbyPOApprovedStatus)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryReveiveService.QueryGetListForMasterData2(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
+			//return Json(_inventoryReveiveService.QueryGetListForMasterData2(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
+			var jsondata = Json(_inventoryReveiveService.QueryGetListForMasterData2(identity.PlantId, GRNbyPOApprovedStatus), JsonRequestBehavior.AllowGet);
+			jsondata.MaxJsonLength = int.MaxValue;
+			return jsondata;
 		}
 
 		[Authorize, HttpGet]

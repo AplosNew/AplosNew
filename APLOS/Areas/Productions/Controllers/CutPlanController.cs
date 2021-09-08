@@ -71,6 +71,26 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(cp.GetMarkerDetailList(MarkerId), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetSkuDetails(string OtherSku,string SOId, string Sequence)
+        {
+            return Json(cp.GetOtherSkuDetailList(OtherSku, SOId, Sequence), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult Create(List<Dictionary<string, object>> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails,List<Dictionary<string,object>> SkuValueList)
+        {
+            try
+            {
+                cp.Save(CalculatedValueList, FGCharacteristicsValueList,MasterData, CPMarkerDetails, SkuValueList);
+                return Json(new { Error = false, data = CalculatedValueList, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         #endregion
     }
 }

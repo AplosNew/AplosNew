@@ -46,17 +46,14 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     // #region PurchaseDocumentAcceptance
     $scope.Griddata = [];
     $scope.getalldata = function () {
-
         var PoType = 'PO';
         $http({
             method: "GET",
             dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
             url: 'Products/PurchaseDocumentsAcceptance/GetPOWithLCList?PoType=' + PoType,
         }).then(function successCallback(response) {
             $scope.Griddata = response.data;
         });
-        //$scope.getLCdetailList();
     };
 
     $scope.GridListPO = [];
@@ -74,8 +71,8 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     };
 
     $scope.GetGRNList = function () {
-        //$scope.GridListPO = [];
         var PoType = 'PO';
+        $scope.TotalGRNAmount = 0;
         $scope.PurchaseLCId = $scope.PurchaseLCNo;
         $http({
             method: "GET",
@@ -83,13 +80,23 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             url: 'Products/PurchaseDocumentsAcceptance/GetGRNList?purchaseLCId=' + $scope.PurchaseLCId,
         }).then(function successCallback(response) {
             $scope.GridListPO = response.data;
+
+            for (var i = 0; i < $scope.seletedLST.length; i++) {
+                for (var j = 0; j < $scope.GridListPO.length; j++) {
+                    if ($scope.seletedLST[i].Id == $scope.GridListPO[j].Id) {
+                        $scope.GridListPO.splice(i, 1);
+                    }
+                    $scope.TotalGRNAmount += $scope.seletedLST[i].TotalMaterialTranAmount;
+                }
+            }
         });
     };
 
+    $scope.POsqlInStatement = null;
     $scope.seletedLST = [];
     $scope.GetSavedGRNList = function () {
-        //$scope.GridListPO = [];
         var PoType = 'PO';
+        $scope.TotalGRNAmount = 0;
         $scope.PurchaseLCId = $scope.PurchaseLCNo;
         $http({
             method: "GET",
@@ -97,12 +104,37 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             url: 'Products/PurchaseDocumentsAcceptance/GetSavedGRNList?purchaseLCId=' + $scope.PurchaseLCId,
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) > 0) {
-                //for (var i = 0; i < response.data.length; i++) {
-                //    $scope.GridListPO.push(response.data[i]);
-                //}
                 $scope.seletedLST = response.data;
-            }
 
+                for (var i = 0; i < $scope.GridListPO.length; i++) {
+                    for (var j = 0; j < $scope.seletedLST.length; j++) {
+                        if ($scope.GridListPO[i].Id == $scope.seletedLST[j].Id) {
+                            $scope.GridListPO.splice(i, 1);
+                        }
+                        $scope.TotalGRNAmount += $scope.seletedLST[j].TotalMaterialTranAmount;
+                    }
+                }
+
+                if ($scope.seletedLST.length > 0) {
+                    // for GRNId
+                    var uniqueInventoryReceiveId = removeDuplicates($scope.seletedLST, 'Id');
+                    var wcInventoryReceiveId = "";
+                    if (uniqueInventoryReceiveId.length > 0) {
+                        wcInventoryReceiveId = "IN(";
+                        wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+                    }
+                    $scope.sqlInStatement = wcInventoryReceiveId;
+                    //// for POId
+                    var uniquePOId = removeDuplicates($scope.seletedLST, 'POId');
+                    var wcPOId = "";
+                    if (uniquePOId.length > 0) {
+                        wcPOId = "IN(";
+                        wcPOId += Array.prototype.map.call(uniquePOId, function (item) { return "'" + item.POId + "'"; }).join(",") + ")";
+                    }
+                    $scope.POsqlInStatement = wcPOId;
+                }
+                $scope.GetGRNDetailData();
+            }
         });
     };
 
@@ -173,7 +205,8 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             $scope.productNew.GRNDate = $filter("dateFiltering")(Date.now());
             if ($scope.productNew.AcceptanceFirst == 'Yes') {
                 $scope.getPOList();
-            } else {
+            }
+            else {
                 $scope.GetGRNList();
             }
             $scope.POPopUpClose();
@@ -589,7 +622,9 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         IsNonCreditable: false,
         OBCurrencyCode: null,
         LCOBCurrencyId: null,
-        AcceptanceAmount: 0
+        AcceptanceAmount: 0,
+        CurrentAcceptanceAmount: 0,
+        CurrentQty: 0
     };
     $scope.TotalGRNAmount = 0;
     $scope.PurchaseDocAcceptanceDetail = {
@@ -700,8 +735,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             return false;
     }
 
+
     $scope.Save1 = function () {
         try {
+
             if (baseService.isUndefinedOrNull($scope.PurchaseDocAcceptance.AcceptanceAmount)) {
                 throw "Acceptance Amount is required.";
             }
@@ -842,9 +879,17 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 }
             }
             else {
+                $scope.TotalAcptValue = 0;
+                $scope.TotalAcptValue = $scope.PurchaseDocAcceptance.AcceptanceAmount + $scope.OtherTotalAcptValue;
 
-                if ($scope.PurchaseDocAcceptance.AcceptanceAmount > $scope.TotalGRNAmount) {
-                    throw "Acceptance Amount can't greater than Total GRN Amount.";
+                for (var i = 0; i < $scope.seletedLST.length; i++) {
+                    if (new Date($scope.seletedLST[i].DocDate) > new Date($scope.PurchaseDocAcceptance.AcceptanceDate)) {
+                        throw "Acceptance Date can't less than GRN Date.";
+                    }
+                }
+
+                if ($scope.TotalAcptValue > $scope.productNew.LCAmount) {
+                    throw "Acceptance Amount can't greater than Total LC Amount.";
                 }
                 $scope.$broadcast('show-errors-check-validity');
                 if ($scope.productNewForm.$valid) {
@@ -861,10 +906,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
                             $http({
                                 method: 'POST',
-                                url: 'Products/PurchaseDocumentsAcceptance/CreateGRNAcceptance',
+                                url: 'Products/PurchaseDocumentsAcceptance/CreateAndUpdateGRNAcceptance',
                                 data: {
                                     'entity': $scope.PurchaseDocAcceptance
                                     , 'PurchaseDocAcceptanceDetail': $scope.seletedLST
+                                    , 'PurchaseDocAcceptanceDetails': $scope.inventoryMaterialListPO
                                     //, 'purchaseDocAcceptanceTax': $scope.acceptanceTaxList
                                     //, 'AcceptancechargesList': $scope.acceptanceChargesCheckedList
                                     //, 'purchaseDocAcceptancechargesTax': $scope.ChargesTaxList
@@ -880,11 +926,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                     ShowResult(response.data.Message, 'success');
                                     $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                     $scope.gridAcceptanceList();
-                                    //$scope.setTabAcceptenceList(1);
                                     $scope.Action = 'Update';
                                     $scope.seletedLST = [];
                                     $scope.GridListPO = [];
-
+                                    $scope.Id = $scope.PurchaseDocAcceptance.Id;
                                     $scope.getRecordDoubleClickDetailGRN($scope.PurchaseDocAcceptance.Id);
 
                                 }
@@ -899,10 +944,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
                         $http({
                             method: 'POST',
-                            url: 'Products/PurchaseDocumentsAcceptance/UpdateGRNAcceptance',
+                            url: 'Products/PurchaseDocumentsAcceptance/CreateAndUpdateGRNAcceptance',
                             data: {
                                 'entity': $scope.PurchaseDocAcceptance
-                                , 'PurchaseDocAcceptanceDetail': $scope.inventoryMaterialListPO
+                                , 'PurchaseDocAcceptanceDetail': $scope.seletedLST
+                                , 'PurchaseDocAcceptanceDetails': $scope.inventoryMaterialListPO
                             },
                             dataType: 'JSON'
                         }).then(function successCallback(response) {
@@ -916,6 +962,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 $scope.Action = 'Update';
                                 $scope.seletedLST = [];
                                 $scope.GridListPO = [];
+                                $scope.Id = $scope.PurchaseDocAcceptance.Id;
                                 $scope.getRecordDoubleClickDetailGRN($scope.PurchaseDocAcceptance.Id);
                             }
                         }), function errorCallBack(response) {
@@ -931,28 +978,52 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.calculateAmount = function (data, index) {
         try {
-            var gridObj = $("#GridAcceptance").data("ejGrid");
-            data.GRNRcvQty = data.Otherqty + parseFloat(data.TransactionQty);
+            if ($scope.productNew.AcceptanceFirst == 'Yes') {
+                var gridObj = $("#GridAcceptance").data("ejGrid");
+                data.GRNRcvQty = data.Otherqty + parseFloat(data.TransactionQty);
 
-            data.Balance = data.POQty - data.GRNRcvQty;
+                data.Balance = data.POQty - data.GRNRcvQty;
 
-            if (data.Balance >= 0) {
-                if (data.POQty >= (data.GRNRcvQty + data.Balance)) {
+                if (data.Balance >= 0) {
+                    if (data.POQty >= (data.GRNRcvQty + data.Balance)) {
 
-                    data.TrnAmount = data.TransactionRate * parseFloat(data.TransactionQty);
+                        data.TrnAmount = data.TransactionRate * parseFloat(data.TransactionQty);
 
-                    $scope.CalculateMaterialAmount();
+                        $scope.CalculateMaterialAmount();
 
+                    } else {
+                        throw 'Current quantity can not greater than balance quantity!';
+                    }
                 } else {
+                    data.Balance = 0;
+                    data.TransactionQty = 0;
                     throw 'Current quantity can not greater than balance quantity!';
                 }
-            } else {
-                data.Balance = 0;
-                data.TransactionQty = 0;
-                throw 'Current quantity can not greater than balance quantity!';
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
             }
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
+            else {
+                var TranQty = Math.min(data.GRNRcvQty, data.POQty);
+
+                //data.Balance = data.GRNRcvQty - (data.Otherqty + parseFloat(data.TransactionQty));
+                data.Balance = TranQty - (data.Otherqty + parseFloat(data.TransactionQty));
+
+                if (data.Balance >= 0) {
+                    //if (data.GRNRcvQty >= (data.Otherqty + parseFloat(data.TransactionQty))) {
+                    if (TranQty >= (data.Otherqty + parseFloat(data.TransactionQty))) {
+                        data.TrnAmount = data.TransactionRate * parseFloat(data.TransactionQty);
+
+                        $scope.CalculateMaterialAmount();
+
+                    } else {
+                        throw 'Current quantity can not greater than balance quantity!';
+                    }
+                } else {
+                    data.Balance = 0;
+                    data.TransactionQty = 0;
+                    throw 'Current quantity can not greater than balance quantity!';
+                }
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -974,6 +1045,8 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     };
 
     $scope.CalculateMaterialAmount = function () {
+        $scope.PurchaseDocAcceptance.AcceptanceAmount = 0;
+        $scope.PurchaseDocAcceptance.CurrentQty = 0;
         var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.serviceList), 'Amount');
         var totalTaxAmount = $filter('sumByKey')($filter('filter')($scope.serviceList), 'TotalTaxAmount');
         var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount');
@@ -992,9 +1065,14 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = ((parseFloat(TotalServiceAmount) / parseFloat(TotalTrnAmount)) * $scope.inventoryMaterialListPO[i].TrnAmount) + $scope.inventoryMaterialListPO[i].TrnAmount;
                 $scope.inventoryMaterialListPO[i].ChargesTranAmount = ((parseFloat(TotalServiceAmount) / parseFloat(TotalTrnAmount)) * $scope.inventoryMaterialListPO[i].TrnAmount);
                 $scope.inventoryMaterialListPO[i].ChargesTaxTranAmount = ((parseFloat(totalTaxAmount) / parseFloat(TotalTrnAmount)) * $scope.inventoryMaterialListPO[i].TrnAmount);
+
+
             }
         }
-
+        for (var k = 0; k < $scope.inventoryMaterialListPO.length; k++) {
+            $scope.PurchaseDocAcceptance.AcceptanceAmount += $scope.inventoryMaterialListPO[k].TrnAmount;
+            //$scope.PurchaseDocAcceptance.CurrentQty += $scope.inventoryMaterialListPO[k].TransactionQty;
+        }
     };
 
     $scope.inventoryMaterialListPO = [];
@@ -1066,7 +1144,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.data1 = $scope.lst;
     $scope.detailTemp = "#tabGridContents";
-    //$scope.detailgrid = "detailGridData(e)";
     $scope.detailgrid = function detailGridData(e) {
 
 
@@ -1140,7 +1217,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             $scope.productNew.PODate = $scope.GetDataDoubleClickMaster[0].PODate;
             $scope.productNew.ContractId = $scope.GetDataDoubleClickMaster[0].ContractId;
             $scope.productNew.PartyName = $scope.GetDataDoubleClickMaster[0].PartyName;
-            // $scope.productNew.LCEntryDate = $scope.GetDataDoubleClickMaster[0].LCEntryDate;
             $scope.productNew.LCExpiryDate = $scope.GetDataDoubleClickMaster[0].LCExpiryDate;
             $scope.productNew.LCOpeningDate = $scope.GetDataDoubleClickMaster[0].LCOpeningDate;
             $scope.productNew.CustomerName = $scope.GetDataDoubleClickMaster[0].CustomerName;
@@ -1252,48 +1328,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.GetDataDoubleClickDetails = [];
         $scope.inventoryMaterialListPO = [];
 
-        var PoType = 'PO';
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
-            url: 'Products/PurchaseDocumentsAcceptance/GetRecordDoubleClickGRNDetail?Id=' + Id,
-        }).then(function successCallback(response) {
-            $scope.GetDataDoubleClickDetails = response.data;
-            $scope.inventoryMaterialListPO = response.data;
-            //$scope.inventoryMaterialListPO.TaxList = [];
-
-            if ($scope.GridListPO.length > 0) {
-                for (var j = 0; j < $scope.inventoryMaterialListPO.length; j++) {
-                    for (var i = 0; i < $scope.GridListPO.length; i++) {
-                        if ($scope.inventoryMaterialListPO[j].POID === $scope.GridListPO[i].Id) {
-                            $scope.seletedLST.push($scope.GridListPO[i]);
-                            var i = $scope.GridListPO.length;
-                            while (i--) {
-                                if ($scope.inventoryMaterialListPO[j].POID === $scope.GridListPO[i].Id) {
-                                    $scope.GridListPO.splice(i, 1);
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
-            else {
-                $scope.inventoryMaterialListPO = $scope.GetDataDoubleClickDetails;
-            }
-            $scope.getMaterialTax(Id);
-            getServiceChargeList(Id);
-            $scope.CalculateMaterialAmount();
-
-            //var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.serviceList), 'Amount');
-            //var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount');
-
-            for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-                $scope.TotalGRNAmount += $scope.inventoryMaterialListPO[i].TrnAmount;
-            }
-
-        });
     };
 
     $scope.summaryassignGRNRows = [{
@@ -1418,7 +1452,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.productNew.ContractId = $event.data.ContractId;
         $scope.productNew.ContractNo = $event.data.ContractNo;
         $scope.productNew.PartyName = $event.data.PartyName;
-        // $scope.productNew.LCEntryDate = $scope.GetDataDoubleClickMaster[0].LCEntryDate;
         $scope.productNew.LCExpiryDate = $filter("dateFiltering")($event.data.LCExpiryDate);
         $scope.productNew.LCOpeningDate = $filter("dateFiltering")($event.data.LCOpeningDate);
         $scope.productNew.CustomerName = $event.data.CustomerName;
@@ -1476,29 +1509,63 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     }
 
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+    $scope.sqlInStatement = null;
     $scope.seletedLST = [];
     $scope.selectedData = function () {
-        if (baseService.arrayLength($scope.seletedLST) == 0) {
-            $scope.seletedLST = [];
-        }
-        var i = $scope.GridListPO.length;
-        while (i--) {
-            if ($scope.GridListPO[i].Active === true) {
-                if ($scope.productNew.AcceptanceFirst == 'Yes') {
-                    $scope.PurchaseDocAcceptance.AcceptanceAmount += $scope.GridListPO[i].TransactionAmount;
+        if ($scope.productNew.AcceptanceFirst == 'Yes') {
+
+            if (baseService.arrayLength($scope.seletedLST) == 0) {
+                $scope.seletedLST = [];
+            }
+            var i = $scope.GridListPO.length;
+            while (i--) {
+                if ($scope.GridListPO[i].Active === true) {
+                    $scope.TotalPOAmount += $scope.GridListPO[i].TotalMaterialTranAmount;
+                    $scope.seletedLST.push($scope.GridListPO[i]);
+                    $scope.GridListPO[i].Active === false;
+                    $scope.GridListPO.splice(i, 1);
                 }
-                else {
-                    $scope.PurchaseDocAcceptance.AcceptanceAmount += $scope.GridListPO[i].TotalMaterialTranAmount;
-                }
-                $scope.seletedLST.push($scope.GridListPO[i]);
-                $scope.GridListPO[i].Active === false;
-                $scope.GridListPO.splice(i, 1);
             }
         }
-        if ($scope.productNew.AcceptanceFirst == 'Yes') {
-            $scope.TotalPOAmount = $scope.PurchaseDocAcceptance.AcceptanceAmount;
-        } else {
-            $scope.TotalGRNAmount = $scope.PurchaseDocAcceptance.AcceptanceAmount;
+        else {
+            if (baseService.arrayLength($scope.seletedLST) == 0) {
+                $scope.seletedLST = [];
+            }
+            var i = $scope.GridListPO.length;
+            while (i--) {
+                if ($scope.GridListPO[i].Active === true) {
+                    $scope.TotalGRNAmount += $scope.GridListPO[i].TotalMaterialTranAmount;
+                    $scope.seletedLST.push($scope.GridListPO[i]);
+                    $scope.GridListPO[i].Active === false;
+                    $scope.GridListPO.splice(i, 1);
+                }
+            }
+
+            if ($scope.seletedLST.length > 0) {
+                var uniqueInventoryReceiveId = removeDuplicates($scope.seletedLST, 'Id');
+                var wcInventoryReceiveId = "";
+                if (uniqueInventoryReceiveId.length > 0) {
+                    wcInventoryReceiveId = "IN (";
+                    wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcInventoryReceiveId;
+
+                //// for POId
+                var uniquePOId = removeDuplicates($scope.seletedLST, 'POId');
+                var wcPOId = "";
+                if (uniquePOId.length > 0) {
+                    wcPOId = "IN (";
+                    wcPOId += Array.prototype.map.call(uniquePOId, function (item) { return "'" + item.POId + "'"; }).join(",") + ")";
+                }
+                $scope.POsqlInStatement = wcPOId;
+            }
+            $scope.GetGRNDetailData();
         }
     }
 
@@ -1578,9 +1645,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                     var i = $scope.seletedLST.length;
                     while (i--) {
                         if ($scope.seletedLST[i].Active === true) {
-                            // if (checkExistsPOId($scope.GridListPO, $scope.seletedLST[i].POId)) {
-                            //$scope.PurchaseDocAcceptance.TotalGRNAmount = $scope.PurchaseDocAcceptance.TotalGRNAmount - $scope.seletedLST[i].TotalMaterialTranAmount;
-                            //}
+
                             $scope.GridListPO.push($scope.seletedLST[i]);
                             $scope.seletedLST.splice(i, 1);
                         }
@@ -1590,6 +1655,40 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             }
         };
     }
+
+    $scope.GetGRNDetailData = function () {
+        $scope.inventoryMaterialListPO = [];
+        $http.get('Products/PurchaseDocumentsAcceptance/GetGRNDetailData?inveReveiveId=' + $scope.sqlInStatement + '&PurchaseDocAcceptanceId=' + $scope.Id)
+            .then(function (response) {
+                $scope.inventoryMaterialListPO = response.data.Rows;
+
+                if (!baseService.isUndefinedOrNull($scope.Id)) {
+                    $scope.getMaterialTax($scope.Id);
+                    getServiceChargeList($scope.Id);
+                }
+
+                $scope.getOtherAcptQtyValue()
+            });
+    };
+
+    $scope.OtherTotalAcptValue = 0;
+    $scope.TotalAcptValue = 0;
+    $scope.OtherTotalQty = 0;
+    $scope.getOtherAcptQtyValue = function () {
+        $scope.OtherTotalAcptValue = 0;
+        $scope.OtherTotalQty = 0;
+        $http({
+            method: "GET",
+            url: 'Products/PurchaseDocumentsAcceptance/GetOtherAcptQtyValue?POId=' + $scope.POsqlInStatement + '&PurchaseDocAcceptanceId=' + $scope.Id
+        }).then(function (response) {
+            for (var i = 0; i < response.data.length; i++) {
+                $scope.OtherTotalAcptValue += response.data[i].OtherTotalAcptValue;
+                //$scope.OtherTotalQty += response.data[i].OtherTotalQty;
+            }
+            $scope.TotalAcptValue = $scope.PurchaseDocAcceptance.AcceptanceAmount + $scope.OtherTotalAcptValue;
+        });
+    };
+
 
     function checkExistsPOId(list, POId) {
         for (var i = 0; i < list.length; i++) {
@@ -2059,6 +2158,8 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.SavedServicePODetailList = [];
         $scope.TotalGRNAmount = 0;
         $scope.TotalPOAmount = 0;
+        $scope.CurrentQty = 0;
+        $scope.TotalAcptValue = 0;
     }
     $scope.productNew = {
         FixedAssetOrInventory: 'Inventory'

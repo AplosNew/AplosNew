@@ -854,4 +854,46 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(e, 'failure');
         }
     }
+
+
+    $scope.onClickDeletePopUp = function (x) {
+        var data = x;
+        $scope.ServiceAckId = data.Id;
+        $scope.VoucherId = data.VoucherId;
+        $scope.TDSTaxVoucherId = data.TDSTaxVoucherId;
+        $scope.TDSVoucherNo = data.TDSVoucherNo;
+        $scope.InvoiceId = data.InvoiceId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+    };
+
+    $scope.delete = function (serviceAckId, voucherId, invoiceId, tDSTaxVoucherId, tDSVoucherNo) {
+        //ServiceAckId, VoucherId, InvoiceId, TDSTaxVoucherId, TDSVoucherNo
+        $http({
+            method: "POST",
+            url: 'accounts/Invoice/DeleteServicePayable',
+            data: {
+                "serviceAckId": serviceAckId, "voucherId": voucherId, "invoiceId": invoiceId,  "tDSTaxVoucherId": tDSTaxVoucherId, "tDSVoucherNo": tDSVoucherNo
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.ServiceAckId = null;
+                $scope.VoucherId = null;
+                $scope.TDSTaxVoucherId = null;
+                $scope.TDSVoucherNo = null;
+                $scope.InvoiceId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
 }

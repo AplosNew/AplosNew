@@ -622,6 +622,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.IssueTransformationChildList = [];
 	$scope.MaterialInputList = [];
 	$scope.detailList = [];
+	$scope.MatInputListLocal = [];
 
 	$scope.SelectMaterialPlanning = function () {
 		//$scope.product = Object.assign({}, $scope.productNew);
@@ -706,6 +707,23 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			url: $scope.path + 'GetMaterialInputData'
 		}).then(function successCallback(response) {
 			$scope.MaterialInputList = response.data;
+			$scope.MatInputListLocal = response.data;
+			if ($scope.MaterialInputList.length > 0) {
+				for (var a = 0; a < $scope.MaterialInputList.length; a++) {
+					var Id = $scope.MaterialInputList[a].JWTCMId;
+					var ArticleId = $scope.MaterialInputList[a].ArticleId;
+
+					for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
+						if ($scope.MatInputListLocal[b].JWTCMId != Id) {
+							if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
+								ShowResult("Common Input Material is there");
+								return false;
+                            }
+                        }
+                    }
+                }
+            }
+			
 			$scope.detailList = response.data;
 			for (var i = 0; i < $scope.detailList.length; i++) {
 				$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
@@ -1781,6 +1799,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.qtyFunc = function (x, index) {
 		//debugger;
 		// alert('qtyalert');
+		var BaltoIssue;
 		for (var i = 0; i < $scope.detailList.length; i++) {
 			if (($scope.detailList[index].MaterialMasterName === $scope.detailList[i].MaterialMstId) && $scope.detailList[index].ArticleId === $scope.detailList[i].ArticleId) {
 
@@ -1793,18 +1812,44 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 				}
 
 				if ($scope.detailList[index].TransactionQty > Math.round(($scope.detailList[i].RequiredQuantity) * 100 + Number.EPSILON) / 100) {
-					ShowResult("Transaction Qty cannot grater than Requested qty");
+					ShowResult("Transaction Qty cannot greater than Requested qty");
 					$scope.detailList[index].TransactionQty = 0;
 					$scope.detailList[i].BalanceToIssue = ($scope.detailList[i].RequiredQuantity - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
 					return false;
 					//throw 'Issue qty must be less than or equal Ready for Issue Qty.';
 				}
+
 				//if ($scope.detailList[index].TransactionQty > $scope.detailList[i].BalanceQty) {
 				//	ShowResult("Issue qty must be less than or equal BalanceQty Qty");
 				//	return false;
 				//	//throw 'Issue qty must be less than or equal Ready for Issue Qty.';
 				//}
-				$scope.detailList[i].BalanceToIssue = ($scope.detailList[i].RequiredQuantity - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+
+				if ($scope.detailList[i].TIRCTotalQty == null) {
+					$scope.detailList[i].TIRCTotalQty = 0;
+				}
+				if ($scope.detailList[index].TransactionQty > Math.round(($scope.detailList[i].RequiredQuantity - $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100) {
+					ShowResult("Issue quantity cannot be greater than Balance quantity");
+					$scope.detailList[index].TransactionQty = 0;
+			//		$scope.detailList[i].BalanceToIssue = ($scope.detailList[i].RequiredQuantity - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+					BaltoIssue = ($scope.detailList[i].RequiredQuantity - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+					$scope.detailList[i].BalanceToIssue = BaltoIssue.toFixed(4);
+					return false;
+				}
+
+				if ($scope.detailList[index].TransactionQty > Math.round(($scope.detailList[i].PostingQty) * 100 + Number.EPSILON) / 100) {
+					ShowResult("Issue quantity cannot be greater than Ready for Issue quantity");
+					$scope.detailList[index].TransactionQty = 0;
+					//		$scope.detailList[i].BalanceToIssue = ($scope.detailList[i].RequiredQuantity - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+					BaltoIssue = ($scope.detailList[i].RequiredQuantity - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+					$scope.detailList[i].BalanceToIssue = BaltoIssue.toFixed(4);
+					return false;
+				}
+
+
+				BaltoIssue = ($scope.detailList[i].RequiredQuantity - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+
+				$scope.detailList[i].BalanceToIssue = BaltoIssue.toFixed(4);
 			}
 
 		}

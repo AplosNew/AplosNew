@@ -2811,42 +2811,31 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							,SA.Id SalesId
 							,SA.SourceType
 							--SM.Id	
-							,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
-							--,SMD.SalesOrderId
-							--,MO.Id MasterOrderId
-							--,SO.Id SONo
-							--,po.PONumber
+							,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate						
 							,PPI.UserName AS BillTo
 							,PPD.UserName AS ShipTo
 							, SA.ToCurrencyRate
 							, SA.DocRefNo
 							,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocDate
 							, P.UserName AS PartyName,p.Code	
-							--, '' HSNCode
-							--,SM.BaseRate
-							--,SM.BaseUoMFactor
-							--,SM.TransactionRate
-							--,SM.TransactionQty
+						
 							,Sum(SMD.TransactionAmount) TransactionAmount
-							--,SM.TaxAmount
-							--,SM.NetAmount
+						
 							,v.VoucherNo VoucherId
-							--,BUoM.UserName AS BaseUoM
-							--,TUoM.UserName AS TransactionUoM
+						
 							,CU.Code AS Currency
-							--,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate
-							--,DT.UserName DestinationName
+						
 							,''SOType
 							,sum(round(isnull(ServiceData.ServiceAmount,0),2)) ServiceCharge
 							,sum(round(isnull(ServiceData.ServiceTax,0),2)) ServiceTax
-							--TransactionAmount
 							,E.UserName Entity
 							,'' CheckedByName
 							,'' CheckedBy
 							,'' ApprovedByName
 							,'' ApprovedBy
 							,Posted=CASE WHEN v.VoucherNo IS NULL THEN 'No' ELSE 'YES'  END
-							,'' 'NoteForAccounts'
+							,iSNUll( SA.Narration,'') NoteForAccounts
+
 	
 							,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST			
 							,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
@@ -2924,7 +2913,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							left outer join PurchaseLC PL on PL.ContractId=CON.Id
 							Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 							left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
-							left outer join MST.PaymentTerm PTM on PTM.Id=SA.PartyId
+							left outer join MST.PaymentTerm PTM on PTM.Id=SA.PaymentTermId
 
 							left outer join HKP.Party CNfA on CNfA.Id=SA.PartyId
 							left outer join HKP.Party TA on TA.Id=SA.PartyId
@@ -3005,7 +2994,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 									group by ISS.SalesId
 									)ServiceData on ServiceData.SalesId=SA.Id
 							
-							WHERE SA.PlantId='" + identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN   '" + fromDate + @"' AND '" + toDate + @"'-- and sm.SalesId='202110'
+							WHERE SA.PlantId='"+identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN '"+fromDate+@"' AND '"+toDate+ @"'-- and sm.SalesId='202110'
 							Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName
 							,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,E.UserName,SA.VoucherId,I.Amount,I.WrittenOffAmount,PSI.ExpDate,PSI.CNFBLAWB,PSI.CNFBLAWBDate 
 							,PSI.ExFactoryDate,PSI.TransportDocRefNo
@@ -3015,7 +3004,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							,CNfA.UserName,TA.UserName 
 							
 							,PL.Amount,CON.ContractNo
-							,ML.LCRef,PSI.TransportDocDate
+							,ML.LCRef,PSI.TransportDocDate,SA.Narration
 
 						UNION ALL
 						SELECT 
@@ -3025,37 +3014,20 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						,'InventorySales' SourceType
 						--,IID.Id						
 						,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
-						--,'' SalesOrderId
-						--,'' MasterOrderId
-						--,'' SONo
-						--,'' PONumber
 						,PPI.UserName AS BillTo
 						,PPI1.UserName ShipTo
 						,II.ToCurrencyRate
 						, II.DocRefNo
 						,FORMAT(II.DocDate,'dd-MMM-yyyy') DocDate
 						, P.UserName AS PartyName,p.Code
-						--,MGM.UserName AS MaterialGroupMasterName
-						--,MM.UserName MaterialMasterName
-						--,ART.StandardName AS MaterialMasterArticleName
-						--, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue							
-						--, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
-						--, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-						--, '' HSNCode
-
-						--,Sum(IID.PolicyRate) BaseRate
-						--,0 BaseUoMFactor
-						--,sum(IID.PolicyRate) TransactionRate
-						--,Sum(IID.Qty) TransactionQty
+					
 						,Sum(IID.Qty *IID.SalesRate) TransactionAmount
 						--,sum(SCr1.TaxAmount) TaxAmount
 						--,0 NetAmount
 						,v.VoucherNo VoucherId
-						--,TUoM.UserName AS BaseUoM
-						--,TUoM.UserName AS TransactionUoM
+					
 						,'' AS Currency
-						--,'' DeliveryDate
-						--,'' DestinationName
+				
 						,'' SOType
 						,sum(SCr.ServiceAmount) ServiceCharge
 						,sum(SCr.TotalTaxAmount) ServiceTax
@@ -3067,7 +3039,6 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						,II.ApprovedBy
 						,Posted=CASE WHEN II.[Status]='Posting' then 'Yes' else 'No'  END
 						,'' 'NoteForAccounts'
-
 						,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST				
 						,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
 						,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
@@ -3107,16 +3078,13 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							,''PaymentTerm,''BaseOnDueDate
 							,0 NoOfDays
 							,''MatureDate
-							,''EXPFromNo,''ComercialInvoiceNo
-							
+							,''EXPFromNo,''ComercialInvoiceNo		
 							
 							,0 LCAmount,''ContractNo
 							,''MasterLcNo
 						FROM [TRN].[InventorySales] AS II
 						left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
-						
-						
-						
+
 						left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
 						left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 						left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
@@ -3185,11 +3153,10 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 									GROUP BY A.InventorySalesId
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						LEFT JOIN trn.Voucher V On V.Id=II.VoucherId
-						WHERE II.PlantId='" + identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '"+fromDate+@"' AND '"+toDate+@"'
-						GROUP BY p.Code	,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName 
-						,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,II.VoucherId,I.Amount,I.WrittenOffAmount
-
-";
+						WHERE II.PlantId='"+identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+						GROUP BY p.Code,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName 
+						,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName 
+						,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,II.VoucherId,I.Amount,I.WrittenOffAmount";
 						return _sqlRepository.GetDataTable(sql);
 					}
 					else

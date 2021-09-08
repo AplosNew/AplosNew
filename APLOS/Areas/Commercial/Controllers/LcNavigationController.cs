@@ -499,6 +499,24 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost, Authorize]
+        public ActionResult ACBreakDownDataList(string ACID)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.ACBreakDownList(ACID);
+
+                return Json(new { ACBrDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpPost, Authorize]
         public ActionResult GetPurchaseLCGRNList(string PurchaseLCId)
         {
             try
@@ -614,7 +632,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						,ac.AcceptanceCount
 						,ISNULL(grn.GRNTotalAmount,0) as GRNValue
                         ,grn.GRNCount
-	                    ,IsClosed=case when PL.Status='Active' then 'Yes' else 'No' END
+	                    ,IsClosed=case when PL.Status='Active' then 'No' else 'Yes' END
 						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END ,
                         con.ContractNo,
                         cus.Customer,
@@ -633,7 +651,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         left outer join MST.Destination as D on PL.CurrencyId=D.Id
                         left outer join HKP.Party as P on PL.VendorId = p.Id
 						left outer join MasterLC ML on ML.Id=con.MasterLCId
-						left outer  join (Select COUNT(Id) AcceptanceCount,AcceptanceAmount AcceptanceValue,PurchaseLCId from TRN.PurchaseDocAcceptance GROUP BY AcceptanceAmount,PurchaseLCId) AC on AC.PurchaseLCId=PL.Id
+						left outer  join (Select COUNT(Id) AcceptanceCount,sum(AcceptanceAmount) AcceptanceValue,PurchaseLCId from TRN.PurchaseDocAcceptance GROUP BY PurchaseLCId) AC on AC.PurchaseLCId=PL.Id
 
                         left join (
 						        select k.PurchaseLCId,sum(MaterialPOAmount) AS MaterialPOAmount,sum(JWPOAmount) AS JWPOAmount,sum(ServicePOAmount) AS ServicePOAmount
@@ -707,14 +725,14 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetNonTagLcSearchList(string column, string value)
+        public ActionResult GetNonTagLcSearchList(string column, string value)        
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false)
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
+            string sql = @"select top 100 * from (select * from (select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
 ,PT.PaymentMode,PO.DocRefNo VendorRef
 , POD.POAmount,c.Code Currency,P.UserName Vendor
 ,GRN.GRNTotalAmount
@@ -729,7 +747,51 @@ left outer join hkp.Party P on P.Id=PO.PartyId
 							from TRN.InventoryReceiveDetail IRD
 							group by IRD.POId)
                             as grn on grn.POId=PO.Id
-							where PO.PurchaseLCId is null and  PO.PlantId='"+identity.PlantId+@"' and PT.PaymentMode='LC') AS TEMP WHERE " + strkey /*+ "order by TEMP.PODate desc"*/;
+							where PO.PurchaseLCId is null and  PO.PlantId='"+identity.PlantId+ @"' and PT.PaymentMode='LC'
+							
+
+union all
+select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
+,PT.PaymentMode,PO.DocRefNo VendorRef
+, POD.POAmount,c.Code Currency,P.UserName Vendor
+,GRN.GRNTotalAmount
+,PO.AddedDate,PT.UserName PaymentTerm
+from [dbo].[JWTransformationPurchaseOrder] PO
+left outer join (select sum(TransactionAmount) POAmount,InventoryReceiveId from  TRN.PurchaseOrderDetail
+group by InventoryReceiveId)POD on POD.InventoryReceiveId=PO.Id
+left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
+left outer join SCS.Currency C on c.Id=PO.CurrencyId
+left outer join hkp.Party P on P.Id=PO.PartyId
+                            left join
+                             (select  IRD.POId,sum(IRD.TotalMaterialTranAmount) as GRNTotalAmount
+							 ,count(distinct IRD.InventoryReceiveId) as GRNCount
+							from TRN.InventoryReceiveDetail IRD
+							group by IRD.POId)
+                            as grn on grn.POId=PO.Id
+							where PO.PurchaseLCId is null and  PO.PlantId='" + identity.PlantId + @"' and PT.PaymentMode='LC'
+							
+							union all
+
+select PO.Id PONo,FORMAT(PO.PODate,'dd-MMM-yyy') PODate
+,PT.PaymentMode,PO.DocRefNo VendorRef
+, POD.POAmount,c.Code Currency,P.UserName Vendor
+,GRN.GRNTotalAmount
+,PO.AddedDate,PT.UserName PaymentTerm
+from TRN.ServicePOMaster PO
+left outer join (select sum(Amount) POAmount,ServicePOMasterId from TRN.ServicePODetail
+group by ServicePOMasterId)POD on POD.ServicePOMasterId=PO.Id
+left outer join mst.PaymentTerm PT on PT.Id=PO.PaymentTermId
+left outer join SCS.Currency C on c.Id=PO.CurrencyId
+left outer join hkp.Party P on P.Id=PO.PartyId
+                            left join
+                             (select  IRD.ServicePOMasterId,sum(IRD.Amount) as GRNTotalAmount
+							 ,count(distinct IRD.ServiceAcknowledgementMasterId) as GRNCount
+							from TRN.ServiceAcknowledgementDetail IRD
+							group by IRD.ServicePOMasterId)
+                            as grn on grn.ServicePOMasterId=PO.Id
+							where PO.PurchaseLCId is null and  PO.PlantId='" + identity.PlantId + @"' and PT.PaymentMode='LC'							
+							)
+a) AS TEMP WHERE " + strkey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
