@@ -1278,6 +1278,58 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                 throw;
             }
         }
+
+        // GET Issued Material data
+
+        public IEnumerable<object> GetIfIssuedOrNot(string JWOutputId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string sql = @"select JobWorkTransformationContractChildMasterId,ArticleId from dbo.JobWorkTransformationContractChild3 
+                                where JobWorkTransformationContractChildMasterId='"+ JWOutputId + @"'
+                                group by ArticleId,JobWorkTransformationContractChildMasterId";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<object> GetIssuedMatInputList(string JWPOId, string JWOutputId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                //string sql = @"select distinct IID.Id,IID.InventoryIssueId,IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,mi.ArticleId
+                //                from TRN.InventoryIssueDetail IID inner join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=IID.JWTCMID
+                //                inner join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+                //                inner join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId and IM.ArticleId=mi.ArticleId
+                //                where IID.JWTCMID='"+ JWOutputId + @"' and II.JWContractId='"+ JWPOId + @"' ";
+
+                string sql = @"select distinct IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,mi.ArticleId
+                                ,mi.GrossConsumption,AA.TotalIssuedQuantity,QtyForOutput=round((AA.TotalIssuedQuantity/mi.GrossConsumption),4)
+                                from TRN.InventoryIssueDetail IID inner join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=IID.JWTCMID
+                                inner join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+                                inner join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId and IM.ArticleId=mi.ArticleId
+                                left join (Select SUM(TransactionQty) as TotalIssuedQuantity,InventoryMaterialId from TRN.InventoryIssueDetail 
+                                where JWTCMID='"+ JWOutputId + @"' group by InventoryMaterialId)
+                                AA on AA.InventoryMaterialId=IM.Id
+                                where IID.JWTCMID='"+ JWOutputId + @"' and II.JWContractId='"+ JWPOId + @"' 
+                                group by IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,mi.ArticleId,mi.GrossConsumption,AA.TotalIssuedQuantity ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
 public class jobworkreceiptvalueaddedchild
