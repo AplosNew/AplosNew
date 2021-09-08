@@ -1050,7 +1050,7 @@ namespace Library.MaterialManagement.Inventory
                 }
                 if (AcceptancechargesList != null)
                 {
-                    //int AcceptanceServiveId = 1;
+                    
                     var AcceptanceChargesId = _purchaseDocAcceptanceChargesRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseDocAcceptanceCharges] WHERE PurchaseDocAcceptanceId='{entity.Id}'").First();
 
                     foreach (var ServiceitemDetail in AcceptancechargesList)
