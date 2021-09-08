@@ -91,6 +91,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             }
         });
     };
+
     $scope.POsqlInStatement = null;
     $scope.seletedLST = [];
     $scope.GetSavedGRNList = function () {
@@ -124,13 +125,13 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                     }
                     $scope.sqlInStatement = wcInventoryReceiveId;
                     //// for POId
-                    //var uniquePOId = removeDuplicates($scope.seletedLST, 'POId');
-                    //var wcPOId = "";
-                    //if (uniquePOId.length > 0) {
-                    //    wcPOId = "IN(";
-                    //    wcPOId += Array.prototype.map.call(uniquePOId, function (item) { return "'" + item.POId + "'"; }).join(",") + ")";
-                    //}
-                    //$scope.POsqlInStatement = wcPOId;
+                    var uniquePOId = removeDuplicates($scope.seletedLST, 'POId');
+                    var wcPOId = "";
+                    if (uniquePOId.length > 0) {
+                        wcPOId = "IN(";
+                        wcPOId += Array.prototype.map.call(uniquePOId, function (item) { return "'" + item.POId + "'"; }).join(",") + ")";
+                    }
+                    $scope.POsqlInStatement = wcPOId;
                 }
                 $scope.GetGRNDetailData();
             }
@@ -737,6 +738,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.Save1 = function () {
         try {
+
             if (baseService.isUndefinedOrNull($scope.PurchaseDocAcceptance.AcceptanceAmount)) {
                 throw "Acceptance Amount is required.";
             }
@@ -877,12 +879,16 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 }
             }
             else {
+                $scope.TotalAcptValue = 0;
+                $scope.TotalAcptValue = $scope.PurchaseDocAcceptance.AcceptanceAmount + $scope.OtherTotalAcptValue;
+
                 for (var i = 0; i < $scope.seletedLST.length; i++) {
                     if (new Date($scope.seletedLST[i].DocDate) > new Date($scope.PurchaseDocAcceptance.AcceptanceDate)) {
                         throw "Acceptance Date can't less than GRN Date.";
                     }
                 }
-                if ($scope.PurchaseDocAcceptance.AcceptanceAmount + $scope.PurchaseDocAcceptance.CurrentAcceptanceAmount > $scope.productNew.LCAmount) {
+
+                if ($scope.TotalAcptValue > $scope.productNew.LCAmount) {
                     throw "Acceptance Amount can't greater than Total LC Amount.";
                 }
                 $scope.$broadcast('show-errors-check-validity');
@@ -1446,7 +1452,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.productNew.ContractId = $event.data.ContractId;
         $scope.productNew.ContractNo = $event.data.ContractNo;
         $scope.productNew.PartyName = $event.data.PartyName;
-        // $scope.productNew.LCEntryDate = $scope.GetDataDoubleClickMaster[0].LCEntryDate;
         $scope.productNew.LCExpiryDate = $filter("dateFiltering")($event.data.LCExpiryDate);
         $scope.productNew.LCOpeningDate = $filter("dateFiltering")($event.data.LCOpeningDate);
         $scope.productNew.CustomerName = $event.data.CustomerName;
@@ -1478,8 +1483,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.PurchaseDocAcceptance.PartyId = $event.data.PartyId;
         $scope.PurchaseDocAcceptance.PartyPlantId = $event.data.PartyPlantId;
         $scope.PurchaseDocAcceptance.AcceptanceAmount = $event.data.AcceptanceAmount;
-        $scope.PurchaseDocAcceptance.CurrentAcceptanceAmount = $event.data.AcceptanceAmount;
-        //$scope.PurchaseDocAcceptance.CurrentQty = $event.data.CurrentQty;
 
         $scope.productNew.AcceptanceFirst = $event.data.AcceptanceFirst;
         if ($scope.productNew.AcceptanceFirst == 'No') {
@@ -1554,13 +1557,13 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 $scope.sqlInStatement = wcInventoryReceiveId;
 
                 //// for POId
-                //var uniquePOId = removeDuplicates($scope.seletedLST, 'POId');
-                //var wcPOId = "";
-                //if (uniquePOId.length > 0) {
-                //    wcPOId = "IN (";
-                //    wcPOId += Array.prototype.map.call(uniquePOId, function (item) { return "'" + item.POId + "'"; }).join(",") + ")";
-                //}
-                //$scope.POsqlInStatement = wcPOId;
+                var uniquePOId = removeDuplicates($scope.seletedLST, 'POId');
+                var wcPOId = "";
+                if (uniquePOId.length > 0) {
+                    wcPOId = "IN (";
+                    wcPOId += Array.prototype.map.call(uniquePOId, function (item) { return "'" + item.POId + "'"; }).join(",") + ")";
+                }
+                $scope.POsqlInStatement = wcPOId;
             }
             $scope.GetGRNDetailData();
         }
@@ -1664,10 +1667,12 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                     getServiceChargeList($scope.Id);
                 }
 
-                //$scope.getOtherAcptQtyValue()
+                $scope.getOtherAcptQtyValue()
             });
     };
+
     $scope.OtherTotalAcptValue = 0;
+    $scope.TotalAcptValue = 0;
     $scope.OtherTotalQty = 0;
     $scope.getOtherAcptQtyValue = function () {
         $scope.OtherTotalAcptValue = 0;
@@ -1678,9 +1683,9 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         }).then(function (response) {
             for (var i = 0; i < response.data.length; i++) {
                 $scope.OtherTotalAcptValue += response.data[i].OtherTotalAcptValue;
-                $scope.OtherTotalQty += response.data[i].OtherTotalQty;
+                //$scope.OtherTotalQty += response.data[i].OtherTotalQty;
             }
-            
+            $scope.TotalAcptValue = $scope.PurchaseDocAcceptance.AcceptanceAmount + $scope.OtherTotalAcptValue;
         });
     };
 
@@ -2154,6 +2159,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.TotalGRNAmount = 0;
         $scope.TotalPOAmount = 0;
         $scope.CurrentQty = 0;
+        $scope.TotalAcptValue = 0;
     }
     $scope.productNew = {
         FixedAssetOrInventory: 'Inventory'

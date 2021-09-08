@@ -500,7 +500,7 @@ namespace Library.MaterialManagement.Inventory
 	                        ,POD.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,POD.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
 	                        ,POD.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,POD.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
 	                        ,POD.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
-	                        ,0 AS ServiceCharge,0 AS ServiceTax,POD.CountryId,NULL POMaterialTaxList,POD.TransactionQty POQty,SUM(IRD.TransactionQty) AS GRNRcvQty
+	                        ,0 AS ServiceCharge,0 AS ServiceTax,POD.CountryId,NULL POMaterialTaxList,POD.TransactionQty POQty,SUM(IRD.TransactionQty) AS GRNRcvQty,SUM(IRD.MaterialTranAmount) AS TotalGRNValue
 	                        ,ISNULL(PACD.TransactionQty, 0) AS TransactionQty,ISNULL(PAD.AcptTransactionQty, 0) Otherqty,ISNULL((SUM(IRD.TransactionQty) - PAD.AcptTransactionQty),0) AS Balance
 	                        ,POD.TransactionAmount TotalPOValue,ISNULL(PAD.TotalAcptValue,0) TotalAcptValue,POD.TransactionRate,POD.TransactionRate MaterialTranRate,ISNULL(PACD.MaterialTranAmount,0) TrnAmount,ISNULL(PACD.TotalMaterialTranAmount,0)TotalMaterialTranAmount,0 AS ToTalMaterialBooksCurrencyAmount
 							,POD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,PO.ToCurrencyRate
@@ -533,7 +533,7 @@ namespace Library.MaterialManagement.Inventory
 	                        ,POD.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,POD.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
 	                        ,POD.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,POD.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
 	                        ,POD.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
-	                        ,0 AS ServiceCharge,0 AS ServiceTax,POD.CountryId,NULL POMaterialTaxList,POD.TransactionQty POQty,SUM(IRD.TransactionQty) AS GRNRcvQty
+	                        ,0 AS ServiceCharge,0 AS ServiceTax,POD.CountryId,NULL POMaterialTaxList,POD.TransactionQty POQty,SUM(IRD.TransactionQty) AS GRNRcvQty,SUM(IRD.MaterialTranAmount) AS TotalGRNValue
 	                        ,ISNULL(PACD.TransactionQty, 0) AS TransactionQty,ISNULL(PAD.AcptTransactionQty, 0) Otherqty,ISNULL((SUM(IRD.TransactionQty) -(ISNULL(PAD.AcptTransactionQty, 0)+ PACD.TransactionQty)),0) AS Balance
 	                        ,POD.TransactionAmount TotalPOValue,ISNULL(PAD.TotalAcptValue,0) TotalAcptValue,POD.TransactionRate,POD.TransactionRate MaterialTranRate,ISNULL(PACD.MaterialTranAmount,0) TrnAmount,ISNULL(PACD.TotalMaterialTranAmount,0)TotalMaterialTranAmount,0 AS ToTalMaterialBooksCurrencyAmount
 							,POD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,PO.ToCurrencyRate 
