@@ -882,11 +882,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 $scope.TotalAcptValue = 0;
                 $scope.TotalAcptValue = $scope.PurchaseDocAcceptance.AcceptanceAmount + $scope.OtherTotalAcptValue;
 
-                for (var i = 0; i < $scope.seletedLST.length; i++) {
-                    if (new Date($scope.seletedLST[i].DocDate) > new Date($scope.PurchaseDocAcceptance.AcceptanceDate)) {
-                        throw "Acceptance Date can't less than GRN Date.";
-                    }
-                }
+                //for (var i = 0; i < $scope.seletedLST.length; i++) {
+                //    if (new Date($scope.seletedLST[i].DocDate) > new Date($scope.PurchaseDocAcceptance.AcceptanceDate)) {
+                //        throw "Acceptance Date can't less than GRN Date.";
+                //    }
+                //}
 
                 if ($scope.TotalAcptValue > $scope.productNew.LCAmount) {
                     throw "Acceptance Amount can't greater than Total LC Amount.";
