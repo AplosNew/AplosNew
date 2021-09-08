@@ -88,19 +88,37 @@ namespace Aplos.Areas.Products.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var Sql = @"SELECT Convert(bit,0) Active,IR.Id,RD.TotalMaterialTranAmount,PO.Id POId, PO.DocRefNo PODocRefNo,IR.DocRefNo
-                            ,P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-                            ,IR.GateEntryNo,C.Code Currency,POD.TransactionAmount
+                //var Sql = @"SELECT Convert(bit,0) Active,IR.Id,RD.TotalMaterialTranAmount,PO.Id POId, PO.DocRefNo PODocRefNo,IR.DocRefNo
+                //            ,P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+                //            ,IR.GateEntryNo,C.Code Currency,POD.TransactionAmount
+                //            FROM [TRN].[InventoryReceive] AS IR 
+                //            JOIN (SELECT SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,InventoryReceiveId,POId FROM [TRN].[InventoryReceiveDetail] GROUP BY InventoryReceiveId,POId) RD ON RD.InventoryReceiveId=IR.Id
+                //            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=RD.POId
+                //            JOIN(SELECT SUM(TransactionAmount) TransactionAmount,InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId)POD ON POD.InventoryReceiveId=PO.Id
+                //            JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                //            JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId
+                //            WHERE IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1 AND PO.PurchaseLCId='" + purchaseLCId + @"' 
+                //            AND IR.Id IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)";
+
+                string Sql = @"SELECT Convert(bit,0) Active,IR.Id,SUM(RD.TotalMaterialTranAmount) TotalMaterialTranAmount
+                            ,IR.DocRefNo,P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+                            ,IR.GateEntryNo,C.Code Currency
+                            ,PODocRefNo= STUFF((select distinct ','+PO.DocRefNo
+			                            from TRN.POGGRNMap PG 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
+			                            where PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,POId= STUFF((select distinct ','+PG.POId
+			                            FROM TRN.POGGRNMap PG 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                             FROM [TRN].[InventoryReceive] AS IR 
-                            JOIN (SELECT SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,InventoryReceiveId,POId FROM [TRN].[InventoryReceiveDetail] GROUP BY InventoryReceiveId,POId) RD ON RD.InventoryReceiveId=IR.Id
-                            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=RD.POId
-                            JOIN(SELECT SUM(TransactionAmount) TransactionAmount,InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId)POD ON POD.InventoryReceiveId=PO.Id
-                            JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                            JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId
-                            WHERE IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.VoucherId,'')<>'' AND IR.[Status]='Posting' AND IR.IsApproved=1 AND PO.PurchaseLCId='" + purchaseLCId + @"' 
-                            AND IR.Id IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)";
-
-
+                            LEFT JOIN [TRN].[InventoryReceiveDetail] RD ON RD.InventoryReceiveId=IR.Id
+                            LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                            LEFT JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId
+                            WHERE IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.VoucherId,'')<>'' 
+                            AND IR.[Status]='Posting' AND IR.IsApproved=1 AND  RD.POId IN (SELECT Id From TRN.PurchaseOrder Where PurchaseLCId='" + purchaseLCId + @"')
+                            AND IR.Id IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)
+                            GROUP BY IR.Id,IR.DocRefNo,P.UserName,IR.DocDate,IR.GateEntryNo,C.Code";
                 return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
@@ -1217,6 +1235,12 @@ namespace Aplos.Areas.Products.Controllers
             {
                 throw ex;
             }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetOtherAcptQtyValue(string POId, string PurchaseDocAcceptanceId)
+        {
+            return Json(_purchaseDocumentAcceptance.GetOtherAcptQtyValue(POId, PurchaseDocAcceptanceId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

@@ -499,6 +499,24 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost, Authorize]
+        public ActionResult ACBreakDownDataList(string ACID)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.ACBreakDownList(ACID);
+
+                return Json(new { ACBrDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpPost, Authorize]
         public ActionResult GetPurchaseLCGRNList(string PurchaseLCId)
         {
             try

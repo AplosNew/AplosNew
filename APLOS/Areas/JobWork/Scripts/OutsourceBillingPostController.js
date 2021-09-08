@@ -31,6 +31,9 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
             url: 'JobWork/OutSourceBillingPost/GetOutsourcingBillingNonPostData',
         }).then(function successCallback(response) {
             $scope.billingNonPostedList = response.data;
+            for (var i = 0; i < $scope.billingNonPostedList.length; i++) {
+                response.data[i].InvoiceDate = new Date($scope.billingNonPostedList[i].InvoiceDate);
+            }
            
         });
     };
@@ -134,8 +137,8 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
 
     $scope.Get = function (obj) {
         $scope.ModelNew = Object.assign({}, obj.data);
-        $scope.ModelNew.PostingDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
-        $scope.ModelNew.DocDate = obj.data.DocDate;
+        $scope.ModelNew.PostingDate = obj.data.InvoiceDate;
+        $scope.ModelNew.DocDate = obj.data.InvoiceDate;
         $scope.ModelNew.DocRefNo = obj.data.InvoiceNo;
         $scope.GetDetailData($scope.ModelNew.Id);
         $scope.GetOutsourcingBillingJV($scope.ModelNew.Id);
@@ -186,7 +189,7 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
             $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
     });
     $scope.Post = function () {
-        if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
+       // if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
 
         $http({
             method: 'POST',
