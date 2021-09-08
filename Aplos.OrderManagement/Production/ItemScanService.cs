@@ -56,7 +56,7 @@ namespace Library.Service.EmployeeServices
                 var _sql = @"select distinct PurposeId as Value,mp.UserName as Text 
                 from mst.MaterialMovementMaster m
                 left join hkp.MaterialMovementPurpose mp on mp.Id=m.PurposeId
-                where m.EntityId='"+ Entity+"'";
+                where m.EntityId='"+ Entity+ "'and mp.Active='1'";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)

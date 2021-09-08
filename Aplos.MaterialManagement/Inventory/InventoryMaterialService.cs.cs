@@ -1631,16 +1631,16 @@ namespace Library.MaterialManagement.Inventory
 			var companyParty = _companyPartyRepository.Query(r => r.PartyId == invReceive.PartyId && r.PlantId == plantId).Select().FirstOrDefault();
 			var sql = @"DECLARE @receiveId varchar(10)='" + receiveId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty.PartyAccountGroupId + @"',@countryId varchar(10)
 
-                            SELECT distinct IR.Id,IRD.Id AS InventoryReceiveDetailId, 'Vendor' AS OtherName, 'Cr' AS TrnType ,MM.MaterialGroupMasterId, NULL AS TaxCategoryId
-                            ,GLGeneralInfoId =case WHEN MM.IsAsset=0 THEN MGPGL.GLGeneralInfoId  ELSE FAG.VendorReconGLId END
-							,GLGeneralInfoCode =case WHEN MM.IsAsset=0 THEN GL.AccountCode  ELSE GLF.AccountCode END
-							,GLGeneralInfoName =case WHEN MM.IsAsset=0 THEN GL.UserName  ELSE GLF.UserName END
-							,BudgetMasterId =case WHEN MM.IsAsset=0 THEN MGPGL.BudgetMasterId  ELSE FAG.VendorReconBudgetMasterId END
-							,BudgetCode =case WHEN MM.IsAsset=0 THEN B.Code  ELSE BF.Code END
-							,BudgetName =case WHEN MM.IsAsset=0 THEN B.UserName  ELSE BF.UserName END
-							,ActivityId =case WHEN MM.IsAsset=0 THEN MGPGL.ActivityId  ELSE FAG.VendorReconActivityId END
-							,ActivityCode =case WHEN MM.IsAsset=0 THEN A.Code  ELSE AF.Code END
-							,ActivityName =case WHEN MM.IsAsset=0 THEN A.UserName  ELSE AF.UserName END
+                            SELECT distinct IR.Id,IRD.Id AS InventoryReceiveDetailId,ISNULL(PLC.IsAccepptanceFirst,0) IsAccepptanceFirst, 'Vendor' AS OtherName, 'Cr' AS TrnType ,MM.MaterialGroupMasterId, NULL AS TaxCategoryId
+                            ,GLGeneralInfoId =case WHEN MM.IsAsset=1 THEN FAG.VendorReconGLId WHEN ISNULL(PLC.IsAccepptanceFirst,0)=0 THEN MGPGL.GLGeneralInfoId  ELSE MGGL.ClearingAccountGLId  END
+							,GLGeneralInfoCode =case WHEN MM.IsAsset=1 THEN GLF.AccountCode WHEN ISNULL(PLC.IsAccepptanceFirst,0)=0 THEN GL.AccountCode  ELSE GLC.AccountCode  END
+							,GLGeneralInfoName =case WHEN MM.IsAsset=1 THEN GLF.UserName WHEN ISNULL(PLC.IsAccepptanceFirst,0)=0 THEN GL.UserName  ELSE GLC.UserName END
+							,BudgetMasterId =case WHEN MM.IsAsset=1 THEN FAG.VendorReconBudgetMasterId WHEN ISNULL(PLC.IsAccepptanceFirst,0)=0 THEN MGPGL.BudgetMasterId  ELSE MGGL.ClearingAccountBudgetMasterId END
+							,BudgetCode =case WHEN MM.IsAsset=1 THEN BF.Code WHEN ISNULL(PLC.IsAccepptanceFirst,0)=0 THEN B.Code  ELSE BC.Code END
+							,BudgetName =case WHEN MM.IsAsset=1 THEN BF.UserName WHEN ISNULL(PLC.IsAccepptanceFirst,0)=0 THEN B.UserName  ELSE BC.UserName END
+							,ActivityId =case WHEN MM.IsAsset=1 THEN FAG.VendorReconActivityId WHEN ISNULL(PLC.IsAccepptanceFirst,0)=0 THEN MGPGL.ActivityId  ELSE MGGL.ClearingAccountActivityId END
+							,ActivityCode =case WHEN MM.IsAsset=1 THEN AF.Code WHEN ISNULL(PLC.IsAccepptanceFirst,0)=0 THEN A.Code  ELSE AC.Code END
+							,ActivityName =case WHEN MM.IsAsset=1 THEN AF.UserName WHEN ISNULL(PLC.IsAccepptanceFirst,0)=0 THEN A.UserName  ELSE AC.UserName END
 							
 						FROM [TRN].[InventoryReceiveDetail] AS IRD 
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -1667,6 +1667,14 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.VendorReconBudgetMasterId= BMF.Id
 						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
 						LEFT JOIN [HKP].[Activity] AS AF ON FAG.VendorReconActivityId= AF.Id
+
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLC ON MGGL.ClearingAccountGLId=GLC.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMC ON MGGL.ClearingAccountBudgetMasterId= BMC.Id
+						LEFT JOIN [HKP].[Budget] AS BC ON BMC.BudgetId= BC.Id
+						LEFT JOIN [HKP].[Activity] AS AC ON MGGL.ClearingAccountActivityId= AC.Id
+
+						LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=IRD.POId
+						LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PO.PurchaseLCId
 
 						WHERE IRD.InventoryReceiveId=@receiveId";
 			return _sqlRepository.GetDataCollection(sql);

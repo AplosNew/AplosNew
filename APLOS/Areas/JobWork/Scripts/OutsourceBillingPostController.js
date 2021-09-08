@@ -16,7 +16,7 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
     $scope.GriddataMaster = [];
     $scope.path = 'JobWork/OutSourceBillingPost/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrl = $scope.path + 'OutSourceBillingPost';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "p.UserName"; $scope.search = "";
@@ -31,6 +31,9 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
             url: 'JobWork/OutSourceBillingPost/GetOutsourcingBillingNonPostData',
         }).then(function successCallback(response) {
             $scope.billingNonPostedList = response.data;
+            for (var i = 0; i < $scope.billingNonPostedList.length; i++) {
+                response.data[i].InvoiceDate = new Date($scope.billingNonPostedList[i].InvoiceDate);
+            }
            
         });
     };
@@ -65,6 +68,8 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
 
         Id: null
         , InvoiceDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy')
+        , DocDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy')
+        , PostingDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy')
         , CompanyGroupId: null
         , CompanyId: null
         , PlantId: null
@@ -128,17 +133,17 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
         , ResponsiblePerson: null
         , ByWhomEmployeeId: null
         , TransformationContractId: null
+        , VoucherTypeId:null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
 
     $scope.Get = function (obj) {
-        $scope.ModelNew = Object.assign({}, obj.data);
-        $scope.ModelNew.PostingDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
-        $scope.ModelNew.DocDate = obj.data.DocDate;
-        $scope.ModelNew.DocRefNo = obj.data.InvoiceNo;
-        $scope.GetDetailData($scope.ModelNew.Id);
-        $scope.GetOutsourcingBillingJV($scope.ModelNew.Id);
+        $scope.modelNew = Object.assign({}, obj.data);
+        $scope.GetDetailData($scope.modelNew.Id);
+        $scope.GetOutsourcingBillingJV($scope.modelNew.Id);
+        if (baseService.arrayLength($scope.voucherTypeList) === 1)
+            $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
         angular.element(document.querySelector('#OutSourceBillingpopUp')).modal('hide');
 
     }
@@ -186,7 +191,7 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
             $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
     });
     $scope.Post = function () {
-        if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
+       // if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
 
         $http({
             method: 'POST',

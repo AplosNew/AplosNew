@@ -1276,8 +1276,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	};
 	$scope.FilterList1234 = [];
 	$scope.detailSaveIssue = function () {
-
-
 		$scope.FilterList123New = [];
 		$scope.FilterList1234 = [];
 		//debugger;
@@ -1370,7 +1368,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
 							}
-
+						
 						}
 
 					}
@@ -2640,7 +2638,42 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
 				}
+			
+
+
+				//if ($scope.FilterList123[i].MaterialMasterId === $scope.ConvertedDataRowList.data.MaterialMasterId
+				//	&& $scope.FilterList123[i].ArticleId === $scope.ConvertedDataRowList.data.ArticleId
+				//	&& $scope.FilterList123[i].Skuvalue1 === $scope.ConvertedDataRowList.data.Skuvalue1
+				//	&& $scope.FilterList123[i].Skuvalue2 === $scope.ConvertedDataRowList.data.Skuvalue2
+				//	&& $scope.FilterList123[i].Skuvalue3 === $scope.ConvertedDataRowList.data.Skuvalue3
+				//	&& $scope.FilterList123[i].SalesOrderId === $scope.ConvertedDataRowList.data.SalesOrderId) {
+				//	if ($scope.FilterList123[i].TransactionUoMId != $scope.ConvertedDataRowList.data.TransactionUoMId) {
+				//		ShowResult('For same material UoM can not difference', 'failure');
+				//		return false;
+				//	}
+					
+
+
+
+				//}
+
+				var getRow1 = $filter("filter")($scope.FilterList123, { "MaterialMasterId": $scope.FilterList123[i].MaterialMasterId, "ArticleId": $scope.FilterList123[i].ArticleId, "BOQDFirstCharacteristicsValueId": $scope.FilterList123[i].BOQDFirstCharacteristicsValueId, "BOQDSecondCharacteristicsValueId": $scope.FilterList123[i].BOQDSecondCharacteristicsValueId, "BOQDThirdCharacteristicsValueId": $scope.FilterList123[i].BOQDThirdCharacteristicsValueId,'check':true });
+				if (getRow1.length > 1) {
+					for (var i12 = 0; i12 < getRow1.length; i12++) {
+						if (getRow1[i12].TransactionUoMId != $scope.ConvertedDataRowList.data.TransactionUoMId) {
+							ShowResult('For same material UoM can not difference', 'failure');
+							return false;
+						}
+					}
+
+				}
+				
 			}
+
+			
+
+
+
 			//gridObj.refreshContent(true);
 			//gridObjUpdate.refreshContent(true);
 

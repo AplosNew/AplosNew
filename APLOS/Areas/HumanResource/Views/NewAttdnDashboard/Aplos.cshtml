@@ -174,15 +174,17 @@
                                 <th>WO/H/CO</th>
                                 <th>Leave</th>
                                 <th>Other</th>
-                                </tr>
+                                <th>INVM</th>
+                                <th>OVM</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="x in list">
                                 <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="setIndex(x);GetDetailDrillDownTableJS(x)">{{x.UserName}}</td>
                                 <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'BB')">{{x.BB}}</td>
-                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem"  ng-click="TableClick(x,'OnRoll')">{{x.OnRoll}}</td>
-                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem"  ng-click="TableClick(x,'OTIN')">{{x.OTIN}}</td>
-                                <td style="padding:2px; cursor:pointer;text-align:center"  class="hoverItem" ng-click="TableClick(x,'InStat')">{{x.InStat}}</td>
+                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'OnRoll')">{{x.OnRoll}}</td>
+                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'OTIN')">{{x.OTIN}}</td>
+                                <td style="padding:2px; cursor:pointer;text-align:center" class="hoverItem" ng-click="TableClick(x,'InStat')">{{x.InStat}}</td>
                                 <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'EarlyIn')">{{x.EarlyIn}}</td>
                                 <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'LateIn')">{{x.LateIn}}</td>
                                 <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'InMissing')">{{x.InMissing}}</td>
@@ -190,6 +192,8 @@
                                 <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'DayStatus')">{{x.DayStatus}}</td>
                                 <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'Leave')">{{x.Leave}}</td>
                                 <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'Other')">{{x.Other}}</td>
+                                <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'INVM')">{{x.INVM}}</td>
+                                <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'OVM')">{{x.OVM}}</td>
                             </tr>
                         </tbody>
                     </table>
