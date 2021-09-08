@@ -184,7 +184,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingDetailData?masterId=' + masterId
         }).then(function successCallback(response) {
             $scope.JWPOList = response.data;
-
         });
     };
 
