@@ -21,7 +21,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class CreditLimitOpeningController : BaseController
     {
-        string TableName = "OTUpdateConfiguration";
+        string TableName = "CreditLimitOpening";
      
         #region Constructor
 
@@ -56,11 +56,30 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetData()
+        {
+            try {
+                string sql = @"select d.UserName as Designation,c.DailyLimit,c.MonthlyLimit,
+                d.Id as DesignationId,c.Id as Id,d.ShortName as DesgShortName
+                from hkp.Designation d left join creditlimitopening c on d.Id=c.designationId
+                where Active=1";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+
+
         private string GetPK()
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OTUpdateConfiguration", out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), TableName, out sID);
             return sID;
         }
 
@@ -130,8 +149,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             dr["GroupID"] = identity.CompanyGroupId;
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-           
             dt.Rows.Add(dr);
         }
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
@@ -152,7 +169,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             dr["GroupID"] = identity.CompanyGroupId;
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
        
