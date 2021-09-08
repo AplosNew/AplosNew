@@ -150,7 +150,7 @@ namespace Library.Service.EmployeeServices
                         dr["ShiftId"] = item.ShiftId;
                         dr["EmployeeServiceCategoryId"] = item.EmployeeServiceCategoryId;
                         dr["Chargeable"] = item.Chargeable;
-                        dr["IsProcessed"] = item.IsProcessed;
+                        dr["IsProcessed"] = false;
                         dr["From"] = item.From;
                         dr["To"] = item.To;
                         dr["Quantity"] = item.Quantity;
@@ -159,7 +159,7 @@ namespace Library.Service.EmployeeServices
                         dr["Amount"] = item.Amount;
 
                         dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedDate"] = DateTime.Now.ToString();
                         dr["AddedFromIP"] = item.AddedFromIP;
 
                         dsMaster.Tables[0].Rows.Add(dr);
