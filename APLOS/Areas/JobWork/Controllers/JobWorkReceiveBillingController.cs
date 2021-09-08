@@ -159,7 +159,7 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN [SCS].[Currency] AS CU ON tc.CurrencyId=CU.Id
 							LEFT JOIN dbo.PurchaseLC LC ON LC.Id=TC.PurchaseLCId
 							LEFT JOIN dbo.[Contract] CN ON CN.Id=TC.ContractId 
-                            Where RB.PlantId='" + identity.PlantId + "'";
+                            Where RB.PlantId='" + identity.PlantId + "' ORDER BY RB.AddedDate DESC";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -181,7 +181,8 @@ namespace Aplos.Areas.JobWork.Controllers
 	                        ,ART.StandardName Article,CTC.FirstCharacteristicsId,FC.UserName AS SKU1,CTC.FirstCharacteristicsValueId
 	                        ,FCV.UserName AS FirstCharacteristicsValue,CTC.SecondCharacteristicsId,SC.UserName AS SKU2,CTC.SecondCharacteristicsValueId
 	                        ,SCV.UserName AS SecondCharacteristicsValue,CTC.ThirdCharacteristicsId,TC.UserName AS SKU3
-	                        ,CTC.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,SUM(IRD.TransactionQty) TransactionQty,IRD.MaterialFor
+	                        ,CTC.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,IRD.MaterialFor
+	                         ,CTC.Quantity OrderQty,SUM(IRD.TransactionQty) ReceiveQty,ISNULL(SUM(B.BillingQty),0) OtherBillingQty,0 BillingQty,(SUM(IRD.TransactionQty)-ISNULL(SUM(B.BillingQty),0)) BalanceQty, CTC.RatePerUnit MaterialTranRate
                         FROM TRN.InventoryReceiveDetail IRD
                         JOIN [TRN].[InventoryReceive] IR ON IR.Id = IRD.InventoryReceiveId
                         JOIN [dbo].[JWTransformationPurchaseOrder] JWPO ON IR.TransformationContractId = JWPO.Id
@@ -194,10 +195,11 @@ namespace Aplos.Areas.JobWork.Controllers
                         LEFT JOIN HKP.CharacteristicsValue AS FCV ON CTC.FirstCharacteristicsValueId = FCV.Id
                         LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
-                        WHERE JWTCMId = '"+ contractId + @"'	AND InventoryReceiveId "+ inventoryReceiveIds + @" AND IRD.MaterialFor = 'JWOUTPUTMaterial'
+                        LEFT JOIN dbo.JWReceiveBillingDetail B ON B.JWTransformationContractChildId=CTC.Id
+                        WHERE JWTCMId = '"+ contractId + @"' AND InventoryReceiveId "+ inventoryReceiveIds + @" AND IRD.MaterialFor = 'JWOUTPUTMaterial'
                         GROUP BY CTC.Id,CTC.MaterialMasterId,MM.UserName,ART.Id,ART.StandardName,CTC.FirstCharacteristicsId,FC.UserName,CTC.FirstCharacteristicsValueId
                         ,FCV.UserName,CTC.SecondCharacteristicsId,SC.UserName,CTC.SecondCharacteristicsValueId,SCV.UserName,CTC.ThirdCharacteristicsId
-                        ,TC.UserName,CTC.ThirdCharacteristicsValueId,TCV.UserName,IRD.MaterialFor";
+                        ,TC.UserName,CTC.ThirdCharacteristicsValueId,TCV.UserName,CTC.Quantity, CTC.RatePerUnit,IRD.MaterialFor";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
