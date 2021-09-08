@@ -512,7 +512,14 @@ namespace Aplos.Areas.JobWork.Controllers
                 }
                
                 clsStaticInfo objApp = new clsStaticInfo();
+               
                 objApp.SaveDataSets(_vdataset, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
+                ConnectionManager.DAL.ConManager objCon;
+
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //DataSet dsMaster;
+                //objCon.OpenDataSetThroughAdapter("select * from  dbo.JWReceiveBilling  Where Id='" + outsourceBillingId + "'", out dsMaster, false, "1");
+                //EditRow(dsMaster.Tables[0].Rows[0], master);
                 return voucher.VoucherNo;
             }
             catch (Exception ex)
