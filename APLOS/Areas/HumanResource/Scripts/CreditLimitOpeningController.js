@@ -13,25 +13,25 @@ function CreditLimitOpeningController(cboService, commonMessage, $scope, $rootSc
             dataType: 'JSON'
         }).then(function successCallback(response) {          
             $scope.ModelList = response.data;
-            ClearFields();           
+
         });
     }
     $scope.getData();
 
-    //$scope.ModelTemp = {
-    //    Id: null,       
-    //    DailyLimit: null,
-    //    MonthlyLimit: null,
-    //    DesignationId: null      
-    //};
-    //$scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    $scope.ModelTemp = {
+        Id: null,       
+        DailyLimit: null,
+        MonthlyLimit: null,
+        DesignationId: null      
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
      
     $scope.Save = function () {
 
         $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-            data: { 'data': $scope.ModelList },
+            data: { 'data': $scope.ModelNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -39,7 +39,6 @@ function CreditLimitOpeningController(cboService, commonMessage, $scope, $rootSc
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields();
                     $scope.getData();
 
                 }
@@ -47,14 +46,6 @@ function CreditLimitOpeningController(cboService, commonMessage, $scope, $rootSc
                 ShowResult(response.data.Message, 'failure');
        
         }
-    };
-        
-    $scope.Clear = function () {
-        ClearFields();
-        return true;
-    };
-
-    function ClearFields() {       
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);       
-    }
+    };       
+   
 }

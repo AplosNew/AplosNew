@@ -2,6 +2,7 @@
 
 using Aplos.Controllers;
 using Aplos.Properties;
+using bplib;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
@@ -38,23 +39,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult Aplos()
         {
             return View();
-        }
-
-
-        [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey ;
-
-
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
+        }       
 
         [HttpPost, Authorize]
         public ActionResult GetData()
@@ -73,16 +58,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
-
-
-        private string GetPK()
-        {
-            string sID = string.Empty;
-            bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), TableName, out sID);
-            return sID;
-        }
-
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
         {
@@ -93,9 +68,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                
-                con.OpenDataSetThroughAdapter("select * from dbo.OTUpdateConfiguration where GroupID='" +identity.CompanyGroupId + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Company Group already exists!!!");
+                //con.OpenDataSetThroughAdapter("select * from dbo.OTUpdateConfiguration where GroupID='" +identity.CompanyGroupId + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("Same Company Group already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -104,10 +79,12 @@ namespace Aplos.Areas.HumanResource.Controllers
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
+                  
+                    clsGenID genid = new clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "OT" + GetPK();
+
+                    data["Id"] = "CLO" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
