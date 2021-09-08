@@ -38,27 +38,32 @@ namespace Library.OrderManagement.LcNavigation
         private string PurchaseLCSearchByDateSql(string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @" select
+            return @"select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
-                        FORMAT(PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
+                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
                         P.UserName as  Vendor,
-                        PL.Amount as Value,
+                        ISNULL(PL.Amount,0) [Value],
                         Cur.Code as Currency,
                         PL.LCANo,PL.Type as LCType,
                         PL.Tenure,
                         PL.BenificiaryBank                 
-                        ,PO.MaterialPOAmount						
-						,PO.ServicePOAmount
-						,PO.JWPOAmount
-						,PO.POCount
+                        ,ISNULL(PO.MaterialPOAmount,0) MaterialPOAmount		
+						,ISNULL(PO.ServicePOAmount,0) ServicePOAmount
+						,ISNULL(PO.JWPOAmount,0) JWPOAmount
+						,ISNULL(grn.GRNTotalAmount,0) GRNValue
+						,variance=ISNULL(CASE 
+						 WHEN po.MaterialPOAmount=0 AND PO.ServicePOAmount=0 THEN (PO.JWPOAmount -grn.GRNTotalAmount) 
+						 WHEN po.ServicePOAmount=0 AND PO.JWPOAmount=0 THEN (PO.MaterialPOAmount -grn.GRNTotalAmount)
+						 WHEN po.MaterialPOAmount=0 AND PO.JWPOAmount=0 THEN (PO.ServicePOAmount -grn.GRNTotalAmount)
+						 END,0)
+						,ISNULL(PO.POCount,0) POCount
                         ,PL.AddedDate
                         ,Isnull(ac.AcceptanceValue,0) AcceptanceValue
 						,Isnull(invpy.InvPayment,0) SetOff 
 						,Isnull(Loan.Amount,0) Loan
 						,Isnull(LoanSetOff.LoanSetOff,0) LoanSetOff
-						,Isnull(ac.AcceptanceCount,0) AcceptanceCount
-						,ISNULL(grn.GRNTotalAmount,0) as GRNValue
+						,ISNULL(ac.AcceptanceCount,0) AcceptanceCount						
                         ,ISNULL(grn.GRNCount,0) GRNCount
 	                    ,IsClosed=case when PL.Status='Active' then 'No' else 'Yes' END
 						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END ,
@@ -66,10 +71,9 @@ namespace Library.OrderManagement.LcNavigation
                         cus.Customer,
                         PL.Id as LCId
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
-						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
-						--,variance=po.POAmount-grn.GRNTotalAmount
-						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
-										
+						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate						
+						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END				
+					
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
                         left outer join HKP.Bank as B on OBank.BankId=b.Id
@@ -98,9 +102,11 @@ namespace Library.OrderManagement.LcNavigation
 								   select po.PurchaseLCId,0 AS MaterialPOAmount,0 AS JWPOAmount,POD.Amount AS ServicePOAmount, po.Id
 								 from trn.ServicePOMaster PO 
                                   inner JOin trn.ServicePODetail POD ON POD.ServicePOMasterId=po.Id
+
                                      
 									  ) AS K group by k.PurchaseLCId
 									  ) AS PO on PO.PurchaseLCId=pl.Id
+
                         left join(
 									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from TRN.purchaseorder as po 
 									inner join TRN.InventoryReceiveDetail as g on g.POId=po.Id
@@ -110,7 +116,6 @@ namespace Library.OrderManagement.LcNavigation
 									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[JWTransformationPurchaseOrder] as po 
 									inner join TRN.InventoryReceiveDetail as g on g.JWTCMId=po.Id
 									group by po.PurchaseLCId
-
 								   union 
 								   select  po.PurchaseLCId as LCId,sum(g.Amount) as GRNTotalAmount,count(distinct g.ServicePOMasterId) as GRNCount from  trn.ServicePOMaster PO 
 									inner join TRN.ServiceAcknowledgementDetail as g on g.ServicePOMasterId=po.Id
