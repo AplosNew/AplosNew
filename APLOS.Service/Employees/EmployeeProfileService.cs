@@ -2678,7 +2678,7 @@ namespace Library.Service.Employees
 
                 }
                 var dtEmp = GetMultipleEmployeeInfoById(empId, plantId, langID, tempId); // Get Employee Data
-                var Templatefile = GetFilePath(plantId, langName, reportType);
+                var Templatefile = GetIdCardFilePath(plantId, langName, reportType, tempId);
                 if (Templatefile.Count > 0)
                 {
                     fileName = Templatefile["TemplateFileName"].ToString();
@@ -4375,7 +4375,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                 var dtEmp = GetEmployeeById(empId, plantId, empType, langID, tempId);
                 var dtEmpWorkType = GetEmployeeWorkType(workTypeId, langID);
 
-                var Templatefile = GetFilePath(plantId, langName, reportType);
+                var Templatefile = GetIdCardFilePath(plantId, langName, reportType, tempId);
                 if (Templatefile.Count > 0)
                 {
                     fileName = Templatefile["TemplateFileName"].ToString();
@@ -4399,15 +4399,27 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dtEmp.Rows[0]["BloodGroup"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PermanentAddress", dtEmp.Rows[0]["ParmanentAddress"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PresentAddress", dtEmp.Rows[0]["PresentAddress"].ToString(), "Kalpurush", 8);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", cnDgt(dtEmp.Rows[0]["MobileNo"].ToString(), langName), "Kalpurush", 8);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dtEmp.Rows[0]["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", cnDgt(dtEmp.Rows[0]["NationalID"].ToString(), langName), "Kalpurush", 8);
+                       
+                        
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Plant", dtEmp.Rows[0]["PlantName"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Name", dtEmp.Rows[0]["EmployeeName"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherOrSpouse", dtEmp.Rows[0]["FatherOrSpouse"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherName", dtEmp.Rows[0]["FatherName"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "DESIG", dtEmp.Rows[0]["DesignationName"].ToString(), "Kalpurush", 8);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", cnDgt(dtEmp.Rows[0]["EmployeeCode"].ToString(), langName), "Kalpurush", 8);
+                        if (langName == "Hindi")
+                        {
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", dtEmp.Rows[0]["MobileNo"].ToString(), "Kalpurush", 8);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo",dtEmp.Rows[0]["EmrCntPer1CellNo"].ToString(), "Kalpurush", 8);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", dtEmp.Rows[0]["EmployeeCode"].ToString(), "Kalpurush", 8);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", dtEmp.Rows[0]["NationalID"].ToString(), "Kalpurush", 8);
+                        }
+                        else
+                        {
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", cnDgt(dtEmp.Rows[0]["MobileNo"].ToString(), langName), "Kalpurush", 8);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dtEmp.Rows[0]["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", cnDgt(dtEmp.Rows[0]["EmployeeCode"].ToString(), langName), "Kalpurush", 8);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", cnDgt(dtEmp.Rows[0]["NationalID"].ToString(), langName), "Kalpurush", 8);
+                        }
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Department", dtEmp.Rows[0]["Department"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Section", dtEmp.Rows[0]["Section"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), "Kalpurush", 8);
@@ -4419,14 +4431,23 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "CompanyName", dtEmp.Rows[0]["CompanyName"].ToString(), "Kalpurush", 8);
 
 
-                        var doj = GetFormatedDate(dtEmp.Rows[0]["DateOfJoin"].ToString(), langName);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOJ", doj, "Kalpurush", 8);
+                        if (langName== "Hindi")
+                        {
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOJ", dtEmp.Rows[0]["DateOfJoin"].ToString(), "Kalpurush", 8);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOB", dtEmp.Rows[0]["DateOfBirth"].ToString(), "Kalpurush", 8);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", Convert.ToDateTime(issuDate).ToString("dd-MMM-yyyy"), "Kalpurush", 8); 
+                        }
+                        else
+                        {
+                            var doj = GetFormatedDate(dtEmp.Rows[0]["DateOfJoin"].ToString(), langName);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOJ", doj, "Kalpurush", 8);
 
-                        var dob = GetFormatedDate(dtEmp.Rows[0]["DateOfBirth"].ToString(), langName);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOB", dob, "Kalpurush", 8);
+                            var dob = GetFormatedDate(dtEmp.Rows[0]["DateOfBirth"].ToString(), langName);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOB", dob, "Kalpurush", 8);
 
-                        var issudate = GetFormatedDate(Convert.ToDateTime(issuDate).ToString("dd-MMM-yyyy"), langName);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", issudate, "Kalpurush", 8);
+                            var issudate = GetFormatedDate(Convert.ToDateTime(issuDate).ToString("dd-MMM-yyyy"), langName);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", issudate, "Kalpurush", 8);
+                        }
 
                         try
                         {
@@ -4495,6 +4516,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
             }
 
         }
+
         private IPresentation CreateIDCardSheetAllPpt(IPresentation presentation, DataRow dr, string sheetHeader, string sheetName, string empId, string companyGroupId, string companyId, string plantId, string tempId, string empType, string reportType, string issuDate, string workTypeId, string langName, bool IsCurrentIssueDate)
         {
             try
@@ -4506,16 +4528,27 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Plant", dr["PlantName"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dr["BloodGroup"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PermanentAddress", dr["ParmanentAddress"].ToString(), "Kalpurush", 8);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", cnDgt(dr["CellPhnNo"].ToString(), langName), "Kalpurush", 8);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dr["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", cnDgt(dr["NationalID"].ToString(), langName), "Kalpurush", 8);
+                    
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherOrSpouse", dr["FatherOrSpouse"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherName", dr["FatherName"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PresentAddress", dr["PresentAddress"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dr["BloodGroup"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Name", dr["EmployeeName"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "DESIG", dr["DesignationName"].ToString(), "Kalpurush", 8);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", cnDgt(dr["EmployeeCode"].ToString(), langName), "Kalpurush", 8);
+                    if (langName == "Hindi")
+                    {
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", dr["NationalID"].ToString(), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", dr["CellPhnNo"].ToString(), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", dr["EmrCntPer1CellNo"].ToString(), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", dr["EmployeeCode"].ToString(), "Kalpurush", 8); 
+                    }
+                    else
+                    {
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", cnDgt(dr["NationalID"].ToString(), langName), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", cnDgt(dr["CellPhnNo"].ToString(), langName), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", cnDgt(dr["EmrCntPer1CellNo"].ToString(), langName), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", cnDgt(dr["EmployeeCode"].ToString(), langName), "Kalpurush", 8);
+                    }
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Department", dr["Department"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Section", dr["Section"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "WorkType", dr["EmployeeWorkType"].ToString(), "Kalpurush", 8);
@@ -4524,24 +4557,47 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Grade", dr["Grade"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Line", dr["Line"].ToString(), "Kalpurush", 8);
 
-                    var doj = GetFormatedDate(dr["DOJ"].ToString(), langName);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOJ", doj, "Kalpurush", 8);
+                    if (langName == "Hindi")
+                    {
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOJ", dr["DOJ"].ToString(), "Kalpurush", 8);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOB", dr["DateOfBirth"].ToString(), "Kalpurush", 8); 
+                    }
+                    else
+                    {
+                        var doj = GetFormatedDate(dr["DOJ"].ToString(), langName);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOJ", doj, "Kalpurush", 8);
 
-                    var dob = GetFormatedDate(dr["DateOfBirth"].ToString(), langName);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOB", dob, "Kalpurush", 8);
+                        var dob = GetFormatedDate(dr["DateOfBirth"].ToString(), langName);
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOB", dob, "Kalpurush", 8);
+                    }
 
                     if (IsCurrentIssueDate)
                     {
-                        issuDate = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
-                        var issudate = GetFormatedDate(Convert.ToDateTime(issuDate).ToString("dd-MMM-yyyy"), langName);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", issudate, "Kalpurush", 8);
+                        if (langName == "Hindi")
+                        {
+                            issuDate = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", issuDate, "Kalpurush", 8); 
+                        }
+                        else
+                        {
+                            issuDate = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
+                            var issudate = GetFormatedDate(Convert.ToDateTime(issuDate).ToString("dd-MMM-yyyy"), langName);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", issudate, "Kalpurush", 8);
+                        }
                     }
                     else
                     {
                         if (!string.IsNullOrEmpty(dr["IssueDate"].ToString()))
                         {
-                            var issudate = GetFormatedDate(Convert.ToDateTime(dr["IssueDate"].ToString()).ToString("dd-MMM-yyyy"), langName);
-                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", issudate, "Kalpurush", 8);
+                            if (langName == "Hindi")
+                            {
+                                ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", Convert.ToDateTime(dr["IssueDate"].ToString()).ToString("dd-MMM-yyyy"), "Kalpurush", 8); 
+                            }
+                            else
+                            {
+                                var issudate = GetFormatedDate(Convert.ToDateTime(dr["IssueDate"].ToString()).ToString("dd-MMM-yyyy"), langName);
+                                ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", issudate, "Kalpurush", 8);
+                            }
                         }
                     }
 
@@ -5427,6 +5483,13 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
             var sql = @"SELECT Id,TemplateFileName FROM SCS.RptConfigTemplate WHERE  Language='" + pkId + "'  AND PlantId='" + plantId + "' and Type='" + reportType + "'";
             return _sqlRepository.GetData(sql);
         }
+
+        public Dictionary<string, object> GetIdCardFilePath(string plantId, string pkId, string reportType, string tempId)
+        {
+            var sql = @"SELECT Id,TemplateFileName FROM SCS.RptConfigTemplate WHERE  Language='" + pkId + "'  AND PlantId='" + plantId + "' and Type='" + reportType + "' AND Id='"+ tempId + "'";
+            return _sqlRepository.GetData(sql);
+        }
+
 
         public Dictionary<string, object> GetAppointmentFilePath(string plantId, string Language, string pkId, string reportType)
         {
