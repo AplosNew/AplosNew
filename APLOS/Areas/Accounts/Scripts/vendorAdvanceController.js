@@ -239,7 +239,7 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
     $scope.getTaxCodeByTaxYear = function (date) {
         $http({
             method: "get",
-            url: "accounts/TaxCode/GetAdditionalTaxCbo?postingDate=" + $filter("dateFiltering")(date)
+            url: "accounts/TaxCode/GetOutputTDSTaxCodeCbo?postingDate=" + $filter("dateFiltering")(date)
         }).then(
             function successCallback(response) {
                 if (response.data.Error === true) {
@@ -861,7 +861,7 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
         }
         else {
             $scope.advanceTax.TaxName = $.grep($scope.taxCodCboList, function (item) {
-                return item.Value === $scope.advanceTax.TaxCodeId;
+                return item.Id === $scope.advanceTax.TaxCodeId;
             })[0].Text;
             $scope.advanceTaxesList.push($scope.advanceTax);
             $scope.advanceTax = {};
