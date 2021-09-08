@@ -249,7 +249,9 @@
                         <div class="col-xs-12 col-sm-4">
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">LC Amount</label>
-                                <label class="col-sm-8 control-label">{{productNew.LCAmount}} {{PurchaseDocAcceptance.CurrencyName}}</label>
+                                <label class="col-sm-8 control-label">{{productNew.LCAmount | number:2}} {{PurchaseDocAcceptance.CurrencyName}}</label>
+                                <label class="col-sm-4 control-label">Total Acpt. Amount</label>
+                                <label class="col-sm-8 control-label">{{TotalAcptValue| number:2}} {{PurchaseDocAcceptance.CurrencyName}}</label>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Customer</label>
@@ -618,6 +620,7 @@
                                             <th>Total PO Value</th>
                                             <th>Total Accep. Value</th>
                                             <th>GRN Qty</th>
+                                            <th>Total GRN Value</th>
                                             <th ng-hide="false">Other Acceptance Qty</th>
                                             <th>Current Acceptance Qty</th>
                                             <th ng-hide="false">Balance Qty</th>
@@ -648,6 +651,7 @@
                                             <td class="text-right">{{x.TotalPOValue| number:2}}</td>
                                             <td class="text-right">{{x.TotalAcptValue| number:2}}</td>
                                             <td class="text-right">{{x.GRNRcvQty| number:2}}</td>
+                                            <td class="text-right">{{x.TotalGRNValue| number:2}}</td>
                                             <td class="text-right">{{x.Otherqty| number:2}}</td>
                                             <td class="text-right">
                                                 <input type="text" n-decimals="2" class="form-control text-right" ng-change="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="!x.Active"*@>
@@ -681,6 +685,7 @@
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalPOValue'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalAcptValue'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'GRNRcvQty'| number:2 }}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalGRNValue'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Otherqty' | number:2}}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TransactionQty'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Balance'| number:2 }}</strong></td>
