@@ -48,7 +48,11 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"SELECT RB.*,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate
+                string sql = @"SELECT RB.Id,RB.PlantId,RB.JWTransformationPurchaseOrderId,RB.InvoiceNo,RB.InvoiceNo DocRefNo
+			,FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') InvoiceDate
+			,FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') PostingDate,FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') DocDate
+			,RB.VoucherId,RB.BillingRate,RB.BillingRate CompanyCurrencyRate
+			,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate
 			                ,FORMAT(tc.[Time],'hh:mm tt')[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
 			                FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
 			                e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency
@@ -398,18 +402,18 @@ namespace Aplos.Areas.JobWork.Controllers
 
 
         [HttpPost]
-        public JsonResult CreateFixedAssetDisposePost(string outsourceBillingId,VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        public JsonResult OutSourceBillingPost(string outsourceBillingId,VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
            
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            InsertFixedAssetDisposePosting(outsourceBillingId,voucherVM, voucherDetailVMList);
+            InsertOutSourceBillingPost(outsourceBillingId,voucherVM, voucherDetailVMList);
             return Json(new { Message = AplosMessage.Insert });
         }
 
-        public string InsertFixedAssetDisposePosting(string outsourceBillingId,VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList )
+        public string InsertOutSourceBillingPost(string outsourceBillingId,VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList )
         {
             try
             {
@@ -506,9 +510,32 @@ namespace Aplos.Areas.JobWork.Controllers
                         }, ref _crvDetailCurrencyData);
                     }
                 }
+
+                ConnectionManager.DAL.ConManager objCon;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                DataSet dsBillMaster;
+                objCon.OpenDataSetThroughAdapter("select * from dbo.JWReceiveBilling Where Id='" + outsourceBillingId + "'", out dsBillMaster, false, "1");
+
+                DataView dv = new DataView(dsBillMaster.Tables[0]);
+                dv.RowFilter = "Id='" + outsourceBillingId + "'";
                
+                if (dv.Count > 0)
+                {
+                    DataRow drmo = dv[0].Row;
+                    drmo.BeginEdit();
+
+                    drmo["VoucherId"] = voucher.Id;
+                    drmo["UpdatedBy"] = voucher.AddedBy;
+                    drmo["UpdatedDate"] = DateTime.Now.ToString();
+                    drmo["UpdatedFromIP"] = voucher.AddedFromIP;
+                    drmo.EndEdit();
+                }
+
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
+                objApp.SaveDataSets(_vdataset, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, dsBillMaster);
+               
+
+                
                 return voucher.VoucherNo;
             }
             catch (Exception ex)

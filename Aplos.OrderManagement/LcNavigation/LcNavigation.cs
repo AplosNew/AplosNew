@@ -38,27 +38,32 @@ namespace Library.OrderManagement.LcNavigation
         private string PurchaseLCSearchByDateSql(string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @" select
+            return @"select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
-                        FORMAT(PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
+                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
                         P.UserName as  Vendor,
-                        PL.Amount as Value,
+                        ISNULL(PL.Amount,0) [Value],
                         Cur.Code as Currency,
                         PL.LCANo,PL.Type as LCType,
                         PL.Tenure,
                         PL.BenificiaryBank                 
-                        ,PO.MaterialPOAmount						
-						,PO.ServicePOAmount
-						,PO.JWPOAmount
-						,PO.POCount
+                        ,ISNULL(PO.MaterialPOAmount,0) MaterialPOAmount		
+						,ISNULL(PO.ServicePOAmount,0) ServicePOAmount
+						,ISNULL(PO.JWPOAmount,0) JWPOAmount
+						,ISNULL(grn.GRNTotalAmount,0) GRNValue
+						,variance=ISNULL(CASE 
+						 WHEN po.MaterialPOAmount=0 AND PO.ServicePOAmount=0 THEN (PO.JWPOAmount -grn.GRNTotalAmount) 
+						 WHEN po.ServicePOAmount=0 AND PO.JWPOAmount=0 THEN (PO.MaterialPOAmount -grn.GRNTotalAmount)
+						 WHEN po.MaterialPOAmount=0 AND PO.JWPOAmount=0 THEN (PO.ServicePOAmount -grn.GRNTotalAmount)
+						 END,0)
+						,ISNULL(PO.POCount,0) POCount
                         ,PL.AddedDate
                         ,Isnull(ac.AcceptanceValue,0) AcceptanceValue
 						,Isnull(invpy.InvPayment,0) SetOff 
 						,Isnull(Loan.Amount,0) Loan
 						,Isnull(LoanSetOff.LoanSetOff,0) LoanSetOff
-						,Isnull(ac.AcceptanceCount,0) AcceptanceCount
-						,ISNULL(grn.GRNTotalAmount,0) as GRNValue
+						,ISNULL(ac.AcceptanceCount,0) AcceptanceCount						
                         ,ISNULL(grn.GRNCount,0) GRNCount
 	                    ,IsClosed=case when PL.Status='Active' then 'No' else 'Yes' END
 						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END ,
@@ -66,10 +71,9 @@ namespace Library.OrderManagement.LcNavigation
                         cus.Customer,
                         PL.Id as LCId
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
-						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
-						--,variance=po.POAmount-grn.GRNTotalAmount
-						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
-										
+						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate						
+						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END				
+					
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
                         left outer join HKP.Bank as B on OBank.BankId=b.Id
@@ -98,9 +102,11 @@ namespace Library.OrderManagement.LcNavigation
 								   select po.PurchaseLCId,0 AS MaterialPOAmount,0 AS JWPOAmount,POD.Amount AS ServicePOAmount, po.Id
 								 from trn.ServicePOMaster PO 
                                   inner JOin trn.ServicePODetail POD ON POD.ServicePOMasterId=po.Id
+
                                      
 									  ) AS K group by k.PurchaseLCId
 									  ) AS PO on PO.PurchaseLCId=pl.Id
+
                         left join(
 									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from TRN.purchaseorder as po 
 									inner join TRN.InventoryReceiveDetail as g on g.POId=po.Id
@@ -110,7 +116,6 @@ namespace Library.OrderManagement.LcNavigation
 									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[JWTransformationPurchaseOrder] as po 
 									inner join TRN.InventoryReceiveDetail as g on g.JWTCMId=po.Id
 									group by po.PurchaseLCId
-
 								   union 
 								   select  po.PurchaseLCId as LCId,sum(g.Amount) as GRNTotalAmount,count(distinct g.ServicePOMasterId) as GRNCount from  trn.ServicePOMaster PO 
 									inner join TRN.ServiceAcknowledgementDetail as g on g.ServicePOMasterId=po.Id
@@ -435,6 +440,23 @@ order by a.PODate desc";
 
         }
 
+        public List<Dictionary<string, object>> ACBreakDownList(string ACID)
+        {
+
+            try
+            {
+                string sql = ACBreakDownSql(ACID);
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+
 
         private string PurchaseLCPOSql(string PurchaseLCId)
         {
@@ -640,6 +662,18 @@ order by a.PODate desc";
 							) A where A.Id='"+GRNID+@"' and A.POId<>''";
         }
 
+        private string ACBreakDownSql(string ACID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @" select PA.Id,isnull(PAD.POId,'') POId,sum( PAD.TotalMaterialTranAmount ) AcceptanceValue
+							,Format(PA.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate from trn.PurchaseDocAcceptance PA 
+							left outer join trn.PurchaseDocAcceptanceDetail  PAD on PAD.PurchaseDocAcceptanceId=PA.Id
+							left outer join trn.PurchaseOrder PO on PO.id=PAD.POId
+							where pA.Id='"+ACID+@"' and pAd.POId<>''
+							group by PA.Id,PAD.POId,PA.AcceptanceDate";
+        }
+
+
 
         public List<Dictionary<string, object>> GetPurchaseLCGRNList(string PurchaseLCId)
         {
@@ -768,27 +802,37 @@ where xIRD.ServiceAcknowledgementMasterId=gn.GRNNo for xml path('') ), 1, 1, '')
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"select
-PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' ) as AcceptanceDate
-,Format(PO.PODate,'dd-MMM-yyyy') PODate,PO.Id PONo
-                        ,c.Code as Currency,PA.AcceptanceAmount AcceptanceValue,SetOff.InvPayment SetOffValue
+PL.Id as PurchaseLCId,AC.AcceptanceDate,AC.AcceptanceNo,AC.AcceptanceValue,AC.PODate
+,c.Code as Currency,SetOff.InvPayment SetOffValue,AC.ACID
+--,sum(PA.AcceptanceAmount) AcceptanceValue
+,PONo=STUFF((select distinct ','+xPO.Id from
+						trn.PurchaseOrder AS xPO
+						Left outer JOIN trn.PurchaseDocAcceptanceDetail AS xPD ON xPD.POId=xPO.Id
+						where xPD.PurchaseDocAcceptanceId=AC.ACID for xml path('') ), 1, 1, '')
+
 						from PurchaseLC as PL
 						join SCS.Currency as c on PL.CurrencyId=c.Id
-						left outer join trn.PurchaseDocAcceptance as PA on PA.PurchaseLCId=PL.Id
+						left outer join (
+						select PA.PurchaseLCId,PA.AcceptanceAmount AcceptanceValue,PA.Id ACID
+						,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' ) as AcceptanceDate
+						,Format(PO.PODate,'dd-MMM-yyyy') PODate from trn.PurchaseDocAcceptance as PA						
 						left outer join trn.PurchaseDocAcceptancedetail as PD on PD.PurchaseDocAcceptanceId=PA.Id
 						left outer join trn.PurchaseOrderDetail POD on POD.Id = PD.PODetailId
-						left outer join trn.PurchaseOrder PO on PO.Id = PD.POId						
-						left outer join (
+						left outer join trn.PurchaseOrder PO on PO.Id = PD.POId	
+						--group by PA.PurchaseLCId,PA.Id,PA.AcceptanceNo, PA.AcceptanceDate,PO.PODate
+						)AC on AC.PurchaseLCId=PL.Id
+				    	left outer join (
 						select PDA.PurchaseLCId,sum(isnull(IWD.Amount,0)) InvPayment,PDA.Id PurchaseDocAccId
 										from TRN.PurchaseDocAcceptance PDA
 											LEFT JOIN TRN.Invoice I ON I.PurchaseDocAcceptanceId=PDA.Id 
 											LEFT JOIN TRN.InvoiceWriteOffDetail IWD ON IWD.InvoiceId=I.Id
 											where IWD.Amount>0 and PDA.PurchaseLCId<>''
 											group by PDA.PurchaseLCId,PDA.Id
-						) SetOff on SetOff.PurchaseDocAccId=PA.Id
+						) SetOff on SetOff.PurchaseDocAccId=AC.ACID
+                        where PL.Id ='" + PurchaseLCId+@"'
+						group by PL.Id,c.Code,AC.ACID,AC.AcceptanceDate,AC.AcceptanceNo,AC.AcceptanceValue,AC.PODate,SetOff.InvPayment
 
-                        where PL.Id ='"+PurchaseLCId+@"'
-						group by PL.Id,PA.AcceptanceNo,PA.AcceptanceDate,c.Code,PO.PODate,PO.Id
-						,PA.AcceptanceAmount,SetOff.InvPayment";
+						";
 
         }
 

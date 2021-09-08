@@ -217,9 +217,9 @@ function individualComplianceReportController(addressService, fileReader, cboSer
                 throw "Issue Date is required.";
             }
 
-            if (baseService.isUndefinedOrNull($scope.model.EmployeeWorkTypeId)) {
-                throw "Work Type is required.";
-            }
+            //if (baseService.isUndefinedOrNull($scope.model.EmployeeWorkTypeId)) {
+            //    throw "Work Type is required.";
+            //}
 
             if (new Date($scope.model.IssueDate) < new Date($scope.model.DOJ)) {
                 throw "IssueDate " + $scope.model.IssueDate + " can not less than DOJ " + $scope.model.DOJ + "";

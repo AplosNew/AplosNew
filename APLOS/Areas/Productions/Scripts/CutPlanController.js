@@ -5,6 +5,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Productions/CutPlan/';
+    $scope.saveUrl = $scope.path + 'Save';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -32,9 +33,11 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.getAllEntities();
 
     $scope.modelNew = {
+        Id: null,
         ProductionEntityId: null,
         ProductionOrderId: null
     }
+    
 
     $scope.ProductionOrderList = [];
     $scope.ProdOrderList = [];
@@ -206,4 +209,46 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             }
         }
     };
+
+    $scope.CutPlanMarkerDetails = {
+        Id: null,
+        CutPlanMasterId: null,
+        MarkerId: null,
+        MarkerCharacteristicsId: null,
+        RoundingType: null,
+    }
+
+    $scope.Save = function () {
+
+        //#region CutPlanMarkerDetails Model 
+        $scope.CutPlanMarkerDetails.CutPlanMasterId = $scope.modelNew.Id;
+        $scope.CutPlanMarkerDetails.MarkerId= $scope.MarkerId;
+        $scope.CutPlanMarkerDetails.MarkerCharacteristicsId =$scope.CharacteristicsId;
+        $scope.CutPlanMarkerDetails.RoundingType = $scope.CalculateOn;
+        //#endregion
+
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: {
+                    'CalculatedValueList': $scope.CalculatedSkuValueList, 'FGCharacteristicsValueList': $scope.FGCharacteristicsValueList,
+                    'MasterData': $scope, modelNew, 'CPMarkerDetails': $scope.CutPlanMarkerDetails, 'SkuValueList': $scope.SkuValueList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
 }

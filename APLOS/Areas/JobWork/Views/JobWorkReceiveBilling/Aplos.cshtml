@@ -151,9 +151,9 @@
             </div>
             <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
                     <div class="col-sm-8">
-                        <input datepicker type="text" name="Invoice Date" ng-model="ModelNew.InvoiceDate" class="form-control" tabindex="5">
+                        <input maxlength="25" type="text" name="InvoiceNo" ng-model="ModelNew.InvoiceNo" class="form-control" tabindex="5" autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -175,11 +175,12 @@
                     </div>
                 </div>
             </div>
+            
             <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
                     <div class="col-sm-8">
-                        <input maxlength="25" type="text" name="InvoiceNo" ng-model="ModelNew.InvoiceNo" class="form-control" tabindex="5" autocomplete="off">
+                        <input datepicker type="text" name="Invoice Date" ng-model="ModelNew.InvoiceDate" class="form-control" tabindex="5">
                     </div>
                 </div>
             </div>

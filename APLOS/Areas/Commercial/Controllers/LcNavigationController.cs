@@ -499,6 +499,24 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpPost, Authorize]
+        public ActionResult ACBreakDownDataList(string ACID)
+        {
+            try
+            {
+                Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
+
+                var data = navigation.ACBreakDownList(ACID);
+
+                return Json(new { ACBrDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpPost, Authorize]
         public ActionResult GetPurchaseLCGRNList(string PurchaseLCId)
         {
             try
@@ -597,33 +615,36 @@ namespace Aplos.Areas.Commercial.Controllers
                         B.UserName as OpeningBank,
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate ,
                         P.UserName as  Vendor,
-                        PL.Amount as Value,
+                        ISNULL(PL.Amount,0) [Value],
                         Cur.Code as Currency,
                         PL.LCANo,PL.Type as LCType,
                         PL.Tenure,
                         PL.BenificiaryBank                 
-                        ,PO.MaterialPOAmount						
-						,PO.ServicePOAmount
-						,PO.JWPOAmount
-						,PO.POCount
+                        ,ISNULL(PO.MaterialPOAmount,0) MaterialPOAmount		
+						,ISNULL(PO.ServicePOAmount,0) ServicePOAmount
+						,ISNULL(PO.JWPOAmount,0) JWPOAmount
+						,ISNULL(grn.GRNTotalAmount,0) GRNValue
+						,variance=ISNULL(CASE 
+						 WHEN po.MaterialPOAmount=0 AND PO.ServicePOAmount=0 THEN (PO.JWPOAmount -grn.GRNTotalAmount) 
+						 WHEN po.ServicePOAmount=0 AND PO.JWPOAmount=0 THEN (PO.MaterialPOAmount -grn.GRNTotalAmount)
+						 WHEN po.MaterialPOAmount=0 AND PO.JWPOAmount=0 THEN (PO.ServicePOAmount -grn.GRNTotalAmount)
+						 END,0)
+						,ISNULL(PO.POCount,0) POCount
                         ,PL.AddedDate
                         ,Isnull(ac.AcceptanceValue,0) AcceptanceValue
 						,Isnull(invpy.InvPayment,0) SetOff 
 						,Isnull(Loan.Amount,0) Loan
 						,Isnull(LoanSetOff.LoanSetOff,0) LoanSetOff
-						,ac.AcceptanceCount
-						,ISNULL(grn.GRNTotalAmount,0) as GRNValue
-                        ,grn.GRNCount
+						,ISNULL(ac.AcceptanceCount,0) AcceptanceCount						
+                        ,ISNULL(grn.GRNCount,0) GRNCount
 	                    ,IsClosed=case when PL.Status='Active' then 'No' else 'Yes' END
 						,[Sequence]=case when Pl.IsAccepptanceFirst=1 then 'AccepptanceFirst' else'GRNFirst' END ,
                         con.ContractNo,
                         cus.Customer,
                         PL.Id as LCId
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
-						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
-						--,variance=po.POAmount-grn.GRNTotalAmount
-						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
-						
+						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate						
+						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END				
 					
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
@@ -701,7 +722,7 @@ namespace Aplos.Areas.Commercial.Controllers
 										)
 										as cus on cus.Id=PL.ContractId
                          where 
-						 pl.plantId='" + identity.PlantId+@"') AS TEMP WHERE " + strkey + "order by TEMP.OpeningDate DESC ";
+						 pl.plantId='"+identity.PlantId+@"') AS TEMP WHERE " + strkey + "order by TEMP.OpeningDate DESC ";
             
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

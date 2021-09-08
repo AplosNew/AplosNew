@@ -184,7 +184,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingDetailData?masterId=' + masterId
         }).then(function successCallback(response) {
             $scope.JWPOList = response.data;
-
         });
     };
 
@@ -386,8 +385,8 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
     function ValidationMaster() {
         CheckField("OutSource POID", $scope.ModelNew.JWTransformationPurchaseOrderId);
-        CheckField("Invoice Date", $scope.ModelNew.InvoiceDate);
         CheckField("Invoice No", $scope.ModelNew.InvoiceNo);
+        CheckField("Invoice Date", $scope.ModelNew.InvoiceDate);
     }
 
     $scope.Save = function () {
@@ -408,13 +407,13 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             if (baseService.arrayLength($scope.JWPOList) < 0 || baseService.arrayLength($scope.JWPOList) == 0) {
                 throw "Billing detail is required";
             }
-            //if (baseService.arrayLength($scope.GriddataMaster) > 0) {
-            //    for (var i = 0; i < $scope.GriddataMaster.length; i++) {
-            //        if (baseService.isUndefinedOrNull($scope.GriddataMaster[i].Status)) {
-            //            throw "GRN No: '" + $scope.GriddataMaster[i].Id + "' is not posted.";
-            //        }
-            //    }
-            //}
+            if (baseService.arrayLength($scope.JWPOList) > 0) {
+                for (var i = 0; i < $scope.JWPOList.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.JWPOList[i].BillingQty)) {
+                        throw "Billing Qty is required.";
+                    }
+                }
+            }
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
