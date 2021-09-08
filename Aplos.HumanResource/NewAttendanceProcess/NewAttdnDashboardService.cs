@@ -185,6 +185,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
                             Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
                             Sum(Case When InStatus ='O' then 1 else 0 end) as Other
+                            ,Sum(Case when ManualInTime is null and PunchInTime is not null then 1 else 0 end) as INVM
+							,Sum(Case when ManualOutTime is null and PunchOutTime is not null then 1 else 0 end) as OVM
                             from dbo.AttdnProcessData apd
                             left join org.Plant p on p.Id = apd.PlantID
                             left join org.Company c on c.Id = p.CompanyId
@@ -295,6 +297,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
                             Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
                             Sum(Case When InStatus ='O' then 1 else 0 end) as Other
+                            ,Sum(Case when ManualInTime is null and PunchInTime is not null then 1 else 0 end) as INVM
+							,Sum(Case when ManualOutTime is null and PunchOutTime is not null then 1 else 0 end) as OVM
                             from dbo.AttdnProcessData apd
                             left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
@@ -425,6 +429,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                 if (Column == "OTIN")
                 {
                     whereCol = " and  (apd.InStatus='IN' or apd.InStatus='EI' or apd.InStatus='LI' )";
+                }
+                if (Column == "INVM")
+                {
+                    whereCol = " and  apd.ManualInTime is null and apd.PunchInTime is not null";
+                }
+                if (Column == "OVM")
+                {
+                    whereCol = " and  apd.ManualOutTime is null and apd.PunchOutTime is not null";
                 }
                 #endregion settingTheColumnStat
 
@@ -579,6 +591,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                 if (Column == "OTIN")
                 {
                     whereCol = " and  (apd.InStatus='IN' or apd.InStatus='EI' or apd.InStatus='LI' )";
+                }
+                if (Column == "INVM")
+                {
+                    whereCol = " and  apd.ManualInTime is null and apd.PunchInTime is not null";
+                }
+                if (Column == "OVM")
+                {
+                    whereCol = " and  apd.ManualOutTime is null and apd.PunchOutTime is not null";
                 }
                 #endregion settingTheColumnStat
 
