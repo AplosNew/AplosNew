@@ -78,11 +78,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(List<Dictionary<string, object>> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData)
+        public JsonResult Create(List<Dictionary<string, object>> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails,List<Dictionary<string,object>> SkuValueList)
         {
             try
             {
-                cp.Save(CalculatedValueList, FGCharacteristicsValueList,MasterData);
+                cp.Save(CalculatedValueList, FGCharacteristicsValueList,MasterData, CPMarkerDetails, SkuValueList);
                 return Json(new { Error = false, data = CalculatedValueList, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
