@@ -884,8 +884,8 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				return false;
 			}
 			for (var t1 = 0; t1 < baseService.arrayLength($scope.materialStockList); t1++) {
-				if ($scope.materialStockList[t1].IssueByUoM === 'Yes' && ($scope.materialStockList[t1].BaseUOMId != $scope.materialStockList[t1].IssueTransactionUoMId)) {
-					ShowResult("Your Transaction UoM is not equal to base UoM.So you can not issue this material", 'failure', 'stockPopUp');
+				if (($scope.materialStockList[t1].IssueByUoM === 'Yes' && $scope.materialStockList[t1].Flag === true) && ($scope.materialStockList[t1].TransactionUoMId != $scope.materialStockList[t1].IssueTransactionUoMId)) {
+					ShowResult("Your Transaction UoM is not equal to requested UoM.So you can not issue this material", 'failure', 'stockPopUp');
 					return false;
 				}
 				if ($scope.materialStockList[t1].RequisitionQty > 0 && $scope.materialStockList[t1].Flag==0) {
@@ -1766,7 +1766,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				$scope.materialStockList[i1].IssueTransactionUoMId = data.TransactionUoMId;
 				$scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
 
-				$scope.materialStockList[i1].TransactionUoMId = data.TransactionUoMId;
+				//$scope.materialStockList[i1].TransactionUoMId = data.TransactionUoMId;
 				$scope.materialStockList[i1].BaseUoMFactor = data.BaseUOMFactor;
 			}
 			angular.element(document.querySelector('#stockPopUp')).modal('show');
@@ -2260,15 +2260,15 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 			}
 			else {
-				for (var i = 0; i < $scope.ShowStock.length; i++) {
-					if ($scope.ShowStock[i].TransactionUoMId != $scope.detailList[index].TransactionUoMId && $scope.detailList[index].IssueByUoM === true) {
-						ShowResult('Can not issue this material.Because Requition UoM is not equal to Stock UoM', 'failure');
-						$scope.detailList[index].TransactionQty = '';
-						$scope.detailList[index].check = false;
-						return false;
-					}
+				//for (var i = 0; i < $scope.ShowStock.length; i++) {
+				//	if ($scope.ShowStock[i].TransactionUoMId != $scope.detailList[index].TransactionUoMId && $scope.detailList[index].IssueByUoM === true) {
+				//		ShowResult('Can not issue this material.Because Requition UoM is not equal to Stock UoM', 'failure');
+				//		$scope.detailList[index].TransactionQty = '';
+				//		$scope.detailList[index].check = false;
+				//		return false;
+				//	}
 
-				}
+				//}
 			}
 
 		});
