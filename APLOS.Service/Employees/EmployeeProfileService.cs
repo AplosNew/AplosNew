@@ -4375,7 +4375,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                 var dtEmp = GetEmployeeById(empId, plantId, empType, langID, tempId);
                 var dtEmpWorkType = GetEmployeeWorkType(workTypeId, langID);
 
-                var Templatefile = GetFilePath(plantId, langName, reportType);
+                var Templatefile = GetIdCardFilePath(plantId, langName, reportType, tempId);
                 if (Templatefile.Count > 0)
                 {
                     fileName = Templatefile["TemplateFileName"].ToString();
@@ -5427,6 +5427,13 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
             var sql = @"SELECT Id,TemplateFileName FROM SCS.RptConfigTemplate WHERE  Language='" + pkId + "'  AND PlantId='" + plantId + "' and Type='" + reportType + "'";
             return _sqlRepository.GetData(sql);
         }
+
+        public Dictionary<string, object> GetIdCardFilePath(string plantId, string pkId, string reportType, string tempId)
+        {
+            var sql = @"SELECT Id,TemplateFileName FROM SCS.RptConfigTemplate WHERE  Language='" + pkId + "'  AND PlantId='" + plantId + "' and Type='" + reportType + "' AND Id='"+ tempId + "'";
+            return _sqlRepository.GetData(sql);
+        }
+
 
         public Dictionary<string, object> GetAppointmentFilePath(string plantId, string Language, string pkId, string reportType)
         {
