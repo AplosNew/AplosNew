@@ -406,7 +406,6 @@
     </div>
 </div>
 
-
 <div class="modal fade site-modal in" id="sdgfsdfs" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -532,17 +531,46 @@
                                 <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="50"></div>
                                 <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="Acceptance No." e-width="50"></div>
                                 <div e-column e-type="date" e-field="AcceptanceDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Acceptance Date" e-width="50"></div>
-                                <div e-column e-type="string" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="Acceptence Value" e-width="50"></div>
+                                @*<div e-column e-type="string" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="Acceptence Value" e-width="50"></div>*@
+                                <div e-column e-template="#ACBreakDown" e-headertext="Acceptence Value" e-width="80"></div>
+
                                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="40"></div>
                                 <div e-column e-type="string" e-field="SetOffValue" e-textalign="right" e-format="{0:N2}" e-headertext="Set Off Value" e-width="50"></div>
                             </div>
                         </div>
                     </div>
+                    <script type="text/template" id="ACBreakDown">
+                        <div class="text-right" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.LoadACBreakDownList(data);">{{data.AcceptanceValue |number:2}}</a>
+                        </div>
+                    </script>
                 </div>
             </div>
 
         </div>
 
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="ACBreakDownPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Acceptance Break down.<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div style="color:black;" id="GridPurchaseLCACBreakDown" ej-grid e-datasource="PurchaseLCACBreakDownList" e-showsummary="true" e-summaryrows="sumAC"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="POId" e-headertext="PO No." e-width="50"></div>
+                            <div e-column e-type="date" e-field="AcceptanceDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Acceptance Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="Acceptance Value" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

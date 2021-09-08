@@ -576,6 +576,38 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     }];
 
+    $scope.PurchaseLCACBreakDownList = [];
+    $scope.LoadACBreakDownList = function (ACBreakDownData) {
+        //$scope.SelectedLCRow = GRNBreakDownData;
+        $http({
+            method: 'POST',
+            url: $scope.path + "ACBreakDownDataList",
+            data: { 'ACID': ACBreakDownData.ACID },
+            dataType: 'JSON'
+        })
+
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.PurchaseLCACBreakDownList = response.data.ACBrDATA;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        $rootScope.openPopupAngular('ACBreakDownPopup');
+    }
+    $scope.sumAC = [{
+        title: "Total :", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceValue", dataMember: "AcceptanceValue", format: "{0:N2}" }
+        ],
+        showCaptionSummary: true
+
+    }];
+
     $scope.PurchaseLCLoanList = [];
     $scope.LoadLoanList = function (LCLoanData) {
         $scope.SelectedLCRow = LCLoanData;

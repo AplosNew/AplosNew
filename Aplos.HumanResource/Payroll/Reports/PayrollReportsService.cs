@@ -7943,6 +7943,8 @@ namespace Library.HumanResource.Payroll
 
 
                         //_maxRow++;
+
+                        _maxRow += 3;
                         startRow = _maxRow + 4;
 
 
@@ -7954,7 +7956,7 @@ namespace Library.HumanResource.Payroll
                         //{
                         //    startRow = _maxRow + 5;
                         //}
-                        _maxRow += 3;
+                       
                         sheet1.Range[_maxRow + 2, 1].Text = "— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — ";
                         sheet1.Range[_maxRow + 2, 1, _maxRow + 2, xlsColTot + 1].Merge();
 
