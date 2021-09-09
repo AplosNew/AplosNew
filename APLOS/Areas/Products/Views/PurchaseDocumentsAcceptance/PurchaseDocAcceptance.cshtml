@@ -796,7 +796,7 @@
                             <div class="clearfix"></div>
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
-                                    <li><button ng-click="serviceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
+                                    <li><button ng-click="serviceChargePopUp();" ng-disabled="PurchaseDocAcceptance.Id==null || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
                                 </ul>
                             </div>
                             <div class="table-responsive modal-table">
@@ -851,7 +851,7 @@
                             <div class="clearfix"></div>
                             <div class="common-btn">
                                 <ul class="common-btn list-inline text-left">
-                                    <li><button ng-click="AcceptanceServiceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
+                                    <li><button ng-click="AcceptanceServiceChargePopUp();" ng-disabled="PurchaseDocAcceptance.Id==null || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
                                 </ul>
                             </div>
                             <div class="table-responsive modal-table">

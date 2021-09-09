@@ -510,9 +510,32 @@ namespace Aplos.Areas.JobWork.Controllers
                         }, ref _crvDetailCurrencyData);
                     }
                 }
+
+                ConnectionManager.DAL.ConManager objCon;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                DataSet dsBillMaster;
+                objCon.OpenDataSetThroughAdapter("select * from dbo.JWReceiveBilling Where Id='" + outsourceBillingId + "'", out dsBillMaster, false, "1");
+
+                DataView dv = new DataView(dsBillMaster.Tables[0]);
+                dv.RowFilter = "Id='" + outsourceBillingId + "'";
                
+                if (dv.Count > 0)
+                {
+                    DataRow drmo = dv[0].Row;
+                    drmo.BeginEdit();
+
+                    drmo["VoucherId"] = voucher.Id;
+                    drmo["UpdatedBy"] = voucher.AddedBy;
+                    drmo["UpdatedDate"] = DateTime.Now.ToString();
+                    drmo["UpdatedFromIP"] = voucher.AddedFromIP;
+                    drmo.EndEdit();
+                }
+
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
+                objApp.SaveDataSets(_vdataset, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, dsBillMaster);
+               
+
+                
                 return voucher.VoucherNo;
             }
             catch (Exception ex)

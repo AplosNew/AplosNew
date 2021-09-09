@@ -179,6 +179,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+       
         [Authorize]
         public JsonResult GetCboOutput(DateTime postingDate)
         {

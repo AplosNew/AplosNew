@@ -221,7 +221,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         , PurchaseDocAcceptanceId: null
         , PurchaseDocAcceptanceChargesId: null
         , AcceptanceServiceId: null
-        , Amount: null
+        , Amount: 0
         , TotalTaxAmount: 0
         , CurrencyId: null, OpeningBankMasterId: null, BankAmount: null, VoucherId: null, Rate: null, PartyId: null, PartyPlantId: null, ServiceMasterId: null
     };
@@ -234,6 +234,18 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
 
     $scope.MakeChargesObj = function () {
+        $scope.AcceptanceCharges.Amount= null;
+        $scope.PurchaseDocAcceptanceService = {
+            Id: null
+            , ChargeName: null
+            , PurchaseDocAcceptanceId: null
+            , PurchaseDocAcceptanceChargesId: null
+            , AcceptanceServiceId: null
+            , Amount: 0
+            , TotalTaxAmount: 0
+            , CurrencyId: null, OpeningBankMasterId: null, BankAmount: null, VoucherId: null, Rate: null, PartyId: null, PartyPlantId: null, ServiceMasterId: null
+        };
+
         $scope.productNew.TaxOptionCharge = 'Yes';
         var obj = Object.assign({}, $scope.PurchaseDocAcceptanceService);
         obj.AcceptanceServiceId = $scope.AcceptanceCharges.Id;
@@ -375,6 +387,12 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                     if (baseService.isUndefinedOrNull($scope.acceptanceChargesCheckedList[i].Amount)) {
                         $scope.acceptanceChargesCheckedList[i].Amount = $scope.AcceptanceCharges.Amount;
                         $scope.acceptanceChargesCheckedList[i].CurrencyId = $scope.AcceptanceCharges.CurrencyId;
+                        $scope.acceptanceChargesCheckedList[i].OpeningBankMasterId = $scope.PurchaseDocAcceptance.OpeningBankMasterId;
+                    }
+                    if (baseService.isUndefinedOrNull($scope.acceptanceChargesCheckedList[i].BankAmount)) {
+                        if ($scope.PurchaseDocAcceptance.LCOBCurrencyId === $scope.AcceptanceCharges.CurrencyId) {
+                            $scope.acceptanceChargesCheckedList[i].BankAmount = $scope.AcceptanceCharges.Amount;
+                        }
                     }
                 }
                 $scope.acceptanceChargesCheckedList.TotalTaxAmount = $filter('sumByKey')($filter('filter')($scope.taxCategoryList), 'TaxAmount');
@@ -1019,8 +1037,8 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                         throw 'Current quantity can not greater than balance quantity!';
                     }
                 } else {
-                    data.Balance = 0;
-                    data.TransactionQty = 0;
+                    data.Balance = null;
+                    data.TransactionQty = null;
                     throw 'Current quantity can not greater than balance quantity!';
                 }
             }
