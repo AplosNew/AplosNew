@@ -532,7 +532,7 @@
 
 																<div class="checkbox-site">
 																	<label>
-																		<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.TransactionQty===0 || x.TransactionQty==='' || x.TransactionQty===null">
+																		<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-change="GetIfIssuedOrNot(x)" ng-disabled="x.TransactionQty===0 || x.TransactionQty==='' || x.TransactionQty===null">
 																		<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
 																	</label>
 																</div>
@@ -561,7 +561,7 @@
 
 															<td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.GRNRcvQty" ng-disabled="true"></td>
 
-															<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="AcceptanceId!=null || x.Balance===0"*@></td>  @* x.enableid && ng-keyup="calculateAmount(x);"*@
+															<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);GetIfIssuedOrNot(x);" width="200" ng-model="x.TransactionQty" @*ng-disabled="AcceptanceId!=null || x.Balance===0"*@></td>  @* x.enableid && ng-keyup="calculateAmount(x);"*@
 
 															<td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.Balance" ng-disabled="true"></td>
 

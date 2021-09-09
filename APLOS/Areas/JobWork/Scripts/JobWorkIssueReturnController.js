@@ -1555,6 +1555,8 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.closeStockPopUp = function () {
 		angular.element(document.querySelector('#stockPopUp')).modal('hide');
 	};
+
+	var SelectedMaterialInputdata = [];
 	$scope.SaveSlipIssue = function () {
 
 		if ($scope.materialStockList.length === 0) {
@@ -1600,36 +1602,47 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 		}
 		for (var i = 0; i < $scope.detailList.length; i++) {
-			if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
-				ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
-				return false;
-			}
-			//if ($scope.detailList[i].TransactionQty > $scope.detailList[i].BalanceQty) {
-			//    ShowResult("Issue qty can not gaterthen  Balance Qty");
-			//    return false;
-			//}
-			if (baseService.isUndefinedOrNull($scope.detailList[i].CostCenterId)) {
-				ShowResult("Select the cost center");
-				return false;
-			}
-			if (baseService.isUndefinedOrNull($scope.detailList[i].MaterialMaster)) {
-				ShowResult("Select Material Master");
-				return false;
-			}
-			if (baseService.isUndefinedOrNull($scope.detailList[i].ArticleName)) {
-				ShowResult("Select ArticleName");
-				return false;
-			}
-			if (baseService.isUndefinedOrNull($scope.detailList[i].TransactionQty)) {
-				ShowResult("Enter the Issue Qty");
-				return false;
-			}
-			if ($scope.detailList[i].TransactionQty == '0') {
-				ShowResult("Enter the Issue Qty");
-				return false;
-			}
 
+			if ($scope.detailList[i].isSelectedMatInput == true) {
+
+				if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
+					ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
+					return false;
+				}
+				//if ($scope.detailList[i].TransactionQty > $scope.detailList[i].BalanceQty) {
+				//    ShowResult("Issue qty can not gaterthen  Balance Qty");
+				//    return false;
+				//}
+				if (baseService.isUndefinedOrNull($scope.detailList[i].CostCenterId)) {
+					ShowResult("Select the cost center");
+					return false;
+				}
+				if (baseService.isUndefinedOrNull($scope.detailList[i].MaterialMaster)) {
+					ShowResult("Select Material Master");
+					return false;
+				}
+				if (baseService.isUndefinedOrNull($scope.detailList[i].ArticleName)) {
+					ShowResult("Select ArticleName");
+					return false;
+				}
+				if (baseService.isUndefinedOrNull($scope.detailList[i].TransactionQty)) {
+					ShowResult("Enter the Issue Qty");
+					return false;
+				}
+				if ($scope.detailList[i].TransactionQty == '0') {
+					ShowResult("Enter the Issue Qty");
+					return false;
+				}
+
+            }
 		}
+
+		for (var j = 0; j < $scope.detailList.length; j++) {
+			if ($scope.detailList[j].isSelectedMatInput == true) {
+				SelectedMaterialInputdata.push($scope.detailList[j]);
+            }
+        }
+
 		//for (var i = 0; i < $scope.detailList.length; i++) {
 		//    if ($scope.detailList[i].TransactionQty > $scope.detailList[i].RequestedQty) {
 		//        ShowResult("Issue qty can not gaterthen Requested Qty");
@@ -1645,7 +1658,8 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 				method: 'POST'
 				, url: 'Products/InventoryIssue/JWIssueCreate'
 				, data: {
-					entities: $scope.detailList
+				//	entities: $scope.detailList
+					entities: SelectedMaterialInputdata
 					, specificStockList: $scope.specificStockList
 					, inventoryIssue: $scope.IssueTransformation
 					, IssueTypeStatus: 'Inventory'
