@@ -888,9 +888,16 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
         #endregion
 
         #region Hourly Production Display
-
-        public Dictionary<string, object> HourlyProductionBookingPeriod(string Date, string PlantId, string ProcessId, string EntityId)
+        public class EntityHourlyProductionInfo
         {
+            public string GridId { get; set; }
+            public string EntityId { get; set; }
+            public string EntityName { get; set; }
+            public object Data = null;
+        };
+        public List<EntityHourlyProductionInfo> HourlyProductionBookingPeriod(string Date, string PlantId, string ProcessId, string EntityId)
+        {
+            List<EntityHourlyProductionInfo> info = new List<EntityHourlyProductionInfo>();
             try
             {
                 var entity = "";
@@ -916,10 +923,11 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
                 dtPivot.Columns.Add("EntityId");
                 dtPivot.Columns.Add("Entity");
                 dtPivot.Columns.Add("WorkCenterMasterId");
-                dtPivot.Columns.Add("WorkCenterMasterName");
+                dtPivot.Columns.Add("WC Name");
+                dtPivot.Columns.Add("Total", typeof(double));
                 foreach (DataRow item in dtAllPeriod.Rows)
                     dtPivot.Columns.Add(item["UserName"].ToString(), typeof(double));
-                dtPivot.Columns.Add("Total", typeof(double));
+             
 
                 string WCId = "";
                 DataRow dr = null;
@@ -929,9 +937,9 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
                     {
                         dr = dtPivot.NewRow();
                         dr["WorkCenterMasterId"] = dt.Rows[i]["WorkCenterMasterId"].ToString();
-                        dr["WorkCenterMasterName"] = dt.Rows[i]["WorkCenterMasterName"].ToString();
                         dr["EntityId"] = dt.Rows[i]["EntityId"].ToString();
                         dr["Entity"] = dt.Rows[i]["Entity"].ToString();
+                        dr["WC Name"] = dt.Rows[i]["WorkCenterMasterName"].ToString();
                         dtPivot.Rows.Add(dr);
 
                         dr = dtPivot.Rows[dtPivot.Rows.Count - 1];
@@ -944,14 +952,16 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
                 for (int i = 0; i < dtPivot.Rows.Count; i++)
                 {
                     double total = 0;
-                    for (int COL = 4; COL < dtPivot.Columns.Count; COL++)
+                    for (int COL = 5; COL < dtPivot.Columns.Count; COL++)
                         total += clsStaticInfo.dbl(dtPivot.Rows[i][COL].ToString());
 
                     dtPivot.Rows[i]["Total"] = total;
                 }
 
 
-                Dictionary<string, object> dicData = new Dictionary<string, object>();
+                // Dictionary<string, object> dicData = new Dictionary<string, object>();
+
+
                 StringCollection strCol = new StringCollection();
                 for (int i = 0; i < dtPivot.Rows.Count; i++)
                 {
@@ -961,15 +971,18 @@ ISNULL(s.UserName,wcm.UserName)  AS [FromLocation],ISNULL(sTo.UserName,wcmTo.Use
 
                     dtPivot.DefaultView.RowFilter = "EntityId='" + dtPivot.Rows[i]["EntityId"].ToString() + "'";
                     DataTable dtTemp = dtPivot.DefaultView.ToTable();
+                    
+                    //dicData.Add(dtPivot.Rows[i]["Entity"].ToString(), Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtTemp));
 
-                    dicData.Add(dtPivot.Rows[i]["Entity"].ToString(), Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtTemp));
+                    info.Add(new EntityHourlyProductionInfo { GridId = "GridHourly" + dtPivot.Rows[i]["EntityId"].ToString(), EntityId = dtPivot.Rows[i]["EntityId"].ToString(), EntityName = dtPivot.Rows[i]["Entity"].ToString(), Data = Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtTemp) });
                 }
-                return dicData;
+                return info;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+
         }
 
         #endregion
