@@ -37,7 +37,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         ProductionEntityId: null,
         ProductionOrderId: null
     }
-    
+
 
     $scope.ProductionOrderList = [];
     $scope.ProdOrderList = [];
@@ -168,45 +168,52 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.CalculationArryWithData = [];
     $scope.CalculatedSkuValueList = [];
     $scope.Clicked = false;
+    $scope.ErrorThrow = true;
     $scope.CalculatePly = function () {
-        $scope.CalculatedSkuValueList = [];
-        for (var j = 0; j < $scope.SkuValueList.length; j++) {
-            if ($scope.SkuValueList[j].IsSelect /*&& $scope.SkuValueList[j].MinimumPlyActualValue == ""*/) {
-                var CalculationArry = [];
-                $scope.CalculatedSkuValueList.push($scope.SkuValueList[j]);
-                for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
-                    CalculationArry.push(parseFloat($scope.SkuValueList[j].Qty) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
-                }
+        try {
+            $scope.CalculatedSkuValueList = [];
+            for (var j = 0; j < $scope.SkuValueList.length; j++) {
+                if ($scope.SkuValueList[j].IsSelect) {
+                    var CalculationArry = [];
+                    $scope.ErrorThrow = false;
+                    $scope.CalculatedSkuValueList.push($scope.SkuValueList[j]);
+                    for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
+                        CalculationArry.push(parseFloat($scope.SkuValueList[j].Qty) / parseFloat($scope.FGCharacteristicsValueList[i].Ratio));
+                    }
 
-                $scope.MinimumPlyValue = Math.min.apply(null, CalculationArry);
-                var MiniValue = parseFloat($scope.MinimumPlyValue).toFixed(2);
-                var OptionBasedMinValue = '';
-                if ($scope.CalculateOn == 'Round') {
-                    OptionBasedMinValue = parseFloat(Math.round($scope.MinimumPlyValue)).toFixed(2);
-                }
-                else if ($scope.CalculateOn == 'RoundUp') {
-                    OptionBasedMinValue = parseFloat(Math.ceil($scope.MinimumPlyValue)).toFixed(2);
-                }
-                else {
-                    OptionBasedMinValue = parseFloat(Math.floor($scope.MinimumPlyValue)).toFixed(2);
-                }
+                    $scope.MinimumPlyValue = Math.min.apply(null, CalculationArry);
+                    var MiniValue = parseFloat($scope.MinimumPlyValue).toFixed(2);
+                    var OptionBasedMinValue = '';
+                    if ($scope.CalculateOn == 'Round') {
+                        OptionBasedMinValue = parseFloat(Math.round($scope.MinimumPlyValue)).toFixed(2);
+                    }
+                    else if ($scope.CalculateOn == 'RoundUp') {
+                        OptionBasedMinValue = parseFloat(Math.ceil($scope.MinimumPlyValue)).toFixed(2);
+                    }
+                    else {
+                        OptionBasedMinValue = parseFloat(Math.floor($scope.MinimumPlyValue)).toFixed(2);
+                    }
 
-                $scope.Clicked = true;
+                    $scope.Clicked = true;
 
-                for (var k = 0; k < $scope.CalculatedSkuValueList.length; k++) {
-                    if ($scope.SkuValueList[j].CharacteristicsId == $scope.CalculatedSkuValueList[k].CharacteristicsId) {
-                        $scope.CalculatedSkuValueList[k].MinimumPlyActualValue = MiniValue;
-                        $scope.CalculatedSkuValueList[k].MinimumPlyOptionValue = OptionBasedMinValue;
+                    for (var k = 0; k < $scope.CalculatedSkuValueList.length; k++) {
+                        if ($scope.SkuValueList[j].CharacteristicsId == $scope.CalculatedSkuValueList[k].CharacteristicsId) {
+                            $scope.CalculatedSkuValueList[k].MinimumPlyActualValue = MiniValue;
+                            $scope.CalculatedSkuValueList[k].MinimumPlyOptionValue = OptionBasedMinValue;
+                        }
                     }
                 }
-
             }
-
-        }
-        for (var m = 0; m < $scope.FGCharacteristicsValueList.length; m++) {
-            for (var n = 0; n < $scope.CalculatedSkuValueList.length; n++) {
-                $scope.CalculatedSkuValueList[n].xx = parseFloat($scope.FGCharacteristicsValueList[m].Ratio) * parseFloat($scope.CalculatedSkuValueList[n].Qty);
+            for (var m = 0; m < $scope.FGCharacteristicsValueList.length; m++) {
+                for (var n = 0; n < $scope.CalculatedSkuValueList.length; n++) {
+                    $scope.CalculatedSkuValueList[n].xx = parseFloat($scope.FGCharacteristicsValueList[m].Ratio) * parseFloat($scope.CalculatedSkuValueList[n].Qty);
+                }
             }
+            if ($scope.ErrorThrow) {
+                throw "Select Value For Calculation.. ";
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
         }
     };
 
@@ -222,8 +229,8 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
 
         //#region CutPlanMarkerDetails Model 
         $scope.CutPlanMarkerDetails.CutPlanMasterId = $scope.modelNew.Id;
-        $scope.CutPlanMarkerDetails.MarkerId= $scope.MarkerId;
-        $scope.CutPlanMarkerDetails.MarkerCharacteristicsId =$scope.CharacteristicsId;
+        $scope.CutPlanMarkerDetails.MarkerId = $scope.MarkerId;
+        $scope.CutPlanMarkerDetails.MarkerCharacteristicsId = $scope.CharacteristicsId;
         $scope.CutPlanMarkerDetails.RoundingType = $scope.CalculateOn;
         //#endregion
 

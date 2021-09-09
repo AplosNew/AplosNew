@@ -165,7 +165,7 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
                 chartObj.redraw();
 
                 $scope.GetDailyPlanVsProduction();
-                $scope.getHourlyProduction();
+
             });
         } catch (e) {
             ShowResult(e, 'failure');
@@ -250,6 +250,8 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
             var chartObj = $("#chartWIP").data("ejChart");
             chartObj.redraw();
         });
+
+        $scope.getHourlyProduction();
     }
 
     $scope.trendlineRendering = function (args) {
@@ -829,18 +831,35 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
             data: { 'Date': $scope.FromDateParameter, 'PlantId': $scope.SelectedPlant, 'ProcessId': $scope.BaseProcessId, 'EntityId': $scope.SelectedEntity },
             dataType: 'JSON'
         }).then(function successCallback(response) {
+
+            var displayColumns = [];
+            for (var K = 0; K < response.data.length; K++) {
+                var data = response.data[K].Data[0];
+                var columns = Object.keys(data);
+
+                if (displayColumns.length == 0) {
+                    for (var COL = 3; COL < columns.length; COL++) {
+                        displayColumns.push(columns[COL]);
+                    }
+                }
+
+                response.data[K].Data = ej.DataManager(response.data[K].Data).executeLocal(ej.Query().select(displayColumns));
+
+            }
             $scope.HourlyProductionDisplayList = response.data;
 
 
             var summaryCols = [];
-            var keys = Object.keys($scope.HourlyProductionDisplayList);
 
-            for (var K = 0; K < keys.length; K++) {
-                var data = $scope.HourlyProductionDisplayList[keys[K]][0];
+            //var keys = Object.keys($scope.HourlyProductionDisplayList);
+
+            for (var K = 0; K < $scope.HourlyProductionDisplayList.length; K++) {
+                var data = $scope.HourlyProductionDisplayList[K].Data[0];
                 var columns = Object.keys(data);
-                for (var COL = 4; COL < columns.length; COL++) {
+                for (var COL = 1; COL < columns.length; COL++) {
                     summaryCols.push({ summaryType: ej.Grid.SummaryType.Sum, displayColumn: columns[COL], dataMember: columns[COL], format: "{0:N0}" });
                 }
+
                 break;
             }
 
@@ -850,16 +869,25 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
                 showCaptionSummary: true
             }];
 
-            for (var K = 0; K < keys.length; K++) {
-                var gridObjRunning = $("#" + keys[K]).ejGrid("instance");
-                gridObjRunning.refreshContent(true);
-                gridObjRunning.refreshTemplate();
+            for (var K = 0; K < $scope.HourlyProductionDisplayList.length; K++) {
+                var gridObjRunning = $("#" + $scope.HourlyProductionDisplayList[K].GridId).ejGrid("instance");
+                //gridObjRunning.hideColumns(["EntityId", "Entity", "WorkCenterMasterId"]);
+                //gridObjRunning.refreshContent(true);
+                //gridObjRunning.refreshTemplate();
             }
         });
     }
-    //$scope.ChangeEntity = function () {
-    //    $scope.getHourlyProduction();
-    //}
+    $scope.onHoulryDatabound = function (args) {
+
+        for (var i = 0; i < args.model.columns.length; i++) {
+
+            if (args.model.columns[i].field == 'WC Name')
+                args.model.columns[i]['width'] = 15;
+            else
+                args.model.columns[i]['width'] = 5;
+        }
+
+    }
     //#endregion
 
 }
