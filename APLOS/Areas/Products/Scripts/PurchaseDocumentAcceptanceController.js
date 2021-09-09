@@ -1026,7 +1026,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
                 //if (data.Balance >= 0) {
                     //if (TranQty >= (data.Otherqty + parseFloat(data.TransactionQty))) {
-                    //    data.TrnAmount = data.TransactionRate * parseFloat(data.TransactionQty);
+                        data.TrnAmount = data.TransactionRate * parseFloat(data.TransactionQty);
 
                         $scope.CalculateMaterialAmount();
 
