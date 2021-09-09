@@ -532,7 +532,7 @@
 
 																<div class="checkbox-site">
 																	<label>
-																		<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.TransactionQty===0 || x.TransactionQty==='' || x.TransactionQty===null">
+																		<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-change="GetIfIssuedOrNot(x)" ng-disabled="x.TransactionQty===0 || x.TransactionQty==='' || x.TransactionQty===null">
 																		<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
 																	</label>
 																</div>
@@ -561,7 +561,7 @@
 
 															<td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.GRNRcvQty" ng-disabled="true"></td>
 
-															<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="AcceptanceId!=null || x.Balance===0"*@></td>  @* x.enableid && ng-keyup="calculateAmount(x);"*@
+															<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);GetIfIssuedOrNot(x);" width="200" ng-model="x.TransactionQty" @*ng-disabled="AcceptanceId!=null || x.Balance===0"*@></td>  @* x.enableid && ng-keyup="calculateAmount(x);"*@
 
 															<td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.Balance" ng-disabled="true"></td>
 
@@ -1257,7 +1257,8 @@
 									 e-detailsdatabound="detailgrid">
 									<div e-columns>
                                         <div e-column e-headertext="Actions" e-width="100">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>
+                                            @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>*@
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
                                         </div>
 										<div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>

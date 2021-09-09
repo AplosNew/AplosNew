@@ -501,7 +501,8 @@ namespace Library.MaterialManagement.Inventory
 	                        ,POD.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,POD.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
 	                        ,POD.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
 	                        ,0 AS ServiceCharge,0 AS ServiceTax,POD.CountryId,NULL POMaterialTaxList,POD.TransactionQty POQty,SUM(IRD.TransactionQty) AS GRNRcvQty,SUM(IRD.MaterialTranAmount) AS TotalGRNValue
-	                        ,ISNULL(PACD.TransactionQty, 0) AS TransactionQty,ISNULL(PAD.AcptTransactionQty, 0) Otherqty,ISNULL((SUM(IRD.TransactionQty) - PAD.AcptTransactionQty),0) AS Balance
+	                        ,ISNULL(PACD.TransactionQty, 0) AS TransactionQty,ISNULL(PAD.AcptTransactionQty, 0) Otherqty
+                            ,ISNULL(((SELECT Min(v) FROM (VALUES  (POD.TransactionQty), (SUM(IRD.TransactionQty))) AS value(v)) -(ISNULL(PAD.AcptTransactionQty, 0)+ PACD.TransactionQty)),0) AS Balance
 	                        ,POD.TransactionAmount TotalPOValue,ISNULL(PAD.TotalAcptValue,0) TotalAcptValue,POD.TransactionRate,POD.TransactionRate MaterialTranRate,ISNULL(PACD.MaterialTranAmount,0) TrnAmount,ISNULL(PACD.TotalMaterialTranAmount,0)TotalMaterialTranAmount,0 AS ToTalMaterialBooksCurrencyAmount
 							,POD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,PO.ToCurrencyRate
                         FROM TRN.PurchaseOrderDetail AS POD  
@@ -534,7 +535,8 @@ namespace Library.MaterialManagement.Inventory
 	                        ,POD.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,POD.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
 	                        ,POD.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
 	                        ,0 AS ServiceCharge,0 AS ServiceTax,POD.CountryId,NULL POMaterialTaxList,POD.TransactionQty POQty,SUM(IRD.TransactionQty) AS GRNRcvQty,SUM(IRD.MaterialTranAmount) AS TotalGRNValue
-	                        ,ISNULL(PACD.TransactionQty, 0) AS TransactionQty,ISNULL(PAD.AcptTransactionQty, 0) Otherqty,ISNULL((SUM(IRD.TransactionQty) -(ISNULL(PAD.AcptTransactionQty, 0)+ PACD.TransactionQty)),0) AS Balance
+	                        ,ISNULL(PACD.TransactionQty, 0) AS TransactionQty,ISNULL(PAD.AcptTransactionQty, 0) Otherqty
+                            ,ISNULL(((SELECT Min(v) FROM (VALUES  (POD.TransactionQty), (SUM(IRD.TransactionQty))) AS value(v)) -(ISNULL(PAD.AcptTransactionQty, 0)+ PACD.TransactionQty)),0) AS Balance
 	                        ,POD.TransactionAmount TotalPOValue,ISNULL(PAD.TotalAcptValue,0) TotalAcptValue,POD.TransactionRate,POD.TransactionRate MaterialTranRate,ISNULL(PACD.MaterialTranAmount,0) TrnAmount,ISNULL(PACD.TotalMaterialTranAmount,0)TotalMaterialTranAmount,0 AS ToTalMaterialBooksCurrencyAmount
 							,POD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,PO.ToCurrencyRate 
                         FROM TRN.PurchaseOrderDetail AS POD
@@ -1050,7 +1052,7 @@ namespace Library.MaterialManagement.Inventory
                 }
                 if (AcceptancechargesList != null)
                 {
-                    //int AcceptanceServiveId = 1;
+                    
                     var AcceptanceChargesId = _purchaseDocAcceptanceChargesRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseDocAcceptanceCharges] WHERE PurchaseDocAcceptanceId='{entity.Id}'").First();
 
                     foreach (var ServiceitemDetail in AcceptancechargesList)
@@ -1837,7 +1839,7 @@ namespace Library.MaterialManagement.Inventory
                 ,PLC.Tenure,PLC.OpeningBankMasterId,BM.CurrencyId LCOBCurrencyId,BMC.Code OBCurrencyCode
                 ,NonCreditable =case when PDA.IsNonCreditable=1 then 'Yes' else 'No' end
                 ,PLC.LCRef,CN.ContractNo,ISNULL(CN.UDNo,'') UDNo,ISNULL(MLC.LCRef,'') MasterLCRef,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end,PCN.UserName CustomerName,PLC.Amount LCAmount
-                ,PDAD.MaterialTranAmount TotalAcptAmount, PDAD.CurrentQty
+                ,PDAD.MaterialTranAmount TotalAcptAmount, PDAD.CurrentQty,[Status]=CASE WHEN PDA.VoucherId IS NULL THEN 'Parked' ELSE 'Posted' END
                 FROM TRN.PurchasedocAcceptance AS PDA
                 LEFT JOIN(
                 SELECT SUM(ISNULL(MaterialTranAmount,0)) MaterialTranAmount,SUM(ISNULL(TransactionQty,0)) CurrentQty,PurchaseDocAcceptanceId 
@@ -1853,7 +1855,7 @@ namespace Library.MaterialManagement.Inventory
                 LEFT JOIN dbo.[Contract] CN ON CN.Id=PLC.ContractId
                 LEFT JOIN HKP.Party PCN ON PCN.Id=CN.CustomerId
                 LEFT JOIN dbo.[MasterLC] MLC ON MLC.Id=CN.MasterLCId
-                WHERE PDA.PlantId='"+ plantId + @"' ORDER BY PDA.AddedDate DESC";
+                WHERE PDA.PlantId='" + plantId + @"' ORDER BY PDA.AddedDate DESC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

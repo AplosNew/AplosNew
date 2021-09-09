@@ -796,7 +796,7 @@
                             <div class="clearfix"></div>
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
-                                    <li><button ng-click="serviceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
+                                    <li><button ng-click="serviceChargePopUp();" ng-disabled="PurchaseDocAcceptance.Id==null || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
                                 </ul>
                             </div>
                             <div class="table-responsive modal-table">
@@ -851,7 +851,7 @@
                             <div class="clearfix"></div>
                             <div class="common-btn">
                                 <ul class="common-btn list-inline text-left">
-                                    <li><button ng-click="AcceptanceServiceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
+                                    <li><button ng-click="AcceptanceServiceChargePopUp();" ng-disabled="PurchaseDocAcceptance.Id==null || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
                                 </ul>
                             </div>
                             <div class="table-responsive modal-table">
@@ -917,6 +917,7 @@
          e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid" e-allowscrolling="true">
         <div e-columns>
             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80"></div>
+            <div e-column e-type="string" e-field="Status" e-headertext="Status" e-width="80"></div>
             <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No" e-width="80"></div>
             <div e-column e-type="string" e-field="Party" e-headertext="Party" e-width="140"></div>
             <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="100"></div>

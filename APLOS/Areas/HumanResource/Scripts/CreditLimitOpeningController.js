@@ -5,7 +5,13 @@ function CreditLimitOpeningController(cboService, commonMessage, $scope, $rootSc
     $scope.ModelList = [];
     $scope.path = 'humanresource/CreditLimitOpening/';
     $scope.saveUrl = $scope.path + 'create';
-    
+
+    function nullrecorder(val) {
+        if (baseService.isUndefinedOrNull(val))
+            return "";
+
+        return val;
+    }
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -18,20 +24,22 @@ function CreditLimitOpeningController(cboService, commonMessage, $scope, $rootSc
     }
     $scope.getData();
 
-    $scope.ModelTemp = {
-        Id: null,       
-        DailyLimit: null,
-        MonthlyLimit: null,
-        DesignationId: null      
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-     
     $scope.Save = function () {
+        var DataToBeSaved = [];
+        for (var i = 0; i < $scope.ModelList.length; i++) {
+            if (
+                $scope.ModelList[i].DailyLimit != $scope.ModelList[i].OriginalDayLimit
+                || $scope.ModelList[i].MonthlyLimit != $scope.ModelList[i].OriginalMonthlyLimit
+               ) {
+                DataToBeSaved.push($scope.ModelList[i]);
+
+            }
+        }
 
         $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-            data: { 'data': $scope.ModelNew },
+            data: { 'data': DataToBeSaved },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

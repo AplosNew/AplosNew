@@ -2168,5 +2168,62 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
 		#endregion end Reports for Transformation Contract
 
+		// GET Issued Material data
+
+		[Authorize, HttpGet]
+		public JsonResult GetIfIssuedOrNot(string JWOutputId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				return Json(R.GetIfIssuedOrNot(JWOutputId), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		[Authorize, HttpGet]
+		public JsonResult GetIssuedMatInputList(string JWPOId, string JWOutputId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				return Json(R.GetIssuedMatInputList(JWPOId, JWOutputId), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		// Template Report
+
+		[Authorize, HttpGet]
+		public ActionResult GRNReport(string grnId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				R.GRNReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+				return null;
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+
+	//		var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+			//_inventoryReveiveService.InventoryReceive(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+			//return null;
+		}
+
 	}
 }

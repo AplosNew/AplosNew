@@ -49,7 +49,7 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
     $scope.GetDetailData = function (masterId) {
         $http({
             method: 'GET',
-            url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingDetailData?masterId=' + masterId
+            url: 'JobWork/OutSourceBillingPost/GetJWReceiveBillingDetailData?masterId=' + masterId
         }).then(function successCallback(response) {
             $scope.outSourceBillingDetailList = response.data;
 

@@ -1681,7 +1681,7 @@ namespace Aplos.Areas.Products.Controllers
 						,'' ApprovedByName
 						,'' ApprovedBy
 						,Posted=CASE WHEN SA.VoucherId IS NULL THEN 'No' ELSE 'YES'  END
-						,'' 'NoteForAccounts'
+						,ISNULL(SA.Narration,'') NoteForAccounts
 						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
@@ -1692,11 +1692,56 @@ namespace Aplos.Areas.Products.Controllers
 						,FORMAT( PSI.TransportDocDate, 'dd-MMM-yyyy')TransportDocDate,Agent.UserName as AgentName
 						,''AgentCommission
 						,'' Insurance
-,PSI.CargoGrossWt GrossWeight,''LoTNo
+						,PSI.CargoGrossWt GrossWeight,''LoTNo
+						,CON.ContractNo
+						,ML.LCRef MasterLcNo
+						,SA.ComercialInvoiceNo
+						,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
+						,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
+						,PTM.UserName PaymentTerm,FORMAT(SA.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
+						,SA.BaseNoOfDays NoOfDays
+					    ,FORMAT(SA.MatureDate,'dd-MMM-yyyy') MatureDate
+						,PL.Amount LCAmount
+						,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
+						,TA.UserName TransportAgent	
+						
+						,CNfA.UserName CNFAgent
+						,PSI.CNFContainerNo
+						,PSI.CNFVesselTrackingNo
+						, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
+                                         from trn.SalesMaterial SMX									 
+										 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+										  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+										  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+							                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											, RealizeAmount=isnull(I.WrittenOffAmount,0)
+					
+							, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
+                                         from trn.InvoiceWriteOffDetail IWD									 
+										 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
+										  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
+						                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+							--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
+
+
 						FROM TRN.SalesMaterial AS SM 
 						LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
-						LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
-						LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+
+							left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
+							left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+							left outer join [Contract] CON on CON.Id=MOI.ContractId
+							left outer join PurchaseLC PL on PL.ContractId=CON.Id
+							Left outer join MasterLC ML on ML.Id=CON.MasterLCId
+							left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
+							left outer join MST.PaymentTerm PTM on PTM.Id=SA.PaymentTermId
+
+							left outer join HKP.Party CNfA on CNfA.Id=SA.PartyId
+							left outer join HKP.Party TA on TA.Id=SA.PartyId
+
+
+						--LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
+						--LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 						LEFT JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
 						LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
 						LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
@@ -1725,6 +1770,8 @@ namespace Aplos.Areas.Products.Controllers
 						LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
 						LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=SA.PlantId
 						Left JOIN [ORG].[Entity] E On E.id= SA.EntityId
+						LEFT JOIN (SELECT SUM(Amount) Amount,SUM(WrittenOffAmount) WrittenOffAmount,VoucherId 
+										FROM TRN.Invoice GROUP BY VoucherId) I ON I.VoucherId=SA.VoucherId
 						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount,hs.Code HSCode 
 								   FROM [TRN].[SalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
@@ -1776,13 +1823,14 @@ namespace Aplos.Areas.Products.Controllers
 								
 						) TAxInfo6 ON TAxInfo6.SalesMaterialId=SM.Id 
 						LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
-LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
+                        --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
 
-						WHERE SA.PlantId='"+identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN  '"+fromDate+@"' AND '"+toDate+@"'
-						UNION ALL
+						WHERE SA.PlantId='" + identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN  '"+fromDate+@"' AND '"+toDate+ @"'
+
+							UNION ALL
 						
-						Select                  
+												Select                  
 						ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
 						,IR.SourceType
 						,ISs.Id
@@ -1841,13 +1889,56 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
 ,''ContainerNo ,''TransporterName,''TransportDocRefNo 
-						,''TransportDocDate,''AgentName
+						,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate,''AgentName
 						,''AgentCommission
 						,'' Insurance
 ,''GrossWeight,''LoTNo
+,CON.ContractNo
+						,ML.LCRef MasterLcNo
+						,IR.ComercialInvoiceNo
+						,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
+						,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
+						,PTM.UserName PaymentTerm,FORMAT(IR.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
+						,IR.BaseNoOfDays NoOfDays
+					    ,FORMAT(IR.MatureDate,'dd-MMM-yyyy') MatureDate
+						,PL.Amount LCAmount
+						,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
+						,TA.UserName TransportAgent	
+						
+						,CNfA.UserName CNFAgent
+						,PSI.CNFContainerNo
+						,PSI.CNFVesselTrackingNo
+						, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
+                                         from trn.SalesMaterial SMX									 
+										 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+										  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+										  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+							                where smx.SalesId=IR.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											, RealizeAmount=isnull(I.WrittenOffAmount,0)
+					
+							, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
+                                         from trn.InvoiceWriteOffDetail IWD									 
+										 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
+										  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
+						                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+							--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
+
 						from trn.SalesService AS ISs
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
+						left outer join trn.SalesMaterial IRM on IRM.SalesId=IR.Id
+							left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
+							left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+							left outer join [Contract] CON on CON.Id=MOI.ContractId
+							left outer join PurchaseLC PL on PL.ContractId=CON.Id
+							Left outer join MasterLC ML on ML.Id=CON.MasterLCId
+							left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
+							left outer join MST.PaymentTerm PTM on PTM.Id=IR.PaymentTermId
+
+							left outer join HKP.Party CNfA on CNfA.Id=IR.PartyId
+							left outer join HKP.Party TA on TA.Id=IR.PartyId
+
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
 						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
@@ -1916,11 +2007,13 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 									WHERE B.Code='TCS'
 						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
-						WHERE IR.PlantId='"+identity.PlantId+ @"' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
-						UNION ALL
+						WHERE IR.PlantId='" + identity.PlantId+@"' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+
+
+						union ALL
+
 
 						SELECT 
-
 						ROW_NUMBER() Over(Order by   II.Id) As[S.N]
 						,'InventorySales' SourceType
 						,IID.Id
@@ -1950,12 +2043,12 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 						, ISNULL(TAxInfo.HSCode,'') HSNCode
 
-						,Sum(IID.PolicyRate) BaseRate
+						,IID.PolicyRate BaseRate
 						,0 BaseUoMFactor
-						,sum(IID.PolicyRate) TransactionRate
-						,Sum(IID.Qty) TransactionQty
-						,Sum(IID.Qty *IID.PolicyRate) TransactionAmount
-						,sum(SCr1.TaxAmount) TaxAmount
+						,IID.PolicyRate TransactionRate
+						,IID.TransactionQty 
+						,IID.TransactionQty *IID.PolicyRate TransactionAmount
+						,SCr1.TaxAmount TaxAmount
 						,0 NetAmount
 						,II.VoucherId VoucherDetailId
 						,TUoM.UserName AS BaseUoM
@@ -1964,8 +2057,8 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						,'' DeliveryDate
 						,'' DestinationName
 						,'' SOType
-						,sum(SCr.Amount) ServiceCharge
-						,sum(SCr.TotalTaxAmount) ServiceTax
+						,SCr.Amount ServiceCharge
+						,SCr.TotalTaxAmount ServiceTax
 
 						,E.UserName AS Entity 
 						,EI2.EmployeeName CheckedByName
@@ -1975,26 +2068,45 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						,Posted=CASE WHEN II.[Status]='Posting' then 'Yes' else 'No'  END
 						,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) 'NoteForAccounts'
 
-						,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST,sum(TAxInfo.Percentage) CGSTTaxPercentage--MaterialTaxPer						
-						,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST,sum(TAxInfo2.Percentage) SGSTTaxPercentage
-						,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST,sum(TAxInfo1.Percentage) IGSTTaxPercentage
-						,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS,sum(TAxInfo3.Percentage) TDSTaxPercentage
-						,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS,sum(TAxInfo6.Percentage) TCSTaxPercentage
+						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
 ,''ContainerNo ,''TransporterName,''TransportDocRefNo 
 						,''TransportDocDate,''AgentName
 						,''AgentCommission
 						,'' Insurance
 ,''GrossWeight,''LoTNo
-						FROM[TRN].[InventorySales] AS II
-						left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,IsAsset,BaseUOMId from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
+,''ContractNo
+						,''MasterLcNo
+						,''ComercialInvoiceNo
+						,''ExpiryDate
+						,''BLAWBNo,''BLAWBDate
+						,''PaymentTerm,''BaseOnDueDate
+						,0NoOfDays
+					    ,''MatureDate
+						,0LCAmount
+						,''ExFactoryDate
+						,''TransportAgent	
+						
+						,''CNFAgent
+						,''CNFContainerNo
+						,''CNFVesselTrackingNo
+						,''OwnReferenceNo
+											,0RealizeAmount
+					
+							,''RealizeDate
+
+							--,0BalanceAmount
+						
+						FROM[TRN].[InventorySalesDetail] AS IID
+						left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
+
 						left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
 						left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 						left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 						Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-
-						--left join trn.InventorySalesHistory IIH ON IIH.InventorySalesDetailId=IID.Id
-						--left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
-						--left JOIN SCS.Country c ON C.Id=IR.CountryId
 
 						LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
 						LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
@@ -2067,18 +2179,19 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 									WHERE B.Code='TCS' 								
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
-						WHERE II.PlantId='"+identity.PlantId+ @"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
-						GROUP BY p.Code	,II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
-						,II.SalesDate, MS.UserName
-						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo 
-						,PPI.UserName , AM.Address1,ST.UserName,PPI.GSTIN, PPI1.UserName,AM1.Address1,ST1.UserName,PPI1.GSTIN,II.ToCurrencyRate, II.DocRefNo, II.DocDate 
-						, II.CurrencyId,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) ,p.UserName ,P.Id 
-						,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName ,II.ApprovedBy,TAxInfo.HSCode
-						,MT.UserName ,MGM.UserName,IM.MaterialMasterId,MM.UserName, ART.StandardName 
-						, ISNULL(FCV.UserName,''), ISNULL(SCV.UserName,''), ISNULL(TCV.UserName,''),II.[Status]
-						,Pnt.UserName,HSNC.Code ,Com.UserName,TUoM.UserName	,ComG.UserName,II.VoucherId,IID.Id
+						WHERE II.PlantId='"+identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+						----GROUP BY p.Code	,II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
+						--,II.SalesDate, MS.UserName
+						--,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo 
+						--,PPI.UserName , AM.Address1,ST.UserName,PPI.GSTIN, PPI1.UserName,AM1.Address1,ST1.UserName,PPI1.GSTIN,II.ToCurrencyRate, II.DocRefNo, II.DocDate 
+						--, II.CurrencyId,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) ,p.UserName ,P.Id 
+						--,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName ,II.ApprovedBy,TAxInfo.HSCode
+						--,MT.UserName ,MGM.UserName,IM.MaterialMasterId,MM.UserName, ART.StandardName 
+						--, ISNULL(FCV.UserName,''), ISNULL(SCV.UserName,''), ISNULL(TCV.UserName,''),II.[Status]
+						--,Pnt.UserName,HSNC.Code ,Com.UserName,TUoM.UserName	,ComG.UserName,II.VoucherId,IID.Id
 
 						UNION ALL
+
 						Select                  
 						ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
 						,'InventorySales' SourceType
@@ -2143,6 +2256,26 @@ LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						,''AgentCommission
 						,'' Insurance
 ,''GrossWeight,''LoTNo
+,''ContractNo
+						,''MasterLcNo
+						,''ComercialInvoiceNo
+						,''ExpiryDate
+						,''BLAWBNo,''BLAWBDate
+						,''PaymentTerm,''BaseOnDueDate
+						,0NoOfDays
+					    ,''MatureDate
+						,0LCAmount
+						,''ExFactoryDate
+						,''TransportAgent	
+						
+						,''CNFAgent
+						,''CNFContainerNo
+						,''CNFVesselTrackingNo
+						,''OwnReferenceNo
+						,0RealizeAmount
+					    ,''RealizeDate
+
+							--,0BalanceAmount
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
@@ -2873,7 +3006,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							, InvoiceAmount=isnull(I.Amount,0)
 							, RealizeAmount=isnull(I.WrittenOffAmount,0)
 					
-							, BalanceAmount=isnull(I.Amount - I.WrittenOffAmount,0)
+							
+, BalanceAmount=isnull(isnull(SMD.TransactionAmount,0) -isnull(I.WrittenOffAmount,0),0)
 
 							, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
                                          from trn.InvoiceWriteOffDetail IWD									 
@@ -2886,11 +3020,10 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 										  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
 										  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
 							                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-							,PSI.ExpDate,PSI.CNFBLAWB BLAWBNo,PSI.CNFBLAWBDate BLAWBDate,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate
+							,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpDate,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate
 							,CNfA.UserName CNFAgent
-							,TA.UserName TransportAgent
-							
-							,PSI.ExFactoryDate
+							,TA.UserName TransportAgent							
+							,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
 							,PSI.CNFContainerNo,PSI.CNFVesselTrackingNo
 							
 							,PTM.UserName PaymentTerm,FORMAT(SA.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
@@ -2901,6 +3034,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							
 							,PL.Amount LCAmount,CON.ContractNo
 							,ML.LCRef MasterLcNo
+
+							
 
 							
 
@@ -2994,11 +3129,11 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 									group by ISS.SalesId
 									)ServiceData on ServiceData.SalesId=SA.Id
 							
-							WHERE SA.PlantId='"+identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN '"+fromDate+@"' AND '"+toDate+ @"'-- and sm.SalesId='202110'
+							WHERE SA.PlantId='" + identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN '"+fromDate+@"' AND '"+toDate+ @"'-- and sm.SalesId='202110'
 							Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName
 							,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,E.UserName,SA.VoucherId,I.Amount,I.WrittenOffAmount,PSI.ExpDate,PSI.CNFBLAWB,PSI.CNFBLAWBDate 
 							,PSI.ExFactoryDate,PSI.TransportDocRefNo
-							,PSI.CNFContainerNo,PSI.CNFVesselTrackingNo
+							,PSI.CNFContainerNo,PSI.CNFVesselTrackingNo,SMD.TransactionAmount
 							
 							,PTM.UserName ,SA.BaseOnDueDate,SA.BaseNoOfDays,SA.MatureDate,SA.EXPFromNo,SA.ComercialInvoiceNo
 							,CNfA.UserName,TA.UserName 
@@ -3060,7 +3195,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						,'' MasterOrder
 						, InvoiceAmount=isnull(I.Amount,0)
 						, RealizeAmount=isnull(I.WrittenOffAmount,0)
-							, BalanceAmount=isnull(I.Amount - I.WrittenOffAmount,0)
+							
+, BalanceAmount=isnull(isnull(IID.TransactionAmount,0) -isnull(I.WrittenOffAmount,0),0)
 
 							, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
                                          from trn.InvoiceWriteOffDetail IWD									 
@@ -3153,8 +3289,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 									GROUP BY A.InventorySalesId
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						LEFT JOIN trn.Voucher V On V.Id=II.VoucherId
-						WHERE II.PlantId='"+identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
-						GROUP BY p.Code,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName 
+						WHERE II.PlantId='" + identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+						GROUP BY p.Code,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,IID.TransactionAmount
 						,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName 
 						,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,II.VoucherId,I.Amount,I.WrittenOffAmount";
 						return _sqlRepository.GetDataTable(sql);
@@ -3469,6 +3605,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 				throw ex;
 			}
 		}
+		public string NumberFormatZeroDecimal = "#,##0.00;(#,##0)";
 		public string NumberFormatTwoDecimal = "#,##0.00;(#,##0.00)";
 		public string NumberFormatFourDecimal = "#,####0.0000;(#,####0.0000)";
 		[Authorize, HttpGet]
@@ -3494,8 +3631,6 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 				//Get the first worksheet in the workbook into IWorksheet
 				IWorksheet worksheet = workbook.Worksheets[0];
 				DataTable dtInventorySalesReportList = GetInventorySalesReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount,Summery);
-
-
 
 				if (dtInventorySalesReportList.Rows.Count == 0)
 					throw new Exception("No data found");
@@ -3545,28 +3680,28 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colSL = COL;
 					worksheet[ROW, COL].ColumnWidth = 5;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Id";
 					int colId = COL;
 					worksheet[ROW, COL].ColumnWidth = 10;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "SourceType";
 					int colSourceType = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Sales Invoice No.";
 					int colSalesId = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3574,14 +3709,14 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colSalesDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Sales Invoice Date";
 					int colInvoiceDate = COL; 
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3589,7 +3724,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colSalesOrderId = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3597,7 +3732,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colMasterOrderId = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3605,7 +3740,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colSONO = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3613,7 +3748,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colPONo = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3621,7 +3756,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colBillTo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3630,7 +3765,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colBillToAddress = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3639,7 +3774,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colBillToState = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3647,7 +3782,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colBillToGstNo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3655,7 +3790,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colShipTo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3663,21 +3798,21 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colShipToAddress = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Ship To State";
 					int colShipToState = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Ship To GST No.";
 					int colShipToGSTNo = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3686,49 +3821,49 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colContainer = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Transporter Name";
 					int colTransporterName = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Transpoter Doc Ref No.";
 					int colTranspoterDocRefNo = COL;
 					worksheet[ROW, COL].ColumnWidth = 25;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Transporter Doc Ref No. Date";
 					int colTransporterDocRefDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Insurance Y/N";
 					int colInsurance = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Agent Name";
 					int colAgentName = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Agent Commission %";
 					int colAgentCommission = COL;
 					worksheet[ROW, COL].ColumnWidth = 25;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					
@@ -3736,7 +3871,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colDocRefNo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3744,148 +3879,128 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colDocDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					//worksheet[ROW, COL].Text = "Type";
-					//int colissuetype = COL;
-					//worksheet[ROW, COL].ColumnWidth = 10;
-					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//COL++;
-
-
-
 					worksheet[ROW, COL].Text = "Customer Name";
 					int colPartyName = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-
-
-
 					worksheet[ROW, COL].Text = "Customer Code";
 					int colPartyCode = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Material Group Master Name";
 					int colMaterialGroupMasterName = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-
 					worksheet[ROW, COL].Text = "Material Master Name";
 					int colMaterialMasterName = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-
-
 					worksheet[ROW, COL].Text = "Article Name";
 					int colArticleName = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-
 					worksheet[ROW, COL].Text = "SKU1";
 					int colSKU1 = COL;
 					worksheet[ROW, COL].ColumnWidth = 10;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-
 					worksheet[ROW, COL].Text = "SKU2";
 					int colSKU2 = COL;
 					worksheet[ROW, COL].ColumnWidth = 10;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-
 					worksheet[ROW, COL].Text = "SKU3";
 					int colSKU3 = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-
 					worksheet[ROW, COL].Text = "HSN No";
 					int colHSNCode = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Base Rate";
 					int colBaseRate = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "BaseUoMFactor";
+					worksheet[ROW, COL].Text = "Base UoM Factor";
 					int colBaseUoMFactor = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
-					worksheet[ROW, COL].Text = "TransactionRate";
+					worksheet[ROW, COL].Text = "Transaction Rate";
 					int colTransactionRate = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Gross Weight";
 					int colGrossWeight = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "LOT No";
 					int colLOTNo = COL;
 					worksheet[ROW, COL].ColumnWidth = 10;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
-					worksheet[ROW, COL].Text = "TransactionQty";
+					worksheet[ROW, COL].Text = "Transaction Qty";
 					int colTransactionQty = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "TransactionAmount";
+					worksheet[ROW, COL].Text = "Transaction Amount";
 					int colTransactionAmount = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "TaxAmount";
+					worksheet[ROW, COL].Text = "Tax Amount";
 					int colTaxAmount = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -3903,14 +4018,14 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						 colCGST = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 						worksheet[ROW, COL].Text = "CGST Tax (%)";
 						 colCGSTTax = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 
@@ -3918,14 +4033,14 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						 colSGST = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 						worksheet[ROW, COL].Text = "SGST Tax (%)";
 						 colSGSTTax = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 
@@ -3933,94 +4048,94 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						 colIGST = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 						worksheet[ROW, COL].Text = "IGST Tax (%)";
 						 colIGSTTax = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 
 					}
-					worksheet[ROW, COL].Text = "ServiceCharge";
+					worksheet[ROW, COL].Text = "Service Charge";
 					int colServiceCharge = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "ServiceTax";
+					worksheet[ROW, COL].Text = "Service Tax";
 					int colServiceTax = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "NetAmount";
+					worksheet[ROW, COL].Text = "Net Amount";
 					int colNetAmount = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "VoucherDetailId";
+					worksheet[ROW, COL].Text = "Voucher Detail Id";
 					int colVoucherDetailId = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "BaseUoM";
+					worksheet[ROW, COL].Text = "Base UoM";
 					int colBaseUoM = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "TransactionUoM";
+					worksheet[ROW, COL].Text = "Transaction UoM";
 					int colTransactionUoM = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Currency";
 					int colCurrency = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "ToCurrencyRate";
+					worksheet[ROW, COL].Text = "ToCurrency Rate";
 					int colToCurrencyRate = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "DeliveryDate";
+					worksheet[ROW, COL].Text = "Delivery Date";
 					int colDeliveryDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
-					worksheet[ROW, COL].Text = "DestinationName";
+					worksheet[ROW, COL].Text = "Destination Name";
 					int colDestinationName = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "SOType";
+					worksheet[ROW, COL].Text = "SO Type";
 					int colSOType = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4028,14 +4143,14 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colEntity = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Checked By Name";
 					int colCheckedByName = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4043,7 +4158,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colApprovedByName = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4052,7 +4167,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colPosted = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4060,8 +4175,160 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colNoteForAccounts = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Contract";
+					int colContract = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "MastrerLC Ref No";
+					int colMastrerLCRefNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Commercial Invoice No";
+					int colComercialInvoiceNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Expiry Date";
+					int colExpiryDatet = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "BL/AWB No.";
+					int colBLAWBNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "BL/AWB Date";
+					int colBLAWBDate = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Payment Term";
+					int colPaymentTerm = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Base on Due Date";
+					int colBaseOnDueDate = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "No Of Days";
+					int colNoOfDays = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Mature Date";
+					int colMatureDate = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "LC Amount";
+					int colLCAmount = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "ExFactory Date";
+					int colExFactoryDate = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Transport Agent";
+					int colTransportAgent = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Transport Doc Date";
+					int colTransportDocDate = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "CNF Agent";
+					int colCNFAgent = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Container No.";
+					int colContainerNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Vessel Tracking No.";
+					int colVesselTrackingNo = COL;
+					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				
+
+					//worksheet[ROW, COL].Text = "Own Order Ref.";
+					//int colOwnOrderRef = COL;
+					//worksheet[ROW, COL].ColumnWidth = 30;
+					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					//COL++;
+
+					//worksheet[ROW, COL].Text = "Realize date";
+					//int colRealizeDate = COL;
+					//worksheet[ROW, COL].ColumnWidth = 30;
+					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					//COL++;
+
+					//worksheet[ROW, COL].Text = "Realize amount";
+					//int colRealizeAmount = COL;
+					//worksheet[ROW, COL].ColumnWidth = 30;
+					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					//COL++;
+
+					//worksheet[ROW, COL].Text = "Balance";
+					//int colBalance = COL;
+					//worksheet[ROW, COL].ColumnWidth = 30;
+					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
 
 					int endCol = COL;
 					worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 10f;
@@ -4112,9 +4379,6 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet[ROW, colSKU2].Text = dtInventorySalesReportList.Rows[i]["SecondCharacteristicsValue"].ToString();
 								worksheet[ROW, colSKU3].Text = dtInventorySalesReportList.Rows[i]["ThirdCharacteristicsValue"].ToString();
 								worksheet[ROW, colHSNCode].Text = dtInventorySalesReportList.Rows[i]["HSNCode"].ToString();
-
-
-
 								worksheet[ROW, colBaseRate].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BaseRate"].ToString());
 								worksheet.Range[ROW, colBaseRate].NumberFormat = NumberFormatFourDecimal;
 								worksheet[ROW, colBaseUoMFactor].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BaseUoMFactor"].ToString());
@@ -4143,9 +4407,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 									worksheet[ROW, colIGSTTax].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["IGSTTaxPercentage"].ToString());
 									worksheet.Range[ROW, colIGSTTax].NumberFormat = NumberFormatFourDecimal;
 
-								}
-
-								
+								}								
 								//worksheet[ROW, colTDS].Text = dtInventorySalesReportList.Rows[i]["TDS"].ToString();
 								//worksheet[ROW, colTDSTax].Text = dtInventorySalesReportList.Rows[i]["TDSTaxPercentage"].ToString();
 								//worksheet[ROW, colTCS].Text = dtInventorySalesReportList.Rows[i]["TCS"].ToString();
@@ -4181,7 +4443,36 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet[ROW, colGrossWeight].Text = dtInventorySalesReportList.Rows[i]["GrossWeight"].ToString();
 								worksheet[ROW, colLOTNo].Text = dtInventorySalesReportList.Rows[i]["LoTNo"].ToString();
 
-							
+
+								////worksheet[ROW, colNoteForAccounts].Text = dtInventorySalesReportList.Rows[i]["NoteForAccounts"].ToString();
+								//worksheet[ROW, colRealizeAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["RealizeAmount"].ToString());
+								//worksheet.Range[ROW, colRealizeAmount].NumberFormat = NumberFormatTwoDecimal;
+
+								//worksheet[ROW, colRealizeDate].Text = dtInventorySalesReportList.Rows[i]["RealizeDate"].ToString();
+								//worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BalanceAmount"].ToString());
+								//worksheet.Range[ROW, colBalance].NumberFormat = NumberFormatTwoDecimal;
+
+								//worksheet[ROW, colOwnOrderRef].Text = dtInventorySalesReportList.Rows[i]["OwnReferenceNo"].ToString();
+								worksheet[ROW, colContract].Text = dtInventorySalesReportList.Rows[i]["ContractNo"].ToString();
+								worksheet[ROW, colMastrerLCRefNo].Text = dtInventorySalesReportList.Rows[i]["MasterLcNo"].ToString();
+								worksheet[ROW, colComercialInvoiceNo].Text = dtInventorySalesReportList.Rows[i]["ComercialInvoiceNo"].ToString();
+								worksheet[ROW, colExpiryDatet].Text = dtInventorySalesReportList.Rows[i]["ExpiryDate"].ToString();
+								worksheet[ROW, colBLAWBNo].Text = dtInventorySalesReportList.Rows[i]["BLAWBNo"].ToString();
+								worksheet[ROW, colBLAWBDate].Text = dtInventorySalesReportList.Rows[i]["BLAWBDate"].ToString();
+								worksheet[ROW, colPaymentTerm].Text = dtInventorySalesReportList.Rows[i]["PaymentTerm"].ToString();
+								worksheet[ROW, colBaseOnDueDate].Text = dtInventorySalesReportList.Rows[i]["BaseOnDueDate"].ToString();
+								worksheet[ROW, colNoOfDays].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["NoOfDays"].ToString());
+								worksheet[ROW, colNoOfDays].NumberFormat = NumberFormatZeroDecimal;
+								worksheet[ROW, colMatureDate].Text = dtInventorySalesReportList.Rows[i]["MatureDate"].ToString();
+								worksheet[ROW, colLCAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["LCAmount"].ToString());
+								worksheet[ROW, colExFactoryDate].Text = dtInventorySalesReportList.Rows[i]["ExFactoryDate"].ToString();
+								worksheet[ROW, colTransportAgent].Text = dtInventorySalesReportList.Rows[i]["TransportAgent"].ToString();
+								worksheet[ROW, colTransportDocDate].Text = dtInventorySalesReportList.Rows[i]["TransportDocDate"].ToString();
+								worksheet[ROW, colCNFAgent].Text = dtInventorySalesReportList.Rows[i]["CNFAgent"].ToString();
+								worksheet[ROW, colContainerNo].Text = dtInventorySalesReportList.Rows[i]["CNFContainerNo"].ToString();
+								worksheet[ROW, colVesselTrackingNo].Text = dtInventorySalesReportList.Rows[i]["CNFVesselTrackingNo"].ToString();
+
+
 								worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -4211,35 +4502,35 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colSL = COL;
 					worksheet[ROW, COL].ColumnWidth = 5;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Id";
 					int colId = COL;
 					worksheet[ROW, COL].ColumnWidth = 10;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "SourceType";
 					int colSourceType = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;					
 					worksheet[ROW, COL].Text = "Entry Date";
 					int colSalesDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Invloice Date";
 					int colInvoiceDate = COL;  
 					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4247,7 +4538,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colBillTo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4255,14 +4546,14 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colShipTo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Doc Ref No";
 					int colDocRefNo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4270,7 +4561,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colDocDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;	
 
@@ -4278,7 +4569,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colPartyName = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4286,63 +4577,63 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colPartyCode = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Customer PO Number";
 					int colCustomerPONumber = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Master Order Number";
 					int colMasterOrderNumber = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Sales Order Number";
 					int colSalesOrderNumber = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Tran. Currency";
 					int colCurrency = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Exchange Rate";
 					int colToCurrencyRate = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Mat.Amt";
 					int colMatAmt = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Serv. Amt";
 					int colServAmt = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Ttl. Taxable Amt.";
 					int colTransactionAmount = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					int colCGST = 0;
@@ -4362,7 +4653,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						 colCGST = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 
@@ -4370,21 +4661,21 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						 colSGST = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 						worksheet[ROW, COL].Text = "IGST";
 						 colIGST = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 						worksheet[ROW, COL].Text = "TCS";
 						 colTCS = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL ++;
 					}
@@ -4393,7 +4684,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colBooksMatAmt = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4401,7 +4692,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colBooksServAmt = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4409,7 +4700,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colBooksTtlTaxableAmt = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4419,7 +4710,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						colBooksCGST = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 
@@ -4428,7 +4719,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						colBooksSGST = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 
@@ -4437,7 +4728,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						colBooksIGST = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 
@@ -4446,66 +4737,32 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						colBooksTCS = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 						COL++;
 					}
-
-					
-
-					//worksheet[ROW, COL].Text = "ServiceCharge";
-					//int colServiceCharge = COL;
-					//worksheet[ROW, COL].ColumnWidth = 12;
-					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//COL++;
-					//worksheet[ROW, COL].Text = "ServiceTax";
-					//int colServiceTax = COL;
-					//worksheet[ROW, COL].ColumnWidth = 12;
-					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//COL++;
-
-					//worksheet[ROW, COL].Text = "BooksCurrencyTransactionAmount";
-					//int colBooksCurrencyTransactionAmount = COL; 
-					//worksheet[ROW, COL].ColumnWidth = 12;
-					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//COL++;
 
 					worksheet[ROW, COL].Text = "VoucherNo";
 					int colVoucherDetailId = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					
-					
-					
-					//worksheet[ROW, COL].Text = "SOType";
-					//int colSOType = COL;
-					//worksheet[ROW, COL].ColumnWidth = 12;
-					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//COL++;
+					COL++;		
+				
 
 					worksheet[ROW, COL].Text = "Entity";
 					int colEntity = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Checked By Name";
 					int colCheckedByName = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4513,7 +4770,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colApprovedByName = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4522,7 +4779,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colPosted = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4530,7 +4787,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colNoteForAccounts = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4538,119 +4795,119 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colContract = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "MastrerLC Ref No";
 					int colMastrerLCRefNo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Commercial Invoice No";
 					int colComercialInvoiceNo= COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Expiry Date";
 					int colExpiryDatet = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "BL/AWB No.";
 					int colBLAWBNo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "BL/AWB Date";
 					int colBLAWBDate= COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Payment Term";
 					int colPaymentTerm = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Base on Due Date";
 					int colBaseOnDueDate= COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "No Of Days";
 					int colNoOfDays = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Mature Date";
 					int colMatureDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "LC Amount";
 					int colLCAmount= COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "ExFactory Date";
 					int colExFactoryDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Transport Agent";
 					int colTransportAgent = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Transport Doc Date";
 					int colTransportDocDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "CNF Agent";
 					int colCNFAgent = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Container No.";
 					int colContainerNo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Vessel Tracking No.";
 					int colVesselTrackingNo = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4658,7 +4915,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colOwnOrderRef = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4666,7 +4923,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colRealizeDate = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4674,7 +4931,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colRealizeAmount = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
@@ -4682,7 +4939,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					int colBalance = COL;
 					worksheet[ROW, COL].ColumnWidth = 30;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 					//COL++;
@@ -4706,24 +4963,15 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet[ROW, colId].Text = dtInventorySalesReportList.Rows[i]["SalesId"].ToString();
 								worksheet[ROW, colSourceType].Text = dtInventorySalesReportList.Rows[i]["SourceType"].ToString();
 
-								//worksheet[ROW, colSalesId].Text = dtInventorySalesReportList.Rows[i]["SalesId"].ToString();
 								worksheet[ROW, colSalesDate].Text = dtInventorySalesReportList.Rows[i]["SalesDate"].ToString();
 								worksheet[ROW, colInvoiceDate].Text = dtInventorySalesReportList.Rows[i]["InvoiceDate"].ToString();
-								//worksheet[ROW, colSalesOrderId].Text = dtInventorySalesReportList.Rows[i]["SalesOrderId"].ToString();
-								//worksheet[ROW, colMasterOrderId].Text = dtInventorySalesReportList.Rows[i]["MasterOrderId"].ToString();
-								//worksheet[ROW, colSONO].Text = dtInventorySalesReportList.Rows[i]["SONo"].ToString();
-								//worksheet[ROW, colPONo].Text = dtInventorySalesReportList.Rows[i]["PONumber"].ToString();
 								worksheet[ROW, colBillTo].Text = dtInventorySalesReportList.Rows[i]["BillTo"].ToString();
 								worksheet[ROW, colShipTo].Text = dtInventorySalesReportList.Rows[i]["ShipTo"].ToString();
 								worksheet[ROW, colToCurrencyRate].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["ToCurrencyRate"].ToString());
+								worksheet[ROW, colToCurrencyRate].NumberFormat = NumberFormatFourDecimal;
+
 								worksheet[ROW, colDocRefNo].Text = dtInventorySalesReportList.Rows[i]["DocRefNo"].ToString();
-                                //if (string.IsNullOrEmpty(dtInventorySalesReportList.Rows[i]["DocDate"].ToString()))
-                                //{
-                                //    worksheet[ROW, colDocDate].Text = dtInventorySalesReportList.Rows[i]["DocDate"].ToString();
-                                //}
-
                                 worksheet[ROW, colDocDate].Text = dtInventorySalesReportList.Rows[i]["DocDate"].ToString();
-
                                 worksheet[ROW, colCustomerPONumber].Text = dtInventorySalesReportList.Rows[i]["PONumber"].ToString();
 								worksheet[ROW, colMasterOrderNumber].Text = dtInventorySalesReportList.Rows[i]["MasterOrder"].ToString();
 								worksheet[ROW, colSalesOrderNumber].Text = dtInventorySalesReportList.Rows[i]["SONumber"].ToString();
@@ -4732,16 +4980,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet[ROW, colPartyCode].Text = dtInventorySalesReportList.Rows[i]["Code"].ToString();
 
 								worksheet[ROW, colCurrency].Text = dtInventorySalesReportList.Rows[i]["Currency"].ToString();
-								//worksheet[ROW, colMaterialGroupMasterName].Text = dtInventorySalesReportList.Rows[i]["MaterialGroupMasterName"].ToString();
-								//worksheet[ROW, colMaterialMasterName].Text = dtInventorySalesReportList.Rows[i]["MaterialMasterName"].ToString();
-								////worksheet[ROW, colMaterialMasterId].Text = dtInventorySalesReportList.Rows[i]["MaterialMasterId"].ToString();
-								//worksheet[ROW, colArticleName].Text = dtInventorySalesReportList.Rows[i]["MaterialMasterArticleName"].ToString();
-								//worksheet[ROW, colSKU1].Text = dtInventorySalesReportList.Rows[i]["FirstCharacteristicsValue"].ToString();
-								//worksheet[ROW, colSKU2].Text = dtInventorySalesReportList.Rows[i]["SecondCharacteristicsValue"].ToString();
-								//worksheet[ROW, colSKU3].Text = dtInventorySalesReportList.Rows[i]["ThirdCharacteristicsValue"].ToString();
-								//worksheet[ROW, colHSNCode].Text = dtInventorySalesReportList.Rows[i]["HSNCode"].ToString();
-
-
+							
 
 								//worksheet[ROW, colBaseRate].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BaseRate"].ToString());
 								//worksheet.Range[ROW, colBaseRate].NumberFormat = NumberFormatFourDecimal;
@@ -4819,7 +5058,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet[ROW, colBLAWBDate].Text = dtInventorySalesReportList.Rows[i]["BLAWBDate"].ToString();
 								worksheet[ROW, colPaymentTerm].Text = dtInventorySalesReportList.Rows[i]["PaymentTerm"].ToString();
 								worksheet[ROW, colBaseOnDueDate].Text = dtInventorySalesReportList.Rows[i]["BaseOnDueDate"].ToString();
-								worksheet[ROW, colNoOfDays].Text = dtInventorySalesReportList.Rows[i]["NoOfDays"].ToString();
+								worksheet[ROW, colNoOfDays].Number = clsStaticInfo.dbl( dtInventorySalesReportList.Rows[i]["NoOfDays"].ToString());
+								worksheet[ROW, colNoOfDays].NumberFormat = NumberFormatZeroDecimal;
 								worksheet[ROW, colMatureDate].Text = dtInventorySalesReportList.Rows[i]["MatureDate"].ToString();
 								worksheet[ROW, colLCAmount].Number =clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["LCAmount"].ToString());
 								worksheet[ROW, colExFactoryDate].Text = dtInventorySalesReportList.Rows[i]["ExFactoryDate"].ToString();
@@ -4828,9 +5068,6 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet[ROW, colCNFAgent].Text = dtInventorySalesReportList.Rows[i]["CNFAgent"].ToString();
 								worksheet[ROW, colContainerNo].Text = dtInventorySalesReportList.Rows[i]["CNFContainerNo"].ToString();
 								worksheet[ROW, colVesselTrackingNo].Text = dtInventorySalesReportList.Rows[i]["CNFVesselTrackingNo"].ToString();
-
-
-
 								worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -4848,8 +5085,6 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							worksheet.Range[1, 1, 3, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
 						}
-
-
 					}
 					catch (Exception ex)
 					{

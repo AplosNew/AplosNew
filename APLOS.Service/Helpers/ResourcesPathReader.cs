@@ -695,6 +695,19 @@ namespace Library.Service.Helpers
 			}
 		}
 
+		// JW Receipt Template
+		public static string GetReceiptTemplateLetterPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "\\Templates\\");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
 
 		public static string GetCheckPath()
 		{
