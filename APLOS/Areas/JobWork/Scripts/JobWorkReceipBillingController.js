@@ -48,7 +48,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.ReceiptVA = Object.assign({}, $scope.ReceiptVAModelTemp);
 
     $scope.ReceiptTransformationModelTemp = {
-
         Id: null,
         GRNDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy')
         , CompanyGroupId: null
