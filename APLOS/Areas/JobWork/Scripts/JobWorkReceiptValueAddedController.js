@@ -1083,6 +1083,16 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 		}
 	};
 
+	$scope.AllTabPrintTemplate = function (data) {
+		//debugger;
+		//var x = "#" + z;
+		//var gridObj = $(x).data("ejGrid");
+		//var data = gridObj.getSelectedRecords()[0];
+		location.href = "JobWork/JobWorkReceiptValueAdded/GRNReport?grnId=" + data.Id;
+
+
+	};
+
 
 	//region code by sk
 	cboService.getCboTransactionCurrencyByCompany('', function (result) {
