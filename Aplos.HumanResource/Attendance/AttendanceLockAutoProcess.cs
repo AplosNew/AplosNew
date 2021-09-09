@@ -44,6 +44,9 @@ namespace Library.HumanResource.Attendance
                             DataRow dr = dsData.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             dr["isActive"] = true;
+                            dr["UpdatedBy"] = "Schedule";
+                            dr["UpdatedDate"] = System.DateTime.Now;
+                            dr["UpdatedFromIP"] = "...";
                             dr.EndEdit();
                         }
                         else
