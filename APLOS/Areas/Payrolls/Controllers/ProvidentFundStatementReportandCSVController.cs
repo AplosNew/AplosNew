@@ -515,48 +515,49 @@ namespace Aplos.Areas.Payrolls.Controllers
                     xlsRow++;
 
                     formulaStartRow = xlsRow;
-                    //for (int i = 0; i < x.Count; i++)
-                    //{
+                    for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                    {
 
-                    //    dvEmpInfo = new DataView(dtEmpInfo);
-                    //    //dvEmpInfo.Table = dtEmpInfo;
+                        dvEmpInfo = new DataView(dtEmpInfo);
+                        //dvEmpInfo.Table = dtEmpInfo;
 
-                    //    dvEmpInfo.RowFilter = "EmployeeCode = '" + x[i] + "'";
+                        dvEmpInfo.RowFilter = "EmployeeCode = '" + dtEmpInfo.Rows[i]["EmployeeCodes"].ToString() + "'";
 
-                    //    var basic = GetSalaryheadValue(dvEmpInfo, "B");
-                    //    totalBasic += basic;
-                    //    bool basicIntegerInDisb = GetSalaryheadDecimalType(dvEmpInfo, "B");
-                    //    int basicDecimalPoint = GetSalaryheadDecimalPoint(dvEmpInfo, "B");
-                    //    var gross = GetSalaryheadValue(dvEmpInfo, "GROSS");
-                    //    totalGross += gross;
-                    //    bool grossIntegerInDisb = GetSalaryheadDecimalType(dvEmpInfo, "GROSS");
-                    //    int grossDecimalPoint = GetSalaryheadDecimalPoint(dvEmpInfo, "GROSS");
+                        var basic = GetSalaryheadValue(dvEmpInfo, "B");
+                        totalBasic += basic;
+                        bool basicIntegerInDisb = GetSalaryheadDecimalType(dvEmpInfo, "B");
+                        int basicDecimalPoint = GetSalaryheadDecimalPoint(dvEmpInfo, "B");
+                        var gross = GetSalaryheadValue(dvEmpInfo, "GROSS");
+                        totalGross += gross;
+                        bool grossIntegerInDisb = GetSalaryheadDecimalType(dvEmpInfo, "GROSS");
+                        int grossDecimalPoint = GetSalaryheadDecimalPoint(dvEmpInfo, "GROSS");
 
-                    //    var EmployeeName = GetEmployeeName(dvEmpInfo, Convert.ToString(x[i]));
-
-
-                    //    slCount++;
-                    //    #region Loop
-
-                    //    ru.SetText(ref sheet1, xlsRow, colSrNo, slCount);
-                    //    ru.SetTextBorder(ref sheet1, xlsRow, colPaycode, x[i].ToString());
-                    //    ru.SetTextBorder(ref sheet1, xlsRow, colEmployeeName, EmployeeName);
+                        var EmployeeName = GetEmployeeName(dvEmpInfo, Convert.ToString(dtEmpInfo.Rows[i]["EmployeeCodes"].ToString()));
 
 
-                    //    sheet1.Range[xlsRow, colWagesAmount].Number = Convert.ToDouble(basic);
-                    //    sheet1.Range[xlsRow, colWagesAmount].NumberFormat = GetDecimalFormat(basicIntegerInDisb, basicDecimalPoint);
-                    //    sheet1.Range[xlsRow, colWagesAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //    sheet1.Range[xlsRow, colWagesAmount].BorderAround(ExcelLineStyle.Hair);
+                        slCount++;
+                        #region Loop
 
-                    //    sheet1.Range[xlsRow, colRemarksDOL].Number = Convert.ToDouble(gross);
-                    //    sheet1.Range[xlsRow, colRemarksDOL].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
-                    //    sheet1.Range[xlsRow, colRemarksDOL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //    sheet1.Range[xlsRow, colRemarksDOL].BorderAround(ExcelLineStyle.Hair);
+                        ru.SetText(ref sheet1, xlsRow, colSrNo, slCount);
+                        ru.SetTextBorder(ref sheet1, xlsRow, colPaycode, dtEmpInfo.Rows[i]["EmployeeCodes"].ToString());
+                        ru.SetTextBorder(ref sheet1, xlsRow, colEmployeeName, EmployeeName);
 
-                    //    #endregion Loop
-                    //    xlsRow++;
 
-                    //}
+
+                        sheet1.Range[xlsRow, colWagesAmount].Number = Convert.ToDouble(basic);
+                        sheet1.Range[xlsRow, colWagesAmount].NumberFormat = GetDecimalFormat(basicIntegerInDisb, basicDecimalPoint);
+                        sheet1.Range[xlsRow, colWagesAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, colWagesAmount].BorderAround(ExcelLineStyle.Hair);
+
+                        sheet1.Range[xlsRow, colRemarksDOL].Number = Convert.ToDouble(gross);
+                        sheet1.Range[xlsRow, colRemarksDOL].NumberFormat = GetDecimalFormat(grossIntegerInDisb, grossDecimalPoint);
+                        sheet1.Range[xlsRow, colRemarksDOL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, colRemarksDOL].BorderAround(ExcelLineStyle.Hair);
+
+                        #endregion Loop
+                        xlsRow++;
+
+                    }
                     sheet1.Range[xlsRow, colEmployeeName].Text = "Total ";
 
                     sheet1.Range[xlsRow, colWagesAmount].Number = Convert.ToDouble(totalBasic);
