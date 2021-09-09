@@ -1,8 +1,12 @@
-﻿using Library.Data.Sql;
+﻿using Library.Crosscutting.Security;
+using Library.Data.Sql;
+using Library.Service.Extension;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Library.MaterialManagement.CutPlan
@@ -241,5 +245,152 @@ namespace Library.MaterialManagement.CutPlan
                 throw e;
             }
         }
+        public void Save(List<Dictionary<string, object>> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails, List<Dictionary<string, object>> SkuValueList)
+        {
+            try
+            {
+                DataSet dsCutPlanMaster;
+                DataSet dsCutPlanMarkerDetails;
+                DataSet dsCutPlanChild;
+                DataSet dsCutPlanFormation;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                string CutPlanMasterId = string.Empty;
+                bplib.clsGenID objGenID = new bplib.clsGenID();
+
+                #region Cut Plan M A S T E R save
+
+                string sql = "SELECT * FROM CutPlanMaster WHERE Id='" + MasterData.Id + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsCutPlanMaster, false, "1");
+
+                if (dsCutPlanMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsCutPlanMaster.Tables[0].NewRow();
+
+                    string sID = string.Empty;
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[CutPlanMaster]", out sID);
+                    CutPlanMasterId = "CPM_" + sID;
+                    dr["Id"] = CutPlanMasterId;
+                    dr["ProductionOrderId"] = MasterData.ProductionOrderId;
+                    
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsCutPlanMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    DataRow dr = dsCutPlanMaster.Tables[0].DefaultView[0].Row;
+                    dr.BeginEdit();
+                    CutPlanMasterId = dr["Id"].ToString();
+                    dr["ProductionOrderId"] = MasterData.ProductionOrderId;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now;
+                    dr["UpdatedFromIP"] = MasterData.ProductionOrderId;
+                    dr.EndEdit();
+                }
+
+                #endregion
+
+                #region Cut Plan M A R K E R Details
+
+                string sql1 = "SELECT * FROM CutPlanMarkerDetails WHERE CutPlanMasterId='" + CutPlanMasterId + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql1, out dsCutPlanMarkerDetails, false, "1");
+
+                if (dsCutPlanMarkerDetails.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsCutPlanMarkerDetails.Tables[0].NewRow();
+
+                    
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[CutPlanMarkerDetails]", out string CPM);
+
+                    dr["Id"] = "CPMD_" + CPM;
+                    dr["CutPlanMasterId"] = CutPlanMasterId;
+                    dr["MarkerId"] = CPMarkerDetails.MarkerId;
+                    dr["MarkerCharacteristicsId"] = CPMarkerDetails.MarkerCharacteristicsId;
+                    dr["RoundingType"] = CPMarkerDetails.RoundingType;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsCutPlanMarkerDetails.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    DataRow dr = dsCutPlanMarkerDetails.Tables[0].DefaultView[0].Row;
+                    dr.BeginEdit();
+
+                    dr["CutPlanMasterId"] = CutPlanMasterId;
+                    dr["MarkerId"] = CPMarkerDetails.MarkerId;
+                    dr["MarkerCharacteristicsId"] = CPMarkerDetails.MarkerCharacteristicsId;
+                    dr["RoundingType"] = CPMarkerDetails.RoundingType;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now;
+                    dr["UpdatedFromIP"] = MasterData.ProductionOrderId;
+                    dr.EndEdit();
+                }
+
+                #endregion
+
+                #region Cut Plan F O R M A T I O N
+
+                string sql2 = "SELECT * FROM CutPlanFormation WHERE CutPlanMasterId='" + CutPlanMasterId + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql2, out dsCutPlanFormation, false, "1");
+
+                while (dsCutPlanFormation.Tables[0].DefaultView.Count > 0)
+                {
+                    dsCutPlanFormation.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < SkuValueList.Count; i++)
+                {
+                    DataRow dr = dsCutPlanFormation.Tables[0].NewRow();
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[CutPlanFormation]", out string TempId);
+                    dr["Id"] = "CPF" + TempId;
+                    dr["CutPlanMasterId"] = CutPlanMasterId;
+                    dr["MarkerCharacteristicsValueId"] = SkuValueList[i]["MarkerCharacteristicsValueId"].ToString();
+
+                    dsCutPlanFormation.Tables[0].Rows.Add(dr);
+                }
+
+                #endregion
+
+                #region Cut Plan C H I L D
+
+
+
+                #endregion
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsCutPlanMaster, dsCutPlanMarkerDetails);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
+}
+public class CutPlanMaster
+{
+    public string Id { get; set; }
+    public string ProductionEntityId { get; set; }
+    public string ProductionOrderId { get; set; }
+}
+public class CutPlanMarkerDetails
+{
+    public string Id { get; set; }
+    public string CutPlanMasterId { get; set; }
+    public string MarkerId { get; set; }
+    public string MarkerCharacteristicsId { get; set; }
+    public string RoundingType { get; set; }
 }
