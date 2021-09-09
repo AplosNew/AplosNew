@@ -862,7 +862,7 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
         else {
             $scope.advanceTax.TaxName = $.grep($scope.taxCodCboList, function (item) {
                 return item.Id === $scope.advanceTax.TaxCodeId;
-            })[0].Text;
+            })[0].UserName;
             $scope.advanceTaxesList.push($scope.advanceTax);
             $scope.advanceTax = {};
         }
