@@ -3992,7 +3992,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						,BF.Code,BF.UserName
 						,AF.Code,AF.UserName
 
-						UNION
+						UNION ALL
 
 						SELECT  'GRIR' AS OtherName, 'Cr' AS TrnType
 							,GLGeneralInfoId =SVGL.ClearingAccountGLId
