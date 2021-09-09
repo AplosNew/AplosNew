@@ -1025,14 +1025,14 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 data.Balance = TranQty - (data.Otherqty + parseFloat(data.TransactionQty));
 
                 if (data.Balance >= 0) {
-                    if (TranQty >= (data.Otherqty + parseFloat(data.TransactionQty))) {
-                        data.TrnAmount = data.TransactionRate * parseFloat(data.TransactionQty);
+                    //if (TranQty >= (data.Otherqty + parseFloat(data.TransactionQty))) {
+                    //    data.TrnAmount = data.TransactionRate * parseFloat(data.TransactionQty);
 
                         $scope.CalculateMaterialAmount();
 
-                    } else {
-                        throw 'Current quantity can not greater than balance quantity!';
-                    }
+                    //} else {
+                    //    throw 'Current quantity can not greater than balance quantity!';
+                    //}
                 } else {
                     data.Balance = null;
                     data.TransactionQty = null;
