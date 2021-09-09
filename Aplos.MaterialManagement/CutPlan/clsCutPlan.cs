@@ -355,7 +355,10 @@ namespace Library.MaterialManagement.CutPlan
                     objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[CutPlanFormation]", out string TempId);
                     dr["Id"] = "CPF" + TempId;
                     dr["CutPlanMasterId"] = CutPlanMasterId;
-                    dr["MarkerCharacteristicsValueId"] = SkuValueList[i]["MarkerCharacteristicsValueId"].ToString();
+                    dr["MarkerCharacteristicsValueId"] = SkuValueList[i]["CharacteristicsValueId"].ToString();
+                    dr["MarkerRatio"] = SkuValueList[i]["Ratio"].ToString();
+                    dr["[QtyForCalculation]"] = SkuValueList[i]["[QtyForCalculation]"].ToString();
+                    dr["[CalculatedQty]"] = SkuValueList[i]["[CalculatedQty]"].ToString();
 
                     dsCutPlanFormation.Tables[0].Rows.Add(dr);
                 }
