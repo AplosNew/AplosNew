@@ -15,6 +15,8 @@ using Syncfusion.XlsIO;
 using System.Collections.Generic;
 using Syncfusion.Pdf;
 using Library.Service.Helpers;
+using System.Data;
+using Library.Security.Core;
 
 #endregion
 
@@ -33,7 +35,7 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion
 
         #region -- Pages
-     
+
         public ActionResult IdCard()  // Id Card for Laila
         {
             return View();
@@ -75,41 +77,60 @@ namespace Aplos.Areas.Employees.Controllers
             return null;
         }
 
-        //[HttpGet, Authorize]
-        //public ActionResult PrintMultipleIDCard(string[] empId, string tempId, string issuDate, string workTypeId, List<Dictionary<string, object>> dataList)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-        //    string employeeId = "";
-        //    foreach (string item in empId)
-        //    {
-        //        if (employeeId == "")
-        //        {
-        //            employeeId = "" + item + ""; ;
-        //        }
-        //    }
-
-        //    var fileName = "IDCARD-" + empId;
-        //    var workbook = _employeeInfoService.EmployeeMultipleIDCard(employeeId, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, tempId, issuDate, workTypeId, dataList);
-
-        //    workbook.Save("IDCARD.pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
-
-        //    return View();
-        //}
-
         [HttpGet, Authorize]
-        public ActionResult PrintMultipleIDCard(string[] empId, string tempId, string issuDate, string workTypeId, List<Dictionary<string, object>> dataList,bool IsCurrentIssueDate)
+        public ActionResult PrintMultipleIDCard(string[] empId, string tempId, string issuDate, string workTypeId, List<Dictionary<string, object>> dataList, bool IsCurrentIssueDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           
+
+            
+
             string employeeId = "";
-            foreach (string item in empId)
+            foreach (string id in empId)
             {
                 if (employeeId == "")
                 {
-                    employeeId = "" + item + ""; ;
+                    employeeId = "" + id + "";
                 }
+
+                string[] empIdList = id.Split(',');
+                foreach (string item in empIdList)
+                {
+                    var empData = _employeeInfoService.Find(item);
+                    ConnectionManager.DAL.ConManager objCon;
+                    string sql = "SELECT * FROM [dbo].[EmployeeIdCardIssue] WHERE EmpSystemId='" + item + "'";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        dr["Id"] = item;
+                        dr["Sequence"] = 1;
+                        dr["EmpSystemId"] = item;
+                        dr["EmployeeWorkTypeId"] = DBNull.Value;
+                        dr["IssueDate"] = empData.DOJ;
+                        dr["ExpiryDate"] = DBNull.Value;
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+
             }
+
+
+
+
+
+
 
             var fileName = "IDCARD-" + empId;
             var workbook = _employeeInfoService.EmployeeMultipleIDCardPpt(employeeId, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, tempId, issuDate, workTypeId, dataList, IsCurrentIssueDate);

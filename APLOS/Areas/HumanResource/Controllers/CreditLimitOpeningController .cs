@@ -45,7 +45,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetData()
         {
             try {
-                string sql = @"select d.UserName as Designation,c.DailyLimit,c.MonthlyLimit,
+                string sql = @"select d.UserName as Designation,ISNULL(c.DailyLimit,'0') 
+                as DailyLimit,
+                ISNULL(c.DailyLimit,'0') as OriginalDayLimit,
+                ISNULL(c.MonthlyLimit,'0') as MonthlyLimit,ISNULL(c.MonthlyLimit,'0') as OriginalMonthlyLimit,
                 d.Id as DesignationId,c.Id as Id,d.ShortName as DesgShortName
                 from hkp.Designation d left join creditlimitopening c on d.Id=c.designationId
                 where Active=1";
@@ -59,41 +62,74 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create(List<CreditLimitModel> data)
         {
             try
             {
+                if (data == null)
+                    throw new Exception("No New Data has been updated");
+
+                string AllDesgination = "";
+
+                foreach (CreditLimitModel item in data)
+                {
+
+                    if (AllDesgination == "")
+                    {
+                        AllDesgination = "'" + item.DesignationId + "'";
+                    }
+                    else
+                    {
+                        AllDesgination += ",'" + item.DesignationId + "'";
+                    }
+                }
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                
-                //con.OpenDataSetThroughAdapter("select * from dbo.OTUpdateConfiguration where GroupID='" +identity.CompanyGroupId + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                //if (dsMaster.Tables[0].Rows.Count > 0)
-                //    throw new Exception("Same Company Group already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+               con.OpenDataSetThroughAdapter("select * from " + TableName + " where DesignationId In(" + AllDesgination + ")", out dsMaster, false, "1");
 
                 string _Id = "";
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
+                foreach (CreditLimitModel item in data)
                 {
-                  
-                    clsGenID genid = new clsGenID();
-                    genid.GenID(TableName, out _Id);
 
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"DesignationId='" + item.DesignationId + "'";
 
-                    data["Id"] = "CLO" + _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
+                    #region data update
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out _Id);
+                        
+                        dr["Id"] = "CLO" + _Id;
+                        dr["GroupID"] = identity.CompanyGroupId;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["DesignationId"] = item.DesignationId;
+                        dr["DailyLimit"] = item.DailyLimit;
+                        dr["MonthlyLimit"] = item.MonthlyLimit;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                     
+                        dr.BeginEdit();
+                        dr["DesignationId"] = item.DesignationId;
+                        dr["DailyLimit"] = item.DailyLimit;
+                        dr["MonthlyLimit"] = item.MonthlyLimit;
+                        dr["GroupID"] = identity.CompanyGroupId;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr.EndEdit();
+                    }
+                    #endregion data update
+
                 }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
@@ -106,48 +142,17 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message });
 
             }
-        }
+        }   
+               
+    }
 
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["GroupID"] = identity.CompanyGroupId;
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = DateTime.Now.ToString();
-            dt.Rows.Add(dr);
-        }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["GroupID"] = identity.CompanyGroupId;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = DateTime.Now.ToString();
-            dr.EndEdit();
-        }
-       
+    public class CreditLimitModel
+    {
+        public string Id { get; set; }
+        public string DailyLimit { get; set; }
+        public string MonthlyLimit { get; set; }
+        public string DesignationId { get; set; }
+        public string AddedBy { get; set; }
+        public string UpdatedBy { get; set; }
     }
 }

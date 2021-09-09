@@ -1257,7 +1257,8 @@
 									 e-detailsdatabound="detailgrid">
 									<div e-columns>
                                         <div e-column e-headertext="Actions" e-width="100">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>
+                                            @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>*@
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
                                         </div>
 										<div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
