@@ -13,6 +13,7 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -515,8 +516,14 @@ namespace Aplos.Areas.Payrolls.Controllers
                     xlsRow++;
 
                     formulaStartRow = xlsRow;
+                    StringCollection stringCollection = new StringCollection();
                     for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
                     {
+
+                        if (stringCollection.Contains(dtEmpInfo.Rows[i]["EmployeeCodes"].ToString()) == true)
+                            continue;
+
+                        stringCollection.Add(dtEmpInfo.Rows[i]["EmployeeCodes"].ToString());
 
                         dvEmpInfo = new DataView(dtEmpInfo);
                         //dvEmpInfo.Table = dtEmpInfo;
