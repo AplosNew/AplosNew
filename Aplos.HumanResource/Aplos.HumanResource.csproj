@@ -157,6 +157,7 @@
     <Compile Include="ApopAPI\clsDataContext.cs" />
     <Compile Include="ApopAPI\clsStdLib.cs" />
     <Compile Include="Attendance\AttendanceFromAppReportService.cs" />
+    <Compile Include="Attendance\AttendanceLockAutoProcess.cs" />
     <Compile Include="Attendance\clsAttendanceRawDataFromApp.cs" />
     <Compile Include="Attendance\clsAuditReportSummery.cs" />
     <Compile Include="Attendance\clsFinalAttendanceProcess.cs" />
