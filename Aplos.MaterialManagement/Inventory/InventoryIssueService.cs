@@ -7391,7 +7391,9 @@ namespace Library.MaterialManagement.Inventory
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {
-
+                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='InventorySalesApproveBy' and  A.ActionStatus='InventorySalesCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 return _sqlRepository.GetDataCollection(sql);
 
