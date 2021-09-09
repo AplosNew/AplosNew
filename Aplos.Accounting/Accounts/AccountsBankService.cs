@@ -125,13 +125,14 @@ namespace Library.Accounting.Accounts
 
         //Report service level
 
-        private DataTable GetBankSheetGenerationData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string bankMasterId)
+        private DataTable GetBankSheetGenerationData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string bankMasterId,string PartyList)
         {
             var sql = @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"';
             DECLARE @companyId VARCHAR(10)='" + companyId + @"';
             DECLARE @plantId VARCHAR(10)='" + plantId + @"';
             DECLARE @bankMasterId VARCHAR(10)='" + bankMasterId + @"';
-            SELECT 
+            select X.* from (
+                SELECT 
                 BeneficiaryAccNo=STUFF((select distinct ','+ PB.BankAccountNo from
             TRN.VoucherDetail XVD JOIN [HKP].[Party] AS XP ON XP.Id=XVD.PartyId
 			LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=XP.Id AND CP.PartyType='Vendor' 
@@ -141,6 +142,11 @@ namespace Library.Accounting.Accounts
 			,BeneficiaryName=STUFF((select distinct ','+ XP.UserName from
             TRN.VoucherDetail XVD JOIN [HKP].[Party] AS XP ON XP.Id=XVD.PartyId
             where XVD.VoucherId=V.Id AND XVD.PartyId<>''  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+            ,PartyId=STUFF((select distinct ','+ XP.Id from
+            TRN.VoucherDetail XVD JOIN [HKP].[Party] AS XP ON XP.Id=XVD.PartyId
+            where XVD.VoucherId=V.Id AND XVD.PartyId<>''  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
 			,VD.CrAmount InstrumentAmount
 			,IFSCCode=STUFF((select distinct ','+ PB.BankAccountNo from
             TRN.VoucherDetail XVD JOIN [HKP].[Party] AS XP ON XP.Id=XVD.PartyId
@@ -192,7 +198,9 @@ namespace Library.Accounting.Accounts
             WHERE V.Archive=0 AND V.IsPark=1 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId 
            AND VD.BankMasterId <>'' 
             -- (isnull(VD.BankMasterId,'')='' OR (isnull(VD.BankMasterId,'')<>'' AND ))
-            AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND V.SourceType='VendorPayment' ";
+            AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND V.SourceType='VendorPayment'
+                ) X
+			where x.PartyId IN ("+PartyList+@")";
 
             return _sqlRepository.GetDataTable(sql);
         }
@@ -200,7 +208,7 @@ namespace Library.Accounting.Accounts
 
 
 
-        public IWorkbook GetBankSheetGenerationReport(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string bankMasterId)
+        public IWorkbook GetBankSheetGenerationReport(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string bankMasterId,string PartyList)
         {
             // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -216,7 +224,7 @@ namespace Library.Accounting.Accounts
 
             //Get the first worksheet in the workbook into IWorksheet
             IWorksheet worksheet = workbook.Worksheets[0];
-            DataTable dtAutoMailReportList = GetBankSheetGenerationData(CompanyGroupId, CompanyId, PlantId,  fromDate,  toDate, bankMasterId);
+            DataTable dtAutoMailReportList = GetBankSheetGenerationData(CompanyGroupId, CompanyId, PlantId,  fromDate,  toDate, bankMasterId, PartyList);
 
             //DataTable dtCompanyCurrency = _sqlRepository.GetDataTable(@"select CR.* from org.Company c
             //                                            inner join scs.Currency CR ON CR.Id=c.BaseCurrencyId
