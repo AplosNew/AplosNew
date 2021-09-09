@@ -2273,4 +2273,71 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	};
 	// end
 
+	// GET If Material Issue Or Not
+
+	$scope.GetMaterialInputList = [];
+	$scope.GetIssuedMatInputList = [];
+	$scope.GetIfIssuedOrNot = function (x) {
+		$scope.JWPOId = x.JWTCMId;
+		$scope.JWOutputId = x.JWTCMDId;
+
+		$scope.GetMaterialInputList = [];
+		$http({
+			method: 'GET',
+			url: $scope.path + 'GetIfIssuedOrNot?JWOutputId=' + $scope.JWOutputId
+		}).then(function successCallback(response) {
+			$scope.GetMaterialInputList = response.data;
+			if ($scope.GetMaterialInputList.length > 0) {
+			//	var MatInputLength = $scope.GetMaterialInputList.length;
+
+				$scope.GetIssuedMatInputList = [];
+				$http({
+					method: 'GET',
+					url: $scope.path + 'GetIssuedMatInputList?JWPOId=' + $scope.JWPOId + '&JWOutputId=' + $scope.JWOutputId
+				}).then(function successCallback(response) {
+					$scope.GetIssuedMatInputList = response.data;
+					if ($scope.GetIssuedMatInputList.length > 0) {
+				//		var IssuedMatInputCount = $scope.GetIssuedMatInputList.length;
+
+						for (var i = 0; i < $scope.GetMaterialInputList.length; i++) {
+							var getRow = $filter("filter")($scope.GetIssuedMatInputList, { "ArticleId": $scope.GetMaterialInputList[i].ArticleId });
+							if (getRow.length == 0) {
+								x.check = false;
+								ShowResult("This Output detail Id " + $scope.JWOutputId + " Material " + x.UserName + " Article " + x.StandardName + " cannot be received ");
+								return false;
+							}
+							else {
+								var a = getRow[0].QtyForOutput;
+								
+                            }
+						}
+						if (!baseService.isUndefinedOrNull(a)) {
+							for (var b = 0; b < $scope.GetIssuedMatInputList.length; b++) {
+								if (a < $scope.GetIssuedMatInputList[b].QtyForOutput) {
+									var MinVal = a;
+								}
+								else {
+									var MinVal = $scope.GetIssuedMatInputList[b].QtyForOutput;
+								}
+							}
+                        }
+			
+
+						if (x.TransactionQty > MinVal) {
+							x.check = false;
+							ShowResult("The Transaction quantity " + x.TransactionQty + " cannot be greater than " + MinVal + " ");
+							return false;
+                        }
+					}
+					else {
+						x.check = false;
+						ShowResult("This Output detail Id " + $scope.JWOutputId + " Material " + x.UserName + " Article " + x.StandardName + " cannot be received ");
+						return false;
+                    }
+				});
+
+            }
+		});
+    }
+
 }

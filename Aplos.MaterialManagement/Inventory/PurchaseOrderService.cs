@@ -5132,6 +5132,8 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var AuthorizedById = "";
                 var AuthorizedByStatus = "";
@@ -5165,9 +5167,10 @@ namespace Library.MaterialManagement.Inventory
                 var CompanyGroupId = identity.CompanyGroupId;
                 var CompanyId = identity.CompanyId;
                 var PlantId = identity.PlantId;
-                string _sql = "Update TRN.PurchaseOrder set IsApproved='0',CheckedByStatus='" + Status + "',AuthorizedBy='" + AuthorizedById + "',AuthorizedByStatus='" + AuthorizedByStatus + "',CheckedHoldRejectReason='" + CheckedRejectReason + "' where id='" + PoId + "'";
-                _sqlRepository.ExecuteSqlCommand(_sql);
-                string _sql1 = "Insert into TRN.PurchaseOrderApprovalLog(Id," +
+
+                con.BeginTransaction();
+                con.executeQuery("Update TRN.PurchaseOrder set IsApproved='0',CheckedByStatus='" + Status + "',AuthorizedBy='" + AuthorizedById + "',AuthorizedByStatus='" + AuthorizedByStatus + "',CheckedHoldRejectReason='" + CheckedRejectReason + "' where id='" + PoId + "'");
+                con.executeQuery("Insert into TRN.PurchaseOrderApprovalLog(Id," +
                 "CompanyGroupId," +
                 "CompanyId," +
                 "PlantId," +
@@ -5194,8 +5197,40 @@ namespace Library.MaterialManagement.Inventory
                 "'" + ip + "'," +
                 "'" + UpdatedBy + "'," +
                 "'" + updatedDate + "', " +
-                "'" + ip + "','" + PoId + "')";
-                _sqlRepository.ExecuteSqlCommand(_sql1);
+                "'" + ip + "','" + PoId + "')");
+                con.CommitTransaction();
+
+                //string _sql = "Update TRN.PurchaseOrder set IsApproved='0',CheckedByStatus='" + Status + "',AuthorizedBy='" + AuthorizedById + "',AuthorizedByStatus='" + AuthorizedByStatus + "',CheckedHoldRejectReason='" + CheckedRejectReason + "' where id='" + PoId + "'";
+                //_sqlRepository.ExecuteSqlCommand(_sql);
+                //string _sql1 = "Insert into TRN.PurchaseOrderApprovalLog(Id," +
+                //"CompanyGroupId," +
+                //"CompanyId," +
+                //"PlantId," +
+                //"ApprovedBy," +
+                //"Date," +
+                //"POValue," +
+                //"Status," +
+                //"AddedBy," +
+                //"AddedDate," +
+                //"AddedFromIp," +
+                //"UpdatedBy," +
+                //"UpdatedDate," +
+                //"UpdatedFromIp,POID) " +
+                //"values ('" + Id + "'," +
+                //"'" + CompanyGroupId + "'," +
+                //"'" + CompanyId + "'," +
+                //"'" + PlantId + "'," +
+                //"'" + AddedBy + "'," +
+                //"'" + AddedDate + "'," +
+                //"'" + PoValue + "'," +
+                //"'" + Status + "'," +
+                //"'" + AddedBy + "'," +
+                //"'" + AddedDate + "'," +
+                //"'" + ip + "'," +
+                //"'" + UpdatedBy + "'," +
+                //"'" + updatedDate + "', " +
+                //"'" + ip + "','" + PoId + "')";
+                //_sqlRepository.ExecuteSqlCommand(_sql1);
             }
             catch (Exception ex)
             {
@@ -5210,7 +5245,7 @@ namespace Library.MaterialManagement.Inventory
             try
             {
                 //var AuthorizedById = "";
-
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 PoValue = "0";
                 var Id = GetPK();
                 //if (CheckedStataus == "Checked")
@@ -5237,9 +5272,10 @@ namespace Library.MaterialManagement.Inventory
                 var CompanyGroupId = identity.CompanyGroupId;
                 var CompanyId = identity.CompanyId;
                 var PlantId = identity.PlantId;
-                string _sql = "Update TRN.PurchaseOrder set IsApproved='0',CheckedByStatus='For Checked',AuthorizedBy=null,AuthorizedByStatus=null where id='" + PoId + "'";
-                _sqlRepository.ExecuteSqlCommand(_sql);
-                string _sql1 = "Insert into TRN.PurchaseOrderApprovalLog(Id," +
+                con.BeginTransaction();
+                con.executeQuery("Update TRN.PurchaseOrder set IsApproved='0',CheckedByStatus='For Checked',AuthorizedBy=null,AuthorizedByStatus=null where id='" + PoId + "'");
+                //_sqlRepository.ExecuteSqlCommand(_sql);
+                con.executeQuery("Insert into TRN.PurchaseOrderApprovalLog(Id," +
                 "CompanyGroupId," +
                 "CompanyId," +
                 "PlantId," +
@@ -5266,8 +5302,9 @@ namespace Library.MaterialManagement.Inventory
                 "'" + ip + "'," +
                 "'" + UpdatedBy + "'," +
                 "'" + updatedDate + "', " +
-                "'" + ip + "','" + PoId + "')";
-                _sqlRepository.ExecuteSqlCommand(_sql1);
+                "'" + ip + "','" + PoId + "')");
+                con.CommitTransaction();
+                //_sqlRepository.ExecuteSqlCommand(_sql1);
             }
             catch (Exception ex)
             {
@@ -5283,6 +5320,7 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 var IsApproved = 0;
 
                 PoValue = "0";
@@ -5307,9 +5345,10 @@ namespace Library.MaterialManagement.Inventory
                 var CompanyGroupId = identity.CompanyGroupId;
                 var CompanyId = identity.CompanyId;
                 var PlantId = identity.PlantId;
-                string _sql = "Update TRN.PurchaseOrder set AuthorizedByStatus='" + Status + "',IsApproved='" + IsApproved + "', AuthorizedBy='" + identity.EmployeeId + "',ApprovedHoldRejectReason='" + ApproveRejectReason + "' where id='" + PoId + "'";
-                _sqlRepository.ExecuteSqlCommand(_sql);
-                string _sql1 = "Insert into TRN.PurchaseOrderApprovalLog(Id," +
+                con.BeginTransaction();
+                con.executeQuery("Update TRN.PurchaseOrder set AuthorizedByStatus='" + Status + "',IsApproved='" + IsApproved + "', AuthorizedBy='" + identity.EmployeeId + "',ApprovedHoldRejectReason='" + ApproveRejectReason + "' where id='" + PoId + "'");
+                //_sqlRepository.ExecuteSqlCommand(_sql);
+                con.executeQuery("Insert into TRN.PurchaseOrderApprovalLog(Id," +
                 "CompanyGroupId," +
                 "CompanyId," +
                 "PlantId," +
@@ -5336,8 +5375,9 @@ namespace Library.MaterialManagement.Inventory
                 "'" + ip + "'," +
                 "'" + UpdatedBy + "'," +
                 "'" + updatedDate + "', " +
-                "'" + ip + "','" + PoId + "')";
-                _sqlRepository.ExecuteSqlCommand(_sql1);
+                "'" + ip + "','" + PoId + "')");
+                con.CommitTransaction();
+                //_sqlRepository.ExecuteSqlCommand(_sql1);
             }
             catch (Exception ex)
             {
@@ -5354,6 +5394,7 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 PoValue = "0";
                 var Id = GetPK();
 
@@ -5375,9 +5416,10 @@ namespace Library.MaterialManagement.Inventory
                 // }
                 // else
                 // {
-                string _sql = "Update TRN.PurchaseOrder set IsApproved='0' where id='" + PoId + "'";
-                _sqlRepository.ExecuteSqlCommand(_sql);
-                string _sql1 = "Insert into TRN.PurchaseOrderApprovalLog(Id," +
+                con.BeginTransaction();
+                con.executeQuery("Update TRN.PurchaseOrder set IsApproved='0' where id='" + PoId + "'");
+                //_sqlRepository.ExecuteSqlCommand(_sql);
+                con.executeQuery("Insert into TRN.PurchaseOrderApprovalLog(Id," +
                 "CompanyGroupId," +
                 "CompanyId," +
                 "PlantId," +
@@ -5404,8 +5446,9 @@ namespace Library.MaterialManagement.Inventory
                 "'" + ip + "'," +
                 "'" + UpdatedBy + "'," +
                 "'" + updatedDate + "', " +
-                "'" + ip + "','" + PoId + "')";
-                _sqlRepository.ExecuteSqlCommand(_sql1);
+                "'" + ip + "','" + PoId + "')");
+                con.CommitTransaction();
+                //_sqlRepository.ExecuteSqlCommand(_sql1);
                 // }
 
             }
@@ -5420,6 +5463,7 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 PoValue = "0";
                 var Id = GetPK();
 
@@ -5441,9 +5485,10 @@ namespace Library.MaterialManagement.Inventory
                 // }
                 // else
                 // {
-                string _sql = "Update TRN.PurchaseOrder set IsApproved='0' where id='" + PoId + "'";
-                _sqlRepository.ExecuteSqlCommand(_sql);
-                string _sql1 = "Insert into TRN.PurchaseOrderApprovalLog(Id," +
+                con.BeginTransaction();
+                con.executeQuery("Update TRN.PurchaseOrder set IsApproved='0' where id='" + PoId + "'");
+                //_sqlRepository.ExecuteSqlCommand(_sql);
+                con.executeQuery("Insert into TRN.PurchaseOrderApprovalLog(Id," +
                 "CompanyGroupId," +
                 "CompanyId," +
                 "PlantId," +
@@ -5470,8 +5515,9 @@ namespace Library.MaterialManagement.Inventory
                 "'" + ip + "'," +
                 "'" + UpdatedBy + "'," +
                 "'" + updatedDate + "', " +
-                "'" + ip + "','" + PoId + "')";
-                _sqlRepository.ExecuteSqlCommand(_sql1);
+                "'" + ip + "','" + PoId + "')");
+                con.CommitTransaction();
+                //_sqlRepository.ExecuteSqlCommand(_sql1);
                 // }
 
             }

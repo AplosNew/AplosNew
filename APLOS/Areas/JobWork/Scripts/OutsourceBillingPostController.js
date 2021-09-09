@@ -16,7 +16,7 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
     $scope.GriddataMaster = [];
     $scope.path = 'JobWork/OutSourceBillingPost/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrl = $scope.path + 'OutSourceBillingPost';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "p.UserName"; $scope.search = "";
@@ -68,6 +68,8 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
 
         Id: null
         , InvoiceDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy')
+        , DocDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy')
+        , PostingDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy')
         , CompanyGroupId: null
         , CompanyId: null
         , PlantId: null
@@ -131,17 +133,17 @@ function OutsourceBillingPostController($window, cboService, commonMessage, $sco
         , ResponsiblePerson: null
         , ByWhomEmployeeId: null
         , TransformationContractId: null
+        , VoucherTypeId:null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
 
     $scope.Get = function (obj) {
-        $scope.ModelNew = Object.assign({}, obj.data);
-        $scope.ModelNew.PostingDate = obj.data.InvoiceDate;
-        $scope.ModelNew.DocDate = obj.data.InvoiceDate;
-        $scope.ModelNew.DocRefNo = obj.data.InvoiceNo;
-        $scope.GetDetailData($scope.ModelNew.Id);
-        $scope.GetOutsourcingBillingJV($scope.ModelNew.Id);
+        $scope.modelNew = Object.assign({}, obj.data);
+        $scope.GetDetailData($scope.modelNew.Id);
+        $scope.GetOutsourcingBillingJV($scope.modelNew.Id);
+        if (baseService.arrayLength($scope.voucherTypeList) === 1)
+            $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
         angular.element(document.querySelector('#OutSourceBillingpopUp')).modal('hide');
 
     }

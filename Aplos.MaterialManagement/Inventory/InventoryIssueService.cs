@@ -5283,7 +5283,7 @@ namespace Library.MaterialManagement.Inventory
 	                ,IRM.Id IssueRequestMasterId
 	                ,IR.Id IssueRequest,Convert(bit,0)  'check'	
 	                ,bd.SalesOrderId
-	                ,TUoM.Id BaseUOMId
+	                ,TUoM.Id BaseUOMId,GRNALLO.BaseUoM
 	                ,TUoM.Id TransactionUoMId							
 	                ,TUoM.UserName TransactionUoM,GRNALLO.MaterialStorageId	
 	                ,MM.IssueByUoM
@@ -5342,7 +5342,7 @@ namespace Library.MaterialManagement.Inventory
 		                ,b.BOQDetailId,sum(a.TransactionQty) TransactionQty 
 		                ,sum(a.BaseQty) BaseQty 
 		                ,UOM.UserName,a.POBOQMapId,IRBM.IssueRequestDetailId
-		                ,UOM.Id StockTransactionUoMId,a.BaseUoMId,IRD.BaseUoMFactor
+		                ,UOM.Id StockTransactionUoMId,a.BaseUoMId,IRD.BaseUoMFactor,UOM.UserName BaseUoM
 		                from trn.GRNPORequisitionAllocation a
 		                left Join trn.InventoryReceiveDetail IRD ON IRD.Id=a.InventoryReceiveDetailId
 		                left join trn.POBOQMap b ON b.Id=a.POBOQMapId 
@@ -5393,7 +5393,7 @@ namespace Library.MaterialManagement.Inventory
                 ,MM.IssueByUoM,IR.RequestedQty     
                 ,Isnull(IR.RequestedQty,0) 
                 ,Isnull(IDRM.Qty,0) 
-                ,IDRM.Qty,GRNALLO.MaterialStorageId	,AlternativeUOM.BaseUOMFactor
+                ,IDRM.Qty,GRNALLO.MaterialStorageId	,AlternativeUOM.BaseUOMFactor,GRNALLO.BaseUoM
                 Order by mm.UserName ASC";
 				}
 				else
