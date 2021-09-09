@@ -568,9 +568,11 @@ order by a.PODate desc";
 
                             left join
                              (
-                            select  IR.JWTCMId,sum(IR.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct IR.InventoryReceiveId) as GRNCount
+                            select  IR.JWTCMId,sum(IR.TransactionQty*JWTCC.RatePerUnit) as GRNTotalAmount,count(distinct IR.InventoryReceiveId) as GRNCount
 							from TRN.InventoryReceiveDetail IR 
-							group by IR.JWTCMId						
+							LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IR.JWTCMId
+				         	LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IR.JWTCMDId
+							group by IR.JWTCMId				
 
                             )
                             as grn on grn.JWTCMId=PO.Id                            
@@ -618,12 +620,14 @@ order by a.PODate desc";
         private string JWPOBreakDownSql(string POID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"select IRD.InventoryReceiveId,sum(IRD.TotalMaterialTranAmount) GRNValue,Format(IR.GRNDate,'dd-MMM-yyyy') GRNDate
+            return @"select IRD.InventoryReceiveId,sum(IRD.TransactionQty*JWTCC.RatePerUnit) GRNValue,Format(IR.GRNDate,'dd-MMM-yyyy') GRNDate
 							from [dbo].[JWTransformationPurchaseOrder] PO 
 							left outer join trn.InventoryReceiveDetail IRD on IRD.JWTCMId=PO.Id			
-							left outer join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId			
+							left outer join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId	
+							LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
+				         	LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.JWTCMDId			
 							
-							where PO.Id='"+POID+@"'
+							where PO.Id='" + POID+@"'
 							group by IRD.InventoryReceiveId,IR.GRNDate";
         }
 
@@ -665,7 +669,7 @@ order by a.PODate desc";
 							left outer join trn.ServicePOMaster  PO  on PO.id=IRD.ServicePOMasterId
 							group by IR.Id,IRD.ServiceAcknowledgementMasterId,IR.DocDate
 					
-							) A where A.Id='"+GRNID+@"and A.POId<>''";
+							) A where A.Id='"+GRNID+@"' and A.POId<>''";
         }
 
         private string ACBreakDownSql(string ACID)
