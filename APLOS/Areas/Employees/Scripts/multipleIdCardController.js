@@ -253,31 +253,21 @@ function multipleIdCardController(commonMessage, $scope, $rootScope, baseService
             }
             var ec = "";
 
-            for (var i = 0; i < $scope.EmployeeListNew.length; i++) {
-                for (var j = 0; j < $scope.EmployeeList.length; j++) {
-                    if ($scope.EmployeeListNew[i] === $scope.EmployeeList[j].EmpSystemId) {
-                        if (baseService.isUndefinedOrNull($scope.EmployeeList[i].EmployeeWorkTypeId)) {
-                            if (baseService.isUndefinedOrNull(ec)) {
-                                ec = $scope.EmployeeList[i].EmployeeCode;
-                            } else {
-                                ec += "," + $scope.EmployeeList[i].EmployeeCode;
-                            }
-                        }
-                    }
-                }
-            }
-
-            //$scope.dataList = ej.DataManager($scope.EmployeeList).executeLocal(ej.Query().select(["EmpSystemId", "EmployeeWorkTypeId", "EmployeeCode"]));
-            //$scope.dataList = ej.DataManager($scope.EmployeeList).executeLocal(ej.Query().select(["EmpSystemId", "EmployeeWorkTypeId", "EmployeeCode"]));
-            //for (var i = 0; i < $scope.dataList.length; i++) {
-            //    if (baseService.isUndefinedOrNull($scope.dataList[i].EmployeeWorkTypeId)) {
-            //        if (baseService.isUndefinedOrNull(ec)) {
-            //            ec = $scope.dataList[i].EmployeeCode;
-            //        } else {
-            //            ec += "," + $scope.dataList[i].EmployeeCode;
+            //for (var i = 0; i < $scope.EmployeeListNew.length; i++) {
+            //    for (var j = 0; j < $scope.EmployeeList.length; j++) {
+            //        if ($scope.EmployeeListNew[i] === $scope.EmployeeList[j].EmpSystemId) {
+            //            if (baseService.isUndefinedOrNull($scope.EmployeeList[i].EmployeeWorkTypeId)) {
+            //                if (baseService.isUndefinedOrNull(ec)) {
+            //                    ec = $scope.EmployeeList[i].EmployeeCode;
+            //                } else {
+            //                    ec += "," + $scope.EmployeeList[i].EmployeeCode;
+            //                }
+            //            }
             //        }
             //    }
             //}
+
+           
             if (!baseService.isUndefinedOrNull(ec)) {
                 throw "Input Employee Work Type for Employee Code: '" + ec + "'.";
             }

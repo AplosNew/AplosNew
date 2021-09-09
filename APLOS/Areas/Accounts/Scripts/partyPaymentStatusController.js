@@ -4418,8 +4418,31 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //}
     //********************#endregion GRN With Out Invoice***************************************
 
+    //**********************#Invoice With out GRN  **************************
+    $scope.InvoiceWithOutGRNList = [];
+    $scope.GetInvoiceWithOutGRNData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetInvoiceWithOutGRNDataList",
+                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
+                dataType: 'JSON'
 
+            }).then(function successCallback(response) {
+                $scope.InvoiceWithOutGRNList = response.data.DATA;
 
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+
+     //**********************#endregion Invoice GRN With out **************************
 
 
 

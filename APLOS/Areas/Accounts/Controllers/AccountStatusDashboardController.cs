@@ -1682,5 +1682,19 @@ namespace Aplos.Areas.Accounts.Controllers
             return jsondata;
         }
         #endregion Grn with out invoice
+
+        #region GRN With Out INvoice
+        [HttpPost, Authorize]
+        public ActionResult GetInvoiceWithOutGRNDataList(string toDate)
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = accountsStatusDashboardService.GetInvoiceWithOutGRNDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+        #endregion Grn with out invoice
+
+        
     }
 }
