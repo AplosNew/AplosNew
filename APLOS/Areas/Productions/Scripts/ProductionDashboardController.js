@@ -878,12 +878,15 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
         });
     }
     $scope.onHoulryDatabound = function (args) {
-        if (args.column.field == 'WC Name')
-            args.column.width = 500;
-        //var gridObjRunning = args.model;
-        //gridObjRunning.hideColumns(["EntityId", "Entity", "WorkCenterMasterId"]);
-        //gridObjRunning.refreshContent(true);
-        //gridObjRunning.refreshTemplate();
+
+        for (var i = 0; i < args.model.columns.length; i++) {
+
+            if (args.model.columns[i].field == 'WC Name')
+                args.model.columns[i]['width'] = 15;
+            else
+                args.model.columns[i]['width'] = 5;
+        }
+
     }
     //#endregion
 
