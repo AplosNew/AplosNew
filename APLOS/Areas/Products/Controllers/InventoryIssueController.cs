@@ -1722,7 +1722,7 @@ namespace Aplos.Areas.Products.Controllers
 										  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 						                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-							, BalanceAmount=isnull(I.Amount - I.WrittenOffAmount,0)
+							--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
 
 
 						FROM TRN.SalesMaterial AS SM 
@@ -1826,7 +1826,7 @@ namespace Aplos.Areas.Products.Controllers
                         --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
 
-						WHERE SA.PlantId='"+identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN  '"+fromDate+@"' AND '"+toDate+ @"'
+						WHERE SA.PlantId='" + identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN  '"+fromDate+@"' AND '"+toDate+ @"'
 
 							UNION ALL
 						
@@ -1922,7 +1922,7 @@ namespace Aplos.Areas.Products.Controllers
 										  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 						                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-							, BalanceAmount=isnull(I.Amount - I.WrittenOffAmount,0)
+							--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
 
 						from trn.SalesService AS ISs
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
@@ -2098,7 +2098,7 @@ namespace Aplos.Areas.Products.Controllers
 					
 							,''RealizeDate
 
-							,0BalanceAmount
+							--,0BalanceAmount
 						
 						FROM[TRN].[InventorySalesDetail] AS IID
 						left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
@@ -2275,7 +2275,7 @@ namespace Aplos.Areas.Products.Controllers
 						,0RealizeAmount
 					    ,''RealizeDate
 
-							,0BalanceAmount
+							--,0BalanceAmount
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
@@ -2939,7 +2939,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 				{
 					if (fromDate != "" && toDate != "")
 					{
-						sql = @"						SELECT 
+						sql = @"SELECT 
 							ROW_NUMBER() Over(Order by SA.Id) As[S.N]
 							,SA.Id SalesId
 							,SA.SourceType
@@ -3006,7 +3006,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							, InvoiceAmount=isnull(I.Amount,0)
 							, RealizeAmount=isnull(I.WrittenOffAmount,0)
 					
-							, BalanceAmount=isnull(I.Amount - I.WrittenOffAmount,0)
+							
+, BalanceAmount=isnull(isnull(SMD.TransactionAmount,0) -isnull(I.WrittenOffAmount,0),0)
 
 							, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
                                          from trn.InvoiceWriteOffDetail IWD									 
@@ -3132,7 +3133,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName
 							,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,E.UserName,SA.VoucherId,I.Amount,I.WrittenOffAmount,PSI.ExpDate,PSI.CNFBLAWB,PSI.CNFBLAWBDate 
 							,PSI.ExFactoryDate,PSI.TransportDocRefNo
-							,PSI.CNFContainerNo,PSI.CNFVesselTrackingNo
+							,PSI.CNFContainerNo,PSI.CNFVesselTrackingNo,SMD.TransactionAmount
 							
 							,PTM.UserName ,SA.BaseOnDueDate,SA.BaseNoOfDays,SA.MatureDate,SA.EXPFromNo,SA.ComercialInvoiceNo
 							,CNfA.UserName,TA.UserName 
@@ -3194,7 +3195,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 						,'' MasterOrder
 						, InvoiceAmount=isnull(I.Amount,0)
 						, RealizeAmount=isnull(I.WrittenOffAmount,0)
-							, BalanceAmount=isnull(I.Amount - I.WrittenOffAmount,0)
+							
+, BalanceAmount=isnull(isnull(IID.TransactionAmount,0) -isnull(I.WrittenOffAmount,0),0)
 
 							, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
                                          from trn.InvoiceWriteOffDetail IWD									 
@@ -3287,8 +3289,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 									GROUP BY A.InventorySalesId
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						LEFT JOIN trn.Voucher V On V.Id=II.VoucherId
-						WHERE II.PlantId='"+identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
-						GROUP BY p.Code,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName 
+						WHERE II.PlantId='" + identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+						GROUP BY p.Code,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,IID.TransactionAmount
 						,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName 
 						,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,II.VoucherId,I.Amount,I.WrittenOffAmount";
 						return _sqlRepository.GetDataTable(sql);
@@ -4294,38 +4296,38 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
+				
 
-					worksheet[ROW, COL].Text = "Own Order Ref.";
-					int colOwnOrderRef = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
+					//worksheet[ROW, COL].Text = "Own Order Ref.";
+					//int colOwnOrderRef = COL;
+					//worksheet[ROW, COL].ColumnWidth = 30;
+					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					//COL++;
 
-					worksheet[ROW, COL].Text = "Realize date";
-					int colRealizeDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
+					//worksheet[ROW, COL].Text = "Realize date";
+					//int colRealizeDate = COL;
+					//worksheet[ROW, COL].ColumnWidth = 30;
+					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					//COL++;
 
-					worksheet[ROW, COL].Text = "Realize amount";
-					int colRealizeAmount = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
+					//worksheet[ROW, COL].Text = "Realize amount";
+					//int colRealizeAmount = COL;
+					//worksheet[ROW, COL].ColumnWidth = 30;
+					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					//COL++;
 
-					worksheet[ROW, COL].Text = "Balance";
-					int colBalance = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					//worksheet[ROW, COL].Text = "Balance";
+					//int colBalance = COL;
+					//worksheet[ROW, COL].ColumnWidth = 30;
+					//worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					//worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					//worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
 					int endCol = COL;
@@ -4442,15 +4444,15 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 								worksheet[ROW, colLOTNo].Text = dtInventorySalesReportList.Rows[i]["LoTNo"].ToString();
 
 
-								//worksheet[ROW, colNoteForAccounts].Text = dtInventorySalesReportList.Rows[i]["NoteForAccounts"].ToString();
-								worksheet[ROW, colRealizeAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["RealizeAmount"].ToString());
-								worksheet.Range[ROW, colRealizeAmount].NumberFormat = NumberFormatTwoDecimal;
+								////worksheet[ROW, colNoteForAccounts].Text = dtInventorySalesReportList.Rows[i]["NoteForAccounts"].ToString();
+								//worksheet[ROW, colRealizeAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["RealizeAmount"].ToString());
+								//worksheet.Range[ROW, colRealizeAmount].NumberFormat = NumberFormatTwoDecimal;
 
-								worksheet[ROW, colRealizeDate].Text = dtInventorySalesReportList.Rows[i]["RealizeDate"].ToString();
-								worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BalanceAmount"].ToString());
-								worksheet.Range[ROW, colBalance].NumberFormat = NumberFormatTwoDecimal;
+								//worksheet[ROW, colRealizeDate].Text = dtInventorySalesReportList.Rows[i]["RealizeDate"].ToString();
+								//worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BalanceAmount"].ToString());
+								//worksheet.Range[ROW, colBalance].NumberFormat = NumberFormatTwoDecimal;
 
-								worksheet[ROW, colOwnOrderRef].Text = dtInventorySalesReportList.Rows[i]["OwnReferenceNo"].ToString();
+								//worksheet[ROW, colOwnOrderRef].Text = dtInventorySalesReportList.Rows[i]["OwnReferenceNo"].ToString();
 								worksheet[ROW, colContract].Text = dtInventorySalesReportList.Rows[i]["ContractNo"].ToString();
 								worksheet[ROW, colMastrerLCRefNo].Text = dtInventorySalesReportList.Rows[i]["MasterLcNo"].ToString();
 								worksheet[ROW, colComercialInvoiceNo].Text = dtInventorySalesReportList.Rows[i]["ComercialInvoiceNo"].ToString();
@@ -5083,8 +5085,6 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							worksheet.Range[1, 1, 3, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
 						}
-
-
 					}
 					catch (Exception ex)
 					{

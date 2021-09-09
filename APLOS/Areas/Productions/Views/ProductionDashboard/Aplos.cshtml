@@ -351,17 +351,17 @@
     </div>
 
     <div class="row">
-        <div class="col-md-12" ng-repeat="(ENTkey, ENT) in HourlyProductionDisplayList">
-            {{ENTkey}}
-            <div style="color:black;" id="ENTkey" ej-grid e-datasource="HourlyProductionDisplayList[ENTkey]"
+        <div class="col-md-12" ng-repeat="ENT in HourlyProductionDisplayList">
+            {{ENT.EntityName}}
+            <div style="color:black;" ej-grid e-datasource="ENT.Data" e-querycellinfo="onHoulryDatabound"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowresizetofit="true" e-pagesettings-pagesize="12"
                  e-allowselection="true" e-filtersettings-filterType="excel" e-showsummary="true" e-summaryrows="summaryRowHours">
             </div>
             @*<table>
-                <tr>
-                    <td ng-repeat="(key, val) in HourlyProductionDisplayList[ENTkey][0]">{{key}}</td>
-                </tr>
-            </table>*@
+            <tr>
+                <td ng-repeat="(key, val) in HourlyProductionDisplayList[ENTkey][0]">{{key}}</td>
+            </tr>
+        </table>*@
         </div>
     </div>
 </div>

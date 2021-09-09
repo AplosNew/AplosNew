@@ -1481,13 +1481,28 @@ public class clsSalaryProcessAplosArrear
                                                                 else//DOJ DOS
                                                                 {
 
+                                                                    ////New Calculation (Tarek)
+                                                                    //int _MonthlyTotalWeekoffCount = 0;
+                                                                    //GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _MonthlyTotalWeekoffCount);
+                                                                    //int _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
+                                                                    //decimal _PerDaySalary = DefCur / (DaysInMonth - _MonthlyTotalWeekoffCount);
+                                                                    //DisbCur = _PerDaySalary * (TotalDaysSlr - _WeekoffCountAfterJoin);
+
+                                                                    ////New Calculation (Tarek)
+                                                                    //int _MonthlyTotalWeekoffCount = 0;
+                                                                    //GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _MonthlyTotalWeekoffCount);
+                                                                    //int _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
+                                                                    //decimal _PerDaySalary = DefCur / (DaysInMonth - _MonthlyTotalWeekoffCount);
+                                                                    //DisbCur = _PerDaySalary * (TotalDaysSlr - _WeekoffCountAfterJoin);
+
+
                                                                     //New Calculation (Tarek)
                                                                     int _MonthlyTotalWeekoffCount = 0;
-                                                                    GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _MonthlyTotalWeekoffCount);
                                                                     int _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
+                                                                    GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim(), ref _WeekoffCountAfterJoin, out _MonthlyTotalWeekoffCount);
+
                                                                     decimal _PerDaySalary = DefCur / (DaysInMonth - _MonthlyTotalWeekoffCount);
                                                                     DisbCur = _PerDaySalary * (TotalDaysSlr - _WeekoffCountAfterJoin);
-
 
                                                                     if (IsRefAbsentism == true)
                                                                     {
@@ -4974,7 +4989,7 @@ public class clsSalaryProcessAplosArrear
             throw ex;
         }
     }
-    void GetWeekoffCout(DataSet dsWeekOffAll, Dictionary<string, int> WeekOffList, string _emp, out int _Week_off_count)
+    void GetWeekoffCout(DataSet dsWeekOffAll, Dictionary<string, int> WeekOffList, string _emp, string DOJ, ref int WeekOffAfterJoin, out int _Week_off_count)
     {
         _Week_off_count = 0;
         try
@@ -4985,6 +5000,17 @@ public class clsSalaryProcessAplosArrear
             {
                 string _wo = dvWO[0]["OffDay"].ToString().ToUpper();
                 _Week_off_count = WeekOffList[_wo];
+
+                WeekOffAfterJoin = 0;
+                DateTime dtFrom = Convert.ToDateTime(DOJ);
+                DateTime dtTo = new DateTime(dtFrom.Year, dtFrom.Month, DateTime.DaysInMonth(dtFrom.Year, dtFrom.Month));
+                while (dtFrom <= dtTo)
+                {
+                    if (dtFrom.ToString("dddd").ToUpper() == _wo.ToUpper())
+                        WeekOffAfterJoin++;
+                    dtFrom = dtFrom.AddDays(1);
+                }
+
             }
             else
             {
@@ -4996,6 +5022,7 @@ public class clsSalaryProcessAplosArrear
             throw ex;
         }
     }
+
     void GetDS(List<ProcChild> list, out DataSet dsChild)
     {
         clsSalaryProc objsp = null;

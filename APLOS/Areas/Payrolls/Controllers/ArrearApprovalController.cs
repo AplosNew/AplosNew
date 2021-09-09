@@ -109,9 +109,19 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
 
+                _sqlRepository.ExecuteSqlCommand(@"DELETE FROM ArrearProcChild WHERE SystemID IN (
+                                                SELECT C.SystemID FROM ArrearProcChild AS C
+                                                JOIN ArrearProcMaster AS M ON m.SystemID=c.SlrProcMstSystemID
+                                                WHERE M.ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND c.EmpInfoSystemID='" + EmployeeSystemId + @"'
+                                                )");
+                _sqlRepository.ExecuteSqlCommand("Delete from ArrearSummaryMonthWise where isnull(IsApproved,0)=0 AND ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId='" + EmployeeSystemId + @"'");
                 _sqlRepository.ExecuteSqlCommand("Delete from ArrearSummaryBatchWise where isnull(IsApproved,0)=0 AND ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId='" + EmployeeSystemId + @"'");
 
-
+                _sqlRepository.ExecuteSqlCommand(@"DELETE FROM ArrearProcMaster WHERE SystemID IN (
+                                    SELECT APM.SystemID FROM ArrearProcMaster AS apm
+                                    LEFT JOIN ArrearProcChild AS apc ON apm.SystemID=apc.SlrProcMstSystemID AND apc.SystemID=(SELECT TOP 1 SystemId FROM ArrearProcChild AS apc2 WHERE apc2.SlrProcMstSystemID=apm.SystemID)
+                                    WHERE ISNULL(apc.SystemID,'')=''
+                                    )");
                 return Json(new { Message = "Data deleted successfully", Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
