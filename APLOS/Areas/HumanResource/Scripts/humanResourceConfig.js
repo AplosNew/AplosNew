@@ -607,6 +607,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/credit-limit-opening', {
             templateUrl: 'humanresource/CreditLimitOpening/Aplos',
             controller: 'CreditLimitOpeningController'
+        })
+        .when('/tables-upload', {
+            templateUrl: 'humanresource/TablesUpload/Aplos',
+            controller: 'TablesUploadController'
         });
     
 
