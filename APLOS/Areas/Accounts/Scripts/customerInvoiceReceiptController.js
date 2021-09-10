@@ -1012,11 +1012,11 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
     };
 
     $scope.copyTaxesAmount = function () {
-        if ($scope.advance.CurrencyId === $scope.companyCurrencyId) {
+        if ($scope.voucher.CurrencyId === $scope.companyCurrencyId) {
             $scope.advanceTax.CompanyCurrencyAmount = $scope.advanceTax.TaxAmount;
         }
         else {
-            $scope.advanceTax.CompanyCurrencyAmount = ($scope.advanceTax.TaxAmount * $scope.advance.CompanyCurrencyRate).toFixed(2);
+            $scope.advanceTax.CompanyCurrencyAmount = ($scope.advanceTax.TaxAmount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
         }
     };
 

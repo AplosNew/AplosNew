@@ -322,7 +322,6 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
 
     $scope.GridAcceptanceList = [];
     $scope.gridAcceptanceList = function () {
-        //debugger;
         $http({
             method: "GET",
             dataType: 'JSON',

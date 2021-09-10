@@ -465,7 +465,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 											        LEFT JOIN EmployeeDocument ED ON ED.EmpSystemID = E.SystemId
                                                  AND ComplianceDocumentId = 
 												(
-												SELECT TOP(1) Id	FROM HKP.ComplianceDocument WHERE ProfileType = 'PF'
+												SELECT TOP(1) Id	FROM HKP.ComplianceDocument WHERE ProfileType = 'ESIC'
 												)
 										
 												WHERE                                                   

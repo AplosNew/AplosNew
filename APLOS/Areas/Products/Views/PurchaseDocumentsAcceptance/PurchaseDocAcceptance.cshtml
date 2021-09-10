@@ -599,13 +599,13 @@
                                     <thead>
                                         <tr ng-show="inventoryMaterialListPO.length>0">
                                             @*<th>
-                                                <div class="checkbox-site text-center">
-                                                    <label>
-                                                        <input type="checkbox" ng-click="CheckAll($event);">
-                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                    </label>
-                                                </div>
-                                            </th>*@
+            <div class="checkbox-site text-center">
+                <label>
+                    <input type="checkbox" ng-click="CheckAll($event);">
+                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                </label>
+            </div>
+        </th>*@
                                             <th>Id</th>
                                             <th>POID</th>
                                             <th>PODetailId</th>
@@ -618,10 +618,10 @@
                                             <th>Material Detail</th>
                                             <th colspan="2">PO Qty</th>
                                             <th>Total PO Value</th>
-                                            <th>Total Accep. Value</th>
                                             <th>GRN Qty</th>
                                             <th>Total GRN Value</th>
                                             <th ng-hide="false">Other Acceptance Qty</th>
+                                            <th>Other Accep. Value</th>
                                             <th>Current Acceptance Qty</th>
                                             <th ng-hide="false">Balance Qty</th>
                                             <th>Rate</th>
@@ -649,10 +649,11 @@
                                             <td class="text-right">{{x.POQty| number:2}}</td>
                                             <td class="text-right">{{x.TransactionUoM}}</td>
                                             <td class="text-right">{{x.TotalPOValue| number:2}}</td>
-                                            <td class="text-right">{{x.TotalAcptValue| number:2}}</td>
                                             <td class="text-right">{{x.GRNRcvQty| number:2}}</td>
                                             <td class="text-right">{{x.TotalGRNValue| number:2}}</td>
+
                                             <td class="text-right">{{x.Otherqty| number:2}}</td>
+                                            <td class="text-right">{{x.TotalAcptValue| number:2}}</td>
                                             <td class="text-right">
                                                 <input type="text" n-decimals="2" class="form-control text-right" ng-change="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="!x.Active"*@>
                                             </td>
@@ -683,10 +684,10 @@
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'POQty'| number:2 }}</strong></td>
                                             <td></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalPOValue'| number:2 }}</strong></td>
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalAcptValue'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'GRNRcvQty'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalGRNValue'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Otherqty' | number:2}}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalAcptValue'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TransactionQty'| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Balance'| number:2 }}</strong></td>
 
@@ -917,6 +918,7 @@
          e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid" e-allowscrolling="true">
         <div e-columns>
             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80"></div>
+            <div e-column e-type="string" e-field="Status" e-headertext="Status" e-width="80"></div>
             <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No" e-width="80"></div>
             <div e-column e-type="string" e-field="Party" e-headertext="Party" e-width="140"></div>
             <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="100"></div>

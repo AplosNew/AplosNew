@@ -304,7 +304,7 @@
                                 <th>Sku1</th>
                                 <th>Sku2</th>
                                 <th>Sku3</th>
-                                <th>MaterialDetail</th>
+                                <th>Material Detail</th>
                                 <th colspan="2">POQty</th>
                                 <th>Other Acceptance</th>
                                 <th>Current Acceptance</th>
@@ -329,7 +329,7 @@
                                 <td>{{x.SecondCharacteristicsValue}}</td>
                                 <td>{{x.ThirdCharacteristicsValue}}</td>
                                 <td>{{x.MaterialDetail}}</td>
-                                <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.POQty" ng-disabled="true"></td>
+                                <td class="text-right">{{x.POQty | number:2}}</td>
                                 <td class="text-right">{{x.TransactionUoM}}</td>
                                 <td class="text-right">{{x.GRNRcvQty}}</td>
                                 <td class="text-right">{{x.TransactionQty}}</td>
@@ -516,9 +516,10 @@
                                     <div e-column e-field="TotalMaterialTranAmount" e-headertext="Total Trn Amount" e-width="100"></div>
                                     <div e-column e-field="ServiceAmount" e-headertext="Charges Amount" e-width="80"></div>
                                     <div e-column e-field="IsChargePark" e-headertext="Charges Park/Post" e-width="120"></div>
+                                    <div e-column e-type="string" e-field="AcceptanceFirst" e-headertext="AcceptanceFirst" e-width="50"></div>
                                     @*<div e-column e-headertext="Actions" e-width="50">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
-                                </div>*@
+            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
+        </div>*@
                                 </div>
                             </div>
                         </div>
