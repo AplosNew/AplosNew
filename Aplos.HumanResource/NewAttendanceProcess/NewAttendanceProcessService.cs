@@ -3047,12 +3047,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 from EmployeeInformation where SystemId=p.EmpSystemID)PlantId,(select GroupID
                 from EmployeeInformation where SystemId=p.EmpSystemID)GroupID,
                 COUNT(p.WorkDate) TotalProcDate,
-                SUM(dt.PresentValuePD)TotalPresent,SUM(dt.LateValueLV)TotalLate,SUM(dt.AbsentValueAB)TotalAbsent,
-                SUM(dt.LeaveValueLP)TotalLv,SUM(dt.MaternityLeaveValueMLV)TotalMlv,SUM(dt.CompAssignLv)TotalCompAssignLv,
-                SUM(dt.WeeklyOffWO)TotalWeekOff,SUM(dt.HolidayH)TotalHoliDay,SUM(dt.WeekOffHoliDayWOH)TotalWeekOffHoliDay,
-                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,SUM(dt.LeaveValueLWP)TotalLWP,SUM(dt.CasualLeaveValueCV)TotalCasualLeave,
-                SUM(dt.PriviledgeLeavePL)TotalPriviledgeLeave,SUM(dt.MedicalLeaveValueMV)TotalMedicalLeave,SUM(dt.TotalWorkingDay)TotalWorkingDay,
-				SUM(dt.ActualWorkingDay)ActualWorkingDay,SUM(dt.PayDay)TotalPayDay,SUM(dt.NonPayDay)TotalNonPayDay
+                isnull(SUM(dt.PresentValuePD),'0')TotalPresent,isnull(SUM(dt.LateValueLV),'0')TotalLate,isnull(SUM(dt.AbsentValueAB),'0')TotalAbsent,
+                isnull(SUM(dt.LeaveValueLP),'0')TotalLv,isnull(SUM(dt.MaternityLeaveValueMLV),'0')TotalMlv,isnull(SUM(dt.CompAssignLv),'0')TotalCompAssignLv,
+                isnull(SUM(dt.WeeklyOffWO),'0')TotalWeekOff,isnull(SUM(dt.HolidayH),'0')TotalHoliDay,isnull(SUM(dt.WeekOffHoliDayWOH),'0')TotalWeekOffHoliDay,
+                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,isnull(SUM(dt.LeaveValueLWP),'0')TotalLWP,isnull(SUM(dt.CasualLeaveValueCV),'0')TotalCasualLeave,
+                isnull(SUM(dt.PriviledgeLeavePL),'0')TotalPriviledgeLeave,isnull(SUM(dt.MedicalLeaveValueMV),'0')TotalMedicalLeave,isnull(SUM(dt.TotalWorkingDay),'0')TotalWorkingDay,
+				isnull(SUM(dt.ActualWorkingDay),'0')ActualWorkingDay,isnull(SUM(dt.PayDay),'0')TotalPayDay,isnull(SUM(dt.NonPayDay),'0')TotalNonPayDay
                         from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                         left join mst.DesignationMasterLegalDesignation ddm on
@@ -3066,7 +3066,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         MONTH(WorkDate) = MONTH('"+Date+@"') AND 
 						YEAR(WorkDate) = YEAR('"+Date+@"')                       					
                         GROUP BY EmpSystemID) as dd";
-
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -5319,6 +5318,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string TotalWorkingDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalWorkingDay"]).ToString();
                         string ActualWorkingDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
 
+                       
                         dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
 
 
