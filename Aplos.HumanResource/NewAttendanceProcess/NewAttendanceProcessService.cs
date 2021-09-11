@@ -818,6 +818,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
+                    #region CreditLimit Monthly Opening Creation
                     DataSet CreditLimitOpening;
                     CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
                     if (CreditLimitOpening.Tables[0].Rows.Count > 0)
@@ -842,7 +843,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 clsGenID genid = new clsGenID();
                                 genid.GenID("EmployeeCreditLimit", out string _Id);
 
-                                dr["Id"] = "ECL" + _Id;
+                                dr["Id"] = "EC" + _Id;
                                 dr["EmpSystemId"] = EmpId;
                                 dr["CreditLimit"] = MonthlyLimit;
                                 dr["YearNo"] = YearNo;
@@ -858,6 +859,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         }
                         SaveDataSets(dsRef);
                     }
+                    #endregion
 
                 }
             }
