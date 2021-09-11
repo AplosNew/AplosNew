@@ -12,29 +12,15 @@ using System.Threading.Tasks;
 namespace Library.HumanResource.NewAttendanceProcess
 
 {
-    public class WeekOffUpdatesService
+    public class TablesUploadService
     {
 
         ISqlRepository _sqlRepository;
-        public WeekOffUpdatesService()
+        public TablesUploadService()
         {
             _sqlRepository = new SqlRepository();
         }
 
-
-        public IEnumerable<object> getPlants()
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"Select Username as Text , Id as Value from ORG.Plant where CompanyId = '" + identity.CompanyId + "'";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
 
         public IEnumerable<object> getCurrentList()
         {
@@ -75,10 +61,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
             dr["AddedBy"] = addedname;
             dr["AddedDate"] = addeddate;
-            dr["AddedFromIP"] = identity.IPAddress;
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
 
             dt.Rows.Add(dr);
         }
@@ -89,35 +73,43 @@ namespace Library.HumanResource.NewAttendanceProcess
 
     
 
-        public void SaveFileList(List<Dictionary<string,object>> data )
+        public void SaveFileList(List<Dictionary<string,object>> data ,string tab)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string addedname = identity.Name;
                 string addeddate = System.DateTime.Now.ToString();
-                string TableName = "dbo.EmployeeWeeklyOff";
+                string TableName = "TPI."+tab;
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1 = 2", out dsMaster, false, "1");
 
-                string _Id = "";
+               
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     int indexa = 0;
                     for (int i = 0; i < data.Count; i++)
                     {
                         Dictionary<string, object> jj = data[i];
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out _Id);
                         indexa++;
-                        jj["Id"] = _Id ;
+                        jj["Id"] = i ;
 
                         AddNewRow(dsMaster.Tables[0], jj, addedname, addeddate);
                     }
 
 
                 }
+
+                var sqls = @"Delete from "+TableName;
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sqls, true, "1");
+                objCone.CommitTransaction();
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
@@ -128,70 +120,13 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
        
-        public DataTable getEmployeeWeekRosterFile( )
+        public DataTable getCurrentTableFile(string tab )
         {
             try
             {
-                var str = @"Select ei.EmployeeCode , ew.WOHeaderId as RosterId,format(ew.EffectiveDate,'dd-MMM-yyyy') as EffectiveDate
-from dbo.EmployeeWeeklyOff ew
-left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
-                            ";
+                var str = @"Select * from TPI."+tab+" ";
 
                 return _sqlRepository.GetDataTable(str);
-            }
-            catch(Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public DataTable getEmployeesAll()
-        {
-            try
-            {
-                var str = @"Select SystemId, EmployeeCode from dbo.EmployeeInformation
-                           ";
-
-                return _sqlRepository.GetDataTable(str);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public DataTable getRostersFile()
-        {
-            try
-            {
-                var str = @"Select * from dbo.WeekOffHeader";
-
-                return _sqlRepository.GetDataTable(str);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-
-        public List<string> getRostersList()
-        {
-            try
-            {
-                var str1 = @"Select Id from dbo.WeekOffHeader ";
-                DataTable dt = _sqlRepository.GetDataTable(str1);
-
-                List<string> roster = new List<string>();
-                if (dt.Rows.Count > 0)
-                {
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        roster.Add(dt.Rows[i]["Id"].ToString());
-                    }
-                }
-
-                return roster;
             }
             catch(Exception e)
             {

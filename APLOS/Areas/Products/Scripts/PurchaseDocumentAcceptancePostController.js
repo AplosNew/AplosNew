@@ -292,7 +292,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
                         method: 'POST',
                         url: 'Products/PurchaseDocumentsAcceptance/DocumentAcceptanceChargesPost',
                         data: {
-                            'voucherTypeId': $scope.VoucherTypeId
+                            'voucherRow': $scope.PurchaseDocAcceptance
                             , 'voucherRows': $scope.PurchaseDocAcceptanceList
                             , 'AcceptancechargesList': $scope.acceptanceChargesCheckedList
                             , 'taxDetailVMList': $scope.taxDetailVMList
