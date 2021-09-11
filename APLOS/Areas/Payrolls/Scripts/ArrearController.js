@@ -11,7 +11,10 @@ function ArrearController(cboService, commonMessage, $scope, $rootScope, baseSer
     $scope.FromDate = new Date();
     $scope.ToDate = new Date();
 
-
+    $scope.onrowdatabound = function (e) {
+        if (e.data.IsAlreadyProcessed == 'YES')
+            e.row.css("background-color", "red");
+    };
     $scope.EmployeeList = [];
     $scope.EmployeeListDefault = [];
     $scope.EmployeeListTemp = [];

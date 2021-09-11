@@ -234,7 +234,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
 
     $scope.MakeChargesObj = function () {
-        $scope.AcceptanceCharges.Amount= null;
+        $scope.AcceptanceCharges.Amount = null;
         $scope.PurchaseDocAcceptanceService = {
             Id: null
             , ChargeName: null
@@ -1022,25 +1022,22 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             }
             else {
                 var TranQty = Math.min(data.GRNRcvQty, data.POQty);
-
-                //data.Balance = data.GRNRcvQty - (data.Otherqty + parseFloat(data.TransactionQty));
                 data.Balance = TranQty - (data.Otherqty + parseFloat(data.TransactionQty));
 
-                if (data.Balance >= 0) {
-                    //if (data.GRNRcvQty >= (data.Otherqty + parseFloat(data.TransactionQty))) {
-                    if (TranQty >= (data.Otherqty + parseFloat(data.TransactionQty))) {
+                //if (data.Balance >= 0) {
+                    //if (TranQty >= (data.Otherqty + parseFloat(data.TransactionQty))) {
                         data.TrnAmount = data.TransactionRate * parseFloat(data.TransactionQty);
 
                         $scope.CalculateMaterialAmount();
 
-                    } else {
-                        throw 'Current quantity can not greater than balance quantity!';
-                    }
-                } else {
-                    data.Balance = null;
-                    data.TransactionQty = null;
-                    throw 'Current quantity can not greater than balance quantity!';
-                }
+                    //} else {
+                    //    throw 'Current quantity can not greater than balance quantity!';
+                    //}
+                //} else {
+                //    data.Balance = null;
+                //    data.TransactionQty = null;
+                //    throw 'Current quantity can not greater than balance quantity!';
+                //}
             }
         } catch (e) {
             ShowResult(e, 'failure');

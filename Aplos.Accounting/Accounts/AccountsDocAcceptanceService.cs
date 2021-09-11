@@ -24,7 +24,7 @@ namespace Library.Accounting.Accounts
         {
             try
             {
-                var sql = @"SELECT  PDA.Id,REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate
+                var sql = @"SELECT PDA.Id,REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate
                             ,REPLACE(CONVERT(CHAR(11), PDA.DueDate, 106),' ','-') AS DueDate		
                             ,REPLACE(CONVERT(CHAR(11), PDA.InvoiceDate, 106),' ','-') AS InvoiceDate		
                             ,PDA.Remarks,P.UserName PartyName, PP.UserName PartyPlantName
@@ -54,6 +54,7 @@ namespace Library.Accounting.Accounts
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end
                             FROM TRN.PurchasedocAcceptance AS PDA
                             LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(MaterialTranAmount) MaterialTranAmount
 										,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount

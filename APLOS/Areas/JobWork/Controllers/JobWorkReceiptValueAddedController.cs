@@ -2200,5 +2200,30 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 			}
 		}
 
+		// Template Report
+
+		[Authorize, HttpGet]
+		public ActionResult GRNReport(string grnId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				R.GRNReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+				return null;
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+
+	//		var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+			//_inventoryReveiveService.InventoryReceive(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+			//return null;
+		}
+
 	}
 }

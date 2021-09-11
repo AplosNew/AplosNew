@@ -984,6 +984,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		//debugger;
 		$scope.index = index;
 		$scope.selectedRowQty = data.TransactionQty;
+		
 		$http({
 			method: 'POST'
 			, url: $scope.path + 'GetSpecificMaterialStock'
@@ -1192,8 +1193,9 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		//debugger;
 		// $scope.SavePOPUpConfirm();
 		$scope.productNew.ToCurrencyRate = $scope.productNew.ToCurrencyRate;
-		var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.materialStockList), 'RequisitionQty');
-		if (sumOfmaterialStockList < $scope.selectedRowQty) {
+		var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+		$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
+		if (sumOfmaterialStockList < $scope.selectedRowQty1) {
 			ShowResult("Please select specific GRN", 'failure');
 			return false;
 		}
@@ -1389,6 +1391,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		$scope.clearCharNames();
 		$scope.detailList = [];
 		$scope.specificStockList = [];
+		$scope.materialtaxCategoryListRes = [];
 		$scope.IssueType = 'Revenue';
 	}
 	$scope.setCharData = function (data) {

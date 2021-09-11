@@ -154,12 +154,14 @@ namespace Library.HumanResource.Payroll.Arrear
 
 
                 string sql = @"SELECT [CheckBoxSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'false'),EMP.SystemID AS EmpSystemID,
+                                    CASE WHEN ISNULL(AB.EmpInfoSystemID,'')<>'' THEN 'YES' ELSE '' END AS IsAlreadyProcessed,
                                     FORMAT(emp.DOJ,'dd-MMM-yyyy') AS DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') AS DOS,EMP.EmployeeStatus,DIV.UserName AS Division,
                                     EMP.EmployeeName,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,concat( sl.YearNo,'/', sl.MonthNo) LastLocked
                                     ,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation, PR.UserName PositionName,format(SEFD.EffectiveDate,'dd-MMM-yyyy') AS LastSalaryEffectiveDate,
                                     DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection,PL.UserName Plant,SEFD.SalaryRuleMasterSystemID 
                                     ,srm.SalaryRuleName,srmLA.SalaryRuleName AS LastSalaryRuleName,format(LSA.EffectiveDate,'dd-MMM-yyyy') AS LatestSalaryEffectiveDate
-                                    FROM (
+                                     FROM  EmployeeInformation EMP 
+                                        LEFT JOIN(
 		                            	
 		                            	SELECT * FROM (  SELECT  *,
 				                            DENSE_RANK() OVER (PARTITION BY SDM.EmpInfoSystemID ORDER BY SDM.EffectiveDate DESC) AS RNK
@@ -176,7 +178,7 @@ namespace Library.HumanResource.Payroll.Arrear
 			
 			                                        ) AS SDM 
                                                     WHERE ISNULL(sdm.IsApproved,'')=1 AND EffectiveDate <= '" + ToDate + @"' AND rnk=1 
-		                                   ) SEFD 
+		                                   ) SEFD ON SEFD.EmpInfoSystemID = EMP.SystemID
 
                                         Left JOIN (
 		                            	
@@ -197,7 +199,15 @@ namespace Library.HumanResource.Payroll.Arrear
                                                     WHERE  EffectiveDate <= '" + ToDate + @"' AND rnk=1 --AND ISNULL(sdm.IsApproved,'')=1
 		                                   ) LSA ON LSA.EmpInfoSystemID=SEFD.EmpInfoSystemID
 
-			                            LEFT JOIN EmployeeInformation EMP ON SEFD.EmpInfoSystemID = EMP.SystemID
+                                       -- LEFT JOIN ArrearSummaryBatchWise AB ON ab.EmployeeSystemId=emp.SystemId AND ab.ArrearProcessBatchId IN 
+			                           -- (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + FromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ToDate + @"' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"') OR  (ToDate  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'))
+			                         
+                                         LEFT JOIN   (SELECT DISTINCT C.EmpInfoSystemID
+			                                                                             FROM ArrearProcMaster M
+			                                                                 JOIN ArrearProcChild AS C ON c.SlrProcMstSystemID=M.SystemID
+			                                                                  WHERE ('" + FromDate + @"' BETWEEN ArrearProcessFromDate AND ArrearProcessToDate) OR  ('" + ToDate + @"' BETWEEN ArrearProcessFromDate AND ArrearProcessToDate)OR  (ArrearProcessFromDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"') OR  (ArrearProcessToDate  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"')
+			                                                              ) AS AB ON ab.EmpInfoSystemID=EMP.SystemId
+			                         
 			                            LEFT JOIN SalaryRuleMaster AS srm ON srm.SystemID=sefd.SalaryRuleMasterSystemID
 			                            LEFT JOIN SalaryRuleMaster AS srmLA ON srmLA.SystemID=LSA.SalaryRuleMasterSystemID
 			                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
@@ -212,9 +222,9 @@ namespace Library.HumanResource.Payroll.Arrear
 			                            LEFT JOIN org.Division AS DIV ON DIV.Id=emp.DivisionId
 			                            LEFT JOIN SalaryLock AS sl  ON sl.EmpSystemId=emp.SystemId AND sl.Id=(SELECT TOP 1 Id FROM salaryLock xl where  xl.IsLocked=1 and xl.EmpSystemId=emp.SystemId ORDER BY xl.YearNo DESC,xl.MonthNo DESC)
 			                              WHERE EMP.DOJ <= '" + ToDate + @"'
-                                            and EMP.EmployeeStatus='Active'
-			                              AND (EMP.DOS >= '" + FromDate + @"' OR ISNULL(EMP.DOS,'') = '' OR EMP.DOS = '01/01/1901')
-                                           AND SEFD.EffectiveDate <= '" + ToDate + @"' AND emp.PlantId='" + PlantId + @"'
+                                           AND EMP.EmployeeStatus='Active'
+			                               AND (EMP.DOS >= '" + FromDate + @"' OR ISNULL(EMP.DOS,'') = '' OR EMP.DOS = '01/01/1901')
+                                           AND emp.PlantId='" + PlantId + @"'
 			                          ";
 
                 return _sqlRepository.GetDataCollection(sql);

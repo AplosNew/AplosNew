@@ -33,12 +33,24 @@
                 </div>
             </div>
 
-            <div class="form-group">
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Shift</label>
                 <div class="col-sm-8">
                     <div class="select-style">
                         <select class="form-control" ng-model="EmployeeServiceBooking.ShiftId"
                                 ng-options="item.Value as item.Text for item in ShiftIdList" tabindex="3">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="EmployeeServiceBooking.ShiftId" name="Shift"
+                                ng-options="item.Value as item.Text for item in AllShiftList" required tabindex="3">
                             <option value="">--Select--</option>
                         </select>
                     </div>
@@ -83,7 +95,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label">UOM</label>
+                <label class="col-sm-4 control-label">UoM</label>
                 <div class="col-sm-8">
 
                     <div class="select-style" hidden>
@@ -305,7 +317,7 @@
             <div class="col-xs-12" ng-show="EmployeeServiceBooking.Form==='Quantity' && EmployeeServiceBooking.Form!='Value' && EmployeeServiceBooking.Form!='Reading' ">
                 <div style="color:black;" id="GridSelectedQuantityTab" ej-grid e-datasource="SelectedQuantityList"
                      e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                     e-allowselection="false" e-filtersettings-filterType="excel">
+                     e-allowselection="false" e-filtersettings-filterType="excel" e-recorddoubleclick="GetQuantityDetails">
                     <div e-columns>
 
                         <div e-column e-type="string" e-field="GetGridTime" e-headertext="Time" e-width="15"></div>
@@ -332,7 +344,7 @@
             <div class="col-xs-12" ng-show="EmployeeServiceBooking.Form!='Quantity' && EmployeeServiceBooking.Form==='Value' && EmployeeServiceBooking.Form!='Reading' ">
                 <div style="color:black;" id="GridSelectedAmountTab" ej-grid e-datasource="SelectedAmountList"
                      e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                     e-allowselection="false" e-filtersettings-filterType="excel">
+                     e-allowselection="false" e-filtersettings-filterType="excel" e-recorddoubleclick="GetValueDetails">
                     <div e-columns>
 
                         <div e-column e-type="string" e-field="GetGridTime" e-headertext="Time" e-width="15"></div>
@@ -359,7 +371,7 @@
             <div class="col-xs-12" ng-show="EmployeeServiceBooking.Form!='Quantity' && EmployeeServiceBooking.Form!='Value' && EmployeeServiceBooking.Form==='Reading' ">
                 <div style="color:black;" id="GridSelectedReadingTab" ej-grid e-datasource="SelectedReadingList"
                      e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                     e-allowselection="false" e-filtersettings-filterType="excel">
+                     e-allowselection="false" e-filtersettings-filterType="excel" e-recorddoubleclick="GetReadingDetails">
                     <div e-columns>
 
                         <div e-column e-type="string" e-field="GetGridTime" e-headertext="Time" e-width="15"></div>
@@ -419,8 +431,8 @@
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
             <div e-column e-field="EmpServiceDate" e-headertext="Date" e-width="2"></div>
             <div e-column e-field="GetTime" e-headertext="Time" e-width="2"></div>
-            <div e-column e-field="Service" e-headertext="Service" e-width="1"></div>
-            <div e-column e-field="Shift" e-headertext="Shift" e-width="2"></div>
+            <div e-column e-field="ServiceName" e-headertext="Service" e-width="1"></div>
+            <div e-column e-field="ShiftName" e-headertext="Shift" e-width="2"></div>
             <div e-column e-field="Category" e-headertext="Category" e-width="2"></div>
             @*<div e-column e-field="SalaryHead" e-headertext="Salary Head" e-width="2"></div>*@
         </div>

@@ -479,6 +479,9 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("OutPunchConfigurationController", OutPunchConfigurationController)
     .controller("RosterPatternController", RosterPatternController)
     .controller("AttendanceSourceConfigController", AttendanceSourceConfigController)
+    .controller("TablesUploadController", TablesUploadController)
+    .controller('EmployeeServiceBookingController', EmployeeServiceBookingController)
+    .controller('EmployeeServicesRateController', EmployeeServicesRateController)
 
 
     .config(accountConfig)
