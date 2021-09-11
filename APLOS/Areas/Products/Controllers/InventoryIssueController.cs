@@ -1826,7 +1826,7 @@ namespace Aplos.Areas.Products.Controllers
                         --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
 
-						WHERE SA.PlantId='" + identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN  '"+fromDate+@"' AND '"+toDate+ @"'
+						WHERE SA.PlantId='" + identity.PlantId+@"' AND convert(Date,SA.InvoiceDate) BETWEEN  '"+fromDate+@"' AND '"+toDate+ @"' 
 
 							UNION ALL
 						
@@ -2008,10 +2008,7 @@ namespace Aplos.Areas.Products.Controllers
 						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
 						WHERE IR.PlantId='" + identity.PlantId+@"' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
-
-
 						union ALL
-
 
 						SELECT 
 						ROW_NUMBER() Over(Order by   II.Id) As[S.N]
@@ -2179,7 +2176,7 @@ namespace Aplos.Areas.Products.Controllers
 									WHERE B.Code='TCS' 								
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
-						WHERE II.PlantId='"+identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+						WHERE II.PlantId='" + identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 						----GROUP BY p.Code	,II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						--,II.SalesDate, MS.UserName
 						--,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo 
