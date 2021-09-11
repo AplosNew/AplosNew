@@ -28,8 +28,9 @@ namespace Library.Accounting.Accounts
                             ,REPLACE(CONVERT(CHAR(11), PDA.DueDate, 106),' ','-') AS DueDate		
                             ,REPLACE(CONVERT(CHAR(11), PDA.InvoiceDate, 106),' ','-') AS InvoiceDate		
                             ,PDA.Remarks,P.UserName PartyName, PP.UserName PartyPlantName
-                            ,PDA.AcceptanceNo, PDA.PurchaseLCId, PLC.CurrencyId, PDA.AcceptanceRate ToCurrencyRate, CU.Code CurrencyName
-                            ,ISNULL(PDAD.MaterialTranAmount,0) Amount
+                            ,PDA.AcceptanceNo, PDA.PurchaseLCId, PLC.CurrencyId,ToCurrencyRate = CASE WHEN PDA.AcceptanceRate=0 THEN PLC.Rate ELSE PDA.AcceptanceRate END, CU.Code CurrencyName
+                            ,ISNULL(PDA.AcceptanceAmount,0) Amount
+                            ,ISNULL(PDA.AcceptanceAmount,0) AcceptanceAmount
 							,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 							,PDA.PurchaseLCId,PDA.PartyId,PDA.PartyPlantId
 							,PDAS.ServiceAmount,V.VoucherNo,PDA.VoucherId
@@ -56,10 +57,9 @@ namespace Library.Accounting.Accounts
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                             ,AcceptanceFirst =case when PLC.IsAccepptanceFirst=1 then 'Yes' else 'No' end
                             FROM TRN.PurchasedocAcceptance AS PDA
-                            LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(MaterialTranAmount) MaterialTranAmount
-										,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount
+                            LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount
 										,SUM(ChargesTaxTranAmount) ChargesTaxTranAmount
-								FROM TRN.PurchasedocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id
+								FROM TRN.PurchasedocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
                             LEFT JOIN(select VoucherId,PurchaseDocAcceptanceId,SUM(ISNULL(Amount,0)) ServiceAmount
 							 FROM  TRN.PurchaseDocAcceptanceCharges GROUP BY VoucherId,PurchaseDocAcceptanceId) AS PDAS ON PDAS.PurchaseDocAcceptanceId=PDA.id
                             LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
@@ -88,7 +88,7 @@ namespace Library.Accounting.Accounts
                             ,REPLACE(CONVERT(CHAR(11), PDA.InvoiceDate, 106),' ','-') AS InvoiceDate		
                             ,PDA.Remarks,P.UserName PartyName, PP.UserName PartyPlantName
                             ,PDA.AcceptanceNo,PDA.PurchaseLCId,PDAS.CurrencyId, 1 ToCurrencyRate,CU.Code CurrencyName
-                            ,ISNULL(PDAD.MaterialTranAmount,0) Amount
+                            ,ISNULL(PDA.AcceptanceAmount,0) Amount
 							,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 							,PDA.PurchaseLCId,PDA.PartyId,PDA.PartyPlantId
 							,PDAS.ServiceAmount,V.VoucherNo,PDA.VoucherId
@@ -106,7 +106,7 @@ namespace Library.Accounting.Accounts
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
                             FROM TRN.PurchasedocAcceptance AS PDA
-                            LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(MaterialTranAmount) MaterialTranAmount
+                            LEFT JOIN (SELECT PurchaseDocAcceptanceId
 										,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount
 										,SUM(ChargesTaxTranAmount) ChargesTaxTranAmount
 								FROM TRN.PurchasedocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id

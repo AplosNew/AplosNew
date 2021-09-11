@@ -76,6 +76,9 @@ function bankSheetGenerationController($scope, $rootScope, $filter, bankService,
     $scope.ShowData = false;
     $scope.getPartyData = function () {
         try {
+            if (new Date($scope.report.FromDate) > new Date($scope.report.ToDate)) {
+                throw "To Date can't less than From Date.";
+            }
             $http({
                 method: 'POST',
                 url: 'Banks/BankReport/GetPartyDateWise/',

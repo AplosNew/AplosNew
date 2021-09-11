@@ -2,7 +2,7 @@
 PurchaseDocumentAcceptancePostController.$inject = ['addressService', '$window', 'factoryService', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller'];
 function PurchaseDocumentAcceptancePostController(addressService, $window, factoryService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
     $rootScope.title = "Purchase Document Acceptance ";
-    $scope.path = 'Products/PurchaseDocumentsAcceptance/'; 
+    $scope.path = 'Products/PurchaseDocumentsAcceptance/';
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.products = [];
@@ -110,7 +110,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
     };
 
     $scope.acceptanceChargesCheckedList = [];
-    
+
     $scope.PurchaseDocAcceptance = {
         Id: null,
         AcceptanceNo: null,
@@ -129,8 +129,8 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         VoucherTypeId: null,
         ToCurrencyRate: null,
         DueDate: null,
-        InvoiceDate:null,
-        Tenure:null,
+        InvoiceDate: null,
+        Tenure: null,
     };
     $scope.PurchaseDocAcceptanceDetail = {
         Id: null,
@@ -275,7 +275,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
                             $scope.gridAcceptancePostedList();
                             $scope.isSetAcceptenceList(2);
                             $scope.gridAcceptanceList();
-                            $scope.Action ='POST';
+                            $scope.Action = 'POST';
                             $scope.inventoryMaterialListPO = [];
                         }
                     }), function errorCallBack(response) {
@@ -292,7 +292,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
                         method: 'POST',
                         url: 'Products/PurchaseDocumentsAcceptance/DocumentAcceptanceChargesPost',
                         data: {
-                            'voucherTypeId': $scope.VoucherTypeId
+                            'voucherRow': $scope.PurchaseDocAcceptance
                             , 'voucherRows': $scope.PurchaseDocAcceptanceList
                             , 'AcceptancechargesList': $scope.acceptanceChargesCheckedList
                             , 'taxDetailVMList': $scope.taxDetailVMList
@@ -307,7 +307,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
                             $scope.acceptanceChargesCheckedList = [];
                             $scope.gridAcceptanceChargesNonPostedList();
                             $scope.gridAcceptanceChargesPostedList();
-                           
+
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -422,7 +422,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
             url: 'Products/PurchaseDocumentsAcceptance/GetMaterialById'
         }).then(function successCallback(response) {
             $scope.GetMaterialByIdList = response.data;
-           // window.GetMaterialByIdList = response.data;
+            // window.GetMaterialByIdList = response.data;
         });
     }
     $scope.GetMaterialById();
@@ -489,7 +489,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
 
     $scope.ClearFields = function () {
         $scope.PurchaseDocAcceptance.Id = null;
-       
+
     }
     $scope.CloseContractPopUp = function () {
         angular.element(document.querySelector('#ContractPopUp')).modal('hide');
@@ -536,7 +536,16 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
             $scope.inventoryMaterialListPO = $scope.GetDataDoubleClickDetails;
         });
     };
-  
+
+    $scope.getRecordDoubleClickDetailGRN = function (Id) {
+        $scope.inventoryMaterialListPO = [];
+        $http.get('Products/PurchaseDocumentsAcceptance/GetGRNAcceptanceDetailForPost?PurchaseDocAcceptanceId=' + Id)
+            .then(function (response) {
+                $scope.GetDataDoubleClickDetails = response.data;
+                $scope.inventoryMaterialListPO = response.data;
+            });
+    };
+
     $scope.GetServiceDetails = [];
     $scope.GetService = function (Id) {
         //debugger;
@@ -582,15 +591,23 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         $scope.PurchaseDocAcceptance.IsNonCreditable = $event.data.IsNonCreditable;
         $scope.PurchaseLCNo = $event.data.PurchaseLCId;
         $scope.PurchaseDocAcceptance.PaymentType = $event.data.PaymentType;
+        $scope.PurchaseDocAcceptance.AcceptanceAmount = $event.data.AcceptanceAmount;
+        $scope.PurchaseDocAcceptance.Amount = $event.data.AcceptanceAmount;
         $scope.getMatureDate($scope.PurchaseDocAcceptance.AcceptanceDate, $scope.PurchaseDocAcceptance.Tenure)
-        $scope.acceptanceChargesCheckedList=[];
-        $scope.getRecordDoubleClickDetail(x);
+        $scope.acceptanceChargesCheckedList = [];
+
+        if ($event.data.AcceptanceFirst == 'Yes') {
+            $scope.getRecordDoubleClickDetail(x);
+        }
+        else {
+            $scope.getRecordDoubleClickDetailGRN(x);
+        }
         getServiceChargeList($scope.Id);
         getSavedServicePODetailList($scope.Id);
         //$scope.GetCurrencyExchangeRateList();
         $scope.Action = 'Post';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
-      
+
     }
 
     $scope.nonPostedAcceptanceService = function ($event) {
@@ -621,7 +638,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         if (!$rootScope.isCollapsed) $rootScope.toggle();
         $scope.setTab(2);
     }
-   
+
     $scope.recorddoubleclickPO = function ($event) {
         //debugger;
 
@@ -665,29 +682,29 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
     $scope.ItemSelectToSave = function () {
         //debugger;
         for (var i = 0; i < $scope.inventoryMaterialListPO1.length; i++) {
-                if ($scope.inventoryMaterialListPO1[i].Active === true) {
-                    if ($scope.inventoryMaterialListPO.length > 0) {
-                        for (var j = 0; j < $scope.inventoryMaterialListPO.length; j++) {
-                            if ($scope.inventoryMaterialListPO1[i].POID === $scope.inventoryMaterialListPO[j].POID && $scope.inventoryMaterialListPO1[i].InventoryReceiveDetailId === $scope.inventoryMaterialListPO[j].InventoryReceiveDetailId) {
-                                ShowResult('PO Material Already Added', 'failure','ListOfRequisition');
-                                return false;
-                            }
-                            else {
-                                $scope.inventoryMaterialListPO.push($scope.inventoryMaterialListPO1[i]);
-                                ShowResult('PO Material Added Successfully', 'success');
-                                return false;
-                            }
+            if ($scope.inventoryMaterialListPO1[i].Active === true) {
+                if ($scope.inventoryMaterialListPO.length > 0) {
+                    for (var j = 0; j < $scope.inventoryMaterialListPO.length; j++) {
+                        if ($scope.inventoryMaterialListPO1[i].POID === $scope.inventoryMaterialListPO[j].POID && $scope.inventoryMaterialListPO1[i].InventoryReceiveDetailId === $scope.inventoryMaterialListPO[j].InventoryReceiveDetailId) {
+                            ShowResult('PO Material Already Added', 'failure', 'ListOfRequisition');
+                            return false;
                         }
-                        
+                        else {
+                            $scope.inventoryMaterialListPO.push($scope.inventoryMaterialListPO1[i]);
+                            ShowResult('PO Material Added Successfully', 'success');
+                            return false;
+                        }
                     }
-                    else {
-                        $scope.inventoryMaterialListPO.push($scope.inventoryMaterialListPO1[i]);
-                        ShowResult('PO Material Added Successfully', 'success', 'ListOfRequisition');
-                    }
+
                 }
+                else {
+                    $scope.inventoryMaterialListPO.push($scope.inventoryMaterialListPO1[i]);
+                    ShowResult('PO Material Added Successfully', 'success', 'ListOfRequisition');
+                }
+            }
         }
     }
-   
+
     $scope.AllTabPrint = function (z) {
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
@@ -710,7 +727,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         }
     }
 
-  
+
     $scope.closeServiceChargePopUp = function () {
         $scope.serviceModel = {};
         $scope.receiveTaxList = [];
@@ -735,7 +752,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
                     ShowResult(response.data.Message, 'failure');
                 }
             });
-        }       
+        }
     };
 
 
@@ -787,6 +804,6 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         $scope.inventoryMaterialListPO = [];
         $scope.Action === 'Save';
         $scope.seletedLST = [];
-        $scope.GridListPO = [];  
+        $scope.GridListPO = [];
     }
 }

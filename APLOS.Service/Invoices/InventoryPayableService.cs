@@ -3485,7 +3485,7 @@ namespace Library.Service.Invoices
                         GLGeneralInfoId = voucherDetailVM.ClearingAccountGLId,
                         BudgetMasterId = voucherDetailVM.ClearingAccountBudgetMasterId,
                         ActivityId = voucherDetailVM.ClearingAccountActivityId,
-                        DrAmount = voucherDetailVM.TotalMaterialTranAmount,
+                        DrAmount = voucherVM.Amount,
                         CurrencyId = voucherVM.CurrencyId,
                         DocDate = purchaseDocAcceptance.AcceptanceDate,
                         DocRefNo = purchaseDocAcceptance.AcceptanceNo,
@@ -3619,8 +3619,8 @@ namespace Library.Service.Invoices
                         GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                         BudgetMasterId = voucherDetailVM.BudgetMasterId,
                         ActivityId = voucherDetailVM.ActivityId,
-                        Amount = IsNonCreditable ? voucherDetailVM.TotalMaterialTranAmount : voucherDetailVM.TotalMaterialTranAmount + totalTaxAmount,
-                        NetAmount = voucherDetailVM.TotalMaterialTranAmount,
+                        Amount = IsNonCreditable ? voucherVM.Amount : voucherVM.Amount + totalTaxAmount,
+                        NetAmount = voucherVM.Amount,
                         TaxAmount = 0,
                         AddedBy = invoice.AddedBy,
                         AddedDate = invoice.AddedDate,
@@ -3638,7 +3638,7 @@ namespace Library.Service.Invoices
                         ActivityId = invoiceDetail.ActivityId,
                         CurrencyId = voucher.CurrencyId,
                         DrAmount = 0,
-                        CrAmount = IsNonCreditable ? voucherDetailVM.TotalMaterialTranAmount : voucherDetailVM.TotalMaterialTranAmount + totalTaxAmount,
+                        CrAmount = IsNonCreditable ? voucherVM.Amount : voucherVM.Amount + totalTaxAmount,
                         DocDate = voucher.DocDate,
                         DocRefNo = voucher.DocRefNo,
                         Narration = invoice.Narration,
@@ -3746,11 +3746,11 @@ namespace Library.Service.Invoices
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = voucherDetailDr.CurrencyId,
                                 ToCurrencyId = companyCurrencyId,
-                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                DrAmount = cList.Rate * voucherDetailDr.DrAmount
+                                ToCurrencyRate = voucherVM.ToCurrencyRate,
+                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.ToCurrencyRate),
+                                DrAmount = voucherVM.ToCurrencyRate * voucherDetailDr.DrAmount
                             });
-                            voucherDetailCurrencyCr += voucherDetailDr.DrAmount;
+                            voucherDetailCurrencyCr += voucherVM.ToCurrencyRate * voucherDetailDr.DrAmount;
 
 
                             purDocAcceptService.VoucherId = voucher.Id;
@@ -3852,8 +3852,8 @@ namespace Library.Service.Invoices
                             ParallelCurrencyId = companyCurrencyId,
                             FromCurrencyId = voucherDetailCr.CurrencyId,
                             ToCurrencyId = companyCurrencyId,
-                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            ToCurrencyRate = voucherVM.ToCurrencyRate,
+                            ToCurrencyConversion = voucherVM.ToCurrencyRate,
                             CrAmount = voucherDetailCurrencyCr + totalTaxAmount
                         });
 
