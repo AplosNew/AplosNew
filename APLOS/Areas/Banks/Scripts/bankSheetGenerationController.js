@@ -26,27 +26,43 @@ function bankSheetGenerationController($scope, $rootScope, $filter, bankService,
     //    }
     //    $scope.hideBankPopUp();
     //};
-
+    $scope.PartyListForReport = "";
     $scope.getReport = function () {
-        //if (baseService.isUndefinedOrNull($scope.report.BankMasterId)) {
-        //    manualValidation("div_Bank", true, "Bank is required.");
-        //}
-         if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
-            manualValidation("div_FromDate", true, "From Date is required.");
+        try {
+            $scope.PartyListForReport = "";
+            for (var i = 0; i < $scope.newPartyList.length; i++) {
+                if ($scope.newPartyList[i].IsSelect) {
+                    if ($scope.PartyListForReport === "") {
+                        $scope.PartyListForReport += "'" + $scope.newPartyList[i].PartyId + "'";
+                    }
+                    else {
+                        $scope.PartyListForReport += ",'" + $scope.newPartyList[i].PartyId + "'";
+                    }
+                }
+            }
+            if ($scope.PartyListForReport == "") {
+                throw "Select Party..!";
+            }
+            if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
+                manualValidation("div_FromDate", true, "From Date is required.");
+            }
+            else if (baseService.isUndefinedOrNull($scope.report.ToDate)) {
+                manualValidation("div_ToDate", true, "To Date is required.");
+            }
+            else if (new Date($scope.report.FromDate) > new Date($scope.report.ToDate)) {
+                manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
+            }
+            else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
+                manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
+            }
+            else {
+                var url = "Banks/BankReport/GetBankSheetGenerationReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&bankMasterId=" + $scope.report.BankMasterId + "&PartyList=" + $scope.PartyListForReport;
+                $window.open(url, "_blank");
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
         }
-        else if (baseService.isUndefinedOrNull($scope.report.ToDate)) {
-            manualValidation("div_ToDate", true, "To Date is required.");
-        }
-        else if (new Date($scope.report.FromDate) > new Date($scope.report.ToDate)) {
-            manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
-        }
-        else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
-            manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
-        }
-        else {
-             var url = "Banks/BankReport/GetBankSheetGenerationReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&bankMasterId=" + $scope.report.BankMasterId + "&PartyList=" + $scope.PartyListForReport;
-            $window.open(url, "_blank");
-        }
+        
     };
 
     //$scope.getSalaryHeadGlReport = function () {
@@ -56,65 +72,83 @@ function bankSheetGenerationController($scope, $rootScope, $filter, bankService,
     //}
 
     //#region Saad's Part
-
-    $scope.searchByParty = "UserName"; $scope.searchParty = "";
-    $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
-
-    $scope.changePartyType = function () {
-        $scope.partyType = $scope.report.PartyType;
-        $scope.customerNameCode = null;
-        $scope.GLNameCode = null;
-        $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
-    };
-    $scope.partyList = [];
-    $scope.showPartyPopUpNew = function () {
-        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
-            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
-        }
-        else if ($scope.partyType === 'Party') {
-            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
-        }
-        else if ($scope.partyType === 'Director') {
-            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
-        }
-        else if ($scope.partyType === 'Other') {
-            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
-        }
-        $http({
-            method: 'POST',
-            url: $scope.partyUrl,
-            data: { column: $scope.searchByParty, value: $scope.searchParty },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.partyList = response.data;
-        });
-        angular.element(document.querySelector('#partyPopUp')).modal('show');
-    };
-    $scope.closePartyPopUpNew = function () {
-        angular.element(document.querySelector('#partyPopUp')).modal('hide');
-    };
     $scope.newPartyList = [];
-    $scope.PartyListForReport = "";
-    $scope.closePartyPopUp = function (x) {
-
-        var partyId = x.data.PartyId;
-        var PartyName = x.data.PartyName;
-        $scope.newPartyList.push({ "partyId": partyId, "PartyName": PartyName });
-        if ($scope.PartyListForReport === "") {
-            $scope.PartyListForReport += "'" + partyId + "'";
+    $scope.ShowData = false;
+    $scope.getPartyData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Banks/BankReport/GetPartyDateWise/',
+                data: { 'FromDate': $scope.report.FromDate, 'ToDate': $scope.report.ToDate },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.newPartyList = response.data;
+                $scope.ShowData = true;
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
         }
-        else {
-            $scope.PartyListForReport += ",'" + partyId + "'";
-        }
-        $scope.hidePartyPopUp();
-        // TODO:
-
-    }
-    $scope.hidePartyPopUp = function () {
-        angular.element(document.querySelector('#partyPopUp')).modal('hide');
-        $scope.partyIndex = -1;
-        $scope.partySelected = null;
     };
+
+
+    //$scope.searchByParty = "UserName"; $scope.searchParty = "";
+    //$scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+
+    //$scope.changePartyType = function () {
+    //    $scope.partyType = $scope.report.PartyType;
+    //    $scope.customerNameCode = null;
+    //    $scope.GLNameCode = null;
+    //    $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+    //};
+    //$scope.partyList = [];
+    //$scope.showPartyPopUpNew = function () {
+    //    if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+    //        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+    //    }
+    //    else if ($scope.partyType === 'Party') {
+    //        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+    //    }
+    //    else if ($scope.partyType === 'Director') {
+    //        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+    //    }
+    //    else if ($scope.partyType === 'Other') {
+    //        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+    //    }
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.partyUrl,
+    //        data: { column: $scope.searchByParty, value: $scope.searchParty },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        $scope.partyList = response.data;
+    //    });
+    //    angular.element(document.querySelector('#partyPopUp')).modal('show');
+    //};
+    //$scope.closePartyPopUpNew = function () {
+    //    angular.element(document.querySelector('#partyPopUp')).modal('hide');
+    //};
+    
+    //
+    //$scope.closePartyPopUp = function (x) {
+
+    //    var partyId = x.data.PartyId;
+    //    var PartyName = x.data.PartyName;
+    //    $scope.newPartyList.push({ "partyId": partyId, "PartyName": PartyName });
+    //    
+    //    
+    //    
+    //    
+    //    
+    //    
+    //    $scope.hidePartyPopUp();
+    //    // TODO:
+
+    //}
+    //$scope.hidePartyPopUp = function () {
+    //    angular.element(document.querySelector('#partyPopUp')).modal('hide');
+    //    $scope.partyIndex = -1;
+    //    $scope.partySelected = null;
+    //};
    
     //#endregion
 

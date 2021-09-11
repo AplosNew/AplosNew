@@ -7,6 +7,7 @@ using Library.Model.Enums;
 using Library.Service.Banks;
 using Syncfusion.XlsIO;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -21,11 +22,11 @@ namespace Aplos.Areas.Banks.Controllers
         {
             _bankReportService = bankReportService;
             _sqlRepository = sqlRepository;
-        } 
+        }
 
 
 
-       
+
         public ActionResult BankOpeningBalanceLedger()
         {
             return View("~/Areas/Banks/Views/BankOpeningBalanceLedger.cshtml");
@@ -35,10 +36,10 @@ namespace Aplos.Areas.Banks.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetBankJournalReport (ReportFormat reportFormat, string voucherId)
+        public ActionResult GetBankJournalReport(ReportFormat reportFormat, string voucherId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook =  _bankReportService.GetPaymentByBankReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, SourceType.BankJournal);
+            var workbook = _bankReportService.GetPaymentByBankReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, SourceType.BankJournal);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -99,7 +100,7 @@ namespace Aplos.Areas.Banks.Controllers
             return null;
         }
 
-        
+
         public ActionResult BankLedgerReport()
         {
             return View("~/Areas/Banks/Views/BankLedgerReport.cshtml");
@@ -124,7 +125,7 @@ namespace Aplos.Areas.Banks.Controllers
             }
         }
 
-        
+
         public ActionResult BankReconcileReport()
         {
             return View("~/Areas/Banks/Views/BankReconcileReport.cshtml");
@@ -148,7 +149,7 @@ namespace Aplos.Areas.Banks.Controllers
             }
         }
 
-       
+
         public ActionResult BankBookReport()
         {
             return View("~/Areas/Banks/Views/BankBookReport.cshtml");
@@ -161,9 +162,9 @@ namespace Aplos.Areas.Banks.Controllers
 
         #region Bank Sheet Generation Report
         [HttpGet, Authorize]
-        public ActionResult GetBankSheetGenerationReport( string fromDate, string toDate, string bankMasterId,string PartyList)
+        public ActionResult GetBankSheetGenerationReport(string fromDate, string toDate, string bankMasterId, string PartyList)
         {
-             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
             try
             {
@@ -182,7 +183,79 @@ namespace Aplos.Areas.Banks.Controllers
             return null;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetPartyDateWise(string fromDate, string toDate)
+        {
+            return Json(GetPartyDateWiseData(fromDate, toDate), JsonRequestBehavior.AllowGet);
+        }
+        public IEnumerable<object> GetPartyDateWiseData(string fromDate, string toDate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var _sql = @"DECLARE @companyGroupId VARCHAR(10)='" + identity.CompanyGroupId + @"';
+            DECLARE @companyId VARCHAR(10)='" + identity.CompanyId + @"';
+            DECLARE @plantId VARCHAR(10)='" + identity.PlantId + @"';
+            DECLARE @bankMasterId VARCHAR(10) = 'null';
+                SELECT  IsSelect = CONVERT(bit,'False'),
+               PartyId = STUFF((select distinct ',' + XP.Id from
+               TRN.VoucherDetail XVD JOIN[HKP].[Party] AS XP ON XP.Id = XVD.PartyId
+            where XVD.VoucherId = V.Id AND XVD.PartyId <> ''  for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
+			,PartyCode = STUFF((select distinct ',' + XP.Code from
+               TRN.VoucherDetail XVD JOIN[HKP].[Party] AS XP ON XP.Id = XVD.PartyId
+            where XVD.VoucherId = V.Id AND XVD.PartyId <> ''  for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+			,Party = STUFF((select distinct ',' + XP.UserName from
+               TRN.VoucherDetail XVD JOIN[HKP].[Party] AS XP ON XP.Id = XVD.PartyId
+            where XVD.VoucherId = V.Id AND XVD.PartyId <> ''  for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+			,PartyAccountGroupName = STUFF((select distinct ',' + PAG.UserName from
+               TRN.VoucherDetail XVD JOIN[HKP].[Party] AS XP ON XP.Id = XVD.PartyId
+
+            LEFT JOIN[HKP].[CompanyParty] AS CP ON CP.PartyId = XP.Id
+            LEFT JOIN[HKP].[PartyAccountGroup] AS PAG ON PAG.Id = CP.PartyAccountGroupId
+            where XVD.VoucherId = V.Id AND XVD.PartyId <> ''  for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+			,Currency = STUFF((select distinct ',' + CU.Code from
+               TRN.VoucherDetail XVD JOIN[HKP].[Party] AS XP ON XP.Id = XVD.PartyId
+
+            LEFT JOIN[HKP].[CompanyParty] AS CP ON CP.PartyId = XP.Id
+            LEFT JOIN SCS.Currency AS CU ON CU.Id = CP.CurrencyId
+            where XVD.VoucherId = V.Id AND XVD.PartyId <> ''  for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			
+			,Country = STUFF((select distinct ',' + C.UserName from
+               TRN.VoucherDetail XVD JOIN[HKP].[Party] AS XP ON XP.Id = XVD.PartyId
+
+            left join MST.AddressMaster am on am.Id = XP.AddressMasterId
+
+            left join SCS.Country C on C.Id = am.CountryId
+            where XVD.VoucherId = V.Id AND XVD.PartyId <> ''  for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+			,PartyState = STUFF((select distinct ',' + C.UserName from
+               TRN.VoucherDetail XVD JOIN[HKP].[Party] AS XP ON XP.Id = XVD.PartyId
+
+            left join MST.AddressMaster am on am.Id = XP.AddressMasterId
+
+            left join SCS.State C on C.Id = am.StateId
+            where XVD.VoucherId = V.Id AND XVD.PartyId <> ''  for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+            FROM[TRN].[VoucherDetail] AS VD
+            LEFT JOIN[TRN].[Voucher] AS V ON V.Id = VD.VoucherId
+            LEFT JOIN[MST].[BankMaster] AS BM ON BM.Id = VD.BankMasterId
+            LEFT JOIN[HKP].[Bank] AS BN ON BN.Id = BM.BankId
+            LEFT JOIN[MST].[CashMaster] AS CM ON CM.Id = VD.CashMasterId
+            LEFT JOIN[HKP].[Party] AS P ON P.Id = VD.PartyId
+            WHERE V.Archive = 0 AND V.IsPark = 1 AND V.CompanyGroupId = @companyGroupId AND V.CompanyId = @companyId AND V.PlantId = @plantId
+           AND VD.BankMasterId <> ''
+            AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND V.SourceType = 'VendorPayment'";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
         #endregion Bank Sheet Generation Report
 
 
@@ -206,6 +279,6 @@ namespace Aplos.Areas.Banks.Controllers
             }
         }
 
-       
+
     }
 }
