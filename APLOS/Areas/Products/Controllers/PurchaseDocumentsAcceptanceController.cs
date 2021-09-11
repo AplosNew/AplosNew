@@ -718,11 +718,11 @@ namespace Aplos.Areas.Products.Controllers
 
         }
         [HttpPost]
-        public JsonResult DocumentAcceptanceChargesPost(string voucherTypeId, IEnumerable<PurchaseDocAcceptanceViewModel> voucherRows
+        public JsonResult DocumentAcceptanceChargesPost(VoucherViewModel voucherRow, IEnumerable<PurchaseDocAcceptanceViewModel> voucherRows
             , IEnumerable<PurchaseDocAcceptanceChargesViewModel> AcceptancechargesList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if (voucherTypeId == null)
+            if (voucherRow.VoucherTypeId == null)
                 throw new CustomException("LC Charges Voucher Type not found.");
             foreach (var item in AcceptancechargesList)
             {
@@ -739,8 +739,12 @@ namespace Aplos.Areas.Products.Controllers
                     CompanyId = identity.CompanyId,
                     PlantId = identity.PlantId,
                     VoucherDate = DateTime.Now,
+                    ToCurrencyRate= voucherRow.ToCurrencyRate,
                     SourceType = SourceType.PurchaseDocAcceptance.ToString(),
-                    VoucherTypeId = voucherTypeId
+                    VoucherTypeId = voucherRow.VoucherTypeId,
+                    AddedBy=identity.Name,
+                    AddedDate=DateTime.Now,
+                    AddedFromIP=identity.IPAddress
                 };
                 _inventoryPayableService.PostDocumentAcceptanceService(voucherVM, voucherRows, AcceptancechargesList, taxDetailVMList);
             }

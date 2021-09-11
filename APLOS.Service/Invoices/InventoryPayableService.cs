@@ -3746,11 +3746,11 @@ namespace Library.Service.Invoices
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = voucherDetailDr.CurrencyId,
                                 ToCurrencyId = companyCurrencyId,
-                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                DrAmount = cList.Rate * voucherDetailDr.DrAmount
+                                ToCurrencyRate = voucherVM.ToCurrencyRate,
+                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.ToCurrencyRate),
+                                DrAmount = voucherVM.ToCurrencyRate * voucherDetailDr.DrAmount
                             });
-                            voucherDetailCurrencyCr += voucherDetailDr.DrAmount;
+                            voucherDetailCurrencyCr += voucherVM.ToCurrencyRate * voucherDetailDr.DrAmount;
 
 
                             purDocAcceptService.VoucherId = voucher.Id;
@@ -3852,8 +3852,8 @@ namespace Library.Service.Invoices
                             ParallelCurrencyId = companyCurrencyId,
                             FromCurrencyId = voucherDetailCr.CurrencyId,
                             ToCurrencyId = companyCurrencyId,
-                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            ToCurrencyRate = voucherVM.ToCurrencyRate,
+                            ToCurrencyConversion = voucherVM.ToCurrencyRate,
                             CrAmount = voucherDetailCurrencyCr + totalTaxAmount
                         });
 
