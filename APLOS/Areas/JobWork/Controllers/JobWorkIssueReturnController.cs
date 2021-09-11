@@ -2527,10 +2527,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             for (int j = 0; j < TransformationIssueReturnChilddata.Rows.Count; j++)
             {
 
-                p = Convert.ToInt32(TransformationIssueReturnChilddata.Rows[j]["TransactionQty"]);
+                p = Convert.ToDecimal(TransformationIssueReturnChilddata.Rows[j]["TransactionQty"]);
                 r = p + q;
                 q = r;
                 sheet[MPChildROW, ColTotalIssQty].Number = clsStaticInfo.dbl(q);
+                sheet.Range[MPChildROW, ColTotalIssQty].CellStyle.Font.Bold = true;
             }
 
             // SUM OF TOTAL Amount
@@ -2541,10 +2542,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             for (int j = 0; j < TransformationIssueReturnChilddata.Rows.Count; j++)
             {
 
-                x = Convert.ToDecimal(TransformationIssueReturnChilddata.Rows[j]["AverageAmount"]);
-                z = x + y;
-                y = z;
-                sheet[MPChildROW, ColTotalRecQty].Number = clsStaticInfo.dbl(y);
+                x = Math.Round(Convert.ToDecimal(TransformationIssueReturnChilddata.Rows[j]["AverageAmount"]),2);
+                z = Math.Round(x,2) + Math.Round(y,2);
+                y = Math.Round(z,2);
+                sheet[MPChildROW, ColTotalRecQty].Number = Math.Round(clsStaticInfo.dbl(y),2);
+                sheet.Range[MPChildROW, ColTotalRecQty].CellStyle.Font.Bold = true;
             }
 
             EndRows = MPChildROW - 1;
@@ -2678,10 +2680,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             for (int j = 0; j < TransformationIssueGRNdata.Rows.Count; j++)
             {
 
-                a = Convert.ToInt32(TransformationIssueGRNdata.Rows[j]["GRNIssueQty"]);
+                a = Convert.ToDecimal(TransformationIssueGRNdata.Rows[j]["GRNIssueQty"]);
                 c = a + b;
                 b = c;
                 sheet[GRNROW, ColTotalGRNIssQty].Number = clsStaticInfo.dbl(b);
+                sheet.Range[GRNROW, ColTotalGRNIssQty].CellStyle.Font.Bold = true;
             }
 
             // SUM OF TOTAL GRN Amount
@@ -2692,10 +2695,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             for (int j = 0; j < TransformationIssueGRNdata.Rows.Count; j++)
             {
 
-                xx = Convert.ToInt32(TransformationIssueGRNdata.Rows[j]["TotalAmount"]);
-                zz = xx + yy;
-                yy = zz;
-                sheet[GRNROW, ColTotalGRNAmount].Number = clsStaticInfo.dbl(yy);
+                xx =Math.Round(Convert.ToDecimal(TransformationIssueGRNdata.Rows[j]["TotalAmount"]),2);
+                zz = Math.Round(xx,2) + Math.Round(yy,2);
+                yy = Math.Round(zz,2);
+                sheet[GRNROW, ColTotalGRNAmount].Number = Math.Round(clsStaticInfo.dbl(yy),2);
+                sheet.Range[GRNROW, ColTotalGRNAmount].CellStyle.Font.Bold = true;
             }
 
             GRNEndRows = GRNROW - 1;
@@ -2714,7 +2718,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             sheet.UsedRange.NumberFormat = "#,##0.000";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            report.CompanyPlantHeader(ref sheet, MPChildendCol+6, "Transformation Job Work Material Issue Chalaan", identity.CompanyId, identity.PlantName, null);
+            report.CompanyPlantHeader(ref sheet, MPChildendCol+6, "Issue Chalaan (Transformation)", identity.CompanyId, identity.PlantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -2846,23 +2850,24 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             //										order by mp.Id";
 
             var sql = @"select distinct IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id as JWOutputId, jwi.UserName as JWOutputItem
---, mi.Id as JwInputId,jwii.UserName as JWInputItem
---,RequiredQuantity = (mp.Quantity * JWMi.GrossConsump)
-,RequiredQuantity = (mp.Quantity * JWMi.GrossConsumption)
---,BalanceToIssue = (mp.Quantity * JWMi.GrossConsump) - (ISNULL(kk.TotalIssuedQty, '0'))
-,BalanceToIssue = (mp.Quantity * JWMi.GrossConsumption) - (ISNULL(kk.TotalIssuedQty, '0'))
-,IID.TransactionQty--,IID.AvgRate,IID.AvgAmount
-,AA.TQty,AA.AverageIssueRate--,AverageAmount = round((AA.AverageIssueRate * IID.TransactionQty), 2)
-,AverageAmount = round((AA.BooksCurrencyBaseRate * IID.TransactionQty), 2),uom.UserName as IssueUoM
-from TRN.InventoryIssueDetail IID left
-join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
-left
-join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
-left
-join dbo.JobWorkTransformationContractChild mp on mp.JobWorkTransformationContractMasterId = II.JWContractId and mp.Id = IID.JWTCMID
-left join HKP.JobWorkItem jwi on jwi.Id = mp.JobWorkItemMasterId
-LEFT join(Select Sum(mi.GrossConsumption) GrossConsump, mi.GrossConsumption, mi.ArticleId, mm.Id as MaterialMstId,mi.JobWorkTransformationContractChildMasterId
-                                          from dbo.JobWorkTransformationContractChild3 mi
+                        --, mi.Id as JwInputId,jwii.UserName as JWInputItem
+                        --,RequiredQuantity = (mp.Quantity * JWMi.GrossConsump)
+                        ,RequiredQuantity = (mp.Quantity * JWMi.GrossConsumption)
+                        --,BalanceToIssue = (mp.Quantity * JWMi.GrossConsump) - (ISNULL(kk.TotalIssuedQty, '0'))
+                        ,BalanceToIssue = (mp.Quantity * JWMi.GrossConsumption) - (ISNULL(kk.TotalIssuedQty, '0'))
+                        ,IID.TransactionQty--,IID.AvgRate,IID.AvgAmount
+                        ,AA.TQty,AA.AverageIssueRate--,AverageAmount = round((AA.AverageIssueRate * IID.TransactionQty), 2)
+                        --,AverageAmount = round((AA.BooksCurrencyBaseRate * IID.TransactionQty), 2),uom.UserName as IssueUoM
+                         ,AverageAmount = round((AA.AverageIssueRate * IID.TransactionQty), 2),uom.UserName as IssueUoM
+                        from TRN.InventoryIssueDetail IID left
+                        join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
+                        left
+                        join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
+                        left
+                        join dbo.JobWorkTransformationContractChild mp on mp.JobWorkTransformationContractMasterId = II.JWContractId and mp.Id = IID.JWTCMID
+                        left join HKP.JobWorkItem jwi on jwi.Id = mp.JobWorkItemMasterId
+                        LEFT join(Select Sum(mi.GrossConsumption) GrossConsump, mi.GrossConsumption, mi.ArticleId, mm.Id as MaterialMstId,mi.JobWorkTransformationContractChildMasterId
+                                        from dbo.JobWorkTransformationContractChild3 mi
 
                                         left join MST.MaterialMasterArticle mma on mma.Id = mi.ArticleId
 
@@ -2870,24 +2875,27 @@ LEFT join(Select Sum(mi.GrossConsumption) GrossConsump, mi.GrossConsumption, mi.
 
                                         group by mi.ArticleId,mi.JobWorkTransformationContractChildMasterId,mm.Id,mi.GrossConsumption)
 										JWMi on JWMi.ArticleId = IM.ArticleId and JWMi.JobWorkTransformationContractChildMasterId = mp.Id and JWMi.MaterialMstId = IM.MaterialMasterId
-    --left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId = mp.Id and mi.ArticleId = IM.ArticleId
-      --left join HKP.JobWorkItem jwii on jwii.Id = mi.JobWorkItemId
-left join(select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article, IM.ArticleId,IID.InventoryMaterialId
-                                       from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id = IID.InventoryIssueId
+                                        --left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId = mp.Id and mi.ArticleId = IM.ArticleId
+                                          --left join HKP.JobWorkItem jwii on jwii.Id = mi.JobWorkItemId
+                                    left join(select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article
+                                    , IM.ArticleId,IID.InventoryMaterialId
+                                    ,IID.JWTCMID                                       
+                                    from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id = IID.InventoryIssueId
                                         left join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
                                         left join MST.MaterialMaster mm on mm.Id = IM.MaterialMasterId
                                         left join MST.MaterialMasterArticle mma on mma.Id = IM.ArticleId
 
-                                        where II.JWContractId = '" + PrintTabId + @"'
+                                        where II.JWContractId = '" + PrintTabId + @"' and IID.InventoryIssueId='" + IssueId + @"'
 
-                                        group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName)
+                                        group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName,IID.JWTCMID)
 										kk on kk.InventoryMaterialId = IM.Id
-                                        left join(select Sum(IIH.Qty) as TQty,IIH.InventoryIssueDetailId,Sum(IIH.Rate * IIH.Qty) as TotalAmount
-										           ,AverageIssueRate = (Sum(IIH.Rate * IIH.Qty) / Sum(IIH.Qty))
-												   ,IIH.BooksCurrencyBaseRate
+                                        left join(select Sum(IIH.Qty) as TQty,IIH.InventoryIssueDetailId--,Sum(IIH.Rate * IIH.Qty) as TotalAmount
+										           --,AverageIssueRate = (Sum(IIH.Rate * IIH.Qty) / Sum(IIH.Qty))
+												   ,SUM(IIH.BooksCurrencyBaseRate) as BaseRate,AverageIssueRate=(SUM(IIH.BooksCurrencyBaseRate) / Sum(IIH.Qty))
+												   --,IIH.BooksCurrencyBaseRate
                                                     from TRN.InventoryIssueHistory IIH left join TRN.InventoryIssueDetail IID on IID.Id = IIH.InventoryIssueDetailId
-
-                                                    group by IIH.InventoryIssueDetailId,IIH.BooksCurrencyBaseRate)
+                                                    group by IIH.InventoryIssueDetailId--,IIH.BooksCurrencyBaseRate
+                                                     )
 													AA on AA.InventoryIssueDetailId = IID.Id
 
                                         left join SCS.UnitOfMeasurement uom on uom.Id=IID.TransactionUoMId
@@ -2901,7 +2909,8 @@ left join(select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,
 										,mp.Quantity--, mi.GrossConsumption
 										,IID.TransactionQty
                                         --,JWMi.GrossConsump--,IID.AvgRate,IID.AvgAmount
-                                        ,AA.TQty,AA.AverageIssueRate,JWMi.GrossConsumption,AA.BooksCurrencyBaseRate,uom.UserName
+                                        ,AA.TQty,AA.AverageIssueRate,JWMi.GrossConsumption--,AA.BooksCurrencyBaseRate
+                                        ,uom.UserName
                                         order by mp.Id";
 
             return _sqlRepository.GetDataTable(sql);
@@ -2927,7 +2936,8 @@ left join(select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,
             var sql = @"select om.Id, IRD.InventoryReceiveId as GRNNo,IRD.Id as GRNRowId,uom.UserName as IssueUoM,IIH.Qty as GRNIssueQty,mm.UserName as JWInputMaterial
                         , mma.StandardName as JWInputArticle, C.Code as TransactionCurrency, IIH.Rate as TransactionRate, IR.ToCurrencyRate as BaseRate
                          , CC.Code as BaseCurrency--,(IIH.Rate * IIH.Qty) as TotalAmount
-						 ,TotalAmount=round((IR.ToCurrencyRate * IIH.Qty),2)
+						-- ,TotalAmount=round((IR.ToCurrencyRate * IIH.Qty),2)
+                          ,TotalAmount=round((IIH.Rate * IR.ToCurrencyRate),2)
                         from dbo.JobWorkTransformationContractChild om left join TRN.InventoryIssueDetail IID on om.Id=IID.JWTCMID
                         left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
                         left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
