@@ -524,7 +524,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                 if (!has)
                     newList.push(list[i]);
             }
-             else if (row.OtherName !== 'Svc' && row.OtherName === 'Vendor' && $scope.AcceptanceId === null && $scope.PurchaseLCId == null && $scope.modelNew.PaymentMode == null) {
+             else if (row.OtherName !== 'Svc' && row.OtherName === 'Vendor' && $scope.AcceptanceId === null && $scope.PurchaseLCId == null  && $scope.modelNew.PaymentMode !== 'LC') {
                 newList.push(list[i]);
                 $scope.TotalPayableAmount += list[i].Amount;
             }
