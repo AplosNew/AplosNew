@@ -69,7 +69,7 @@
         <div class="col-xs-12 col-sm-6 col-md-12">
 
             <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="EmployeeListTemp" e-gridlines="vertical" e-templaterefresh="dataBoundemployee"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="onrowdatabound" 
                  e-allowselection="true" e-filtersettings-filterType="excel" e-pagesettings-pagesize="15">
                 <div e-columns>
 
@@ -88,6 +88,7 @@
                     <div e-column e-type="string" e-field="SalaryRuleName" e-headertext="Salary Rule" e-allowediting="false" e-width="80"></div>
                     <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LastSalaryEffectiveDate" e-headertext="Approved Effective Date" e-allowediting="false" e-width="100"></div>
                     <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LatestSalaryEffectiveDate" e-headertext="Last Effective Date" e-allowediting="false" e-width="100"></div>
+                    <div e-column e-type="string" e-field="IsAlreadyProcessed" e-headertext="Already Processed" e-allowediting="false" e-width="100"></div>
                     <div e-column e-type="string" e-field="LastLocked" e-headertext="Last Locked" e-allowediting="false" e-width="100"></div>
 
                 </div>
