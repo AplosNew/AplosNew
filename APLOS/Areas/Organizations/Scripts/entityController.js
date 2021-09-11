@@ -239,7 +239,7 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Third Party Business Area</label>' +
                         '<div class="col-sm-8">' +
-                        '<input ng-disabled="isUsed" tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyBusinessArea" class="form-control" name="Third Party Business Area"></div></div>'
+                        '<input tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyBusinessArea" class="form-control" name="Third Party Business Area"></div></div>'
                         ;
 
                     $scope.right += '<div class="form-group">' +
@@ -276,7 +276,7 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Third Party Profit Center</label>' +
                         '<div class="col-sm-8">' +
-                        '<input ng-disabled="isUsed" tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyProfitCenter" class="form-control" name="Third Party Profit Center"></div></div>'
+                        '<input tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyProfitCenter" class="form-control" name="Third Party Profit Center"></div></div>'
                         ;
                 }
             });
