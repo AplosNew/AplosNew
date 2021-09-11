@@ -570,6 +570,7 @@
     <Compile Include="Areas\HumanResource\Controllers\DailyAttendanceSummaryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RestTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftSummaryController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\TablesUploadController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeeklyOffController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeekOffUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WelFareReportsController.cs" />
@@ -1815,6 +1816,7 @@
     <Content Include="Areas\HumanResource\Scripts\RosterUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCCompanyController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
+    <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeekOffUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\yearlySalaryProcessedReportController.js" />
@@ -3673,6 +3675,7 @@
     <Content Include="Areas\JobWork\Views\OutsourceBillingPost\_OutsourceBillingPopUp.cshtml" />
     <Content Include="Areas\Payrolls\Views\ArrearApproval\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\CreditLimitOpening\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\TablesUpload\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

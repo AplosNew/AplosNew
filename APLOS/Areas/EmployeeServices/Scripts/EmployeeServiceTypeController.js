@@ -62,6 +62,7 @@ function EmployeeServiceTypeController(cboService, commonMessage, $scope, $rootS
         SalaryHeadId: null,
         SelectionMode: null,
         SelectMode: null,
+        CreditLimitAllowed: false,
 };
     $scope.ServiceType = Object.assign({}, $scope.ModelTemp);
 
