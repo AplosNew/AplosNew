@@ -23,7 +23,9 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
         Active: true,
         IsExceptionForPlanning: false,
         IsProduction: false,
-        FilePrefix: null
+        FilePrefix: null,
+        ThirdPartyBusinessArea: null,
+        ThirdPartyProfitCenter:null
     };
 
     cboService.getCboCompanyByCompanyGroup(null, function (result) {
@@ -233,7 +235,11 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
                         '<div class="col-sm-8">' +
                         '<div class="checkbox-site">' +
                         '<label><input ng-disabled="isUsed" tabindex="20" type="checkbox" ng-model="companyStructureSetup.Active" ng-checked="companyStructureSetup.Active">' +
-                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label></div></div></div>'
+                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label></div></div></div>' +
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Third Party Business Area</label>' +
+                        '<div class="col-sm-8">' +
+                        '<input ng-disabled="isUsed" tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyBusinessArea" class="form-control" name="Third Party Business Area"></div></div>'
                         ;
 
                     $scope.right += '<div class="form-group">' +
@@ -266,7 +272,11 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
                         '<div class="col-sm-8">' +
                         '<div class="checkbox-site">' +
                         '<label><input ng-disabled="isUsed" tabindex="19" type="checkbox" ng-model="companyStructureSetup.IsExceptionForPlanning" ng-checked="companyStructureSetup.IsExceptionForPlanning">' +
-                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label></div></div></div>'
+                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label></div></div></div>' +
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Third Party Profit Center</label>' +
+                        '<div class="col-sm-8">' +
+                        '<input ng-disabled="isUsed" tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyProfitCenter" class="form-control" name="Third Party Profit Center"></div></div>'
                         ;
                 }
             });

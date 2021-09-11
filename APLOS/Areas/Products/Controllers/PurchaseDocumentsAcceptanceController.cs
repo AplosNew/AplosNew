@@ -650,6 +650,13 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_purchaseDocumentAcceptance.GetAcceptanceDetailForPost(identity.CompanyId, identity.PlantId, Id, PoType), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetGRNAcceptanceDetailForPost(string PurchaseDocAcceptanceId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_purchaseDocumentAcceptance.GetGRNAcceptanceDetailForPost(PurchaseDocAcceptanceId,identity.CompanyId,identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public JsonResult DocumentAcceptancePost(PurchaseDocAcceptanceViewModel voucherRows
             , IEnumerable<PurchaseDocAcceptanceDetailViewModel> docAcceptanceDetails, IEnumerable<PurchaseDocAcceptanceDetailViewModel> rowDetails)
@@ -673,6 +680,7 @@ namespace Aplos.Areas.Products.Controllers
                     BaseNoOfDays = voucherRows.Tenure,
                     PostingDate = voucherRows.AcceptanceDate,
                     DocDate = voucherRows.AcceptanceDate,
+                    Amount = voucherRows.AcceptanceAmount,
                     MatureDate = voucherRows.DueDate
                 };
 
@@ -681,7 +689,7 @@ namespace Aplos.Areas.Products.Controllers
                     if (item.GLGeneralInfoId == null && item.BudgetMasterId == null && item.ActivityId == null)
                         throw new CustomException("Payable GL not found in Material Group of " + item.MaterialGroupMasterName);
                     if (item.ClearingAccountGLId == null && item.ClearingAccountBudgetMasterId == null && item.ClearingAccountActivityId == null)
-                        throw new CustomException("Clearing GL not found in Material Group of " + item.MaterialGroupMasterName);
+                        throw new CustomException("Inventory in Trnasit GL not found in Material Group of " + item.MaterialGroupMasterName);
                 }
                 _inventoryPayableService.PostDocumentAcceptance(voucherVM, docAcceptanceDetails, rowDetails, voucherRows.IsNonCreditable);
 

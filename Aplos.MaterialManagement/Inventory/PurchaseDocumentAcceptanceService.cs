@@ -188,7 +188,7 @@ namespace Library.MaterialManagement.Inventory
                                 LEFT JOIN [TRN].[InventoryReceiveDetail] RD ON RD.InventoryReceiveId=IR.Id
                                 LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                                 LEFT JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId
-                                WHERE IR.PlantId='"+ plantId + @"' AND ISNULL(IR.VoucherId,'')<>'' 
+                                WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.VoucherId,'')<>'' 
                                 AND IR.[Status]='Posting' AND IR.IsApproved=1 AND  RD.POId IN (SELECT Id From TRN.PurchaseOrder Where PurchaseLCId='" + purchaseLCId + @"')
                                 GROUP BY IR.Id,IR.DocRefNo,P.UserName,IR.DocDate,IR.GateEntryNo,C.Code";
                 return _sqlRepository.GetDataCollection(Sql);
@@ -493,7 +493,7 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
-                if (string.IsNullOrEmpty(PurchaseDocAcceptanceId) || PurchaseDocAcceptanceId== "undefined")
+                if (string.IsNullOrEmpty(PurchaseDocAcceptanceId) || PurchaseDocAcceptanceId == "undefined")
                 {
                     parameters.CmdText = @"SELECT [Active]=CAST (CASE WHEN PACD.Id IS NULL THEN 0 ELSE 1 END AS bit),PACD.Id, POD.InventoryReceiveId POId,POD.Id PODetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
 	                        ,MM.UserName,POD.MaterialStorageId,POD.BaseUOMId,POD.ArticleId,ART.StandardName,POD.FirstCharacteristicsId,FC.UserName AS FirstCharacteristics
@@ -688,7 +688,7 @@ namespace Library.MaterialManagement.Inventory
                                 }
                             }
 
-                          
+
 
                         }
                     }
@@ -1052,7 +1052,7 @@ namespace Library.MaterialManagement.Inventory
                 }
                 if (AcceptancechargesList != null)
                 {
-                    
+
                     var AcceptanceChargesId = _purchaseDocAcceptanceChargesRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseDocAcceptanceCharges] WHERE PurchaseDocAcceptanceId='{entity.Id}'").First();
 
                     foreach (var ServiceitemDetail in AcceptancechargesList)
@@ -1215,7 +1215,7 @@ namespace Library.MaterialManagement.Inventory
 
                                 AuditService.UpdatedLog(receiveDetail);
                                 _purchaseDocumentAcceptanceDetailService.Update(receiveDetail);
-                                                                
+
 
                                 var PurchaseDocAcceptancePOMap = _PurchaseDocAcceptancePOMapService.Query(r => r.PurchaseDocAcceptanceId == entity.Id && r.POId == itemDetail.POId).Select().FirstOrDefault();
 
@@ -1323,7 +1323,7 @@ namespace Library.MaterialManagement.Inventory
                                             }
                                         }
 
-                                        
+
 
 
                                     }
@@ -1499,7 +1499,7 @@ namespace Library.MaterialManagement.Inventory
                                 AuditService.UpdatedLog(ServicePODetail);
                                 _purchaseDocumentAcceptanceDetailService.Update(ServicePODetail);
 
-                               
+
 
                                 var PurchaseDocAcceptancePOMap = _PurchaseDocAcceptancePOMapService.Query(r => r.PurchaseDocAcceptanceId == entity.Id && r.ServicePOMasterId == itemDetail.ServicePOMasterId).Select().FirstOrDefault();
 
@@ -2190,7 +2190,7 @@ namespace Library.MaterialManagement.Inventory
             try
             {
                 var Sql = @"SELECT SUM(ISNULL(D.MaterialTranAmount,0)) OtherTotalAcptValue,SUM(D.TransactionQty) OtherTotalQty 
-                            FROM TRN.PurchasedocAcceptanceDetail D LEFT JOIN TRN.PurchaseOrder P ON P.Id=D.POId WHERE D.POId "+POId+ " AND D.PurchaseDocAcceptanceId<>'"+ PurchaseDocAcceptanceId + "' GROUP BY D.POId";
+                            FROM TRN.PurchasedocAcceptanceDetail D LEFT JOIN TRN.PurchaseOrder P ON P.Id=D.POId WHERE D.POId " + POId + " AND D.PurchaseDocAcceptanceId<>'" + PurchaseDocAcceptanceId + "' GROUP BY D.POId";
                 return _sqlRepository.GetDataCollection(Sql);
             }
             catch (Exception ex)
@@ -2393,15 +2393,10 @@ namespace Library.MaterialManagement.Inventory
         }
 
 
-
-
-
-
         public IEnumerable<object> GetAcceptanceDetailForPost(string companyId, string plantId, string Id, string PoType)
         {
             try
             {
-
                 var Sql = @"DECLARE @docAcceptanceId VARCHAR(10) = '" + Id + @"'
 					DECLARE @companyId VARCHAR(10) = '" + companyId + @"'
 					DECLARE @plantId VARCHAR(10) = '" + plantId + @"'
@@ -2495,6 +2490,70 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        public IEnumerable<object> GetGRNAcceptanceDetailForPost(string Id, string companyId, string plantId)
+        {
+            try
+            {
+                var Sql = @"SELECT MGPGL.GLGeneralInfoId,MGPGL.BudgetMasterId,MGPGL.ActivityId
+                            , ClearingAccountGLId=CASE WHEN PLC.IsAccepptanceFirst=1 THEN MGGL.InventoryInTransitGLId ELSE GRNMAP.PostCRGLGeneralInfoId END
+							,ClearingAccountBudgetMasterId=CASE WHEN PLC.IsAccepptanceFirst=1 THEN MGGL.InventoryInTransitBudgetMasterId ELSE GRNMAP.PostCRBudgetMasterId END
+                            ,ClearingAccountActivityId= CASE WHEN PLC.IsAccepptanceFirst=1 THEN MGGL.InventoryInTransitActivityId ELSE GRNMAP.PostCRActivityId END
+							,PACD.Id AcceptenceDetailId, POD.InventoryReceiveId POId,POD.Id PODetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
+                        ,MM.UserName,POD.MaterialStorageId,POD.BaseUOMId,POD.ArticleId,ART.StandardName,POD.FirstCharacteristicsId,FC.UserName AS FirstCharacteristics
+                        ,POD.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,POD.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
+                        ,POD.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,POD.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
+                        ,POD.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
+                        ,0 AS ServiceCharge,0 AS ServiceTax,POD.CountryId,NULL POMaterialTaxList,POD.TransactionQty POQty,SUM(IRD.TransactionQty) AS GRNRcvQty,SUM(IRD.MaterialTranAmount) AS TotalGRNValue
+                        ,ISNULL(PACD.TransactionQty, 0) AS TransactionQty,ISNULL(PAD.AcptTransactionQty, 0) Otherqty
+                        ,ISNULL(((SELECT Min(v) FROM (VALUES (POD.TransactionQty), (SUM(IRD.TransactionQty))) AS value(v)) -(ISNULL(PAD.AcptTransactionQty, 0)+ PACD.TransactionQty)),0) AS Balance
+                        ,POD.TransactionAmount TotalPOValue,ISNULL(PAD.TotalAcptValue,0) TotalAcptValue,POD.TransactionRate,POD.TransactionRate MaterialTranRate,ISNULL(PACD.MaterialTranAmount,0) TrnAmount,ISNULL(PACD.TotalMaterialTranAmount,0)TotalMaterialTranAmount,0 AS ToTalMaterialBooksCurrencyAmount
+                        ,POD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,PO.ToCurrencyRate 
+                        FROM TRN.PurchaseOrderDetail AS POD
+                        LEFT JOIN MST.MaterialMaster AS MM ON POD.InventoryMaterialId = MM.Id
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+						LEFT JOIN HKP.MaterialGroupGL MGGL ON MGGL.MaterialGroupMasterId=MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON POD.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON POD.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON POD.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON POD.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON POD.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON POD.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON POD.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON POD.TransactionUoMId = TUoM.Id
+                        LEFT JOIN TRN.[InventoryReceiveDetail] AS IRD ON POD.InventoryReceiveId = IRD.POId AND POD.Id=IRD.PODetailsId
+                        LEFT JOIN [TRN].[PurchaseOrder] AS PO ON POD.InventoryReceiveId = PO.Id                       
+                        LEFT JOIN [SCS].[Currency] AS CU ON PO.CurrencyId = CU.Id
+						LEFT JOIN TRN.PurchaseDocAcceptanceDetail PACD ON PACD.POId = POD.InventoryReceiveId AND PACD.PODetailId = POD.Id AND PurchaseDocAcceptanceId='" + Id + @"'
+						LEFT JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=PACD.PurchaseDocAcceptanceId
+					LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
+						LEFT JOIN (SELECT MGGL1.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL1 ON C.COAId=MGGL1.COAId WHERE C.Id='"+ companyId + @"')
+								AS MGGL1 ON MM.MaterialGroupMasterId = MGGL1.MaterialGroupMasterId
+						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId='"+ plantId + @"' AND PartyType='Vendor')AS CP ON PDA.PartyId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN ( SELECT DISTINCT IRD.PostCRGLGeneralInfoId,IRD.PostCRBudgetMasterId,IRD.PostCRActivityId,GRM.PurchaseDocumentAcceptanceId FROM TRN.InventoryReceiveDetail IRD 
+									LEFT JOIN TRN.GRNAcceptanceMap GRM ON GRM.GRNId=IRD.InventoryReceiveId
+									
+						) GRNMAP ON GRNMAP.PurchaseDocumentAcceptanceId=PDA.Id
+						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id
+                        
+                        LEFT JOIN (SELECT POId,PODetailId,Sum(TransactionQty) AcptTransactionQty,SUM(TotalMaterialTranAmount) TotalAcptValue FROM TRN.PurchaseDocAcceptanceDetail WHERE PurchaseDocAcceptanceId<>'"+ Id + @"' GROUP BY POId,PODetailId) PAD ON PAD.POId = POD.InventoryReceiveId AND PAD.PODetailId = POD.Id
+                        WHERE IRD.InventoryReceiveId IN(Select GRNId from TRN.GRNAcceptanceMap where PurchaseDocumentAcceptanceId='"+ Id + @"')
+                        GROUP BY 
+						MGPGL.GLGeneralInfoId,MGPGL.BudgetMasterId,MGPGL.ActivityId
+						,PACD.Id,POD.InventoryReceiveId,POD.Id,MGM.UserName,MM.Id,MM.UserName,POD.MaterialStorageId,POD.BaseUOMId,POD.ArticleId,ART.StandardName,POD.FirstCharacteristicsId
+                        ,FC.UserName,POD.FirstCharacteristicsValueId,FCV.UserName,POD.SecondCharacteristicsId,SC.UserName,POD.SecondCharacteristicsValueId,SCV.UserName,POD.ThirdCharacteristicsId
+                        ,TC.UserName,POD.ThirdCharacteristicsValueId,TCV.UserName,POD.CountryId,POD.TransactionQty,PACD.TransactionQty,PAD.AcptTransactionQty,POD.TransactionQty,POD.TransactionAmount,PAD.TotalAcptValue,POD.TransactionRate,PACD.MaterialTranAmount
+                        ,PACD.TotalMaterialTranAmount,POD.TransactionUoMId,TUoM.UserName,CU.Code,PO.ToCurrencyRate, PLC.IsAccepptanceFirst, MGGL.InventoryInTransitGLId,GRNMAP.PostCRGLGeneralInfoId
+						,MGGL.InventoryInTransitBudgetMasterId, GRNMAP.PostCRBudgetMasterId,MGGL.InventoryInTransitActivityId,GRNMAP.PostCRActivityId ORDER BY PACD.Id";
+                return _sqlRepository.GetDataCollection(Sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
         #endregion
 
