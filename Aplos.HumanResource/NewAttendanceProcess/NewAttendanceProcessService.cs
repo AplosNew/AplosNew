@@ -818,6 +818,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
+                    #region CreditLimit Monthly Opening Creation
                     DataSet CreditLimitOpening;
                     CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
                     if (CreditLimitOpening.Tables[0].Rows.Count > 0)
@@ -842,7 +843,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 clsGenID genid = new clsGenID();
                                 genid.GenID("EmployeeCreditLimit", out string _Id);
 
-                                dr["Id"] = "ECL" + _Id;
+                                dr["Id"] = "EC" + _Id;
                                 dr["EmpSystemId"] = EmpId;
                                 dr["CreditLimit"] = MonthlyLimit;
                                 dr["YearNo"] = YearNo;
@@ -858,6 +859,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         }
                         SaveDataSets(dsRef);
                     }
+                    #endregion
 
                 }
             }
@@ -3192,6 +3194,40 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 OTLimitSetting ol on ol.PlantID=p.Id
                 where o.PlantID='" + PlantId + @"' AND ol.UserName='OT Time Setting (W-4)'
                 end";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+        #endregion
+       
+        #region CreditLimit Process SourceData
+        public void DailyCreditDataSource(string Date, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select dd.* from (select  distinct p.EmpSystemID,
+                isnull(SUM(o.DailyLimit),'0')TotalDailyLimit,MONTH('"+Date+"')MonthNo,Year('"+Date+@"')YearNo
+                        from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+						left join CreditLimitOpening o on o.DesignationId=ei.DesignationSystemID
+                        left join mst.DesignationMasterLegalDesignation ddm on
+                        ddm.LegalDesignationId = ei.LegalDesignationId
+                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+                        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
+                        and dc.PlantId=ei.PlantId
+                        left join DayStatusHeader dh on dh.Id=dc.headerId
+                        left join DayTypeWithValues dt on dt.HeaderId=dh.Id                                          
+                        where dt.DayType=p.DayStatus AND  isnull(p.DayStatus,'')!='' and		
+                        MONTH(WorkDate) = MONTH('"+Date+@"') AND dt.IsCreditLimitAllowed='1' and
+						YEAR(WorkDate) = YEAR('"+Date+@"') and p.PlantID='"+PlantId+@"'                       					
+                        GROUP BY EmpSystemID) as dd";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
