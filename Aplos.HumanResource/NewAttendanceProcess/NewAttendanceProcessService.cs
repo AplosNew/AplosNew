@@ -191,6 +191,73 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dsRef.Tables[0].Rows.Add(dr);
 
                             }
+                            else
+                            {
+
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+
+                                dr["ManualShiftID"] = clsWebLib.RetValidLen(ManualShift);
+                                dr["RosterShiftID"] = clsWebLib.RetValidLen(RosterShift);
+                                dr["ProfileShiftID"] = clsWebLib.RetValidLen(ProfileShift);
+                                dr["BudgetedShiftID"] = clsWebLib.RetValidLen(BudgetShift);
+                                dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId);
+                                dr["RosterId"] = clsWebLib.RetValidLen(RosterId);
+                                dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
+
+                                #region ManualData Entry
+
+                                dr["ManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
+                                dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOuTime);
+                                dr["ManualDayStatus"] = clsWebLib.RetValidLen(ManualDayStatus);
+                                dr["IsManualInTime"] = clsWebLib.GetBoolData(IsManualInTime);
+                                dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
+                                dr["IsManualDayStatus"] = clsWebLib.GetBoolData(IsManualDayStatus);
+
+                                #endregion
+
+                                #region AssignedShift Data
+                                if (ManualShift.ToString() != "")
+                                {
+                                    dr["ShiftSystemID"] = ManualShift;
+                                    dr["ShiftDuration"] = ManualShiftDurn;
+                                    dr["ShiftInTime"] = ManualShiftIn;
+                                    dr["ShiftOutTime"] = ManualShiftOut;
+                                }
+                                else if (RosterShift.ToString() != "")
+                                {
+                                    dr["ShiftSystemID"] = RosterShift;
+                                    dr["ShiftDuration"] = RosterShiftDurn;
+                                    dr["ShiftInTime"] = RosterShiftIn;
+                                    dr["ShiftOutTime"] = RosterShiftOut;
+
+                                }
+                                else if (ProfileShift.ToString() != "")
+                                {
+                                    dr["ShiftSystemID"] = ProfileShift;
+                                    dr["ShiftDuration"] = ProfileShiftDurn;
+                                    dr["ShiftInTime"] = ProfileShiftIn;
+                                    dr["ShiftOutTime"] = ProfileShiftOut;
+
+                                }
+                                else if (BudgetShift.ToString() != "")
+                                {
+                                    dr["ShiftSystemID"] = BudgetShift;
+                                    dr["ShiftDuration"] = BudgetShiftDurn;
+                                    dr["ShiftInTime"] = BudgetShiftIn;
+                                    dr["ShiftOutTime"] = BudgetShiftOut;
+
+                                }
+                                #endregion
+
+                                dr["ShiftHalfDayDuration"] = clsWebLib.RetValidLen(HalfDayDuration);
+                                dr["ShiftShortDuration"] = clsWebLib.RetValidLen(ShortDuration);
+                                dr["ShiftFullDayDuration"] = clsWebLib.RetValidLen(FullDayDuration);
+                                dr["ShiftHoursWithoutOT"] = clsWebLib.RetValidLen(HoursWithoutOT);
+
+                                dr.EndEdit();
+
+                            }
 
                             dsEarnedLeave.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsEarnedLeave.Tables[0].DefaultView.Count == 0)
