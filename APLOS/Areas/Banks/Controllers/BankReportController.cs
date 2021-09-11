@@ -161,7 +161,7 @@ namespace Aplos.Areas.Banks.Controllers
 
         #region Bank Sheet Generation Report
         [HttpGet, Authorize]
-        public ActionResult GetBankSheetGenerationReport( string fromDate, string toDate, string bankMasterId)
+        public ActionResult GetBankSheetGenerationReport( string fromDate, string toDate, string bankMasterId,string PartyList)
         {
              var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
@@ -169,7 +169,7 @@ namespace Aplos.Areas.Banks.Controllers
             {
                 ExcelEngine excelEngine = new ExcelEngine();
 
-                IWorkbook workbook = accountsBankService.GetBankSheetGenerationReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, bankMasterId);
+                IWorkbook workbook = accountsBankService.GetBankSheetGenerationReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, bankMasterId, PartyList);
                 string strFileName = "BankSheetGeneration.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();

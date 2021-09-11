@@ -7,7 +7,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
     $scope.SelectedAmountList = [];
     $scope.SelectedReadingList = [];
 
-    $scope.ShiftIdList = [];
+    $scope.AllShiftList = [];
     $scope.CategoryIdList = [];
     $scope.EmployeeServicesList = [];
 
@@ -38,7 +38,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         method: 'GET',
         url: 'EmployeeServices/EmployeeServiceBooking/getshift/'
     }).then(function successCallback(response) {
-        $scope.ShiftIdList = response.data;
+        $scope.AllShiftList = response.data;
     });
 
     $http({
@@ -55,6 +55,9 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
             url: 'EmployeeServices/EmployeeServiceBooking/getcategory?serviceid=' + $scope.EmployeeServiceBooking.EmployeeServicesId + '&CatId=' + $scope.EmployeeServiceBooking.EmployeeServiceCategoryId
         }).then(function successCallback(response) {
             $scope.CategoryIdList = response.data;
+            if ($scope.CategoryIdList.length > 0) {
+                $scope.EmployeeServiceBooking.EmployeeServiceCategoryId = $scope.CategoryIdList[0].Value;
+            }
             
             });
         $scope.GetUOM();
@@ -172,10 +175,10 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
     $scope.ModelTemp = {
         Id: null,
         EmployeeId: null,
+        ShiftId: null,
         Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
         UOMId: null,
         Time: _Time,
-        ShiftId: null,
         EmployeeServiceCategoryId: null,
         Chargeable: true,
         From: null,
@@ -192,6 +195,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         EmployeeServicesId: null,
         UOM: null,
         IsProcessed: false,
+        ShiftName:null,
     };
     $scope.EmployeeServiceBooking = Object.assign({}, $scope.ModelTemp);
 
@@ -200,22 +204,40 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         $scope.EmployeeServiceBooking = Object.assign({}, args.data);
         $scope.EmployeeServiceBooking.Date = $scope.EmployeeServiceBooking.EmpServiceDate;
         $scope.EmployeeServiceBooking.Time = $scope.EmployeeServiceBooking.GetTime;
+        $scope.GetSelectedShift();
+
         $scope.GetCategoryList();
  //       $scope.GetUOM();
         $scope.GetForm();
-        if ($scope.EmployeeServiceBooking.Chargeable == "True") {
-            $scope.EmployeeServiceBooking.Chargeable = true;
-        }
-        else {
-            $scope.EmployeeServiceBooking.Chargeable = false;
-        }
+        //if ($scope.EmployeeServiceBooking.Chargeable == "True") {
+        //    $scope.EmployeeServiceBooking.Chargeable = true;
+        //}
+        //else {
+        //    $scope.EmployeeServiceBooking.Chargeable = false;
+        //}
         ClearFieldsForms();
-  //      $scope.Action = 'Update';
+     //   $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
     $scope.Action = 'Save';
+
+    // GET Shift
+
+    $scope.SelectedShiftList = [];
+    $scope.GetSelectedShift = function () {
+        $scope.SelectedShiftList = [];
+        $http({
+            method: 'GET',
+            url: 'EmployeeServices/EmployeeServiceBooking/GetSelectedShift?Id=' + $scope.EmployeeServiceBooking.Id
+        }).then(function successCallback(response) {
+            $scope.SelectedShiftList = response.data;
+            if ($scope.SelectedShiftList.length > 0) {
+                $scope.EmployeeServiceBooking.ShiftId = $scope.SelectedShiftList[0].Value;
+            }
+        });
+    }
 
     // To show data in grid
     $scope.Getgrid = function () {
@@ -233,7 +255,10 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.General.$valid) {
-            $scope.GetDuplicateData();
+            if ($scope.Action == "Save") {
+                $scope.GetDuplicateData();
+            }
+           
             $scope.GetParticulars();
             $http({
                 method: 'POST',
@@ -335,7 +360,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         $scope.SelectedQuantityList = [];
         $http({
             method: 'POST',
-            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $scope.EmployeeServiceBooking.EmpServiceDate },
+            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date)},
             url: 'EmployeeServices/EmployeeServiceBooking/getgriddatatoshow'
         }).then(function successCallback(response) {
             $scope.SelectedQuantityList = response.data;
@@ -346,7 +371,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         $scope.SelectedAmountList = [];
         $http({
             method: 'POST',
-            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $scope.EmployeeServiceBooking.EmpServiceDate },
+            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date)},
             url: 'EmployeeServices/EmployeeServiceBooking/getgriddatatoshow'
         }).then(function successCallback(response) {
             $scope.SelectedAmountList = response.data;
@@ -357,12 +382,84 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         $scope.SelectedReadingList = [];
         $http({
             method: 'POST',
-            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $scope.EmployeeServiceBooking.EmpServiceDate },
+            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date)},
             url: 'EmployeeServices/EmployeeServiceBooking/getgriddatatoshow'
         }).then(function successCallback(response) {
             $scope.SelectedReadingList = response.data;
         });
     }
+
+    // Edit Reading Data
+
+    $scope.GetReadingDetails = function (args) {
+        if (args.data.IsProcessed == false) {
+            $scope.EmployeeServiceBooking = Object.assign({}, args.data);
+            $scope.EmployeeServiceBooking.UOM = $scope.EmployeeServiceBooking.Text;
+            $scope.EmployeeServiceBooking.Date = $scope.EmployeeServiceBooking.EmpServiceDate;
+            $scope.EmployeeServiceBooking.Time = $scope.EmployeeServiceBooking.GetGridTime;
+            $scope.Action = 'Update';
+            //     $scope.GetCategoryList();
+            //       $scope.GetUOM();
+            ///   $scope.GetForm();
+            //if ($scope.EmployeeServiceBooking.Chargeable == "True") {
+            //    $scope.EmployeeServiceBooking.Chargeable = true;
+            //}
+            //else {
+            //    $scope.EmployeeServiceBooking.Chargeable = false;
+            //}
+            //    ClearFieldsForms();
+            //      $scope.Action = 'Update';
+        }
+        else {
+            ShowResult("Now You cannot edit it");
+            return false;
+        }
+
+    };
+
+    // Edit Quantity Data
+
+    $scope.GetQuantityDetails = function (args) {
+        if (args.data.IsProcessed == false) {
+        $scope.EmployeeServiceBooking = Object.assign({}, args.data);
+        $scope.EmployeeServiceBooking.UOM = $scope.EmployeeServiceBooking.Text;
+        $scope.EmployeeServiceBooking.Date = $scope.EmployeeServiceBooking.EmpServiceDate;
+        $scope.EmployeeServiceBooking.Time = $scope.EmployeeServiceBooking.GetGridTime;
+        $scope.Action = 'Update';
+        //     $scope.GetCategoryList();
+        //       $scope.GetUOM();
+        ///   $scope.GetForm();
+        //if ($scope.EmployeeServiceBooking.Chargeable == "True") {
+        //    $scope.EmployeeServiceBooking.Chargeable = true;
+        //}
+        //else {
+        //    $scope.EmployeeServiceBooking.Chargeable = false;
+        //}
+        //    ClearFieldsForms();
+        //      $scope.Action = 'Update';
+        }
+        else {
+            ShowResult("Now You cannot edit it");
+            return false;
+        }
+    };
+
+    // Edit Value Data
+
+    $scope.GetValueDetails = function (args) {
+        if (args.data.IsProcessed == false) {
+        $scope.EmployeeServiceBooking = Object.assign({}, args.data);
+        $scope.EmployeeServiceBooking.UOM = $scope.EmployeeServiceBooking.Text;
+        $scope.EmployeeServiceBooking.Date = $scope.EmployeeServiceBooking.EmpServiceDate;
+        $scope.EmployeeServiceBooking.Time = $scope.EmployeeServiceBooking.GetGridTime;
+        $scope.Action = 'Update';
+        }
+        else {
+            ShowResult("Now You cannot edit it");
+            return false;
+        }
+
+    };
 
     $scope.DelQuantity = function () {
         $http({

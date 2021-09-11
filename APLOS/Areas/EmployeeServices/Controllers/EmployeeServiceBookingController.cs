@@ -87,8 +87,19 @@ namespace Aplos.Areas.EmployeeServices.Controllers
         public JsonResult getshift()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //      return Json(_sqlRepository.GetDataCollection("SELECT SystemID as Value,UserName AS Text FROM dbo.ShiftDefination order by UserName"), JsonRequestBehavior.AllowGet);
-            return Json(_sqlRepository.GetDataCollection("SELECT SystemID as Value,UserName AS Text FROM dbo.ShiftDefination where PlantID='"+ identity.PlantId + @"' order by UserName"), JsonRequestBehavior.AllowGet);
+              return Json(_sqlRepository.GetDataCollection("SELECT SystemID as Value,UserName AS Text FROM dbo.ShiftDefination where GroupID='" + identity.CompanyGroupId + @"' order by UserName"), JsonRequestBehavior.AllowGet);
+       //     return Json(_sqlRepository.GetDataCollection("SELECT SystemID as Value,UserName AS Text FROM dbo.ShiftDefination where PlantID='"+ identity.PlantId + @"' order by UserName"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSelectedShift(string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"SELECT sd.SystemID as Value,sd.UserName AS Text FROM dbo.ShiftDefination sd 
+                           left join dbo.EmpServiceData esd on sd.SystemID=esd.ShiftId where esd.Id='"+ Id + @"' ";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -120,15 +131,26 @@ namespace Aplos.Areas.EmployeeServices.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
            
 
-            string sql = @"select distinct esd.*,FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetTime],ei.SystemId,ei.EmployeeCode,ei.EmployeeName as EmpName,ei.EmployeeStatus,sd.UserName as Shift,esc.Category,est.Form,est.Service,est.Id as EmployeeServicesId,uom.UserName as UOM,uom.Id as UOMId from dbo.EmpServiceData esd
+            string sql = @"select distinct esd.*,FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetTime],ei.SystemId,ei.EmployeeCode
+                                                                    ,ei.EmployeeName as EmpName,ei.EmployeeStatus,sd.UserName as ShiftName,esc.Category,est.Form,est.Service as ServiceName
+                                                                    ,est.Id as EmployeeServicesId,uom.UserName as UOM,uom.Id as UOMId 
+                                                                     from dbo.EmpServiceData esd
                                                                     left join dbo.EmployeeInformation ei on ei.SystemId=esd.EmployeeId
 																	left join dbo.ShiftDefination sd on sd.SystemID=esd.ShiftId
 																	left join dbo.EmpServiceCategory esc on esc.Id=esd.EmployeeServiceCategoryId
 																	left join dbo.EmpServiceType est on est.Id=esc.EmpServiceTypeId
 																	left join SCS.UnitOfMeasurement uom on uom.Id=est.UOMId
-																    WHERE " + strkey + " order by Date desc ";
+																    WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' order by Date desc ";
 
           return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        private string GetPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmpServiceData", out sID);
+            return sID;
         }
 
         [HttpPost]
@@ -160,7 +182,8 @@ namespace Aplos.Areas.EmployeeServices.Controllers
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out _Id);
 
-                        data["Id"] = "ESD" + _Id;
+                        //data["Id"] = "ESD" + _Id;
+                        data["Id"] = "ESD" + GetPK();
                         AddNewRow(dsMaster.Tables[0], data);
                     }
                     else
@@ -179,7 +202,7 @@ namespace Aplos.Areas.EmployeeServices.Controllers
                 {
                     throw new Exception("Now You cannot Edit And Delete");
                 }
-                    
+
             }
             
 
@@ -240,7 +263,7 @@ namespace Aplos.Areas.EmployeeServices.Controllers
         [HttpPost, Authorize]
         public JsonResult getgriddatatoshow(string ServicesId, string CategoryId, string Date)
         {
-            string sql = @"select top 100 * from (select distinct esd.*,CONVERT(varchar(5),esd.[Time],108)[GetGridTime],ei.SystemId,ei.EmployeeCode,ei.EmployeeName as EmpName,ei.EmployeeStatus,sd.UserName as Shift,esc.Category,est.Form,est.Service,est.Id as EmployeeServicesId,uom.UserName as Text,uom.Id as UOMId from dbo.EmpServiceData esd
+            string sql = @"select top 100 * from (select distinct esd.*,FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetGridTime],ei.SystemId,ei.EmployeeCode,ei.EmployeeName as EmpName,ei.EmployeeStatus,sd.UserName as Shift,esc.Category,est.Form,est.Service,est.Id as EmployeeServicesId,uom.UserName as Text,uom.Id as UOMId from dbo.EmpServiceData esd
                                                                     left join dbo.EmployeeInformation ei on ei.SystemId=esd.EmployeeId
 																	left join dbo.ShiftDefination sd on sd.SystemID=esd.ShiftId
 																	left join dbo.EmpServiceCategory esc on esc.Id=esd.EmployeeServiceCategoryId
@@ -380,7 +403,8 @@ namespace Aplos.Areas.EmployeeServices.Controllers
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
     
-                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.EmployeeStatus='Active'
+                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' --and emp.CompanyId='" + identity.CompanyId + @"' 
+                              and emp.EmployeeStatus='Active' and EMP.EmpType='Local'
                    AND isnull(Emp.SystemID,'') not in (select isnull(EmployeeId,'') from dbo.EmpServiceData where Id='" + Id + @"')
                   order by EmployeeCodePreFix,EmployeeCodeNumeric";
 
