@@ -20,7 +20,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
     $scope.salaryHeadGL = {
         Id: null,
         CompanyId: null,
-        PlantId: null,
+        //PlantId: null,
         COAId: null,
         CoaName: null,
         UpToDate: null,
@@ -290,7 +290,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
 
                 item.COAId = $scope.salaryHeadGL.COAId;
                 item.CompanyId = $scope.salaryHeadGL.CompanyId;
-                item.PlantId = $scope.salaryHeadGL.PlantId;
+                //item.PlantId = $scope.salaryHeadGL.PlantId;
                 $scope.salaryHeadGLListForSave.push(item);
             }
         });
@@ -308,7 +308,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         for (var i = 0; i < $scope.SalaryHeadGlListByAccountGroup.length; i++) {
             $scope.SalaryHeadGlListByAccountGroup[i].CompanyId = $scope.salaryHeadGL.CompanyId;
             $scope.SalaryHeadGlListByAccountGroup[i].COAId = $scope.salaryHeadGL.COAId;
-            $scope.SalaryHeadGlListByAccountGroup[i].PlantId = $scope.salaryHeadGL.PlantId;
+            //$scope.SalaryHeadGlListByAccountGroup[i].PlantId = $scope.salaryHeadGL.PlantId;
             $scope.SalaryHeadGlListByAccountGroup[i].SalaryHeadId = $scope.SalaryHeadId;
         }
 
@@ -808,7 +808,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
     $scope.updateSalaryHeadGL = function () {
         $scope.EditSalaryHeadGLList[0].COAId = $scope.salaryHeadGL.COAId;
         $scope.EditSalaryHeadGLList[0].CompanyId = $scope.salaryHeadGL.CompanyId;
-        $scope.EditSalaryHeadGLList[0].PlantId = $scope.salaryHeadGL.PlantId;
+        //$scope.EditSalaryHeadGLList[0].PlantId = $scope.salaryHeadGL.PlantId;
         if ($scope.editSalaryHeadGLForm.$valid) {
             $http({
                 method: 'POST',
