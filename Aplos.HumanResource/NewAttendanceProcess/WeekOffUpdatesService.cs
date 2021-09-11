@@ -132,10 +132,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @"Select ei.EmployeeCode , ew.WOHeaderId,format(ew.EffectiveDate,'dd-MMM-yyyy') as EffectiveDate
+                var str = @"Select ei.EmployeeCode , ew.WOHeaderId as RosterId,format(ew.EffectiveDate,'dd-MMM-yyyy') as EffectiveDate
 from dbo.EmployeeWeeklyOff ew
 left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
-where 1=2 
                             ";
 
                 return _sqlRepository.GetDataTable(str);
