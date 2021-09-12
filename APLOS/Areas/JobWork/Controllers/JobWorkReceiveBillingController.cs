@@ -148,6 +148,45 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetInventoryReceiveDetailByOutSourcePO(string contractId, string inventoryReceiveIds)
+        {
+            try
+            {
+                string sql = @"SELECT NULL Id,CTC.Id JWTransformationContractChildId,CTC.MaterialMasterId,MM.UserName MaterialName,ART.Id ArticleId
+	                        ,ART.StandardName Article,CTC.FirstCharacteristicsId,FC.UserName AS SKU1,CTC.FirstCharacteristicsValueId
+	                        ,FCV.UserName AS FirstCharacteristicsValue,CTC.SecondCharacteristicsId,SC.UserName AS SKU2,CTC.SecondCharacteristicsValueId
+	                        ,SCV.UserName AS SecondCharacteristicsValue,CTC.ThirdCharacteristicsId,TC.UserName AS SKU3
+	                        ,CTC.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,IRD.MaterialFor
+	                         ,CTC.Quantity OrderQty,SUM(IRD.TransactionQty) ReceiveQty,ISNULL(SUM(B.BillingQty),0) OtherBillingQty,0 BillingQty,(SUM(IRD.TransactionQty)-ISNULL(SUM(B.BillingQty),0)) BalanceQty, CTC.RatePerUnit MaterialTranRate
+                        FROM TRN.InventoryReceiveDetail IRD
+                        JOIN [TRN].[InventoryReceive] IR ON IR.Id = IRD.InventoryReceiveId
+                        JOIN [dbo].[JWTransformationPurchaseOrder] JWPO ON IR.TransformationContractId = JWPO.Id
+                        JOIN [dbo].[JobWorkTransformationContractChild] CTC ON JWPO.Id = CTC.JobWorkTransformationContractMasterId
+                        LEFT JOIN MST.MaterialMaster AS MM ON CTC.MaterialMasterId = MM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON CTC.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON CTC.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON CTC.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON CTC.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON CTC.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN dbo.JWReceiveBillingDetail B ON B.JWTransformationContractChildId=CTC.Id
+                        WHERE JWTCMId = '" + contractId + @"' AND InventoryReceiveId " + inventoryReceiveIds + @" AND IRD.MaterialFor = 'JWOUTPUTMaterial'
+                        GROUP BY CTC.Id,CTC.MaterialMasterId,MM.UserName,ART.Id,ART.StandardName,CTC.FirstCharacteristicsId,FC.UserName,CTC.FirstCharacteristicsValueId
+                        ,FCV.UserName,CTC.SecondCharacteristicsId,SC.UserName,CTC.SecondCharacteristicsValueId,SCV.UserName,CTC.ThirdCharacteristicsId
+                        ,TC.UserName,CTC.ThirdCharacteristicsValueId,TCV.UserName,CTC.Quantity, CTC.RatePerUnit,IRD.MaterialFor";
+
+                var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetJWReceiveBillingData()
         {
             try
@@ -178,44 +217,7 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
 
-        [HttpGet, Authorize]
-        public ActionResult GetInventoryReceiveDetailByOutSourcePO(string contractId, string inventoryReceiveIds)
-        {
-            try
-            {
-                string sql = @"SELECT NULL Id,CTC.Id JWTransformationContractChildId,CTC.MaterialMasterId,MM.UserName MaterialName,ART.Id ArticleId
-	                        ,ART.StandardName Article,CTC.FirstCharacteristicsId,FC.UserName AS SKU1,CTC.FirstCharacteristicsValueId
-	                        ,FCV.UserName AS FirstCharacteristicsValue,CTC.SecondCharacteristicsId,SC.UserName AS SKU2,CTC.SecondCharacteristicsValueId
-	                        ,SCV.UserName AS SecondCharacteristicsValue,CTC.ThirdCharacteristicsId,TC.UserName AS SKU3
-	                        ,CTC.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,IRD.MaterialFor
-	                         ,CTC.Quantity OrderQty,SUM(IRD.TransactionQty) ReceiveQty,ISNULL(SUM(B.BillingQty),0) OtherBillingQty,0 BillingQty,(SUM(IRD.TransactionQty)-ISNULL(SUM(B.BillingQty),0)) BalanceQty, CTC.RatePerUnit MaterialTranRate
-                        FROM TRN.InventoryReceiveDetail IRD
-                        JOIN [TRN].[InventoryReceive] IR ON IR.Id = IRD.InventoryReceiveId
-                        JOIN [dbo].[JWTransformationPurchaseOrder] JWPO ON IR.TransformationContractId = JWPO.Id
-                        JOIN [dbo].[JobWorkTransformationContractChild] CTC ON JWPO.Id = CTC.JobWorkTransformationContractMasterId
-                        LEFT JOIN MST.MaterialMaster AS MM ON CTC.MaterialMasterId = MM.Id
-                        LEFT JOIN MST.MaterialMasterArticle AS ART ON CTC.ArticleId = ART.Id
-                        LEFT JOIN HKP.Characteristics AS FC ON CTC.FirstCharacteristicsId = FC.Id
-                        LEFT JOIN HKP.Characteristics AS SC ON CTC.SecondCharacteristicsId = SC.Id
-                        LEFT JOIN HKP.Characteristics AS TC ON CTC.ThirdCharacteristicsId = TC.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON CTC.FirstCharacteristicsValueId = FCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
-                        LEFT JOIN dbo.JWReceiveBillingDetail B ON B.JWTransformationContractChildId=CTC.Id
-                        WHERE JWTCMId = '"+ contractId + @"' AND InventoryReceiveId "+ inventoryReceiveIds + @" AND IRD.MaterialFor = 'JWOUTPUTMaterial'
-                        GROUP BY CTC.Id,CTC.MaterialMasterId,MM.UserName,ART.Id,ART.StandardName,CTC.FirstCharacteristicsId,FC.UserName,CTC.FirstCharacteristicsValueId
-                        ,FCV.UserName,CTC.SecondCharacteristicsId,SC.UserName,CTC.SecondCharacteristicsValueId,SCV.UserName,CTC.ThirdCharacteristicsId
-                        ,TC.UserName,CTC.ThirdCharacteristicsValueId,TCV.UserName,CTC.Quantity, CTC.RatePerUnit,IRD.MaterialFor";
-
-                var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-                jsondata.MaxJsonLength = int.MaxValue;
-                return jsondata;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
+       
 
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> master, List<Dictionary<string, object>> data)
