@@ -2052,13 +2052,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     }
                                     else
                                     {
-                                        if (DateTime.Now > Convert.ToDateTime(ShiftInTime))
+                                        if (ShiftInTime != "")
                                         {
-                                            dr["InStatus"] = "IM"; // In Missing
-                                        }
-                                        else if (DateTime.Now < Convert.ToDateTime(ShiftInTime))
-                                        {
-                                            dr["InStatus"] = "O"; //Other
+                                            if (DateTime.Now > Convert.ToDateTime(ShiftInTime))
+                                            {
+                                                dr["InStatus"] = "IM"; // In Missing
+                                            }
+                                            else if (DateTime.Now < Convert.ToDateTime(ShiftInTime))
+                                            {
+                                                dr["InStatus"] = "O"; //Other
+                                            }
                                         }
                                     }
                                     dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
@@ -3044,12 +3047,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 from EmployeeInformation where SystemId=p.EmpSystemID)PlantId,(select GroupID
                 from EmployeeInformation where SystemId=p.EmpSystemID)GroupID,
                 COUNT(p.WorkDate) TotalProcDate,
-                SUM(dt.PresentValuePD)TotalPresent,SUM(dt.LateValueLV)TotalLate,SUM(dt.AbsentValueAB)TotalAbsent,
-                SUM(dt.LeaveValueLP)TotalLv,SUM(dt.MaternityLeaveValueMLV)TotalMlv,SUM(dt.CompAssignLv)TotalCompAssignLv,
-                SUM(dt.WeeklyOffWO)TotalWeekOff,SUM(dt.HolidayH)TotalHoliDay,SUM(dt.WeekOffHoliDayWOH)TotalWeekOffHoliDay,
-                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,SUM(dt.LeaveValueLWP)TotalLWP,SUM(dt.CasualLeaveValueCV)TotalCasualLeave,
-                SUM(dt.PriviledgeLeavePL)TotalPriviledgeLeave,SUM(dt.MedicalLeaveValueMV)TotalMedicalLeave,SUM(dt.TotalWorkingDay)TotalWorkingDay,
-				SUM(dt.ActualWorkingDay)ActualWorkingDay,SUM(dt.PayDay)TotalPayDay,SUM(dt.NonPayDay)TotalNonPayDay
+                isnull(SUM(dt.PresentValuePD),'0')TotalPresent,isnull(SUM(dt.LateValueLV),'0')TotalLate,isnull(SUM(dt.AbsentValueAB),'0')TotalAbsent,
+                isnull(SUM(dt.LeaveValueLP),'0')TotalLv,isnull(SUM(dt.MaternityLeaveValueMLV),'0')TotalMlv,isnull(SUM(dt.CompAssignLv),'0')TotalCompAssignLv,
+                isnull(SUM(dt.WeeklyOffWO),'0')TotalWeekOff,isnull(SUM(dt.HolidayH),'0')TotalHoliDay,isnull(SUM(dt.WeekOffHoliDayWOH),'0')TotalWeekOffHoliDay,
+                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,isnull(SUM(dt.LeaveValueLWP),'0')TotalLWP,isnull(SUM(dt.CasualLeaveValueCV),'0')TotalCasualLeave,
+                isnull(SUM(dt.PriviledgeLeavePL),'0')TotalPriviledgeLeave,isnull(SUM(dt.MedicalLeaveValueMV),'0')TotalMedicalLeave,isnull(SUM(dt.TotalWorkingDay),'0')TotalWorkingDay,
+				isnull(SUM(dt.ActualWorkingDay),'0')ActualWorkingDay,isnull(SUM(dt.PayDay),'0')TotalPayDay,isnull(SUM(dt.NonPayDay),'0')TotalNonPayDay
                         from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                         left join mst.DesignationMasterLegalDesignation ddm on
@@ -3063,7 +3066,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         MONTH(WorkDate) = MONTH('"+Date+@"') AND 
 						YEAR(WorkDate) = YEAR('"+Date+@"')                       					
                         GROUP BY EmpSystemID) as dd";
-
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -3362,53 +3364,58 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["Duration"] = CalDuration;
                                 dr["EarlyLateIn"] = DBNull.Value;
                                 dr["EarlyLateOut"] = DBNull.Value;
-                                if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                if (ShiftInTime != "")
                                 {
-                                    TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
-                                    dr["EarlyIn"] = ts.TotalMinutes;
-                                    dr["EarlyLateIn"] = "EI";
-                                }
-                                else
-                                {
-                                    dr["EarlyIn"] = 0;
+                                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
+                                        dr["EarlyIn"] = ts.TotalMinutes;
+                                        dr["EarlyLateIn"] = "EI";
+                                    }
+                                    else
+                                    {
+                                        dr["EarlyIn"] = 0;
 
-                                }
-                                if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
-                                {
-                                    TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
-                                    dr["LateIn"] = ts.TotalMinutes;
-                                    dr["EarlyLateIn"] = "LI";
-                                }
-                                else
-                                {
-                                    dr["LateIn"] = 0;
+                                    }
+                                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
+                                        dr["LateIn"] = ts.TotalMinutes;
+                                        dr["EarlyLateIn"] = "LI";
+                                    }
+                                    else
+                                    {
+                                        dr["LateIn"] = 0;
 
+                                    }
                                 }
-                                if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                if (ShiftOutTime != "")
                                 {
+                                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                    {
 
-                                    TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
-                                    dr["EarlyOut"] = ts.TotalMinutes;
-                                    dr["EarlyLateOut"] = "EO";
+                                        TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
+                                        dr["EarlyOut"] = ts.TotalMinutes;
+                                        dr["EarlyLateOut"] = "EO";
+                                    }
+                                    else
+                                    {
+                                        dr["EarlyOut"] = 0;
+
+                                    }
+
+                                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                    {
+                                        dr["LateOut"] = 0;
+
+                                    }
+                                    else
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
+                                        dr["LateOut"] = ts.TotalMinutes;
+                                        dr["EarlyLateOut"] = "LO";
+                                    }
                                 }
-                                else
-                                {
-                                    dr["EarlyOut"] = 0;
-
-                                }
-
-                                if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
-                                {
-                                    dr["LateOut"] = 0;
-
-                                }
-                                else
-                                {
-                                    TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
-                                    dr["LateOut"] = ts.TotalMinutes;
-                                    dr["EarlyLateOut"] = "LO";
-                                }
-
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -3974,51 +3981,57 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["Duration"] = CalDuration;
                                 dr["EarlyLateIn"] = DBNull.Value;
                                 dr["EarlyLateOut"] = DBNull.Value;
-                                if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                if (ShiftInTime != "")
                                 {
-                                    TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
-                                    dr["EarlyIn"] = ts.TotalMinutes;
-                                    dr["EarlyLateIn"] = "EI";
-                                }
-                                else
-                                {
-                                    dr["EarlyIn"] = 0;
+                                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
+                                        dr["EarlyIn"] = ts.TotalMinutes;
+                                        dr["EarlyLateIn"] = "EI";
+                                    }
+                                    else
+                                    {
+                                        dr["EarlyIn"] = 0;
 
-                                }
-                                if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
-                                {
-                                    TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
-                                    dr["LateIn"] = ts.TotalMinutes;
-                                    dr["EarlyLateIn"] = "LI";
-                                }
-                                else
-                                {
-                                    dr["LateIn"] = 0;
+                                    }
+                                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
+                                        dr["LateIn"] = ts.TotalMinutes;
+                                        dr["EarlyLateIn"] = "LI";
+                                    }
+                                    else
+                                    {
+                                        dr["LateIn"] = 0;
 
+                                    }
                                 }
-                                if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                if (ShiftOutTime != "")
                                 {
+                                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                    {
 
-                                    TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
-                                    dr["EarlyOut"] = ts.TotalMinutes;
-                                    dr["EarlyLateOut"] = "EO";
-                                }
-                                else
-                                {
-                                    dr["EarlyOut"] = 0;
+                                        TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
+                                        dr["EarlyOut"] = ts.TotalMinutes;
+                                        dr["EarlyLateOut"] = "EO";
+                                    }
+                                    else
+                                    {
+                                        dr["EarlyOut"] = 0;
 
-                                }
+                                    }
 
-                                if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
-                                {
-                                    dr["LateOut"] = 0;
+                                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                    {
+                                        dr["LateOut"] = 0;
 
-                                }
-                                else
-                                {
-                                    TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
-                                    dr["LateOut"] = ts.TotalMinutes;
-                                    dr["EarlyLateOut"] = "LO";
+                                    }
+                                    else
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
+                                        dr["LateOut"] = ts.TotalMinutes;
+                                        dr["EarlyLateOut"] = "LO";
+                                    }
                                 }
 
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
@@ -5305,6 +5318,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string TotalWorkingDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalWorkingDay"]).ToString();
                         string ActualWorkingDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
 
+                       
                         dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
 
 
