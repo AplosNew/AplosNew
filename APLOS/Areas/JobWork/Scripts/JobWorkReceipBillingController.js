@@ -176,11 +176,9 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.GetData();
 
     $scope.GetDetailData = function (masterId) {
-        
-
         $http({
             method: 'GET',
-            url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingDetailData?masterId=' + masterId + '&contractId=' + $scope.ModelNew.JWTransformationPurchaseOrderId + ' & inventoryReceiveIds=' + InventoryReceiveIds
+            url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingDetailData?masterId=' + masterId + '&contractId=' + $scope.ModelNew.JWTransformationPurchaseOrderId + '&inventoryReceiveIds=' + $scope.sqlInStatement
         }).then(function successCallback(response) {
             $scope.JWPOList = response.data;
         });
@@ -189,7 +187,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.Get = function (obj) {
         $scope.ModelNew = Object.assign({}, obj.data);
         $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
-        $scope.GetDetailData($scope.ModelNew.Id);
+        //$scope.GetDetailData($scope.ModelNew.Id);
         if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
             $scope.ShowExCurrency = false;
         }
@@ -247,6 +245,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
                     }
                     $scope.sqlInStatement = wcInventoryReceiveId;
                 }
+                $scope.GetDetailData($scope.ModelNew.Id);
             }
 
             $scope.GRNListDetails();

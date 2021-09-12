@@ -3678,6 +3678,7 @@
     <Content Include="Areas\Payrolls\Views\ArrearApproval\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\CreditLimitOpening\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\TablesUpload\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\LcNavigation\_LCClosePopUp.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionOrderProcessWithRate\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

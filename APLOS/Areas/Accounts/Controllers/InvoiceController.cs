@@ -345,6 +345,13 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
+        public ActionResult DeleteInventorySales(string salesId, string voucherId, string InventoryVoucherId)
+        {
+            _invoiceService.DeleteInventorySales(salesId, voucherId, InventoryVoucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpPost]
         public ActionResult DeleteServicePayable(string serviceAckId, string voucherId, string invoiceId, string tDSTaxVoucherId, string tDSVoucherNo)
         {
             if (tDSTaxVoucherId != null)

@@ -114,7 +114,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                                 JOIN ArrearProcMaster AS M ON m.SystemID=c.SlrProcMstSystemID
                                                 WHERE M.ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND c.EmpInfoSystemID='" + EmployeeSystemId + @"'
                                                 )");
-                _sqlRepository.ExecuteSqlCommand("Delete from ArrearSummaryMonthWise where isnull(IsApproved,0)=0 AND ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId='" + EmployeeSystemId + @"'");
+                _sqlRepository.ExecuteSqlCommand("Delete from ArrearSummaryMonthWise where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId='" + EmployeeSystemId + @"'");
                 _sqlRepository.ExecuteSqlCommand("Delete from ArrearSummaryBatchWise where isnull(IsApproved,0)=0 AND ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId='" + EmployeeSystemId + @"'");
 
                 _sqlRepository.ExecuteSqlCommand(@"DELETE FROM ArrearProcMaster WHERE SystemID IN (

@@ -125,6 +125,32 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetIssueSlipApprovedList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(GetIssueSlipApprovedListdata(), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public IEnumerable<object> GetIssueSlipApprovedListdata() 
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"select E.systemId As Value, E.SystemId+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where A.ActionStatus='IssueSlipApproveBy'";
+                //--A.PlantId = '" + identity.PlantId + "' " +
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
         [HttpGet ,Authorize]
         public JsonResult GetListRequisionUnchecked() 
         {
