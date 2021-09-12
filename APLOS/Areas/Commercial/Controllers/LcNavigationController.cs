@@ -646,6 +646,8 @@ namespace Aplos.Areas.Commercial.Controllers
 						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate						
 						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END				
 					
+                      --,IsAccepptanceFirst1= case when pl.IsAccepptanceFirst ='1' then convert (bit,'True') else convert (bit,'False') end
+						,IsAccepptanceFirst= case when pl.IsAccepptanceFirst =1 then'True' else 'False' end
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
                         left outer join HKP.Bank as B on OBank.BankId=b.Id
@@ -800,6 +802,109 @@ a) AS TEMP WHERE " + strkey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetLCClosePopUpData(string lcId, bool type)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = GetPartyPaymentDetailPopUpListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, lcId, type), Error = false }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        public List<Dictionary<string, object>> GetPartyPaymentDetailPopUpListData(string companyGroupId, string companyId, string plantId, string id, bool type)
+        {
+            string temp = null;
+            if (type == true)
+            {
+                temp = " and PLC.Id='" + id + @"'";
+                //temp = " where PLC.Id='" + id + @"'";
+
+                var sql = @"select 'PDA' [Type],PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName GL ,b.UserName Budget,A.UserName Activity
+                ,SUM(pdad.TotalMaterialTranAmount) DrAmount,0 CrAmount ,pda.AcceptanceNo
+                FROM dbo.PurchaseLC PLC 
+                LEFT JOIN TRN.PurchaseDocAcceptance pda ON pda.PurchaseLCId=PLC.Id 
+                LEFT JOIN TRN.PurchaseDocAcceptanceDetail pdad ON pdad.PurchaseDocAcceptanceId=pda.Id
+                LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=pdad.GLGeneralInfoId
+                LEFT JOIN MST.BudgetMaster BM ON BM.Id=pdad.BudgetMasterId
+                LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+                LEFT JOIN HKP.Activity A ON A.Id=pdad.ActivityId
+                LEFT JOIN TRN.Voucher V ON V.Id=pda.VoucherId
+                WHERE  pda.VoucherId<>'' and PLC.IsAccepptanceFirst=1 
+                 "+temp+ @"
+                group by PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName  ,b.UserName ,A.UserName ,pda.AcceptanceNo
+
+
+
+                union all
+                select 'GRN' [Type],PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName GL ,b.UserName Budget,A.UserName Activity
+                ,0 DrAmount,SUM(IRD.TotalMaterialTranAmount) CrAmount ,null AcceptanceNo
+                FROM dbo.PurchaseLC PLC 
+                Left Join TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id
+                LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.POId=PO.Id 
+                LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+                LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IRD.PostCRGLGeneralInfoId
+                LEFT JOIN MST.BudgetMaster BM ON BM.Id=IRD.PostCRBudgetMasterId
+                LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+                LEFT JOIN HKP.Activity A ON A.Id=IRD.PostCRActivityId
+                LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+                WHERE IR.[Status]='Posting' and ir.VoucherId<>'' 
+                and PLC.IsAccepptanceFirst=1 
+                 " + temp + @"
+                group by PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName  ,b.UserName ,A.UserName";
+                // sql += temp";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+
+            else
+            {
+                temp = " and  PLC.Id='" + id + @"'";
+
+                var sql = @"select 'GRN' [Type],PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName GL ,b.UserName Budget,A.UserName Activity
+                ,0 DrAmount,SUM(IRD.TotalMaterialTranAmount) CrAmount ,IR.Id GRNNo ,null AcceptanceNo
+                FROM dbo.PurchaseLC PLC 
+                Left Join TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id
+                LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.POId=PO.Id 
+                LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+                LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IRD.PostCRGLGeneralInfoId
+                LEFT JOIN MST.BudgetMaster BM ON BM.Id=IRD.PostCRBudgetMasterId
+                LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+                LEFT JOIN HKP.Activity A ON A.Id=IRD.PostCRActivityId
+                LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+                WHERE IR.[Status]='Posting' and ir.VoucherId<>'' and PLC.IsAccepptanceFirst=0 
+                " + temp+ @"
+                group by PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName  ,b.UserName ,A.UserName ,IR.Id
+
+
+
+                union all
+                select 'PDA' [Type],PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName GL ,b.UserName Budget,A.UserName Activity
+                ,SUM(pdad.TotalMaterialTranAmount) DrAmount,0 CrAmount ,null GRNNo , pda.AcceptanceNo
+                FROM dbo.PurchaseLC PLC 
+                LEFT JOIN TRN.PurchaseDocAcceptance pda ON pda.PurchaseLCId=PLC.Id 
+                LEFT JOIN TRN.PurchaseDocAcceptanceDetail pdad ON pdad.PurchaseDocAcceptanceId=pda.Id
+                LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=pdad.GLGeneralInfoId
+                LEFT JOIN MST.BudgetMaster BM ON BM.Id=pdad.BudgetMasterId
+                LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+                LEFT JOIN HKP.Activity A ON A.Id=pdad.ActivityId
+                LEFT JOIN TRN.Voucher V ON V.Id=pda.VoucherId
+                WHERE  pda.VoucherId<>'' 
+                and PLC.IsAccepptanceFirst=0 
+                  " + temp + @"
+                group by PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName  ,b.UserName ,A.UserName, pda.AcceptanceNo ";
+                // sql += temp";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+
+
+
+        }
+
+
 
 
     }
