@@ -112,8 +112,8 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         AttendanceGroupId: null,
         ResponsiblePerson: null,
         Email: null,
-        AccountsGroupId: null,
-        CostCenterId:null
+        AccountsGroupId: null
+        //CostCenterId:null
     };
 
     $scope.manpowerBudgetAllowance = {
@@ -230,7 +230,7 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
                 $scope.Action = 'Update';
                 $scope.getAllowance();
                 $scope.getManpowerBudgetDetail();
-                $scope.GetCostCenterCboByCompanyandEntity($scope.manPowerbudgetmasterNew.EntityId);
+                //$scope.GetCostCenterCboByCompanyandEntity($scope.manPowerbudgetmasterNew.EntityId);
                 if (!$rootScope.isCollapsed) {
                     $rootScope.toggle();
                 }
@@ -468,7 +468,7 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         $scope.getLineCbo($scope.selectedEntityId);
         $scope.getShiftCbo($scope.selectedEntityId);
         $scope.getEntityMapData($scope.selectedEntityId);
-        $scope.GetCostCenterCboByCompanyandEntity($scope.manPowerbudgetmasterNew.EntityId);
+        //$scope.GetCostCenterCboByCompanyandEntity($scope.manPowerbudgetmasterNew.EntityId);
         angular.element(document.querySelector('#entityPopUp')).modal('hide');
     };
 
@@ -1063,15 +1063,15 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
     }
     $scope.getAttendanceGroup();
 
-    $scope.CostCenterList = [];
-    $scope.GetCostCenterCboByCompanyandEntity = function (EntityId) {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetCostCenterCbo?CompanyId="+$scope.manPowerbudgetmasterNew.CompanyId+ '&EntityId=' + EntityId,
-        }).then(function successCallback(response) {
-            $scope.CostCenterList = response.data;
-        });
-    }
+    //$scope.CostCenterList = [];
+    //$scope.GetCostCenterCboByCompanyandEntity = function (EntityId) {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + "GetCostCenterCbo?CompanyId="+$scope.manPowerbudgetmasterNew.CompanyId+ '&EntityId=' + EntityId,
+    //    }).then(function successCallback(response) {
+    //        $scope.CostCenterList = response.data;
+    //    });
+    //}
    
 
     $scope.employeeList = [];
