@@ -277,6 +277,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
                             $scope.gridAcceptanceList();
                             $scope.Action = 'POST';
                             $scope.inventoryMaterialListPO = [];
+                            $scope.Clear();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -307,7 +308,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
                             $scope.acceptanceChargesCheckedList = [];
                             $scope.gridAcceptanceChargesNonPostedList();
                             $scope.gridAcceptanceChargesPostedList();
-
+                            $scope.Clear();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
