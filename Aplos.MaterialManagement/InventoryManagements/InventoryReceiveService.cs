@@ -5769,7 +5769,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id	 
 						
 					Left join (select ISD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-							  ,sum(ISH.Qty) InventorySalesQty,sum(ISH.BaseRate) Rate, (sum(ISH.Qty)*sum(ISH.BaseRate)) InventorySalesAmount 
+							  ,sum(ISH.Qty) InventorySalesQty,sum(ISH.BaseRate) Rate, sum(ISH.Qty*ISH.BaseRate) InventorySalesAmount 
 						from [TRN].[InventorySalesHistory] ISH
 						Left JOIN [TRN].[InventorySalesDetail] ISD on ISD.Id=ISH.InventorySalesDetailId
 						Left join [TRN].[InventorySales] Ins on Ins.Id=ISD.InventorySalesId
