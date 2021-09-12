@@ -142,6 +142,8 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     };
 
     $scope.ShowContractPopUp = function () {
+        $scope.TempList = [];
+        $scope.sqlInStatement = null;
         $scope.ModelNew.Type = "ValueAdded";
         $http({
             method: 'POST',
@@ -175,12 +177,10 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     };
     $scope.GetData();
 
-    $scope.GetDetailData = function (masterId) {
-        
-
+    $scope.GetDetailData = function (masterId, contractId, inventoryReceiveIds) {
         $http({
             method: 'GET',
-            url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingDetailData?masterId=' + masterId + '&contractId=' + $scope.ModelNew.JWTransformationPurchaseOrderId + ' & inventoryReceiveIds=' + InventoryReceiveIds
+            url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingDetailData?masterId=' + masterId + '&contractId=' + contractId + '&inventoryReceiveIds=' + inventoryReceiveIds
         }).then(function successCallback(response) {
             $scope.JWPOList = response.data;
         });
@@ -189,7 +189,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.Get = function (obj) {
         $scope.ModelNew = Object.assign({}, obj.data);
         $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
-        $scope.GetDetailData($scope.ModelNew.Id);
+        //$scope.GetDetailData($scope.ModelNew.Id);
         if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
             $scope.ShowExCurrency = false;
         }
@@ -247,6 +247,8 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
                     }
                     $scope.sqlInStatement = wcInventoryReceiveId;
                 }
+                $scope.GetDetailData($scope.ModelNew.Id, $scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
+                //$scope.GetGRNDetailData($scope.ModelNew.Id, $scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
             }
 
             $scope.GRNListDetails();
@@ -329,7 +331,8 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
                 $scope.sqlInStatement = wcInventoryReceiveId;
             }
             if (!baseService.isUndefinedOrNull($scope.sqlInStatement)) {
-                $scope.GetGRNDetailData($scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
+                //$scope.GetGRNDetailData($scope.ModelNew.Id,$scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
+                $scope.GetDetailData($scope.ModelNew.Id, $scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
             } else {
                 throw "Please select GRN No.";
             }
@@ -339,11 +342,11 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     }
 
     $scope.JWPOList = [];
-    $scope.GetGRNDetailData = function (contractId, InventoryReceiveIds) {
+    $scope.GetGRNDetailData = function (masterId,contractId, InventoryReceiveIds) {
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'JobWork/JobWorkReceiveBilling/GetInventoryReceiveDetailByOutSourcePO?contractId=' + contractId + '&inventoryReceiveIds=' + InventoryReceiveIds,
+            url: 'JobWork/JobWorkReceiveBilling/GetInventoryReceiveDetailByOutSourcePO?masterId=' + masterId+'+&contractId=' + contractId + '&inventoryReceiveIds=' + InventoryReceiveIds,
         }).then(function successCallback(response) {
             $scope.JWPOList = response.data;
         });
@@ -370,6 +373,8 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $scope.ReceiptVA = Object.assign({}, $scope.ReceiptVAModelTemp);
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ShowExCurrency = true;
+        $scope.TempList = [];
+        $scope.sqlInStatement = null;
     }
 
     $scope.Action = 'Save';

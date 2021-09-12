@@ -4807,5 +4807,138 @@ namespace Library.Service.Invoices
 
         #endregion
 
+        #region InventorySalesPost
+        public void DeleteInventorySales(string salesId, string voucherId, string InventoryVoucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherRepository.Find(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+
+              
+
+                var invoice = base.Query(r=>r.InventorySalesId== salesId).Select().FirstOrDefault();
+                if (invoice.WrittenOffAmount > 0)
+                    throw new CustomException("Please Delete Receipt Voucher first ! ");
+
+                var invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoice.Id).Select().ToList();
+                var invoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == invoice.Id).Select().ToList();
+                var invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoice.Id).Select().ToList();
+
+                var grnBuilder = new System.Text.StringBuilder();
+                var buildergrnSql = @"UPDATE [TRN].InventorySales set VoucherId =NULL,InventoryVoucherId=NULL,Status=NULL WHERE Id='" + salesId + "'";
+                grnBuilder.Append(buildergrnSql);
+                _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
+                
+               
+
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+                }
+                if (invoiceTDS.Count > 0)
+                {
+                    foreach (var item in invoiceTDS)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"DELETE [TRN].AdditionalTaxDetail  WHERE AdditionalTaxId='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                        _additionalTaxRepository.Delete(item.Id);
+                    }
+                }
+                foreach (var item in voucherdetail)
+                {
+                    var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                    if (gltransaction.Count > 0)
+                    {
+                        foreach (var item1 in gltransaction)
+                        {
+                            _gLTransactionDetailRepository.Delete(item1.Id);
+
+                        }
+
+                    }
+                    _voucherDetailRepository.Delete(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var invoicetaxDdetail = _invoiceTaxDetailRepository.Query(r => r.InvoiceTaxId == item.Id).Select().ToList();
+                        foreach (var item1 in invoicetaxDdetail)
+                        {
+                            _invoiceTaxDetailRepository.Delete(item1.Id);
+                        }
+                        _invoiceTaxRepository.Delete(item.Id);
+                    }
+                }
+                foreach (var item in invoiceDetail)
+                {
+                    _invoiceDetailRepository.Delete(item.Id);
+                }
+                base.Delete(invoice.Id);
+                _voucherRepository.Delete(voucher.Id);
+                if (InventoryVoucherId != null)
+                {
+                    var voucher2 = _voucherRepository.Find(InventoryVoucherId);
+                    if (voucher2.IsPark == false)
+                        throw new CustomException("Delete is not allow after post!. Please Bring Back to park mode Voucher No" + voucher2.VoucherNo);
+
+                    var voucherdetail2 = _voucherDetailRepository.Query(r => r.VoucherId == InventoryVoucherId).Select().ToList();
+                    var voucherdetailcurrnecy2 = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == InventoryVoucherId).Select().ToList();
+
+                    foreach (var item in voucherdetailcurrnecy2)
+                    {
+                        _voucherDetailCurrencyRepository.Delete(item.Id);
+                    }
+                    foreach (var item in voucherdetail2)
+                    {
+                        _voucherDetailRepository.Delete(item.Id);
+                    }
+                    _voucherRepository.Delete(voucher2.Id);
+
+                }
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        #endregion
+
     }
 }

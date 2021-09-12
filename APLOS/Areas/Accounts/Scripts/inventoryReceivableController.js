@@ -1219,6 +1219,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
         var data = x;
         $scope.SalesId = data.Id;
         $scope.VoucherId = data.VoucherId;
+        $scope.InventoryVoucherId = data.InventoryVoucherId;
 
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
@@ -1226,12 +1227,12 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
 
 
 
-    $scope.delete = function (salesId, voucherId) {
+    $scope.delete = function (salesId, voucherId, inventoryVoucherId) {
         $http({
             method: "POST",
-            url: $scope.path + 'DeleteInventorySales',
+            url: 'Accounts/Invoice/DeleteInventorySales',
             data: {
-                "salesId": salesId, "voucherId": voucherId
+                "salesId": salesId, "voucherId": voucherId, "InventoryVoucherId": inventoryVoucherId
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -1244,6 +1245,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
                 $scope.Clear();
                 $scope.SalesId = null;
                 $scope.VoucherId = null;
+                $scope.InventoryVoucherId = null;
                
             }
         }, function errorCallback(response) {

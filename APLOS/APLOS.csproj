@@ -797,6 +797,7 @@
     <Compile Include="Areas\PerformanceManagement\Controllers\JobEvaluationReportController.cs" />
     <Compile Include="Areas\PerformanceManagement\PerformanceManagementAreaRegistration.cs" />
     <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionOrderProcessWithRateController.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
     <Compile Include="Areas\Productions\Controllers\PackingInvoiceController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionConversionParameterController.cs" />
@@ -2133,6 +2134,7 @@
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
     <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionOrderProcessWithRateController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
     <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionConversionParameterController.js" />
@@ -3678,6 +3680,8 @@
     <Content Include="Areas\Payrolls\Views\ArrearApproval\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\CreditLimitOpening\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\TablesUpload\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\LcNavigation\_LCClosePopUp.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionOrderProcessWithRate\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\SalesOrderUpdate\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
