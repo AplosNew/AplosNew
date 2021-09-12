@@ -910,6 +910,7 @@ var upanelApp = angular
     .controller("WeekOffUpdatesController", WeekOffUpdatesController)
     .controller("RosterUpdatesController", RosterUpdatesController)
     .controller("OrderController", OrderController)
+    .controller("SalesOrderUpdateController", SalesOrderUpdateController)
     .controller("POParameterChangeController", POParameterChangeController)
 
     .controller("NewAttdnDashboardController", NewAttdnDashboardController)
@@ -919,6 +920,7 @@ var upanelApp = angular
     .controller("NewHRDashboardController", NewHRDashboardController)
     .controller("GSTPayableReportController", GSTPayableReportController)
     .controller("OutsourceBillingPostController", OutsourceBillingPostController)
+    .controller("ProductionOrderProcessWithRateController", ProductionOrderProcessWithRateController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)

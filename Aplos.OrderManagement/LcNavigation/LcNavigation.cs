@@ -73,7 +73,9 @@ namespace Library.OrderManagement.LcNavigation
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
 						,FORMAT(PL.ExpiryDate,'dd-MMM-yyyy') ExpiryDate						
 						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END				
-					
+					    --,IsAccepptanceFirst1= case when pl.IsAccepptanceFirst ='1' then convert (bit,'True') else convert (bit,'False') end
+						,IsAccepptanceFirst= case when pl.IsAccepptanceFirst =1 then'True' else 'False' end
+
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
                         left outer join HKP.Bank as B on OBank.BankId=b.Id

@@ -152,26 +152,19 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Acceptance No</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="AcceptanceNo" ng-model="PurchaseDocAcceptance.AcceptanceNo" class="form-control" tabindex="4">
+                    </div>
+                </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Acceptance No<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Acceptance Value<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="AcceptanceNo" ng-model="PurchaseDocAcceptance.AcceptanceNo" class="form-control" tabindex="4" required>
+                        <input type="text" n-decimals="2" disabled name="Acceptance Amount" ng-model="PurchaseDocAcceptance.AcceptanceAmount" class="form-control" required>
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-                    <div class="col-sm-5 show-message" style="padding-right:0px;">
-                        <div class="select-style">
-                            <select id="currencyId" class="form-control" ng-disabled="true" tabindex="5" name="Currency" ng-model="PurchaseDocAcceptance.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-3 show-message" style="padding-left:0px;">
-                        <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="PurchaseDocAcceptance.ToCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="true">
-                    </div>
-                </div>
+                
             </div>
             <div class="col-xs-12 col-sm-4">
                 <div class="form-group" show-errors>
@@ -194,21 +187,34 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Tenure</label>
                     <div class="col-sm-2 show-message">
-                        <input id="baseNoOfday" type="text" name="No Of Days" ng-model="PurchaseDocAcceptance.Tenure" readonly ng-change="getMatureDate(PurchaseDocAcceptance.AcceptanceDate, PurchaseDocAcceptance.Tenure)" class="form-control" tabindex="12" >
+                        <input id="baseNoOfday" type="text" name="No Of Days" ng-model="PurchaseDocAcceptance.Tenure" readonly ng-change="getMatureDate(PurchaseDocAcceptance.AcceptanceDate, PurchaseDocAcceptance.Tenure)" class="form-control" tabindex="12">
                     </div>
                     <label class="col-sm-3 control-label">PaymentType</label>
                     <div class="col-sm-3 show-message">
-                        <input type="text" name="Mature Date" ng-model="PurchaseDocAcceptance.PaymentType" class="form-control" readonly >
+                        <input type="text" name="Mature Date" ng-model="PurchaseDocAcceptance.PaymentType" class="form-control" readonly>
                     </div>
                 </div>
 
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Remarks </label>
+                    <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <textarea class="form-control" rows="2" name="Remarks" ng-model="PurchaseDocAcceptance.Remarks" maxlength="250" tabindex="7" required></textarea>
                     </div>
                 </div>
-
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                    <div class="col-sm-5 show-message" style="padding-right:0px;">
+                        <div class="select-style">
+                            <select id="currencyId" class="form-control" ng-disabled="true" tabindex="5" name="Currency" ng-model="PurchaseDocAcceptance.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 show-message" style="padding-left:0px;">
+                        <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="PurchaseDocAcceptance.ToCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="true">
+                    </div>
+                </div>
 
 
             </div>
@@ -291,7 +297,7 @@
             <div ng-form="tabForm1">
                 <div class="clearfix"></div>
 
-                <div class="table-responsive modal-table">
+                <div class="table-responsive modal-table" ng-show="productNew.AcceptanceFirst=='Yes'">
                     <table class="table table-striped">
                         <thead>
                             <tr ng-show="inventoryMaterialListPO.length">
@@ -354,6 +360,102 @@
                                 <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TaxAmount'| number:2  }}</strong></td>
                                 <td class="text-right" ng-show="PurchaseDocAcceptance.IsNonCreditable"><strong>{{inventoryMaterialListPO | sumByKey : 'ChargesTaxTranAmount'| number:2  }}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalMaterialTranAmount' | number:2 }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-responsive modal-table" ng-show="productNew.AcceptanceFirst=='No'">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr ng-show="inventoryMaterialListPO.length>0">
+
+                                <th>RowId</th>
+                                <th>POID</th>
+                                <th>PODetailId</th>
+                                <th>Material Group</th>
+                                <th>Material Master</th>
+                                <th>Article</th>
+                                <th>Sku1</th>
+                                <th>Sku2</th>
+                                <th>Sku3</th>
+                                <th>Material Detail</th>
+                                <th colspan="2">PO Qty</th>
+                                <th>Total PO Value</th>
+                                <th>GRN Qty</th>
+                                <th>Total GRN Value</th>
+                                <th ng-hide="false">Other Acceptance Qty</th>
+                                <th>Other Accep. Value</th>
+                                <th>Current Acceptance Qty</th>
+                                <th ng-hide="false">Balance Qty</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
+                                <th>Currency</th>
+                                <th>Tax Amount</th>
+                                <th>Service Charge</th>
+                                <th>Service Tax</th>
+                                <th>Material Amount (Trn)</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length>0">
+                                <td>{{x.AcceptenceDetailId}}</td>
+                                <td>{{x.POId}}</td>
+                                <td>{{x.PODetailId}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.FirstCharacteristicsValue}}</td>
+                                <td>{{x.SecondCharacteristicsValue}}</td>
+                                <td>{{x.ThirdCharacteristicsValue}}</td>
+                                <td>{{x.MaterialDetail}}</td>
+                                <td class="text-right">{{x.POQty| number:2}}</td>
+                                <td class="text-right">{{x.TransactionUoM}}</td>
+                                <td class="text-right">{{x.TotalPOValue| number:2}}</td>
+                                <td class="text-right">{{x.GRNRcvQty| number:2}}</td>
+                                <td class="text-right">{{x.TotalGRNValue| number:2}}</td>
+
+                                <td class="text-right">{{x.Otherqty| number:2}}</td>
+                                <td class="text-right">{{x.TotalAcptValue| number:2}}</td>
+                                <td class="text-right">{{x.TransactionQty | number:2}}</td>
+                                <td class="text-right">{{x.Balance| number:2}}</td>
+                                <td class="text-right">{{x.TransactionRate| number:4}}</td>
+                                <td class="text-right">{{x.TrnAmount | number:2}}</td>
+                                <td class="text-right">{{x.CurrencyName}}</td>
+                                <td class="text-right">{{x.TaxAmount | number:2}}</td>
+                                <td class="text-right">{{x.ChargesTranAmount | number:2}}</td>
+                                <td class="text-right">{{x.ChargesTaxTranAmount | number:2}}</td>
+                                <td class="text-right">{{x.TotalMaterialTranAmount |number:2}}</td>
+                                
+                                <td></td>
+                            </tr>
+                            <tr ng-show="inventoryMaterialListPO.length>0">
+                                <td colspan="6" class="text-right"><strong>Total : </strong></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'POQty'| number:2 }}</strong></td>
+                                <td></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalPOValue'| number:2 }}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'GRNRcvQty'| number:2 }}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalGRNValue'| number:2 }}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Otherqty' | number:2}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalAcptValue'| number:2 }}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TransactionQty'| number:2 }}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Balance'| number:2 }}</strong></td>
+
+                                <td class="text-right"></td>
+
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TrnAmount'| number:2}}</strong></td>
+                                <td class="text-right"></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TaxAmount'| number:2}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'ChargesTranAmount'| number:2}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'ChargesTaxTranAmount'| number:2}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TotalMaterialTranAmount'| number:2}}</strong></td>
+
                             </tr>
                         </tbody>
                     </table>

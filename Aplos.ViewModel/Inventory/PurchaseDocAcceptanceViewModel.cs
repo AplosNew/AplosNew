@@ -12,6 +12,7 @@ namespace Library.ViewModel.Inventory
 		public string PlantId { get; set; }
 		public DateTime EntryDate { get; set; }
 		public DateTime AcceptanceDate { get; set; }
+		public decimal AcceptanceAmount { get; set; }
 		public decimal? WithInvoiceRate { get; set; }
 		public string POId { get; set; }
 		public string CheckedBy { get; set; }

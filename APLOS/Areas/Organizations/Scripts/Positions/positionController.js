@@ -60,7 +60,8 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         UserDefineGroup2: null,
         UserDefineGroup3: null,
         UserDefineGroup4: null,
-        DirectManpowerCost: false
+        DirectManpowerCost: false,
+        CostCenterId: null
     };
 
     $scope.positionAllowance = {
@@ -105,6 +106,11 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
 
     cboService.getCboDesignationByCompanyGroup(null, function (result) {
         $scope.designationList = result;
+    });
+
+    $scope.CostCenterList = [];
+    cboService.getCostCenterCbo(function (result) {
+        $scope.CostCenterList = result;
     });
 
     //JobList for modal
@@ -430,10 +436,22 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '</div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Handover Days Required</label>' +
-                        '<div class="col-sm-8">' +
+                        '<div class="col-sm-2">' +
                         '<div class="checkbox-site">' +
                         '<label><input tabindex="10" type="checkbox" ng-model="companyStructureSetup.IsHandoverDays">' +
                         '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label>' +
+                        '</div>' +
+                        '</div>' +
+                        '<label class="col-sm-3 control-label">Handover Days</label>' +
+                        '<div class="col-sm-3 show-message">' +
+                        '<input tabindex="13" only-numbers type="text" class="form-control" ng-model="companyStructureSetup.HandoverDays" name="HandoverDays">' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Cost Center</label>' +
+                        '<div class="col-sm-8">' +
+                        '<div class="select-style">' +
+                        '<select name="CostCenter" ng-model="companyStructureSetup.CostCenterId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in CostCenterList"><option></option></select>' +
                         '</div>' +
                         '</div>' +
                         '</div>' +
@@ -445,41 +463,36 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '</div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Direct Manpower</label>' +
-                        '<div class="col-sm-8">' +
+                        '<div class="col-sm-2">' +
                         '<div class="checkbox-site">' +
                         '<label><input tabindex="14" type="checkbox" ng-model="companyStructureSetup.IsDirect">' +
                         '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label>' +
                         '</div>' +
                         '</div>' +
-                        '</div>' +
-                        '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Direct Manpower Cost</label>' +
-                        '<div class="col-sm-8">' +
+                        '<div class="col-sm-2">' +
                         '<div class="checkbox-site">' +
                         '<label><input tabindex="16" type="checkbox" ng-model="companyStructureSetup.DirectManpowerCost">' +
-                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label>' +
-                        '</div>' +
-                        '</div>' +
-                        '</div>'+
-                        '<div class="form-group">' +
-                        '<label class="col-sm-4 control-label">Active</label>' +
-                        '<div class="col-sm-8">' +
-                        '<div class="checkbox-site">' +
-                        '<label><input tabindex="16" type="checkbox" ng-model="companyStructureSetup.Active">' +
                         '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label>' +
                         '</div>' +
                         '</div>' +
                         '</div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Task Management Applicable</label>' +
-                        '<div class="col-sm-8">' +
+                        '<div class="col-sm-2">' +
                         '<div class="checkbox-site">' +
                         '<label><input tabindex="16" type="checkbox" ng-model="companyStructureSetup.TaskManagementApplicable">' +
                         '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label>' +
                         '</div>' +
                         '</div>' +
-                        '</div>' 
-                    ;
+                        '<label class="col-sm-4 control-label">Active</label>' +
+                        '<div class="col-sm-2">' +
+                        '<div class="checkbox-site">' +
+                        '<label><input tabindex="16" type="checkbox" ng-model="companyStructureSetup.Active">' +
+                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
 
                     $scope.right +=
                         '<div class="form-group">' +
@@ -500,12 +513,6 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '<div class="select-style">' +
                         '<select tabindex="11" ng-model="companyStructureSetup.PaymentLink" class="form-control" ng-options="item.Value as item.Text for item in paymentLinkList" required name="PaymentLink"><option value=""></option></select>' +
                         '</div>' +
-                        '</div>' +
-                        '</div>' +
-                        '<div class="form-group" show-errors>' +
-                        '<label class="col-sm-4 control-label">Handover Days</label>' +
-                        '<div class="col-sm-8 show-message">' +
-                        '<input tabindex="13" only-numbers type="text" class="form-control" ng-model="companyStructureSetup.HandoverDays" name="HandoverDays">' +
                         '</div>' +
                         '</div>' +
                         '<div class="form-group">' +
@@ -531,19 +538,19 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
     };
 
     $scope.PositionGroupingData = {
-        UserDefineGroup1:null,
-        UserDefineGroup2:null,
-        UserDefineGroup3:null,
-        UserDefineGroup4:null,
-        UserDefineGroup5:null,
-        UserDefineGroup6:null
+        UserDefineGroup1: null,
+        UserDefineGroup2: null,
+        UserDefineGroup3: null,
+        UserDefineGroup4: null,
+        UserDefineGroup5: null,
+        UserDefineGroup6: null
     };
     $scope.getPositionGroupingData = function () {
         $http({
             method: 'GET',
             url: 'Organizations/PositionGroupingData/GetData/'
         }).then(function successCallback(response) {
-            if (baseService.arrayLength(response.data)>0) {
+            if (baseService.arrayLength(response.data) > 0) {
                 $scope.PositionGroupingData = response.data[0];
             }
             if (baseService.isUndefinedOrNull($scope.PositionGroupingData.UserDefineGroup1)) {

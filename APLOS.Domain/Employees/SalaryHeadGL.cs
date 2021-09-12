@@ -64,8 +64,8 @@ namespace Library.Model.Employees
 
         public virtual Company Company { get; set; }
         public string CompanyId { get; set; }
-        public virtual Plant Plant { get; set; }
-        public string PlantId { get; set; }
+        //public virtual Plant Plant { get; set; }
+        //public string PlantId { get; set; }
         public string SalaryHeadId { get; set; }
         
         public string DrDirectGLId { get; set; }

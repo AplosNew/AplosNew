@@ -3412,7 +3412,7 @@ namespace Library.Service.Invoices
                     CompanyId = voucherVM.CompanyId,
                     CurrencyId = voucherVM.CurrencyId,
                     DocDate = voucherVM.PostingDate,
-                    DocRefNo = purchaseDocAcceptance.AcceptanceNo,
+                    DocRefNo = purchaseDocAcceptance.AcceptanceNo == null ? purchaseDocAcceptance.InvoiceNo : purchaseDocAcceptance.AcceptanceNo,
                     Narration = voucherVM.Narration,
                     EntityId = voucherVM.EntityId,
                     PlantId = voucherVM.PlantId,
@@ -3485,7 +3485,7 @@ namespace Library.Service.Invoices
                         GLGeneralInfoId = voucherDetailVM.ClearingAccountGLId,
                         BudgetMasterId = voucherDetailVM.ClearingAccountBudgetMasterId,
                         ActivityId = voucherDetailVM.ClearingAccountActivityId,
-                        DrAmount = voucherDetailVM.TotalMaterialTranAmount,
+                        DrAmount = voucherVM.Amount,
                         CurrencyId = voucherVM.CurrencyId,
                         DocDate = purchaseDocAcceptance.AcceptanceDate,
                         DocRefNo = purchaseDocAcceptance.AcceptanceNo,
@@ -3619,8 +3619,8 @@ namespace Library.Service.Invoices
                         GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                         BudgetMasterId = voucherDetailVM.BudgetMasterId,
                         ActivityId = voucherDetailVM.ActivityId,
-                        Amount = IsNonCreditable ? voucherDetailVM.TotalMaterialTranAmount : voucherDetailVM.TotalMaterialTranAmount + totalTaxAmount,
-                        NetAmount = voucherDetailVM.TotalMaterialTranAmount,
+                        Amount = IsNonCreditable ? voucherVM.Amount : voucherVM.Amount + totalTaxAmount,
+                        NetAmount = voucherVM.Amount,
                         TaxAmount = 0,
                         AddedBy = invoice.AddedBy,
                         AddedDate = invoice.AddedDate,
@@ -3638,7 +3638,7 @@ namespace Library.Service.Invoices
                         ActivityId = invoiceDetail.ActivityId,
                         CurrencyId = voucher.CurrencyId,
                         DrAmount = 0,
-                        CrAmount = IsNonCreditable ? voucherDetailVM.TotalMaterialTranAmount : voucherDetailVM.TotalMaterialTranAmount + totalTaxAmount,
+                        CrAmount = IsNonCreditable ? voucherVM.Amount : voucherVM.Amount + totalTaxAmount,
                         DocDate = voucher.DocDate,
                         DocRefNo = voucher.DocRefNo,
                         Narration = invoice.Narration,
@@ -3746,11 +3746,11 @@ namespace Library.Service.Invoices
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = voucherDetailDr.CurrencyId,
                                 ToCurrencyId = companyCurrencyId,
-                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                DrAmount = cList.Rate * voucherDetailDr.DrAmount
+                                ToCurrencyRate = voucherVM.ToCurrencyRate,
+                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.ToCurrencyRate),
+                                DrAmount = voucherVM.ToCurrencyRate * voucherDetailDr.DrAmount
                             });
-                            voucherDetailCurrencyCr += voucherDetailDr.DrAmount;
+                            voucherDetailCurrencyCr += voucherVM.ToCurrencyRate * voucherDetailDr.DrAmount;
 
 
                             purDocAcceptService.VoucherId = voucher.Id;
@@ -3852,8 +3852,8 @@ namespace Library.Service.Invoices
                             ParallelCurrencyId = companyCurrencyId,
                             FromCurrencyId = voucherDetailCr.CurrencyId,
                             ToCurrencyId = companyCurrencyId,
-                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            ToCurrencyRate = voucherVM.ToCurrencyRate,
+                            ToCurrencyConversion = voucherVM.ToCurrencyRate,
                             CrAmount = voucherDetailCurrencyCr + totalTaxAmount
                         });
 
@@ -5142,11 +5142,7 @@ namespace Library.Service.Invoices
                 }
                 _invoiceService.InsertInvoice(invoice);
 
-                receiveData.Status = "Posting";
-                receiveData.ModelState = ModelState.Modified;
-                AuditService.UpdatedLog(receiveData);
-                invoice.InventorySalesId = receiveId;
-                _inventorySalesRepository.Update(receiveData);
+              
 
                 // INSERT INTO Voucher TABLE
                 var voucher = new Voucher
@@ -5176,6 +5172,12 @@ namespace Library.Service.Invoices
                 voucher.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + voucher.Id;
                 _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
 
+                receiveData.Status = "Posting";
+                receiveData.ModelState = ModelState.Modified;
+                AuditService.UpdatedLog(receiveData);
+                invoice.InventorySalesId = receiveId;
+                receiveData.VoucherId = voucher.Id;
+                _inventorySalesRepository.Update(receiveData);
                 //For check Budget is applied in company or not.
                 // var comdata = _companyService.Find(voucher.CompanyId);
                 // Set to Invoice
@@ -5600,6 +5602,7 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+
 
         #endregion
 
@@ -6239,9 +6242,9 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-               
+
                 string voucherNo = "";
-               
+
                 var parallerCurrency = _companyParallelCurrencyService.Query(r => r.CompanyId == voucherVM.CompanyId).Select();
                 if (null == parallerCurrency)
                     throw new CustomException("Company Parallel Currency not found!");
