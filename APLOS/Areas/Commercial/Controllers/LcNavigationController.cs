@@ -835,11 +835,12 @@ a) AS TEMP WHERE " + strkey;
                 LEFT JOIN HKP.Activity A ON A.Id=pdad.ActivityId
                 LEFT JOIN TRN.Voucher V ON V.Id=pda.VoucherId
                 WHERE  pda.VoucherId<>'' and PLC.IsAccepptanceFirst=1 
-                --and  PLC.Id='PLC2151'
+                 "+temp+ @"
                 group by PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName  ,b.UserName ,A.UserName ,pda.AcceptanceNo
 
-                union all
 
+
+                union all
                 select 'GRN' [Type],PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName GL ,b.UserName Budget,A.UserName Activity
                 ,0 DrAmount,SUM(IRD.TotalMaterialTranAmount) CrAmount ,null AcceptanceNo
                 FROM dbo.PurchaseLC PLC 
@@ -851,9 +852,9 @@ a) AS TEMP WHERE " + strkey;
                 LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
                 LEFT JOIN HKP.Activity A ON A.Id=IRD.PostCRActivityId
                 LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
-                WHERE IR.[Status]='Posting' and ir.VoucherId<>'' " + temp + @"
-                --and PLC.IsAccepptanceFirst=1 
-               -- and  PLC.Id='PLC2151'
+                WHERE IR.[Status]='Posting' and ir.VoucherId<>'' 
+                and PLC.IsAccepptanceFirst=1 
+                 " + temp + @"
                 group by PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName  ,b.UserName ,A.UserName";
                 // sql += temp";
                 return _sqlRepository.GetDataCollection(sql);
@@ -864,7 +865,7 @@ a) AS TEMP WHERE " + strkey;
                 temp = " and  PLC.Id='" + id + @"'";
 
                 var sql = @"select 'GRN' [Type],PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName GL ,b.UserName Budget,A.UserName Activity
-                ,0 DrAmount,SUM(IRD.TotalMaterialTranAmount) CrAmount ,IR.Id GRNNo
+                ,0 DrAmount,SUM(IRD.TotalMaterialTranAmount) CrAmount ,IR.Id GRNNo ,null AcceptanceNo
                 FROM dbo.PurchaseLC PLC 
                 Left Join TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id
                 LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.POId=PO.Id 
@@ -875,13 +876,14 @@ a) AS TEMP WHERE " + strkey;
                 LEFT JOIN HKP.Activity A ON A.Id=IRD.PostCRActivityId
                 LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
                 WHERE IR.[Status]='Posting' and ir.VoucherId<>'' and PLC.IsAccepptanceFirst=0 
-                --and  PLC.Id='PLC2151'
+                " + temp+ @"
                 group by PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName  ,b.UserName ,A.UserName ,IR.Id
 
-                union all
 
+
+                union all
                 select 'PDA' [Type],PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName GL ,b.UserName Budget,A.UserName Activity
-                ,SUM(pdad.TotalMaterialTranAmount) DrAmount,0 CrAmount ,null GRNNo
+                ,SUM(pdad.TotalMaterialTranAmount) DrAmount,0 CrAmount ,null GRNNo , pda.AcceptanceNo
                 FROM dbo.PurchaseLC PLC 
                 LEFT JOIN TRN.PurchaseDocAcceptance pda ON pda.PurchaseLCId=PLC.Id 
                 LEFT JOIN TRN.PurchaseDocAcceptanceDetail pdad ON pdad.PurchaseDocAcceptanceId=pda.Id
@@ -890,10 +892,10 @@ a) AS TEMP WHERE " + strkey;
                 LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
                 LEFT JOIN HKP.Activity A ON A.Id=pdad.ActivityId
                 LEFT JOIN TRN.Voucher V ON V.Id=pda.VoucherId
-                WHERE  pda.VoucherId<>'' " + temp + @"
-                --and PLC.IsAccepptanceFirst=0 
-                --and  PLC.Id='PLC2151'
-                group by PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName  ,b.UserName ,A.UserName ";
+                WHERE  pda.VoucherId<>'' 
+                and PLC.IsAccepptanceFirst=0 
+                  " + temp + @"
+                group by PLC.Id,PLC.LCANo,PLC.IsAccepptanceFirst,v.VoucherNo,V.PostingDate,GL.UserName  ,b.UserName ,A.UserName, pda.AcceptanceNo ";
                 // sql += temp";
                 return _sqlRepository.GetDataCollection(sql);
             }

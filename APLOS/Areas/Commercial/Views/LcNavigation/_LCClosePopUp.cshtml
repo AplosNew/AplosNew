@@ -73,6 +73,14 @@
                                     <td>{{x.CrAmount}}</td>
                                 </tr>
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="8" class="text-right">Total</td>
+                                    <td class="text-right"><b>{{ (LCClosePoPUpList ) | sumByKey:'DrAmount' }}</b></td>
+                                    <td class="text-right"><b>{{ (LCClosePoPUpList ) | sumByKey:'CrAmount' }}</b></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                     @*<dir-pagination-controls max-size="10" pagination-id="metaData.name + 'cOAICodeList'" direction-links="true" boundary-links="true" on-page-change="GetCOAICodeListData(newPageNumber)"></dir-pagination-controls>*@
