@@ -379,9 +379,10 @@ namespace Library.Accounting.Accounts
 	                                , REPLACE(CONVERT(CHAR(11), IV.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate
 	                                , IV.InvoiceNo, REPLACE(CONVERT(CHAR(11), IV.DocDate, 106),' ','-') AS InvoiceDate
 	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy
+									, IR.InventoryVoucherId,IV.VoucherId,IV.Id InvoiceId,V.IsPark
 	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
                                     , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable
-                                    , COUNT(*) OVER () AS TotalRows,IV.VoucherId,IV.Id InvoiceId
+                                    , COUNT(*) OVER () AS TotalRows
 									,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
 									,VoucherNo = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherNo ELSE V.VoucherNo END
 									,PostingDate= CASE WHEN IR.EmployeeId <>'' THEN REPLACE(CONVERT(CHAR(11), VE.PostingDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') END
