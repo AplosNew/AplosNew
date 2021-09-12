@@ -1,0 +1,60 @@
+﻿<togglable name="{{FormTitle}}"></togglable>
+<div class="form-horizontal" ng-form name="ModelNewForm" >
+    <div class="form-elements" id="ProductionOrderProcessWithRate">
+        <div class="row">
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-5 control-label">Production Entity<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="modelNew.ProductionEntityId" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required ng-change="loadProcessList()">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="modelNew.ProcessId"  name="ProcessId" ng-options="item.Value as item.Text for item in processList" required ng-change="loadSKU()">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">SKU<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="modelNew.SKUId" name="SKUId" ng-options="item.Value as item.Text for item in SKUList" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-3">
+
+            </div>
+            <div class="col-md-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>
