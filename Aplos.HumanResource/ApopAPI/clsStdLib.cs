@@ -66,7 +66,7 @@ namespace HRService
                 System.DateTime myDt = System.Convert.ToDateTime(strdate);
                 return true;
             }
-            catch (System.Exception ex)
+            catch (Exception)
             {
                 return false;
             }

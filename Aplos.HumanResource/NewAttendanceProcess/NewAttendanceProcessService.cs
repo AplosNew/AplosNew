@@ -191,6 +191,73 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dsRef.Tables[0].Rows.Add(dr);
 
                             }
+                            else
+                            {
+
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+
+                                dr["ManualShiftID"] = clsWebLib.RetValidLen(ManualShift);
+                                dr["RosterShiftID"] = clsWebLib.RetValidLen(RosterShift);
+                                dr["ProfileShiftID"] = clsWebLib.RetValidLen(ProfileShift);
+                                dr["BudgetedShiftID"] = clsWebLib.RetValidLen(BudgetShift);
+                                dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId);
+                                dr["RosterId"] = clsWebLib.RetValidLen(RosterId);
+                                dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
+
+                                #region ManualData Entry
+
+                                dr["ManualInTime"] = clsWebLib.RetValidLen(ManualInTime);
+                                dr["ManualOutTime"] = clsWebLib.RetValidLen(ManualOuTime);
+                                dr["ManualDayStatus"] = clsWebLib.RetValidLen(ManualDayStatus);
+                                dr["IsManualInTime"] = clsWebLib.GetBoolData(IsManualInTime);
+                                dr["IsManualOutTime"] = clsWebLib.GetBoolData(IsManualOutTime);
+                                dr["IsManualDayStatus"] = clsWebLib.GetBoolData(IsManualDayStatus);
+
+                                #endregion
+
+                                #region AssignedShift Data
+                                if (ManualShift.ToString() != "")
+                                {
+                                    dr["ShiftSystemID"] = ManualShift;
+                                    dr["ShiftDuration"] = ManualShiftDurn;
+                                    dr["ShiftInTime"] = ManualShiftIn;
+                                    dr["ShiftOutTime"] = ManualShiftOut;
+                                }
+                                else if (RosterShift.ToString() != "")
+                                {
+                                    dr["ShiftSystemID"] = RosterShift;
+                                    dr["ShiftDuration"] = RosterShiftDurn;
+                                    dr["ShiftInTime"] = RosterShiftIn;
+                                    dr["ShiftOutTime"] = RosterShiftOut;
+
+                                }
+                                else if (ProfileShift.ToString() != "")
+                                {
+                                    dr["ShiftSystemID"] = ProfileShift;
+                                    dr["ShiftDuration"] = ProfileShiftDurn;
+                                    dr["ShiftInTime"] = ProfileShiftIn;
+                                    dr["ShiftOutTime"] = ProfileShiftOut;
+
+                                }
+                                else if (BudgetShift.ToString() != "")
+                                {
+                                    dr["ShiftSystemID"] = BudgetShift;
+                                    dr["ShiftDuration"] = BudgetShiftDurn;
+                                    dr["ShiftInTime"] = BudgetShiftIn;
+                                    dr["ShiftOutTime"] = BudgetShiftOut;
+
+                                }
+                                #endregion
+
+                                dr["ShiftHalfDayDuration"] = clsWebLib.RetValidLen(HalfDayDuration);
+                                dr["ShiftShortDuration"] = clsWebLib.RetValidLen(ShortDuration);
+                                dr["ShiftFullDayDuration"] = clsWebLib.RetValidLen(FullDayDuration);
+                                dr["ShiftHoursWithoutOT"] = clsWebLib.RetValidLen(HoursWithoutOT);
+
+                                dr.EndEdit();
+
+                            }
 
                             dsEarnedLeave.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsEarnedLeave.Tables[0].DefaultView.Count == 0)
@@ -244,9 +311,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             }
                             var sql = @"update AttdnProcessData set ShiftSystemID='" + ShiftId + @"',ShiftDuration='" + ShiftDurn + @"',ShiftInTime='" + ShiftIn + @"',
-                            ShiftOutTime='" + ShiftOut + @"',ShiftHalfDayDuration='" + HalfDayDuration + @"',ShiftShortDuration='" + ShortDuration + @"',
-                            ShiftFullDayDuration='" + FullDayDuration + @"',ShiftHoursWithoutOT='" + HoursWithoutOT + @"' where RowId 
-                            IN(" + EmpSet + ")";
+                                           ShiftOutTime='" + ShiftOut + @"',ShiftHalfDayDuration='" + HalfDayDuration + @"',ShiftShortDuration='" + ShortDuration + @"',
+                                           ShiftFullDayDuration='" + FullDayDuration + @"',ShiftHoursWithoutOT='" + HoursWithoutOT + @"' where RowId 
+                                           IN(" + EmpSet + ")";
 
                             ConnectionManager.DAL.ConManager objCone = null;
                             objCone = new ConnectionManager.DAL.ConManager("1");
@@ -323,7 +390,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
 
                         var sql = @"Update AttdnProcessData Set HolidayStatus='H' 
-                       where PlantID='" + PlantValue + "' and WorkDate='" + WorkDate + "'";
+                                      where PlantID='" + PlantValue + "' and WorkDate='" + WorkDate + "'";
 
                         ConnectionManager.DAL.ConManager objCone = null;
                         objCone = new ConnectionManager.DAL.ConManager("1");
@@ -394,7 +461,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string WkDate = CompanyWeekOff.Tables[0].Rows[i][@"WkDate"].ToString();
 
                             var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
-                            WHERE WorkDate='" + WkDate + "'AND isnull(EmpSystemID,'') IN" +
+                                           WHERE WorkDate='" + WkDate + "'AND isnull(EmpSystemID,'') IN" +
                             " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
                             "ei WHERE  ei.PlantId ='" + PlantId + "' AND ei.EmployeeStatus='Active'" +
                             "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
@@ -415,7 +482,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
 
                         var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
-                           WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
+                                          WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
                            " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
                            "ei WHERE  ei.PlantId='" + PlantValue + "' AND ei.EmployeeStatus='Active'" +
                            "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
@@ -441,12 +508,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
 
                         var sqlx = @"select * from AttdnProcessData 
-                    WHERE WorkDate='" + Date + @"'
-                     AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
-                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"'
-                    AND ei.EmployeeStatus='Active'
-					and  ISNULL(EmpSystemID,'') in (select distinct ISNULL(EmpSystemID,'') 
-                    from EmployeeWeeklyOff))";
+                                   WHERE WorkDate='" + Date + @"'
+                                    AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
+                                    FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"'
+                                   AND ei.EmployeeStatus='Active'
+                    and  ISNULL(EmpSystemID,'') in (select distinct ISNULL(EmpSystemID,'') 
+                                   from EmployeeWeeklyOff))";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
                         string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
@@ -485,7 +552,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
                         var sqlx = @"SELECT * FROM AttdnProcessData where (WeeklyStatus='W' or HolidayStatus='H') and 
-				                WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
+                                   WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -503,7 +570,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
 
                                     var sql = @"Update AttdnProcessData Set WeeklyStatus='WW'    
-                              WHERE WorkDate='" + WkDate + "' AND WeeklyStatus='W' AND " +
+                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus='W' AND " +
                                       "isnull(EmpSystemID,'') IN" +
                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
                                       "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.EmployeeStatus='Active')";
@@ -521,7 +588,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 if (Type == "H")
                                 {
                                     var sql = @"Update AttdnProcessData Set HolidayStatus='NH'  
-                                          WHERE WorkDate='" + WkDate + "' AND HolidayStatus='H' AND " +
+                                                         WHERE WorkDate='" + WkDate + "' AND HolidayStatus='H' AND " +
                                       "isnull(EmpSystemID,'') IN" +
                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
                                       "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.EmployeeStatus='Active')";
@@ -582,7 +649,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
                         var sqlx = @"SELECT * FROM AttdnProcessData where (ISNULL(WeeklyStatus,'')!='W' and 
-                ISNULL(HolidayStatus,'')!='H')	and WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
+                               ISNULL(HolidayStatus,'')!='H')	and WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -600,7 +667,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
 
                                     var sql = @"Update AttdnProcessData Set ManualDayStatus='CW',IsManualDayStatus=1   
-                              WHERE WorkDate='" + WkDate + "' AND WeeklyStatus!='W' AND " +
+                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus!='W' AND " +
                                       "isnull(EmpSystemID,'') IN" +
                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
                                       "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.EmployeeStatus='Active')";
@@ -618,7 +685,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 if (Type == "H")
                                 {
                                     var sql = @"Update AttdnProcessData Set ManualDayStatus='AH',IsManualDayStatus=1  
-                              WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
+                                             WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
                                       "isnull(EmpSystemID,'') IN" +
                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
                                       "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.EmployeeStatus='Active')";
@@ -780,7 +847,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     DataSet OTDayLimit;
                     OTDayLimitRowCreation(Date, out OTDayLimit, PlantValue);
                     if (OTDayLimit.Tables[0].Rows.Count > 0)
-                   {
+                    {
                         var WkDate = OTDayLimit.Tables[0].Rows[0][@"WorkDate"].ToString();
                         var GpId = OTDayLimit.Tables[0].Rows[0][@"GroupID"].ToString();
                         var PlantId = OTDayLimit.Tables[0].Rows[0][@"PlantID"].ToString();
@@ -801,13 +868,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 drx["EmpSystemID"] = EmpId;
                                 drx["RowId"] = RowId;
                                 drx["WorkDate"] = WkDate;
-                                drx["GroupID"] = GpId; 
+                                drx["GroupID"] = GpId;
                                 drx["PlantID"] = PlantId;
                                 drx["DayType"] = DBNull.Value;
                                 drx["PlannedOT"] = 0;
-                                drx["FixedOT"] = 0; 
-                                drx["LimitSettingOT"] = 0; 
-                                drx["SlabOT"] = 0;                                
+                                drx["FixedOT"] = 0;
+                                drx["LimitSettingOT"] = 0;
+                                drx["SlabOT"] = 0;
                                 drx["AddedBy"] = "Schedule";
                                 drx["DateAdded"] = Convert.ToDateTime(DateTime.Now);
                                 dsRef.Tables[0].Rows.Add(drx);
@@ -817,7 +884,50 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     }
                     #endregion
-                    
+
+                    #region CreditLimit Monthly Opening Creation
+                    DataSet CreditLimitOpening;
+                    CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
+                    if (CreditLimitOpening.Tables[0].Rows.Count > 0)
+                    {
+                        var YearNo = CreditLimitOpening.Tables[0].Rows[0][@"YearNo"].ToString();
+                        var GpId = CreditLimitOpening.Tables[0].Rows[0][@"GroupID"].ToString();
+                        var MonthNo = CreditLimitOpening.Tables[0].Rows[0][@"MonthNo"].ToString();
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter("select * from EmployeeCreditLimit where YearNo='" + YearNo + "' and MonthNo='" + MonthNo + "' and GroupID='" + GpId + "'", out DataSet dsRef, false, false, "", "1");
+
+
+                        for (int i = 0; i < CreditLimitOpening.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = clsWebLib.RetValidLen(CreditLimitOpening.Tables[0].Rows[i][@"EmpId"]).ToString();
+                            string MonthlyLimit = clsWebLib.RetValidLen(CreditLimitOpening.Tables[0].Rows[i][@"MonthlyLimit"]).ToString();
+                           
+                            dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count == 0)
+                            {
+                                DataRow dr = dsRef.Tables[0].NewRow();
+                                clsGenID genid = new clsGenID();
+                                genid.GenID("EmployeeCreditLimit", out string _Id);
+
+                                dr["Id"] = "EC" + _Id;
+                                dr["EmpSystemId"] = EmpId;
+                                dr["CreditLimit"] = MonthlyLimit;
+                                dr["YearNo"] = YearNo;
+                                dr["MonthNo"] = MonthNo;
+                                dr["GroupId"] = GpId;
+                                dr["AddedBy"] = "Schedule";
+                                dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
+
+                                dsRef.Tables[0].Rows.Add(dr);
+                            }
+
+
+                        }
+                        SaveDataSets(dsRef);
+                    }
+                    #endregion
+
                 }
             }
             catch (Exception ex)
@@ -836,38 +946,38 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
-else 'false' end ,e.SystemId,'" + Date + @"' as WorkDate,
-convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,e.GroupID,
-m.ShiftSystemId 
-as ManualShift,sd.InTime as ManualShiftIn,sd.OutTime as ManualShiftOut,sd.ShiftDuration as ManualDuration,
-e.ProfileShiftId as ProfileShift,sdx.InTime as ProfileShiftIn,sdx.OutTime as ProfileShiftOut,
-sdx.ShiftDuration as ProfileDuration,
-mb.ShiftDefinationId as BudgetedShift,sdy.InTime as BudgetShiftIn,sdy.OutTime as BudgetShiftOut,
-sdy.ShiftDuration as BudgetDuration,rp.ShiftDefinationID as RosterShift,sdz.InTime as RosterShiftIn,
-sdz.OutTime as RosterShiftOut,sdz.ShiftDuration as RosterDuration,m.InTime as ManualInTime,m.OutTime as ManualOutTime,
-m.DayStatus as ManualDayStatus,IsManualDayStatus=case When isnull(m.DayStatus,'') ='' then 'false' 
-else 'true' end,IsManualInTime=case When isnull(m.InTime,'') ='' then 'false' 
-else 'true' end,IsManualOutTime=case When isnull(m.OutTime,'') ='' then 'false' 
-else 'true' end,mb.Id as BudgetId,rh.Id as RosterId,Op.InPunchStartTime as PlantInPunchStartTime, 
-FullDayDuration=isnull(isnull(sd.FullDayDuration,sdz.FullDayDuration),
-isnull(sdx.FullDayDuration,sdy.FullDayDuration)),HalfDayDuration=isnull(isnull(sd.HalfDayDuration,sdz.HalfDayDuration),
-isnull(sdx.HalfDayDuration,sdy.HalfDayDuration)),ShortDuration=isnull(isnull(sd.ShortDuration,sdz.ShortDuration),
-isnull(sdx.ShortDuration,sdy.ShortDuration)),HoursWithoutOT=isnull(isnull(sd.HoursWithoutOT,sdz.HoursWithoutOT),
-isnull(sdx.HoursWithoutOT,sdy.HoursWithoutOT))
-from EmployeeInformation e 
-left join ShiftDefination sdx on sdx.SystemID=e.ProfileShiftId
-left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and m.WorkDate='" + Date + @"'
-left join ShiftDefination sd on sd.SystemID=m.ShiftSystemId
-left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='" + Date + @"'
-left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
-left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId
-left join dbo.RosterBudget rb on rb.BudgetId=mb.Id 
-left join RosterPatternHeader rh on rh.Id=rb.RosterId
-left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" + Date + @"'
-left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
-left join org.Plant pl on pl.Id=e.PlantId
-left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
-where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantId + @"'";
+                else 'false' end ,e.SystemId,'" + Date + @"' as WorkDate,
+                convert(varchar(30),'" + newformat + @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,e.GroupID,
+                m.ShiftSystemId 
+                as ManualShift,sd.InTime as ManualShiftIn,sd.OutTime as ManualShiftOut,sd.ShiftDuration as ManualDuration,
+                e.ProfileShiftId as ProfileShift,sdx.InTime as ProfileShiftIn,sdx.OutTime as ProfileShiftOut,
+                sdx.ShiftDuration as ProfileDuration,
+                mb.ShiftDefinationId as BudgetedShift,sdy.InTime as BudgetShiftIn,sdy.OutTime as BudgetShiftOut,
+                sdy.ShiftDuration as BudgetDuration,rp.ShiftDefinationID as RosterShift,sdz.InTime as RosterShiftIn,
+                sdz.OutTime as RosterShiftOut,sdz.ShiftDuration as RosterDuration,m.InTime as ManualInTime,m.OutTime as ManualOutTime,
+                m.DayStatus as ManualDayStatus,IsManualDayStatus=case When isnull(m.DayStatus,'') ='' then 'false' 
+                else 'true' end,IsManualInTime=case When isnull(m.InTime,'') ='' then 'false' 
+                else 'true' end,IsManualOutTime=case When isnull(m.OutTime,'') ='' then 'false' 
+                else 'true' end,mb.Id as BudgetId,rh.Id as RosterId,Op.InPunchStartTime as PlantInPunchStartTime, 
+                FullDayDuration=isnull(isnull(sd.FullDayDuration,sdz.FullDayDuration),
+                isnull(sdx.FullDayDuration,sdy.FullDayDuration)),HalfDayDuration=isnull(isnull(sd.HalfDayDuration,sdz.HalfDayDuration),
+                isnull(sdx.HalfDayDuration,sdy.HalfDayDuration)),ShortDuration=isnull(isnull(sd.ShortDuration,sdz.ShortDuration),
+                isnull(sdx.ShortDuration,sdy.ShortDuration)),HoursWithoutOT=isnull(isnull(sd.HoursWithoutOT,sdz.HoursWithoutOT),
+                isnull(sdx.HoursWithoutOT,sdy.HoursWithoutOT))
+                from EmployeeInformation e 
+                left join ShiftDefination sdx on sdx.SystemID=e.ProfileShiftId
+                left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and m.WorkDate='" + Date + @"'
+                left join ShiftDefination sd on sd.SystemID=m.ShiftSystemId
+                left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='" + Date + @"'
+                left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
+                left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId
+                left join dbo.RosterBudget rb on rb.BudgetId=mb.Id 
+                left join RosterPatternHeader rh on rh.Id=rb.RosterId
+                left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" + Date + @"'
+                left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
+                left join org.Plant pl on pl.Id=e.PlantId
+                left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
+                where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantId + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -1178,6 +1288,24 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
             }
             PlantInPunchStartTime = Convert.ToDateTime(WorkDate).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(PlantInPunchStartTime).ToString("hh:mm:ss tt");
 
+        }
+        public void CreditLimitOpeningSource(out DataSet ds, string Plant,string Date)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct e.SystemId as EmpId,e.GroupID,MONTH('" + Date+@"')MonthNo,
+                YEAR('"+Date+@"')YearNo,isnull(c.DailyLimit,'0')DailyLimit,isnull(c.MonthlyLimit,'0')MonthlyLimit
+                from EmployeeInformation e left join creditlimitopening c on 
+                c.DesignationId=e.DesignationSystemID where EmployeeStatus='Active' and EmpType!='Guest'
+                and e.PlantId='"+Plant+"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
         }
 
         #endregion
@@ -1924,13 +2052,16 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                     }
                                     else
                                     {
-                                        if (DateTime.Now > Convert.ToDateTime(ShiftInTime))
+                                        if (ShiftInTime != "")
                                         {
-                                            dr["InStatus"] = "IM"; // In Missing
-                                        }
-                                        else if (DateTime.Now < Convert.ToDateTime(ShiftInTime))
-                                        {
-                                            dr["InStatus"] = "O"; //Other
+                                            if (DateTime.Now > Convert.ToDateTime(ShiftInTime))
+                                            {
+                                                dr["InStatus"] = "IM"; // In Missing
+                                            }
+                                            else if (DateTime.Now < Convert.ToDateTime(ShiftInTime))
+                                            {
+                                                dr["InStatus"] = "O"; //Other
+                                            }
                                         }
                                     }
                                     dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
@@ -2916,12 +3047,12 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 from EmployeeInformation where SystemId=p.EmpSystemID)PlantId,(select GroupID
                 from EmployeeInformation where SystemId=p.EmpSystemID)GroupID,
                 COUNT(p.WorkDate) TotalProcDate,
-                SUM(dt.PresentValuePD)TotalPresent,SUM(dt.LateValueLV)TotalLate,SUM(dt.AbsentValueAB)TotalAbsent,
-                SUM(dt.LeaveValueLP)TotalLv,SUM(dt.MaternityLeaveValueMLV)TotalMlv,SUM(dt.CompAssignLv)TotalCompAssignLv,
-                SUM(dt.WeeklyOffWO)TotalWeekOff,SUM(dt.HolidayH)TotalHoliDay,SUM(dt.WeekOffHoliDayWOH)TotalWeekOffHoliDay,
-                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,SUM(dt.LeaveValueLWP)TotalLWP,SUM(dt.CasualLeaveValueCV)TotalCasualLeave,
-                SUM(dt.PriviledgeLeavePL)TotalPriviledgeLeave,SUM(dt.MedicalLeaveValueMV)TotalMedicalLeave,SUM(dt.TotalWorkingDay)TotalWorkingDay,
-				SUM(dt.ActualWorkingDay)ActualWorkingDay,SUM(dt.PayDay)TotalPayDay,SUM(dt.NonPayDay)TotalNonPayDay
+                isnull(SUM(dt.PresentValuePD),'0')TotalPresent,isnull(SUM(dt.LateValueLV),'0')TotalLate,isnull(SUM(dt.AbsentValueAB),'0')TotalAbsent,
+                isnull(SUM(dt.LeaveValueLP),'0')TotalLv,isnull(SUM(dt.MaternityLeaveValueMLV),'0')TotalMlv,isnull(SUM(dt.CompAssignLv),'0')TotalCompAssignLv,
+                isnull(SUM(dt.WeeklyOffWO),'0')TotalWeekOff,isnull(SUM(dt.HolidayH),'0')TotalHoliDay,isnull(SUM(dt.WeekOffHoliDayWOH),'0')TotalWeekOffHoliDay,
+                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,isnull(SUM(dt.LeaveValueLWP),'0')TotalLWP,isnull(SUM(dt.CasualLeaveValueCV),'0')TotalCasualLeave,
+                isnull(SUM(dt.PriviledgeLeavePL),'0')TotalPriviledgeLeave,isnull(SUM(dt.MedicalLeaveValueMV),'0')TotalMedicalLeave,isnull(SUM(dt.TotalWorkingDay),'0')TotalWorkingDay,
+				isnull(SUM(dt.ActualWorkingDay),'0')ActualWorkingDay,isnull(SUM(dt.PayDay),'0')TotalPayDay,isnull(SUM(dt.NonPayDay),'0')TotalNonPayDay
                         from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                         left join mst.DesignationMasterLegalDesignation ddm on
@@ -2935,7 +3066,6 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         MONTH(WorkDate) = MONTH('"+Date+@"') AND 
 						YEAR(WorkDate) = YEAR('"+Date+@"')                       					
                         GROUP BY EmpSystemID) as dd";
-
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -3144,6 +3274,40 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
         }
         #endregion
+       
+        #region CreditLimit Process SourceData
+        public void DailyCreditDataSource(string Date, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select dd.* from (select  distinct p.EmpSystemID,
+                isnull(SUM(o.DailyLimit),'0')TotalDailyLimit,MONTH('"+Date+"')MonthNo,Year('"+Date+@"')YearNo
+                        from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+						left join CreditLimitOpening o on o.DesignationId=ei.DesignationSystemID
+                        left join mst.DesignationMasterLegalDesignation ddm on
+                        ddm.LegalDesignationId = ei.LegalDesignationId
+                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+                        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
+                        and dc.PlantId=ei.PlantId
+                        left join DayStatusHeader dh on dh.Id=dc.headerId
+                        left join DayTypeWithValues dt on dt.HeaderId=dh.Id                                          
+                        where dt.DayType=p.DayStatus AND  isnull(p.DayStatus,'')!='' and		
+                        MONTH(WorkDate) = MONTH('"+Date+@"') AND dt.IsCreditLimitAllowed='1' and
+						YEAR(WorkDate) = YEAR('"+Date+@"') and p.PlantID='"+PlantId+@"'                       					
+                        GROUP BY EmpSystemID) as dd";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+        #endregion
 
         #region DayStatus Process
         public void DayStatus(string Date, string PlantValue)
@@ -3200,53 +3364,58 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                 dr["Duration"] = CalDuration;
                                 dr["EarlyLateIn"] = DBNull.Value;
                                 dr["EarlyLateOut"] = DBNull.Value;
-                                if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                if (ShiftInTime != "")
                                 {
-                                    TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
-                                    dr["EarlyIn"] = ts.TotalMinutes;
-                                    dr["EarlyLateIn"] = "EI";
-                                }
-                                else
-                                {
-                                    dr["EarlyIn"] = 0;
+                                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
+                                        dr["EarlyIn"] = ts.TotalMinutes;
+                                        dr["EarlyLateIn"] = "EI";
+                                    }
+                                    else
+                                    {
+                                        dr["EarlyIn"] = 0;
 
-                                }
-                                if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
-                                {
-                                    TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
-                                    dr["LateIn"] = ts.TotalMinutes;
-                                    dr["EarlyLateIn"] = "LI";
-                                }
-                                else
-                                {
-                                    dr["LateIn"] = 0;
+                                    }
+                                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
+                                        dr["LateIn"] = ts.TotalMinutes;
+                                        dr["EarlyLateIn"] = "LI";
+                                    }
+                                    else
+                                    {
+                                        dr["LateIn"] = 0;
 
+                                    }
                                 }
-                                if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                if (ShiftOutTime != "")
                                 {
+                                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                    {
 
-                                    TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
-                                    dr["EarlyOut"] = ts.TotalMinutes;
-                                    dr["EarlyLateOut"] = "EO";
+                                        TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
+                                        dr["EarlyOut"] = ts.TotalMinutes;
+                                        dr["EarlyLateOut"] = "EO";
+                                    }
+                                    else
+                                    {
+                                        dr["EarlyOut"] = 0;
+
+                                    }
+
+                                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                    {
+                                        dr["LateOut"] = 0;
+
+                                    }
+                                    else
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
+                                        dr["LateOut"] = ts.TotalMinutes;
+                                        dr["EarlyLateOut"] = "LO";
+                                    }
                                 }
-                                else
-                                {
-                                    dr["EarlyOut"] = 0;
-
-                                }
-
-                                if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
-                                {
-                                    dr["LateOut"] = 0;
-
-                                }
-                                else
-                                {
-                                    TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
-                                    dr["LateOut"] = ts.TotalMinutes;
-                                    dr["EarlyLateOut"] = "LO";
-                                }
-
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -3812,51 +3981,57 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                 dr["Duration"] = CalDuration;
                                 dr["EarlyLateIn"] = DBNull.Value;
                                 dr["EarlyLateOut"] = DBNull.Value;
-                                if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                if (ShiftInTime != "")
                                 {
-                                    TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
-                                    dr["EarlyIn"] = ts.TotalMinutes;
-                                    dr["EarlyLateIn"] = "EI";
-                                }
-                                else
-                                {
-                                    dr["EarlyIn"] = 0;
+                                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
+                                        dr["EarlyIn"] = ts.TotalMinutes;
+                                        dr["EarlyLateIn"] = "EI";
+                                    }
+                                    else
+                                    {
+                                        dr["EarlyIn"] = 0;
 
-                                }
-                                if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
-                                {
-                                    TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
-                                    dr["LateIn"] = ts.TotalMinutes;
-                                    dr["EarlyLateIn"] = "LI";
-                                }
-                                else
-                                {
-                                    dr["LateIn"] = 0;
+                                    }
+                                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
+                                        dr["LateIn"] = ts.TotalMinutes;
+                                        dr["EarlyLateIn"] = "LI";
+                                    }
+                                    else
+                                    {
+                                        dr["LateIn"] = 0;
 
+                                    }
                                 }
-                                if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                if (ShiftOutTime != "")
                                 {
+                                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                    {
 
-                                    TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
-                                    dr["EarlyOut"] = ts.TotalMinutes;
-                                    dr["EarlyLateOut"] = "EO";
-                                }
-                                else
-                                {
-                                    dr["EarlyOut"] = 0;
+                                        TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
+                                        dr["EarlyOut"] = ts.TotalMinutes;
+                                        dr["EarlyLateOut"] = "EO";
+                                    }
+                                    else
+                                    {
+                                        dr["EarlyOut"] = 0;
 
-                                }
+                                    }
 
-                                if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
-                                {
-                                    dr["LateOut"] = 0;
+                                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                    {
+                                        dr["LateOut"] = 0;
 
-                                }
-                                else
-                                {
-                                    TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
-                                    dr["LateOut"] = ts.TotalMinutes;
-                                    dr["EarlyLateOut"] = "LO";
+                                    }
+                                    else
+                                    {
+                                        TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
+                                        dr["LateOut"] = ts.TotalMinutes;
+                                        dr["EarlyLateOut"] = "LO";
+                                    }
                                 }
 
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
@@ -5143,6 +5318,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         string TotalWorkingDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"TotalWorkingDay"]).ToString();
                         string ActualWorkingDay = clsWebLib.RetValidLen(MonthlyData.Tables[0].Rows[i][@"ActualWorkingDay"]).ToString();
 
+                       
                         dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
 
 
