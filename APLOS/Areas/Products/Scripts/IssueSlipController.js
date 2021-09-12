@@ -1295,6 +1295,12 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 	}
 	$scope.GetSupervisorCboList1();
 
+
+
+	
+
+
+
 	$scope.poApproved = function () {
 		cboService.getEnumCbo("enum/GetPOApprovalStatusCbo", function (result) {
 			$scope.POApprovalList = result;
@@ -1819,7 +1825,18 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
     };
 
  //#endregion Requisition Tab
-
+	
+	$scope.IssueSlipAppList = [];
+	$scope.IssueSlipApprovedByListFn = function () {
+		//debugger;
+		$http({
+			method: 'GET',
+			url: 'Products/InventoryCheckApproved/GetIssueSlipApprovedList'
+		}).then(function successCallback(response) {
+			$scope.IssueSlipAppList = response.data;
+		});
+	}
+	$scope.IssueSlipApprovedByListFn();
 
 
 
