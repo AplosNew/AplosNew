@@ -5056,10 +5056,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 					left join( select t.InventoryMaterialId,t.IsAsset--,t.MaterialStorageId,t.GRNDate
-							  , sum(t.TransactionQty) TransactionQty,sum(t.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount--,Sum(t.OpeningIssueQty) OpeningIssueQty,Sum(t.OpeningIssueAmt)  OpeningIssueAmt 
+							  , sum(t.BaseQty) TransactionQty,sum(t.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount--,Sum(t.OpeningIssueQty) OpeningIssueQty,Sum(t.OpeningIssueAmt)  OpeningIssueAmt 
 					from (
 					SELECT IRD.InventoryMaterialId,IRD.IsAsset--, IRD.MaterialStorageId,IR.GRNDate
-							,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+							,Sum(IRD.BaseQty) AS BaseQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 					--SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount, Sum(IRD.IssueQty) OpeningIssueQty, Round(Sum(IRD.IssueQty * IRD.MaterialTranRate* IR.ToCurrencyRate),2) OpeningIssueAmt
 					FROM [TRN].[InventoryReceiveDetail] IRD
 					LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -5068,7 +5068,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					group By IRD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
 					UNION ALL
 					SELECT IRD.InventoryMaterialId,IRD.IsAsset--, IRD.MaterialStorageId,IR.GRNDate
-							,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+							,Sum(IRD.BaseQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 						--SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Round(Sum(IRD.TransactionQty* IRD.MaterialTranRate*IR.ToCurrencyRate),2) TotalMaterialBooksCurrencyAmount, Sum(IRD.IssueQty) OpeningIssueQty, Round(Sum(IRD.IssueQty * IRD.MaterialTranRate* IR.ToCurrencyRate),2) OpeningIssueAmt
 					FROM [TRN].[InventoryReceiveDetail] IRD
 					LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -5241,7 +5241,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id						
 					left join(SELECT IRD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-								, Sum(IRD.TransactionQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+								, Sum(IRD.BaseQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 					FROM  [TRN].[InventoryReceiveDetail] IRD
 					LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 					where convert(Date,IR.GRNDate)		
