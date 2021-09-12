@@ -398,7 +398,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
-
+     
 
         [HttpGet, Authorize]
         public ActionResult ReceivableJournal(ReportFormat reportFormat, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc)

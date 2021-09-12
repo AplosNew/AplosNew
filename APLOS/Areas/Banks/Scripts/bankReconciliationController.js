@@ -1,6 +1,6 @@
 ﻿"use strict";
-bankReconciliationController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$window"];
-function bankReconciliationController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $window) {
+bankReconciliationController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$window",  "$controller"];
+function bankReconciliationController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $window, $controller) {
     $rootScope.title = "Bank Reconciliation";
     $scope.Action = "Save";
     $scope.index = -1;
@@ -10,6 +10,7 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
     $scope.receivedReconUrl = $scope.path + "GetReceivedNotPresentList";
     $scope.bankCrReconUrl = $scope.path + "GetBankCrReconList";
     $scope.bankDrReconUrl = $scope.path + "GetBankDrReconList";
+    $controller("bankBaseController", { $scope: $scope, $http: $http });
 
     $scope.bankReconciliation = {
         Id: null,
@@ -45,59 +46,59 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
     $scope.bankList = [];
     $scope.bankIndex = -1;
     $scope.selectedBank = null;
-    $scope.searchBankByList = [
-        {
-            "name": "Bank",
-            "value": "Bank"
-        },
-        {
-            "name": "BankBranch",
-            "value": "BankBranch"
-        },
-        {
-            "name": "AccountType",
-            "value": "BankAccountType"
-        },
-        {
-            "name": "AccountNumber",
-            "value": "AccountNumber"
-        },
-        {
-            "name": "GL",
-            "value": "GLItem"
-        }
-    ];
+    //$scope.searchBankByList = [
+    //    {
+    //        "name": "Bank",
+    //        "value": "Bank"
+    //    },
+    //    {
+    //        "name": "BankBranch",
+    //        "value": "BankBranch"
+    //    },
+    //    {
+    //        "name": "AccountType",
+    //        "value": "BankAccountType"
+    //    },
+    //    {
+    //        "name": "AccountNumber",
+    //        "value": "AccountNumber"
+    //    },
+    //    {
+    //        "name": "GL",
+    //        "value": "GLItem"
+    //    }
+    //];
 
-    $scope.bankParameters = {
-        limit: 10,
-        offset: 0,
-        order: "asc",
-        sort: "AccountNumber",
-        searchBy: "AccountNumber",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
+    //$scope.bankParameters = {
+    //    limit: 10,
+    //    offset: 0,
+    //    order: "asc",
+    //    sort: "AccountNumber",
+    //    searchBy: "AccountNumber",
+    //    pageSize: 10,
+    //    total_count: 0,
+    //    search: null,
+    //    serverPagination: true
+    //};
 
-    $scope.getBank = function () {
-        try {
-            $scope.getBankData = function (pageno) {
-                baseService.paginationBase("banks/bankmaster/GetHouseBankBankMasterList", pageno, $scope.bankParameters)
-                    .then(function (result) {
-                        $scope.bankList = result.Rows;
-                        $scope.bankParameters.total_count = result.Total;
-                    }, function () {
-                        ShowResult(commonMessage.NetworkError, "failure");
-                    }).finally(function () {
-                    });
-            };
-            $scope.getBankData();
-            angular.element(document.querySelector("#bankPopUp")).modal("show");
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
+    //$scope.getBank = function () {
+    //    try {
+    //        $scope.getBankData = function (pageno) {
+    //            baseService.paginationBase("banks/bankmaster/GetBankMasterList", pageno, $scope.bankParameters)
+    //                .then(function (result) {
+    //                    $scope.bankList = result.Rows;
+    //                    $scope.bankParameters.total_count = result.Total;
+    //                }, function () {
+    //                    ShowResult(commonMessage.NetworkError, "failure");
+    //                }).finally(function () {
+    //                });
+    //        };
+    //        $scope.getBankData();
+    //        angular.element(document.querySelector("#bankPopUp")).modal("show");
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
 
     $scope.selectBankPopUp = function (index, id) {
         $scope.bankIndex = index;
