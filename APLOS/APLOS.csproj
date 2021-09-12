@@ -3676,6 +3676,7 @@
     <Content Include="Areas\Payrolls\Views\ArrearApproval\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\CreditLimitOpening\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\TablesUpload\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\LcNavigation\_LCClosePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

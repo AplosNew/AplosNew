@@ -120,9 +120,23 @@
                                 @*<div e-column e-type="string" e-field="Source" e-headertext="Source" e-width="60"></div>*@
                                 <div e-column e-type="number" e-field="variance" e-textalign="right" e-headertext="variance" e-width="90"></div>
                                 <div e-column e-type="date" e-field="ExpiryDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Expiry Date" e-width="80"></div>
-
+                                <div e-column e-headertext=" Action " e-template="#LCCloseTemplate" e-width="120"></div>
 
                             </div>
+                            <script id="LCCloseTemplate" type="text/template">
+                                <div class="common-btn">
+                                    <ul class="common-btn list-inline text-center">
+                                        <li>
+
+                                            <button @*ng-disabled="data.IsPark==false"*@ ng-click="$parent.onLCClosePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="LCClose">
+                                                <i class="glyphicon glyphicon-apple" style="color:orangered;"></i>
+                                            </button>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </script>
+
                         </div>
                     </div>
                     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
@@ -747,5 +761,5 @@
     </div>
 </div>
 
-
+@Html.Partial("~/Areas/Commercial/Views/LcNavigation/_LCClosePopUp.cshtml")
 

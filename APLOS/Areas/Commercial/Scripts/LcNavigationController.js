@@ -790,6 +790,58 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         $scope.PurchaseLCList = [];
     }
 
+    $scope.LCClosePoPUpList = [];
+    $scope.LCClosePopUpData = null;
+    $scope.onLCClosePopUp = function (data) {
+        // $scope.tempBooksPayment = data.BooksPayment;
+        $scope.LCClosePopUpData = data;
+
+        //$scope.tempid = null;
+        if (data.IsAccepptanceFirst == "True") {
+            $scope.tempid = data.LCId;
+            $scope.tempAcceptanceAndGRNFast = data.IsAccepptanceFirst;
+            $scope.tempAcceptanceAndGRNFast = "Accepptance First";
+        }
+        if (data.IsAccepptanceFirst == "False") {
+            $scope.tempid = data.LCId;
+            $scope.tempAcceptanceAndGRNFast = data.IsAccepptanceFirst;
+            $scope.tempAcceptanceAndGRNFast = "GRN First";
+
+        }
+
+        $http({
+            method: 'POST',
+            url: 'Commercial/LcNavigation/GetLCClosePopUpData',
+            data: { 'lcId': $scope.tempid, 'type': data.IsAccepptanceFirst },
+            dataType: 'JSON'
+
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $scope.LCClosePoPUpList = response.data.DATA;
+                    //$scope.ParticularName = $scope.LCClosePoPUpList[0].ParticularName;
+                    // $scope.Type = $scope.LCClosePoPUpList[0].IsAccepptanceFirst;
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }),
+
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        $rootScope.openPopupAngular('LCClosePopup');
+    }
+
+
+    $scope.CloseLCClosePopUp = function () {
+        $scope.hideLCClosePopUpPopUp();
+        $scope.LCClosePopUpData = null;
+    };
+    $scope.hideLCClosePopUpPopUp = function () {
+        angular.element(document.querySelector("#LCClosePopup")).modal("hide");
+    };
+
 }
 
 
