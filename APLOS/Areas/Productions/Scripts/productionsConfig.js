@@ -190,5 +190,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             controller: 'ProductionTransformationBookingController'
         })
 
+        .when('/production-order-process-with-rate', {
+            templateUrl: 'Productions/ProductionOrderProcessWithRate/Aplos',
+            controller: 'ProductionOrderProcessWithRateController'
+        })
+
         ;
 }

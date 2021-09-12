@@ -842,6 +842,9 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         angular.element(document.querySelector("#LCClosePopup")).modal("hide");
     };
 
+
+
+
 }
 
 
