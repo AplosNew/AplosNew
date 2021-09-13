@@ -4123,7 +4123,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         for (int i = 0; i < SlabOT.Tables[0].Rows.Count; i++)
                         {
                             string RowId = SlabOT.Tables[0].Rows[i][@"RowId"].ToString();
-                            string firstSlab = SlabOT.Tables[0].Rows[i][@"firstSlab"].ToString();
+                            string firstSlab = clsWebLib.RetValidLen(SlabOT.Tables[0].Rows[i][@"firstSlab"]).ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
@@ -4132,10 +4132,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
                                 if (DayType != "")
                                 {
-                                    dr.BeginEdit();
-                                    dr["SlabOT"] = firstSlab;
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
+                                    if (firstSlab != "")
+                                    {
+                                        dr.BeginEdit();
+                                        dr["SlabOT"] = firstSlab;
+                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                        dr.EndEdit();
+                                    }
                                 }
                             }
 
