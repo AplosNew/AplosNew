@@ -154,19 +154,28 @@
                                 </div>
                             </div>
                             @*<div class="form-group" id="div_docDate">
-                                <label class="col-sm-4 control-label">Currency</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="PoDate" disabled ng-model="PurchaseDocAcceptance.CurrencyName" end-date="currentDate" id="cutOffDate" class="form-control">
-                                </div>
-                            </div>*@
-                        @*<div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
-                            <label class="col-sm-4 control-label">Other Amount:</label>
-                            <label class="col-sm-8 control-label">{{OtherTotalAcptValue | number:2}} {{PurchaseDocAcceptance.CurrencyName}}</label>
-                        </div>*@
-                            
+            <label class="col-sm-4 control-label">Currency</label>
+            <div class="col-sm-8">
+                <input type="text" name="PoDate" disabled ng-model="PurchaseDocAcceptance.CurrencyName" end-date="currentDate" id="cutOffDate" class="form-control">
+            </div>
+        </div>*@
+                            @*<div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
+            <label class="col-sm-4 control-label">Other Amount:</label>
+            <label class="col-sm-8 control-label">{{OtherTotalAcptValue | number:2}} {{PurchaseDocAcceptance.CurrencyName}}</label>
+        </div>*@
+                            <div class="form-group" ng-show="productNew.AcceptanceFirst=='Yes'">
+                                <label class="col-sm-4 control-label">PO Amount:</label>
+                                <label class="col-sm-8 control-label">{{TotalPOAmount | number:2}} {{PurchaseDocAcceptance.CurrencyName}}</label>
+                            </div>
                             <div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
                                 <label class="col-sm-4 control-label">GRN Amount:</label>
                                 <label class="col-sm-8 control-label">{{TotalGRNAmount | number:2}} {{PurchaseDocAcceptance.CurrencyName}}</label>
+                            </div>
+                            <div class="form-group" ng-show="productNew.AcceptanceFirst=='Yes'">
+                                <label class="col-sm-4 control-label">Exchange Rate<sup ng-show="productNew.AcceptanceFirst=='Yes'">*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" n-decimals="2" name="AcceptanceRate" ng-model="PurchaseDocAcceptance.AcceptanceRate" class="form-control" tabindex="4">
+                                </div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-4">
@@ -227,6 +236,19 @@
                                     <input type="text" name="PoDate" disabled ng-model="PurchaseDocAcceptance.CurrencyName" end-date="currentDate" id="cutOffDate" class="form-control">
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Non Creditable</label>
+                                <div class="col-sm-3">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="PurchaseDocAcceptance.IsNonCreditable" tabindex="8" ng-change="CalculateMaterialAmount();">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <label class="col-sm-4 control-label" ng-show="productNew.AcceptanceFirst=='Yes'" style="color:blue">Acceptance First :{{productNew.AcceptanceFirst}}</label>
+                                <label class="col-sm-4 control-label" ng-show="productNew.AcceptanceFirst=='No'" style="color:blue">GRN First :{{productNew.GRNFirst}}</label>
+                            </div>
                             @*<div class="form-group" ng-show="productNew.AcceptanceFirst=='No'">
             <label class="col-sm-4 control-label">Other Qty:</label>
             <label class="col-sm-8 control-label">{{OtherTotalQty | number:2}}</label>
@@ -235,16 +257,8 @@
             <label class="col-sm-4 control-label">Current Qty:</label>
             <label class="col-sm-8 control-label">{{PurchaseDocAcceptance.CurrentQty | number:2}}</label>
         </div>*@
-                            <div class="form-group" ng-show="productNew.AcceptanceFirst=='Yes'">
-                                <label class="col-sm-4 control-label">PO Amount:</label>
-                                <label class="col-sm-8 control-label">{{TotalPOAmount | number:2}}</label>
-                            </div>
-                            <div class="form-group" ng-show="productNew.AcceptanceFirst=='Yes'">
-                                <label class="col-sm-4 control-label">Exchange Rate<sup ng-show="productNew.AcceptanceFirst=='Yes'">*</sup></label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="AcceptanceRate" ng-model="PurchaseDocAcceptance.AcceptanceRate" class="form-control" tabindex="4">
-                                </div>
-                            </div>
+
+
                         </div>
                         <div class="col-xs-12 col-sm-4">
                             <div class="form-group">
@@ -287,19 +301,7 @@
                                     <textarea class="form-control" rows="2" ng-model="PurchaseDocAcceptance.Remarks" maxlength="250" tabindex="7"></textarea>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Non Creditable</label>
-                                <div class="col-sm-3">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" ng-model="PurchaseDocAcceptance.IsNonCreditable" tabindex="8" ng-change="CalculateMaterialAmount();">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <label class="col-sm-4 control-label" ng-show="productNew.AcceptanceFirst=='Yes'" style="color:blue">Acceptance First :{{productNew.AcceptanceFirst}}</label>
-                                <label class="col-sm-4 control-label" ng-show="productNew.AcceptanceFirst=='No'" style="color:blue">GRN First :{{productNew.GRNFirst}}</label>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -492,13 +494,13 @@
                                     <thead>
                                         <tr ng-show="inventoryMaterialListPO.length>0">
                                             @*<th>
-                                                <div class="checkbox-site text-center">
-                                                    <label>
-                                                        <input type="checkbox" ng-click="CheckAll($event);">
-                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                    </label>
-                                                </div>
-                                            </th>*@
+                                                    <div class="checkbox-site text-center">
+                                                        <label>
+                                                            <input type="checkbox" ng-click="CheckAll($event);">
+                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </th>*@
                                             <th>Id</th>
                                             <th>POID</th>
                                             <th>PODetailId</th>
@@ -526,13 +528,13 @@
                                     <tbody>
                                         <tr ng-repeat="x in inventoryMaterialListPO" ng-show="inventoryMaterialListPO.length>0">
                                             @*<td>
-                                                <div class="checkbox-site">
-                                                    <label>
-                                                        <input type="checkbox" ng-model="x.Active" ng-disabled="x.Balance===null || x.Balance==='' || x.Balance==='0'">
-                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                    </label>
-                                                </div>
-                                            </td>*@
+                                                    <div class="checkbox-site">
+                                                        <label>
+                                                            <input type="checkbox" ng-model="x.Active" ng-disabled="x.Balance===null || x.Balance==='' || x.Balance==='0'">
+                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </td>*@
                                             <td>{{x.Id}}</td>
                                             <td>{{x.POID}}</td>
                                             <td>{{x.InventoryReceiveDetailId}}</td>
@@ -548,7 +550,7 @@
                                             <td class="text-right">{{x.Otherqty| number:2}}</td>
                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-change="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" @*ng-disabled="!x.Active"*@></td>
                                             <td class="text-right">{{x.Balance| number:2}}</td>
-                                            <td class="text-right"><input type="text" style="width:60px;" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>
+                                            <td class="text-right">{{x.TransactionRate| number:4}}</td>
                                             <td class="text-right">{{x.TrnAmount | number:2}}</td>
                                             <td class="text-right">{{x.CurrencyName}}</td>
                                             <td class="text-right">{{x.TaxAmount | number:2}}</td>
@@ -570,17 +572,17 @@
                                             <td></td>
                                             <td></td>
                                             <td></td>
+                                     
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'POQty'| number:2 }}</strong></td>
                                             <td></td>
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'POQty' }}</strong></td>
-                                            <td></td>
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'GRNRcvQty' }}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'GRNRcvQty'| number:2 }}</strong></td>
 
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TransactionQty' }}</strong></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TransactionQty' | number:2}}</strong></td>
 
-                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Balance' }}</strong></td>
-                                            <td></td>
+                                            <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'Balance' | number:2}}</strong></td>
                                             <td></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TrnAmount'| number:2 }}</strong></td>
+                                            <td></td>
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TaxAmount'| number:2 }}</strong></td>
 
                                             <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'ChargesTranAmount'| number:2}}</strong></td>
@@ -599,13 +601,13 @@
                                     <thead>
                                         <tr ng-show="inventoryMaterialListPO.length>0">
                                             @*<th>
-            <div class="checkbox-site text-center">
-                <label>
-                    <input type="checkbox" ng-click="CheckAll($event);">
-                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                </label>
-            </div>
-        </th>*@
+                                                    <div class="checkbox-site text-center">
+                                                        <label>
+                                                            <input type="checkbox" ng-click="CheckAll($event);">
+                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </th>*@
                                             <th>Id</th>
                                             <th>POID</th>
                                             <th>PODetailId</th>

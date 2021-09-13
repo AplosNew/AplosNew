@@ -23,7 +23,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 strSQL = @"select c.Id Value,c.UserName Text from [TRN].[ProductionOrderProcessSet] p
                             left join MST.MaterialMasterCharacteristics m on m.MaterialMasterId=p.MaterialMasterId
                             left join HKP.Characteristics c on c.Id=m.CharacteristicsId
-                            where p.ProcessId='" + ProcessId + "'";
+                            where p.ProcessId='" + ProcessId + "' AND ISNULL(P.MaterialMasterId,'')<>''";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)

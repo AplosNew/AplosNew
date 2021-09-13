@@ -42,6 +42,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/masterOrder',
             controller: 'masterOrderController'
         })
+        .when('/sales-order-update', {
+            templateUrl: 'OrderManagements/SalesOrderUpdate',
+            controller: 'SalesOrderUpdateController'
+        })
         .when('/sample-order', {
             templateUrl: 'OrderManagements/SampleOrder',
             controller: 'sampleOrderController'
