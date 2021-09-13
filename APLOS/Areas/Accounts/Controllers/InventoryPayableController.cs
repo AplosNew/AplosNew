@@ -380,6 +380,13 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(accountsInventoryPayableService.GetIssueJournalList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryMaterialIssueGLList(GridParameter parameters, string issueId)
+        {
+            AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsInventoryPayableService.GetIssueMaterialGL(parameters, issueId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult IssueJournalReport(ReportFormat reportFormat, string inventoryIssueId)
