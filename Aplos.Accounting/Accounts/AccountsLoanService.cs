@@ -225,11 +225,7 @@ namespace Library.Accounting.Accounts
 						,GL.UserName AS GL
 						, GL.AccountCode AS GLGeneralInfoCode
 						, BUD.UserName AS Budget
-						 ,[Activity]= CASE 
-							WHEN BM.AccountTitle<>'' THEN BM.AccountTitle
-							WHEN CM.UserName<>'' THEN CM.UserName 
-							WHEN ACT.UserName<>'' THEN ACT.UserName 
-							ELSE ''	END
+						  ,[Activity]= ACT.UserName
 
 
                     FROM

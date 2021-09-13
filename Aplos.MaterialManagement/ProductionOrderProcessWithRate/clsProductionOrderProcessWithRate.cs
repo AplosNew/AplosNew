@@ -32,12 +32,12 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
             }
 
         }//End Function
-		public IEnumerable<object> GetProductionOrderData(string entityId, string ProcessId)
-		{
+        public IEnumerable<object> GetProductionOrderData(string entityId, string ProcessId)
+        {
 
-			try
-			{
-				string sql = @"SELECT '' Rate,PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
+            try
+            {
+                string sql = @"SELECT '' Rate,PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 									,SONo=STUFF((select distinct ','+XSO.Id from 
@@ -123,14 +123,14 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
 									LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = PD.ProductionOrderId
-								   WHERE  E.Id='" + entityId + "'";
+								   WHERE  E.Id='" + entityId + "' and POSP.ProcessId='" + ProcessId + "'";
 
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-	}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
 }

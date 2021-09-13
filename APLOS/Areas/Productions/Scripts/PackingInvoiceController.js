@@ -1945,4 +1945,17 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
     //#endregion PostInvoice
 
+    //#region  GetInvoiceReport
+
+    $scope.LocalTaxInvoiceReport = function (data) {
+        location.href = "SalesManagements/Sales/LocalTaxInvoice?salesId=" + data.Id;
+    };
+
+    $scope.CommercialInvoiceReport = function (data) {
+        location.href = "SalesManagements/Sales/CommercialInvoice?salesId=" + data.Id;
+    };
+
+
+    //#endregion
+
 }
