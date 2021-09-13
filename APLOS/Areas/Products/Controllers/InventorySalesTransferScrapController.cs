@@ -17,6 +17,7 @@ using Library.Service.Enums;
 using Library.Service.Logs;
 using System.Reflection;
 using Library.Data.Sql;
+using Library.Accounting.Accounts;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -151,8 +152,10 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialIssueGLList(GridParameter parameters, string issueId)
         {
+            AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryMaterialService.GetIssueMaterialGL(parameters, issueId,identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(accountsInventoryPayableService.GetIssueMaterialGL(parameters, issueId,identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialIssueList(GridParameter parameters, string issueId)

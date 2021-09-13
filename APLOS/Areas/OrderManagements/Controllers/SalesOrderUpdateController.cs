@@ -1609,6 +1609,56 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
 
+        [Authorize, HttpGet]
+        public ActionResult GetProductionOrderPOPUp()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId,A.AddedDate AS CreationDate,a.AddedBy AS CreatedBy
+                                    , A.OrderType, A.PartyId, P.UserName AS CustomerName, A.BuyerId,B.UserName Buyer
+                                    , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
+                                    , A.OrderCategoryId,OC.UserName AS OrderCategory, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
+                                    , A.NoOfLineItem, A.ResponsiblePersonId, EI.EmployeeName AS ResponsiblePersonName
+                                    , A.InvoicingPartyPlantId, InvPP.UserName AS InvoicingPartyPlant, A.InvoicingByAddress
+		                            , A.DeliveryPartyPlantId, DeliPP.UserName AS DeliveryPartyPlant, A.DeliveryByAddress
+		                            , PartyAccountGroupId=(SELECT DISTINCT PartyAccountGroupId FROM [HKP].[CompanyParty] WHERE CompanyId=A.CompanyId
+								                            AND PartyId=A.PartyId AND PartyType='Customer' AND PlantId=A.PlantId)
+								    ,A.OrderWastagePercentage
+								    ,A.ExtraOrderPercentage,A.BuyerDepartmentId
+								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,A.SpecialTaxId,A.IsExtraOrderPercentage,PM.UserName ProductMaster,OS.UserName OrderStatus,A.AddedDate,A.AddedBy
+                                      ,A.OwnReferenceNo,A.BuyerReferenceNo,A.PaymentTermId,A.PaymentTermDays,A.ExceptionalProcessId,A.ExceptionalSubProcessId
+                                    ,[BuyerItem]=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                     [OwnItem]=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                    ContractNo=STUFF((select distinct ','+CNT.ContractNo from dbo.Contract CNT
+															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.ContractId=CNT.Id	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+									MasterLCNo=STUFF((select distinct ','+MLC.LCRef from dbo.Contract CNT
+															INNER JOIN TRN.MasterOrderItem XMOI  ON XMOI.ContractId=CNT.Id
+															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            FROM [TRN].[MasterOrder] AS A
+                            JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
+                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
+                            LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
+                            LEFT JOIN [HKP].[PartyPlant] AS DeliPP ON A.DeliveryPartyPlantId=DeliPP.Id
+                            LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
+                            LEFT JOIN TRN.Commitment COM ON COM.Id=A.CommitmentId
+							LEFT JOIN [MST].[ProductMaster] PM ON COM.ProductMasterId=PM.Id
+                            LEFT JOIN HKP.OrderStatus OS ON OS.Id=A.OrderStatusId
+                            LEFT JOIN hkp.OrderCategory AS oc ON oc.Id=a.OrderCategoryId
+                            LEFT JOIN HKP.Buyer B ON B.Id=A.BuyerId
+                            WHERE A.CompanyId='"+identity.CompanyId+@"'";
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
 
 

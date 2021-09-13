@@ -13,6 +13,7 @@ var upanelApp = angular
     .controller("accountDashboardController", accountDashboardController)
     .controller("advanceJournalController", advanceJournalController)
     .controller("NewAttendanceProcessController", NewAttendanceProcessController)
+    .controller("NewAttendanceProcessPlantWiseController", NewAttendanceProcessPlantWiseController)
     .controller("advanceJournalOpeningBalanceController", advanceJournalOpeningBalanceController)
     .controller("allowanceDailyController", allowanceDailyController)
     .controller("annualBudgetController", annualBudgetController)
@@ -924,6 +925,7 @@ var upanelApp = angular
     .controller("entityWiseExpenseAndEarningController", entityWiseExpenseAndEarningController)
 
 
+    .controller("PostInvoiceController", PostInvoiceController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)
