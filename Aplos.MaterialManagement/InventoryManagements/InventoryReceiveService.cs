@@ -6081,14 +6081,14 @@ namespace Library.MaterialManagement.InventoryManagements
 						Left join [TRN].[InventorySales] Ins on Ins.Id=ISD.InventorySalesId
 						Left join trn.InventoryReceiveDetail IRD ON IRD.Id=ISH.InventoryReceiveDetailId
 						LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-						WHERE convert(Date,IR.GRNDate) < '01-Apr-2021'  AND Ins.PlantId='202026'
+						WHERE convert(Date,IR.GRNDate) < '" + fromDate + @"'  AND Ins.PlantId='" + plantId + @"'
 						GROUP BY ISD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
 					)InventorySalesData ON InventorySalesData.InventoryMaterialId=IM.Id    
                                 
 					--left join [HKP].[MaterialStorage] MS on ms.id=InventorySalesData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='202026' AND MM.UserName is not null
+					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 					-----------------------------------------------------------------------------------
 					)x
 					where not
