@@ -48,8 +48,10 @@ namespace Aplos.Areas.Attendances.Controllers
             catch (Exception ex)
             {
                 rep.CommonLogFunction(ex, CatchPlant, "ShiftProcess");
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+
             }
-            return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            return Json(new { Error = false, Message = "Shift Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -65,8 +67,9 @@ namespace Aplos.Areas.Attendances.Controllers
             catch (Exception ex)
             {
                  rep.CommonLogFunction(ex, CatchPlant, "AttdnProcess");
+                 return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
             }
-            return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            return Json(new { Error = false, Message = "Attendance Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -82,10 +85,11 @@ namespace Aplos.Areas.Attendances.Controllers
             catch (Exception ex)
             {                     
                 rep.CommonLogFunction(ex, CatchPlant, "DayStatusProcess");
-
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
             }
-                
-            return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+
+            return Json(new { Error = false, Message = "DayStatus Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
         }
 
         [HttpGet, Authorize]
@@ -102,8 +106,11 @@ namespace Aplos.Areas.Attendances.Controllers
             catch (Exception ex)
             {
                 rep.CommonLogFunction(ex, CatchPlant, "ManualProcess");
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+
             }
-            return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            return Json(new { Error = false, Message = "Manual Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
         }
 
         [HttpGet, Authorize]
@@ -119,8 +126,10 @@ namespace Aplos.Areas.Attendances.Controllers
             catch (Exception ex)
             {
                 rep.CommonLogFunction(ex, CatchPlant, "RosterProcess");
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+
             }
-             return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            return Json(new { Error = false, Message = "Roster Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
         }
     }
 }
