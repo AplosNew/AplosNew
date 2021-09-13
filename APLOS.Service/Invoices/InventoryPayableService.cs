@@ -3412,7 +3412,7 @@ namespace Library.Service.Invoices
                     CompanyId = voucherVM.CompanyId,
                     CurrencyId = voucherVM.CurrencyId,
                     DocDate = voucherVM.PostingDate,
-                    DocRefNo = purchaseDocAcceptance.AcceptanceNo,
+                    DocRefNo = purchaseDocAcceptance.AcceptanceNo == null ? purchaseDocAcceptance.InvoiceNo : purchaseDocAcceptance.AcceptanceNo,
                     Narration = voucherVM.Narration,
                     EntityId = voucherVM.EntityId,
                     PlantId = voucherVM.PlantId,
@@ -5603,7 +5603,7 @@ namespace Library.Service.Invoices
             }
         }
 
-     
+
         #endregion
 
         public string InsertInventoryTransferPayable(string receiveId, VoucherViewModel voucherVM
@@ -6242,9 +6242,9 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-               
+
                 string voucherNo = "";
-               
+
                 var parallerCurrency = _companyParallelCurrencyService.Query(r => r.CompanyId == voucherVM.CompanyId).Select();
                 if (null == parallerCurrency)
                     throw new CustomException("Company Parallel Currency not found!");
