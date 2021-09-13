@@ -1105,7 +1105,8 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                         {
 
                             sheet1.Range[xlsRow, colInTime].NumberFormat = "hh:mm AM/PM";
-                            sheet1.Range[xlsRow, colInTime].DateTime = Convert.ToDateTime(dtEmployees.Rows[i]["InTimeShow"].ToString());
+                            if (string.IsNullOrEmpty(dtEmployees.Rows[i]["InTimeShow"].ToString()) == false)
+                                sheet1.Range[xlsRow, colInTime].DateTime = Convert.ToDateTime(dtEmployees.Rows[i]["InTimeShow"].ToString());
                             sheet1.Range[xlsRow, colInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, colInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         }
@@ -1116,7 +1117,8 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["OutTime"].ToString()) == false)
                         {
                             sheet1.Range[xlsRow, colOutTime].NumberFormat = "hh:mm AM/PM";
-                            sheet1.Range[xlsRow, colOutTime].DateTime = Convert.ToDateTime(dtEmployees.Rows[i]["OutTime"].ToString());
+                            if (string.IsNullOrEmpty(dtEmployees.Rows[i]["OutTime"].ToString()) == false)
+                                sheet1.Range[xlsRow, colOutTime].DateTime = Convert.ToDateTime(dtEmployees.Rows[i]["OutTime"].ToString());
                             sheet1.Range[xlsRow, colOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, colOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         }

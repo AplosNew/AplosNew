@@ -255,12 +255,7 @@ namespace Aplos.Areas.Products.Controllers
 			return Json(_inventoryDetailService.GetIssueWithGl(identity.CompanyId, issueId), JsonRequestBehavior.AllowGet);
 		}
 
-		[Authorize, HttpGet]
-		public JsonResult GetInventoryMaterialIssueGLList(GridParameter parameters, string issueId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryMaterialService.GetIssueMaterialGL(parameters, issueId, identity.CompanyId), JsonRequestBehavior.AllowGet);
-		}
+		
 		[Authorize, HttpGet]
 		public JsonResult GetInventoryMaterialIssueList(GridParameter parameters, string issueId)
 		{

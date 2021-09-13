@@ -21,7 +21,6 @@ namespace Library.MaterialManagement.Inventory
 		GridModel QueryOnlyPO(GridParameter parameters, string inveReveiveId,string AcceptanceId);
 		
         GridModel GetIssueMaterial(GridParameter parameters, string issueId,string companyId);
-        GridModel GetIssueMaterialGL(GridParameter parameters, string issueId,string companyId);
         GridModel GetPayableRejectMaterial(GridParameter parameters, string inveReveiveId);
         GridModel GetPayableShortageMaterial(GridParameter parameters, string inveReveiveId);
         IEnumerable<object> GetVendorPayableGLBudgetActivity(string receiveId, string companyId, string plantId);
