@@ -65,8 +65,16 @@ function entityCostCenterController(cboService, commonMessage, $window, $scope, 
             if ($scope.entityCostCenterNew.EntityId === null) {
                 throw 'Entity required!!';
             }
+            if ($scope.costCenterList.length == 0) {
+                throw "There is no cost center data against this entity..!";
+            }
             entityCostCenterSaved($scope.costCenterList);
             $scope.$broadcast('show-errors-check-validity');
+
+            if ($scope.entityCostCenterSavedList.length == 0) {
+                throw "Select Cost Center..!";
+            }
+
             if ($scope.Action === 'Save') {
                 $http({
                     method: 'POST',

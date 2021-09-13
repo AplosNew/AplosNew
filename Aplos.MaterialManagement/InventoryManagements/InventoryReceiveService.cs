@@ -4954,8 +4954,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					--,x.InventoryMaterialId
 					--,x.GRNDate
 					,x.UOM,ISNULL(x.IsAsset,0) IsAsset
-					,(SUM( x.OpeningBalance)-Sum(x.OpeningIssueQty)-sum(ISNULL(x.PurchaseReturnOpeningQty,0)))  OpeningBalance
-					,(Sum(x.OpeningBalanceAmount)-Sum(x.PolicyAmount)-sum(isnull(PurchaseReturnOpeningAmount,0))) OpeningBalanceAmount
+					,(SUM( x.OpeningBalance)-Sum(x.OpeningIssueQty)-sum(ISNULL(x.PurchaseReturnOpeningQty,0))-SUM( x.InventorySalesQtyOpening))  OpeningBalance
+					,(Sum(x.OpeningBalanceAmount)-Sum(x.PolicyAmount)-sum(isnull(PurchaseReturnOpeningAmount,0))-SUM( x.InventorySalesOpeningAmount)) OpeningBalanceAmount
 					,Sum(x.OpeningIssueQty) OpeningIssueQty
 					,Sum(x.PolicyAmount) PolicyAmount
 					,sum(x.ReceivedForThePeriod) ReceivedForThePeriod
@@ -5034,6 +5034,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,0 InventorySalesQtyForThePeriod	
 					,0 InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
+
 					--Inventory Scrap
 					,0 InventoryScrapQtyForThePeriod	
 					,0 InventoryScrapForThePeriodAmount		
@@ -5056,10 +5060,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 					left join( select t.InventoryMaterialId,t.IsAsset--,t.MaterialStorageId,t.GRNDate
-							  , sum(t.TransactionQty) TransactionQty,sum(t.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount--,Sum(t.OpeningIssueQty) OpeningIssueQty,Sum(t.OpeningIssueAmt)  OpeningIssueAmt 
+							  , sum(t.BaseQty) TransactionQty,sum(t.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount--,Sum(t.OpeningIssueQty) OpeningIssueQty,Sum(t.OpeningIssueAmt)  OpeningIssueAmt 
 					from (
 					SELECT IRD.InventoryMaterialId,IRD.IsAsset--, IRD.MaterialStorageId,IR.GRNDate
-							,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+							,Sum(IRD.BaseQty) AS BaseQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 					--SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount, Sum(IRD.IssueQty) OpeningIssueQty, Round(Sum(IRD.IssueQty * IRD.MaterialTranRate* IR.ToCurrencyRate),2) OpeningIssueAmt
 					FROM [TRN].[InventoryReceiveDetail] IRD
 					LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -5068,7 +5072,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					group By IRD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
 					UNION ALL
 					SELECT IRD.InventoryMaterialId,IRD.IsAsset--, IRD.MaterialStorageId,IR.GRNDate
-							,Sum(IRD.TransactionQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+							,Sum(IRD.BaseQty) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 						--SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId,IRD.IsAsset,Sum(IRD.TransactionQty) AS TransactionQty, Round(Sum(IRD.TransactionQty* IRD.MaterialTranRate*IR.ToCurrencyRate),2) TotalMaterialBooksCurrencyAmount, Sum(IRD.IssueQty) OpeningIssueQty, Round(Sum(IRD.IssueQty * IRD.MaterialTranRate* IR.ToCurrencyRate),2) OpeningIssueAmt
 					FROM [TRN].[InventoryReceiveDetail] IRD
 					LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
@@ -5131,6 +5135,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,0 InventorySalesQtyForThePeriod	
 					,0 InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
 					--Inventory Scrap
 					,0 InventoryScrapQtyForThePeriod	
 					,0 InventoryScrapForThePeriodAmount		
@@ -5159,7 +5166,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					Left JOIN TRN.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
 					Left JOIn TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
 					Left JOIn Trn.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-					WHERE convert(Date,II.IssueDate) < '" + fromDate + @"' AND II.PlantId='" + plantId + @"' AND IR.OpeningBalanceId IS NULL
+					WHERE convert(Date,IR.GRNDate) < '" + fromDate + @"' AND II.PlantId='" + plantId + @"' AND IR.OpeningBalanceId IS NULL
 					GROUP BY IID.InventoryMaterialId,IRD.IsAsset
 					--,IRD.MaterialStorageId,IR.GRNDate
 					) IFD3 On IFD3.InventoryMaterialId=IM.Id
@@ -5219,6 +5226,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,0 InventorySalesQtyForThePeriod	
 					,0 InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
+
 					--Inventory Scrap
 					,0 InventoryScrapQtyForThePeriod	
 					,0 InventoryScrapForThePeriodAmount		
@@ -5241,7 +5252,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id						
 					left join(SELECT IRD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-								, Sum(IRD.TransactionQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
+								, Sum(IRD.BaseQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 					FROM  [TRN].[InventoryReceiveDetail] IRD
 					LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 					where convert(Date,IR.GRNDate)		
@@ -5307,6 +5318,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,0 InventorySalesQtyForThePeriod	
 					,0 InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
+
 					--Inventory Scrap
 					,0 InventoryScrapQtyForThePeriod	
 					,0 InventoryScrapForThePeriodAmount		
@@ -5397,6 +5412,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,0 InventorySalesQtyForThePeriod	
 					,0 InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
+
 					--Inventory Scrap
 					,0 InventoryScrapQtyForThePeriod	
 					,0 InventoryScrapForThePeriodAmount		
@@ -5482,6 +5501,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,0 InventorySalesQtyForThePeriod	
 					,0 InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
+
 					--Inventory Scrap
 					,0 InventoryScrapQtyForThePeriod	
 					,0 InventoryScrapForThePeriodAmount		
@@ -5569,6 +5592,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,0 InventorySalesQtyForThePeriod	
 					,0 InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
+					
 					--Inventory Scrap
 					,0 InventoryScrapQtyForThePeriod	
 					,0 InventoryScrapForThePeriodAmount		
@@ -5656,6 +5683,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,0 InventorySalesQtyForThePeriod	
 					,0 InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
 
 					--Inventory Scrap
 					,0 InventoryScrapQtyForThePeriod	
@@ -5745,6 +5775,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,InventorySalesData.InventorySalesQty InventorySalesQtyForThePeriod	
 					,InventorySalesData.InventorySalesAmount InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
 
 					--Inventory Scrap
 					,0 InventoryScrapQtyForThePeriod	
@@ -5769,7 +5802,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id	 
 						
 					Left join (select ISD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
-							  ,sum(ISH.Qty) InventorySalesQty,sum(ISH.BaseRate) Rate, (sum(ISH.Qty)*sum(ISH.BaseRate)) InventorySalesAmount 
+							  ,sum(ISH.Qty) InventorySalesQty,sum(ISH.BaseRate) Rate, sum(ISH.Qty*ISH.BaseRate) InventorySalesAmount 
 						from [TRN].[InventorySalesHistory] ISH
 						Left JOIN [TRN].[InventorySalesDetail] ISD on ISD.Id=ISH.InventorySalesDetailId
 						Left join [TRN].[InventorySales] Ins on Ins.Id=ISD.InventorySalesId
@@ -5835,6 +5868,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,0 InventorySalesQtyForThePeriod	
 					,0 InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
 
 					--Inventory Scrap
 					,InventoryScrapData.InventoryScrapQty InventoryScrapQtyForThePeriod	
@@ -5922,6 +5958,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					--Inventory Sales
 					,0 InventorySalesQtyForThePeriod	
 					,0 InventorySalesForThePeriodAmount	
+					--Inventory Sales opening
+					,0 InventorySalesQtyOpening
+					,0 InventorySalesOpeningAmount
 
 					--Inventory Scrap
 					,0 InventoryScrapQtyForThePeriod	
@@ -5956,6 +5995,101 @@ namespace Library.MaterialManagement.InventoryManagements
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
 					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+
+
+					--------------------------------- InventorySales Opening----------------------------------
+
+					UNION All
+					SELECT Distinct ROW_NUMBER() Over(Order by  IM.Id) As[S.N]   
+					,isnull(MM.UserName,'') MaterialMasterName	
+					,MM.Id		MaterialMasterId	
+					,HSNC.Code HSNCode
+					,isnull( ART.StandardName,'') ArticleName	
+					,ART.Id ArticleId		
+					, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
+					, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+					, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue --,MS.UserName MaterialStorageLocation	
+					,TUoM.UserName UOM, InventorySalesData.IsAsset--,InventorySalesData.InventoryMaterialId,InventorySalesData.GRNDate
+							
+					--Opening Balance
+					,0 As OpeningBalance	
+					,0 AS OpeningBalanceAmount
+					,0 OpeningIssueQty
+					,0 PolicyAmount
+                         
+
+					--   --Receive
+
+					,0 ReceivedForThePeriod
+					,0 ReceivedForThePeriodAmount
+					----Issue
+                         
+					,0 IssueForThePeriod	
+					,0 IssueForThePeriodAmount	
+
+					--Issue Return
+					,0 IssueReturnQtyForThePeriod	
+					,0 IssueReturnForThePeriodAmount	
+					 
+					 --PurchaseReturnDataOpening
+					,0 PurchaseReturnOpeningQty	
+					,0 PurchaseReturnOpeningAmount
+
+					--Purchase Return
+					,0 PurchaseReturnQtyForThePeriod	
+					,0 PurchaseReturnForThePeriodAmount	
+
+					--Adjust Return
+					,0 InventorySalesQty	
+					,0 InventorySalesAmount			  
+
+
+					--Inventory Sales
+					,InventorySalesData.InventorySalesQty InventorySalesQtyForThePeriod	
+					,InventorySalesData.InventorySalesAmount InventorySalesForThePeriodAmount	
+
+					--Inventory Sales opening
+					,InventorySalesData.InventorySalesQty InventorySalesQtyOpening
+					,InventorySalesData.InventorySalesAmount InventorySalesOpeningAmount
+
+					--Inventory Scrap
+					,0 InventoryScrapQtyForThePeriod	
+					,0 InventoryScrapForThePeriodAmount		
+							
+					--Inventory Transfer Data
+					,0 InventoryTransferQtyForThePeriod	
+					,0 InventoryTransferForThePeriodAmount
+
+							
+
+					from TRN.InventoryMaterial AS IM
+					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+					LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+					LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+					LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
+					LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
+					LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
+					LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
+					LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
+					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id	 
+						
+					Left join (select ISD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
+							  ,sum(ISH.Qty) InventorySalesQty,sum(ISH.BaseRate) Rate, sum(ISH.Qty*ISH.BaseRate) InventorySalesAmount 
+						from [TRN].[InventorySalesHistory] ISH
+						Left JOIN [TRN].[InventorySalesDetail] ISD on ISD.Id=ISH.InventorySalesDetailId
+						Left join [TRN].[InventorySales] Ins on Ins.Id=ISD.InventorySalesId
+						Left join trn.InventoryReceiveDetail IRD ON IRD.Id=ISH.InventoryReceiveDetailId
+						LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+						WHERE convert(Date,IR.GRNDate) < '" + fromDate + @"'  AND Ins.PlantId='" + plantId + @"'
+						GROUP BY ISD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
+					)InventorySalesData ON InventorySalesData.InventoryMaterialId=IM.Id    
+                                
+					--left join [HKP].[MaterialStorage] MS on ms.id=InventorySalesData.MaterialStorageId
+					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
+					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					-----------------------------------------------------------------------------------
 					)x
 					where not
 					(ISNULL(OpeningBalance,0)=0

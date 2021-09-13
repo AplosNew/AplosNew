@@ -1053,7 +1053,7 @@ namespace Library.MaterialManagement.Inventory
 						throw new CustomException(itemDetail.MaterialMasterName + " already received");
 
 					ResetCurrencyRate(itemDetail);
-
+					itemDetail.ToCurrencyRate = entity.ToCurrencyRate;
 					if (itemDetail.IsNotNull())
 					{
 						var materialData = _inventoryMaterialMasterService.GetInventoryMaterialByUpToSku(itemDetail);
@@ -1118,7 +1118,15 @@ namespace Library.MaterialManagement.Inventory
 							////entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
 							////entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
 							///Added Date 22-10-19
-							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							if(baseUoMFactorList.Count()==0)
+							{
+								itemDetail.BaseUoMFactor = 1;
+							}
+							else
+							{
+								itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+
+							}
 							itemDetail.BaseQty = Convert.ToDecimal(itemDetail.NetQty * itemDetail.BaseUoMFactor);//Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
 							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
 							itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
@@ -1146,7 +1154,14 @@ namespace Library.MaterialManagement.Inventory
 							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
 							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
 							//AddedDate
-							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							if (baseUoMFactorList.Count() == 0)
+							{
+								itemDetail.BaseUoMFactor = 1;
+							}
+							else
+							{
+								itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							}
 							itemDetail.BaseQty = itemDetail.NetQty * itemDetail.BaseUoMFactor; //itemDetail.TransactionQty;
 							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
 							itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
@@ -1175,8 +1190,16 @@ namespace Library.MaterialManagement.Inventory
 							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
 
 							//added date 22-10-2019
-							itemDetail.BaseUoMFactor = 1; //Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
-							itemDetail.BaseQty = Convert.ToDecimal(itemDetail.NetQty * itemDetail.BaseUoMFactor); //Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
+							if (baseUoMFactorList.Count() == 0)
+							{
+								itemDetail.BaseUoMFactor = 1;
+							}
+							else
+							{
+								Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							}
+								//itemDetail.BaseUoMFactor = 1; //Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+								itemDetail.BaseQty = Convert.ToDecimal(itemDetail.NetQty * itemDetail.BaseUoMFactor); //Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
 																												  //itemDetail.TotalMaterialTranAmount = itemDetail.TransactionAmount;
 							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
 							itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
@@ -1208,6 +1231,7 @@ namespace Library.MaterialManagement.Inventory
 							//itemDetail.TotalMaterialTranAmount = itemDetail.MaterialTranAmount;
 							//Added Date :22-10-2019
 							//itemDetail.BaseUoMFactor = itemDetail.TransactionQty;
+
 							itemDetail.BaseUoMFactor = 1;
 							itemDetail.BaseQty = itemDetail.NetQty * itemDetail.BaseUoMFactor;//itemDetail.TransactionQty;
 							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
