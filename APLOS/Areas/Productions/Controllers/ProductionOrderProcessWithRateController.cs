@@ -52,5 +52,10 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+        [HttpGet, Authorize]
+        public JsonResult GetProductionOrderDataList(string entityId,string ProcessId)
+        {
+            return Json(R.GetProductionOrderData(entityId, ProcessId), JsonRequestBehavior.AllowGet);
+        }
     }
 }
