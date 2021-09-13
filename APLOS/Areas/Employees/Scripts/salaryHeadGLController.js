@@ -387,7 +387,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
     $scope.DirectGLList = [];
     $scope.GetDirectGLList = function (index) {
         if (!baseService.isUndefinedOrNull(index)) {
-            $scope.GlDrDirectIndex = index;            
+            $scope.GlDrDirectIndex = index;
         }
         else {
             $scope.GlCrInDirectIndex = "All";
@@ -898,10 +898,19 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.GetSalaryHeadGl = function (SalaryHeadId) {
-        $http.get('employees/SalaryHeadGL/GetSalaryHeadGlbySalaryHead?SalaryHeadId=' + SalaryHeadId)
-            .then(function (response) {
-                $scope.SalaryHeadGlListByAccountGroup = response.data.Rows;
-            });
+        try {
+            $http.get('employees/SalaryHeadGL/GetSalaryHeadGlbySalaryHead?SalaryHeadId=' + SalaryHeadId)
+                .then(function (response) {
+                    if (response.data.Error) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                    $scope.SalaryHeadGlListByAccountGroup = response.data.Rows;
+                    }
+                });
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
     };
 
     $scope.Clear = function () {
