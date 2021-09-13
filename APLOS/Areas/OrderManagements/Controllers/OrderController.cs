@@ -790,8 +790,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 date = " AND so.DeliveryDate between '" + fromDate + @"' and '" + toDate + @"' ";
             }
             if (dateType == "CommitmentD" && !string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate))
-            {
-                
+            {                
                 date = " AND so.CommitmentDate between '" + fromDate + @"' and '" + toDate + @"' ";
             }
 

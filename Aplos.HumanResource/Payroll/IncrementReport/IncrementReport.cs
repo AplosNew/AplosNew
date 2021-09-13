@@ -107,12 +107,8 @@ namespace Library.HumanResource.Payroll.IncrementReport
                 otc.LoadSalaryStructureOld(identity.PlantId, FromDate, ToDate, "Basic", out DataSet dsOldBasicSStructure);
                  Dictionary<string, DataRow> dicOldBasic = Cluster(dsOldBasicSStructure, "Basic");
 
-
                 int ROW = 6;
-                int COL = 1;
-
-                
-                
+                int COL = 1;        
 
                 sheet[ROW, COL].Text = "Sl.No";
                 sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -294,10 +290,9 @@ namespace Library.HumanResource.Payroll.IncrementReport
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                throw ex;
             }
         }
 
