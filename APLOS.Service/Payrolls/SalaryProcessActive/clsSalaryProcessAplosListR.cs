@@ -2074,7 +2074,7 @@ public class clsSalaryProcessAplosR
 
                                                                     //New Calculation (Tarek)
                                                                     int _MonthlyTotalWeekoffCount = 0;
-                                                                    int _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
+                                                                    decimal _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
                                                                     GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim(), ref _WeekoffCountAfterJoin, out _MonthlyTotalWeekoffCount);
 
                                                                     decimal _PerDaySalary = DefCur / (DaysInMonth - _MonthlyTotalWeekoffCount);
@@ -5629,7 +5629,7 @@ public class clsSalaryProcessAplosR
             throw ex;
         }
     }
-    void GetWeekoffCout(DataSet dsWeekOffAll, Dictionary<string, int> WeekOffList, string _emp, string DOJ, ref int WeekOffAfterJoin, out int _Week_off_count)
+    void GetWeekoffCout(DataSet dsWeekOffAll, Dictionary<string, int> WeekOffList, string _emp, string DOJ, ref decimal WeekOffAfterJoin, out int _Week_off_count)
     {
         _Week_off_count = 0;
         try
