@@ -4180,12 +4180,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["DayType"] = DayType;
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr["UpdatedBy"] = "Schedule";
-                                dr.EndEdit();
+                                string Day = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
+                                if (Day == "")
+                                {
+                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["DayType"] = DayType;
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr["UpdatedBy"] = "Schedule";
+                                    dr.EndEdit();
+                                }
                             }
                         }
                         SaveDataSets(dsRef);
