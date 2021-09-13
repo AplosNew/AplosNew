@@ -921,5 +921,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/VoucherPark/Aplos",
             controller: "voucherParkController"
         })
+        .when("/post-invoice", {
+            templateUrl: "Accounts/PostInvoice/Aplos",
+            controller: "PostInvoiceController"
+        })
         ;
 } 

@@ -922,6 +922,7 @@ var upanelApp = angular
     .controller("GSTPayableReportController", GSTPayableReportController)
     .controller("OutsourceBillingPostController", OutsourceBillingPostController)
     .controller("ProductionOrderProcessWithRateController", ProductionOrderProcessWithRateController)
+    .controller("PostInvoiceController", PostInvoiceController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)

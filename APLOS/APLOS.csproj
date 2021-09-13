@@ -346,6 +346,7 @@
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\PostInvoiceController.cs" />
     <Compile Include="Areas\Accounts\Controllers\VoucherParkController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GeneralAccountDeterminateController.cs" />
     <Compile Include="Areas\Accounts\Controllers\InvoicePostController.cs" />
@@ -1525,6 +1526,7 @@
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTPayableReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\PostInvoiceController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherParkController.js" />
     <Content Include="Areas\Accounts\Scripts\expenseRegisterReportController.js" />
     <Content Include="Areas\Accounts\Scripts\FixedAssetsRegisterReportController.js" />
@@ -3685,6 +3687,7 @@
     <Content Include="Areas\Commercial\Views\LcNavigation\_LCClosePopUp.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionOrderProcessWithRate\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\SalesOrderUpdate\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\PostInvoice\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\NewAttendanceProcessPlantWise\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
