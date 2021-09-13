@@ -1318,19 +1318,19 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 Date = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
                 string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
 
-                DataSet PlantLock;
-                PlantbothdaysCheck(Date, out PlantLock, PlantValue);
-                if (PlantLock.Tables[0].Rows.Count > 0)
+                DataSet ValidationData;
+                Validation(out ValidationData, PlantValue);
+                if (ValidationData.Tables[0].Rows.Count > 0)
                 {
-
-                }
-                else
-                {
-
-                    DataSet ValidationData;
-                    Validation(out ValidationData, PlantValue);
-                    if (ValidationData.Tables[0].Rows.Count > 0)
+                    DataSet PlantLock;
+                    PlantLockCheck(PreviousDay, out PlantLock, PlantValue);
+                    if (PlantLock.Tables[0].Rows.Count > 0)
                     {
+
+                    }
+                    else
+                    {
+
                         #region Getting MissFlagged InPunch of the PrevDay
                         DataSet MissFlaggedIn;
                         ConfirmedPrevMissIn(PreviousDay, out MissFlaggedIn, PlantValue);
@@ -1790,6 +1790,17 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         ExceptionFinalInOut(PreviousDay, PlantValue);
                         #endregion
 
+                       
+                    }
+
+                    DataSet PlantLockToday;
+                    PlantLockCheck(Date, out PlantLockToday, PlantValue);
+                    if (PlantLockToday.Tables[0].Rows.Count > 0)
+                    {
+
+                    }
+                    else
+                    {
                         #region Getting flagged InPunch of the Day
                         DataSet FlaggedIn;
                         ConfirmedInFlagForDay(Date, out FlaggedIn, PlantValue);
@@ -2153,25 +2164,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void PlantbothdaysCheck(string Date, out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                string Today = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
-                string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
-
-                var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
-                and LockedDate between '" + PreviousDay + "' and '" + Today + "' and IsActive='1' ";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void GetPlant(string CompanyGpId, out DataSet ds)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -2190,7 +2182,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
 
         }
-
         public void GetCompanyGp(out DataSet ds)
         {
             ConnectionManager.DAL.ConManager objCon;
