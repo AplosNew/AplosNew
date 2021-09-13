@@ -134,7 +134,7 @@ namespace Library.Service.Payrolls.OT
 								(
 								SELECT sidm.SystemID, sidm.EmpInfoSystemID, sidm.SalaryRuleMasterSystemID, sidm.EffectiveDate FROM SalaryInfoDefineMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + sPlantID + @"' AND sidm.EffectiveDate BETWEEN '"+sFromDate+@"' AND '"+sToDate+@"'
 								UNION ALL
-								SELECT sidm.SystemID, sidm.EmpInfoSystemID, sidm.SalaryRuleMasterSystemID, sidm.EffectiveDate FROM SalaryInfoBackMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='"+ sPlantID + @"'  AND sidm.EffectiveDate BETWEEN '"+sFromDate+@"' AND '"+sToDate+@"'
+								SELECT sidm.SystemID, sidm.EmpInfoSystemID, sidm.SalaryRuleMasterSystemID, sidm.EffectiveDate FROM SalaryInfoBackMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='"+ sPlantID + @"'  AND sidm.EffectiveDate BETWEEN '"+sFromDate+@"' AND '"+sToDate+ @"'
 								) AS NI
                             	
                             ) AS NEW 
@@ -149,11 +149,11 @@ namespace Library.Service.Payrolls.OT
                 LEFT JOIN IncrementHistory IH on IH.ToSalaryId=D.SalaryID
                            
                 LEFT JOIN Hkp.LegalDesignation LD ON LD.Id = ih. FromLegalDesignationId
-                LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.FromLegalDesignationId
+                LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.FromLegalDesignationId and LGD.PlantId='" + sPlantID + @"'
                             
                 LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId
 
-                where NEW.RankEmp=1 AND h.HeadCategory='"+HeadCategory+@"' 
+                where NEW.RankEmp=1 AND h.HeadCategory='" + HeadCategory+@"' 
                 ORDER BY new.EmpInfoSystemID ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -214,7 +214,7 @@ LEFT JOIN IncrementHistory IH on IH.ToSalaryId=D.SalaryID
 LEFT JOIN Hkp.LegalDesignation LD ON LD.Id = ih. FromLegalDesignationId
 LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.FromLegalDesignationId and LGD.PlantId='"+ sPlantID + @"'
                             
-LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId
+LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId and LGD.PlantId='" + sPlantID + @"'
 
 where OLD.OLDRANK=1 AND h.HeadCategory='" + HeadCategory+@"' 
 ORDER BY old.EmpInfoSystemID
