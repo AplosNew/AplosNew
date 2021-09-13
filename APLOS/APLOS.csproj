@@ -677,6 +677,7 @@
     <Compile Include="Areas\Materials\Controllers\RackController.cs" />
     <Compile Include="Areas\Modules\Controllers\NotificationURLController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\DispatchMasterController.cs" />
+    <Compile Include="Areas\OrderManagements\Controllers\SalesOrderUpdateController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\OrderController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\OS3DashboardController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\ProductionPlanningReportController.cs" />
@@ -1888,6 +1889,7 @@
     <Content Include="Areas\Leave\Scripts\SandWichLeaveOnHolidayController.js" />
     <Content Include="Areas\Materials\Scripts\RackController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchMasterController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\SalesOrderUpdateController.js" />
     <Content Include="Areas\OrderManagements\Scripts\OrderController.js" />
     <Content Include="Areas\OrderManagements\Scripts\OS3DashboardController.js" />
     <Content Include="Areas\OrderManagements\Scripts\ProductionPlanningReportController.js" />
@@ -3680,6 +3682,7 @@
     <Content Include="Areas\HumanResource\Views\TablesUpload\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\LcNavigation\_LCClosePopUp.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionOrderProcessWithRate\Aplos.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\SalesOrderUpdate\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
