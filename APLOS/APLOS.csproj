@@ -346,6 +346,7 @@
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\PostInvoiceController.cs" />
     <Compile Include="Areas\Accounts\Controllers\VoucherParkController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GeneralAccountDeterminateController.cs" />
     <Compile Include="Areas\Accounts\Controllers\InvoicePostController.cs" />
@@ -379,6 +380,7 @@
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataFromAppController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceDashboardController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessPlantWiseController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceFromAppReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\PayrollManagementDashboardController.cs" />
@@ -677,6 +679,7 @@
     <Compile Include="Areas\Materials\Controllers\RackController.cs" />
     <Compile Include="Areas\Modules\Controllers\NotificationURLController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\DispatchMasterController.cs" />
+    <Compile Include="Areas\OrderManagements\Controllers\SalesOrderUpdateController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\OrderController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\OS3DashboardController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\ProductionPlanningReportController.cs" />
@@ -1523,6 +1526,7 @@
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTPayableReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\PostInvoiceController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherParkController.js" />
     <Content Include="Areas\Accounts\Scripts\expenseRegisterReportController.js" />
     <Content Include="Areas\Accounts\Scripts\FixedAssetsRegisterReportController.js" />
@@ -1590,6 +1594,7 @@
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceDashboardController.js" />
+    <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessPlantWiseController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\PayrollManagementDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummeryController.js" />
@@ -1888,6 +1893,7 @@
     <Content Include="Areas\Leave\Scripts\SandWichLeaveOnHolidayController.js" />
     <Content Include="Areas\Materials\Scripts\RackController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchMasterController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\SalesOrderUpdateController.js" />
     <Content Include="Areas\OrderManagements\Scripts\OrderController.js" />
     <Content Include="Areas\OrderManagements\Scripts\OS3DashboardController.js" />
     <Content Include="Areas\OrderManagements\Scripts\ProductionPlanningReportController.js" />
@@ -3680,6 +3686,9 @@
     <Content Include="Areas\HumanResource\Views\TablesUpload\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\LcNavigation\_LCClosePopUp.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionOrderProcessWithRate\Aplos.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\SalesOrderUpdate\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\PostInvoice\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\NewAttendanceProcessPlantWise\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

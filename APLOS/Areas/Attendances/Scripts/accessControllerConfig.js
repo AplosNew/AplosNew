@@ -319,6 +319,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/NewAttendanceProcess/Aplos',
             controller: 'NewAttendanceProcessController'
         })
+        .when('/new-attnd-process-plantwise', {
+            templateUrl: 'Attendances/NewAttendanceProcessPlantWise/Aplos',
+            controller: 'NewAttendanceProcessPlantWiseController'
+        })
 
         .when('/manual-ot-upload-new', {
             templateUrl: 'Attendances/ManualOTUploadNew/Aplos',
