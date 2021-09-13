@@ -4181,7 +4181,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 string Day = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
-                                if (Day != "")
+                                if (Day == "")
                                 {
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                     dr.BeginEdit();
