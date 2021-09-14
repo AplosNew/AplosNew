@@ -66,7 +66,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
 						b.BOMQty,C.Id
 						,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-						,Isnull(POMAP.TransactionQty,0) PORaisedQry, Round(ISNULL(OtherPOData.TransactionQty,0),2) OtherPOQty,ISNULL(OtherPOData.TransactionQty,0) OtherPOQtyOrginal
+						,Isnull(POMAP.TransactionQty,0) PORaisedQry, Round(ISNULL(OtherPOData.TransactionQty,0),4) OtherPOQty, Round(ISNULL(OtherPOData.TransactionQty,0),4) OtherPOQtyOrginal
 						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
 						,ISNULL(cpo.PONumber,'') PONumber
 						--,AUOM.AlternativeUOMId,AUOM.BaseUOMId,AUOM.BaseUOMFactor,AUOM.AlternativeUOMFactor
@@ -85,7 +85,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						--,RefferenceNo=ISNULL(moi.OwnReferenceNo,'') 
 						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  
 						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
-                        ,ISNULL(uom1.UserName,'') POUoM,Round(ISNULL(b.RequiredQtyPO,0)-Round(ISNULL(OtherPOData.TransactionQty,0),2),4) TransactionQty,0 Tolerance
+                        ,ISNULL(uom1.UserName,'') POUoM,Round(Round(ISNULL(b.RequiredQtyPO,0),4)-Round(ISNULL(OtherPOData.TransactionQty,0),4),4) TransactionQty,0 Tolerance
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
