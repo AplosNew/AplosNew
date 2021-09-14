@@ -463,7 +463,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             var sql = @"Update AttdnProcessData Set WeeklyStatus='W'  
                                            WHERE WorkDate='" + WkDate + "'AND isnull(EmpSystemID,'') IN" +
                             " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                            "ei WHERE  ei.PlantId ='" + PlantId + "' AND ei.EmployeeStatus='Active'" +
+                            "ei WHERE  ei.PlantId ='" + PlantId + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
                             "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
                             "from EmployeeWeeklyOff))";
 
@@ -484,7 +484,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
                                           WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
                            " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                           "ei WHERE  ei.PlantId='" + PlantValue + "' AND ei.EmployeeStatus='Active'" +
+                           "ei WHERE  ei.PlantId='" + PlantValue + "'  and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')" +
                            "and  ISNULL(EmpSystemID,'') not in (select distinct ISNULL(EmpSystemID,'') " +
                            "from EmployeeWeeklyOff))";
 
@@ -511,9 +511,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                    WHERE WorkDate='" + Date + @"'
                                     AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
                                     FROM EmployeeInformation AS ei WHERE  ei.PlantId='" + PlantValue + @"'
-                                   AND ei.EmployeeStatus='Active'
-                    and  ISNULL(EmpSystemID,'') in (select distinct ISNULL(EmpSystemID,'') 
-                                   from EmployeeWeeklyOff))";
+                                   AND  ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901')"+
+                    "and  ISNULL(EmpSystemID,'') in (select distinct ISNULL(EmpSystemID,'') from EmployeeWeeklyOff))";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
                         string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
@@ -573,7 +572,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                              WHERE WorkDate='" + WkDate + "' AND WeeklyStatus='W' AND " +
                                       "isnull(EmpSystemID,'') IN" +
                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.EmployeeStatus='Active')";
+                                      "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
 
 
                                     ConnectionManager.DAL.ConManager objCone = null;
@@ -591,7 +590,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                          WHERE WorkDate='" + WkDate + "' AND HolidayStatus='H' AND " +
                                       "isnull(EmpSystemID,'') IN" +
                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.EmployeeStatus='Active')";
+                                      "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
 
 
                                     ConnectionManager.DAL.ConManager objCone = null;
@@ -670,7 +669,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                              WHERE WorkDate='" + WkDate + "' AND WeeklyStatus!='W' AND " +
                                       "isnull(EmpSystemID,'') IN" +
                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.EmployeeStatus='Active')";
+                                      "  ei WHERE  ei.PlantId ='" + Plant + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
 
 
                                     ConnectionManager.DAL.ConManager objCone = null;
@@ -688,7 +687,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                              WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
                                       "isnull(EmpSystemID,'') IN" +
                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.EmployeeStatus='Active')";
+                                      "  ei WHERE  ei.PlantId ='" + Plant + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
 
 
                                     ConnectionManager.DAL.ConManager objCone = null;
@@ -1003,13 +1002,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
 				left join scs.DesignationMasterConfiguration dc on dc.DesignationMasterId=dm.Id
                 and dc.PlantId=e.PlantId
-                where p.WorkDate='" + Date+@"' and 
-				e.PlantId='"+PlantId+ @"' 
-                and E.DOJ <= '" + Date + "' AND (E.DOS >= '" + Date + "' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')" +
-                "and dc.IsOTEntitled=1 " +
-                "and e.SystemId not in (select final.EmpSystemId from (select distinct o.empsystemId,(select top 1 Exclude from NonEligibleOT m" +
-                "where m.EmpSystemId=o.EmpSystemId order by EffectiveDate desc)as x" +
-                "from NonEligibleOT o) final where final.x=1)";
+                where p.WorkDate='"+Date+@"' and 
+				e.PlantId='"+PlantId+@"' 
+                and E.DOJ <= '"+Date+@"' 
+				AND (E.DOS >= '"+Date+@"' OR ISNULL(E.DOS,'') = '' 
+				OR E.DOS = '01/01/1901')and dc.IsOTEntitled=1 and 
+				e.SystemId not in (select final.EmpSystemId from 
+				(select distinct o.empsystemId,
+				(select top 1 Exclude from NonEligibleOT m where 
+				m.EmpSystemId=o.EmpSystemId order by EffectiveDate desc)as x 
+				from NonEligibleOT o) final where final.x=1)";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -5767,17 +5769,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
         public void CommonLogFunction(Exception ex, string CatchPlant,string Process)
         {
-
-            string ErrorlineNo, Errormsg, extype, ErrorLocation;
-
-            ErrorlineNo = ex.StackTrace.ToString();
-            Errormsg = ex.GetType().Name.ToString();
-            extype = ex.GetType().ToString();
-            ErrorLocation = ex.Message.ToString();
-            string error = "Plant:- " + CatchPlant + " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
+            string error = "Plant:- " + CatchPlant + " Exception :-" +ex.ToString();
             SaveLog(error, Process, true);
        
-         } 
+        } 
 
     }
 

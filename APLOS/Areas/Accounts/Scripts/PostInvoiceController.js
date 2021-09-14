@@ -195,7 +195,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.getPopUpData = function () {
         $http({
             method: 'GET',
-            url: 'Accounts/InventoryPayable/GetListForInvPayable',
+            url: 'Accounts/PostInvoice/GetListForInvPayable',
         }).then(function successCallback(response) {
             $scope.approvedGRNList = response.data;
             for (var i = 0; i < $scope.approvedGRNList.length; i++) {
