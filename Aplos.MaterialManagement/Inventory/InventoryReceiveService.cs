@@ -9719,7 +9719,7 @@ ORDER BY tg.[Sequence]";
 	                          ,TUoM.UserName AS TransactionUoM
                               ,IRD.Id InventoryReceiveDetailId
 							  ,IR.IssueType,E.UserName AS Entity,IR.Remarks,EI.EmployeeName +'-'+EI.EmployeeCode As EmployeeName,CC.UserName CostCenter,IRD.Comments 
-                              ,IR.ContractId,IR.ProductionOrderId,Con.ContractNo,IR.OrderRefNo
+                              ,IR.ContractId,IR.ProductionOrderId,Con.ContractNo,IR.OrderRefNo,p.UserName ProcessName,POD.ProductionOrderId ProductionOrderNo
                          FROM TRN.InventoryIssue IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -9744,6 +9744,12 @@ ORDER BY tg.[Sequence]";
                          LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
 						 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
 						 left join dbo.Contract Con On Con.Id=IR.ContractId
+						 left JOIN [TRN].[IssueRequestMasterProcessMap] IRMPM ON IRMPM.IssueRequestMasterId=IR.IssueRequestMasterId
+						 left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
+
+						 left join trn.IssueRequestMaster IRM on IRM.Id=IR.IssueRequestMasterId
+						 left join [TRN].[IssueRequestMasterSalesOrderMap] IRMMAp ON IRMMAp.IssueRequestMasterId=IRM.Id
+						 left join [TRN].[ProductionOrderDetail] POd On POd.SalesOrderId=IRMMAp.SalesOrderId
                          WHERE IR.Id ='" + OrderMasterID + "'";
 
 				return _sqlRepository.GetDataTable(strSQL);
