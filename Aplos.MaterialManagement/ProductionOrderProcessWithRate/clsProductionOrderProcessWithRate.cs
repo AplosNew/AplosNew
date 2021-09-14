@@ -37,7 +37,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 
             try
             {
-                string sql = @"SELECT '' Rate,PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
+                string sql = @"SELECT null as Charactaristics,'' Rate,PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 									,SONo=STUFF((select distinct ','+XSO.Id from 
@@ -123,9 +123,34 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
 									LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = PD.ProductionOrderId
-								   WHERE  E.Id='" + entityId + "' and POSP.ProcessId='" + ProcessId + "'";
+								   WHERE  E.Id='" + entityId + "' and POSP.ProcessId='" + ProcessId + "' and PS.StandardName in ('Active','Running')";
+                List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
 
-                return _sqlRepository.GetDataCollection(sql, null);
+                string strSQL = @"select p.ProductionOrderId,c.Id Value,c.UserName Text
+							from trn.ProductionOrder PR
+							join [TRN].[ProductionOrderProcessSet] p on p.ProductionOrderId=pr.Id and  p.ProcessId='" + ProcessId + @"'
+							left join trn.ProductionOrderDetail PD ON pd.Id=(select top 1 Id from trn.ProductionOrderDetail PDX where pdx.ProductionOrderId=pr.Id)
+							left join trn.SalesOrder SO ON so.Id=pd.SalesOrderId
+							left join trn.MasterOrderItem MOI ON moi.id=so.MasterOrderItemId
+							left join MST.MaterialMasterCharacteristics m on m.MaterialMasterId=MOI.MaterialMasterId
+                            left join HKP.Characteristics c on c.Id=m.CharacteristicsId
+							where PR.EntityId='" + entityId + @"'";
+                List<Dictionary<string, object>> CharList = _sqlRepository.GetDataCollection(strSQL, null);
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    List<Dictionary<string, object>> TempData = CharList.Where(r => r["ProductionOrderId"].ToString() == data[i]["POId"].ToString()).ToList();
+                    if (TempData.Count > 1)
+                    {
+                        Dictionary<string, object> DicTemp = new Dictionary<string, object>();
+                        DicTemp.Add("ProductionOrderId", data[i]["POId"].ToString());
+                        DicTemp.Add("Value", null);
+                        DicTemp.Add("Text", "Both");
+                        TempData.Add(DicTemp);
+                    }
+                    data[i]["Charactaristics"] = TempData;
+                }
+                return data;
             }
             catch (Exception ex)
             {

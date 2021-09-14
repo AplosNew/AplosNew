@@ -66,7 +66,28 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
         } catch (e) {
             ShowResult(e, 'info');
         }
-        //angular.element(document.querySelector('#POItemPopup')).modal('show');
     };
+    $scope.SelectedProductionOrder = {};
+    $scope.ShowDiv = false;
+    $scope.AddButton = function (row) {
+        try {
+            $scope.ShowDiv = true;
 
+            $scope.SelectedProductionOrder = row;
+
+            var eDialog = $("#SKUPopUp").data("ejDialog");
+            eDialog.open();
+
+            //if (data.IsExemption == true) {
+            //    $("#General").ejDialog("setTitle", data.SalaryHead );
+            //    eDialog.open();
+            //}
+            //else {
+            //    throw "Exemption Applicable is not checked for this Taxable Income";
+            //}
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+
+    };
 }
