@@ -4862,7 +4862,77 @@ namespace Library.MaterialManagement.Inventory
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var sql = @"select x.Id ,x.PreparedBy,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty,Orderspecific=CASE WHEN Orderspecific='Yes' Then 'Yes' else 'No' End from
+                //       var sql = @"select x.Id ,x.PreparedBy,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty,Orderspecific=CASE WHEN Orderspecific='Yes' Then 'Yes' else 'No' End from
+                //                   (
+                //                       SELECT IRM.Id
+                //                       ,CC.UserName AS CostCenterName
+                //                    ,B.UserName ActivityName      
+                //                    ,IR.RequisitionId
+                //                       ,IR.RequisitionDetailId                           
+                //                    ,EI.EmployeeName  PreparedBy	                          
+                //                       ,IRM.AddedBy
+                //                       ,IRM.AddedDate
+                //                       ,IRM.AddedFromIP
+                //                       ,IRM.UpdatedBy
+                //                       ,IRM.UpdatedDate
+                //                       ,IRM.UpdatedFromIP	  
+                //                      -- ,IRM.Preparedby
+                //                       ,IRM.CheckedBy
+                //                       ,IRM.CheckedByStatus
+                //                       ,IRM.AuthorizedBy
+                //                       ,IRM.AuthorizedByStatus
+                //                    ,RequestedQty
+                //                   ,RejectedQty,IRM.Orderspecific
+                //                   FROM TRN.IssueRequestMaster IRM
+                //                   Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
+                //                   Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+                //                   Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
+                //                   LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
+
+                //                  Where IRM.CheckedBy IS NOT NULL 
+                //AND IRM.CheckedByStatus='Checked' 
+                //AND IRM.AuthorizedByStatus='Approved' 
+                //AND IRM.AuthorizedBy IS NOT null  
+                //AND IRM.IssueSlipType='InventorySlip'
+                //AND IRM.PlantId='" + identity.PlantId + @"'
+                //                  --Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='Checked' OR IRM.CheckedByStatus='Approval'AND IRM.AuthorizedByStatus IS Not NULL  AND IRM.AuthorizedBy IS null OR IRM.AuthorizedBy IS NOT null And IRM.PreparedBy='" + identity.EmployeeId + @"'
+                //                  --Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='ForChecked' AND IRM.AuthorizedByStatus IS NULL AND IRM.IssueSlipType='AssetSlip' AND IRM.AuthorizedBy IS null --And IRM.PreparedBy='" + identity.EmployeeId + @"'
+                //                  UNION ALL
+                //SELECT IRM.Id
+                //                       ,CC.UserName AS CostCenterName
+                //                    ,B.UserName ActivityName      
+                //                    ,IR.RequisitionId
+                //                       ,IR.RequisitionDetailId                           
+                //                    ,EI.EmployeeName  PreparedBy	                          
+                //                       ,IRM.AddedBy
+                //                       ,IRM.AddedDate
+                //                       ,IRM.AddedFromIP
+                //                       ,IRM.UpdatedBy
+                //                       ,IRM.UpdatedDate
+                //                       ,IRM.UpdatedFromIP	  
+                //                      -- ,IRM.Preparedby
+                //                       ,IRM.CheckedBy
+                //                       ,IRM.CheckedByStatus
+                //                       ,IRM.AuthorizedBy
+                //                       ,IRM.AuthorizedByStatus
+                //                    ,RequestedQty
+                //                   ,RejectedQty,IRM.Orderspecific
+                //                   FROM TRN.IssueRequestMaster IRM
+                //                   Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
+                //                   Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+                //                   Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
+                //                   LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
+
+                //                  Where IRM.CheckedBy IS  NULL 
+                //AND IRM.CheckedByStatus IS NULL
+                //AND IRM.AuthorizedByStatus='Approved' 
+                //AND IRM.AuthorizedBy IS NOT null  
+                //AND IRM.IssueSlipType='InventorySlip'
+                //AND IRM.PlantId='" + identity.PlantId + @"'
+                //                  )x 
+                //                   Group by Id ,x.PreparedBy,x.AddedDate ,Orderspecific                             
+                //                 ";
+                var sql = @"select x.Id,x.ProcessName,x.SalesOrderId,x.ProductionOrderId,x.PreparedBy,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName,REPLACE(CONVERT(CHAR(11), x.AddedDate, 106),' ','-') AS AddedDate,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty,Orderspecific=CASE WHEN Orderspecific='Yes' Then 'Yes' else 'No' End from
                             (
                                 SELECT IRM.Id
                                 ,CC.UserName AS CostCenterName
@@ -4883,20 +4953,101 @@ namespace Library.MaterialManagement.Inventory
                                 ,IRM.AuthorizedByStatus
 	                            ,RequestedQty
                             ,RejectedQty,IRM.Orderspecific
+							,p.UserName ProcessName
+							,IRMSO.SalesOrderId
+							,POD.ProductionOrderId
+							,concatData1.BuyerItemReferenceNo
+							,concatData1.OwnItemReferenceNo
+							,concatData1.BuyerOrderReferenceNo
+							,concatData1.OwnOrderReferenceNo
+							,concatData1.CustomerName
+							,concatData1.BUyerName
                             FROM TRN.IssueRequestMaster IRM
                             Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
                             Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
                             Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
                             LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-                             
+                            left JOIN [TRN].[IssueRequestMasterProcessMap] IRMPM ON IRMPM.IssueRequestMasterId=IRM.Id
+							left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
+							left join [TRN].[IssueRequestMasterSalesOrderMap] IRMSO ON IRMSO.IssueRequestMasterId=IRM.Id
+							left join [TRN].[ProductionOrderDetail] POD ON POD.SalesOrderId=IRMSO.SalesOrderId 
+
+							LEFT JOIN(
+							SELECT distinct PDAMAP.IssueRequestMasterId
+								,SalesOrderId=STUFF((select distinct ','+xpo.SalesOrderId from
+								[TRN].[ProductionOrderDetail] xpo
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on xpo.SalesOrderId=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								
+
+							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
+							  LEFT JOIN [TRN].[ProductionOrderDetail] IR ON IR.SalesOrderId = PDAMAP.SalesOrderId
+							  --LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
+							  --left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+							  group by  PDAMAP.IssueRequestMasterId
+							)concatData ON concatData.IssueRequestMasterId = IRM.Id
+
+							LEFT JOIN(
+							    SELECT distinct PDAMAP.IssueRequestMasterId
+								,BuyerItemReferenceNo=STUFF((select distinct ','+xpo.BuyerReferenceNo from
+								[TRN].[MasterOrderItem] xpo
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,OwnItemReferenceNo=STUFF((select distinct ','+xpo.OwnReferenceNo from
+								[TRN].[MasterOrderItem] xpo
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,BuyerOrderReferenceNo=STUFF((select distinct ','+MO.BuyerReferenceNo from
+								[TRN].[MasterOrderItem] xpo
+								left join trn.MasterOrder MO ON MO.id=xpo.MasterOrderId
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,OwnOrderReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo from
+								[TRN].[MasterOrderItem] xpo
+								left join trn.MasterOrder MO ON MO.id=xpo.MasterOrderId
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+										,CustomerName=STUFF((select distinct ','+party.UserName from
+								[TRN].[MasterOrderItem] xpo
+								left join trn.MasterOrder MO ON MO.id=xpo.MasterOrderId
+								left join hkp.Party party on party.Id=MO.PartyId
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,BUyerName=STUFF((select distinct ','+Buyer.UserName from
+								[TRN].[MasterOrderItem] xpo
+								left join trn.MasterOrder MO ON MO.id=xpo.MasterOrderId
+								left join hkp.Buyer Buyer on Buyer.Id=MO.BuyerId
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
+							  LEFT JOIN trn.SalesOrder IR ON IR.Id = PDAMAP.SalesOrderId
+							  --LEFT JOIN [TRN].[MasterOrderItem] C ON C.Id=IR.MasterOrderItemId
+							  --left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+							  group by  PDAMAP.IssueRequestMasterId
+							)concatData1 ON concatData.IssueRequestMasterId = IRM.Id
+
                            Where IRM.CheckedBy IS NOT NULL 
 						   AND IRM.CheckedByStatus='Checked' 
 						   AND IRM.AuthorizedByStatus='Approved' 
 						   AND IRM.AuthorizedBy IS NOT null  
 						   AND IRM.IssueSlipType='InventorySlip'
 						   AND IRM.PlantId='" + identity.PlantId + @"'
-                           --Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='Checked' OR IRM.CheckedByStatus='Approval'AND IRM.AuthorizedByStatus IS Not NULL  AND IRM.AuthorizedBy IS null OR IRM.AuthorizedBy IS NOT null And IRM.PreparedBy='" + identity.EmployeeId + @"'
-                           --Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='ForChecked' AND IRM.AuthorizedByStatus IS NULL AND IRM.IssueSlipType='AssetSlip' AND IRM.AuthorizedBy IS null --And IRM.PreparedBy='" + identity.EmployeeId + @"'
+                           --Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='Checked' OR IRM.CheckedByStatus='Approval'AND IRM.AuthorizedByStatus IS Not NULL  AND IRM.AuthorizedBy IS null OR IRM.AuthorizedBy IS NOT null And IRM.PreparedBy=''
+                           --Where IRM.CheckedBy IS NOT NULL AND IRM.CheckedByStatus='ForChecked' AND IRM.AuthorizedByStatus IS NULL AND IRM.IssueSlipType='AssetSlip' AND IRM.AuthorizedBy IS null --And IRM.PreparedBy=''
                            UNION ALL
 						   SELECT IRM.Id
                                 ,CC.UserName AS CostCenterName
@@ -4916,13 +5067,99 @@ namespace Library.MaterialManagement.Inventory
                                 ,IRM.AuthorizedBy
                                 ,IRM.AuthorizedByStatus
 	                            ,RequestedQty
-                            ,RejectedQty,IRM.Orderspecific
+                                ,RejectedQty
+								,IRM.Orderspecific
+								,p.UserName ProcessName
+								,concatData.SalesOrderId
+								,POD.ProductionOrderId
+								,concatData1.BuyerItemReferenceNo
+								,concatData1.OwnItemReferenceNo
+								,concatData1.BuyerOrderReferenceNo
+							,concatData1.OwnOrderReferenceNo
+							,concatData1.CustomerName
+							,concatData1.BUyerName
                             FROM TRN.IssueRequestMaster IRM
                             Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
                             Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
                             Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
                             LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-                             
+							left JOIN [TRN].[IssueRequestMasterProcessMap] IRMPM ON IRMPM.IssueRequestMasterId=IRM.Id
+							left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
+                            left join [TRN].[IssueRequestMasterSalesOrderMap] IRMSO ON IRMSO.IssueRequestMasterId=IRM.Id
+							left join [TRN].[ProductionOrderDetail] POD ON POD.SalesOrderId=IRMSO.SalesOrderId 
+
+
+							LEFT JOIN(
+							SELECT distinct PDAMAP.IssueRequestMasterId
+								,SalesOrderId=STUFF((select distinct ','+xpo.SalesOrderId from
+								[TRN].[ProductionOrderDetail] xpo
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on xpo.SalesOrderId=xPDAMAP.SalesOrderId
+
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								
+
+							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
+							  LEFT JOIN [TRN].[ProductionOrderDetail] IR ON IR.SalesOrderId = PDAMAP.SalesOrderId
+							  --LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
+							  --left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+							  group by  PDAMAP.IssueRequestMasterId
+							)concatData ON concatData.IssueRequestMasterId = IRM.Id
+							LEFT JOIN(
+							    SELECT distinct PDAMAP.IssueRequestMasterId
+								,BuyerItemReferenceNo=STUFF((select distinct ','+xpo.BuyerReferenceNo from
+								[TRN].[MasterOrderItem] xpo
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,OwnItemReferenceNo=STUFF((select distinct ','+xpo.OwnReferenceNo from
+								[TRN].[MasterOrderItem] xpo
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,BuyerOrderReferenceNo=STUFF((select distinct ','+MO.BuyerReferenceNo from
+								[TRN].[MasterOrderItem] xpo
+								left join trn.MasterOrder MO ON MO.id=xpo.MasterOrderId
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,OwnOrderReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo from
+								[TRN].[MasterOrderItem] xpo
+								left join trn.MasterOrder MO ON MO.id=xpo.MasterOrderId
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,CustomerName=STUFF((select distinct ','+party.UserName from
+								[TRN].[MasterOrderItem] xpo
+								left join trn.MasterOrder MO ON MO.id=xpo.MasterOrderId
+								left join hkp.Party party on party.Id=MO.PartyId
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,BUyerName=STUFF((select distinct ','+Buyer.UserName from
+								[TRN].[MasterOrderItem] xpo
+								left join trn.MasterOrder MO ON MO.id=xpo.MasterOrderId
+								left join hkp.Buyer Buyer on Buyer.Id=MO.BuyerId
+								left join  trn.SalesOrder item on item.MasterOrderItemId=xpo.Id
+								INNER JOin [TRN].[IssueRequestMasterSalesOrderMap] xPDAMAP on item.Id=xPDAMAP.SalesOrderId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+
+
+							  from  [TRN].[IssueRequestMasterSalesOrderMap] PDAMAP 
+							  LEFT JOIN trn.SalesOrder IR ON IR.Id = PDAMAP.SalesOrderId
+							  --LEFT JOIN [TRN].[MasterOrderItem] C ON C.Id=IR.MasterOrderItemId
+							  --left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+							  group by  PDAMAP.IssueRequestMasterId
+							)concatData1 ON concatData1.IssueRequestMasterId = IRM.Id
+
+
                            Where IRM.CheckedBy IS  NULL 
 						   AND IRM.CheckedByStatus IS NULL
 						   AND IRM.AuthorizedByStatus='Approved' 
@@ -4930,8 +5167,9 @@ namespace Library.MaterialManagement.Inventory
 						   AND IRM.IssueSlipType='InventorySlip'
 						   AND IRM.PlantId='" + identity.PlantId + @"'
                            )x 
-                            Group by Id ,x.PreparedBy,x.AddedDate ,Orderspecific                             
-                          ";
+                            Group by Id ,x.PreparedBy,x.AddedDate ,Orderspecific,x.ProcessName ,x.SalesOrderId,x.ProductionOrderId,x.BuyerItemReferenceNo,x.OwnItemReferenceNo,x.BuyerOrderReferenceNo,x.OwnOrderReferenceNo,x.CustomerName,x.BUyerName
+
+";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

@@ -19,6 +19,7 @@
 						<input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="Yes" ng-click="show();ClearList('Yes');" ng-disabled="true">
 						<span class="cr"><i class="cr-icon"></i></span>Yes
 					</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 				</div>
 			</div>
 		</div>
@@ -68,11 +69,22 @@
 								 e-enabletouch="true" e-allowselection="true"
 								 e-scrollsettings="scroll">
 								<div e-columns>
-									<div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-									<div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="50"></div>
-									<div e-column e-field="RequestedQty" e-headertext="Valid Qty" e-width="50"></div>
-									<div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="50"></div>
-									<div e-column e-field="Orderspecific" e-headertext="Orderspecific" e-width="50"></div>
+									<div e-column e-field="Id" e-headertext="Id" e-width="150"></div>
+
+									<div e-column e-field="ProcessName" e-headertext="ProcessName" e-width="150"></div>
+									<div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="250"></div>
+									<div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="150"></div>
+									<div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="150"></div>
+									<div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="150"></div>
+									<div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="150"></div>
+									<div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="150"></div>
+									<div e-column e-field="CustomerName" e-headertext="CustomerName" e-width="150"></div>
+									<div e-column e-field="BUyerName" e-headertext="BUyerName" e-width="150"></div>
+
+									<div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="100"></div>
+									<div e-column e-field="RequestedQty" e-headertext="Valid Qty" e-width="100"></div>
+									<div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="100"></div>
+									<div e-column e-field="Orderspecific" e-headertext="Orderspecific" e-width="100"></div>
 								</div>
 
 							</div>
@@ -129,9 +141,9 @@
 					<input type="text" name="Order Ref No" ng-model="productNew.OrderRefNo" class="form-control" maxlength="300" tabindex="2" autocomplete="on" readonly>
 					<span class="input-group-btn">
 
-						<button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-						<button ng-click="ClearMasterOrder()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-						<button ng-click="GetPopUpMasterOrderDetails()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-list-alt"></i></button>
+						<button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn" ng-disabled="productNew.OrderSpecific==='Yes'"><i class="glyphicon glyphicon-search"></i></button>
+						<button ng-click="ClearMasterOrder()" class="btn single-small-btn" ng-disabled="productNew.OrderSpecific==='Yes'"><i class="glyphicon glyphicon-refresh"></i></button>
+						<button ng-click="GetPopUpMasterOrderDetails()" class="btn single-small-btn" ng-disabled="productNew.OrderSpecific==='Yes'"><i class="glyphicon glyphicon-list-alt"></i></button>
 					</span>
 				</div>
 			</div>
@@ -196,6 +208,19 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="col-xs-6 col-sm-6-md-6">
+		<div class="form-group" show-errors>
+			<label class="col-sm-4 control-label">ProcessName:<sup>*</sup></label>
+			<div class="col-sm-8 show-message">
+				<div class="input-group">
+					<label class="col-sm-4 control-label">{{productNew.ProcessName}}</label>
+					@*<input type="text" name="ProcessName" ng-model="productNew.ProcessName" class="form-control" readonly required>*@
+
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="clearfix"></div>
 	@*<div class="col-xs-12 col-sm-6 col-md-6">
 			<ul class="common-btn list-inline text-left">
@@ -229,7 +254,7 @@
 					</th>
 					<th style="width:500px;">CostCenter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 					@*<th>Cost Center</th>*@
-					
+
 
 					@*<th>Activity</th>*@
 					<th>Material</th>
@@ -238,21 +263,21 @@
 					<th>SKU2</th>
 					<th>SKU3</th>
 					<th>Country</th>
-                    <th>SalesOrder</th>
+					<th>SalesOrder</th>
 					<th>Requested-UOM</th>
 					@*<th>ApprovedQty</th>
-					<th>UnApprovedQty</th>
-					<th>TotalQty</th>*@
+						<th>UnApprovedQty</th>
+						<th>TotalQty</th>*@
 					<th>ReadyForIssue</th>
 
 					<th>RequestedQty</th>
 					<th ng-hide="false">IssuedQty</th>
-				
+
 					<th>IssueQty</th>
-                    	<th ng-hide="false">BlanceQty</th>
-                    <th ng-hide="false">BaseUoM</th>
-                    <th ng-hide="false">BaseUoMStock</th>
-                    <th>Budget</th>
+					<th ng-hide="false">BlanceQty</th>
+					<th ng-hide="false">BaseUoM</th>
+					<th ng-hide="false">BaseUoMStock</th>
+					<th>Budget</th>
 					<th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 					<th style="width:300px;">Comments&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 					<th>Action</th>
@@ -280,28 +305,28 @@
 						</div>
 					</td>
 					@*<td>{{x.CostCenterName}}</td>*@
-					
+
 					<td>{{x.Material}}</td>
 					<td>{{x.ArticleName}}</td>
 					<td>{{x.Sku1}}</td>
 					<td>{{x.Sku2}}</td>
 					<td>{{x.Sku3}}</td>
 					<td>{{x.CountryName}}</td>
-                    <td>{{x.SalesOrderId}}</td>
+					<td>{{x.SalesOrderId}}</td>
 					<td>{{x.TransactionUoM}}</td>
 					@*<td>{{x.ApprovedQty}}</td>
-					<td>{{x.UnApprovedQty}}</td>
-					<td>{{x.TotalStock}}</td>*@
+						<td>{{x.UnApprovedQty}}</td>
+						<td>{{x.TotalStock}}</td>*@
 					<td>{{x.PostingQty}}</td>
 
 					<td>{{x.RequestedQty}}</td>
 					<td ng-hide="false">{{x.IssuedQty}}</td>
-				
+
 					<td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFunc(x, $index)" ;></td>
-                    <td ng-hide="false">{{x.BalanceQty}}</td>
-                    <td ng-hide="false">{{x.BaseUoM}}</td>
-                    <td ng-hide="false">{{x.BaseUoMStock}}</td>
-                    <td>{{x.BudgetName}}</td>
+					<td ng-hide="false">{{x.BalanceQty}}</td>
+					<td ng-hide="false">{{x.BaseUoM}}</td>
+					<td ng-hide="false">{{x.BaseUoMStock}}</td>
+					<td>{{x.BudgetName}}</td>
 
 					<td>
 						<button ng-click="popUp($index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
@@ -314,7 +339,7 @@
 					@*<td>{{x.TransactionQty}}  {{x.UOM}}</td>*@
 					<td class="text-right table-td">
 						<ul class="list-inline">
-                            <li><button ng-click="showMaterialWiseStockModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Requisition Qty"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+							<li><button ng-click="showMaterialWiseStockModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Requisition Qty"><i class="glyphicon glyphicon-info-sign"></i></button></li>
 							<li><button ng-show="x.Id==null" ng-click="getSpecificMaterialStockForSlipIssue(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Add Requisition List"><i class="glyphicon glyphicon-list"></i></button></li>
 							<li><button ng-show="x.Id!=null" ng-click="getRequisitionList(x.Id);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Get Requisition List"><i class="glyphicon glyphicon-list"></i></button></li>
 							<li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
