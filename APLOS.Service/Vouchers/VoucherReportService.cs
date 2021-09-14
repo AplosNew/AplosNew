@@ -110,7 +110,7 @@ namespace Library.Service.Vouchers
         }
 
         //Income statement datewise
-        public IWorkbook GetIncomeStatementReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate, string[] parallelCurrencies)
+        public IWorkbook GetIncomeStatementReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate,  string[] parallelCurrencies)
         {
             try
             {
@@ -118,6 +118,23 @@ namespace Library.Service.Vouchers
                 using (ExcelEngine excelEngine = new ExcelEngine())
                 {
                     var workbook = obj.IncomeStatement_Report_DateRange(excelEngine, companyId, PlantId, plantName, fromDate, toDate,  parallelCurrencies);
+                    return workbook;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IWorkbook GetEntityWiseExpenseAndEarningReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate,  string entityId, string[] parallelCurrencies)
+        {
+            try
+            {
+                var obj = new ReportGeneralVoucher();
+                using (ExcelEngine excelEngine = new ExcelEngine())
+                {
+                    var workbook = obj.EntityWiseExpenseandEarning_Report_DateRange(excelEngine, companyId, PlantId, plantName, fromDate, toDate, entityId, parallelCurrencies);
                     return workbook;
                 }
             }

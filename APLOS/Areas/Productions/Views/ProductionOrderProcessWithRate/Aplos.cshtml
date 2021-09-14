@@ -3,42 +3,31 @@
 <div class="form-horizontal" ng-form name="ModelNewForm" >
     <div class="form-elements" id="ProductionOrderProcessWithRate">
         <div class="row">
-            <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="col-xs-12 col-sm-5 col-md-5">
                 <div class="form-group" show-errors>
                     <label class="col-sm-5 control-label">Production Entity<sup>*</sup></label>
                     <div class="col-sm-7 show-message">
                         <div class="select-style">
-                            <select class="form-control" ng-model="modelNew.ProductionEntityId" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required ng-change="loadProcessList()">
+                            <select class="form-control" ng-model="modelNew.ProductionEntityId" name="Entity" ng-options="item.Id as item.UserName for item in entityList"  ng-change="loadProcessList()">
                                 <option value=""></option>
                             </select>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="col-xs-12 col-sm-5 col-md-5">
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" ng-model="modelNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required ng-change="loadSKU()">
+                            <select class="form-control" ng-model="modelNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList"  @*ng-change="loadSKU()"*@>
                                 <option value=""></option>
                             </select>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-3 col-md-3">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">SKU<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="modelNew.SKUId" name="SKUId" ng-options="item.Value as item.Text for item in SKUList" required>
-                                <option value=""></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
             <div class="col-xs-12 col-sm-2 col-md-2">
                 <div class="form-group">
                     <div class="common-btn">
@@ -47,13 +36,13 @@
                 </div>
             </div>
 
-            <div class="table-responsive ">
+            <div class="col-xs-12 " ng-show="ProductionOrderList.length>0">
                 <div style="color:black;" id="Grid" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true" e-allowResizing="true"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SelectPOItem"*@
                      e-allowselection="true" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-field="POId" e-headertext="ProductionOrderNo" e-width="80"></div>
-                        <div e-column e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
+                        <div e-column e-field="BuyerOrder" e-headertext="Buyer Ord" e-width="80"></div>
                         <div e-column e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
                         <div e-column e-field="SONo" e-headertext="SONo" e-width="80"></div>
                         <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
@@ -71,25 +60,76 @@
                         <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
                         <div e-column e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
                         <div e-column e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
+                        <div e-column e-template="#SKU" e-headertext="SKU" e-width="100"></div>
+                        <div e-column e-template="#Rate" e-headertext="Rate" e-width="100"></div>
+                        <div e-column e-template="#ButtonSD" e-width="100"></div>
                     </div>
+                </div>
+                <script type="text/template" id="Rate">
+                    <input type="text" name="Rate" ng-model="data.Rate" class="form-control" style="background-color:antiquewhite;font-weight:bold;color:black;" tabindex="5" maxlength="50">
+                </script>
+                <script type="text/template" id="SKU">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="data.SKUId" name="SKUId" ng-options="item.Value as item.Text for item in data.Charactaristics" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </script>
+                <script type="text/template" id="ButtonSD">
+                    <div class="common-btn">
+                        <button style="color: #f3f3ec;background-color: #1c1f32;" class="btn">
+                            <i class="glyphicon glyphicon-list" ng-click="$parent.AddButton(data);"></i>
+                        </button>
+                    </div>
+                </script>
+            </div>
+            <div class="col-md-12" ng-show="ProductionOrderList.length>0">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
                 </div>
             </div>
         </div>
-
-            @*<div class="col-md-12">
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
-        </div>*@
-
-        </div>
-
-
+                
     </div>
 </div>
+
+
+<ej-dialog id="SKUPopUp"
+           title="Examption"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#ProductionOrderProcessWithRate"
+           e-close="onDialogClose"
+           e-width="1020"
+           e-minheight="470"
+           e-open="enableBtn">
+
+
+    <div class="row" style="padding-bottom:10px;">
+        <div class="col-xs-1 small text-nowrap">Production Order No </div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.POId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer Order</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.BuyerOrder}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Own Order</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.OwnOrder}}</span></div>
+        <div class="col-xs-1 small text-nowrap">SONo</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.SONo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Description</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.Description}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Mast.Ord Item Id</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.MasterOrderItemId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer Item No</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.BuyerItemNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Own Item No</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.OwnItemNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer Order No</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.BuyerOrderNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Own Order No</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.OwnOrderNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Prod. Cat</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.ProductCategory}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Product</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.Product}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Material</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.Material}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Article</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.Article}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.Buyer}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Customer</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.Customer}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Contract#</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.ContractNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">LC#</div><div class="col-xs-2 small text-nowrap"><span>:{{SelectedProductionOrder.LCRef}}</span></div>
+    </div>
+    
+</ej-dialog>
 
 <confirm-modal></confirm-modal>

@@ -75,7 +75,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                 }
             }
-            return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            return Json(new { Error = false, Message = "Shift Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -117,7 +117,8 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                 }
             }
-            return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            return Json(new { Error = false, Message = "Attendance Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
         }
 
         [HttpGet, Authorize]
@@ -160,7 +161,8 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                 }
             }
-            return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            return Json(new { Error = false, Message = "DayStatus Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
         }
 
         [HttpGet, Authorize]
@@ -202,7 +204,8 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                 }
             }
-            return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            return Json(new { Error = false, Message = "Manual Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
         }
 
         [HttpGet, Authorize]
@@ -224,7 +227,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 NewAttendanceProcessService.SaveLog(error,"MonthlySummary", true);
             }
-            return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            return Json(new { Error = false, Message = "MonthlySummary Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
 
         }
 
@@ -267,7 +271,9 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                 }
             }
-             return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            return Json(new { Error = false, Message = "Roster Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
+
         }
     }
 }

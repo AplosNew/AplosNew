@@ -11,6 +11,12 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
+    $scope.modelNew = {
+        ProductionEntityId: null,
+        ProcessId: null,
+        SKUId: null,
+    }
+
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
@@ -40,4 +46,48 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             $scope.SKUList = response.data;
         });
     }
+    $scope.ProductionOrderList = [];
+    $scope.getData = function () {
+        try {
+            if ($scope.modelNew.ProductionEntityId == null) {
+                throw "Select Production Entity.."
+            }
+            $scope.ProductionOrderList = [];
+            $http.get("Productions/ProductionOrderProcessWithRate/GetProductionOrderDataList?entityId=" + $scope.modelNew.ProductionEntityId + "&ProcessId=" + $scope.modelNew.ProcessId)
+                .then(
+                    function successCallback(response) {
+                        if (baseService.arrayLength(response.data) > 0) {
+                            $scope.ProductionOrderList = response.data;
+                        }
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    };
+    $scope.SelectedProductionOrder = {};
+    $scope.ShowDiv = false;
+    $scope.AddButton = function (row) {
+        try {
+            $scope.ShowDiv = true;
+
+            $scope.SelectedProductionOrder = row;
+
+            var eDialog = $("#SKUPopUp").data("ejDialog");
+            eDialog.open();
+
+            //if (data.IsExemption == true) {
+            //    $("#General").ejDialog("setTitle", data.SalaryHead );
+            //    eDialog.open();
+            //}
+            //else {
+            //    throw "Exemption Applicable is not checked for this Taxable Income";
+            //}
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+
+    };
 }
