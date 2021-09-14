@@ -3598,6 +3598,142 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+		public GridModel GetIssueMaterialGL(GridParameter parameters, string issueId, string companyId)
+		{
+			try
+			{
+				parameters.CmdText = @"DECLARE  @issueId varchar(10)='" + issueId + "', @companyId varchar(10)='" + companyId + @"'
+                            SELECT IR.Id InventoryIssueId,IRD.Id InventoryIssueDetailId,IR.CompanyGroupId
+                                ,IR.CompanyId
+                                ,Plant.GSTIN 
+								,IR.Id PONumber                                 
+                                ,REPLACE(Convert(VARCHAR(11), IR.IssueDate, 106), ' ', '-') AS PODate
+		                        ,IOM.MaterialMasterId
+		                        ,IR.AddedBy
+		                        ,IR.AddedDate
+		                        ,IR.UpdatedBy
+		                        ,IR.UpdatedDate
+	                          ,MM.UserName 
+	                          ,MM.MaterialGroupMasterId
+	                          ,MGM.UserName MaterialGroupMasterName
+	                          ,IOM.ArticleId
+	                          ,MMA.StandardName 
+	                          ,FC.Id FirstCharId
+	                          ,FC.UserName FirstChar
+                              ,IOM.FirstCharacteristicsValueId
+	                          ,FCV.UserName AS FirstCharacteristicsValue
+                              ,IOM.SecondCharacteristicsValueId
+	                          ,SCV.UserName AS SecondCharacteristicsValue
+	                          ,IOM.ThirdCharacteristicsValueId
+	                          ,TCV.UserName AS ThirdCharacteristicsValue
+	                          ,SC.Id SecondCharId
+	                          ,SC.UserName SecondChar
+	                          ,TC.Id ThirdCharId
+	                          ,TC.UserName ThirdChar
+	                          ,ROUND(IRD.TransactionQty, 2) TransactionQty
+	                          ,ROUND(IRD.PolicyRate, 2) TransactionRate
+	                          ,ROUND((IRD.PolicyAmount), 2) AS TrnAmount
+	                          ,IRD.BaseUOMId
+	                          ,TUoM.UserName AS TransactionUoM
+							  --,BI.UserName BudgetName
+							  --,AI.UserName ActivityName
+							  ,GLGeneralInfoId=CASE WHEN IRD.BudgetMasterId<>'' THEN BMI.GLGeneralInfoId ELSE  MGGL.ExpenseGLId END
+								,GLGeneralInfoCode=CASE WHEN IRD.BudgetMasterId<>'' THEN IRD.BudgetMasterId ELSE GL.AccountCode END
+								,GLGeneralInfoName=CASE WHEN IRD.BudgetMasterId<>'' THEN GLI.UserName ELSE GL.UserName END
+								,GLName=CASE WHEN IRD.BudgetMasterId<>'' THEN GLI.AccountCode +'-'+ GLI.UserName ELSE GL.AccountCode +'-'+ GL.UserName END
+	                            ,BudgetMasterId=CASE WHEN IRD.BudgetMasterId<>'' THEN IRD.BudgetMasterId ELSE MGGL.ExpenseBudgetMasterId END
+								,BudgetCode=CASE WHEN IRD.BudgetMasterId<>'' THEN BI.Code ELSE B.Code END
+								,BudgetName=CASE WHEN IRD.BudgetMasterId<>'' THEN BI.UserName ELSE B.UserName END
+								,ActivityId=CASE WHEN IRD.ActivityId<>'' THEN IRD.ActivityId ELSE MGGL.ExpenseActivityId END
+								,ActivityCode=CASE WHEN IRD.ActivityId<>'' THEN AI.Code ELSE A.Code END
+								,ActivityName=CASE WHEN IRD.ActivityId<>'' THEN AI.UserName ELSE A.UserName END
+								,PostDrGLGeneralInfoId=IH.PostDrGLGeneralInfoId
+								,GAccountCode=IH.GAccountCode
+							    ,GUserName=IH.GUserName
+	                            , PostDrBudgetMasterId=IH.PostDrBudgetMasterId
+								, BCode=IH.BCode
+								, BUserName=IH.BUserName
+                                , PostDrActivityId=IH.PostDrActivityId
+                                , ACode=IH.ACode
+								, AUserName=IH.AUserName
+								,JWGLGeneralInfoId=GADJW.GLGeneralInfoId
+								,JWGLGeneralInfoCode=GGLJW.AccountCode
+							    ,JWGLGeneralInfoName=GGLJW.UserName
+	                            , JWBudgetMasterId=GADJW.BudgetMasterId
+								, JWBCode=GBJW.Code
+								, JWBudgetName=GBJW.UserName
+                                , JWActivityId=GADJW.ActivityId
+                                , JWACode=GAJW.Code
+								, JWActivityName=GAJW.UserName
+
+
+                                ,IRD.BudgetMasterId IssueBudgetMasterId,IRD.ActivityId IssueActivityId
+								,MGGL.ExpenseBudgetMasterId,MGGL.ExpenseActivityId
+								,GAD.GLGeneralInfoId WIPGLGeneralInfoId
+								,GGL.AccountCode WIPGLGeneralInfoCode
+								,GGL.UserName WIPGLName
+								,GAD.BudgetMasterId WIPBudgetMasterId
+								,GB.UserName WIPBudgetName 
+								,GAD.ActivityId WIPActivityId
+								,GA.UserName WIPActivityName
+                              FROM TRN.InventoryIssue IR
+                         LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
+                         LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                         LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
+                         LEFT JOIN trn.InventoryIssueDetail IRD ON IR.Id = IRD.InventoryIssueId						                                   
+                         LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
+                         INNER JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
+                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
+                         LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId
+                         LEFT JOIN HKP.Characteristics AS FC ON IOM.FirstCharacteristicsId = FC.Id
+                         LEFT JOIN HKP.Characteristics AS SC ON IOM.SecondCharacteristicsId = SC.Id
+                         LEFT JOIN HKP.Characteristics AS TC ON IOM.ThirdCharacteristicsId = TC.Id
+                         LEFT JOIN HKP.CharacteristicsValue AS FCV ON IOM.FirstCharacteristicsValueId = FCV.Id
+                         LEFT JOIN HKP.CharacteristicsValue AS SCV ON IOM.SecondCharacteristicsValueId = SCV.Id
+                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IOM.ThirdCharacteristicsValueId = TCV.Id
+                         JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
+						  JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+		                        AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+                        LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGGL.ExpenseGLId=GL.Id
+                        LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.ExpenseBudgetMasterId= BM.Id
+                        LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+                        LEFT JOIN [HKP].[Activity] AS A ON MGGL.ExpenseActivityId= A.Id
+                        LEFT JOIN[MST].[BudgetMaster] AS BMI ON IRD.BudgetMasterId= BMI.Id
+                        LEFT JOIN [HKP].[Budget] AS BI ON BMI.BudgetId= BI.Id
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GLI ON BMI.GLGeneralInfoId=GLI.Id
+                        LEFT JOIN [HKP].[Activity] AS AI ON IRD.ActivityId= AI.Id
+						LEFT JOIN HKP.GeneralAccountDeterminate GAD ON GAD.COAId=Cmp.COAId and GAD.Id='IssueOfRawMaterialToAnOrder'
+						 LEFT JOIN [HKP].[GLGeneralInfo] AS GGL ON GGL.Id=GAD.GLGeneralInfoId
+                        LEFT JOIN[MST].[BudgetMaster] AS GBM ON GAD.BudgetMasterId= GBM.Id
+                        LEFT JOIN [HKP].[Budget] AS GB ON GBM.BudgetId= GB.Id
+                        LEFT JOIN [HKP].[Activity] AS GA ON GAD.ActivityId= GA.Id
+						LEFT JOIN HKP.GeneralAccountDeterminate GADJW ON GADJW.COAId=Cmp.COAId and GADJW.Id='IssueOfRawMaterialForJobWork'
+						 LEFT JOIN [HKP].[GLGeneralInfo] AS GGLJW ON GGLJW.Id=GADJW.GLGeneralInfoId
+                        LEFT JOIN[MST].[BudgetMaster] AS GBMJW ON GADJW.BudgetMasterId= GBMJW.Id
+                        LEFT JOIN [HKP].[Budget] AS GBJW ON GBMJW.BudgetId= GBJW.Id
+                        LEFT JOIN [HKP].[Activity] AS GAJW ON GADJW.ActivityId= GAJW.Id
+						LEFT JOIN (select distinct  InventoryIssueDetailId ,ID.PostDrGLGeneralInfoId, GL.AccountCode GAccountCode, GL.UserName GUserName
+						, ID.PostDrBudgetMasterId, B.Code BCode, B.UserName BUserName, ID.PostDrActivityId, A.Code ACode, A.UserName AUserName,SUM(iih.Qty*iih.Rate) Amount
+						from  [TRN].[InventoryIssueHistory] iih join TRN.InventoryReceiveDetail id on id.Id=iih.InventoryReceiveDetailId
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON ID.PostDrGLGeneralInfoId=GL.Id
+                        LEFT JOIN [MST].[BudgetMaster] AS BM ON ID.PostDrBudgetMasterId= BM.Id
+                        LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+                        LEFT JOIN [HKP].[Activity] AS A ON ID.PostDrActivityId= A.Id
+						group by InventoryIssueDetailId ,ID.PostDrGLGeneralInfoId, GL.AccountCode , GL.UserName 
+						, ID.PostDrBudgetMasterId, B.Code , B.UserName , ID.PostDrActivityId, A.Code , A.UserName 
+						) AS IH ON IH.InventoryIssueDetailId=IRD.Id
+                         WHERE IR.Id=@issueId";
+				return _sqlRepository.GetDifferentGridData(parameters);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+
+
 		public IEnumerable<object> GetInventoryShortage(string companyGroupId, string companyId, string plantId, SourceType sourceType)
 		{
 			var sql = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.VoucherId, A.PostingDate, A.DocDate
@@ -4170,6 +4306,102 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+
+		#region Post Invoice
+		public IEnumerable<object> GetGRNListForPostInvoice(string plantId)
+		{
+			try
+			{
+				var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+		, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
+		, CP.UserName AS PartyAccountGroupName
+		, IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+        , Particular=CASE WHEN IR.EmployeeId<>'' THEN EI.EmployeeName WHEN IR.PartyId<>'' THEN P.UserName  ELSE P.UserName END
+	    , IR.MaterialStorageId, IR.DocRefNo, IR.DocDate
+	    , IR.GateEntryNo,PG.UserName GateEntryName, REPLACE(CONVERT(CHAR(11), GE.EntryDate, 106),' ','-') AS EntryDate
+		, IR.CurrencyId, CU.Code AS CurrencyCode
+		, IR.BaseCurrencyId
+	    , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo
+		, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+	    , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId
+		, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+	    , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
+        , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName,PT.PaymentMode
+		, CP.TaxApplicable, IR.IsTaxApplicable, IR.ToCurrencyRate, IR.ToCurrencyRate CompanyCurrencyRate
+		,[Type]=CASE WHEN IR.EmployeeId<>'' THEN 'Employee' Else 'Vendor' END
+		,IR.NoteForAccounts Narration
+        ,IR.PurchaseDocumentAcceptanceId AcceptanceId, REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate
+		, PDA.AcceptanceNo
+		,IsFOC=CASE WHEN IR.IsFOC=1 THEN 'YES' ELSE 'NO' END
+		,IR.GRNType
+		,POId=	STUFF((select distinct ','+PO.Id from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+		,PODate=	STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+		,POVendorRefNo=	STUFF((select distinct ','+PO.DocRefNo from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+		,LCNo=	STUFF((select distinct ','+LC.LCRef from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+								LEFT JOIN DBO.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			,PurchaseLCId=	STUFF((select distinct ','+LC.Id from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+								LEFT JOIN DBO.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+		,ContractNo=	STUFF((select distinct ','+C.ContractNo from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+								LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+								LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
+								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			,CustomerName=	STUFF((select distinct ','+P.UserName from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+								LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+								LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
+								LEFT JOIN HKP.Party P ON P.Id=C.CustomerId
+								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+		ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
+LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+LEFT JOIN [TRN].GateEntry GE ON GE.Id=IR.GateEntryNo
+LEFT JOIN dbo.PlantWiseGate PG ON PG.Id=GE.PlantWiseGateId
+LEFT JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=IR.PurchaseDocumentAcceptanceId
+LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
+					
+LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.TotalMaterialTranAmount,4)) AS TransactionAmount, SUM(ROUND(A.TotalMaterialBooksCurrencyAmount,0)) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
+		JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='"+ plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
+		WHERE B.PlantId='"+ plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+WHERE IR.PlantId='"+ plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND ISNULL(IR.VoucherId,'')<>'' AND IR.IsPaymentHold=0 AND IR.PlantId='"+ plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
+AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.GRNType!='MaterialTransfer' AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].[Invoice] where ISNULL(InventoryReceiveId,'')<>'')
+AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].EmployeePayable where ISNULL(InventoryReceiveId,'')<>'')
+order by IR.GRNDate desc";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+		#endregion Post Invoice
 
 	}
 }

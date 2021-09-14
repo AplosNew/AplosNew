@@ -1444,8 +1444,8 @@ namespace Library.Service.Finances
                 reportUtility.SetHeaderText(ref sheet, row, col, "Voucher No", 13); col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Doc Ref", 14); col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Doc Date", 12); col++;
-
-                reportUtility.SetHeaderText(ref sheet, row, col, "Narration", 40); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Narration", 50); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "GL", 40); col++;
 
                 sheet.Range[row, col].WrapText = true;
 
@@ -1495,6 +1495,9 @@ namespace Library.Service.Finances
                     {
                         col = 1;
 
+                        var glName = ledgerData.Rows[i]["BudgetName"].ToString();
+
+                        //sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge();
                         reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["PostingDate"].ToString(), 12, ExcelHAlign.HAlignLeft); col++;
                         reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["VoucherNo"].ToString(), 13, ExcelHAlign.HAlignLeft); col++;
                         reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["DocRefNo"].ToString(), 14, ExcelHAlign.HAlignLeft); col++;
@@ -1503,6 +1506,9 @@ namespace Library.Service.Finances
                         sheet.Range[row, col].WrapText = true;
                         reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["Narration"].ToString());
                         col++;
+                        reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + ledgerData.Rows[i]["ActivityName"]); col++;
+
+
 
                         sheet.Range[row, col].WrapText = true;
                         if (companyCurrencyId != Convert.ToString(loanMaster["CurrencyId"]))

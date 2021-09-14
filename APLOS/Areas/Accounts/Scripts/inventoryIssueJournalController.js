@@ -442,7 +442,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
             });
     }
     function getIssueGLList(id) {
-        $http.get('Products/InventoryIssue/GetInventoryMaterialIssueGLList?issueId=' + id)
+        $http.get('Accounts/InventoryPayable/GetInventoryMaterialIssueGLList?issueId=' + id)
             .then(function (response) {
                 $scope.inventoryIssueGLList = response.data.Rows;
                 $scope.issueJournal();

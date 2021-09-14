@@ -15,12 +15,12 @@ using System.Collections.Generic;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
-    public class InventoryPayableController : BaseController
+    public class PostInvoiceController : BaseController
     {
         private readonly ISqlRepository _sqlRepository;
        // private readonly IInventoryPayableService _inventoryPayableService;
 
-        public InventoryPayableController(
+        public PostInvoiceController(
          //   IInventoryPayableService inventoryPayableService
              ISqlRepository sqlRepository
             )
@@ -30,27 +30,12 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
-        public ActionResult InventoryPayable()
+        public ActionResult Aplos()
         {
             return View();
         }
 
-        public ActionResult InventoryJobWorkReceived()
-        {
-            return View();
-        }
-
-        public ActionResult ServicePayable()
-        {
-            return View();
-        }
-
-
-        public ActionResult InventoryIssueJournal()
-        {
-            return View();
-        }
-
+        
 
         #region GRN Payable
 
@@ -137,7 +122,7 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsInventoryPayableService.GetGRNListForInvPayable(identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInventoryPayableService.GetGRNListForPostInvoice(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         
@@ -380,13 +365,6 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(accountsInventoryPayableService.GetIssueJournalList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetInventoryMaterialIssueGLList(GridParameter parameters, string issueId)
-        {
-            AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsInventoryPayableService.GetIssueMaterialGL(parameters, issueId, identity.CompanyId), JsonRequestBehavior.AllowGet);
-        }
 
         [HttpGet, Authorize]
         public ActionResult IssueJournalReport(ReportFormat reportFormat, string inventoryIssueId)

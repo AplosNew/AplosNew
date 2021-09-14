@@ -220,9 +220,18 @@ namespace Library.Accounting.Accounts
                      ,ISNULL(LIP.InterestAmount,0) InterestAmount,ISNULL(LP.WrittenOffInterestAmount,0) WrittenOffInterestAmount
                     ,ISNULL(LIP.InterestAmount,0) -ISNULL(LP.WrittenOffInterestAmount,0) InterestBalanceAmount,
                     ISNULL(F.Amount,0)-ISNULL(f.WrittenOffAmount,0)+(ISNULL(LIP.InterestAmount,0) -ISNULL(LP.WrittenOffInterestAmount,0)) RemaningBalance
+
+
+						,GL.UserName AS GL
+						, GL.AccountCode AS GLGeneralInfoCode
+						, BUD.UserName AS Budget
+						  ,[Activity]= ACT.UserName
+
+
                     FROM
                     [TRN].[Financing] AS F
                     LEFT JOIN HKP.FinancingType FT ON FT.Id=F.FinancingTypeId
+	                left join [TRN].[FinancingDetail]  FD ON FD.FinancingId = F.Id
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=F.VoucherId
                     LEFT JOIN(SELECT FinancingId,SUM(ISNULL(Amount,0)) InterestAmount 
                      FROM TRN.FinancingSubsequentTransaction  where IsPark=0 and TransactionType in ('InterestPayable') group by FinancingId) LIP ON LIP.FinancingId=F.Id
@@ -237,6 +246,12 @@ namespace Library.Accounting.Accounts
 					left join hkp.BankAccountType BAT ON BAT.ID = OBM.BankAccountTypeId
 					left join hkp.Bank BN ON BN.Id = OBM.BankId
 					left join hkp.BankBranch BB ON BB.Id = OBM.BankBranchId
+
+
+		                 LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=FD.GLGeneralInfoId
+						LEFT JOIN [MST].[BudgetMaster] AS BUM ON BUM.Id = FD.BudgetMasterId
+						LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BUM.BudgetId
+		                LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id = FD.ActivityId
                     where F.SourceType='" + SourceType.Loan.ToString() + "' and f.TransactionType='" + transactionType + "'";
             return _sqlRepository.GetDataTable(sql);
         }
