@@ -14,7 +14,7 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
     $scope.modelNew = {
         ProductionEntityId: null,
         ProcessId: null,
-        SKUId: null,
+        ProductionOrderId: null,
     }
 
     $scope.entityList = [];
@@ -74,7 +74,8 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             $scope.ShowDiv = true;
 
             $scope.SelectedProductionOrder = row;
-
+            $scope.modelNew.ProductionOrderId = $scope.SelectedProductionOrder.POId;
+            
             var eDialog = $("#SKUPopUp").data("ejDialog");
             eDialog.open();
 
