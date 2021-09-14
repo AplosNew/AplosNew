@@ -775,14 +775,6 @@ namespace Aplos.Areas.Accounts.Controllers
             COL++;
 
 
-
-            //worksheet[ROW, COL].Text = "GSTIN";
-            //int colGSTIN  = COL;
-            //worksheet[ROW, COL].ColumnWidth = 32;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            ////worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            //COL++;
-
             worksheet[ROW, COL].Text = "Loan To";
             int colParticulars  = COL;
             worksheet[ROW, COL].ColumnWidth = 25;
@@ -831,6 +823,12 @@ namespace Aplos.Areas.Accounts.Controllers
             worksheet[ROW, COL].Text = "Is Opening";
             int colIsOpening = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "GL";
+            int colGLBUDGETACTIVITY = COL;
+            worksheet[ROW, COL].ColumnWidth = 35;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
@@ -918,6 +916,15 @@ namespace Aplos.Areas.Accounts.Controllers
 
             for (int i = 0; i < dtAllLoanRegisterList.Rows.Count; i++)
             {
+                var glName = dtAllLoanRegisterList.Rows[i]["Budget"].ToString();
+
+
+                //reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dtAllLoanRegisterList.Rows[i]["Activity"]);
+                worksheet[ROW, colGLBUDGETACTIVITY].Text = dtAllLoanRegisterList.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dtAllLoanRegisterList.Rows[i]["Activity"];
+
+                //worksheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge();
+
+
                 // int i = 0; i < dtMasterOrderItem.Rows.Count; i++
                 worksheet[ROW, colFinancingNo].Text = dtAllLoanRegisterList.Rows[i]["FinancingNo"].ToString();
                // worksheet[ROW, colTransactionType].Text = dtAllLoanRegisterList.Rows[i]["TransactionType"].ToString();

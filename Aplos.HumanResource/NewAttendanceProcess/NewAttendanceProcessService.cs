@@ -977,7 +977,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
                 left join org.Plant pl on pl.Id=e.PlantId
                 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
-                where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantId + @"'";
+                where e.EmpType!='Guest' and e.PlantId='" + PlantId + @"' and
+				E.DOJ <= '"+Date+"' AND (E.DOS >= '"+Date+"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901') ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -1002,16 +1003,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
 				left join scs.DesignationMasterConfiguration dc on dc.DesignationMasterId=dm.Id
                 and dc.PlantId=e.PlantId
-                 where p.WorkDate='" + Date+@"' and 
-				 e.PlantId='"+PlantId+@"' 
-                and e.EmployeeStatus='Active'
-                and dc.IsOTEntitled=1
-				 and e.SystemId not in
-                (select final.EmpSystemId from (
-                select distinct o.empsystemId,(select top 1 Exclude from NonEligibleOT m
-                where m.EmpSystemId=o.EmpSystemId
-                order by EffectiveDate desc)as x
-                from NonEligibleOT o) final where final.x=1)";
+                where p.WorkDate='" + Date+@"' and 
+				e.PlantId='"+PlantId+ @"' 
+                and E.DOJ <= '" + Date + "' AND (E.DOS >= '" + Date + "' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')" +
+                "and dc.IsOTEntitled=1 " +
+                "and e.SystemId not in (select final.EmpSystemId from (select distinct o.empsystemId,(select top 1 Exclude from NonEligibleOT m" +
+                "where m.EmpSystemId=o.EmpSystemId order by EffectiveDate desc)as x" +
+                "from NonEligibleOT o) final where final.x=1)";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -1297,8 +1295,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select distinct e.SystemId as EmpId,e.GroupID,MONTH('" + Date+@"')MonthNo,
                 YEAR('"+Date+@"')YearNo,isnull(c.DailyLimit,'0')DailyLimit,isnull(c.MonthlyLimit,'0')MonthlyLimit
                 from EmployeeInformation e left join creditlimitopening c on 
-                c.DesignationId=e.DesignationSystemID where EmployeeStatus='Active' and EmpType!='Guest'
-                and e.PlantId='"+Plant+"'";
+                c.DesignationId=e.DesignationSystemID where EmpType!='Guest'
+                and e.PlantId='"+Plant+ "'and e.DOJ <= '"+Date+"' AND(e.DOS >= '"+Date+"' OR ISNULL(e.DOS, '') = '' OR e.DOS = '01/01/1901') ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -1318,19 +1316,19 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 Date = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
                 string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
 
-                DataSet PlantLock;
-                PlantbothdaysCheck(Date, out PlantLock, PlantValue);
-                if (PlantLock.Tables[0].Rows.Count > 0)
+                DataSet ValidationData;
+                Validation(out ValidationData, PlantValue);
+                if (ValidationData.Tables[0].Rows.Count > 0)
                 {
-
-                }
-                else
-                {
-
-                    DataSet ValidationData;
-                    Validation(out ValidationData, PlantValue);
-                    if (ValidationData.Tables[0].Rows.Count > 0)
+                    DataSet PlantLock;
+                    PlantLockCheck(PreviousDay, out PlantLock, PlantValue);
+                    if (PlantLock.Tables[0].Rows.Count > 0)
                     {
+
+                    }
+                    else
+                    {
+
                         #region Getting MissFlagged InPunch of the PrevDay
                         DataSet MissFlaggedIn;
                         ConfirmedPrevMissIn(PreviousDay, out MissFlaggedIn, PlantValue);
@@ -1790,6 +1788,17 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         ExceptionFinalInOut(PreviousDay, PlantValue);
                         #endregion
 
+                       
+                    }
+
+                    DataSet PlantLockToday;
+                    PlantLockCheck(Date, out PlantLockToday, PlantValue);
+                    if (PlantLockToday.Tables[0].Rows.Count > 0)
+                    {
+
+                    }
+                    else
+                    {
                         #region Getting flagged InPunch of the Day
                         DataSet FlaggedIn;
                         ConfirmedInFlagForDay(Date, out FlaggedIn, PlantValue);
@@ -2153,25 +2162,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void PlantbothdaysCheck(string Date, out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                string Today = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
-                string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
-
-                var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
-                and LockedDate between '" + PreviousDay + "' and '" + Today + "' and IsActive='1' ";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void GetPlant(string CompanyGpId, out DataSet ds)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -2190,7 +2180,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
 
         }
-
         public void GetCompanyGp(out DataSet ds)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3327,12 +3316,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 else
                 {
-                   
+
                     #region Previous Day Duration EarlyIn Late EarlyOut OverStay
                     DataSet PrevDurn;
                     PrevDayDuration(PreviousDay, out PrevDurn, PlantValue);
                     if (PrevDurn.Tables[0].Rows.Count > 0)
-                    { 
+                    {
                         string WorkDate = PrevDurn.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
@@ -3731,8 +3720,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #region Previous Payroll DayStatus 
                     PrePayrollDayStatus(PreviousDay, PlantValue);
-                    #endregion       
-                  
+                    #endregion
+
                     #region Prev DayOT Calculation 
                     DataSet PrevOTCalculate;
                     PrevDayOTCalculation(PreviousDay, out PrevOTCalculate, PlantValue);
@@ -3745,7 +3734,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         var sqlx = @"select * from AttdnProcessData where IsOTEntitled='1' and WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                        var sqly = @"select * from PlantWiseHRMSSetting where PlantID='"+PlantValue+"'";
+                        var sqly = @"select * from PlantWiseHRMSSetting where PlantID='" + PlantValue + "'";
                         objCon.OpenDataSetThroughAdapter(sqly, out DataSet OTMode, false, false, "", "1");
 
                         string OTModeValue = clsWebLib.RetValidLen(OTMode.Tables[0].Rows[0][@"ResultendOT"]).ToString();
@@ -3811,7 +3800,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 dr.BeginEdit();
                                                 dr["ProcessedOT"] = Result;
                                                 dr.EndEdit();
-                                            }                                            
+                                            }
                                         }
                                         else
                                         {
@@ -3835,7 +3824,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     if (PrevEarnedLeave.Tables[0].Rows.Count > 0)
                     {
                         var WkDate = PrevEarnedLeave.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        
+
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from LeaveEarned where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
@@ -3849,8 +3838,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string DayType = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"DayType"]).ToString();
                             string EarnedPL = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"EarnedPL"]).ToString();
                             string EarnedCL = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"EarnedCL"]).ToString();
-                           
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId+ "' ";
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
 
@@ -3906,7 +3895,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 string AutoOT = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"OTHr"]).ToString();
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                
+
                                 if (OTModeValue == "1")
                                 {
                                     if (ManualOT != "")
@@ -3944,7 +3933,231 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     }
                     #endregion
+                   
+                    #region DayLimitProcess 
 
+                    #region DayType Updation
+
+                    DataSet DaytypeLimitOT;
+                    DayTypeforOTProcess(PreviousDay, out DaytypeLimitOT, PlantValue);
+                    if (DaytypeLimitOT.Tables[0].Rows.Count > 0)
+                    {
+                        var WkDate = DaytypeLimitOT.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        var PlantId = DaytypeLimitOT.Tables[0].Rows[0][@"PlantID"].ToString();
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "'", out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < DaytypeLimitOT.Tables[0].Rows.Count; i++)
+                        {
+                            string RowId = DaytypeLimitOT.Tables[0].Rows[i][@"RowId"].ToString();
+                            string DayType = DaytypeLimitOT.Tables[0].Rows[i][@"DayType"].ToString();
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                string Day = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
+                                if (Day == "")
+                                {
+                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["DayType"] = DayType;
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr["UpdatedBy"] = "Schedule";
+                                    dr.EndEdit();
+                                }
+                            }
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+                    #endregion
+
+                    #region Planned OT Flagging 
+                    DataSet PreallocatedOT;
+                    PreallocatedOTSource(PreviousDay, out PreallocatedOT, PlantValue);
+                    if (PreallocatedOT.Tables[0].Rows.Count > 0)
+                    {
+                        var WkDate = PreallocatedOT.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                        var PlantId = PreallocatedOT.Tables[0].Rows[0][@"PlantID"].ToString();
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "'and isnull(DayType,'')!=''", out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < PreallocatedOT.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = PreallocatedOT.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            string OTMinutes = PreallocatedOT.Tables[0].Rows[i][@"PreAllocatedOTMinutes"].ToString();
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                dr["PlannedOT"] = OTMinutes;
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+                    #endregion
+
+                    #region EmployeeWise FixedOTSetting 
+                    DataSet FixedOTSetting;
+                    FixedOTSettingSource(PreviousDay, out FixedOTSetting, PlantValue);
+                    if (FixedOTSetting.Tables[0].Rows.Count > 0)
+                    {
+                        var WkDate = FixedOTSetting.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                        var PlantId = FixedOTSetting.Tables[0].Rows[0][@"PlantId"].ToString();
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "' and isnull(DayType,'')!=''", out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < FixedOTSetting.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = FixedOTSetting.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            string WeekOffOT = FixedOTSetting.Tables[0].Rows[i][@"WeekOffOT"].ToString();
+                            string NormalDayOT = FixedOTSetting.Tables[0].Rows[i][@"NormalDayOT"].ToString();
+                            string HolidayOT = FixedOTSetting.Tables[0].Rows[i][@"HolidayOT"].ToString();
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
+                                if (DayType != "")
+                                {
+                                    dr.BeginEdit();
+                                    if (DayType == "H")
+                                    {
+                                        dr["FixedOT"] = HolidayOT;
+                                    }
+                                    else if (DayType == "W")
+                                    {
+                                        dr["FixedOT"] = WeekOffOT;
+                                    }
+                                    else
+                                    {
+                                        dr["FixedOT"] = NormalDayOT;
+                                    }
+
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
+                            }
+
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+                    #endregion
+
+                    #region WeeklyOT Entry
+                    DataSet WeekOTSource;
+                    WeekLimitOTSource(PreviousDay, out WeekOTSource, PlantValue);
+                    if (WeekOTSource.Tables[0].Rows.Count > 0)
+                    {
+                        var WkDate = WeekOTSource.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        var PlantId = WeekOTSource.Tables[0].Rows[0][@"PlantID"].ToString();
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "' and isnull(DayType,'')!=''", out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < WeekOTSource.Tables[0].Rows.Count; i++)
+                        {
+                            string RowId = WeekOTSource.Tables[0].Rows[i][@"RowId"].ToString();
+                            string WeekOffOT = WeekOTSource.Tables[0].Rows[i][@"WeekOffOT"].ToString();
+                            string NormalDayOT = WeekOTSource.Tables[0].Rows[i][@"NormalDayOT"].ToString();
+                            string HolidayOT = WeekOTSource.Tables[0].Rows[i][@"HolidayOT"].ToString();
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
+                                if (DayType != "")
+                                {
+                                    dr.BeginEdit();
+                                    if (DayType == "H")
+                                    {
+                                        dr["LimitSettingOT"] = HolidayOT;
+                                    }
+                                    else if (DayType == "W")
+                                    {
+                                        dr["LimitSettingOT"] = WeekOffOT;
+                                    }
+                                    else
+                                    {
+                                        dr["LimitSettingOT"] = NormalDayOT;
+                                    }
+
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
+                            }
+
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+                    #endregion
+
+                    #region SlabOT Entry
+                    DataSet SlabOT;
+                    SlabOTSource(PreviousDay, out SlabOT, PlantValue);
+                    if (SlabOT.Tables[0].Rows.Count > 0)
+                    {
+                        var WkDate = SlabOT.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                        var PlantId = SlabOT.Tables[0].Rows[0][@"PlantId"].ToString();
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "' and isnull(DayType,'')!=''", out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < SlabOT.Tables[0].Rows.Count; i++)
+                        {
+                            string RowId = SlabOT.Tables[0].Rows[i][@"RowId"].ToString();
+                            string firstSlab = clsWebLib.RetValidLen(SlabOT.Tables[0].Rows[i][@"firstSlab"]).ToString();
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
+                                if (DayType != "")
+                                {
+                                    if (firstSlab != "")
+                                    {
+                                        dr.BeginEdit();
+                                        dr["SlabOT"] = firstSlab;
+                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                        dr.EndEdit();
+                                    }
+                                }
+                            }
+
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+                    #endregion
+
+                    #endregion
+
+
+                }
+                DataSet TodayPlantLock;
+                PlantLockCheck(Date, out TodayPlantLock, PlantValue);
+                if (TodayPlantLock.Tables[0].Rows.Count > 0)
+                {
+
+                }
+                else
+                {
                     #region Today Duration EarlyIn Late EarlyOut OverStay
                     DataSet TodayDurn;
                     TodayDuration(Date, out TodayDurn, PlantValue);
@@ -4114,7 +4327,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string FullDayDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftFullDayDuration"]).ToString();
                             string HalfDayDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftHalfDayDuration"]).ToString();
                             string Duration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"Duration"]).ToString();
-                            
+
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -4141,7 +4354,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         dr["DurationStatus"] = "A";
                                     }
-                                }                                
+                                }
 
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
@@ -4153,221 +4366,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     #endregion
-                    
+
                     #region Today Status Code              
                     TodayStatusCodeData(Date, PlantValue);
                     #endregion
-                    
-                    #region DayLimitProcess 
-
-                    #region DayType Updation
-
-                    DataSet DaytypeLimitOT;
-                    DayTypeforOTProcess(PreviousDay, out DaytypeLimitOT, PlantValue);
-                    if (DaytypeLimitOT.Tables[0].Rows.Count > 0)
-                    {
-                        var WkDate = DaytypeLimitOT.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        var PlantId = DaytypeLimitOT.Tables[0].Rows[0][@"PlantID"].ToString();
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "'", out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < DaytypeLimitOT.Tables[0].Rows.Count; i++)
-                        {
-                            string RowId = DaytypeLimitOT.Tables[0].Rows[i][@"RowId"].ToString();
-                            string DayType = DaytypeLimitOT.Tables[0].Rows[i][@"DayType"].ToString();
-
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["DayType"] = DayType;
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr["UpdatedBy"] = "Schedule";
-                                dr.EndEdit();
-                            }
-                        }
-                        SaveDataSets(dsRef);
-
-                    }
-                    #endregion
-
-                    #region Planned OT Flagging 
-                    DataSet PreallocatedOT;
-                    PreallocatedOTSource(PreviousDay, out PreallocatedOT, PlantValue);
-                    if (PreallocatedOT.Tables[0].Rows.Count > 0)
-                    {
-                        var WkDate = PreallocatedOT.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-                        var PlantId = PreallocatedOT.Tables[0].Rows[0][@"PlantID"].ToString();
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "'and isnull(DayType,'')!=''", out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < PreallocatedOT.Tables[0].Rows.Count; i++)
-                        {
-                            string EmpId = PreallocatedOT.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                            string OTMinutes = PreallocatedOT.Tables[0].Rows[i][@"PreAllocatedOTMinutes"].ToString();
-
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["PlannedOT"] = OTMinutes;
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-                            }
-                        }
-                        SaveDataSets(dsRef);
-
-                    }
-                    #endregion
-
-                    #region EmployeeWise FixedOTSetting 
-                    DataSet FixedOTSetting;
-                    FixedOTSettingSource(PreviousDay,out FixedOTSetting, PlantValue);
-                    if (FixedOTSetting.Tables[0].Rows.Count > 0)
-                    {
-                        var WkDate = FixedOTSetting.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-                        var PlantId = FixedOTSetting.Tables[0].Rows[0][@"PlantId"].ToString();
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "' and isnull(DayType,'')!=''", out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < FixedOTSetting.Tables[0].Rows.Count; i++)
-                        {
-                            string EmpId = FixedOTSetting.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                            string WeekOffOT = FixedOTSetting.Tables[0].Rows[i][@"WeekOffOT"].ToString();
-                            string NormalDayOT = FixedOTSetting.Tables[0].Rows[i][@"NormalDayOT"].ToString();
-                            string HolidayOT = FixedOTSetting.Tables[0].Rows[i][@"HolidayOT"].ToString();
-
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
-                                if (DayType != "")
-                                {
-                                    dr.BeginEdit();
-                                    if(DayType=="H")
-                                    {
-                                        dr["FixedOT"] = HolidayOT;
-                                    }
-                                    else if(DayType=="W")
-                                    {
-                                        dr["FixedOT"] = WeekOffOT;
-                                    }
-                                    else
-                                    {
-                                        dr["FixedOT"] = NormalDayOT;
-                                    }
-                                   
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
-                                }
-                            }
-                                
-                        }
-                        SaveDataSets(dsRef);
-
-                    }
-                    #endregion
-
-                    #region WeeklyOT Entry
-                    DataSet WeekOTSource;
-                    WeekLimitOTSource(PreviousDay, out WeekOTSource, PlantValue);
-                    if (WeekOTSource.Tables[0].Rows.Count > 0)
-                    {
-                        var WkDate = WeekOTSource.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        var PlantId = WeekOTSource.Tables[0].Rows[0][@"PlantID"].ToString();
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "' and isnull(DayType,'')!=''", out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < WeekOTSource.Tables[0].Rows.Count; i++)
-                        {
-                            string RowId = WeekOTSource.Tables[0].Rows[i][@"RowId"].ToString();
-                            string WeekOffOT = WeekOTSource.Tables[0].Rows[i][@"WeekOffOT"].ToString();
-                            string NormalDayOT = WeekOTSource.Tables[0].Rows[i][@"NormalDayOT"].ToString();
-                            string HolidayOT = WeekOTSource.Tables[0].Rows[i][@"HolidayOT"].ToString();
-
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
-                                if (DayType != "")
-                                {
-                                    dr.BeginEdit();
-                                    if (DayType == "H")
-                                    {
-                                        dr["LimitSettingOT"] = HolidayOT;
-                                    }
-                                    else if (DayType == "W")
-                                    {
-                                        dr["LimitSettingOT"] = WeekOffOT;
-                                    }
-                                    else
-                                    {
-                                        dr["LimitSettingOT"] = NormalDayOT;
-                                    }
-
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
-                                }
-                            }
-
-                        }
-                        SaveDataSets(dsRef);
-
-                    }
-                    #endregion
-
-                    #region SlabOT Entry
-                    DataSet SlabOT;
-                    SlabOTSource(PreviousDay, out SlabOT, PlantValue);
-                    if (SlabOT.Tables[0].Rows.Count > 0)
-                    {
-                        var WkDate = SlabOT.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-                        var PlantId = SlabOT.Tables[0].Rows[0][@"PlantId"].ToString();
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "' and isnull(DayType,'')!=''", out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < SlabOT.Tables[0].Rows.Count; i++)
-                        {
-                            string RowId = SlabOT.Tables[0].Rows[i][@"RowId"].ToString();
-                            string firstSlab = SlabOT.Tables[0].Rows[i][@"firstSlab"].ToString();
-                         
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId +"' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
-                                if (DayType != "")
-                                {
-                                    dr.BeginEdit();                                    
-                                    dr["SlabOT"] = firstSlab;                    
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr.EndEdit();
-                                }
-                            }
-
-                        }
-                        SaveDataSets(dsRef);
-
-                    }
-                    #endregion
-                    
-                    #endregion
-
 
                 }
-
             }
             catch (Exception ex)
             {
@@ -5419,116 +5423,123 @@ namespace Library.HumanResource.NewAttendanceProcess {
         {
             try
             {
-
-
-                var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" + PlantId + "'";
-                DataTable RosterTable = new DataTable();
-                RosterTable = _sqlRepository.GetDataTable(sql2);
-                if (RosterTable.Rows.Count > 0)
+                DataSet PlantLock;
+                PlantLockCheck(Date, out PlantLock, PlantId);
+                if (PlantLock.Tables[0].Rows.Count > 0)
                 {
-                    //Loop to go through all the Rosters in a Plant
-                    for (int j = 0; j < RosterTable.Rows.Count; j++)
+
+                }
+                else
+                {
+                    var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" + PlantId + "'";
+                    DataTable RosterTable = new DataTable();
+                    RosterTable = _sqlRepository.GetDataTable(sql2);
+                    if (RosterTable.Rows.Count > 0)
                     {
-                        DateTime ddt = Convert.ToDateTime(Date);
-                        string DaysCol = "Days" + DateTime.DaysInMonth(ddt.Year, ddt.Month).ToString();
-
-                        //Getting all the Shifts Child 
-                        var sql3 = @"Select *, " + DaysCol + " as ShiftSequence from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by ShiftSequence";
-                        DataTable ShiftsTable = new DataTable();
-                        ShiftsTable = _sqlRepository.GetDataTable(sql3);
-
-                        //Getting the Max Sequence through the Use of Dynamic Months
-                        var maxS = @"Select top 1 * from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by " + DaysCol + @" desc";
-                        DataTable MaxSTable = new DataTable();
-                        MaxSTable = _sqlRepository.GetDataTable(maxS);
-
-
-                        if (MaxSTable.Rows.Count == 0)
+                        //Loop to go through all the Rosters in a Plant
+                        for (int j = 0; j < RosterTable.Rows.Count; j++)
                         {
-                            continue;
-                        }
-                        else
-                        {
-                            int maxSeq = int.Parse(MaxSTable.Rows[0][DaysCol].ToString());
-                            string _Id = "";
-                            //Get the top Nearest Effective Date
-                            DateTime Today = ddt;
-                            String noww = ddt.ToString("dd-MMM-yyyy");
-                            var sql4 = @"Select top 1 ed.*, rp.PlantId from dbo.RosterEffectiveDate ed
+                            DateTime ddt = Convert.ToDateTime(Date);
+                            string DaysCol = "Days" + DateTime.DaysInMonth(ddt.Year, ddt.Month).ToString();
+
+                            //Getting all the Shifts Child 
+                            var sql3 = @"Select *, " + DaysCol + " as ShiftSequence from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by ShiftSequence";
+                            DataTable ShiftsTable = new DataTable();
+                            ShiftsTable = _sqlRepository.GetDataTable(sql3);
+
+                            //Getting the Max Sequence through the Use of Dynamic Months
+                            var maxS = @"Select top 1 * from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by " + DaysCol + @" desc";
+                            DataTable MaxSTable = new DataTable();
+                            MaxSTable = _sqlRepository.GetDataTable(maxS);
+
+
+                            if (MaxSTable.Rows.Count == 0)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                int maxSeq = int.Parse(MaxSTable.Rows[0][DaysCol].ToString());
+                                string _Id = "";
+                                //Get the top Nearest Effective Date
+                                DateTime Today = ddt;
+                                String noww = ddt.ToString("dd-MMM-yyyy");
+                                var sql4 = @"Select top 1 ed.*, rp.PlantId from dbo.RosterEffectiveDate ed
                                                 left join dbo.RosterPatternHeader rp on rp.Id = ed.RPHeaderId
                                                  where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and EffectiveDate <= '" + noww + "' order by EffectiveDate desc";
 
-                            DataTable EffectiveDateTable = new DataTable();
-                            EffectiveDateTable = _sqlRepository.GetDataTable(sql4);
+                                DataTable EffectiveDateTable = new DataTable();
+                                EffectiveDateTable = _sqlRepository.GetDataTable(sql4);
 
-                            //Getting all the rows from the Process table
-                            var sql5 = @"Select * from dbo.RosterPatternProcess where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and PlantId = '" + PlantId + "' and WorkDate='" + noww + "'";
-                            DataTable ProcessTable = new DataTable();
-                            ProcessTable = _sqlRepository.GetDataTable(sql5);
-                            int counts = ProcessTable.Rows.Count;
+                                //Getting all the rows from the Process table
+                                var sql5 = @"Select * from dbo.RosterPatternProcess where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and PlantId = '" + PlantId + "' and WorkDate='" + noww + "'";
+                                DataTable ProcessTable = new DataTable();
+                                ProcessTable = _sqlRepository.GetDataTable(sql5);
+                                int counts = ProcessTable.Rows.Count;
 
-                            if (counts == 0)
-                            {
-                                //Dictionary and DataSet Initialization
-                                DataSet ds;
-                                ConnectionManager.DAL.ConManager cona = new ConnectionManager.DAL.ConManager("1");
-                                cona.OpenDataSetThroughAdapter("select * from RosterPatternProcess where 1 = 2", out ds, false, "1");
-
-                                Dictionary<string, object> dict = InitializeMyDictionary();
-
-                                // Conditions...
-                                int DateDifference = -1;
-                                if (EffectiveDateTable.Rows.Count > 0)
+                                if (counts == 0)
                                 {
-                                    DateTime EffecDate = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
-                                    DateDifference = (int)(Today - EffecDate).Days;
-                                }
+                                    //Dictionary and DataSet Initialization
+                                    DataSet ds;
+                                    ConnectionManager.DAL.ConManager cona = new ConnectionManager.DAL.ConManager("1");
+                                    cona.OpenDataSetThroughAdapter("select * from RosterPatternProcess where 1 = 2", out ds, false, "1");
 
-                                if (DateDifference == 0)// If today is an Effective Date
-                                {
-                                    bplib.clsGenID genid = new bplib.clsGenID();
-                                    genid.GenID("dbo.RosterPatternProcess", out _Id);
-                                    dict["Id"] = "RP" + _Id;
-                                    dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
-                                    dict["PlantId"] = PlantId;
-                                    dict["WorkDate"] = Convert.ToDateTime(Today);
-                                    dict["ShiftDefinationID"] = ShiftsTable.Rows[0]["ShiftDefinitionID"].ToString();
-                                    dict["ShiftSequence"] = ShiftsTable.Rows[0]["ShiftSequence"].ToString();
-                                    Add(ds.Tables[0], dict);
-                                }
-                                else
-                                {
-                                    //Check for the nearest Previous Date;
+                                    Dictionary<string, object> dict = InitializeMyDictionary();
+
+                                    // Conditions...
+                                    int DateDifference = -1;
                                     if (EffectiveDateTable.Rows.Count > 0)
                                     {
-                                        DateTime EffecDates = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
-                                        double DayDiffs = (Today - EffecDates).Days;
-                                        int Seq = (int)(DayDiffs % maxSeq); // The Sequence of Shift to be inserted Today
+                                        DateTime EffecDate = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
+                                        DateDifference = (int)(Today - EffecDate).Days;
+                                    }
 
+                                    if (DateDifference == 0)// If today is an Effective Date
+                                    {
                                         bplib.clsGenID genid = new bplib.clsGenID();
                                         genid.GenID("dbo.RosterPatternProcess", out _Id);
                                         dict["Id"] = "RP" + _Id;
                                         dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
                                         dict["PlantId"] = PlantId;
                                         dict["WorkDate"] = Convert.ToDateTime(Today);
-                                        dict["ShiftDefinationID"] = ShiftsTable.Rows[Seq]["ShiftDefinitionID"].ToString();
-                                        dict["ShiftSequence"] = ShiftsTable.Rows[Seq]["ShiftSequence"].ToString();
-                                        //We will make the Row and insert into the Table.
+                                        dict["ShiftDefinationID"] = ShiftsTable.Rows[0]["ShiftDefinitionID"].ToString();
+                                        dict["ShiftSequence"] = ShiftsTable.Rows[0]["ShiftSequence"].ToString();
                                         Add(ds.Tables[0], dict);
                                     }
-                                    else // In case there are no previous date Either, it will be an Exceptional Case.
+                                    else
                                     {
-                                        continue;
+                                        //Check for the nearest Previous Date;
+                                        if (EffectiveDateTable.Rows.Count > 0)
+                                        {
+                                            DateTime EffecDates = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
+                                            double DayDiffs = (Today - EffecDates).Days;
+                                            int Seq = (int)(DayDiffs % maxSeq); // The Sequence of Shift to be inserted Today
+
+                                            bplib.clsGenID genid = new bplib.clsGenID();
+                                            genid.GenID("dbo.RosterPatternProcess", out _Id);
+                                            dict["Id"] = "RP" + _Id;
+                                            dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
+                                            dict["PlantId"] = PlantId;
+                                            dict["WorkDate"] = Convert.ToDateTime(Today);
+                                            dict["ShiftDefinationID"] = ShiftsTable.Rows[Seq]["ShiftDefinitionID"].ToString();
+                                            dict["ShiftSequence"] = ShiftsTable.Rows[Seq]["ShiftSequence"].ToString();
+                                            //We will make the Row and insert into the Table.
+                                            Add(ds.Tables[0], dict);
+                                        }
+                                        else // In case there are no previous date Either, it will be an Exceptional Case.
+                                        {
+                                            continue;
+                                        }
+
                                     }
 
+
+                                    SaveDataSets(ds);
                                 }
 
-
-                                SaveDataSets(ds);
                             }
 
                         }
-
                     }
                 }
 

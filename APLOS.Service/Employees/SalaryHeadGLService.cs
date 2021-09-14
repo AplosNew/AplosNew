@@ -488,6 +488,16 @@ namespace Library.Service.Employees
         {
             try
             {
+                DataSet dsAG;
+                ConnectionManager.DAL.ConManager objCon;
+                string sql = "select * from AccountsGroup";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsAG, false, "1");
+                if (dsAG.Tables[0].Rows.Count == 0)
+                {
+                    throw new Exception("Please Entry Accounts Group First..!");
+                }
+
                 parameters.CmdText = @"SELECT distinct AG.UserName AccountsGroup,AG.Id AccountsGroupId, SH.SalaryHeadId,SH.SalaryHead,SH.HeadType,SH.HeadCategory
                             ,SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
                             ,SGL.DrInDirectGLId,SGL.DrInDirectBudgetMasterId,SGL.DrInDirectActivityId

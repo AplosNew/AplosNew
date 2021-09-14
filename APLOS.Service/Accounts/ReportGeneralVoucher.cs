@@ -1458,7 +1458,7 @@ namespace Library.Service.Accounts
             }
         }
 
-        public IWorkbook IncomeStatement_Report_DateRange(ExcelEngine excelEngine, string companyId,string plantId, string plantName, string fromDate, string toDate, string[] parallelCurrencies)
+        public IWorkbook IncomeStatement_Report_DateRange(ExcelEngine excelEngine, string companyId,string plantId, string plantName, string fromDate, string toDate,  string[] parallelCurrencies)
         {
             ReportUtility oRU = null;
             IWorkbook workbook = null;
@@ -1479,6 +1479,29 @@ namespace Library.Service.Accounts
                 throw;
             }
         }
+
+        public IWorkbook EntityWiseExpenseandEarning_Report_DateRange(ExcelEngine excelEngine, string companyId, string plantId, string plantName, string fromDate, string toDate, string entityId, string[] parallelCurrencies)
+        {
+            ReportUtility oRU = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet1 = null;
+            try
+            {
+                oRU = new ReportUtility();
+                // DataSet dsLocal = GetIncomeStatementInfoDateRange(companyId, plantId, fromDate, toDate, parallelCurrencies);
+                workbook = oRU.GetWorkbook(ref excelEngine, 1);
+                sheet1 = workbook.Worksheets[0];
+                CreateSheet_EntityWiseExpenseAndEarning_DateRange(ref sheet1, oRU, "Entity Wise Expense And Earning", "Entity Wise Expense and Earning Report", companyId, plantId, plantName, fromDate, toDate, entityId, parallelCurrencies);
+
+                workbook.Version = ExcelVersion.Excel2013;
+                return workbook;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
 
 
         #region BL
@@ -2488,6 +2511,414 @@ namespace Library.Service.Accounts
             }
         }
 
+        private void CreateSheet_EntityWiseExpenseAndEarning_DateRange(ref IWorksheet sheet, ReportUtility oRU, string SheetHeader, string SheetName, string companyId, string plantId, string plantName, string fromDate, string toDate, string entityId, string[] parallelCurrency)
+        {
+            DataTable dtGeneralVoucher = null;
+            DataTable dtCustomerCheckByCompany = null;
+
+            #region List data
+
+            DataSet dsLocal = GetEntityWiseExpenseAndEarningInfoDateRange(companyId, plantId, fromDate, toDate, entityId, parallelCurrency);
+            DataTable dtLocalFTP = GetEntityWiseExpenseAndEarningInfoDateRangeForThePeriod(companyId, fromDate, toDate, entityId,parallelCurrency);
+            //DataTable dtLocalFTPMaster = GetIncomeStatementInfoDateRangeForThePeriodMaster(companyId, fromDate, toDate, parallelCurrency);
+
+            DataTable dtTemp = dsLocal.Tables[0].Clone();
+            dtTemp.Merge(dsLocal.Tables[0]);
+            dtTemp.Merge(dtLocalFTP);
+            DataTable dtLocalFTPMaster = dtTemp.DefaultView.ToTable(true, "AccountCodeId", "ParallelCurrencyId", "CurrencyCode", "BalanceType", "MainHead", "Level", "GLGeneralInfoId", "GL", "GLGeneralInfoCode", "BudgetMasterId", "Budget");
+
+            dtGeneralVoucher = dsLocal.Tables[0];
+
+            DataSet CustomerCheckByCompanyList = GetCustomerCheckByCompany_DateRange(companyId);
+            dtCustomerCheckByCompany = CustomerCheckByCompanyList.Tables[0];
+
+            if (dtLocalFTPMaster.Rows.Count > 0)
+            {
+                DataView dvAccountCode = new DataView(dsLocal.Tables[0]);
+                DataTable dtAccountCode = dvAccountCode.ToTable(true, "GLGeneralInfoCode", "AccountCodeId", "BudgetMasterId");
+
+                DataView dvParallelCurrency = new DataView(dtLocalFTPMaster)
+                {
+                    Sort = "CurrencyCode ASC"
+                };
+                DataTable dtParallelCurrency = dvParallelCurrency.ToTable(true, "CurrencyCode", "ParallelCurrencyId");
+
+                DataView dvMainBody = new DataView(dsLocal.Tables[0]);
+                DataTable dtMainBody = dvMainBody.ToTable(true, "GLGeneralInfoCode", "GL", "Budget", "BudgetMasterId");
+
+                DataView dvDr = new DataView(dtLocalFTPMaster)
+                {
+                    RowFilter = "MainHead='Expense'",
+                    Sort = "GLGeneralInfoCode, GL, Budget"
+                };
+                DataTable dtDr = dvDr.ToTable(true, "GLGeneralInfoCode", "GL", "BudgetMasterId", "Budget");
+
+                DataView dvCr = new DataView(dtLocalFTPMaster)
+                {
+                    RowFilter = "MainHead='Revenue'",
+                    Sort = "GLGeneralInfoCode, GL, Budget"
+                };
+                DataTable dtCr = dvCr.ToTable(true, "GLGeneralInfoCode", "GL", "BudgetMasterId", "Budget");
+
+                if (dtLocalFTP.Rows.Count > 0)
+                {
+                    DataView dvAccountCodeFTP = new DataView(dtLocalFTP);
+                    DataTable dtAccountCodeFTP = dvAccountCode.ToTable(true, "GLGeneralInfoCode", "AccountCodeId", "BudgetMasterId");
+
+                    DataView dvParallelCurrencyFTP = new DataView(dtLocalFTP)
+                    {
+                        Sort = "CurrencyCode ASC"
+                    };
+                    DataTable dtParallelCurrencyFTP = dvParallelCurrency.ToTable(true, "CurrencyCode", "ParallelCurrencyId");
+
+                    DataView dvMainBodyFTP = new DataView(dtLocalFTP);
+                    DataTable dtMainBodyFTP = dvMainBody.ToTable(true, "GLGeneralInfoCode", "GL", "Budget", "BudgetMasterId");
+
+                    DataView dvDrFTP = new DataView(dtLocalFTP)
+                    {
+                        RowFilter = "MainHead='Expense'",
+                        Sort = "GLGeneralInfoCode, GL, Budget"
+                    };
+                    DataTable dtDrFTP = dvDrFTP.ToTable(true, "GLGeneralInfoCode", "GL", "BudgetMasterId", "Budget");
+
+                    DataView dvCrFTP = new DataView(dtLocalFTP)
+                    {
+                        RowFilter = "MainHead='Revenue'",
+                        Sort = "GLGeneralInfoCode, GL, Budget"
+                    };
+                    DataTable dtCrFTP = dvCrFTP.ToTable(true, "GLGeneralInfoCode", "GL", "BudgetMasterId", "Budget");
+
+                }
+
+
+
+                #region Customer Check By Company
+
+                DataView dvCustomerCheckByCompanyBody = new DataView(CustomerCheckByCompanyList.Tables[0]);
+                DataTable dtCustomerCheckByCompanyBody = dvCustomerCheckByCompanyBody.ToTable(false, "IsVoucherFromBudget");
+                string Budget = dtCustomerCheckByCompanyBody.Rows[0]["IsVoucherFromBudget"].ToString();
+
+                #endregion Customer Check By Company
+
+                #endregion List data
+
+                var _col = 1;
+                var shet2EndxlsCol = _col;
+
+                var _rowL = 6;
+                _rowL++;
+
+                var headreColIndex = 1;
+                var mainColIndex = 1;
+                int colAccountName = headreColIndex;
+                oRU.SetHeaderText(ref sheet, _rowL, colAccountName, "Account Name", 38); headreColIndex++;
+                //sheet[_rowL - 1, headreColIndex, _rowL, headreColIndex].Merge(); headreColIndex++;
+                int colBudget = headreColIndex;
+                if (Budget == "True")
+                {
+                    oRU.SetHeaderText(ref sheet, _rowL, colBudget, nameof(Budget), 38); headreColIndex++;
+                }
+
+                double _Total_Amount = 0;
+                double _Total_Amount_DateRange = 0;
+                string plCurrencyId = string.Empty;
+                string plCurrencyCode = string.Empty;
+
+                ArrayList alParaCurrency = new ArrayList();
+
+
+
+
+                int colOpeningBalance = headreColIndex;
+
+
+                oRU.SetHeaderText(ref sheet, _rowL, colOpeningBalance, "Opening Balance", 15);
+                shet2EndxlsCol = headreColIndex - 1;
+                headreColIndex++;
+
+                int colHeaderForThePeriod = headreColIndex;
+                oRU.SetHeaderText(ref sheet, _rowL, colHeaderForThePeriod
+                    , "For The Period", 15); headreColIndex++;
+                int colHeaderClosingBalance = headreColIndex;
+
+                oRU.SetHeaderText(ref sheet, _rowL, colHeaderClosingBalance, "Closing Balance", 15);
+
+                _rowL++;
+
+                oRU.SetText(ref sheet, _rowL, 1, "Total Revenue:", true);
+                var drcrCol = 0;
+                var Row_Total_Start = _rowL + 1;
+                var RowTotal_current = _rowL;
+                var Row_Total_End = 0;
+                var sumdrcrColDateRange = 0;
+
+                for (int n = 0; n < dtCr.Rows.Count; n++)
+                {
+                    _rowL++;
+                    string AccountCodeId = dtCr.Rows[n]["GLGeneralInfoCode"].ToString();
+                    string BudgetMasterId = dtCr.Rows[n]["BudgetMasterId"].ToString();
+                    oRU.SetText(ref sheet, _rowL, colAccountName, AccountCodeId + " - " + dtCr.Rows[n]["GL"]); ; mainColIndex++;
+
+
+                    if (BudgetMasterId != "")
+                    {
+                        //Budget = dtCustomerCheckByCompanyBody.Rows[n]["IsVoucherFromBudget"].ToString();
+                        oRU.SetText(ref sheet, _rowL, colBudget, dtCr.Rows[n][nameof(Budget)].ToString());
+                    }
+
+                    // sumdrcrCol1 = mainColIndex;
+                    sumdrcrColDateRange = mainColIndex;
+                    drcrCol = mainColIndex;
+
+                    for (int p = 0; p < dtParallelCurrency.Rows.Count; p++)
+                    {
+                        string ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
+
+
+                        DataView dvDrCr = new DataView(dsLocal.Tables[0])
+                        {
+                            RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "'"
+                        };
+                        DataView dvDrCrFTP = new DataView(dtLocalFTP)
+                        {
+                            RowFilter = " GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "'"
+                        };
+                        if (p == 0)
+                        {
+                            plCurrencyId = dtParallelCurrency.Rows[p][nameof(ParallelCurrencyId)].ToString();
+                        }
+
+                        var _pcCol = GetCurrencyColIndex(alParaCurrency, ParallelCurrencyId);
+
+                        // var _pcCol1 = GetCurrencyColIndex(alParaCurrency, ParallelCurrencyId);
+                        DataTable dtDrCr = dvDrCr.ToTable();
+                        if (dtDrCr.Rows.Count != 0)
+                        {
+                            try
+                            {
+                                oRU.SetText(ref sheet, _rowL, colOpeningBalance, Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString()));
+                                //oRU.SetText(ref sheet, _rowL, colHeaderForThePeriod, Convert.ToDouble(dtDrCr.Rows[1]["FRCRcumulative"].ToString()));
+                                if (p == 0)
+                                {
+                                    _Total_Amount += Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString());
+                                    //_Total_Amount_DateRange += Convert.ToDouble(dtDrCr.Rows[1]["FRCRcumulative"].ToString());
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+
+                            }
+                        }
+
+                        if (dvDrCrFTP.ToTable().Rows.Count != 0)
+                        {
+                            try
+                            {
+                                oRU.SetText(ref sheet, _rowL, colHeaderForThePeriod, Convert.ToDouble(dvDrCrFTP.ToTable().Rows[0]["CRcumulative"].ToString()));
+                                if (p == 0)
+                                {
+                                    _Total_Amount_DateRange += Convert.ToDouble(dtDrCr.Rows[0]["CRcumulative"].ToString());
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+
+                            }
+                        }
+
+                    }
+                    sheet.Range[_rowL, colHeaderClosingBalance].Formula = oRU.GetColumnNameForXls(colHeaderForThePeriod) + (_rowL) + "+" + oRU.GetColumnNameForXls(colOpeningBalance) + _rowL;
+                    //sheet.Range[_rowL, colHeaderClosingBalance].CellStyle.Font.Bold = true;
+                }
+                //CR
+                Row_Total_End = _rowL;
+
+                //TotalRevenue_DateRange(ref sheet, oRU, dtParallelCurrency, colOpeningBalance - 1, RowTotal_current, Row_Total_Start, Row_Total_End);
+                for (int CL = colOpeningBalance; CL <= colHeaderClosingBalance; CL++)
+                {
+                    sheet.Range[RowTotal_current, CL].Formula = "=SUM(" + oRU.GetColumnNameForXls(CL) + Row_Total_Start + ":" + oRU.GetColumnNameForXls(CL) + Row_Total_End + ")";
+                    sheet.Range[RowTotal_current, CL].NumberFormat = oRU.NumberFormatDecimalTwo();
+                    sheet.Range[RowTotal_current, CL].CellStyle.Font.Bold = true;
+
+                }
+
+                _rowL++;
+
+                sheet.Range[_rowL, colHeaderClosingBalance].Formula = oRU.GetColumnNameForXls(colOpeningBalance) + (_rowL) + "+" + oRU.GetColumnNameForXls(colHeaderForThePeriod) + _rowL;
+                sheet[_rowL, colHeaderClosingBalance].VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.Range[_rowL, colHeaderClosingBalance].NumberFormat = reportUtility.NumberFormatDecimalTwo(); //col++;
+                sheet.Range[_rowL, colHeaderClosingBalance].NumberFormat = oRU.NumberFormatDecimalTwo();
+                sheet.Range[_rowL, colHeaderClosingBalance].CellStyle.Font.Bold = true;
+                //Profit/Loss
+                //      RowTotal_current = _rowL;
+
+
+                _rowL++;
+
+                oRU.SetText(ref sheet, _rowL, 1, "Total Expense:", true);
+                var drcrCol2 = 0;
+                var totCol2 = 0;
+                var Row_Total_Start2 = _rowL + 1;
+                var RowTotal_current2 = _rowL;
+                var Row_Total_End2 = 0;
+                var sumdrcrCol2 = 0;
+
+                for (int n = 0; n < dtDr.Rows.Count; n++)
+                {
+                    _rowL++;
+                    string AccountCodeId = dtDr.Rows[n]["GLGeneralInfoCode"].ToString();
+                    string BudgetMasterId = dtDr.Rows[n]["BudgetMasterId"].ToString();
+                    oRU.SetText(ref sheet, _rowL, colAccountName, AccountCodeId + " - " + dtDr.Rows[n]["GL"]); mainColIndex++;
+
+                    if (BudgetMasterId != "")
+                    {
+                        oRU.SetText(ref sheet, _rowL, colBudget, dtDr.Rows[n][nameof(Budget)].ToString());
+                    }
+
+                    sumdrcrCol2 = mainColIndex;
+                    totCol2 = mainColIndex;
+                    drcrCol2 = mainColIndex;
+
+                    for (int p = 0; p < dtParallelCurrency.Rows.Count; p++)
+                    {
+                        string ParallelCurrencyId = dtParallelCurrency.Rows[p]["ParallelCurrencyId"].ToString();
+
+                        //if (BudgetMasterId != "")
+                        //{
+                        DataView dvDrCr = new DataView(dsLocal.Tables[0])
+                        {
+                            RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "'"
+                        };
+                        DataView dvDrCrFTP = new DataView(dtLocalFTP)
+                        {
+                            RowFilter = "ParallelCurrencyId='" + ParallelCurrencyId + "' AND GLGeneralInfoCode='" + AccountCodeId + "' AND BudgetMasterId='" + BudgetMasterId + "'"
+                        };
+                        if (p == 0)
+                        {
+                            plCurrencyId = dtParallelCurrency.Rows[p][nameof(ParallelCurrencyId)].ToString();
+                        }
+
+                        var _pcCol = GetCurrencyColIndex(alParaCurrency, ParallelCurrencyId);
+                        DataTable dtDrCr = dvDrCr.ToTable();
+                        if (dtDrCr.Rows.Count != 0)
+                        {
+                            try
+                            {
+                                oRU.SetText(ref sheet, _rowL, colOpeningBalance, Convert.ToDouble(dtDrCr.Rows[0]["DRcumulative"].ToString()));
+                                //oRU.SetText(ref sheet, _rowL, colHeaderForThePeriod, Convert.ToDouble(dtDrCr.Rows[1]["FPDRcumulative"].ToString()));
+
+                                if (p == 0)
+                                {
+                                    _Total_Amount += Convert.ToDouble(dtDrCr.Rows[0]["DRcumulative"].ToString());
+                                    // _Total_Amount_DateRange += Convert.ToDouble(dtDrCr.Rows[1]["FPDRcumulative"].ToString());
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+
+                            }
+                        }
+
+                        if (dvDrCrFTP.ToTable().Rows.Count != 0)
+                        {
+                            try
+                            {
+                                oRU.SetText(ref sheet, _rowL, colHeaderForThePeriod, Convert.ToDouble(dvDrCrFTP.ToTable().Rows[0]["DRcumulative"].ToString()));
+
+                                _Total_Amount_DateRange += Convert.ToDouble(dvDrCrFTP.ToTable().Rows[0]["DRcumulative"].ToString());
+
+                                //_Total_Amount_DateRange += Convert.ToDouble(dvDrCrFTP.ToTable[0]["FRDRcumulative"].ToString());
+
+                            }
+                            catch (Exception ex)
+                            {
+
+
+                            }
+                        }
+
+                    }
+                    sheet.Range[_rowL, colHeaderClosingBalance].Formula = oRU.GetColumnNameForXls(colOpeningBalance) + (_rowL) + "+" + oRU.GetColumnNameForXls(colHeaderForThePeriod) + _rowL;
+                    sheet.Range[_rowL, colHeaderClosingBalance].NumberFormat = oRU.NumberFormatDecimalTwo();
+                    // sheet.Range[_rowL, colHeaderClosingBalance].CellStyle.Font.Bold = true;
+                    mainColIndex = 1;
+                }//DR
+
+
+
+                Row_Total_End2 = _rowL;
+
+                //TotalExpense_DateRange(ref sheet, oRU, dtParallelCurrency, colOpeningBalance - 1, RowTotal_current2, Row_Total_Start2, Row_Total_End2);
+
+                for (int CL = colOpeningBalance; CL <= colHeaderClosingBalance; CL++)
+                {
+                    sheet.Range[RowTotal_current2, CL].Formula = "=SUM(" + oRU.GetColumnNameForXls(CL) + Row_Total_Start2 + ":" + oRU.GetColumnNameForXls(CL) + Row_Total_End2.ToString() + ")";
+                    sheet.Range[RowTotal_current2, CL].NumberFormat = oRU.NumberFormatDecimalTwo();
+                    sheet.Range[RowTotal_current2, CL].CellStyle.Font.Bold = true;
+                }
+
+                //#region sumCalc
+
+                _rowL++;
+                var sumdrcrCol = totCol2;
+                sheet.Range[_rowL, 1].Text = "Profit/Loss ";
+                sheet.Range[_rowL, 1].CellStyle.Font.Bold = true;
+                sheet.Range[_rowL, 1].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[_rowL, sumdrcrCol].BorderAround(ExcelLineStyle.Hair);
+
+
+                for (int CL = colOpeningBalance; CL <= colHeaderClosingBalance; CL++)
+                {
+                    sheet.Range[_rowL, CL].Formula = oRU.GetColumnNameForXls(CL) + RowTotal_current + "-" + oRU.GetColumnNameForXls(CL) + RowTotal_current2.ToString();
+                    sheet.Range[_rowL, CL].NumberFormat = oRU.NumberFormatDecimalTwo();
+                    sheet.Range[_rowL, CL].CellStyle.Font.Bold = true;
+
+                }
+                sheet.Range[RowTotal_current, colHeaderClosingBalance].Formula = oRU.GetColumnNameForXls(colOpeningBalance) + (RowTotal_current) + "+" + oRU.GetColumnNameForXls(colHeaderForThePeriod) + RowTotal_current;
+                sheet[RowTotal_current, colHeaderClosingBalance].VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.Range[_rowL, colHeaderClosingBalance].NumberFormat = reportUtility.NumberFormatDecimalTwo(); //col++;
+                sheet.Range[RowTotal_current, colHeaderClosingBalance].NumberFormat = oRU.NumberFormatDecimalTwo();
+                sheet.Range[RowTotal_current, colHeaderClosingBalance].CellStyle.Font.Bold = true;
+
+                for (int s = 0; s < dtParallelCurrency.Rows.Count; s++)
+                {
+                    sumdrcrCol++;
+                    sheet.Range[_rowL, sumdrcrCol].Formula = oRU.GetColumnNameForXls(sumdrcrCol) + RowTotal_current + "-" + oRU.GetColumnNameForXls(sumdrcrCol) + RowTotal_current2;
+                    sheet.Range[_rowL, sumdrcrCol].NumberFormat = oRU.NumberFormatDecimalTwo();
+                    sheet.Range[_rowL, sumdrcrCol].CellStyle.Font.Bold = true;
+                    sheet.Range[_rowL, sumdrcrCol].BorderAround(ExcelLineStyle.Hair);
+                }
+
+
+                //shet2EndxlsCol = drcrCol2;
+                sheet.Range[8, 1, _rowL, shet2EndxlsCol].BorderInside(ExcelLineStyle.Hair);
+
+                sheet.Name = SheetName;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.CellStyle.Font.Size = 8;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                oRU.CompanyPlantHeader(ref sheet, shet2EndxlsCol, SheetHeader, identity.CompanyId, plantName, null);
+                oRU.SetText(ref sheet, 5, 2, "From Date " + fromDate + " To Date " + toDate + "", ExcelHAlign.HAlignCenter);
+
+                sheet.Range[oRU.GetColumnNameForXls(1) + 5 + ":" + oRU.GetColumnNameForXls(shet2EndxlsCol) + 5].Merge();
+                sheet.Range[oRU.GetColumnNameForXls(1) + 4 + ":" + oRU.GetColumnNameForXls(shet2EndxlsCol) + 4].Merge();
+                sheet.Range[Row_Total_Start, 1, _rowL, colHeaderClosingBalance].BorderAround(ExcelLineStyle.Hair);
+                oRU.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
+            }
+            else
+            {
+                sheet.Name = "Entity Wise Expense and Earning report";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                oRU.CompanyPlantHeader(ref sheet, 5, SheetHeader, identity.CompanyId, plantName, null);
+                oRU.SetText(ref sheet, 5, 3, "No Data Found !", ExcelHAlign.HAlignCenter);
+                oRU.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
+            }
+        }
+
+
         private void TotalRevenue_DateRange(ref IWorksheet sheet, ReportUtility oRU, DataTable dtParallelCurrency, int sumdrcrColDateRange, int RowTotal_current, int Row_Total_Start, int Row_total_End)
         {
             for (int s = 0; s < dtParallelCurrency.Rows.Count; s++)
@@ -2536,7 +2967,7 @@ namespace Library.Service.Accounts
                 sheet.Range[RowTotal_current2, sumdrcrCol2].BorderAround(ExcelLineStyle.Hair);
             }
         }
-        private DataSet GetIncomeStatementInfoDateRange(string companyId,string plantId, string fromDate, string toDate, string[] parallelCurrencies)
+        private DataSet GetIncomeStatementInfoDateRange(string companyId,string plantId, string fromDate, string toDate,  string[] parallelCurrencies)
         {
             GridParameter parameters = null;
             try
@@ -2586,6 +3017,58 @@ namespace Library.Service.Accounts
             }
         }
 
+        private DataSet GetEntityWiseExpenseAndEarningInfoDateRange(string companyId, string plantId, string fromDate, string toDate, string entityId, string[] parallelCurrencies)
+        {
+            GridParameter parameters = null;
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var parallelCurrency = "";
+                parallelCurrency = parallelCurrencies.Length > 0 ? string.Join(",", parallelCurrencies.Select(item => "'" + item + "'")) : "' '";
+                parameters = new GridParameter
+                {
+                    ExportType = "DATASET"
+                };
+                parameters.CmdText = @"
+
+                    SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+                    sum(VDC.DrAmount) as DrAmount,
+                    sum(VDC.CrAmount) as CrAmount,
+                    sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+                    sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+                   
+                    ACT.BalanceType,
+                    ACT.Id AS [MainHead],
+                    AG.UserName AS [Level],
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                    VD.BudgetMasterId, BUD.UserName AS Budget
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    where act.IsBalanceSheet=0 AND v.PostingDate < '" + fromDate + @"' AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
+                            and V.EntityId='"+entityId+@"'
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode
+                  --  ,v.PostingDate
+					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName";
+
+                return _sqlRepository.GetGridData(parameters).Source;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
         private DataTable GetIncomeStatementInfoDateRangeForThePeriod(string companyId, string fromDate, string toDate, string[] parallelCurrencies)
         {
             string strSql = "";
@@ -2633,6 +3116,56 @@ namespace Library.Service.Accounts
                 throw;
             }
         }
+
+        private DataTable GetEntityWiseExpenseAndEarningInfoDateRangeForThePeriod(string companyId, string fromDate, string toDate, string entityId,string[] parallelCurrencies)
+        {
+            string strSql = "";
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var parallelCurrency = "";
+                parallelCurrency = parallelCurrencies.Length > 0 ? string.Join(",", parallelCurrencies.Select(item => "'" + item + "'")) : "' '";
+                //parameters = new GridParameter
+                //{
+                //    ExportType = "DATASET"
+                //};
+                strSql = @"                   
+                    SELECT GL.Id AS AccountCodeId,--Replace(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') PostingDate,
+                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+                    
+                    sum(VDC.DrAmount) as DrAmount,
+                    sum(VDC.CrAmount) as CrAmount,
+                    sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative,
+                    sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative,
+                    ACT.BalanceType,
+                    ACT.Id AS [MainHead],
+                    AG.UserName AS [Level],
+                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                    VD.BudgetMasterId, BUD.UserName AS Budget
+                    FROM TRN.VoucherDetailCurrency AS VDC
+                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                    LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                    left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                    LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                    LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                    LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                    where act.IsBalanceSheet=0 AND v.PostingDate between '" + fromDate + @"' and '" + toDate + @"' AND V.CompanyId='" + companyId + @"'
+                            and V.EntityId='"+entityId+@"'
+                    and VDC.ParallelCurrencyId IN (" + parallelCurrency + @") and v.IsPark=0 and  vd.OpeningBalanceDetailId IS NULL
+                    group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,vd.GLGeneralInfoId,GL.UserName, GL.AccountCode--,v.PostingDate
+					,ACT.BalanceType,AG.UserName,ACT.Id, VD.BudgetMasterId,BUD.UserName ";
+
+                return _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
 
         //Master query for income statement
         private DataTable GetIncomeStatementInfoDateRangeForThePeriodMaster(string companyId, string fromDate, string toDate, string[] parallelCurrencies)
