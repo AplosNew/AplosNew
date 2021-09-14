@@ -295,6 +295,12 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/voucher/incomestatementreportpage",
             controller: "incomeStatementReportController"
         })
+        .when("/entity-wise-expense-earning-report", {
+            templateUrl: "Accounts/voucher/EntityWiseExpenseAndEarning",
+            controller: "entityWiseExpenseAndEarningController"
+        })
+    
+
         .when("/balancesheet-report", {
             templateUrl: "Accounts/voucher/BalanceSheetReportPage",
             controller: "balanceSheetReportController"
