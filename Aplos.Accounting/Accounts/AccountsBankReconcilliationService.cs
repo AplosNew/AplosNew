@@ -202,7 +202,7 @@ namespace Library.Accounting.Accounts
                                        INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
                                        WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' AND (ReconcileId IS NULL))
                                        AND V.CompanyGroupId='" + companyGroupId + @"' AND V.CompanyId='" + companyId + @"'  AND V.IsPark=0
-                                       AND (VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate<='" + toDate + @"') --AND V.PostingDate>='" + fromDate + @"'
+                                       AND (VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
                                        AND (VD.CrAmount<>0.0000) ";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -241,7 +241,7 @@ namespace Library.Accounting.Accounts
                                        INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
                                        WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' AND (ReconcileId IS NULL))
                                        AND V.CompanyGroupId='" + companyGroupId + @"' AND V.CompanyId='" + companyId + @"' AND V.IsPark=0
-                                       AND (VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate<='" + toDate + @"') --AND V.PostingDate>='" + fromDate + @"'
+                                       AND (VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) --AND V.PostingDate>='" + fromDate + @"'
                                        AND (VD.DrAmount<>0.0000)" + str;
                 return _sqlRepository.GetGridData(parameters);
             }
