@@ -3,6 +3,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Enums;
+using Library.Model.Parties;
 using Library.Service.Enums;
 using Library.Service.Logs;
 using System;
@@ -4366,9 +4367,28 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 								LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
 								LEFT JOIN HKP.Party P ON P.Id=C.CustomerId
 								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			, RGL.ReconciliationGLId, RGL.ReconciliationGLCode, RGL.ReconciliationGLName
+            , RGL.ReconciliationBudgetId, RGL.ReconciliationBudgetCode, RGL.ReconciliationBudgetName
+            , RGL.ReconciliationActivityId, RGL.ReconciliationActivityCode, RGL.ReconciliationActivityName
 FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-		ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+LEFT JOIN (
+SELECT C.Id,C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable 
+FROM [HKP].[CompanyParty] AS C 
+LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor'
+) AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+
+		LEFT JOIN(
+                                    SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS ReconciliationGLId, GL.AccountCode AS ReconciliationGLCode, GL.UserName AS ReconciliationGLName
+                                    , CPGL.BudgetMasterId AS ReconciliationBudgetId, B.Code AS ReconciliationBudgetCode, B.UserName AS ReconciliationBudgetName
+                                    , CPGL.ActivityId AS ReconciliationActivityId, A.Code AS ReconciliationActivityCode, A.UserName AS ReconciliationActivityName
+                                    FROM [HKP].[CompanyPartyGL] AS CPGL
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
+                                    WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
+                                    ) AS RGL ON RGL.CompanyPartyId=CP.Id
 LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
 LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
@@ -4384,7 +4404,7 @@ LEFT JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=IR.PurchaseDocumentAcceptanceI
 LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
 					
 LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.TotalMaterialTranAmount,4)) AS TransactionAmount, SUM(ROUND(A.TotalMaterialBooksCurrencyAmount,0)) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
-		JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='"+ plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+		JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
 LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
 		WHERE B.PlantId='"+ plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
 LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
@@ -4401,6 +4421,28 @@ order by IR.GRNDate desc";
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+
+		public IEnumerable<object> GetPostInvoiceDetailGL(string inventoryReceiveId)
+        {
+            try
+            {
+				string sql = @"SELECT GL.UserName GLGeneralInfoName,GL.AccountCode GLGeneralInfoCode,VD.GLGeneralInfoId
+				,B.UserName BudgetName,B.Code BudgetCode,VD.BudgetMasterId,A.UserName ActivityName,VD.ActivityId,VD.CrAmount DrAmount
+				from TRN.VoucherDetail VD
+				LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=VD.GLGeneralInfoId
+				LEFT JOIN MSt.BudgetMaster BM ON BM.Id=VD.BudgetMasterId
+				LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+				JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+				JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
+				JOIN HKP.Budget B ON B.Id=BM.BudgetId
+				WHERE IR.Id='"+ inventoryReceiveId + @"' AND VD.CrAmount>0";
+				return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 		#endregion Post Invoice
 
 	}
