@@ -68,11 +68,22 @@
 								 e-enabletouch="true" e-allowselection="true"
 								 e-scrollsettings="scroll">
 								<div e-columns>
-									<div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-									<div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="50"></div>
-									<div e-column e-field="RequestedQty" e-headertext="Valid Qty" e-width="50"></div>
-									<div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="50"></div>
-									<div e-column e-field="Orderspecific" e-headertext="Orderspecific" e-width="50"></div>
+									<div e-column e-field="Id" e-headertext="Id" e-width="150"></div>
+
+									<div e-column e-field="ProcessName" e-headertext="ProcessName" e-width="150"></div>
+									<div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="250"></div>
+									<div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="150"></div>
+									<div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="150"></div>
+									<div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="150"></div>
+									<div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="150"></div>
+									<div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="150"></div>
+									<div e-column e-field="CustomerName" e-headertext="CustomerName" e-width="150"></div>
+									<div e-column e-field="BUyerName" e-headertext="BUyerName" e-width="150"></div>
+
+									<div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="100"></div>
+									<div e-column e-field="RequestedQty" e-headertext="Valid Qty" e-width="100"></div>
+									<div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="100"></div>
+									<div e-column e-field="Orderspecific" e-headertext="Orderspecific" e-width="100"></div>
 								</div>
 
 							</div>
@@ -129,9 +140,9 @@
 					<input type="text" name="Order Ref No" ng-model="productNew.OrderRefNo" class="form-control" maxlength="300" tabindex="2" autocomplete="on" readonly>
 					<span class="input-group-btn">
 
-						<button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-						<button ng-click="ClearMasterOrder()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-						<button ng-click="GetPopUpMasterOrderDetails()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-list-alt"></i></button>
+						<button ng-click="GetMasterOrderByContractList()" class="btn single-small-btn" ng-disabled="productNew.OrderSpecific==='Yes'"><i class="glyphicon glyphicon-search"></i></button>
+						<button ng-click="ClearMasterOrder()" class="btn single-small-btn" ng-disabled="productNew.OrderSpecific==='Yes'"><i class="glyphicon glyphicon-refresh"></i></button>
+						<button ng-click="GetPopUpMasterOrderDetails()" class="btn single-small-btn" ng-disabled="productNew.OrderSpecific==='Yes'"><i class="glyphicon glyphicon-list-alt"></i></button>
 					</span>
 				</div>
 			</div>
