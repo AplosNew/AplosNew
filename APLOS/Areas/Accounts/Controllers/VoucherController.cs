@@ -479,8 +479,14 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //public ActionResult PartyPaymentStatus()
         //{
-        //    return View("~/Areas/Accounts/Views/PartyPaymentStatus.cshtml");
+        //    return View("~/Areas/Accounts/Views/PartyPaymentStatus.cshtml");  EntityWiseExpenseAndEarning
         //}
+
+        public ActionResult EntityWiseExpenseAndEarning()
+        {
+            return View("~/Areas/Accounts/Views/EntityWiseExpenseAndEarning.cshtml");
+        }
+
 
         //PartyPaymentStatusDetail
         [HttpGet, Authorize]
@@ -2584,6 +2590,15 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var fileName = "Income Statement Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
             var workbook = _voucharReportService.GetIncomeStatementReportDateWise(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency));
+            workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
+            return null;
+        }
+
+        public ActionResult EntityWiseExpenseAndEarningreportDateWise(string fromDate, string toDate, string entityId, string parallelCurrency)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var fileName = "Entity Wise Expense And Earning Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
+            var workbook = _voucharReportService.GetEntityWiseExpenseAndEarningReportDateWise(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, entityId, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency));
             workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
             return null;
         }

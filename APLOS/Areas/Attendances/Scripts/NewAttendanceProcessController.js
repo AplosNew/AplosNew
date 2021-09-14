@@ -14,8 +14,10 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             $http({
                 method: 'GET',
                 url: $scope.path + 'RunShiftProcess?Date=' + $scope.Attnd.Date,
-            }).then(function success(response) {
-                console.log("Done!!");
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {                    
+                    ShowResult(response.data.Message, 'success');
+                }
             });
         }
     }
@@ -31,8 +33,10 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             $http({
                 method: 'GET',
                 url: $scope.path + 'RunAttnd?Date=' + $scope.Attnd.Date,
-            }).then(function success(response) {
-                console.log("Done!!");
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    ShowResult(response.data.Message, 'success');
+                }
             });
         }
     }
@@ -44,8 +48,10 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             $http({
                 method: 'GET',
                 url: $scope.path + 'RunDayStatus?Date=' + $scope.Attnd.Date,
-            }).then(function success(response) {
-                console.log("Done!!");
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    ShowResult(response.data.Message, 'success');
+                }
             });
         }
     }
@@ -55,8 +61,10 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             $http({
                 method: 'GET',
                 url: $scope.path + 'ManualScheduler',
-            }).then(function success(response) {
-                console.log("Done!!");
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    ShowResult(response.data.Message, 'success');
+                }
             });
        
     }
@@ -67,8 +75,10 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             $http({
                 method: 'GET',
                 url: $scope.path + 'MonthlySummary?Date=' + $scope.Attnd.Date,
-            }).then(function success(response) {
-                console.log("Done!!");
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    ShowResult(response.data.Message, 'success');
+                }
             });
         }
     }
@@ -80,8 +90,10 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             $http({
                 method: 'GET',
                 url: $scope.path + 'RunRoster?Date=' + $scope.Attnd.Date,
-            }).then(function success(response) {
-                console.log("Done!!");
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    ShowResult(response.data.Message, 'success');
+                }
             });
         }
     }

@@ -2949,7 +2949,7 @@ namespace Library.Service.SalesManagements
                     EXPFromNo = voucherVM.EXPFromNo,
                     ComercialInvoiceNo = voucherVM.ComercialInvoiceNo,
                     SourceType = "Packing",
-                    Id = "P" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                    Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
                 sales.DocRefNo = sales.Id;
                 sales.InvoiceNo = sales.Id;
