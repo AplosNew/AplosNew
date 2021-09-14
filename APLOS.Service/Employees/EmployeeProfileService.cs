@@ -3587,19 +3587,18 @@ namespace Library.Service.Employees
                     else
 
                         table2.Replace("{AppraisalDate}", dtEmpInfo.Rows[ROW]["AppraisalDate"].ToString(), false, true);
-                    table2.Replace("{Department}", dtEmpInfo.Rows[ROW]["Department"].ToString(), false, true);
+                    table2.Replace("{PreviousDepartment}", dtEmpInfo.Rows[ROW]["PreviousDepartment"].ToString(), false, true);
+                    table2.Replace("{NewDepartment}", dtEmpInfo.Rows[ROW]["NewDepartment"].ToString(), false, true);
 
                     table2.Replace("{PreviousGross}", string.Format("{0:N2}", dtEmpInfo.Rows[ROW]["PreviousGross"].ToString()), false, true);
                     table2.Replace("{NewGross}", string.Format("{0:N2}", dtEmpInfo.Rows[ROW]["NewGross"].ToString()), false, true);
                     table2.Replace("{IncrementAmount}", string.Format("{0:N2}", dtEmpInfo.Rows[ROW]["IncrementAmount"].ToString()), false, true);
 
+                    table2.Replace("{PreviousGrade}", dtEmpInfo.Rows[ROW]["PreviousGrade"].ToString(), false, true);
+                    table2.Replace("{NewGrade}", dtEmpInfo.Rows[ROW]["NewGrade"].ToString(), false, true);
                     table2.Replace("{PreviousDesignation}", dtEmpInfo.Rows[ROW]["PreviousDesignation"].ToString(), false, true);
                     table2.Replace("{NewDesignation}", dtEmpInfo.Rows[ROW]["NewDesignation"].ToString(), false, true);
-
                 }
-
-
-
 
                 if (!string.IsNullOrEmpty(dtEmpHeaderInfo.Rows[0]["EmployeePic"].ToString()))
                 {
@@ -3805,10 +3804,12 @@ namespace Library.Service.Employees
 
         private DataTable GetEmpInfo(string EmpSystemId, string languageId)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string Sql = @"			 SELECT Format(salaryInfoTo.EffectiveDate , 'dd-MMM-yyyy') As AppraisalDate,
 
-		salaryInfoFrom.EntryAmount PreviousGross,salaryInfoTo.EntryAmount NewGross,salaryInfoTo.EntryAmount-salaryInfoFrom.EntryAmount IncrementAmount,
+			 CONVERT(NUMERIC(10,2),salaryInfoFrom.EntryAmount) PreviousGross
+		 , CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount) NewGross,CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount-salaryInfoFrom.EntryAmount) IncrementAmount,
 		sh.SalaryHead,ei.EmpPicPath
 		,ISNULL(LLD.Name, NDept.UserName) as NewDepartment
 		,ISNULL(PLLD.Name, PDept.UserName) as PreviousDepartment
@@ -3840,12 +3841,12 @@ WHERE SMB.EmpInfoSystemID='" + EmpSystemId + @"'
 LEFT JOIN SalaryHead SH1 ON SH1.SalaryHeadID=salaryInfoFrom.SalaryHeadID
 LEFT JOIN EmployeeInformation ei ON EI.SystemId=salaryInfoTo.EmpInfoSystemID   
 LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
-				LEFT JOIN MST.LegalSalaryGradeDesignation LSGD on LSGD.LegalDesignationId=LD.Id
+				LEFT JOIN MST.LegalSalaryGradeDesignation LSGD on LSGD.LegalDesignationId=LD.Id and LSGD.PlantId='"+identity.PlantId+@"'
 				LEFT JOIN SCS.LegalSalaryGrade LSG on LSG.id=LSGD.LegalSalaryGradeId
 
 
 				LEFT JOIN hkp.LegalDesignation PLD ON IH.FromLegalDesignationId = PLD.Id
-				LEFT JOIN MST.LegalSalaryGradeDesignation PLSGD on PLSGD.LegalDesignationId=PLD.Id
+				LEFT JOIN MST.LegalSalaryGradeDesignation PLSGD on PLSGD.LegalDesignationId=PLD.Id and LSGD.PlantId='"+ identity.PlantId + @"'
 				LEFT JOIN SCS.LegalSalaryGrade PLSG on PLSG.id=PLSGD.LegalSalaryGradeId
 
 
@@ -3871,7 +3872,7 @@ ORDER BY convert(date,salaryInfoFrom.EffectiveDate) ";
         }
         private DataTable GetEmpHeaderInfo(string EmpSystemId, string languageId)
         {
-
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string Sql = @"select 
 e.SystemId
 ,e.EmployeeCode 
@@ -3898,9 +3899,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
  LEFT JOIN HKP.LocalLanguage LS ON LS.SectionId=e.SectionId  AND LS.LanguageId='" + languageId + @"'
  LEFT JOIN HKP.LocalLanguage LL ON LL.LineId=e.LineId  AND LL.LanguageId='" + languageId + @"'
  LEFT JOIN HKP.LocalLanguage LC ON LC.EmployeeCategoryId=e.EmployeeCategorySystemID  AND LC.LanguageId='" + languageId + @"'
- where e.SystemId ='" + EmpSystemId + @"'
-
-";
+ where e.SystemId ='" + EmpSystemId + @"'";
             return _sqlRepository.GetDataTable(Sql);
         }
 
