@@ -288,6 +288,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		//}
 
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
+
 		if ($scope.Action === "Save") {
 			$http({
 				method: 'POST'
