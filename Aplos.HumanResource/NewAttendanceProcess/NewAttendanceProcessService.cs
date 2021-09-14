@@ -3217,8 +3217,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                
                 IF @WeekNo='1'
                 begin
-                select o.RowId,o.PlantID,'"+Date+ @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
-                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as NormalDayOT from OTProcessDayLimit O 
+                select o.RowId,o.PlantID,'"+Date+ @"' as WorkDate,isnull(MaxHolidayOTLimitParDay,'0') as HolidayOT,
+                isnull(MaxWeekOffOTLimitParDay,'0') as WeekOffOT,isnull(MaxOTLimitParDay,'0') as NormalDayOT from OTProcessDayLimit O 
                 left join org.Plant p 
                 on p.Id=o.PlantID left join 
                 OTLimitSetting ol on ol.PlantID=p.Id
@@ -3227,8 +3227,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 Else IF @WeekNo='2'
                 begin
-                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
-                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as NormalDayOT from OTProcessDayLimit O 
+                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,isnull(MaxHolidayOTLimitParDay,'0') as HolidayOT,
+                isnull(MaxWeekOffOTLimitParDay,'0') as WeekOffOT,isnull(MaxOTLimitParDay,'0') as NormalDayOT from OTProcessDayLimit O 
                 left join org.Plant p 
                 on p.Id=o.PlantID left join 
                 OTLimitSetting ol on ol.PlantID=p.Id
@@ -3237,8 +3237,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 Else IF @WeekNo='3'
                 begin
-                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
-                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as NormalDayOT from OTProcessDayLimit O 
+                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,isnull(MaxHolidayOTLimitParDay,'0') as HolidayOT,
+                isnull(MaxWeekOffOTLimitParDay,'0') as WeekOffOT,isnull(MaxOTLimitParDay,'0') as NormalDayOT from OTProcessDayLimit O 
                 left join org.Plant p 
                 on p.Id=o.PlantID left join 
                 OTLimitSetting ol on ol.PlantID=p.Id
@@ -3247,8 +3247,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 else
                 begin
-                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,MaxHolidayOTLimitParDay as HolidayOT,
-                MaxWeekOffOTLimitParDay as WeekOffOT,MaxOTLimitParDay as NormalDayOT from OTProcessDayLimit O 
+                select o.RowId,o.PlantID,'" + Date + @"' as WorkDate,isnull(MaxHolidayOTLimitParDay,'0') as HolidayOT,
+                isnull(MaxWeekOffOTLimitParDay,'0') as WeekOffOT,isnull(MaxOTLimitParDay,'0') as NormalDayOT from OTProcessDayLimit O 
                 left join org.Plant p 
                 on p.Id=o.PlantID left join 
                 OTLimitSetting ol on ol.PlantID=p.Id
