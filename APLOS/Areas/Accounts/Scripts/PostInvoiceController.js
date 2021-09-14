@@ -297,7 +297,8 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.paymentTerm();
         getRecievedList();
         getServiceChargeList();
-        getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable, $scope.modelNew.IsFOC);
+        //getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable, $scope.modelNew.IsFOC);
+        GetPostInvoiceDetailGL(data.data.Id);
         getInventoryTaxList(data.data.Id);
         if (data.data.GRNType == 'GRNBYPO') {
 
@@ -313,6 +314,16 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.valueData = '';
         angular.element(document.querySelector('#GRNpopUp')).modal('hide');
     };
+
+    function GetPostInvoiceDetailGL(inveReveiveId) {
+        $http.get('Products/PostInvoice/GetPostInvoiceDetailGL?inveReveiveId=' + inveReveiveId)
+            .then(function (response) {
+                $scope.inventoryPayableList = [];
+                $scope.inventoryPayableList = response.data;
+            });
+    }
+
+
     function getVendorPayableGLBudgetActivity(inveReveiveId) {
         $http.get('Products/InventoryReceive/GetVendorPayableGLBudgetActivity?inveReveiveId=' + inveReveiveId)
             .then(function (response) {
@@ -424,7 +435,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         //    }
         //    else if (row.OtherName === 'Svc' && row.TrnType === 'Cr') {
         //        var taxList = ($filter('filter')(list, { OtherName: 'Svc', TrnType: 'Cr', GLGeneralInfoId: row.GLGeneralInfoId, BudgetMasterId: row.BudgetMasterId, ActivityId: row.ActivityId }, true));
-        //        row.Amount = parseFloat(row.Amount) / parseFloat(baseService.arrayLength(taxList));
+        //        row.Amount = parseFloat(row.Amount) / pars+eFloat(baseService.arrayLength(taxList));
         //        assignSvcInTax(row, list, 'Cr');
         //    }
         //}
