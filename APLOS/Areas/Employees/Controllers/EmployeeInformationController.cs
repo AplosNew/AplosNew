@@ -1801,8 +1801,6 @@ namespace Aplos.Areas.Employees.Controllers
                         clsStaticInfo info = new clsStaticInfo();
                         info.SaveDataSets(dsLocal);
 
-
-
                     }
                 }
                 return Content("");
