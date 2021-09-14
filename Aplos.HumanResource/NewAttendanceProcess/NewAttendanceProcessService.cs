@@ -977,7 +977,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
                 left join org.Plant pl on pl.Id=e.PlantId
                 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
-                where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantId + @"'";
+                where e.EmpType!='Guest' and e.PlantId='" + PlantId + @"' and
+				E.DOJ <= '"+Date+"' AND (E.DOS >= '"+Date+"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901') ";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -1002,16 +1003,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
 				left join scs.DesignationMasterConfiguration dc on dc.DesignationMasterId=dm.Id
                 and dc.PlantId=e.PlantId
-                 where p.WorkDate='" + Date+@"' and 
-				 e.PlantId='"+PlantId+@"' 
-                and e.EmployeeStatus='Active'
-                and dc.IsOTEntitled=1
-				 and e.SystemId not in
-                (select final.EmpSystemId from (
-                select distinct o.empsystemId,(select top 1 Exclude from NonEligibleOT m
-                where m.EmpSystemId=o.EmpSystemId
-                order by EffectiveDate desc)as x
-                from NonEligibleOT o) final where final.x=1)";
+                where p.WorkDate='" + Date+@"' and 
+				e.PlantId='"+PlantId+ @"' 
+                and E.DOJ <= '" + Date + "' AND (E.DOS >= '" + Date + "' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')" +
+                "and dc.IsOTEntitled=1 " +
+                "and e.SystemId not in (select final.EmpSystemId from (select distinct o.empsystemId,(select top 1 Exclude from NonEligibleOT m" +
+                "where m.EmpSystemId=o.EmpSystemId order by EffectiveDate desc)as x" +
+                "from NonEligibleOT o) final where final.x=1)";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -1297,8 +1295,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select distinct e.SystemId as EmpId,e.GroupID,MONTH('" + Date+@"')MonthNo,
                 YEAR('"+Date+@"')YearNo,isnull(c.DailyLimit,'0')DailyLimit,isnull(c.MonthlyLimit,'0')MonthlyLimit
                 from EmployeeInformation e left join creditlimitopening c on 
-                c.DesignationId=e.DesignationSystemID where EmployeeStatus='Active' and EmpType!='Guest'
-                and e.PlantId='"+Plant+"'";
+                c.DesignationId=e.DesignationSystemID where EmpType!='Guest'
+                and e.PlantId='"+Plant+ "'and e.DOJ <= '"+Date+"' AND(e.DOS >= '"+Date+"' OR ISNULL(e.DOS, '') = '' OR e.DOS = '01/01/1901') ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
