@@ -3127,7 +3127,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
             catch (Exception ex)
             {
-                throw (ex);
+                 throw (ex);
             }
 
         }
@@ -3153,7 +3153,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @"select EmpSystemID,WorkDate,PreallocatedOTHr*60 as 
+                var sql = @"select EmpSystemID,WorkDate,isnull(PreallocatedOTHr*60,'0') as 
                 PreAllocatedOTMinutes,PlantID
                 from [dbo].[PreallocatedOT] where WorkDate='" + Date + @"'
                 and PlantID='" + PlantId + "' and ISNULL(ExtendTheDayLimit,'')! =''";
@@ -3172,8 +3172,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"Select EmpSystemId,'" + Date + @"' AS WorkDate,PlantId,
-                MaximumOTLimitPerWeekend*60 as WeekOffOT,MaximumOTLimitPerHoliDay*60 AS HolidayOT,
-                MaximumOTLimitPerWeekDay*60 AS NormalDayOT
+                isnull(MaximumOTLimitPerWeekend*60,'0') as WeekOffOT,isnull(MaximumOTLimitPerHoliDay*60,'0') AS HolidayOT,
+                isnull(MaximumOTLimitPerWeekDay*60,'0') AS NormalDayOT
                 from EmployeeWiseFixedOTSetting 
                 WHERE PlantId='" + PlantId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -3191,7 +3191,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"select O.RowId,o.PlantID,o.EmpSystemID,
-                Format(o.WorkDate,'yyyy-MMM-dd')WorkDate,s.firstSlab*60 as firstSlab
+                Format(o.WorkDate,'yyyy-MMM-dd')WorkDate,isnull(s.firstSlab*60,'0') as firstSlab
                 from OTProcessDayLimit o 
                 left join org.Plant p on o.PlantID=p.Id left join
                 OTSlabDefineGeneral s on s.PlantID=p.Id and s.DayType=o.DayType
@@ -3688,13 +3688,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 "where WorkDate <= '" + SandwichPrevDay + "' and EmpSystemID='" + EmpId + "' " +
                                                 "and SandwichFlag!=1 and SandwichFlag!=0";
 
-                                            ConnectionManager.DAL.ConManager objCone = null;
-                                            objCone = new ConnectionManager.DAL.ConManager("1");
-                                            objCone.OpenConnection("1");
-                                            objCone.BeginTransaction();
-
-                                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                            objCone.CommitTransaction();
+                                            ManualFromFunction(sql);
+                                            
                                         }
                                     }
                                     else if (ToDaySandwich == "0")
@@ -3703,13 +3698,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         where WorkDate <= '" + SandwichPrevDay + "' and EmpSystemID='" + EmpId + "' " +
                                         "and SandwichFlag!=1 and SandwichFlag!=0";
 
-                                        ConnectionManager.DAL.ConManager objCone = null;
-                                        objCone = new ConnectionManager.DAL.ConManager("1");
-                                        objCone.OpenConnection("1");
-                                        objCone.BeginTransaction();
-
-                                        objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                        objCone.CommitTransaction();
+                                        ManualFromFunction(sql);
                                     }
                                 }
 
@@ -4655,6 +4644,29 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+
+        public void ManualFromFunction(string sqlx)
+        {
+            try
+            {
+                var sql = sqlx;
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+                objCone.executeQuery(sql);
+                objCone.CloseConnection();
+              
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+
         public void ManualEarnedLeave(out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -5066,17 +5078,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     if (FinalStatus != "")
                                     {
+
                                         var sql = @"update AttdnProcessData set UpdatedBy='Sandwich', DayStatus='" + FinalStatus + "',Sandwichstatus='" + FinalStatus + "'" +
                                             "where WorkDate <= '" + PrevWkDate + "' and EmpSystemID='" + EmpId + "' " +
                                             "and SandwichFlag!=1 and SandwichFlag!=0";
 
-                                        ConnectionManager.DAL.ConManager objCone = null;
-                                        objCone = new ConnectionManager.DAL.ConManager("1");
-                                        objCone.OpenConnection("1");
-                                        objCone.BeginTransaction();
-
-                                        objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                        objCone.CommitTransaction();
+                                        ManualFromFunction(sql);
+                                        
                                     }
                                 }
                                 else if (TodaySandwich == "0" && PrevWkDate != "")
@@ -5085,16 +5093,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     where WorkDate <= '" + PrevWkDate + "' and EmpSystemID='" + EmpId + "' " +
                                     "and SandwichFlag!=1 and SandwichFlag!=0";
 
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
+                                    ManualFromFunction(sql);
+                                    
                                 }
                             }
-
                         }
                     }
                     SaveDataSets(dsRef);
