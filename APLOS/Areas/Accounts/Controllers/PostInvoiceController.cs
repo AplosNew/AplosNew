@@ -122,10 +122,15 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsInventoryPayableService.GetGRNListForInvPayable(identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInventoryPayableService.GetGRNListForPostInvoice(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
-        
+        [Authorize, HttpGet]
+        public JsonResult GetPostInvoiceDetailGL(string inventoryReceiveId)
+        {
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetPostInvoiceDetailGL(inventoryReceiveId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost, Authorize]
         public JsonResult GetAdditionalTaxDetail(string additionalTaxId)

@@ -202,6 +202,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                             row[0].ErrorMessage = response.data.Data[i].ErrorMessage;
                         }
                     }
+
                     var gridObj = $("#GridChangeAttendanceBySingleDates").data("ejGrid");
                     gridObj.refreshContent();
                 }
@@ -255,6 +256,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                         row[0].ErrorMessage = response.data.Data[i].ErrorMessage;
                     }
                 }
+
                 var gridObj = $("#GridChangeAttendanceBySingleDates").data("ejGrid");
                 gridObj.refreshContent();
             }
@@ -263,5 +265,28 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                 $scope.selectSigleDate();
             }
         });
+    }
+    $scope.queryCellInfo = function (args) {
+        try {
+            if (args.data.IsManualDayStatus == true) {
+                if (args.column.field == "IsManualDayStatus" || args.column.field == "DayStatus") {
+                    args.cell.bgColor = "#FF911D";
+                }
+            }
+        } catch (e) {
+
+        }
+
+    }
+    $scope.rowDataBoundSingleEmployee = function (e) {
+
+        if (!baseService.isUndefinedOrNull(e.data.ErrorMessage) && e.data.ErrorMessage != "")
+            e.row.css("background-color", "#ff0000");
+    }
+    $scope.rowDataBoundSingleDate = function (e) {
+
+        if (!baseService.isUndefinedOrNull(e.data.ErrorMessage) && e.data.ErrorMessage != "")
+            e.row.css("background-color", "#ff0000");
+
     }
 }

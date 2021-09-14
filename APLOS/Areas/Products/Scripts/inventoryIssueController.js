@@ -73,6 +73,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		, ProductionOrderId: null
 		, ContractNo: null
 		, ContractId: null
+		,ProcessName:null
 	};
 	$scope.IssueType = 'Revenue';
 	$scope.productNew = Object.assign({}, $scope.product);
@@ -287,6 +288,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		//}
 
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
+
 		if ($scope.Action === "Save") {
 			$http({
 				method: 'POST'
@@ -2030,6 +2032,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.issueId = x.data.Id;
 		$scope.isuuedate = x.data.AddedDate;
 		$scope.productNew.OrderSpecific = x.data.Orderspecific;
+		$scope.productNew.ProcessName = x.data.ProcessName;
 		// var gridObj = $("#GridTest").ejGrid("instance");
 
 		angular.element(document.querySelector('#POPopUp1')).modal('hide');

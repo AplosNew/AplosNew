@@ -246,7 +246,7 @@ namespace Aplos.Areas.Banks.Controllers
             LEFT JOIN[HKP].[Bank] AS BN ON BN.Id = BM.BankId
             LEFT JOIN[MST].[CashMaster] AS CM ON CM.Id = VD.CashMasterId
             LEFT JOIN[HKP].[Party] AS P ON P.Id = VD.PartyId
-            WHERE V.Archive = 0 AND V.IsPark = 1 AND V.CompanyGroupId = @companyGroupId AND V.CompanyId = @companyId AND V.PlantId = @plantId
+            WHERE V.Archive = 0 AND V.IsPark =1 AND V.CompanyGroupId = @companyGroupId AND V.CompanyId = @companyId AND V.PlantId = @plantId
            AND VD.BankMasterId <> ''
             AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"' AND V.SourceType = 'VendorPayment'";
                 return _sqlRepository.GetDataCollection(_sql, null);
