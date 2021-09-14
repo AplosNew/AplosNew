@@ -80,6 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accounts\AccountsBankReconcilliationService.cs" />
     <Compile Include="Accounts\AccountsDocAcceptanceService.cs" />
     <Compile Include="Accounts\AccountsOutsourceBillingService.cs" />
     <Compile Include="Accounts\AccountsSalaryPayableService.cs" />
