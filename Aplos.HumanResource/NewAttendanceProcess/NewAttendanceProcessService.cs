@@ -5435,9 +5435,18 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 else
                 {
+
+                    
+
                     var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" + PlantId + "'";
                     DataTable RosterTable = new DataTable();
                     RosterTable = _sqlRepository.GetDataTable(sql2);
+
+                    //Dictionary and DataSet Initialization
+                    DataSet ds;
+                    ConnectionManager.DAL.ConManager cona = new ConnectionManager.DAL.ConManager("1");
+                    cona.OpenDataSetThroughAdapter("select * from RosterPatternProcess where 1 = 2", out ds, false, "1");
+
                     if (RosterTable.Rows.Count > 0)
                     {
                         //Loop to go through all the Rosters in a Plant
@@ -5447,7 +5456,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string DaysCol = "Days" + DateTime.DaysInMonth(ddt.Year, ddt.Month).ToString();
 
                             //Getting all the Shifts Child 
-                            var sql3 = @"Select *, " + DaysCol + " as ShiftSequence from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by ShiftSequence";
+                            var sql3 = @"Select *, " + DaysCol + " as ShiftSequence from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by Days31";
                             DataTable ShiftsTable = new DataTable();
                             ShiftsTable = _sqlRepository.GetDataTable(sql3);
 
@@ -5483,10 +5492,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 if (counts == 0)
                                 {
-                                    //Dictionary and DataSet Initialization
-                                    DataSet ds;
-                                    ConnectionManager.DAL.ConManager cona = new ConnectionManager.DAL.ConManager("1");
-                                    cona.OpenDataSetThroughAdapter("select * from RosterPatternProcess where 1 = 2", out ds, false, "1");
+                                    
 
                                     Dictionary<string, object> dict = InitializeMyDictionary();
 
@@ -5536,15 +5542,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         }
 
                                     }
-
-
-                                    SaveDataSets(ds);
+                                    //
                                 }
 
                             }
 
                         }
                     }
+                    SaveDataSets(ds);
                 }
 
             }
