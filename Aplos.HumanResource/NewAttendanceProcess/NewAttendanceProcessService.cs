@@ -40,7 +40,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {
                     #region AssignedShift Process           
                     DataSet UnProcessed;
-                    UnProcessedEmp(Date, out UnProcessed, PlantValue);
+                    UnProcessedEmp(Date, out UnProcessed, PlantValue); //DataSet of Employees For Row Creation
                     if (UnProcessed.Tables[0].Rows.Count > 0)
                     {
                         var WkDate = UnProcessed.Tables[0].Rows[0][@"WorkDate"].ToString();
@@ -126,7 +126,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["IsManualDayStatus"] = clsWebLib.GetBoolData(IsManualDayStatus);
 
                                 #endregion
-
+                                // Priority Wise Shift Assignment
                                 #region AssignedShift Data
                                 if (ManualShift.ToString() != "")
                                 {
@@ -258,7 +258,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.EndEdit();
 
                             }
-
+                            // Earned Leave Logic Row Creation
                             dsEarnedLeave.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsEarnedLeave.Tables[0].DefaultView.Count == 0)
                             {
@@ -283,7 +283,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #region Shift Not Assigned Employee
                     DataSet ShiftNotAssigned;
-                    TopShift(out ShiftNotAssigned, PlantValue);
+                    TopShift(out ShiftNotAssigned, PlantValue); // Getting Top Shift of Plant
                     if (ShiftNotAssigned.Tables[0].Rows.Count > 0)
                     {
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -302,6 +302,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         ShiftTime(ref ShiftIn, ref ShiftOut, Date);
 
                         string EmpSet = "''";
+                        // Setting default Shift of Employees Whom Shift Not Assigned
                         if (dsRef.Tables[0].Rows.Count > 0)
                         {
                             for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
@@ -331,8 +332,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #region Ramadan Shift Flagging
                     DataSet RamadanShift;
-                    ChangedShift(Date, out RamadanShift, PlantValue);
-                    if (RamadanShift.Tables[0].Rows.Count > 0)
+                    ChangedShift(Date, out RamadanShift, PlantValue); // Building Dataset for Ramadan Shift Days
+                    if (RamadanShift.Tables[0].Rows.Count > 0) 
                     {
                         string WorkDate = RamadanShift.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
@@ -358,6 +359,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
+                                // Updating Exisiting Shift Localized Data with Ramadan Shift Info
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
 
@@ -386,6 +388,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     HolidayData(Date, out Holiday, PlantValue);
                     if (Holiday.Tables[0].Rows.Count > 0)
                     {
+                        // Updating Holiday Staus of Entire Plant If Holiday Exists
                         string WorkDate = Holiday.Tables[0].Rows[0][@"WorkDate"].ToString();
 
 
@@ -407,7 +410,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #region LeaveData Flagging
                     DataSet Leavedata;
-                    LeaveData(Date, out Leavedata, PlantValue);
+                    LeaveData(Date, out Leavedata, PlantValue); // Building Leave DataSet of Employees 
                     if (Leavedata.Tables[0].Rows.Count > 0)
                     {
                         string WorkDate = Leavedata.Tables[0].Rows[0][@"WorkDate"].ToString();
@@ -431,7 +434,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
-
+                                // Updations in APD Table
                                 dr["LeaveDuration"] = LeaveDuration;
                                 dr["LTSystemID"] = clsWebLib.RetValidLen(LTSystemID);
                                 dr["LeaveStatus"] = clsWebLib.RetValidLen(LeaveStatus);
@@ -441,7 +444,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                         }
                         SaveDataSets(dsRef);
-
+                        // IsAvail Flag Update Logic
                         #region Update in LeaveTransactionDetail
                         LeaveAvailUpdate(Date, PlantValue);
                         #endregion
@@ -456,7 +459,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < CompanyWeekOff.Tables[0].Rows.Count; i++)
                         {
-
+                            // Company WeekOff Employees Weekly Status Updation to W 
                             string PlantId = CompanyWeekOff.Tables[0].Rows[i][@"PlantId"].ToString();
                             string WkDate = CompanyWeekOff.Tables[0].Rows[i][@"WkDate"].ToString();
 
@@ -480,6 +483,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     else
                     {
+                        // Company WeekOff Employees Weekly Status Updation to NW 
 
                         var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
                                           WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
@@ -506,7 +510,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
-
+                        // Employee Week Off DataSet Generation
                         var sqlx = @"select * from AttdnProcessData 
                                    WHERE WorkDate='" + Date + @"'
                                     AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
@@ -524,7 +528,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
+                            { 
+                                // Week Off Updation in APD Level
                                 if (DayType.ToString() != "")
                                 {
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
@@ -545,6 +550,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     OriginalDateData(Date, out OriginalDateComp, PlantValue);
                     if (OriginalDateComp.Tables[0].Rows.Count > 0)
                     {
+                        // Holiday or Weekoff But Employee is Working (Compensatory Logic)
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
                         string WkDate = OriginalDateComp.Tables[0].Rows[0][@"WkDate"].ToString();
@@ -567,7 +573,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 if (Type == "W")
                                 {
-
+                                    // If Entire Plant Working on WeekOff Then WeeklyStatus Updated to WW 
                                     var sql = @"Update AttdnProcessData Set WeeklyStatus='WW'    
                                              WHERE WorkDate='" + WkDate + "' AND WeeklyStatus='W' AND " +
                                       "isnull(EmpSystemID,'') IN" +
@@ -586,6 +592,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 if (Type == "H")
                                 {
+                                    // If Entire Plant Working on Holiday HolidayStaus Updated to NH
                                     var sql = @"Update AttdnProcessData Set HolidayStatus='NH'  
                                                          WHERE WorkDate='" + WkDate + "' AND HolidayStatus='H' AND " +
                                       "isnull(EmpSystemID,'') IN" +
@@ -605,8 +612,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             else
                             {
+                                // Employee Wise
                                 if (Type == "H")
                                 {
+                                    // On Holiday
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                     if (dsRef.Tables[0].DefaultView.Count > 0)
                                     {
@@ -620,6 +629,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 if (Type == "W")
                                 {
+                                    // On WeekOff
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                     if (dsRef.Tables[0].DefaultView.Count > 0)
                                     {
@@ -642,6 +652,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     CompensatoryData(Date, out CompensatoryDateComp, PlantValue);
                     if (CompensatoryDateComp.Tables[0].Rows.Count > 0)
                     {
+                        // Date of Normal Working Day Taken Compensatory
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
                         string WkDate = CompensatoryDateComp.Tables[0].Rows[0][@"WkDate"].ToString();
@@ -664,6 +675,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 if (Type == "W")
                                 {
+                                    // If Entire Plant taken Compensatory on WeekOff
+                                    // Then ManualDayStatus Updated to CW 
 
                                     var sql = @"Update AttdnProcessData Set ManualDayStatus='CW',IsManualDayStatus=1   
                                              WHERE WorkDate='" + WkDate + "' AND WeeklyStatus!='W' AND " +
@@ -683,6 +696,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 if (Type == "H")
                                 {
+                                    // If Entire Plant taken Compensatory on Holiday
+                                    // Then ManualDayStatus Updated to AH 
+
                                     var sql = @"Update AttdnProcessData Set ManualDayStatus='AH',IsManualDayStatus=1  
                                              WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
                                       "isnull(EmpSystemID,'') IN" +
@@ -702,8 +718,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             else
                             {
+                                // Employee Wise
                                 if (Type == "H")
                                 {
+                                    // On Holiday
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                     if (dsRef.Tables[0].DefaultView.Count > 0)
                                     {
@@ -718,6 +736,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 if (Type == "W")
                                 {
+                                    // On WeekOff
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                     if (dsRef.Tables[0].DefaultView.Count > 0)
                                     {
@@ -738,7 +757,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #region OTEligibleData Flagging
                     DataSet OTElgbEmp;
-                    OTEligibleEmp(Date, out OTElgbEmp, PlantValue);
+                    OTEligibleEmp(Date, out OTElgbEmp, PlantValue); // OT Eligible DataSet Generation
                     if (OTElgbEmp.Tables[0].Rows.Count > 0)
                     {
                         string WorkDate = OTElgbEmp.Tables[0].Rows[0][@"WorkDate"].ToString();
@@ -757,6 +776,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
+                                // Updation in APD Table for OT Entitled Employees
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
 
@@ -774,7 +794,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #region OnDuty Data Flagging
                     DataSet OnDuty;
                     OnDutyData(Date, out OnDuty, PlantValue);
-                    if (OnDuty.Tables[0].Rows.Count > 0)
+                    if (OnDuty.Tables[0].Rows.Count > 0) // On Duty Employees Flagging in Manual DayStatus
                     {
                         string WorkDate = OnDuty.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
@@ -796,7 +816,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 dr["IsOD"] = 1;
                                 dr["ManualDayStatus"] = "OD";
-                                dr["UpdatedBy"] = "Schedule";
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -811,6 +830,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     OnRestData(Date, out OnRest, PlantValue);
                     if (OnRest.Tables[0].Rows.Count > 0)
                     {
+                        // On Rest Employees Flagging in Manual DayStatus
                         string WorkDate = OnRest.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
@@ -832,7 +852,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 dr["AttendanceRestDetailId"] = RestId;
                                 dr["ManualDayStatus"] = "RST";
-                                dr["UpdatedBy"] = "Schedule";
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -845,7 +864,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #region OTDayLimit Process Row Creation
                     DataSet OTDayLimit;
                     OTDayLimitRowCreation(Date, out OTDayLimit, PlantValue);
-                    if (OTDayLimit.Tables[0].Rows.Count > 0)
+                    if (OTDayLimit.Tables[0].Rows.Count > 0) // DayLimit Process DataSet Generation
                     {
                         var WkDate = OTDayLimit.Tables[0].Rows[0][@"WorkDate"].ToString();
                         var GpId = OTDayLimit.Tables[0].Rows[0][@"GroupID"].ToString();
@@ -863,6 +882,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count == 0)
                             {
+                                // Row Creation in OTProcessDayLimit
                                 DataRow drx = dsRef.Tables[0].NewRow();
                                 drx["EmpSystemID"] = EmpId;
                                 drx["RowId"] = RowId;
@@ -887,8 +907,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #region CreditLimit Monthly Opening Creation
                     DataSet CreditLimitOpening;
                     CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
+                    // DataSet Generation from Creditlimitopening
+
                     if (CreditLimitOpening.Tables[0].Rows.Count > 0)
-                    {
+                    {                       
                         var YearNo = CreditLimitOpening.Tables[0].Rows[0][@"YearNo"].ToString();
                         var GpId = CreditLimitOpening.Tables[0].Rows[0][@"GroupID"].ToString();
                         var MonthNo = CreditLimitOpening.Tables[0].Rows[0][@"MonthNo"].ToString();
@@ -905,6 +927,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count == 0)
                             {
+                                // Row Creation in EmployeeCreditLimit
                                 DataRow dr = dsRef.Tables[0].NewRow();
                                 clsGenID genid = new clsGenID();
                                 genid.GenID("EmployeeCreditLimit", out string _Id);
@@ -1322,6 +1345,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 Validation(out ValidationData, PlantValue);
                 if (ValidationData.Tables[0].Rows.Count > 0)
                 {
+                    // Plant Lock Checking of Previous Day
                     DataSet PlantLock;
                     PlantLockCheck(PreviousDay, out PlantLock, PlantValue);
                     if (PlantLock.Tables[0].Rows.Count > 0)
@@ -1339,6 +1363,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Process FlaggedIn Data
                         if (MissFlaggedIn.Tables[0].Rows.Count > 0)
                         {
+
+                            // Previous Day Missed In Flagged Punches (Due to Some Machine Issues or RawData Late Coming)
                             string MainRowId = "''";
 
                             ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1347,7 +1373,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
                             string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
 
-
+                            // Last In of Day Allowed Checking (From OutpunchConfiguration)
                             #region InLimit Validation Check
                             DataSet InlimitVal;
                             InLimitValidation(out InlimitVal, PlantValue);
@@ -1369,6 +1395,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string RowId = "";
                                 if (MinTimeRow != "")
                                 {
+                                    // Retrieving RowId of RawData    
                                     string formatString = "yyyyMMddHHmmss";
                                     string sample = MinTimeRow.Split('.')[0].ToString();
                                     MinTime = DateTime.ParseExact(sample, formatString, null);
@@ -1388,6 +1415,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
                                             if (ExistingIn == "")
                                             {
+                                                // Once InPunch Added can't be Updated
                                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                                 dr.BeginEdit();
                                                 dr["PunchInTime"] = Convert.ToDateTime(MinTime);
@@ -1404,7 +1432,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsRef);
 
                             #region RawData Table Processing
-                            ProcessFlag(MainRowId);
+                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
                             #endregion
                         }
                         #endregion
@@ -1793,6 +1821,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                        
                     }
 
+                    // Plant Lock Checking of Today
                     DataSet PlantLockToday;
                     PlantLockCheck(Date, out PlantLockToday, PlantValue);
                     if (PlantLockToday.Tables[0].Rows.Count > 0)
@@ -5435,9 +5464,18 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 else
                 {
+
+                    
+
                     var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" + PlantId + "'";
                     DataTable RosterTable = new DataTable();
                     RosterTable = _sqlRepository.GetDataTable(sql2);
+
+                    //Dictionary and DataSet Initialization
+                    DataSet ds;
+                    ConnectionManager.DAL.ConManager cona = new ConnectionManager.DAL.ConManager("1");
+                    cona.OpenDataSetThroughAdapter("select * from RosterPatternProcess where 1 = 2", out ds, false, "1");
+
                     if (RosterTable.Rows.Count > 0)
                     {
                         //Loop to go through all the Rosters in a Plant
@@ -5447,7 +5485,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string DaysCol = "Days" + DateTime.DaysInMonth(ddt.Year, ddt.Month).ToString();
 
                             //Getting all the Shifts Child 
-                            var sql3 = @"Select *, " + DaysCol + " as ShiftSequence from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by ShiftSequence";
+                            var sql3 = @"Select *, " + DaysCol + " as ShiftSequence from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by Days31";
                             DataTable ShiftsTable = new DataTable();
                             ShiftsTable = _sqlRepository.GetDataTable(sql3);
 
@@ -5483,10 +5521,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 if (counts == 0)
                                 {
-                                    //Dictionary and DataSet Initialization
-                                    DataSet ds;
-                                    ConnectionManager.DAL.ConManager cona = new ConnectionManager.DAL.ConManager("1");
-                                    cona.OpenDataSetThroughAdapter("select * from RosterPatternProcess where 1 = 2", out ds, false, "1");
+                                    
 
                                     Dictionary<string, object> dict = InitializeMyDictionary();
 
@@ -5536,15 +5571,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         }
 
                                     }
-
-
-                                    SaveDataSets(ds);
+                                    //
                                 }
 
                             }
 
                         }
                     }
+                    SaveDataSets(ds);
                 }
 
             }
