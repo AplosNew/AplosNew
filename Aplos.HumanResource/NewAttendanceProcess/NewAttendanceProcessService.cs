@@ -550,6 +550,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     OriginalDateData(Date, out OriginalDateComp, PlantValue);
                     if (OriginalDateComp.Tables[0].Rows.Count > 0)
                     {
+                        // Holiday or Weekoff But Employee is Working (Compensatory Logic)
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
                         string WkDate = OriginalDateComp.Tables[0].Rows[0][@"WkDate"].ToString();
@@ -572,7 +573,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 if (Type == "W")
                                 {
-
+                                    // If Entire Plant Working on WeekOff Then WeeklyStatus Updated to WW 
                                     var sql = @"Update AttdnProcessData Set WeeklyStatus='WW'    
                                              WHERE WorkDate='" + WkDate + "' AND WeeklyStatus='W' AND " +
                                       "isnull(EmpSystemID,'') IN" +
@@ -591,6 +592,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 if (Type == "H")
                                 {
+                                    // If Entire Plant Working on Holiday HolidayStaus Updated to NH
                                     var sql = @"Update AttdnProcessData Set HolidayStatus='NH'  
                                                          WHERE WorkDate='" + WkDate + "' AND HolidayStatus='H' AND " +
                                       "isnull(EmpSystemID,'') IN" +
@@ -610,8 +612,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             else
                             {
+                                // Employee Wise
                                 if (Type == "H")
                                 {
+                                    // On Holiday
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                     if (dsRef.Tables[0].DefaultView.Count > 0)
                                     {
@@ -625,6 +629,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 if (Type == "W")
                                 {
+                                    // On WeekOff
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                     if (dsRef.Tables[0].DefaultView.Count > 0)
                                     {
@@ -647,6 +652,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     CompensatoryData(Date, out CompensatoryDateComp, PlantValue);
                     if (CompensatoryDateComp.Tables[0].Rows.Count > 0)
                     {
+                        // Date of Normal Working Day Taken Compensatory
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
                         string WkDate = CompensatoryDateComp.Tables[0].Rows[0][@"WkDate"].ToString();
@@ -669,6 +675,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 if (Type == "W")
                                 {
+                                    // If Entire Plant taken Compensatory on WeekOff
+                                    // Then ManualDayStatus Updated to CW 
 
                                     var sql = @"Update AttdnProcessData Set ManualDayStatus='CW',IsManualDayStatus=1   
                                              WHERE WorkDate='" + WkDate + "' AND WeeklyStatus!='W' AND " +
@@ -688,6 +696,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 if (Type == "H")
                                 {
+                                    // If Entire Plant taken Compensatory on Holiday
+                                    // Then ManualDayStatus Updated to AH 
+
                                     var sql = @"Update AttdnProcessData Set ManualDayStatus='AH',IsManualDayStatus=1  
                                              WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
                                       "isnull(EmpSystemID,'') IN" +
@@ -707,8 +718,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             else
                             {
+                                // Employee Wise
                                 if (Type == "H")
                                 {
+                                    // On Holiday
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                     if (dsRef.Tables[0].DefaultView.Count > 0)
                                     {
@@ -723,6 +736,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 if (Type == "W")
                                 {
+                                    // On WeekOff
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                     if (dsRef.Tables[0].DefaultView.Count > 0)
                                     {
@@ -743,7 +757,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #region OTEligibleData Flagging
                     DataSet OTElgbEmp;
-                    OTEligibleEmp(Date, out OTElgbEmp, PlantValue);
+                    OTEligibleEmp(Date, out OTElgbEmp, PlantValue); // OT Eligible DataSet Generation
                     if (OTElgbEmp.Tables[0].Rows.Count > 0)
                     {
                         string WorkDate = OTElgbEmp.Tables[0].Rows[0][@"WorkDate"].ToString();
@@ -762,6 +776,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
+                                // Updation in APD Table for OT Entitled Employees
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
 
@@ -779,7 +794,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #region OnDuty Data Flagging
                     DataSet OnDuty;
                     OnDutyData(Date, out OnDuty, PlantValue);
-                    if (OnDuty.Tables[0].Rows.Count > 0)
+                    if (OnDuty.Tables[0].Rows.Count > 0) // On Duty Employees Flagging in Manual DayStatus
                     {
                         string WorkDate = OnDuty.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
@@ -801,7 +816,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 dr["IsOD"] = 1;
                                 dr["ManualDayStatus"] = "OD";
-                                dr["UpdatedBy"] = "Schedule";
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -816,6 +830,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     OnRestData(Date, out OnRest, PlantValue);
                     if (OnRest.Tables[0].Rows.Count > 0)
                     {
+                        // On Rest Employees Flagging in Manual DayStatus
                         string WorkDate = OnRest.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
@@ -837,7 +852,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 dr["AttendanceRestDetailId"] = RestId;
                                 dr["ManualDayStatus"] = "RST";
-                                dr["UpdatedBy"] = "Schedule";
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
                             }
@@ -850,7 +864,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #region OTDayLimit Process Row Creation
                     DataSet OTDayLimit;
                     OTDayLimitRowCreation(Date, out OTDayLimit, PlantValue);
-                    if (OTDayLimit.Tables[0].Rows.Count > 0)
+                    if (OTDayLimit.Tables[0].Rows.Count > 0) // DayLimit Process DataSet Generation
                     {
                         var WkDate = OTDayLimit.Tables[0].Rows[0][@"WorkDate"].ToString();
                         var GpId = OTDayLimit.Tables[0].Rows[0][@"GroupID"].ToString();
@@ -868,6 +882,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count == 0)
                             {
+                                // Row Creation in OTProcessDayLimit
                                 DataRow drx = dsRef.Tables[0].NewRow();
                                 drx["EmpSystemID"] = EmpId;
                                 drx["RowId"] = RowId;
@@ -892,8 +907,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #region CreditLimit Monthly Opening Creation
                     DataSet CreditLimitOpening;
                     CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
+                    // DataSet Generation from Creditlimitopening
+
                     if (CreditLimitOpening.Tables[0].Rows.Count > 0)
-                    {
+                    {                       
                         var YearNo = CreditLimitOpening.Tables[0].Rows[0][@"YearNo"].ToString();
                         var GpId = CreditLimitOpening.Tables[0].Rows[0][@"GroupID"].ToString();
                         var MonthNo = CreditLimitOpening.Tables[0].Rows[0][@"MonthNo"].ToString();
@@ -910,6 +927,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count == 0)
                             {
+                                // Row Creation in EmployeeCreditLimit
                                 DataRow dr = dsRef.Tables[0].NewRow();
                                 clsGenID genid = new clsGenID();
                                 genid.GenID("EmployeeCreditLimit", out string _Id);
