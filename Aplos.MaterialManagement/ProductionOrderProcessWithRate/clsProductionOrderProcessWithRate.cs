@@ -14,35 +14,72 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
         {
             _sqlRepository = new SqlRepository();
         }
-        public IEnumerable<object> GetSKU(string ProcessId, string ProductionOrderId, string SkuId)
+        public IEnumerable<object> GetSKU(string ProcessId, string ProductionOrderId, string SkuId,string Sequence)
         {
             try
             {
+				string Column = string.Empty;
+				string FGValue = string.Empty;
+				string AndClause = string.Empty;
+				string AndClauses = "";
+
+                if (Sequence == "1")
+                {
+					Column = @",fc.CharacteristicsId FirstCharacteristicsId
+								,fc.CharacteristicsValueId FirstCharacteristicsValueId,ch.UserName as Char,chv.UserName as CharValue";
+					FGValue = @"left join [TRN].[FirstCharacteristics] fc on fc.SalesOrderId = so.Id
+							left join HKP.Characteristics ch on ch.Id = fc.CharacteristicsId
+							left join HKP.CharacteristicsValue chv on chv.Id = fc.CharacteristicsValueId";
+					AndClauses = @"and ch.Id= '"+SkuId+@"' ";
+
+					AndClause = @"and d.FirstCharacteristicsId = c.FirstCharacteristicsId and d.FirstCharacteristicsValueId=c.FirstCharacteristicsValueId";
+
+				}
+                else if (Sequence == "2")
+                {
+					Column = @" ,sc.CharacteristicsId SecondCharacteristicsId
+								,sc.CharacteristicsValueId SecondCharacteristicsValueId
+								,ch2.UserName as Char,chv2.UserName as CharValue";
+
+					FGValue = @"left join [TRN].[FirstCharacteristics] fc on fc.SalesOrderId = so.Id
+							left join [TRN].[SecondCharacteristics] sc on sc.SalesOrderId = so.Id and sc.FirstCharacteristicsId = fc.Id
+							left join HKP.Characteristics ch2 on ch2.Id = sc.CharacteristicsId 
+							left join HKP.CharacteristicsValue chv2 on chv2.Id=sc.CharacteristicsValueId";
+					AndClauses = @"and ch2.Id= '" + SkuId + @"' ";
+					AndClause = @"and d.SecondCharacteristicsId = c.SecondCharacteristicsId and d.SecondCharacteristicsValueId = c.SecondCharacteristicsValueId";
+                }
+                else
+                {
+					Column = @",fc.CharacteristicsId FirstCharacteristicsId
+								,fc.CharacteristicsValueId FirstCharacteristicsValueId,ch.UserName as Char1,chv.UserName as CharValue1
+								,sc.CharacteristicsId SecondCharacteristicsId
+								,sc.CharacteristicsValueId SecondCharacteristicsValueId
+								,ch2.UserName as Char2,chv2.UserName as CharValue2";
+
+					FGValue = @"left join [TRN].[FirstCharacteristics] fc on fc.SalesOrderId = so.Id--
+							left join HKP.Characteristics ch on ch.Id = fc.CharacteristicsId
+							left join HKP.CharacteristicsValue chv on chv.Id=fc.CharacteristicsValueId--
+							left join [TRN].[SecondCharacteristics] sc on sc.SalesOrderId = so.Id and sc.FirstCharacteristicsId = fc.Id
+							left join HKP.Characteristics ch2 on ch2.Id = sc.CharacteristicsId 
+							left join HKP.CharacteristicsValue chv2 on chv2.Id=sc.CharacteristicsValueId";
+					AndClause = @"and d.FirstCharacteristicsId = c.FirstCharacteristicsId and d.FirstCharacteristicsValueId=c.FirstCharacteristicsValueId
+									and d.SecondCharacteristicsId = c.SecondCharacteristicsId and d.SecondCharacteristicsValueId = c.SecondCharacteristicsValueId";
+                }
+
                 string strSQL = string.Empty;
 
                 strSQL = @"select c.*,d.Rate from (
-								select p.ProductionOrderId,p.ProcessId,fc.CharacteristicsId FirstCharacteristicsId
-								,fc.CharacteristicsValueId FirstCharacteristicsValueId
-								,sc.CharacteristicsId SecondCharacteristicsId
-								,sc.CharacteristicsValueId SecondCharacteristicsValueId
-								,ch.UserName as Char1,chv.UserName as CharValue1
-								,ch2.UserName as Char2,chv2.UserName as CharValue2
+								select p.ProductionOrderId,p.ProcessId "+ Column + @"								
 							from trn.ProductionOrder PR
 							join [TRN].[ProductionOrderProcessSet] p on p.ProductionOrderId=pr.Id and  p.ProcessId='"+ ProcessId + @"'
 							left join trn.ProductionOrderDetail PD ON pd.Id=(select top 1 Id from trn.ProductionOrderDetail PDX where pdx.ProductionOrderId=pr.Id)
 							left join trn.SalesOrder SO ON so.Id=pd.SalesOrderId
-							left join [TRN].[FirstCharacteristics] fc on fc.SalesOrderId = so.Id
-							left join HKP.Characteristics ch on ch.Id = fc.CharacteristicsId
-							left join HKP.CharacteristicsValue chv on chv.Id=fc.CharacteristicsValueId
-							left join [TRN].[SecondCharacteristics] sc on sc.SalesOrderId = so.Id and sc.FirstCharacteristicsId = fc.Id
-							left join HKP.Characteristics ch2 on ch2.Id = sc.CharacteristicsId 
-							left join HKP.CharacteristicsValue chv2 on chv2.Id=sc.CharacteristicsValueId
-							where PR.Id='"+ ProductionOrderId + @"'
+							"+ FGValue + @"
+							where PR.Id='"+ ProductionOrderId + @"' "+ AndClauses + @"
 							) c
 							left join ProductionOrderProcessWithRateMaster m on m.ProductionOrderId = c.ProductionOrderId and c.ProcessId=m.ProcessId
 							left join ProductionOrderProcessWithRateDetails d on d.ProductionOrderProcessWithRateMasterId = m.Id 
-							and d.FirstCharacteristicsId = c.FirstCharacteristicsId and d.FirstCharacteristicsValueId=c.FirstCharacteristicsValueId
-							and d.SecondCharacteristicsId = c.SecondCharacteristicsId and d.SecondCharacteristicsValueId = c.SecondCharacteristicsValueId";
+							"+ AndClause + @"";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -56,7 +93,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 
             try
             {
-                string sql = @"SELECT null as Charactaristics,'' as SKUId,'' Rate,PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
+                string sql = @"SELECT null as Charactaristics,'' as SKUId,'' as [Sequence],'' Rate,PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 									,SONo=STUFF((select distinct ','+XSO.Id from 
@@ -145,7 +182,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 								   WHERE  E.Id='" + entityId + "' and POSP.ProcessId='" + ProcessId + "' and PS.StandardName in ('Active','Running')";
                 List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
 
-                string strSQL = @"select p.ProductionOrderId,c.Id Value,c.UserName Text
+                string strSQL = @"select p.ProductionOrderId,c.Id Value,c.UserName Text, m.Sequence
 							from trn.ProductionOrder PR
 							join [TRN].[ProductionOrderProcessSet] p on p.ProductionOrderId=pr.Id and  p.ProcessId='" + ProcessId + @"'
 							left join trn.ProductionOrderDetail PD ON pd.Id=(select top 1 Id from trn.ProductionOrderDetail PDX where pdx.ProductionOrderId=pr.Id)
@@ -165,6 +202,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                         DicTemp.Add("ProductionOrderId", data[i]["POId"].ToString());
                         DicTemp.Add("Value", null);
                         DicTemp.Add("Text", "Both");
+                        DicTemp.Add("Sequence", null);
                         TempData.Add(DicTemp);
                     }
                     data[i]["Charactaristics"] = TempData;
