@@ -763,25 +763,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				ShowResult('Select To Date', 'failure');
 				return false;
 			}
-			//if ($scope.productNew.Qty) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = '';
-			//}
-			//if ($scope.productNew.Amount) {
-			//	$scope.choice2 = 'Amount';
-			//	$scope.choice1 = '';
-			//}
-			//if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = 'Amount';
-			//}
-			//if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-			//	ShowResult('Select Qty OR Amount', 'failure');
-			//	return false;
-			//}
-
-
-
+	
 		}
 		else {
 
@@ -811,24 +793,6 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				return false;
 			}
 
-
-			//if ($scope.productNew.Qty) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = '';
-			//}
-			//if ($scope.productNew.Amount) {
-			//	$scope.choice1 = '';
-			//	$scope.choice2 = 'Amount';
-			//}
-			//if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = 'Amount';
-			//}
-			//if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-			//	ShowResult('Select Qty OR Amount', 'failure');
-			//	return false;
-			//}
-
 		}
 		else {
 
@@ -840,26 +804,6 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				ShowResult('Select To Date', 'failure');
 				return false;
 			}
-			//if ($scope.productNew.RcptIssue != true) {
-			//    ShowResult('Select With Receipts & Issue', 'failure');
-			//    return false;
-			//}
-			//if ($scope.productNew.Qty) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = '';
-			//}
-			//if ($scope.productNew.Amount) {
-			//	$scope.choice2 = 'Amount';
-			//	$scope.choice1 = '';
-			//}
-			//if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = 'Amount';
-			//}
-			//if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-			//	ShowResult('Select Qty OR Amount', 'failure');
-			//	return false;
-			//}
 		}
 
 
