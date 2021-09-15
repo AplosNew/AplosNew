@@ -1345,6 +1345,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 Validation(out ValidationData, PlantValue);
                 if (ValidationData.Tables[0].Rows.Count > 0)
                 {
+                    // Plant Lock Checking of Previous Day
                     DataSet PlantLock;
                     PlantLockCheck(PreviousDay, out PlantLock, PlantValue);
                     if (PlantLock.Tables[0].Rows.Count > 0)
@@ -1362,6 +1363,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Process FlaggedIn Data
                         if (MissFlaggedIn.Tables[0].Rows.Count > 0)
                         {
+
+                            // Previous Day Missed In Flagged Punches (Due to Some Machine Issues or RawData Late Coming)
                             string MainRowId = "''";
 
                             ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1370,7 +1373,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
                             string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
 
-
+                            // Last In of Day Allowed Checking (From OutpunchConfiguration)
                             #region InLimit Validation Check
                             DataSet InlimitVal;
                             InLimitValidation(out InlimitVal, PlantValue);
@@ -1392,6 +1395,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string RowId = "";
                                 if (MinTimeRow != "")
                                 {
+                                    // Retrieving RowId of RawData    
                                     string formatString = "yyyyMMddHHmmss";
                                     string sample = MinTimeRow.Split('.')[0].ToString();
                                     MinTime = DateTime.ParseExact(sample, formatString, null);
@@ -1411,6 +1415,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
                                             if (ExistingIn == "")
                                             {
+                                                // Once InPunch Added can't be Updated
                                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                                 dr.BeginEdit();
                                                 dr["PunchInTime"] = Convert.ToDateTime(MinTime);
@@ -1427,7 +1432,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsRef);
 
                             #region RawData Table Processing
-                            ProcessFlag(MainRowId);
+                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
                             #endregion
                         }
                         #endregion
@@ -1816,6 +1821,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                        
                     }
 
+                    // Plant Lock Checking of Today
                     DataSet PlantLockToday;
                     PlantLockCheck(Date, out PlantLockToday, PlantValue);
                     if (PlantLockToday.Tables[0].Rows.Count > 0)
