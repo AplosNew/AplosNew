@@ -3857,13 +3857,13 @@
                                     <input type="text" ng-model="data.ItemSpecification" class="form-control" maxlength="15" e-width="100">
                                 </script>
                                 <script type="text/ng-template" id="StandardRate">
-                                    <input type="text" ng-model="data.StandardRate" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
+                                    <input type="text" ng-model="data.StandardRate" class="form-control" maxlength="15" e-width="100" n-decimals="2" onkeypress="return isNumber(event)">
                                 </script>
                                 <script type="text/ng-template" id="Tolerance">
-                                    <input type="text" ng-model="data.Tolerance" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
+                                    <input type="text" ng-model="data.Tolerance" class="form-control" maxlength="15" e-width="100" n-decimals="2" onkeypress="return isNumber(event)">
                                 </script>
                                 <script type="text/ng-template" id="PercentageOfInput">
-                                    <input type="text" ng-model="data.PercentageOfInput" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
+                                    <input type="text" ng-model="data.PercentageOfInput" class="form-control" maxlength="15" e-width="100" n-decimals="2" onkeypress="return isNumber(event)">
                                 </script>
                                 <script type="text/ng-template" id="Remarks">
                                     <input type="text" ng-model="data.Remarks" class="form-control" maxlength="15" e-width="100">

@@ -66,7 +66,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
 						b.BOMQty,C.Id
 						,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-						,Isnull(POMAP.TransactionQty,0) PORaisedQry, Round(ISNULL(OtherPOData.TransactionQty,0),2) OtherPOQty,ISNULL(OtherPOData.TransactionQty,0) OtherPOQtyOrginal
+						,Isnull(POMAP.TransactionQty,0) PORaisedQry, Round(ISNULL(OtherPOData.TransactionQty,0),4) OtherPOQty, Round(ISNULL(OtherPOData.TransactionQty,0),4) OtherPOQtyOrginal
 						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
 						,ISNULL(cpo.PONumber,'') PONumber
 						--,AUOM.AlternativeUOMId,AUOM.BaseUOMId,AUOM.BaseUOMFactor,AUOM.AlternativeUOMFactor
@@ -85,7 +85,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						--,RefferenceNo=ISNULL(moi.OwnReferenceNo,'') 
 						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  
 						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
-                        ,ISNULL(uom1.UserName,'') POUoM,Round(ISNULL(b.RequiredQtyPO,0)-Round(ISNULL(OtherPOData.TransactionQty,0),2),4) TransactionQty,0 Tolerance
+                        ,ISNULL(uom1.UserName,'') POUoM,Round(Round(ISNULL(b.RequiredQtyPO,0),4)-Round(ISNULL(OtherPOData.TransactionQty,0),4),4) TransactionQty,0 Tolerance
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -1195,6 +1195,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+                        ,PLC.LCANo,PLC.LCRef,IR.ContractId,IM.RefferenceNo
 						from TRN.PurchaseOrderDetail AS IM
 						left JOIN MST.MaterialMaster AS MM ON IM.InventoryMaterialId=MM.Id
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -1215,7 +1216,8 @@ namespace Library.MaterialManagement.InventoryManagements
 
 						LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 						LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
-
+                        LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
+						left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 						FROM [TRN].[PurchaseOrderTax] A
@@ -1321,6 +1323,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 					,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 					,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+                    ,'' LCANo,'' LCRef,'' ContractId,'' RefferenceNo
 					from TRN.ServicePODetail AS IM
 					left JOIN hkp.ServiceMaster SM ON SM.Id=IM.ServiceMasterId
 					left jOIN [TRN].ServicePOMaster AS IR ON IR.Id=IM.ServicePOMasterId
@@ -1472,6 +1475,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+                        ,PLC.LCANo,PLC.LCRef,IR.ContractId,IM.RefferenceNo
 						from TRN.PurchaseOrderDetail AS IM
 						left JOIN MST.MaterialMaster AS MM ON IM.InventoryMaterialId=MM.Id
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -1492,7 +1496,8 @@ namespace Library.MaterialManagement.InventoryManagements
 
 						LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
 						LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
-
+                        LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
+						left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 
 						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode
 						FROM [TRN].[PurchaseOrderTax] A
@@ -1598,6 +1603,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 					,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 					,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+                    ,'' LCANo,'' LCRef,'' ContractId,'' RefferenceNo
 					from TRN.ServicePODetail AS IM
 					left JOIN hkp.ServiceMaster SM ON SM.Id=IM.ServiceMasterId
 					left jOIN [TRN].ServicePOMaster AS IR ON IR.Id=IM.ServicePOMasterId
@@ -2181,7 +2187,35 @@ namespace Library.MaterialManagement.InventoryManagements
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "LCANo";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "LCRef";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "ContractId";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "RefferenceNo";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             //sheet1headreColIndex++;
+
+
 
 
 
@@ -2239,6 +2273,11 @@ namespace Library.MaterialManagement.InventoryManagements
                 report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
                 report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
                 report.SetText(ref sheet1, _rowL, 40, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 41, inventoryMaterialList.Rows[n]["LCANo"].ToString());
+                report.SetText(ref sheet1, _rowL, 42, inventoryMaterialList.Rows[n]["LCRef"].ToString());
+                report.SetText(ref sheet1, _rowL, 43, inventoryMaterialList.Rows[n]["ContractId"].ToString());
+                report.SetText(ref sheet1, _rowL, 44, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
 
             }
             _rowL++;
