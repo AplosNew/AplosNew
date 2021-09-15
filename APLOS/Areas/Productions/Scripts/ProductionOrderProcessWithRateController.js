@@ -36,14 +36,16 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             $scope.processList = result;
         });
     };
-    $scope.SKUList = [];
-    $scope.loadSKU = function () {
+    $scope.SKUList1 = [];
+    $scope.SKUList2 = [];
+    $scope.getMatrixValue = function () {
         $http({
             method: 'POST',
-            url: "Productions/ProductionOrderProcessWithRate/GetSKU",
-            data: { ProcessId: $scope.modelNew.ProcessId }
+            url: "Productions/ProductionOrderProcessWithRate/GetSKUMatrix",
+            data: { ProcessId: $scope.modelNew.ProcessId, ProductionOrderId: $scope.modelNew.ProductionOrderId, SkuId: $scope.SelectedProductionOrder.SkuId }
         }).then(function successCallback(response) {
-            $scope.SKUList = response.data;
+            $scope.SKUList1 = response.data;
+            $scope.SKUList2 = response.data;
         });
     }
     $scope.ProductionOrderList = [];
@@ -78,6 +80,8 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             
             var eDialog = $("#SKUPopUp").data("ejDialog");
             eDialog.open();
+
+            $scope.getMatrixValue();
 
             //if (data.IsExemption == true) {
             //    $("#General").ejDialog("setTitle", data.SalaryHead );
