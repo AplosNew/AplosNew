@@ -1,8 +1,11 @@
-﻿using Library.Data.Sql;
+﻿using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Library.HumanResource.Payroll.Arrear
@@ -277,6 +280,162 @@ namespace Library.HumanResource.Payroll.Arrear
             {
 
                 throw ex;
+            }
+
+        }
+
+
+
+        public void ApprovelUnapprove(List<string> data, string ArrearProcessBatchId, bool isApprove)
+        {
+
+            try
+            {
+                string employeeIds = "''";
+                for (int i = 0; i < data.Count; i++)
+                    employeeIds += ",'" + data[i] + @"'";
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.getDataSet("select * from ArrearSummaryBatchWise M where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId IN (" + employeeIds + @")", out DataSet dsArrearSummaryBatchWise);
+
+                con.getDataSet(@"SELECT am.ArrearProcessBatchId, ac.EmpInfoSystemID,sh.SalaryHead,ac.SalaryHeadID,sh.TransactionType,
+                                    mb.Id AS ManpowerBudgetId, mb.EntityId, mb.PositionId, AG.Id AS AccountsGroupId,e.PlantId,
+                                    e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,mb.CostCenterId,
+
+                                    SUM(AC.Diff) AS Diff,
+                                    SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Dr.','Both') THEN ABS(ac.diff) ELSE 0 END) AS Debit,
+                                    SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Cr.','Both') THEN ABS(ac.diff) ELSE 0 END) AS Credit
+                                      FROM ArrearProcMaster AS AM
+                                    JOIN ArrearProcChild AS AC ON am.SystemID=ac.SlrProcMstSystemID
+                                    LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
+                                    LEFT JOIN EmployeeAccountsGroup AS AG ON ag.EmployeeId=ei.SystemId
+                                    LEFT JOIN [MST].[SalaryHeadGL] SGL ON sgl.SalaryHeadId=ac.SalaryHeadID AND sgl.AccountsGroupId=ag.Id
+                                    JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
+                                    LEFT JOIN mst.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+                                    LEFT JOIN org.Entity AS e ON e.Id=mb.EntityId
+
+                                    WHERE am.ArrearProcessBatchId='" + ArrearProcessBatchId + @"' and AC.EmpInfoSystemID IN (" + employeeIds + @") AND ISNULL(sh.HeadCategory,'')<>'Net Payable'
+                                    AND ISNULL(sh.TransactionType,'') IN ('Dr.','Cr.','Both')
+                                    GROUP BY  am.ArrearProcessBatchId, ac.EmpInfoSystemID,sh.SalaryHead,ac.SalaryHeadID,sh.TransactionType,
+                                    mb.Id, mb.EntityId, mb.PositionId, AG.Id,e.PlantId,
+                                    e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,mb.CostCenterId", out DataSet dsArrearAccountsSourceData);
+
+
+                con.getDataSet("select * from ArrearAccountsData M where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmpInfoSystemID IN (" + employeeIds + @")", out DataSet dsArrearAccountsData);
+
+                con.CommitTransaction();
+
+                for (int i = 0; i < dsArrearSummaryBatchWise.Tables[0].Rows.Count; i++)
+                {
+                    DataRow dr = dsArrearSummaryBatchWise.Tables[0].Rows[i];
+                    dr.BeginEdit();
+
+                    if (isApprove == true)
+                    {
+                        dr["IsApproved"] = true;
+
+                        dsArrearAccountsSourceData.Tables[0].DefaultView.RowFilter = "EmpInfoSystemID='" + dr["EmployeeSystemId"].ToString() + @"'";
+                        
+                        dsArrearAccountsData.Tables[0].DefaultView.RowFilter = "EmpInfoSystemID='" + dr["EmployeeSystemId"].ToString() + @"'";
+                        while (dsArrearAccountsData.Tables[0].DefaultView.Count > 0)
+                            dsArrearAccountsData.Tables[0].DefaultView[0].Delete();
+
+                        for (int K = 0; K < dsArrearAccountsSourceData.Tables[0].DefaultView.Count; K++)
+                        {
+                            DataRow drSource = dsArrearAccountsSourceData.Tables[0].DefaultView[K].Row;
+                            DataRow drDestination = dsArrearAccountsData.Tables[0].NewRow();
+
+                            drDestination["ArrearProcessBatchId"] = drSource["ArrearProcessBatchId"];
+                            drDestination["EmpInfoSystemID"] = drSource["EmpInfoSystemID"];
+                            drDestination["SalaryHeadID"] = drSource["SalaryHeadID"];
+                            drDestination["ManpowerBudgetId"] = drSource["ManpowerBudgetId"];
+                            drDestination["EntityId"] = drSource["EntityId"];
+                            drDestination["PositionId"] = drSource["PositionId"];
+                            drDestination["AccountsGroupId"] = drSource["AccountsGroupId"];
+                            drDestination["PlantId"] = drSource["PlantId"];
+                            drDestination["ThirdPartyBusinessArea"] = drSource["ThirdPartyBusinessArea"];
+                            drDestination["ThirdPartyProfitCenter"] = drSource["ThirdPartyProfitCenter"];
+                            drDestination["CostCenterId"] = drSource["CostCenterId"];
+                            drDestination["Debit"] = drSource["Debit"];
+                            drDestination["Credit"] = drSource["Credit"];
+
+                            drDestination["AddedBy"] = identity.Name;
+                            drDestination["AddedDate"] = System.DateTime.Now.ToString();
+                            drDestination["AddedFromIP"] = identity.IPAddress;
+                            drDestination["UpdatedBy"] = identity.Name;
+                            drDestination["UpdatedDate"] = System.DateTime.Now.ToString();
+                            drDestination["UpdatedFromIP"] = identity.IPAddress;
+
+                            dsArrearAccountsData.Tables[0].Rows.Add(drDestination);
+                        }
+
+                    }
+                    else
+                    {
+                        dr["IsApproved"] = false;
+                        
+                        
+                        dsArrearAccountsData.Tables[0].DefaultView.RowFilter = "EmpInfoSystemID='" + dr["EmployeeSystemId"].ToString() + @"'";
+                        while (dsArrearAccountsData.Tables[0].DefaultView.Count > 0)
+                            dsArrearAccountsData.Tables[0].DefaultView[0].Delete();
+
+                    }
+                    dr.EndEdit();
+                }
+
+
+
+
+                OTSBD.clsStaticInfo info = new OTSBD.clsStaticInfo();
+                info.SaveDataSets(dsArrearSummaryBatchWise, dsArrearAccountsData);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
+        public void DeleteEmployeeArrear(string ArrearProcessBatchId, string EmployeeSystemId)
+        {
+
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+
+                con.executeQuery("DELETE FROM ArrearAccountsData where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmpInfoSystemID='" + EmployeeSystemId + @"'");
+
+                con.executeQuery(@"DELETE FROM ArrearProcChild WHERE SystemID IN (
+                                                SELECT C.SystemID FROM ArrearProcChild AS C
+                                                JOIN ArrearProcMaster AS M ON m.SystemID=c.SlrProcMstSystemID
+                                                WHERE M.ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND c.EmpInfoSystemID='" + EmployeeSystemId + @"'
+                                                )");
+                con.executeQuery("DELETE FROM ArrearSummaryMonthWise where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId='" + EmployeeSystemId + @"'");
+                con.executeQuery("DELETE FROM ArrearSummaryBatchWise where isnull(IsApproved,0)=0 AND ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId='" + EmployeeSystemId + @"'");
+
+                con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE SystemID IN (
+                                    SELECT APM.SystemID FROM ArrearProcMaster AS apm
+                                    LEFT JOIN ArrearProcChild AS apc ON apm.SystemID=apc.SlrProcMstSystemID AND apc.SystemID=(SELECT TOP 1 SystemId FROM ArrearProcChild AS apc2 WHERE apc2.SlrProcMstSystemID=apm.SystemID)
+                                    WHERE ISNULL(apc.SystemID,'')=''
+                                    )");
+                con.executeQuery(@"DELETE FROM ArrearProcessBatch WHERE Id IN (
+                                    SELECT APM.Id FROM ArrearProcessBatch AS apm
+                                    LEFT JOIN ArrearProcMaster AS apc ON apm.Id=apc.ArrearProcessBatchId 
+                                    AND apc.SystemID=(SELECT TOP 1 apc2.SystemID FROM ArrearProcMaster AS apc2 WHERE apc2.ArrearProcessBatchId=apm.Id)
+                                    WHERE ISNULL(apc.SystemID,'')=''
+                                    )");
+
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
             }
 
         }
