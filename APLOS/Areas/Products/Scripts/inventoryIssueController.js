@@ -152,8 +152,14 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	$scope.Save = function () {
 		//debugger;
 		// $scope.SavePOPUpConfirm();
-		var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.materialStockList), 'RequisitionQty');
-		if (sumOfmaterialStockList < $scope.selectedRowQty) {
+		//var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.materialStockList), 'RequisitionQty');
+		//if (sumOfmaterialStockList < $scope.selectedRowQty) {
+		//	ShowResult("Please select specific GRN", 'failure');
+		//	return false;
+		//}
+		var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+		$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
+		if (sumOfmaterialStockList < $scope.selectedRowQty1) {
 			ShowResult("Please select specific GRN", 'failure');
 			return false;
 		}
@@ -200,6 +206,13 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		else ShowResult('Please issue material', 'failure');
 	};
 	$scope.SaveSlipIssue = function () {
+		var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+		$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
+		if (sumOfmaterialStockList < $scope.selectedRowQty1) {
+			ShowResult("Please select specific GRN", 'failure');
+			return false;
+		}
+
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		if (UIStatus === 'Asset') {
 			if ($scope.materialStockList.length === 0) {
