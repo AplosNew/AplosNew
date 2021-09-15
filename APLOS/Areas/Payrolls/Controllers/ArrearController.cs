@@ -179,19 +179,65 @@ namespace Aplos.Areas.Payrolls.Controllers
                 con.executeQuery(@"DELETE FROM ArrearSummaryBatchWise WHERE EmployeeSystemId IN (" + AllEmployees + @") AND ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
                 con.executeQuery(@"DELETE FROM ArrearSummaryMonthWise WHERE EmployeeSystemId IN (" + AllEmployees + @") AND ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
                 con.executeQuery(@"DELETE FROM ArrearProcChild WHERE EmpInfoSystemID IN (" + AllEmployees + @") AND SlrProcMstSystemID IN (SELECT SystemID FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
-                //con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate) OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "')");
                 con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE SystemID IN (
                                     SELECT APM.SystemID FROM ArrearProcMaster AS apm
                                     LEFT JOIN ArrearProcChild AS apc ON apm.SystemID=apc.SlrProcMstSystemID AND apc.SystemID=(SELECT TOP 1 SystemId FROM ArrearProcChild AS apc2 WHERE apc2.SlrProcMstSystemID=apm.SystemID)
                                     WHERE ISNULL(apc.SystemID,'')=''
                                     )");
+
+                con.executeQuery(@"DELETE FROM ArrearProcessBatch WHERE Id IN (
+                                    SELECT APM.Id FROM ArrearProcessBatch AS apm
+                                    LEFT JOIN ArrearProcMaster AS apc ON apm.Id=apc.ArrearProcessBatchId 
+                                    AND apc.SystemID=(SELECT TOP 1 apc2.SystemID FROM ArrearProcMaster AS apc2 WHERE apc2.ArrearProcessBatchId=apm.Id)
+                                    WHERE ISNULL(apc.SystemID,'')=''
+                                    )");
+
+                //con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate) OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "')");
+
                 con.CommitTransaction();
 
                 con = new ConnectionManager.clsConnection();
-                con.getDataSet("select * from ArrearProcMaster M where M.Description='" + ArrearDesc.Trim() + @"'", out dsLocal);
+                con.getDataSet("select * from ArrearProcessBatch M where M.ArrearDesc='" + ArrearDesc.Trim() + @"'", out dsLocal);
                 if (dsLocal.Tables[0].Rows.Count > 0)
                     throw new Exception("Same description has been used in another arrear process. Please change your description");
 
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+
+        }
+
+        private void CreateArrearBatch(string BatchId, string Description, string FromDate, string ToDate)
+        {
+
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("select * from ArrearProcessBatch M where 1=2", out DataSet dsLocal);
+                DataRow dr = dsLocal.Tables[0].NewRow();
+
+                dr["Id"] = bplib.clsWebLib.RetValidLen(BatchId);
+                dr["ArrearDesc"] = Description;
+                dr["ArrearFromDate"] = FromDate;
+                dr["ArrearToDate"] = ToDate;
+
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = System.DateTime.Now.ToString();
+                dr["AddedFromIP"] = identity.IPAddress;
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                dsLocal.Tables[0].Rows.Add(dr);
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsLocal);
             }
             catch (Exception ex)
             {
@@ -212,7 +258,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 return await Task.Factory.StartNew(() =>
-                {  
+                {
                     try
                     {
                         GetDateFromMonth(ref FromDate, ref ToDate);
@@ -283,6 +329,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
                         string BatchNo = System.DateTime.Now.Ticks.ToString();
+                        CreateArrearBatch(BatchNo, pDescription, ArrearFromDate, ArrearToDate);
 
                         for (int i = 0; i < MonthList.Count; i++)
                         {
