@@ -1432,186 +1432,186 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             SaveDataSets(dsRef);
 
-                            #region RawData Table Processing
-                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
-                            #endregion
-                        }
+                        #region RawData Table Processing
+                        ProcessFlag(MainRowId); // Setting Processed Flag ->1
                         #endregion
+                    }
+                    #endregion
 
                         #region Getting MissFlagless InPunch of the PrevDay
-                        DataSet MissFlaglessIn;
-                        ConfirmedPrevFlaglessMissIn(PreviousDay, out MissFlaglessIn, PlantValue);
-                        #endregion
+                    DataSet MissFlaglessIn;
+                    ConfirmedPrevFlaglessMissIn(PreviousDay, out MissFlaglessIn, PlantValue);
+                    #endregion
 
                         #region Process FlagLess InData
-                        if (MissFlaglessIn.Tables[0].Rows.Count > 0)
+                    if (MissFlaglessIn.Tables[0].Rows.Count > 0)
+                    {
+                        // Previous Day Missed In Flagless(Single Device) Punches
+                        // (Due to Some Machine Issues or RawData Late Coming)
+
+                        string MainRowId = "''";
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and isnull(PunchInTime,'')='' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                        string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
+
+                        // Last In of Day Allowed Checking (From OutpunchConfiguration)
+
+                        #region InLimit Validation Check
+                        DataSet InlimitVal;
+                        InLimitValidation(out InlimitVal, PlantValue);
+                        string InEntryLimit = clsWebLib.RetValidLen(InlimitVal.Tables[0].Rows[0][@"InEntryLimit"]).ToString();
+                        if (InEntryLimit != "")
                         {
-                            // Previous Day Missed In Flagless(Single Device) Punches
-                            // (Due to Some Machine Issues or RawData Late Coming)
+                            InEntryLimit = Convert.ToDateTime(PreviousDay).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(InEntryLimit).ToString("HH:mm:ss");
+                        }
+                        #endregion
 
-                            string MainRowId = "''";
+                        for (int i = 0; i < MissFlaglessIn.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"EmpId"]).ToString();
+                            string MinTimeRow = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"MinTime"]).ToString();
+                            string InPunchLimit = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"InPunchLimit"]).ToString();
+                            string OutPunchLimit = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
+                            DateTime MinTime = new DateTime();
 
-                            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                            var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and isnull(PunchInTime,'')='' and PlantID='" + PlantValue + "'";
-
-                            objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-                            string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
-
-                            // Last In of Day Allowed Checking (From OutpunchConfiguration)
-
-                            #region InLimit Validation Check
-                            DataSet InlimitVal;
-                            InLimitValidation(out InlimitVal, PlantValue);
-                            string InEntryLimit = clsWebLib.RetValidLen(InlimitVal.Tables[0].Rows[0][@"InEntryLimit"]).ToString();
-                            if (InEntryLimit != "")
+                            string RowId = "";
+                            if (MinTimeRow != "")
                             {
-                                InEntryLimit = Convert.ToDateTime(PreviousDay).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(InEntryLimit).ToString("HH:mm:ss");
+                                // Retrieving RowId of RawData    
+                                string formatString = "yyyyMMddHHmmss";
+                                string sample = MinTimeRow.Split('.')[0].ToString();
+                                MinTime = DateTime.ParseExact(sample, formatString, null);
+                                RowId = MinTimeRow.Split('.')[1].ToString();
                             }
-                            #endregion
 
-                            for (int i = 0; i < MissFlaglessIn.Tables[0].Rows.Count; i++)
+                            PunchTimeVal(ref InPunchLimit, ref OutPunchLimit, PreviousDay);
+
+                            if (MinTimeRow.ToString() != "" && RowId != ""
+                                && InPunchLimit.ToString() != "")
                             {
-                                string EmpId = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"EmpId"]).ToString();
-                                string MinTimeRow = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"MinTime"]).ToString();
-                                string InPunchLimit = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"InPunchLimit"]).ToString();
-                                string OutPunchLimit = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
-                                DateTime MinTime = new DateTime();
-
-                                string RowId = "";
-                                if (MinTimeRow != "")
+                                if (MinTime <= Convert.ToDateTime(InEntryLimit))
                                 {
-                                    // Retrieving RowId of RawData    
-                                    string formatString = "yyyyMMddHHmmss";
-                                    string sample = MinTimeRow.Split('.')[0].ToString();
-                                    MinTime = DateTime.ParseExact(sample, formatString, null);
-                                    RowId = MinTimeRow.Split('.')[1].ToString();
-                                }
-
-                                PunchTimeVal(ref InPunchLimit, ref OutPunchLimit, PreviousDay);
-
-                                if (MinTimeRow.ToString() != "" && RowId != ""
-                                    && InPunchLimit.ToString() != "")
-                                {
-                                    if (MinTime <= Convert.ToDateTime(InEntryLimit))
+                                    dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' and PlantInPunchStartTime<='" + MinTime + "'";
+                                    if (dsRef.Tables[0].DefaultView.Count > 0)
                                     {
-                                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' and PlantInPunchStartTime<='" + MinTime + "'";
-                                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                                        string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
+                                        if (ExistingIn == "")
                                         {
-                                            string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
-                                            if (ExistingIn == "")
-                                            { 
-                                                // Once InPunch Added can't be Updated
-                                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                                dr.BeginEdit();
-                                                dr["PunchInTime"] = Convert.ToDateTime(MinTime);
-                                                dr["OutPunchLimit"] = Convert.ToDateTime(OutPunchLimit);
-                                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                                dr.EndEdit();
-                                                MainRowId += ",'" + RowId + "'";
-                                            }
+                                            // Once InPunch Added can't be Updated
+                                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                            dr.BeginEdit();
+                                            dr["PunchInTime"] = Convert.ToDateTime(MinTime);
+                                            dr["OutPunchLimit"] = Convert.ToDateTime(OutPunchLimit);
+                                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                            dr.EndEdit();
+                                            MainRowId += ",'" + RowId + "'";
                                         }
                                     }
                                 }
                             }
-
-                            SaveDataSets(dsRef);
-
-                            #region RawData Table Processing
-                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
-                            #endregion
                         }
+
+                        SaveDataSets(dsRef);
+
+                        #region RawData Table Processing
+                        ProcessFlag(MainRowId); // Setting Processed Flag ->1
                         #endregion
+                    }
+                    #endregion
 
                         #region Getting Missing Out of PrevDay FlagData
-                        DataSet OutwithFlag;
-                        ConfirmedOutFlagPrevDay(PreviousDay, out OutwithFlag, PlantValue);
-                        #endregion
+                    DataSet OutwithFlag;
+                    ConfirmedOutFlagPrevDay(PreviousDay, out OutwithFlag, PlantValue);
+                    #endregion
 
                         #region Process OutTime of Flagged Data
-                        if (OutwithFlag.Tables[0].Rows.Count > 0)
+                    if (OutwithFlag.Tables[0].Rows.Count > 0)
+                    {
+                        // Previous Day In Exist but Out Missing (Flagged Punches Dealing)
+                        string MainRowId = "''";
+                        var WkDate = OutwithFlag.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' " +
+                            "and PlantID='" + PlantValue + "' and isnull(PunchInTime,'')!=''";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < OutwithFlag.Tables[0].Rows.Count; i++)
                         {
-                            // Previous Day In Exist but Out Missing (Flagged Punches Dealing)
-                            string MainRowId = "''";
-                            var WkDate = OutwithFlag.Tables[0].Rows[0][@"WorkDate"].ToString();
-                            string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                            DateTime OutPunch = new DateTime();
+                            string EmpId = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            string OutPunchRow = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"MaxOut"]).ToString();
+                            string OutPunchLimit = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
 
-
-                            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                            var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' " +
-                                "and PlantID='" + PlantValue + "' and isnull(PunchInTime,'')!=''";
-
-                            objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                            for (int i = 0; i < OutwithFlag.Tables[0].Rows.Count; i++)
+                            string RowId = "";
+                            if (OutPunchRow != "")
                             {
-                                DateTime OutPunch = new DateTime();
-                                string EmpId = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                                string OutPunchRow = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"MaxOut"]).ToString();
-                                string OutPunchLimit = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
+                                // Retrieving RowId of RawData    
+                                string formatString = "yyyyMMddHHmmss";
+                                string sample = OutPunchRow.Split('.')[0].ToString();
+                                OutPunch = DateTime.ParseExact(sample, formatString, null);
+                                RowId = OutPunchRow.Split('.')[1].ToString();
+                            }
 
-                                string RowId = "";
-                                if (OutPunchRow != "")
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
+                                string ExistingOut = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchOutTime"]).ToString();
+
+                                if (OutPunchLimit.ToString() != "" && RowId != ""
+                                    && OutPunchRow.ToString() != "")
                                 {
-                                    // Retrieving RowId of RawData    
-                                    string formatString = "yyyyMMddHHmmss";
-                                    string sample = OutPunchRow.Split('.')[0].ToString();
-                                    OutPunch = DateTime.ParseExact(sample, formatString, null);
-                                    RowId = OutPunchRow.Split('.')[1].ToString();
-                                }
 
-                                dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                                if (dsRef.Tables[0].DefaultView.Count > 0)
-                                {
-                                    string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
-                                    string ExistingOut = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchOutTime"]).ToString();
-
-                                    if (OutPunchLimit.ToString() != "" && RowId != ""
-                                        && OutPunchRow.ToString() != "")
+                                    if (Convert.ToDateTime(OutPunch) <= Convert.ToDateTime(OutPunchLimit))
                                     {
-
-                                        if (Convert.ToDateTime(OutPunch) <= Convert.ToDateTime(OutPunchLimit))
-                                        {  
-                                            // Out Limit Validation Check 
-                                            // Out Should be greater than In & Less than OutPunchLimit
-                                            if (ExistingOut == "" && OutPunch > Convert.ToDateTime(ExistingIn))
-                                            {
-                                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                                dr.BeginEdit();
-                                                dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
-                                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                                dr.EndEdit();
-                                                MainRowId += ",'" + RowId + "'";
-                                            }
-
-                                            else if (ExistingOut != "" && OutPunch > Convert.ToDateTime(ExistingOut) && OutPunch > Convert.ToDateTime(ExistingIn))
-                                            {
-                                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                                dr.BeginEdit();
-                                                dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
-                                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                                dr.EndEdit();
-                                                MainRowId += ",'" + RowId + "'";
-                                            }
-
+                                        // Out Limit Validation Check 
+                                        // Out Should be greater than In & Less than OutPunchLimit
+                                        if (ExistingOut == "" && OutPunch > Convert.ToDateTime(ExistingIn))
+                                        {
+                                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                            dr.BeginEdit();
+                                            dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
+                                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                            dr.EndEdit();
+                                            MainRowId += ",'" + RowId + "'";
                                         }
+
+                                        else if (ExistingOut != "" && OutPunch > Convert.ToDateTime(ExistingOut) && OutPunch > Convert.ToDateTime(ExistingIn))
+                                        {
+                                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                            dr.BeginEdit();
+                                            dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
+                                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                            dr.EndEdit();
+                                            MainRowId += ",'" + RowId + "'";
+                                        }
+
                                     }
                                 }
                             }
-                            SaveDataSets(dsRef);
-
-                            #region RawData Table Processing
-                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
-                            #endregion
                         }
+                        SaveDataSets(dsRef);
+
+                        #region RawData Table Processing
+                        ProcessFlag(MainRowId); // Setting Processed Flag ->1
                         #endregion
+                    }
+                    #endregion
 
                         #region Getting Missing Out of Prev Day FlaglessData
-                        DataSet OutFlagless;
-                        ConfirmedOutFlaglessPrevDay(PreviousDay, out OutFlagless, PlantValue);
-                        #endregion
+                    DataSet OutFlagless;
+                    ConfirmedOutFlaglessPrevDay(PreviousDay, out OutFlagless, PlantValue);
+                    #endregion
 
                         #region Process OutTime of Flagless Data
-                        if (OutFlagless.Tables[0].Rows.Count > 0)
+                    if (OutFlagless.Tables[0].Rows.Count > 0)
                         {
                             // Previous Day In Exist but Out Missing (Flagless Punches Dealing)
                             string MainRowId = "''";
@@ -1768,7 +1768,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             }
                             #endregion
-                            
+
                             if (DateTime.Now > Convert.ToDateTime(PlantOutLimit))
                             {
 
@@ -1829,8 +1829,80 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #endregion
 
                         #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
-                        ExceptionFinalInOut(PreviousDay, PlantValue); 
+                        ExceptionFinalInOut(PreviousDay, PlantValue);
                         // Doing Final In Out Null if Invalid Data Entered from Manual
+                        #endregion
+
+                        #region In Status Logic Previous Day
+                        DataSet InStatusPrev;
+                        InStatusCalculate(PreviousDay, out InStatusPrev, PlantValue);
+                        if (InStatusPrev.Tables[0].Rows.Count > 0)
+                        {
+                            // In Status on the Basis of FinalIn
+                            var WkDate = InStatusPrev.Tables[0].Rows[0][@"WorkDate"].ToString();
+                            string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+
+                            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                            var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
+
+                            objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                            for (int i = 0; i < InStatusPrev.Tables[0].Rows.Count; i++)
+                            {
+                                // Logic on the basis of Shift Early & Late Margin
+                                string EmpId = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                                string InTime = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"InTime"]).ToString();
+                                string ShiftInTime = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
+                                double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
+                                double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
+
+                                dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                                if (dsRef.Tables[0].DefaultView.Count > 0)
+                                {
+
+                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    if (InTime != "" && ShiftInTime != "")
+                                    {
+                                        // Intime + Margin < ShiftInTime :- EarlyIn
+                                        if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                        {
+                                            dr["InStatus"] = "EI";
+                                        }
+                                        // Intime - Margin > ShiftInTime :- LateIn
+                                        else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                        {
+                                            dr["InStatus"] = "LI";
+                                        }
+
+                                        else
+                                        {
+                                            dr["InStatus"] = "IN"; // On Time
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // If FinalIn Not Present
+                                        if (ShiftInTime != "")
+                                        {
+                                            if (DateTime.Now > Convert.ToDateTime(ShiftInTime))
+                                            {
+                                                dr["InStatus"] = "IM"; // In Missing
+                                            }
+                                            else if (DateTime.Now < Convert.ToDateTime(ShiftInTime))
+                                            {
+                                                dr["InStatus"] = "O"; //Other
+                                            }
+                                        }
+                                    }
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
+                            }
+                            SaveDataSets(dsRef);
+
+                        }
                         #endregion
 
 
@@ -3366,6 +3438,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 Date = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
                 string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
                 string SandwichPrevDay = Convert.ToDateTime(Date).AddDays(-2).ToString("dd-MMM-yyyy");
+                string SandwichFlagRowId = "''";
 
                 DataSet PlantLock;
                 PlantLockCheck(PreviousDay, out PlantLock, PlantValue);
@@ -3751,17 +3824,21 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     }
                                     else if (ToDaySandwich == "0")
                                     {
-                                        var sql = @"update AttdnProcessData set UpdatedBy='Sandwich',SandwichFlag='0' 
-                                        where WorkDate <= '" + SandwichPrevDay + "' and EmpSystemID='" + EmpId + "' " +
-                                        "and SandwichFlag!=1 and SandwichFlag!=0";
-
-                                        ManualFromFunction(sql);
+                                        var sqly = @"select RowId,EmpSystemID from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + "' " +
+                                            "and SandwichFlag!='1' and EmpSystemID='" + EmpId + "' and	SandwichFlag !='0'";
+                                        var RowData = _sqlRepository.GetDataTable(sqly);
+                                        if (RowData.Rows.Count > 0)
+                                        {
+                                            var RowxId = RowData.Rows[0]["RowId"].ToString();
+                                            SandwichFlagRowId += ",'" + RowxId + "'";
+                                        }
                                     }
                                 }
 
                             }
                         }
                         SaveDataSets(dsRef);
+                        ProcessSandwichFlag(SandwichFlagRowId);
 
                     }
                     #endregion
@@ -4701,7 +4778,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-
         public void ManualFromFunction(string sqlx)
         {
             try
@@ -4721,9 +4797,26 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void ProcessSandwichFlag(string MainFlagId)
+        {
+            try
+            {
+                var sql = @"update AttdnProcessData set SandwichFlag='0',UpdatedBy='Sandwich',DateUpdated=GetDate()
+                where RowID IN(" + MainFlagId + @")";
 
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
 
-
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void ManualEarnedLeave(out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -4762,6 +4855,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualFlagRowId += ",'" + Value + "'";
             }
         }
+
+       
         #endregion
 
         #region Manual Scheduler
@@ -4769,7 +4864,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
         {
             try
             {
-                string ManualFlagRowId = "''";
+                string ManualFlagRowId = "''", SandwichFlagRowId = "''";
+
 
                 #region Manual Day Duration  
                 DataSet ManualDurn;
@@ -5146,18 +5242,20 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 else if (TodaySandwich == "0" && PrevWkDate != "")
                                 {
-                                    var sql = @"update AttdnProcessData set UpdatedBy='Sandwich',SandwichFlag='0' 
-                                    where WorkDate <= '" + PrevWkDate + "' and EmpSystemID='" + EmpId + "' " +
-                                    "and SandwichFlag!=1 and SandwichFlag!=0";
-
-                                    ManualFromFunction(sql);
-                                    
+                                    var sqly = @"select RowId,EmpSystemID from AttdnProcessData where WorkDate <= '" + PrevWkDate+"' " +
+                                            "and SandwichFlag!='1' and EmpSystemID='"+EmpId+"' and	SandwichFlag !='0'";
+                                    var RowData = _sqlRepository.GetDataTable(sqly);
+                                    if (RowData.Rows.Count > 0)
+                                    {
+                                        var RowxId = RowData.Rows[0]["RowId"].ToString();
+                                        SandwichFlagRowId += ",'" + RowxId + "'";
+                                    }                                  
                                 }
                             }
                         }
                     }
                     SaveDataSets(dsRef);
-
+                    ProcessSandwichFlag(SandwichFlagRowId);
                 }
                 #endregion
 
@@ -5339,11 +5437,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #endregion
 
         #region MonthlyData Summary Process           
-
+        // This Table is used as a Base in Salary Process
         public void MonthlySummary(string Date)
         {
             try
             {
+                // DataSet Generation on Commpany Group Level for Particular Month
                 string Day = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
                 DataSet MonthlyData;
                 MonthlySummarySource(Day, out MonthlyData);
@@ -5386,6 +5485,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                        
                         dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
 
+                        // Saving & Updating the Records in AttdnDataMonthlySummary
 
                         if (dsRef.Tables[0].DefaultView.Count == 0)
                         {
