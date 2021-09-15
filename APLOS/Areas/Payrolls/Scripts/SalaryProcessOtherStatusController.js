@@ -91,7 +91,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
             }).then(function successCallback(response) {
                 //console.log('kk', response);
                 if (response.data.Error === true) {
-                
+
                     ShowResult(response.data.Message, 'Information');
                 }
                 else {
@@ -158,7 +158,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
         }  //catch           
     };//EOF
 
-    
+
     $scope.onactivedatabound = function (e) {
         if (e.data.IsLocked === 'NO') {
             e.row.css("background-color", "brown");
@@ -186,7 +186,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
                 dataType: 'JSON',
                 url: 'payrolls/SalaryProcessOtherStatus/GetmlvEmpInfo',
                 data: parameters
-            }).then(function successCallback(response) {                
+            }).then(function successCallback(response) {
 
                 if (response.data.Error === true) {
 
@@ -206,7 +206,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
     $scope.EmployeeList_mlv_Approved = [];
     $scope.GetEmployee_mlv_Approved = function () {
         try {
-            $scope.EmployeeList_mlv_Approved = [];            
+            $scope.EmployeeList_mlv_Approved = [];
 
             var parameters = { 'FromDate': $scope.FromDate_mlv, 'ToDate': $scope.ToDate_mlv };
             $http({
@@ -248,7 +248,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
                 data: parameters
             }).then(function successCallback(response) {
                 //if (response.data.length > 0) {
-                    $scope.EmployeeList_tbs = response.data;
+                $scope.EmployeeList_tbs = response.data;
                 //}
                 //else {
                 //    ShowResult("No Data Found", 'Information');
@@ -258,7 +258,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
             ShowResult(ex.Message, 'Information');
         }  //catch           
     };//EOF
-    
+
 
 
 
@@ -272,7 +272,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
         autoclose: true,
         inline: true,
         changeMonth: true,
-     
+
         //beforeShowDay: function (date) {
         //    var eventDates = {};
         //    eventDates[new Date('12/04/2014')] = new Date('12/04/2014');
@@ -289,7 +289,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
 
     });
 
-    
+
 
 
 
@@ -354,7 +354,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
 
 
 
-   
+
 
     $scope.employees = [];
     $scope.LockEmpList = [];
@@ -457,7 +457,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
                 },
                 dataType: "json",
                 success: function (data) {
-                   ShowResult($scope.customPara.lockDate + " is Un-Loked...", "success");
+                    ShowResult($scope.customPara.lockDate + " is Un-Loked...", "success");
 
                 }
 
@@ -472,7 +472,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
 
 
 
-   
+
 
 
 
@@ -485,7 +485,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
 
 
     //#region Employee wise
-   
+
     $scope.EmployeeLockData = [];
     $scope.EmployeeReLockData = [];
     $scope.getUnLockDateList = function () {
@@ -493,7 +493,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
             if (baseService.isUndefinedOrNull($scope.customPara.lockDate)) {
                 throw "Please Enter Date.";
             }
-            
+
 
             $http({
                 method: "GET",
@@ -552,7 +552,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
     };
 
 
-   
+
     $scope.SaveEmployeeWiseUnLockData = function () {
 
         var UnLockEmployeeList = [];
@@ -578,7 +578,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
                 //$scope.EmployeeLockData = response.data.Employees;
 
                 ShowResult(response.data.Message, "success");
-               
+
                 //var gridObj = $("#GridEmpWise").data("ejGrid");
                 //gridObj.refreshContent();
                 $scope.EmployeeLockData = [];
@@ -593,11 +593,15 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
 
     };
     ///separated
-  
+
 
     $scope.Emp_sep_Process = function () {
         var eList = [];
-        eList = GetEmpList($scope.EmployeeList_sep);
+        var filtered = $("#GridEmpWise").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0)
+            filtered = EmployeeList_sep;
+
+        eList = GetEmpList(filtered);
         $http({
             method: "POST",
             dataType: 'JSON',
@@ -640,7 +644,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
         });//http
     };
 
-    
+
     // Usage
 
 
@@ -661,7 +665,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
             // $scope.ShowResult(e, 'failure');
         }
     };
-   
+
     $scope.actionCompleteSelected5 = function (args) {
         try {
             if (args.requestType === "refresh") {
@@ -697,7 +701,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
             }
         }
         else {
-           
+
             for (var i = 0; i < $scope.EmployeeList_sep.length; i++) {
                 $scope.EmployeeList_sep[i].IsSelectSlrProc = false;
             }
@@ -706,16 +710,16 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
         gridObj.refreshContent();
     };
 
-    
 
-     function GetEmpList(eList) {
+
+    function GetEmpList(eList) {
         var e_separated = [];
         for (var i = 0; i < eList.length; i++) {
             if (eList[i].IsSelectSlrProc === true) {
                 e_separated.push(eList[i].EmpSystemID);
             }
         }
-         return e_separated;
+        return e_separated;
     };
 
 
