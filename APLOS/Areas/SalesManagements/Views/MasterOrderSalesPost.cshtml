@@ -142,7 +142,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Info</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Service Info</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
-                @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="address" role="tab" data-toggle="tab" ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)">Parallel Currency</a></li>*@
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="packing" role="tab" data-toggle="tab" ng-show="modelNew.SourceType == 'Packing'">Packing JV</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -281,6 +281,59 @@
                                 <td colspan="3"></td>
                                 <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
                                 <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-show="modelNew.SourceType == 'Packing'">
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Packing Voucher Type<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" name="Voucher Type" ng-disabled="packingVoucherTypeList.length==1" ng-model="modelPacking.VoucherTypeId"
+                                        ng-options="item.Value as item.Text for item in packingVoucherTypeList" tabindex="2">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-3 control-label">Remarks<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <textarea name="Remarks" class="form-control" rows="2" maxlength="1000" ng-model="modelPacking.Narration" tabindex="7"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Dr</th>
+                                <th>Cr</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in packingJournaldataList| orderBy:'Dr'">
+                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-right"><strong>{{packingJournaldataList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{packingJournaldataList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
                             </tr>
                         </tbody>
                     </table>

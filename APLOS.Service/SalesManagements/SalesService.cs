@@ -3997,12 +3997,12 @@ namespace Library.Service.SalesManagements
                     }
                 }
 
-                _unitOfWork.SaveChanges();
-                flag = false;
+                //_unitOfWork.SaveChanges();
+                //flag = false;
 
-                _unitOfWork.BeginTransaction();
-                flag = true;
-                voucherVM.IsPark = false;
+                //_unitOfWork.BeginTransaction();
+                //flag = true;
+                //voucherVM.IsPark = false;
 
              
 
@@ -4029,45 +4029,41 @@ namespace Library.Service.SalesManagements
                     SourceType = SourceType.PackingJournal.ToString(),
                     VoucherTypeId = packing.VoucherTypeId,
                 };
-                voucher.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + voucher.Id;
+                packingvoucher.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + packingvoucher.Id;
                 _voucherService.InsertVoucher(packingvoucher, packing.FiscalYearPrefix);
 
-                invoice.VoucherId = voucher.Id;
-                sales.VoucherId = voucher.Id;
 
-                _salesRepository.Update(sales);
-
-                if (salesMaterialVMList != null)
+                if (PackingDetailVMList != null)
                 {
-                    foreach (var voucherDetailVM in salesMaterialVMList)
+                    foreach (var packingDetailVM in PackingDetailVMList)
                     {
-                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                        if (string.IsNullOrEmpty(packingDetailVM.GLGeneralInfoId))
                             throw new CustomException("Without GL can not post.");
-                        if (string.IsNullOrEmpty(voucherDetailVM.BudgetMasterId))
+                        if (string.IsNullOrEmpty(packingDetailVM.BudgetMasterId))
                             throw new CustomException("Without Budget can not post.");
-                        if (string.IsNullOrEmpty(voucherDetailVM.ActivityId))
+                        if (string.IsNullOrEmpty(packingDetailVM.ActivityId))
                             throw new CustomException("Without Activity can not post.");
-                        if (voucherDetailVM.TrnType == "Dr")
+                        if (packingDetailVM.TrnType == "Dr")
                         {
                             var voucherPackingDr = new VoucherDetail
                             {
-                                GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
-                                BudgetMasterId = voucherDetailVM.BudgetMasterId,
-                                ActivityId = voucherDetailVM.ActivityId,
-                                DrAmount = voucherDetailVM.Amount,
+                                GLGeneralInfoId = packingDetailVM.GLGeneralInfoId,
+                                BudgetMasterId = packingDetailVM.BudgetMasterId,
+                                ActivityId = packingDetailVM.ActivityId,
+                                DrAmount = packingDetailVM.Amount,
                                 CurrencyId = voucherVM.CurrencyId,
                                 DocDate = voucherVM.DocDate,
                                 DocRefNo = voucherVM.DocRefNo,
                                 Narration = sales.Narration,
 
                                 PostingWithoutTaxAllow = invoice.IsExcludingTax,
-                                AddedBy = voucher.AddedBy,
-                                AddedDate = voucher.AddedDate,
-                                AddedFromIP = voucher.AddedFromIP
+                                AddedBy = packingvoucher.AddedBy,
+                                AddedDate = packingvoucher.AddedDate,
+                                AddedFromIP = packingvoucher.AddedFromIP
                             };
                             currentVoucherDetaiRecord++;
                             _voucherService.InsertVoucherDetail(packingvoucher, voucherPackingDr, currentVoucherDetaiRecord);
-                            voucherDetailVM.VoucherDetailId = voucherPackingDr.Id;
+                            packingDetailVM.VoucherDetailId = voucherPackingDr.Id;
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherPackingDr, new VoucherDetailCurrency
                             {
                                 ParallelCurrencyId = companyCurrencyId,
@@ -4078,27 +4074,27 @@ namespace Library.Service.SalesManagements
                                 DrAmount = voucherPackingDr.DrAmount * sales.ToCurrencyRate
                             });
                         }
-                        if (voucherDetailVM.TrnType == "Cr")
+                        if (packingDetailVM.TrnType == "Cr")
                         {
                             var voucherPackingCr = new VoucherDetail
                             {
-                                GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
-                                BudgetMasterId = voucherDetailVM.BudgetMasterId,
-                                ActivityId = voucherDetailVM.ActivityId,
-                                CrAmount = voucherDetailVM.Amount,
+                                GLGeneralInfoId = packingDetailVM.GLGeneralInfoId,
+                                BudgetMasterId = packingDetailVM.BudgetMasterId,
+                                ActivityId = packingDetailVM.ActivityId,
+                                CrAmount = packingDetailVM.Amount,
                                 CurrencyId = voucherVM.CurrencyId,
                                 DocDate = voucherVM.DocDate,
                                 DocRefNo = voucherVM.DocRefNo,
                                 Narration = sales.Narration,
                                 PostingWithoutTaxAllow = invoice.IsExcludingTax,
-                                AddedBy = voucher.AddedBy,
-                                AddedDate = voucher.AddedDate,
-                                AddedFromIP = voucher.AddedFromIP
+                                AddedBy = packingvoucher.AddedBy,
+                                AddedDate = packingvoucher.AddedDate,
+                                AddedFromIP = packingvoucher.AddedFromIP
                             };
                             totalAmountCr += voucherPackingCr.CrAmount;
                             currentVoucherDetaiRecord++;
-                            _voucherService.InsertVoucherDetail(voucher, voucherPackingCr, currentVoucherDetaiRecord);
-                            voucherDetailVM.VoucherDetailId = voucherPackingCr.Id;
+                            _voucherService.InsertVoucherDetail(packingvoucher, voucherPackingCr, currentVoucherDetaiRecord);
+                            packingDetailVM.VoucherDetailId = voucherPackingCr.Id;
                             //_salesMaterialRepository.Update(voucherDetailVM);
 
                            // if (voucherDetailVM.OtherName == "Sales")
