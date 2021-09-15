@@ -1364,7 +1364,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         if (MissFlaggedIn.Tables[0].Rows.Count > 0)
                         {
 
-                            // Previous Day Missed In Flagged Punches (Due to Some Machine Issues or RawData Late Coming)
+                            // Previous Day Missed In Flagged(Double Device) Punches
+                            // (Due to Some Machine Issues or RawData Late Coming)
                             string MainRowId = "''";
 
                             ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1445,6 +1446,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Process FlagLess InData
                         if (MissFlaglessIn.Tables[0].Rows.Count > 0)
                         {
+                            // Previous Day Missed In Flagless(Single Device) Punches
+                            // (Due to Some Machine Issues or RawData Late Coming)
+
                             string MainRowId = "''";
 
                             ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1453,6 +1457,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
                             string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
 
+                            // Last In of Day Allowed Checking (From OutpunchConfiguration)
 
                             #region InLimit Validation Check
                             DataSet InlimitVal;
@@ -1475,6 +1480,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string RowId = "";
                                 if (MinTimeRow != "")
                                 {
+                                    // Retrieving RowId of RawData    
                                     string formatString = "yyyyMMddHHmmss";
                                     string sample = MinTimeRow.Split('.')[0].ToString();
                                     MinTime = DateTime.ParseExact(sample, formatString, null);
@@ -1493,7 +1499,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
                                             if (ExistingIn == "")
-                                            {
+                                            { 
+                                                // Once InPunch Added can't be Updated
                                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                                 dr.BeginEdit();
                                                 dr["PunchInTime"] = Convert.ToDateTime(MinTime);
@@ -1510,7 +1517,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsRef);
 
                             #region RawData Table Processing
-                            ProcessFlag(MainRowId);
+                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
                             #endregion
                         }
                         #endregion
@@ -1523,6 +1530,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Process OutTime of Flagged Data
                         if (OutwithFlag.Tables[0].Rows.Count > 0)
                         {
+                            // Previous Day In Exist but Out Missing (Flagged Punches Dealing)
                             string MainRowId = "''";
                             var WkDate = OutwithFlag.Tables[0].Rows[0][@"WorkDate"].ToString();
                             string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
@@ -1544,6 +1552,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string RowId = "";
                                 if (OutPunchRow != "")
                                 {
+                                    // Retrieving RowId of RawData    
                                     string formatString = "yyyyMMddHHmmss";
                                     string sample = OutPunchRow.Split('.')[0].ToString();
                                     OutPunch = DateTime.ParseExact(sample, formatString, null);
@@ -1561,13 +1570,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
 
                                         if (Convert.ToDateTime(OutPunch) <= Convert.ToDateTime(OutPunchLimit))
-                                        {  // Out Limit Validation Check
+                                        {  
+                                            // Out Limit Validation Check 
+                                            // Out Should be greater than In & Less than OutPunchLimit
                                             if (ExistingOut == "" && OutPunch > Convert.ToDateTime(ExistingIn))
                                             {
                                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                                 dr.BeginEdit();
                                                 dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
-                                                dr["UpdatedBy"] = "Schedule";
                                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                                 dr.EndEdit();
                                                 MainRowId += ",'" + RowId + "'";
@@ -1578,7 +1588,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                                 dr.BeginEdit();
                                                 dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
-                                                dr["UpdatedBy"] = "Schedule";
                                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                                 dr.EndEdit();
                                                 MainRowId += ",'" + RowId + "'";
@@ -1591,7 +1600,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsRef);
 
                             #region RawData Table Processing
-                            ProcessFlag(MainRowId);
+                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
                             #endregion
                         }
                         #endregion
@@ -1604,6 +1613,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Process OutTime of Flagless Data
                         if (OutFlagless.Tables[0].Rows.Count > 0)
                         {
+                            // Previous Day In Exist but Out Missing (Flagless Punches Dealing)
                             string MainRowId = "''";
                             var WkDate = OutFlagless.Tables[0].Rows[0][@"WorkDate"].ToString();
                             string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
@@ -1624,6 +1634,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string RowId = "";
                                 if (OutPunchRow != "")
                                 {
+                                    // Retrieving RowId of RawData    
                                     string formatString = "yyyyMMddHHmmss";
                                     string sample = OutPunchRow.Split('.')[0].ToString();
                                     OutPunch = DateTime.ParseExact(sample, formatString, null);
@@ -1642,13 +1653,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                         if (Convert.ToDateTime(OutPunch) <= Convert.ToDateTime(OutPunchLimit))
                                         {
-                                            // Out Limit Validation Check
+                                            // Out Limit Validation Check 
+                                            // Out Should be greater than In & Less than OutPunchLimit
                                             if (ExistingOut == "" && OutPunch > Convert.ToDateTime(ExistingIn))
                                             {
                                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                                 dr.BeginEdit();
                                                 dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
-                                                dr["UpdatedBy"] = "Schedule";
                                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                                 dr.EndEdit();
                                                 MainRowId += ",'" + RowId + "'";
@@ -1659,7 +1670,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                                 dr.BeginEdit();
                                                 dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
-                                                dr["UpdatedBy"] = "Schedule";
                                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                                 dr.EndEdit();
                                                 MainRowId += ",'" + RowId + "'";
@@ -1672,7 +1682,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsRef);
 
                             #region RawData Table Processing
-                            ProcessFlag(MainRowId);
+                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
                             #endregion
                         }
                         #endregion
@@ -1682,7 +1692,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         PrevAppData(PreviousDay, out PrevDayApp, PlantValue);
                         if (PrevDayApp.Tables[0].Rows.Count > 0)
                         {
-
+                            // Attendance From Mobile App
                             var WkDate = PrevDayApp.Tables[0].Rows[0][@"WkDate"].ToString();
                             string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
@@ -1699,7 +1709,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string Out = clsWebLib.RetValidLen(PrevDayApp.Tables[0].Rows[i][@"ManualOut"]).ToString();
 
                                 PunchTimeVal(ref In, ref Out, WkDate);
-
+                                // App Attendance Taken as Manual Attendance
                                 dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                 if (dsRef.Tables[0].DefaultView.Count > 0)
                                 {
@@ -1737,6 +1747,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             string MainRowId = "''";
 
+                            // Double Device Orphan Punches
                             ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                             var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and isnull(PunchInTime,'')=''" +
                                 "and isnull(PunchOutTime,'')='' and PlantID='" + PlantValue + "'";
@@ -1751,11 +1762,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string PlantOutLimit = "";
                             if (PlantInLimit != "")
                             {
+                                // Plant Start & End Time of Next Day
                                 PlantInLimit = Convert.ToDateTime(PreviousDay).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(PlantInLimit).ToString("HH:mm:ss");
                                 PlantOutLimit = Convert.ToDateTime(PreviousDay).AddDays(1).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(PlantInLimit).ToString("HH:mm:ss");
 
                             }
                             #endregion
+                            
                             if (DateTime.Now > Convert.ToDateTime(PlantOutLimit))
                             {
 
@@ -1768,6 +1781,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     string RowId = "";
                                     if (MaxTimeRow != "")
                                     {
+                                        // Retrieving RowId of RawData    
                                         string formatString = "yyyyMMddHHmmss";
                                         string sample = MaxTimeRow.Split('.')[0].ToString();
                                         MaxTime = DateTime.ParseExact(sample, formatString, null);
@@ -1785,12 +1799,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                             if (ExistingOut == "")
                                             {
+                                                // Punch Should be in Plant Start time and Plant Out Next Day
                                                 if (Convert.ToDateTime(PlantInLimit) <= MaxTime && MaxTime <= Convert.ToDateTime(PlantOutLimit))
                                                 {
                                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                                     dr.BeginEdit();
                                                     dr["PunchOutTime"] = Convert.ToDateTime(MaxTime);
-                                                    dr["UpdatedBy"] = "Schedule";
                                                     dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                                     dr.EndEdit();
                                                     MainRowId += ",'" + RowId + "'";
@@ -1804,21 +1818,22 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 SaveDataSets(dsRef);
 
                                 #region RawData Table Processing
-                                ProcessFlag(MainRowId);
+                                ProcessFlag(MainRowId);  // Setting Processed Flag ->1
                                 #endregion
                             }
                         }
                         #endregion
 
                         #region Final PrevDay In/Out                  
-                        FinalInOut(PreviousDay, PlantValue);
+                        FinalInOut(PreviousDay, PlantValue); // Final In Out Stamping on the Basis of Manual & Punch
                         #endregion
 
                         #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
-                        ExceptionFinalInOut(PreviousDay, PlantValue);
+                        ExceptionFinalInOut(PreviousDay, PlantValue); 
+                        // Doing Final In Out Null if Invalid Data Entered from Manual
                         #endregion
 
-                       
+
                     }
 
                     // Plant Lock Checking of Today
@@ -1838,6 +1853,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Process FlaggedIn Data
                         if (FlaggedIn.Tables[0].Rows.Count > 0)
                         {
+                            // Today Flagged(Double Device) Punches
                             string MainRowId = "''";
 
                             ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1846,13 +1862,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
                             string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
 
-
                             #region InLimit Validation Check
                             DataSet InlimitVal;
                             InLimitValidation(out InlimitVal, PlantValue);
                             string InEntryLimit = clsWebLib.RetValidLen(InlimitVal.Tables[0].Rows[0][@"InEntryLimit"]).ToString();
                             if (InEntryLimit != "")
                             {
+                                // Last In of Day Allowed Checking (From OutpunchConfiguration)
                                 InEntryLimit = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(InEntryLimit).ToString("HH:mm:ss");
                             }
                             #endregion
@@ -1867,7 +1883,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 string RowId = "";
                                 if (MinTimeRow != "")
-                                {
+                                { 
+                                    // Retrieving RowId of RawData    
                                     string formatString = "yyyyMMddHHmmss";
                                     string sample = MinTimeRow.Split('.')[0].ToString();
                                     MinTime = DateTime.ParseExact(sample, formatString, null);
@@ -1887,6 +1904,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
                                             if (ExistingIn == "")
                                             {
+                                                // Once InPunch Added can't be Updated
                                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                                 dr.BeginEdit();
                                                 dr["PunchInTime"] = Convert.ToDateTime(MinTime);
@@ -1903,7 +1921,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsRef);
 
                             #region RawData Table Processing
-                            ProcessFlag(MainRowId);
+                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
                             #endregion
                         }
                         #endregion
@@ -1916,6 +1934,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #region Process FlagglessIn Data
                         if (FlagglessIn.Tables[0].Rows.Count > 0)
                         {
+
+                            // Today Flagless(Single Device) Punches
                             string MainRowId = "''";
 
                             ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1930,7 +1950,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             InLimitValidation(out InlimitVal, PlantValue);
                             string InEntryLimit = clsWebLib.RetValidLen(InlimitVal.Tables[0].Rows[0][@"InEntryLimit"]).ToString();
                             if (InEntryLimit != "")
-                            {
+                            { 
+                                // Last In of Day Allowed Checking (From OutpunchConfiguration)
                                 InEntryLimit = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(InEntryLimit).ToString("HH:mm:ss");
                             }
                             #endregion
@@ -1945,7 +1966,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 string RowId = "";
                                 if (MinTimeRow != "")
-                                {
+                                { 
+                                    // Retrieving RowId of RawData   
                                     string formatString = "yyyyMMddHHmmss";
                                     string sample = MinTimeRow.Split('.')[0].ToString();
                                     MinTime = DateTime.ParseExact(sample, formatString, null);
@@ -1965,6 +1987,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
                                             if (ExistingIn == "")
                                             {
+                                                // Once InPunch Added can't be Updated
                                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                                 dr.BeginEdit();
                                                 dr["PunchInTime"] = Convert.ToDateTime(MinTime);
@@ -1981,7 +2004,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsRef);
 
                             #region RawData Table Processing
-                            ProcessFlag(MainRowId);
+                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
                             #endregion
                         }
                         #endregion
@@ -1991,7 +2014,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         TodayAppData(Date, out TodayApp, PlantValue);
                         if (TodayApp.Tables[0].Rows.Count > 0)
                         {
-
+                            // Attendance From Mobile App
                             var WkDate = TodayApp.Tables[0].Rows[0][@"WkDate"].ToString();
                             string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
@@ -2008,7 +2031,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string Out = clsWebLib.RetValidLen(TodayApp.Tables[0].Rows[i][@"ManualOut"]).ToString();
 
                                 PunchTimeVal(ref In, ref Out, WkDate);
-
+                                
+                                // App Attendance Taken as Manual Attendance
                                 dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                 if (dsRef.Tables[0].DefaultView.Count > 0)
                                 {
@@ -2037,11 +2061,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #endregion
 
                         #region Final Day In/Out    
-                        FinalInOut(Date, PlantValue);
+                        FinalInOut(Date, PlantValue); // Final In Out Stamping on the Basis of Manual & Punch
                         #endregion
 
                         #region Exception Final Day In/Out  (Wrong Entry Handling)                
                         ExceptionFinalInOut(Date, PlantValue);
+                        // Doing Final In Out Null if Invalid Data Entered from Manual
                         #endregion
 
                         #region In Status Logic
@@ -2049,6 +2074,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         InStatusCalculate(Date, out InStatus, PlantValue);
                         if (InStatus.Tables[0].Rows.Count > 0)
                         {
+                            // In Status on the Basis of FinalIn
                             var WkDate = InStatus.Tables[0].Rows[0][@"WorkDate"].ToString();
                             string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
@@ -2060,7 +2086,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             for (int i = 0; i < InStatus.Tables[0].Rows.Count; i++)
                             {
-
+                                // Logic on the basis of Shift Early & Late Margin
                                 string EmpId = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                                 string InTime = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"InTime"]).ToString();
                                 string ShiftInTime = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
@@ -2075,14 +2101,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr.BeginEdit();
                                     if (InTime != "" && ShiftInTime != "")
                                     {
+                                        // Intime + Margin < ShiftInTime :- EarlyIn
                                         if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                                         {
-                                            dr["InStatus"] = "EI"; //Early In
+                                            dr["InStatus"] = "EI"; 
                                         }
-
+                                        // Intime - Margin > ShiftInTime :- LateIn
                                         else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                         {
-                                            dr["InStatus"] = "LI"; //Late In
+                                            dr["InStatus"] = "LI"; 
                                         }
 
                                         else
@@ -2092,6 +2119,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     }
                                     else
                                     {
+                                        // If FinalIn Not Present
                                         if (ShiftInTime != "")
                                         {
                                             if (DateTime.Now > Convert.ToDateTime(ShiftInTime))
