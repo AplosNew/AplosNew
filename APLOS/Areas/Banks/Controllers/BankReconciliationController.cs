@@ -88,9 +88,20 @@ namespace Aplos.Areas.Banks.Controllers
         [HttpGet, Authorize]
         public JsonResult GetBankReconLastDate(string bankMasterId)
         {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_bankReconciliationService.GetBankReconLastDate(identity.CompanyGroupId, identity.CompanyId,bankMasterId), JsonRequestBehavior.AllowGet);
+            return Json(accountsBankReconcilliationService.GetBankReconLastDate(identity.CompanyGroupId, identity.CompanyId,bankMasterId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetBankReconDrCrTotalAmount(string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsBankReconcilliationService.GetBankReconDrCrTotalAmount(identity.CompanyGroupId, identity.CompanyId, bankMasterId, fromDate, toDate), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpPost]
         public JsonResult Create(BankReconciliation bankReconciliation, List<GLTransactionDetail> tempList)
