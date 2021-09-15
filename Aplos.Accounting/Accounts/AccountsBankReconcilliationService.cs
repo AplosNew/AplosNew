@@ -252,6 +252,33 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
-
+        public Dictionary<string, object> GetBankReconLastDate(string companyGroupId, string companyId, string bankMasterId)
+        {
+            return _sqlRepository.GetData(@"SELECT TOP(1) REPLACE(CONVERT(CHAR(11), ToDate, 106),' ','-') AS FromDate, OpeningBlance, ClosingBalance
+						   FROM [TRN].[BankReconciliation] where BankMasterId='" + bankMasterId + "' AND CompanyGroupId='" + companyGroupId + "' AND CompanyId='" + companyId + @"'
+                            ORDER BY ToDate DESC");
+        }
+        public Dictionary<string, object> GetBankReconDrCrTotalAmount(string companyGroupId, string companyId, string bankMasterId, DateTime fromDate, DateTime toDate)
+        {
+            return _sqlRepository.GetData(@"select sum(x.DrAmount) bankDrAmmount,sum(x.CrAmount) bankCrAmmount from (
+                SELECT SUM(GLT.DrAmount) AS DrAmount ,0 CrAmount 
+                		FROM TRN.VoucherDetail AS VD
+                        INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                        INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+                        WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' AND (ReconcileId IS NULL))
+                        AND V.CompanyGroupId='"+ companyGroupId + "' AND V.CompanyId='"+ companyId + @"' AND V.IsPark=0
+                        AND (VD.BankMasterId= '"+bankMasterId+"'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"')) 
+                        AND (VD.DrAmount<>0.0000) AND V.[SourceType]<>'OpeningBalance' 
+                union all
+                SELECT  0 DrAmount,sum(GLT.CrAmount) AS CrAmount 
+                                FROM TRN.VoucherDetail AS VD
+                                INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
+                                INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
+                                WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' AND (ReconcileId IS NULL))
+                                AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + @"' AND V.IsPark=0
+                                AND (VD.BankMasterId= '" + bankMasterId + "'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"'))
+                                AND (VD.CrAmount<>0.0000) 
+                				) x");
+        }
     }
 }

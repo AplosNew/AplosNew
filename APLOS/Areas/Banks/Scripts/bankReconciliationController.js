@@ -134,17 +134,23 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
             $scope.clear();
         }
     }
-
     $scope.getBankReconLastDate = function (id) {
         $http.get("Banks/BankReconciliation/GetBankReconLastDate?bankMasterId=" + id)
             .then(function (response) {
-                
-                    $scope.bankReconciliationNew.FromDate = response.data.FromDate;
-                    $scope.bankReconciliationNew.OpeningBlance = response.data.ClosingBalance;
+
+                $scope.bankReconciliationNew.FromDate = response.data.FromDate;
+                $scope.bankReconciliationNew.OpeningBlance = response.data.ClosingBalance;
                 $scope.bankReconciliationNew.ClosingBalance = null;
                 $scope.bankReconciliationNew.BankStatementNo = null;
-                if ($scope.bankReconciliationNew.FromDate==null)
+                if ($scope.bankReconciliationNew.FromDate == null)
                     $scope.bankReconciliationNew.FromDate = $filter("dateFiltering")($scope.cutOffDate);
+            });
+    }
+    $scope.getBankReconDrCrTotalAmount = function (id, fromDate, toDate) {
+        $http.get("Banks/BankReconciliation/GetBankReconDrCrTotalAmount?bankMasterId=" + id + '&fromDate=' + fromDate + '&toDate=' + toDate)
+            .then(function (response) {
+                $scope.bankCrAmmount = response.data.bankCrAmmount;
+                $scope.bankDrAmmount = response.data.bankDrAmmount;
             });
     }
 
@@ -188,6 +194,7 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
                         $scope.getReceivedReconList();
                         $scope.getBankCrReconList();
                         $scope.getBankDrReconList();
+                        $scope.getBankReconDrCrTotalAmount($scope.bankReconciliationNew.BankMasterId, $scope.bankReconciliationNew.FromDate, $scope.bankReconciliationNew.ToDate);
 
                     }
                 }
@@ -394,11 +401,12 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
                     $scope.bankCrReconParameters.total_count = result.Total;
                     if (baseService.arrayLength($scope.bankCrReconList) === 0) {
                         baseService.getDDLSearchColumn(result.Rows, $scope.bankCrReconList);
-                        $scope.bankCrAmmount = $scope.amountCalculate($scope.bankCrReconDataList);
+                       // $scope.bankCrAmmount = $scope.amountCalculate($scope.bankCrReconDataList);
                         $scope.bankCrReconAmount = $scope.bnkReconList[2].ReconciledValue;
-                        for (var i = 0; i < baseService.arrayLength($scope.bankCrReconDataList); i++) {
-                            $scope.bankCrReconDataList[i].Flag = isExistInList($scope.bankCrTempList, $scope.bankCrReconDataList[i].VoucherDetailId);
-                        }
+                        
+                    }
+                    for (var i = 0; i < baseService.arrayLength($scope.bankCrReconDataList); i++) {
+                        $scope.bankCrReconDataList[i].Flag = isExistInList($scope.bankCrTempList, $scope.bankCrReconDataList[i].VoucherDetailId);
                     }
                 }, function () {
                     ShowResult(commonMessage.NetworkError, "failure");
@@ -434,12 +442,13 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
                     $scope.bankDrReconParameters.total_count = result.Total;
                     if (baseService.arrayLength($scope.bankDrReconList) === 0) {
                         baseService.getDDLSearchColumn(result.Rows, $scope.bankDrReconList);
-                        $scope.bankDrAmmount = $scope.amountCalculate($scope.bankDrReconDataList);
-                        // $scope.bankDrReconAmount = $scope.bnkReconList[4].ReconciledValue;
-                        for (var i = 0; i < baseService.arrayLength($scope.bankDrReconDataList); i++) {
-                            $scope.bankDrReconDataList[i].PostingDate = $filter("dateFiltering")($scope.bankDrReconDataList[i].PostingDate);
-                            $scope.bankDrReconDataList[i].Flag = isExistInList($scope.bankDrTempList, $scope.bankDrReconDataList[i].VoucherDetailId);
-                        }
+                        //$scope.bankDrAmmount = $scope.amountCalculate($scope.bankDrReconDataList);
+                         $scope.bankDrReconAmount = $scope.bnkReconList[4].ReconciledValue;
+                        
+                    }
+                    for (var i = 0; i < baseService.arrayLength($scope.bankDrReconDataList); i++) {
+                        $scope.bankDrReconDataList[i].PostingDate = $filter("dateFiltering")($scope.bankDrReconDataList[i].PostingDate);
+                        $scope.bankDrReconDataList[i].Flag = isExistInList($scope.bankDrTempList, $scope.bankDrReconDataList[i].VoucherDetailId);
                     }
                 }, function () {
                     ShowResult(commonMessage.NetworkError, "failure");
