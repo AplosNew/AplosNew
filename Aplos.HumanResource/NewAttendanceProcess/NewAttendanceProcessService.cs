@@ -1829,9 +1829,82 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         #endregion
 
                         #region Exception Final PrevDay In/Out  (Wrong Entry Handling)                   
-                        ExceptionFinalInOut(PreviousDay, PlantValue); 
+                        ExceptionFinalInOut(PreviousDay, PlantValue);
                         // Doing Final In Out Null if Invalid Data Entered from Manual
                         #endregion
+
+                        #region In Status Logic Previous Day
+                        DataSet InStatusPrev;
+                        InStatusCalculate(PreviousDay, out InStatusPrev, PlantValue);
+                        if (InStatusPrev.Tables[0].Rows.Count > 0)
+                        {
+                            // In Status on the Basis of FinalIn
+                            var WkDate = InStatusPrev.Tables[0].Rows[0][@"WorkDate"].ToString();
+                            string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+
+                            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                            var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
+
+                            objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                            for (int i = 0; i < InStatusPrev.Tables[0].Rows.Count; i++)
+                            {
+                                // Logic on the basis of Shift Early & Late Margin
+                                string EmpId = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                                string InTime = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"InTime"]).ToString();
+                                string ShiftInTime = clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
+                                double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
+                                double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatusPrev.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
+
+                                dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                                if (dsRef.Tables[0].DefaultView.Count > 0)
+                                {
+
+                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    if (InTime != "" && ShiftInTime != "")
+                                    {
+                                        // Intime + Margin < ShiftInTime :- EarlyIn
+                                        if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                        {
+                                            dr["InStatus"] = "EI";
+                                        }
+                                        // Intime - Margin > ShiftInTime :- LateIn
+                                        else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                        {
+                                            dr["InStatus"] = "LI";
+                                        }
+
+                                        else
+                                        {
+                                            dr["InStatus"] = "IN"; // On Time
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // If FinalIn Not Present
+                                        if (ShiftInTime != "")
+                                        {
+                                            if (DateTime.Now > Convert.ToDateTime(ShiftInTime))
+                                            {
+                                                dr["InStatus"] = "IM"; // In Missing
+                                            }
+                                            else if (DateTime.Now < Convert.ToDateTime(ShiftInTime))
+                                            {
+                                                dr["InStatus"] = "O"; //Other
+                                            }
+                                        }
+                                    }
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
+                            }
+                            SaveDataSets(dsRef);
+
+                        }
+                        #endregion
+
 
 
                     }
