@@ -3583,7 +3583,7 @@ namespace Library.Service.Employees
                         table2.Rows.Add(row2);
                     }
                     if (bplib.clsWebLib.IsDateOK(dtEmpHeaderInfo.Rows[0]["DateOfJoin"].ToString()))
-                        table2.Replace("{AppraisalDate}", GetFormatedDate(dtEmpInfo.Rows[0]["AppraisalDate"].ToString(), language), false, true);
+                        table2.Replace("{AppraisalDate}", GetFormatedDate(dtEmpInfo.Rows[ROW]["AppraisalDate"].ToString(), language), false, true);
                     else
 
                         table2.Replace("{AppraisalDate}", dtEmpInfo.Rows[ROW]["AppraisalDate"].ToString(), false, true);
@@ -3604,19 +3604,18 @@ namespace Library.Service.Employees
                 {
                     var pic = dtEmpHeaderInfo.Rows[0]["EmployeePic"].ToString();
                     string picpath = ResourcesPathReader.GetEmployeeDestinationPicPath() + pic;
-                    //WPicture ImgwPicture = new WPicture(document);
+                   //WPicture ImgwPicture = new WPicture(document);
                     if (System.IO.File.Exists(picpath))
                     {
                         try
                         {
                             Image Img = Image.FromFile(picpath);
-                            Image newImage = resizeImage(Img, 140, 140);
-                            //wPicture.LoadImage(Image.FromFile(picpath));
-                            //TextBodyPart textBodyPart = new TextBodyPart(document);
-
+                            Image newImage = resizeImage(Img, 139, 123);
+                           
                             section.Tables[0].Rows[1].Cells[2].Paragraphs[0].AppendPicture(newImage);
+                            //document.Replace();
+                            //document.Replace("{EmpPic}", "", true, true);
 
-                            //document.Replace()
                             //document.Replace("{emppic}", textBodyPart, true, true);
                         }
                         catch (Exception ex)
@@ -3638,7 +3637,6 @@ namespace Library.Service.Employees
                 else
                 {
                     fileNames = "Increment-History.docx";
-                    //fileNames = "-Appointment-Letter";
                 }
                 document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
@@ -3806,7 +3804,7 @@ namespace Library.Service.Employees
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string Sql = @"			 SELECT Format(salaryInfoTo.EffectiveDate , 'dd-MMM-yyyy') As AppraisalDate,
+            string Sql = @"SELECT Format(salaryInfoTo.EffectiveDate , 'dd-MMM-yyyy') As AppraisalDate,
 
 			 CONVERT(NUMERIC(10,2),salaryInfoFrom.EntryAmount) PreviousGross
 		 , CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount) NewGross,CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount-salaryInfoFrom.EntryAmount) IncrementAmount,
