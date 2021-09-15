@@ -547,7 +547,7 @@ var upanelApp = angular
     .controller('InventoryDashboardController', InventoryDashboardController)
     .controller('inventoryIssueDeleteController', inventoryIssueDeleteController)
     .controller('inventoryReceivableController', inventoryReceivableController)
-    .controller('inventorySalesController', inventorySalesController)
+    .controller('inventorySalesRegisterController', inventorySalesRegisterController)
     .controller('inventoryScrapController', inventoryScrapController)
     .controller('InventoryStatusDashboardController', InventoryStatusDashboardController)
     .controller('InventoryDashboardStatusController', InventoryDashboardStatusController)
