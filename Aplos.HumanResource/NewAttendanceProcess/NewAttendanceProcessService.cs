@@ -459,7 +459,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < CompanyWeekOff.Tables[0].Rows.Count; i++)
                         {
-
+                            // Company WeekOff Employees Weekly Status Updation to W 
                             string PlantId = CompanyWeekOff.Tables[0].Rows[i][@"PlantId"].ToString();
                             string WkDate = CompanyWeekOff.Tables[0].Rows[i][@"WkDate"].ToString();
 
@@ -483,6 +483,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     else
                     {
+                        // Company WeekOff Employees Weekly Status Updation to NW 
 
                         var sql = @"Update AttdnProcessData Set WeeklyStatus='NW'  
                                           WHERE WorkDate='" + Date + @"' AND isnull(EmpSystemID,'') IN" +
@@ -509,7 +510,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     {
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
-
+                        // Employee Week Off DataSet Generation
                         var sqlx = @"select * from AttdnProcessData 
                                    WHERE WorkDate='" + Date + @"'
                                     AND isnull(EmpSystemID,'') IN (SELECT isnull(ei.SystemId,'') 
@@ -527,7 +528,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
+                            { 
+                                // Week Off Updation in APD Level
                                 if (DayType.ToString() != "")
                                 {
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
