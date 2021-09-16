@@ -2190,7 +2190,7 @@ namespace Aplos.Areas.Products.Controllers
 						,'' Posted
 						,'' 'NoteForAccounts'
 
-						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+						,round(isnull(TAxInfo.TaxAmount,0),2)  CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
 						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
@@ -3576,7 +3576,6 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			//Start EmployeeAdvanceDueList
 			try
 			{
-
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 				ExcelEngine excelEngine = new ExcelEngine();
