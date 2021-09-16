@@ -248,8 +248,8 @@ namespace Library.OrderManagement.Packing
             {
                 string pOId = null;
                 string productCode = null;
-
-                foreach (var item in FinishGoodsBookingDetailList)
+				bplib.clsGenID objGenID = new bplib.clsGenID();
+				foreach (var item in FinishGoodsBookingDetailList)
                 {
                     if (pOId == null)
                     {
@@ -273,7 +273,7 @@ namespace Library.OrderManagement.Packing
 
                 }
 
-                DataSet dsMaster, dsFromFinishGoodsBookingDetail, dsItemScanChild, dsFromDateWiseConsumption, dsDateWiseConsumption, dsFinishGoodsBookingDetail, dsConsumptionByCosting, dsFromConsumptionByCosting, dsProductionSummary;
+                DataSet dsMaster, dsFromFinishGoodsBookingDetail, dsItemScanChild, dsFromDateWiseConsumption, dsDateWiseConsumption, dsFinishGoodsBookingDetail, dsConsumptionByCosting, dsFromConsumptionByCosting, dsProductionSummary, dsInventoryReceive, dsInventoryReceiveDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 GetDateWiseConsumptionData(data["FromDate"].ToString(), data["ToDate"].ToString(), out dsFromDateWiseConsumption);
@@ -282,12 +282,14 @@ namespace Library.OrderManagement.Packing
                 con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[FinishGoodsBooking] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DateWiseConsumption WHERE FinishGoodsBookingId ='" + data["Id"] + "'", out dsDateWiseConsumption, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FinishGoodsBookingDetail WHERE 1 = 2", out dsFinishGoodsBookingDetail, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceive WHERE 1 = 2", out dsInventoryReceive, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceiveDetail WHERE 1 = 2", out dsInventoryReceiveDetail, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionSummary WHERE 1 = 2", out dsProductionSummary, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ConsumptionByCosting WHERE 1 = 2", out dsConsumptionByCosting, false, "1");
 
                 con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "') AND POId IN (" + pOId + @") AND ProductCode IN (" + productCode + @") AND ISNULL(FinishGoodsBookingDetailId,'')=''", out dsItemScanChild, false, "1");
 
-                string _Id = "", masterId = "", detailId = "";
+                string _Id = "", masterId = "", detailId = "", iID = "";
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
@@ -306,6 +308,21 @@ namespace Library.OrderManagement.Packing
                 }
 
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+				//InventoryReceive
+				objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "InventoryReceive", out iID);
+				DataRow drInventoryReceive = dsInventoryReceive.Tables[0].NewRow();
+				drInventoryReceive["Id"] = iID;
+				drInventoryReceive["CompanyGroupId"] = identity.CompanyGroupId;
+				drInventoryReceive["CompanyId"] = identity.CompanyId;
+				drInventoryReceive["PlantId"] = identity.PlantId;
+				drInventoryReceive["ToCurrencyRate"] = 1;
+				drInventoryReceive["GRNType"] = "GRN";
+				drInventoryReceive["EntityId"] = data["ProductionEntityId"].ToString();
+				drInventoryReceive["AddedBy"] = identity.Name;
+				drInventoryReceive["AddedDate"] = DateTime.Now;
+				drInventoryReceive["AddedFromIP"] = identity.IPAddress;
+				dsInventoryReceive.Tables[0].Rows.Add(dsInventoryReceive);
 
 				//DateWiseConsumption
 				for (int i = 0; i < dsFromDateWiseConsumption.Tables[0].Rows.Count; i++)
@@ -329,11 +346,9 @@ namespace Library.OrderManagement.Packing
                         drFinishGoodsBookingDetail["DateWiseConsumptionId"] = datewiseConsumptionId;
 
                         dsFinishGoodsBookingDetail.Tables[0].Rows.Add(drFinishGoodsBookingDetail);
-
-						bplib.clsGenID objGenID = new bplib.clsGenID();
-						objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
-
+						
 						//ProductionSummary
+						objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
 						DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
 						drProductionSummary["Id"] = sID;
 						drProductionSummary["PlantId"] = identity.PlantId;
@@ -346,7 +361,6 @@ namespace Library.OrderManagement.Packing
 						drProductionSummary["AddedDate"] = DateTime.Now;
 						drProductionSummary["AddedFromIP"] = identity.IPAddress;
 						dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
-
 
 						//ConsumptionByCosting
 						GetConsumptionByCostingData(dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K]["CostingMasterTemplateId"].ToString(), out dsFromConsumptionByCosting);
@@ -388,13 +402,28 @@ namespace Library.OrderManagement.Packing
                             }
                         }
 
-                    }
+						//InventoryReceiveDetail
+						DataRow drInventoryReceiveDetail = dsInventoryReceiveDetail.Tables[0].NewRow();
+						drInventoryReceiveDetail["Id"] = iID+"-"+ K;
+						drInventoryReceiveDetail["InventoryReceive"] = iID;
+						drInventoryReceiveDetail["TransactionQty"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Qty"].ToString();
+						drInventoryReceiveDetail["BaseQty"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Qty"].ToString();
+						drInventoryReceiveDetail["MaterialTranRate"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Rate"].ToString();
+						drInventoryReceiveDetail["MaterialTranAmount"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Amount"].ToString();
+						
+						drInventoryReceiveDetail["AddedBy"] = identity.Name;
+						drInventoryReceiveDetail["AddedDate"] = DateTime.Now;
+						drInventoryReceiveDetail["AddedFromIP"] = identity.IPAddress;
+						dsInventoryReceiveDetail.Tables[0].Rows.Add(drInventoryReceiveDetail);
 
 
-                }
+					}
+
+
+				}
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsDateWiseConsumption, dsFinishGoodsBookingDetail, dsConsumptionByCosting, dsItemScanChild, dsProductionSummary);
+                obj.SaveDataSets(dsMaster, dsDateWiseConsumption, dsFinishGoodsBookingDetail, dsConsumptionByCosting, dsItemScanChild, dsProductionSummary, dsInventoryReceive, dsInventoryReceiveDetail);
             }
             catch (Exception ex)
             {
