@@ -21126,6 +21126,29 @@ group by Id) O60 ON O60.Id=IV.Id
 										left join TRN.POGGRNMap pg on pg.PoId= po.Id
 			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
+
+				    ,PINo= STUFF((select distinct ','+PLC.PINo
+			                            FROM PurchaseLC PLC 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+					--,plc.LCDate LCOpeningDate
+					--,plc.ExpiryDate
+
+               ,LCOpeningDate= STUFF((select distinct ','+FORMAT(PLC.LCDate,'dd-MMM-yyyy')
+			                            FROM PurchaseLC PLC 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+			    ,ExpiryDate= STUFF((select distinct ','+format( PLC.ExpiryDate,'dd-MMM-yyyy')
+			                            FROM PurchaseLC PLC 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
 				 --,PLCAmount= STUFF((select distinct ','+PLC.Amount
 			  --                          FROM PurchaseLC PLC 
      --                                   LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
@@ -21186,7 +21209,7 @@ group by Id) O60 ON O60.Id=IV.Id
 					left join MasterLC ML on ML.Id=con.MasterLCId
 					--left join HKP.party Cus on cus.Id= con.CustomerId
 					
-                    where IR.CompanyGroupId = '"+companyGroupId+"' AND IR.CompanyId ='"+companyId+"' AND IR.PlantId='"+plantId+ @"'
+                    where IR.CompanyGroupId = '" + companyGroupId+"' AND IR.CompanyId ='"+companyId+"' AND IR.PlantId='"+plantId+ @"'
                     AND  IR.IsInvoice=0 
 					and GAM.PurchaseDocumentAcceptanceId is null
 	                AND IR.Id not in (select InventoryReceiveId from trn.Invoice where InventoryReceiveId<>'')
@@ -21351,6 +21374,29 @@ group by Id) O60 ON O60.Id=IV.Id
                                         LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
 										left join TRN.POGGRNMap pg on pg.PoId= po.Id
 			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+				    ,PINo= STUFF((select distinct ','+PLC.PINo
+			                            FROM PurchaseLC PLC 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+					--,plc.LCDate LCOpeningDate
+					--,plc.ExpiryDate
+
+               ,LCOpeningDate= STUFF((select distinct ','+FORMAT(PLC.LCDate,'dd-MMM-yyyy')
+			                            FROM PurchaseLC PLC 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+			    ,ExpiryDate= STUFF((select distinct ','+format( PLC.ExpiryDate,'dd-MMM-yyyy')
+			                            FROM PurchaseLC PLC 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.PurchaseLCId=PLC.Id	
+										left join TRN.POGGRNMap pg on pg.PoId= po.Id
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
 
 				 --,PLCAmount= STUFF((select distinct ','+PLC.Amount
 			  --                          FROM PurchaseLC PLC 

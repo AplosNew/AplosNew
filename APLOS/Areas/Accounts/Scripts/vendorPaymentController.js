@@ -146,6 +146,10 @@ function vendorPaymentController(bankService, accountService, cboService, common
             "Value": "CurrencyCode"
         },
         {
+            "Text": "Status",
+            "Value": "Status"
+        },
+        {
             "Text": "Amount",
             "Value": "Amount"
         }

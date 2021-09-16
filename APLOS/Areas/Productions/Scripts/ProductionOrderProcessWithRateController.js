@@ -14,7 +14,7 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
     $scope.modelNew = {
         ProductionEntityId: null,
         ProcessId: null,
-        SKUId: null,
+        ProductionOrderId: null,
     }
 
     $scope.entityList = [];
@@ -37,13 +37,15 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
         });
     };
     $scope.SKUList = [];
-    $scope.loadSKU = function () {
+    $scope.getMatrixValue = function () {
         $http({
             method: 'POST',
-            url: "Productions/ProductionOrderProcessWithRate/GetSKU",
-            data: { ProcessId: $scope.modelNew.ProcessId }
+            url: "Productions/ProductionOrderProcessWithRate/GetSKUMatrix",
+            data: { ProcessId: $scope.modelNew.ProcessId, ProductionOrderId: $scope.modelNew.ProductionOrderId, SkuId: $scope.SelectedProductionOrder.SKUId, Sequence: $scope.SelectedProductionOrder.Sequence }
         }).then(function successCallback(response) {
             $scope.SKUList = response.data;
+
+            $scope.FGSizeOrColor = $scope.SKUList[0].Char;
         });
     }
     $scope.ProductionOrderList = [];
@@ -74,20 +76,41 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             $scope.ShowDiv = true;
 
             $scope.SelectedProductionOrder = row;
+            $scope.modelNew.ProductionOrderId = $scope.SelectedProductionOrder.POId;
+            //$scope.modelNew.Sequence = $scope.SelectedProductionOrder.Sequence;
 
-            var eDialog = $("#SKUPopUp").data("ejDialog");
-            eDialog.open();
+            for (var i = 0; i < row.Charactaristics.length; i++) {
+                if ($scope.SelectedProductionOrder.SKUId == row.Charactaristics[i].Value) {
+                    $scope.SelectedProductionOrder.Sequence = row.Charactaristics[i].Sequence;
+                }
+            }
 
-            //if (data.IsExemption == true) {
-            //    $("#General").ejDialog("setTitle", data.SalaryHead );
-            //    eDialog.open();
-            //}
-            //else {
-            //    throw "Exemption Applicable is not checked for this Taxable Income";
-            //}
+            if ($scope.SelectedProductionOrder.Sequence == 2 || $scope.SelectedProductionOrder.Sequence == 1) {
+                //var eDialog = $("#firstPopup").data("ejDialog");
+                //eDialog.open();
+                angular.element(document.querySelector('#firstPopup')).modal('show');
+            }
+            else {
+                //var eDialog = $("#secondPopup").data("ejDialog");
+                //eDialog.open();
+                angular.element(document.querySelector('#secondPopup')).modal('show');
+            }
+            //var eDialog = $("#SKUPopUp").data("ejDialog");
+            //eDialog.open();
+
+            $scope.getMatrixValue();
+
         } catch (e) {
             ShowResult(e, "failure");
         }
 
+    };
+    $scope.closeCharPopUp = function () {
+        $scope.skuList = [];
+        $scope.firstSKUList = [];
+        $scope.salesOrderId = null;
+        angular.element(document.querySelector('#firstPopup')).modal('hide');
+        angular.element(document.querySelector('#secondPopup')).modal('hide');
+        angular.element(document.querySelector('#thirdPopup')).modal('hide');
     };
 }

@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Collections.Specialized;
 
 #endregion Using
 
@@ -183,7 +184,15 @@ namespace Library.MaterialManagement.Products
 							FirstCharacteristicsValueId = itemcolor.FirstCharacteristicsValueId,
 							SecondCharacteristicsValueId = itemcolor.SecondCharacteristicsValueId,
 							ThirdCharacteristicsValueId = itemcolor.ThirdCharacteristicsValueId,
-							RequisitionForQty = itemcolor.RequisitionForQty, 
+							RequisitionForQty = itemcolor.RequisitionForQty,
+							 MaterialMasterId = itemcolor.MaterialMasterId,
+							 ArticleId = itemcolor.ArticleId,
+							SalesOrderId = itemcolor.SalesOrderId,
+							OrderQty = itemcolor.OrderQty,
+							PlanOrderQty = itemcolor.PlanOrderQty,
+							Destination = itemcolor.Destination,
+							PONumber = itemcolor.PONumber,
+							PODate = itemcolor.PODate, 
 							ModelState = ModelState.Added
 						};
 						AuditService.AddedLog(SKUMapD);
@@ -806,7 +815,9 @@ public IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipTyp
                                  ,CheckedByStatus
                                  ,x.AuthorizedBy
                                  ,AuthorizedByStatus,SalesOrderId
-
+								  ,x.ProcessId,x.ProcessName
+								 ,x.CheckedById
+									,x.ApprovedById
                                  FROM
                                 (
                                     SELECT IRM.Id
@@ -827,7 +838,11 @@ public IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipTyp
                                     ,EI2.EmployeeName AuthorizedBy
                                     ,IRM.AuthorizedByStatus
 	                                ,RequestedQty,SalesOrderId
-                                ,RejectedQty
+								   ,RejectedQty
+									,map.ProcessId
+									,p.UserName ProcessName
+									,EI1.SystemId CheckedById
+									,EI2.SystemId ApprovedById
                                 FROM TRN.IssueRequestMaster IRM
                                 Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
                                 Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
@@ -846,6 +861,8 @@ public IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipTyp
 							  
 												group by  PDAMAP.IssueRequestMasterId
 									)PDA ON PDA.IssueRequestMasterId=IRM.Id
+								left join trn.IssueRequestMasterProcessMap map on map.IssueRequestMasterId=IRM.Id
+									left JOIn hkp.Process p On p.Id=map.ProcessId
                                 Where IRM.CheckedBy IS NOT NULL 
                                 AND IRM.CheckedByStatus='ForChecked' 
                                 AND IRM.AuthorizedByStatus IS NULL 
@@ -873,6 +890,10 @@ public IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipTyp
                                     ,IRM.AuthorizedByStatus
 	                                ,RequestedQty,SalesOrderId
                                 ,RejectedQty
+								,map.ProcessId
+									,p.UserName ProcessName
+								,EI1.SystemId CheckedById
+									,EI2.SystemId ApprovedById
                                 FROM TRN.IssueRequestMaster IRM
                                 Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
                                 Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
@@ -891,6 +912,8 @@ public IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipTyp
 							  
 												group by  PDAMAP.IssueRequestMasterId
 									)PDA ON PDA.IssueRequestMasterId=IRM.Id
+								left join trn.IssueRequestMasterProcessMap map on map.IssueRequestMasterId=IRM.Id
+									left JOIn hkp.Process p On p.Id=map.ProcessId
                                 Where  IRM.CheckedByStatus IS  NULL 
                                 AND IRM.AuthorizedByStatus ='For Approval' 
                                 AND IRM.IssueSlipType='InventorySlip' 
@@ -915,6 +938,10 @@ public IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipTyp
                                     ,IRM.AuthorizedByStatus
 	                                ,RequestedQty,SalesOrderId
                                 ,RejectedQty
+								,map.ProcessId
+									,p.UserName ProcessName
+								,EI1.SystemId CheckedById
+									,EI2.SystemId ApprovedById
                                 FROM TRN.IssueRequestMaster IRM
                                 Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
                                 Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
@@ -933,6 +960,8 @@ public IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipTyp
 							  
 												group by  PDAMAP.IssueRequestMasterId
 									)PDA ON PDA.IssueRequestMasterId=IRM.Id
+									left join trn.IssueRequestMasterProcessMap map on map.IssueRequestMasterId=IRM.Id
+									left JOIn hkp.Process p On p.Id=map.ProcessId
                                 Where  IRM.CheckedByStatus IS  NULL 
                                 AND IRM.AuthorizedByStatus IS  NULL
                                 AND IRM.IssueSlipType='InventorySlip' 
@@ -941,7 +970,8 @@ public IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipTyp
                                 Group by Id ,x.PreparedBy,x.AddedDate,x.CheckedBy,x.CheckedBy
                                  ,CheckedByStatus
                                  ,x.AuthorizedBy
-                                 ,AuthorizedByStatus,SalesOrderId";
+                                 ,AuthorizedByStatus,SalesOrderId ,x.ProcessId,x.ProcessName,x.CheckedById
+									,x.ApprovedById";
 			}
 			else if (IssueStatus == "HoldReject")
 			{
@@ -1741,11 +1771,11 @@ public IEnumerable<object> GetSavedPOList(string GRNId)
 	}
 }
 
-public GridModel IssueListById(GridParameter parameters, string Id)
+public IEnumerable<object> IssueListById(GridParameter parameters, string Id)
 {
 	try
 	{
-		parameters.CmdText = @"DECLARE @plantId VARCHAR(10)='" + Id + @"'; 
+		var sql = @"DECLARE @plantId VARCHAR(10)='" + Id + @"'; 
                                      Select 
                                     IR.Id,outIDR1.Id InventoryMaterialId
                                     ,CC.UserName AS CostCenterName
@@ -1808,7 +1838,10 @@ public GridModel IssueListById(GridParameter parameters, string Id)
                                     --,IR.CheckedByStatus
                                     --,IR.AuthorizedBy
                                     --,IR.AuthorizedByStatus
-                                    ,c.UserName CountryName, C.Id CountryId
+                                    ,c.UserName CountryName, C.Id CountryId,IR.TransactionUoMId
+									,ISNULL(GRNALLO.TransactionQty,0) TransactionQty
+						,Isnull(MMAU.BaseUOMFactor,0) BaseUOMFactor
+						,(ISNULL(GRNALLO.TransactionQty,0))	  TotalQty--* Isnull(MMAU.BaseUOMFactor,0)
                                     from trn.IssueRequest IR
                                     left Join [TRN].[MaterialRequsitionDetails] As MRD on MRD.Id=IR.REquisitionDetailId
                                     Left Join [TRN].[MaterialRequsitionMaster] As MRM On MRD.MaterialReqqusitionMasterId=MRM.Id
@@ -1862,12 +1895,56 @@ public GridModel IssueListById(GridParameter parameters, string Id)
 									LEFT JOIN HKP.Activity IA1 ON IA1.Id=IR.ExpenseActivityId
 									Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
                                     Left Join scs.country C On C.Id=Ir.CountryId
+									left join  trn.IssueRequestBOQMap  boqmAp on boqmAp.IssueRequestDetailId=IR.Id
+						           
+									left join (select a.SalesOrderId, b.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId,a.BaseUoMId
+														 from trn.GRNPORequisitionAllocation a
+														left join trn.POBOQMap b ON b.Id=a.POBOQMapId
+														LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
+															--where a.SalesOrderId='212160101' --and b.BOQDetailId='21223-25'
+														group by b.BOQDetailId,UOM.UserName,UOM.Id,a.SalesOrderId,a.BaseUoMId
+								) GRNALLO ON GRNALLO.BOQDetailId=boqmAp.BOQID
+
+								Left JOIN (Select a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId ,Sum(a.BaseUOMFactor) BaseUOMFactor 
+									from [MST].[MaterialMasterAlternativeUOM] a
+									left JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.AlternativeUOMId
+									--left join mst.MaterialMaster mm ON mm.Id=a.MaterialMasterId
+									Group by a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId
+									) AS MMAU ON MMAU.MaterialMasterId = IR.MaterialMasterId AND MMAU.AlternativeUOMId=TUoM.Id --And MMAU.BaseUOMId=BOQD.BaseUoMId AND MMAU.BaseUOMId=mm.BaseUOMId
+                      
 									where IR.IssueRequestMasterId='" + Id + "'";
 
 
 
-		return _sqlRepository.GetDifferentGridData(parameters);
-	}
+				//return _sqlRepository.GetDifferentGridData(parameters);
+				var Data = _sqlRepository.GetDataCollection(sql);
+
+				StringCollection strCol = new StringCollection();
+				string MaterialMasterList = "''";
+				for (int i = 0; i < Data.Count; i++)
+				{
+					if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
+						continue;
+					strCol.Add(Data[i]["MaterialMasterId"].ToString());
+					MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+
+				}
+
+				var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
+																	union
+																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
+																	) AS M
+																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
+																	 where m.Id in (" + MaterialMasterList + @")");
+
+				for (int i = 0; i < Data.Count; i++)
+				{
+					var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
+					Data[i]["uoMList"] = temp;
+				}
+
+				return Data;
+			}
 	catch (Exception ex)
 	{
 		throw new CustomException(ex.Message, ex,

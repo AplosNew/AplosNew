@@ -206,7 +206,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult GetOTManualReport(string From, string To, string Code, string PlantId, string EntityId, string DivisionId, string DepartmentId, string SectionId, string SubSectionId, string DesignationId, string APDEmpWorkDate)
         {
 

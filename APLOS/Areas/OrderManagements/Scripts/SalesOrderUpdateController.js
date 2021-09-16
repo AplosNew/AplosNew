@@ -237,16 +237,6 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         });
     };
 
-    //$scope.getAllEntities = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
-    //    }).then(function successCallback(response) {
-    //        $scope.entityList = response.data;
-    //        //$scope.GetResponsiblePersonList();
-    //    });
-    //}
-    //$scope.getAllEntities();
 
 
     $scope.getPlantConfigByPlant = function () {
@@ -784,6 +774,34 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         angular.element(document.querySelector('#commitmentPop')).modal('hide');
     }
 
+    //#region MasterOrderPopUp
+    $scope.MasterOrderList = [];
+
+    $scope.MasterOrderPopUp = function () {
+        $http.get('OrderManagements/SalesOrderUpdate/GetMasterOrderData')
+            .then(function (response) {
+                $scope.MasterOrderList = response.data;
+            });
+        angular.element(document.querySelector('#commitmentPop')).modal('show');
+    }
+
+    $scope.SetCommitment = function (args) {
+        var gridObj = $("#Grid").data("ejGrid");
+        $scope.data = gridObj.getSelectedRecords()[0];
+        $scope.fileNew.CommitmentId = $scope.data.Id;
+        angular.element(document.querySelector('#commitmentPop')).modal('hide');
+    }
+
+    $scope.CloseCommitment = function () {
+        angular.element(document.querySelector('#commitmentPop')).modal('hide');
+    }
+
+    //#Endregion
+
+
+
+
+
     function GetDepartmentPersonCbo() {
         $scope.personCboList = [];
         $http.get($scope.path + "GetDepartmentPersonCbo?plantId=" + $scope.fileNew.PlantId + '&partyAccountGroupId=' + $scope.fileNew.PartyAccountGroupId + '&partyId=' + $scope.fileNew.PartyId)
@@ -908,24 +926,6 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         $scope.getPopUpData();
     };
 
-    //$scope.selectDoubleClick = function (obj) {
-    //    if (baseService.valueCheckInList($scope.personList, 'OrderResponsibleDepartmentId', obj.OrderResponsibleDepartmentId))
-    //        return ShowResult(obj.Department + ' already taken.', '', 'popUpId');
-    //    $scope.personList.push({
-    //        Id: obj.Id
-    //        , MasterOrderId: $scope.fileNew
-    //        , CustomerDivisionId: obj.CustomerDivisionId
-    //        , OrderResponsibleDepartmentId: obj.OrderResponsibleDepartmentId
-    //        , Department: obj.Department
-    //        , OurRespnsiblePersonId: obj.OurRespnsiblePersonId
-    //        , EmployeeCode: obj.EmployeeCode
-    //        , EmployeeName: obj.EmployeeName
-    //        , PartyRespnsiblePersonId: obj.PartyRespnsiblePersonId
-    //        , PartyRespnsiblePerson: obj.PartyRespnsiblePerson
-    //    });
-    //    //GetDepartmentPersonCbo();
-    //    angular.element(document.querySelector('#popUpId')).modal('hide');
-    //};
 
     $scope.removeRowModal = function (ob, index) {
         try {

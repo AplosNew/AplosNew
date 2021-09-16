@@ -41,11 +41,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetSKU(string ProcessId)
+        public ActionResult GetSKUMatrix(string ProcessId,string ProductionOrderId,string SkuId,string Sequence)
         {
             try
             {                
-                return Json(R.GetSKU(ProcessId), JsonRequestBehavior.AllowGet);
+                return Json(R.GetSKU(ProcessId, ProductionOrderId, SkuId, Sequence), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
