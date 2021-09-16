@@ -232,8 +232,10 @@ function multipleIdCardController(commonMessage, $scope, $rootScope, baseService
         }
     };
     $scope.IsCurrentIssueDate = false;
+    $scope.downloadgriddataUrlPath = 'GridReports/PPTFileDownLoad';
     $scope.DownLoadIdCard = function () {
         try {
+            $scope.fileName = "IDCARD.pptx";
             var gridObj = $("#Grid").ejGrid("instance");
             var filtereddata = gridObj.getFilteredRecords();
             if (filtereddata.length == 0) {
@@ -251,28 +253,25 @@ function multipleIdCardController(commonMessage, $scope, $rootScope, baseService
             if ($scope.EmployeeListNew.length <= 0) {
                 throw "Select Employee.";
             }
-            var ec = "";
 
-            //for (var i = 0; i < $scope.EmployeeListNew.length; i++) {
-            //    for (var j = 0; j < $scope.EmployeeList.length; j++) {
-            //        if ($scope.EmployeeListNew[i] === $scope.EmployeeList[j].EmpSystemId) {
-            //            if (baseService.isUndefinedOrNull($scope.EmployeeList[i].EmployeeWorkTypeId)) {
-            //                if (baseService.isUndefinedOrNull(ec)) {
-            //                    ec = $scope.EmployeeList[i].EmployeeCode;
-            //                } else {
-            //                    ec += "," + $scope.EmployeeList[i].EmployeeCode;
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-
-           
-            if (!baseService.isUndefinedOrNull(ec)) {
-                throw "Input Employee Work Type for Employee Code: '" + ec + "'.";
-            }
-            var url = 'Employees/EmployeeIdCard/PrintMultipleIDCard?empId=' + $scope.EmployeeListNew + '&tempId=' + $scope.paraModel.tempId + '&issuDate=' + $scope.paraModel.IssueDate + '&dataList=' + $scope.dataList + '&IsCurrentIssueDate=' + $scope.IsCurrentIssueDate;
-            $rootScope.report(url);
+            $http({
+                method: 'POST',
+                url: 'Employees/EmployeeIdCard/GetPrintMultipleIDCard',
+                data: {
+                    'empId': $scope.EmployeeListNew
+                    , 'tempId': $scope.paraModel.tempId
+                    , 'issuDate': $scope.paraModel.IssueDate
+                    , 'dataList': $scope.dataList
+                    , 'IsCurrentIssueDate': $scope.IsCurrentIssueDate
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FileName=" + response.data.FileName);//downloadgriddataUrlPath
+                }
+            });
 
         } catch (e) {
             ShowResult(e, 'failure');

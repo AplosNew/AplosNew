@@ -8892,15 +8892,9 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
             try
             {
                 string CmdText = @"SELECT [CheckBoxSelect] = Convert(bit, 'True'), E.SystemId EmpSystemId
-                                    ,E.EmployeeCode
-                                    ,E.EmployeeName
-                                    ,LD.UserName Designation
-                                    ,DEPT.UserName AS Department
-                                    ,DV.UserName AS Division
-                                    ,SC.UserName AS Section
-                                    ,SS.UserName SubSection
-                                    ,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ
-                                    ,EC.UserName EmployeeCategory
+                                    ,E.EmployeeCode,E.EmployeeName,LD.UserName Designation,DEPT.UserName AS Department
+                                    ,DV.UserName AS Division,SC.UserName AS Section,SS.UserName SubSection
+                                    ,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ,EC.UserName EmployeeCategory
                                     ,E.EmployeeStatus,M.EmployeeWorkTypeId,WT.UserName AS EmployeeWorkType
                                     ,M.Sequence,FORMAT(M.IssueDate,'dd-MMM-yyyy') IssueDate,FORMAT(M.ExpiryDate,'dd-MMM-yyyy') ExpiryDate
                                 FROM EmployeeInformation E
@@ -8915,7 +8909,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
                                 LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
                                 LEFT JOIN [EmployeeIdCardIssue] M ON m.EmpSystemId=e.SystemId
-                                AND m.Id=(SELECT TOP 1 ID FROM [EmployeeIdCardIssue] EII WHERE EII.EmpSystemId=e.SystemId ORDER BY EII.Sequence DESC )
+                                AND M.Id=(SELECT TOP 1 ID FROM [EmployeeIdCardIssue] EII WHERE EII.EmpSystemId=e.SystemId ORDER BY EII.Sequence DESC )
                                 LEFT JOIN [dbo].[EmployeeWorkType] WT ON WT.Id=m.EmployeeWorkTypeId
                                 WHERE E.EmployeeStatus='Active' AND E.PlantId='" + plantId + "'";
                 return _sqlRepository.GetDataCollection(CmdText);
