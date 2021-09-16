@@ -82,9 +82,10 @@ namespace Library.MaterialManagement.InventoryManagements
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       WHERE SO.Id In('212160101','212160102','212160103') 
-					   --AND POD.ProductionOrderId = '21139' 					   
-					   ORDER BY MOI.MATERIALMASTERID,MOI.ArticleID";
+                       left  join trn.IssueRequestMasterSalesOrderMap map on map.SalesOrderId=SO.Id
+                       --WHERE SO.Id In('212160101','212160102','212160103') 
+					   --AND POD.ProductionOrderId = '21139' 
+					   WHERE map.IssueRequestMasterId='"+ IssueSlipId + "'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -221,12 +222,12 @@ namespace Library.MaterialManagement.InventoryManagements
 					,SKUMAP.ThirdCharacteristicsValueId ThirdCharacteristicsValueId
 					,TC.Id ThirdCharacteristicsId
 					,null Active
-					--,SO.Id SalesOrderId
-					--,SCS.Qty OrderQty	
-					--,SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlanOrderQty
-					--,D.UserName Destination
-					--,CPO.PONumber
-					--,CPO.PODate
+					,SKUMAP.SalesOrderId
+					,SKUMAP.OrderQty	
+					,SKUMAP.PlanOrderQty
+					,SKUMAP.Destination
+					,SKUMAP.PONumber
+					,SKUMAP.PODate
 					,SKUMAP.RequisitionForQty RequisitionForQty 
 				FROM trn.IssueRequestSKUMap SKUMAP
 				LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = SKUMAP.FirstCharacteristicsValueId
@@ -235,13 +236,13 @@ namespace Library.MaterialManagement.InventoryManagements
 				LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
 				LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
 				LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId
-				LEFT  JOIN MST.MaterialMaster MM ON MM.Id=v1.MaterialMasterId
-				LEFT JOIN mst.MaterialMasterArticle Article ON Article.MaterialMasterId=MM.Id
+				LEFT  JOIN MST.MaterialMaster MM ON MM.Id=SKUMAP.MaterialMasterId
+				LEFT JOIN mst.MaterialMasterArticle Article ON Article.Id=SKUMAP.ArticleId
 				--LEFT JOIN  trn.IssueRequestMasterSalesOrderMap IssueRequestMasterSalesOrderMap ON IssueRequestMasterSalesOrderMap.IssueRequestMasterId=SKUMAP.IssueRequestMasterId
 				--LEFT JOIN trn.SalesOrder SO ON SO.Id=IssueRequestMasterSalesOrderMap.SalesOrderId
 				--LEFT JOIN [MST].[Destination] AS D ON D.Id=SO.DestinationId
 				--LEFT JOIN [TRN].[CustomerPO] AS CPO ON CPO.Id=SO.CustomerPOId
-				where SKUMAP.IssueRequestMasterId='"+ IssueId + "'";
+				where SKUMAP.IssueRequestMasterId='" + IssueId + "'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)

@@ -165,28 +165,57 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
         $scope.getCboVoucherTypeAccountReceivableList();
     }
     $scope.Post = function () {
-        $http({
-            method: "POST",
-            url: $scope.postUrl,
-            data: {
-                "sales": $scope.modelNew,
-                "salesDetailVMList": $scope.newList,
-                "salesMaterialDetailGLList": $scope.masterOrderDetailList,
-                "salesServiceDetailGLList": $scope.masterOrderServiceDetailList
-            },
-            dataType: "JSON"
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, "failure");
-            }
-            else {
-                ShowResult(response.data.Message, "success");
-                $scope.getMasterOrderSalesPosted();
-                $scope.clear();
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.status.Message, "failure");
-        });
+        if ($scope.modelNew.SourceType !== 'Packing') {
+            $http({
+                method: "POST",
+                url: $scope.postUrl,
+                data: {
+                    "sales": $scope.modelNew,
+                    "salesDetailVMList": $scope.newList,
+                    "salesMaterialDetailGLList": $scope.masterOrderDetailList,
+                    "salesServiceDetailGLList": $scope.masterOrderServiceDetailList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.getMasterOrderSalesPosted();
+                    $scope.clear();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+        }
+        else {
+            $http({
+                method: "POST", 
+                url: 'SalesManagements/Sales/PostSalesPacking',
+                data: {
+                    "sales": $scope.modelNew,
+                    "salesDetailVMList": $scope.newList,
+                    "salesMaterialDetailGLList": $scope.masterOrderDetailList,
+                    "salesServiceDetailGLList": $scope.masterOrderServiceDetailList,
+                     "packing": $scope.modelPacking,
+                    "PackingDetailVMList": $scope.packingJournaldataList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.getMasterOrderSalesPosted();
+                    $scope.clear();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+        }
+       
         return true;
     };
 
@@ -350,7 +379,11 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
 
         //factoryService.getCurrencyPrecision(data.data.BaseCurrencyId);
         //GetCurrencyExchangeRateList();
-
+        $scope.modelNew.SourceType = x.data.SourceType;
+        if ($scope.modelNew.SourceType == 'Packing') {
+            $scope.packingJournal();
+            $scope.GetCboVoucherTypePackingJournalList();
+        }
         $scope.modelNew.PaymentTermId = x.data.PaymentTermId;
         $scope.modelNew.BaseNoOfDays = x.data.BaseNoOfDays;
         $scope.modelNew.BaseOnDueDate = x.data.BaseOnDueDate;
@@ -368,7 +401,7 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
                     $scope.IsBaseOnDueDateEnable = false;
                 }
             }
-            
+
         }
         $scope.getCboVoucherTypeAccountReceivableList();
         $scope.closeMOSlesPopUp();
@@ -390,10 +423,10 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
                 $scope.modelNew.BaseOnDueDate = $scope.modelNew.PostingDate;
                 $scope.IsBaseOnDueDateEnable = true;
             }
-                else {
-                    $scope.IsBaseOnDueDateEnable = false;
-                    $scope.modelNew.BaseOnDueDate = $scope.modelNew.DocDate;
-                }
+            else {
+                $scope.IsBaseOnDueDateEnable = false;
+                $scope.modelNew.BaseOnDueDate = $scope.modelNew.DocDate;
+            }
             $scope.getMatureDate($scope.modelNew.BaseOnDueDate, $scope.modelNew.BaseNoOfDays);
         }
     };
@@ -594,5 +627,24 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
         if (baseService.isUndefinedOrNull($scope.modelNew.Id)) return ShowResult('No Id found', 'failure');
         $window.open('SalesManagements/Sales/SalesReport?reportFormat=' + 'Pdf' + '&&salesId=' + $scope.modelNew.Id, '_blank');
     };
+    $scope.modelPacking = {};
+    $scope.packingVoucherTypeList = [];
+    $scope.GetCboVoucherTypePackingJournalList = function () {
+        cboService.getCboVoucherTypePackingJournalList(function (result) {
+            $scope.packingVoucherTypeList = result;
+            if ($scope.packingVoucherTypeList.length === 1) {
+                $scope.modelPacking.VoucherTypeId = $scope.packingVoucherTypeList[0].Value;
 
+            }
+        });
+    };
+
+    $scope.packingJournaldataList = [];
+    $scope.packingJournal = function () {
+        $scope.packingJournaldataList = [];
+        $http.get('SalesManagements/Sales/GetPackingJournal?salesId=' + $scope.modelNew.Id)
+            .then(function (response) {
+                $scope.packingJournaldataList = response.data;
+            });
+    }
 }
