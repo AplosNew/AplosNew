@@ -1610,7 +1610,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         [Authorize, HttpGet]
-        public ActionResult GetProductionOrderPOPUp()
+        public ActionResult GetMasterOrderData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -1653,9 +1653,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             LEFT JOIN hkp.OrderCategory AS oc ON oc.Id=a.OrderCategoryId
                             LEFT JOIN HKP.Buyer B ON B.Id=A.BuyerId
                             WHERE A.CompanyId='"+identity.CompanyId+@"'";
-
-
-
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
