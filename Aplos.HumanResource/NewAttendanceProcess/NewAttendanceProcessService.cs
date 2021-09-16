@@ -3749,6 +3749,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < PrevFinalDayStat.Tables[0].Rows.Count; i++)
                         {
+                            // Localizing Diff Flags on the Basis of Processed FinalDayStatus 
 
                             string EmpId = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                             string Result = clsWebLib.RetValidLen(PrevFinalDayStat.Tables[0].Rows[i][@"Result"]).ToString();
@@ -3760,7 +3761,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
-
+                                // Updations in APD Table 
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
                                 dr["ProcessFinalDayStatus"] = Result;
@@ -3769,6 +3770,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["DayTypeGoodWorkApplicable"] = Goodwork;
                                 if (AutoLock == "True")
                                 {
+                                    // Individual Lock
                                     dr["IsLock"] = true;
                                     dr["LockedDate"] = DateTime.Now;
                                     dr["LockedBy"] = "AutoLock";

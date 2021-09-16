@@ -29,6 +29,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             #region declare
             clsReport objRpt = null;
+            DataSetGenerationClass Gen = null;
             ReportUtility oru = new ReportUtility();
             DataSet dsBioDvAC = null;
             DataSet dsOnlyOt = null;
@@ -124,6 +125,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #endregion Validation
 
                 objRpt = new clsReport();
+
+                Gen = new DataSetGenerationClass();
+
 
                 dvPayDays = new DataView();
 
@@ -9945,6 +9949,11 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
 
+
+    }
+
+    public class DataSetGenerationClass
+    {
 
     }
 
