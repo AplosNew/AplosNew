@@ -1563,8 +1563,6 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	var SelectedMaterialInputdata = [];
 	$scope.SaveSlipIssue = function () {
-
-	
 		//if ($scope.materialStockList.length === 0) {
 		//	ShowResult('Please select Specific GRN');
 		//	return false;

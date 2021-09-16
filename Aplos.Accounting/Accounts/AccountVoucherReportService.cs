@@ -478,7 +478,7 @@ namespace Library.Accounting.Accounts
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='HardCurrency' AND CPC.CompanyId=@companyId
                         ) AS HC ON HC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " AND V.PostingDate < '" + fromDate.ToDbDate() + @"'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " AND V.PostingDate < '" + fromDate.ToDbDate() + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId, GC.CompanyGroupCurrencyId, HC.HardCurrencyId
                         UNION
                         SELECT SUM(VD.DrAmount) AS DrAmount, SUM(VD.CrAmount) AS CrAmount

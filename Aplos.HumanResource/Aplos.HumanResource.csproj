@@ -168,6 +168,7 @@
     <Compile Include="Attendance\DailyAttendanceReport.cs" />
     <Compile Include="Attendance\DownloadApi.cs" />
     <Compile Include="Leave\clsLeaveBalanceToDate.cs" />
+    <Compile Include="NewAttendanceProcess\NewAttdnAuditReportService.cs" />
     <Compile Include="NewAttendanceProcess\EmployeeBudgetUpdateService.cs" />
     <Compile Include="NewAttendanceProcess\AdminAttendanceControlService.cs" />
     <Compile Include="NewAttendanceProcess\NewAttdnDashboardService.cs" />

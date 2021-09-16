@@ -1123,6 +1123,7 @@ group by uom.Id --,mi.Id
 //group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.TotalQty,uom.Id ,mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id  
 // ";
 
+
                     sql = @"select mi.JobWorkTransformationContractChildMasterId JWTCMId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
 ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
@@ -1381,7 +1382,6 @@ where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
 group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.TotalQty,uom.Id ,mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity
 ,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id
 ,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty ";
-
                 }
 
                

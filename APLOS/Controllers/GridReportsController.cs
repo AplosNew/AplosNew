@@ -1,16 +1,15 @@
 ﻿using Aplos.Helpers;
-using Newtonsoft.Json;
 using Syncfusion.Pdf.Parsing;
+using Syncfusion.Presentation;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using System.Web;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web.Hosting;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -145,6 +144,54 @@ namespace Aplos.Controllers
             }
             return null;
         }
+        [HttpGet, Authorize]
+        public ActionResult DownloadPPT(string FileName)
+        {
+            try
+            {
+
+                ExcelEngine excelEngine = new ExcelEngine();
+                string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(fullPath);
+                try
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+                catch (Exception)
+                {
+                }
+
+                workbook.SaveAs(FileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return null;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult PPTFileDownLoad(string FileName)
+        {
+            string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+            IPresentation presentation = Presentation.Open(fullPath);
+            
+            try
+            {
+                System.IO.File.Delete(fullPath);
+            }
+            catch (Exception)
+            {
+            }
+
+            presentation.Save(FileName,FormatType.Pptx,System.Web.HttpContext.Current.Response);
+            return null;
+        }
+
+      
         [HttpGet, Authorize]
         public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
         {

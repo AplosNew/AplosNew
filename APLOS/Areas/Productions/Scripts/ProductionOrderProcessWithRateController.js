@@ -45,9 +45,32 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
         }).then(function successCallback(response) {
             $scope.SKUList = response.data;
 
-            $scope.FGSizeOrColor = $scope.SKUList[0].Char;
+            var Check = 0;
+            $scope.ColumnList = [];
+            for (var i = 0; i < $scope.SKUList.length; i++) {
+                if ($scope.ColumnList.length == 0) {
+                    Check = $scope.SKUList[i].FirstCharacteristicsValueId;
+                    $scope.ColumnList.push({ "ColorName": $scope.SKUList[i].CharValue1, "ColumnValue": $scope.SKUList[i].FirstCharacteristicsValueId, childList: [] });
+                }
+                else {
+                    if (Check != $scope.SKUList[i].FirstCharacteristicsValueId) {
+                        Check = $scope.SKUList[i].FirstCharacteristicsValueId;
+                        $scope.ColumnList.push({ "ColorName": $scope.SKUList[i].CharValue1, "ColumnValue": $scope.SKUList[i].FirstCharacteristicsValueId, childList: [] });
+                    }
+                }
+            }
+            for (var i = 0; i < $scope.ColumnList.length; i++) {
+                if ($scope.ColumnList[i].childList.length == 0) {
+                    for (var k = 0; k < $scope.SKUList.length; k++) {
+                        $scope.ColumnList[i].childList.push({ "SizeName": $scope.SKUList[k].CharValue2, "SizeValue": $scope.SKUList[k].SecondCharacteristicsValueId, "Rate": $scope.SKUList[k].Rate });
+                    }
+                }
+            }
+
+            $scope.FGSizeOrColor = $scope.SKUList[0].Char;            
         });
     }
+
     $scope.ProductionOrderList = [];
     $scope.getData = function () {
         try {
