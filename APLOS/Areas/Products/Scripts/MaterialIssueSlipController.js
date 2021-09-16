@@ -235,7 +235,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			var Article = "''";
 			var id1 = "''";
 			var queryString = "";
-			
+
 			var count = 0;
 			for (var i = 0; i < $scope.MaterialColorList.length; i++) {
 				if ($scope.MaterialColorList[i].Active === true) {
@@ -1368,7 +1368,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
 							}
-						
+
 						}
 
 					}
@@ -1582,7 +1582,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		$scope.inventoryMaterialList = [];
 		$http.get($scope.path + 'IssueListById?Id=' + inveReveiveId)
 			.then(function (response) {
-				$scope.FilterList123 = response.data.Rows;
+				$scope.FilterList123 = response.data;
 				//$scope.GLBudgetActivity = $scope.FilterList123[0].GLBudgetActivity;
 			});
 
@@ -1594,13 +1594,16 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 		$http.get($scope.path + 'GetSalesOrderInfobyIssueSlipId?IssueSlipId=' + inveReveiveId)
 			.then(function (response) {
-				$scope.SOListSelected = response.data;
+
 				$scope.ProductionOrderId = response.data[0].ProductionOrderId;
 
-
+				GetProductionOrderBYSalesOrder($scope.ProductionOrderId);
+				$scope.model.Id = $scope.ProductionOrderId;
+				GetProcessByProductionOrder();
+				$scope.SOListSelected = response.data;
 			});
 
-		GetProductionOrderBYSalesOrder($scope.ProductionOrderId);
+
 	}
 	$scope.modelList = [];
 	function GetProductionOrderBYSalesOrder(ProductionOrderId) {
@@ -1641,11 +1644,12 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 			GetIssueWiseSKU(Id);
 			/*GetProductionOrderBYSalesOrder($scope.ProductionOrderId);*/
-			$scope.model.Id = $scope.ProductionOrderId;
-			GetProcessByProductionOrder();
+			//$scope.model.Id = $scope.ProductionOrderId;
+			//GetProcessByProductionOrder();
 
 
 		}
+		$scope.productNew.ProcessId = x.data.ProcessId;
 		getInventoryMaterialList($scope.productNew.Id);
 		if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
 			$scope.CheckedByStatusForNoti = false;
@@ -2299,14 +2303,52 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
 	$scope.removeRowModal = function (ob, index) {
-		try {
 
-			$scope.FilterList123.splice(index, 1);
+		try {
+			if ($scope.Action1 === 'Save') {
+
+				$scope.FilterList123.splice(index, 1);
+			}
+			else {
+				$http({
+					method: 'POST'
+					, url: 'Products/GoodsReceiveNote/IssueSlipDelete?issueslipDetailId=' + ob.Id
+					, dataType: 'JSON'
+				}).then(function (response) {
+					if (response.data.Error === true)
+						ShowResult(response.data.Message, 'failure');
+					else
+						ShowResult(response.data.Message, 'success');
+					getInventoryMaterialList($scope.productNew.Id);
+				}), function (response) {
+					ShowResult(response.data.Message, 'failure');
+				};
+
+			}
 		}
 		catch (e) {
 			ShowResult(e, 'Error');
 		}
 	};
+
+	$scope.IssueSlipDeleteFn = function (ob, index) {
+
+		$http({
+			method: 'POST'
+			, url: 'Products/GoodsReceiveNote/IssueSlipDeleteAll?issueslipDetailId=' + $scope.productNew.Id
+		}).then(function (response) {
+			if (response.data.Error === true)
+				ShowResult(response.data.Message, 'failure');
+			else
+				ShowResult(response.data.Message, 'success');
+			getInventoryMaterialList($scope.productNew.Id);
+		}), function (response) {
+			ShowResult(response.data.Message, 'failure');
+		};
+
+		}
+
+	
 	$scope.removeRow = function () {
 		if (!baseService.isUndefinedOrNull($scope.delData.Id)) {
 			$http({
