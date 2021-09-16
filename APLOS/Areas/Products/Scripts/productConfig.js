@@ -326,7 +326,7 @@ function ProductConfig($routeProvider, $locationProvider) {
         })
       .when('/inventory-sales-Report', {
             templateUrl: 'Products/InventoryIssue/InventorySalesReport',
-            controller: 'inventorySalesController'
+          controller: 'inventorySalesRegisterController'
         })
         .when('/inventory-scrap', {
             templateUrl: 'Products/InventoryIssue/InventoryScrap',

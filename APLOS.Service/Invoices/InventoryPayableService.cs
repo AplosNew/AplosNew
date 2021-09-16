@@ -3525,7 +3525,7 @@ namespace Library.Service.Invoices
                 {
                     //var taxCategoryList = _purchaseDocAcceptanceServiceTaxRepository.Query(r => r.PurchaseDocAcceptanceId == voucherVM.Id).Select(r=>r.TaxCategoryId).ToList();
 
-                    var acceptanceTax = _purchaseDocAcceptanceServiceTaxRepository.Query(r => r.PurchaseDocAcceptanceId == voucherVM.Id).Select().ToList();
+                    var acceptanceTax = _purchaseDocAcceptanceServiceTaxRepository.Query(r => r.PurchaseDocAcceptanceId == voucherVM.Id && r.TaxAmount>0).Select().ToList();
                     var taxCategoryList = acceptanceTax.Select(t => t.TaxCategoryId).Distinct().ToArray();
                     if (acceptanceTax != null)
                     {

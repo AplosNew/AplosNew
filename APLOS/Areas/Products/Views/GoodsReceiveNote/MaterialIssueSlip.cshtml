@@ -635,10 +635,10 @@
 			</div>
 		</div>
 		<div class="clearfix"></div>
-		<div class="col-md-12 text-right" style="padding-top: 17px;" ng-show="FilterList123.length>0">
+		<div class="col-md-12 text-right" style="padding-top: 17px;" @*ng-show="FilterList123.length>0"*@>
 			<ul class="common-btn list-inline text-right">
 				<li> <button ng-click="detailSaveIssue();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action1}}</button></li>
-				@*<li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+				<li> <button ng-click="IssueSlipDeleteFn();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
 				<li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
 			</ul>
