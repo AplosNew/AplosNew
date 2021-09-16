@@ -4016,7 +4016,19 @@ UNION ALL
 		}
 
 
+		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+		public JsonResult IssueSlipDelete(string issueslipDetailId)  
+		{
+			_inventoryDetailService.IssueSlipDelete(issueslipDetailId);
+			return Json(new { Message = AplosMessage.Deleted });
+		}
 
+		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+		public JsonResult IssueSlipDeleteAll(string issueslipDetailId) 
+		{
+			_inventoryDetailService.IssueSlipDeleteFn(issueslipDetailId);
+			return Json(new { Message = AplosMessage.Deleted });
+		}
 
 	}//
 

@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using System;
 
 namespace Library.ViewModel.OrderManagements
 {
@@ -53,8 +54,12 @@ namespace Library.ViewModel.OrderManagements
 
         public decimal IssueRequestBOQMapQty { get; set; }
         public decimal AllocatedIssueSlipQty { get; set; }
-        
 
+        public decimal OrderQty { get; set; }
+        public decimal PlanOrderQty { get; set; }
+        public string Destination { get; set; }
+        public string PONumber { get; set; }
+        public DateTime PODate { get; set; }
 
     }
 }

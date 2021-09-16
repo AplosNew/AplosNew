@@ -754,7 +754,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	//#endregion 
 
 
-	#region report
+	//#region report
 	$scope.InventorySalesReportExcels = function (id, reportFormat) {
 
 		if ($scope.productNew.AsOnDate === 'AsOnDate') {
@@ -813,7 +813,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 
 	};
 
-	#endregion
+	//#endregion
 
 	//#region Material Tax
 	$scope.materialtaxCategoryListResFinal = [];

@@ -647,10 +647,10 @@
                                                 @*<td>{{x.TransactionQty}}  {{x.TransactionUoM}}</td>*@
                                                 <td class="text-right table-td">
                                                     <ul class="list-inline">
-                                                        <li><button @*ng-show="x.Id==null"*@ ng-click="getSpecificMaterialStockForSlipIssue(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Add GRN List"><i class="glyphicon glyphicon-list"></i></button></li>
+                                                        <li><button @*ng-show="x.Id==null"*@ ng-click="getSpecificMaterialStockForSlipIssue(x, $index);" ng-disabled="x.MaterialMasterArticleId==null" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Add GRN List"><i class="glyphicon glyphicon-list"></i></button></li>
                                                         @*<li><button ng-show="x.Id!=null" ng-click="getRequisitionList(x.Id);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Get Requisition List"><i class="glyphicon glyphicon-list"></i></button></li>*@
                                                         <li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-                                                        <li><button ng-click="stockwisestatus(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Material Storage Stock Wise Status"><i class="glyphicon glyphicon-list"></i></button></li>
+                                                        <li><button ng-click="stockwisestatus(x, $index)" class="btn btn-action tooltip-here" ng-disabled="x.MaterialMasterArticleId==null" tooltip data-placement="top" title="Material Storage Stock Wise Status"><i class="glyphicon glyphicon-list"></i></button></li>
                                                         @*<li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>*@
                                                     </ul>
                                                 </td>

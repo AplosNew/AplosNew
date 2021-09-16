@@ -144,93 +144,65 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body form-element-ctrl form-horizontal">
-                <div class="col-xs-12 col-sm-6 col-md-6 hide">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
-                        <div class="col-sm-8">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="char1.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                    <option value=""></option>
-                                </select>
+                @*<div class="col-xs-12 col-sm-6 col-md-6 hide">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="char1.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="2" name="Qty" ng-model="char1.Qty" class="form-control text-right">
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
-                        <div class="col-sm-8">
-                            <input type="text" n-decimals="2" name="Qty" ng-model="char1.Qty" class="form-control text-right">
+                    <div class="col-xs-12 col-sm-6 col-md-6 hide">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Value</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="ValueFreeText" ng-model="char1.ValueFreeText" maxlength="15" class="form-control">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-6 hide">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Value</label>
-                        <div class="col-sm-8">
-                            <input type="text" name="ValueFreeText" ng-model="char1.ValueFreeText" maxlength="15" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn hide" style="padding-right: 15px;">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="charSave();" class="btn"><i class=""></i> Save</button>
-                        </li>
-                        <li>
-                            <button ng-click="firstSkuClosePopUp();" class="btn">Close</button>
-                        </li>
-                        <li>
-                            <button ng-click="genericDelete(null, 'first');" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
-                        </li>
-                    </ul>
-                </div>
+                    <div class="common-btn hide" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li>
+                                <button ng-click="charSave();" class="btn"><i class=""></i> Save</button>
+                            </li>
+                            <li>
+                                <button ng-click="firstSkuClosePopUp();" class="btn">Close</button>
+                            </li>
+                            <li>
+                                <button ng-click="genericDelete(null, 'first');" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                            </li>
+                        </ul>
+                    </div>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>
-                                    {{char1.Name}}
+                                    {{FGSizeOrColor}}
                                 </th>
-                                <th>Value FreeText</th>
-                                <th>Quantity</th>
-                                <th></th>
+
+                                <th>Rate</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in firstSKUList">
+                            <tr ng-repeat="x in SKUList">
+
                                 <td>
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="x.CharacteristicsValueId" ng-change="verifyFirstSkuList()" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                            <option value=""></option>
-                                        </select>
-                                    </div>
+                                    {{x.CharValue}}
                                 </td>
-                                <td ng-class="{ 'has-error':x.isDuplicate == true, '':x.isDuplicate != true }">
+                                <td>
                                     <input type="text" name="ValueFreeText" ng-model="x.ValueFreeText" maxlength="15" class="form-control" ng-keyup="verifyFirstSkuList()" />
-
                                 </td>
-                                <td>
-                                    <input type="text" n-decimals="2" name="Qty" ng-model="x.Qty" maxlength="15" class="form-control text-right" />
-
-                                </td>
-                                <td class="text-right table-td">
-                                    <ul class="list-inline action-list">
-                                        <li class="hide">
-                                            <button ng-click="firstSkuEdit(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button>
-                                        </li>
-                                        <li>
-                                            <button ng-click="removeFirstSkuList(x.Id, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove" ng-disabled="firstSKUList.length <= 1"><i class="glyphicon glyphicon-remove"></i></button>
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <button ng-click="addFirstSkuList();" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add </button>
-                                </td>
-                                <td colspan="2" class="text-right">
-                                    <strong ng-show="firstSKUList.length > 0">Total = {{firstSKUList | sumByKey : 'Qty' | number }}</strong>
-                                </td>
-                                <td></td>
                             </tr>
                         </tbody>
                     </table>
@@ -242,7 +214,7 @@
                             <button ng-click="charSave(1);" class="btn"><i class=""></i> Save</button>
                         </li>
                         <li>
-                            <button ng-click="firstSkuClosePopUp();" class="btn">Close</button>
+                            <button ng-click="closeCharPopUp();" class="btn">Close</button>
                         </li>
                     </ul>
                 </div>
@@ -253,7 +225,6 @@
     </div>
 </div>
 <!-- #endregion First Characteristics -->
-
 <!-- #region Second Characteristics -->
 <div class="modal fade site-modal in" id="secondPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -318,7 +289,6 @@
     </div>
 </div>
 <!-- #endregion Second Characteristics -->
-
 <!-- #region Third Characteristics -->
 <div class="modal fade site-modal in" id="thirdPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

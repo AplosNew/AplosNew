@@ -36,16 +36,16 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             $scope.processList = result;
         });
     };
-    $scope.SKUList1 = [];
-    $scope.SKUList2 = [];
+    $scope.SKUList = [];
     $scope.getMatrixValue = function () {
         $http({
             method: 'POST',
             url: "Productions/ProductionOrderProcessWithRate/GetSKUMatrix",
-            data: { ProcessId: $scope.modelNew.ProcessId, ProductionOrderId: $scope.modelNew.ProductionOrderId, SkuId: $scope.SelectedProductionOrder.SkuId }
+            data: { ProcessId: $scope.modelNew.ProcessId, ProductionOrderId: $scope.modelNew.ProductionOrderId, SkuId: $scope.SelectedProductionOrder.SKUId, Sequence: $scope.SelectedProductionOrder.Sequence }
         }).then(function successCallback(response) {
-            $scope.SKUList1 = response.data;
-            $scope.SKUList2 = response.data;
+            $scope.SKUList = response.data;
+
+            $scope.FGSizeOrColor = $scope.SKUList[0].Char;
         });
     }
     $scope.ProductionOrderList = [];
@@ -77,22 +77,40 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
 
             $scope.SelectedProductionOrder = row;
             $scope.modelNew.ProductionOrderId = $scope.SelectedProductionOrder.POId;
-            
-            var eDialog = $("#SKUPopUp").data("ejDialog");
-            eDialog.open();
+            //$scope.modelNew.Sequence = $scope.SelectedProductionOrder.Sequence;
+
+            for (var i = 0; i < row.Charactaristics.length; i++) {
+                if ($scope.SelectedProductionOrder.SKUId == row.Charactaristics[i].Value) {
+                    $scope.SelectedProductionOrder.Sequence = row.Charactaristics[i].Sequence;
+                }
+            }
+
+            if ($scope.SelectedProductionOrder.Sequence == 2 || $scope.SelectedProductionOrder.Sequence == 1) {
+                //var eDialog = $("#firstPopup").data("ejDialog");
+                //eDialog.open();
+                angular.element(document.querySelector('#firstPopup')).modal('show');
+            }
+            else {
+                //var eDialog = $("#secondPopup").data("ejDialog");
+                //eDialog.open();
+                angular.element(document.querySelector('#secondPopup')).modal('show');
+            }
+            //var eDialog = $("#SKUPopUp").data("ejDialog");
+            //eDialog.open();
 
             $scope.getMatrixValue();
 
-            //if (data.IsExemption == true) {
-            //    $("#General").ejDialog("setTitle", data.SalaryHead );
-            //    eDialog.open();
-            //}
-            //else {
-            //    throw "Exemption Applicable is not checked for this Taxable Income";
-            //}
         } catch (e) {
             ShowResult(e, "failure");
         }
 
+    };
+    $scope.closeCharPopUp = function () {
+        $scope.skuList = [];
+        $scope.firstSKUList = [];
+        $scope.salesOrderId = null;
+        angular.element(document.querySelector('#firstPopup')).modal('hide');
+        angular.element(document.querySelector('#secondPopup')).modal('hide');
+        angular.element(document.querySelector('#thirdPopup')).modal('hide');
     };
 }
