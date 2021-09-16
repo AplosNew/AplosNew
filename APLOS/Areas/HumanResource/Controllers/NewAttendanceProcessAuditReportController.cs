@@ -1,6 +1,7 @@
 ﻿using Aplos.Controllers;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.Enums;
 using Library.Service.Employees;
 using Library.Service.Helpers;
@@ -24,15 +25,11 @@ namespace Aplos.Areas.HumanResource.Controllers
     {
         #region Constructor
 
-        private readonly IAttendanceManagementService _AttendanceManagementService;
-        private readonly IEmployeeProfileService _employeeProfileService;
         private readonly ISqlRepository _sqlRepository;
         public NewAttendanceProcessAuditReportController(
-              IAttendanceManagementService AttendanceManagementService, IEmployeeProfileService employeeProfileService, ISqlRepository R
+              ISqlRepository R
             )
         {
-            _AttendanceManagementService = AttendanceManagementService;
-            _employeeProfileService = employeeProfileService;
             _sqlRepository = R;
         }
 
@@ -55,9 +52,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
+
+                NewAttdnAuditReportService app = new NewAttdnAuditReportService();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = _AttendanceManagementService.GetManualOutTimeDateWiseReport(identity.Name, identity.PlantId, identity.CompanyId, identity.CompanyGroupId,identity.PlantName,FromDate,ToDate);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Attendance Audit Data";
+                IWorkbook workbook = app.GetManualOutTimeDateWiseReport(identity.Name, identity.PlantId, identity.CompanyId, identity.CompanyGroupId,identity.PlantName,FromDate,ToDate);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + " Attendance Audit Data";
                 switch (reportFormat)
                 {
                     case ReportFormat.Pdf:
