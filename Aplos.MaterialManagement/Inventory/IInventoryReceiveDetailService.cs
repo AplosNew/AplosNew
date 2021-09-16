@@ -28,5 +28,9 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetCheckedByAndApprovedBYForPurchaserReturn(string CheckedBy, string ApprovedBy);
         
         void JWInsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct);
+
+
+        void IssueSlipDelete(string receiveDetailId);
+        void IssueSlipDeleteFn(string receiveDetailId);
     }
 }
