@@ -919,7 +919,6 @@ var upanelApp = angular
     .controller("AttendanceDashboardController", AttendanceDashboardController)
     .controller("NewAttdnProcessLockController", NewAttdnProcessLockController)
     .controller("NewHRDashboardController", NewHRDashboardController)
-    .controller("GSTPayableReportController", GSTPayableReportController)
     .controller("OutsourceBillingPostController", OutsourceBillingPostController)
     .controller("ProductionOrderProcessWithRateController", ProductionOrderProcessWithRateController)
     .controller("entityWiseExpenseAndEarningController", entityWiseExpenseAndEarningController)
