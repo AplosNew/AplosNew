@@ -62,7 +62,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
             if (data.data.Id == $scope.employeeAttendance[i].Id &&
                 data.data.WorkDate == $scope.employeeAttendance[i].WorkDate) {
 
-               
+
                 $scope.A = i;
             }
 
@@ -152,21 +152,21 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
     $scope.selectedSinglemployee = {};
     $scope.getAllEmployee = function () {
 
-            Validation();
-            var eDialog = $("#dialogEmployeeSelect").data("ejDialog");
-            eDialog.open();
+        Validation();
+        var eDialog = $("#dialogEmployeeSelect").data("ejDialog");
+        eDialog.open();
 
-            $http({
-                method: "POST",
-                dataType: 'JSON',
-                data: { 'fromdate': $scope.FromDate, 'todate': $scope.ToDate, 'PlantId': $scope.ModelNew.PlantId },
-                url: $scope.path + 'getAllEmployees'
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'fromdate': $scope.FromDate, 'todate': $scope.ToDate, 'PlantId': $scope.ModelNew.PlantId },
+            url: $scope.path + 'getAllEmployees'
 
-            }).then(function successCallback(response) {
-                $scope.selectemployee = response.data;
+        }).then(function successCallback(response) {
+            $scope.selectemployee = response.data;
 
-            });
-        
+        });
+
     }
     $scope.employeeAttendanceBySingleDateSelection = [];
     function checkChangeemployee(e) {
@@ -454,9 +454,8 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
                     || nullrecorder($scope.employeeAttendance[i].InTime) != nullrecorder($scope.employeeAttendance[i].InTimeOriginal)
                     || nullrecorder($scope.employeeAttendance[i].OutDate) != nullrecorder($scope.employeeAttendance[i].OutDateOriginal)
                     || nullrecorder($scope.employeeAttendance[i].OutTime) != nullrecorder($scope.employeeAttendance[i].OutTimeOriginal)
-                    || nullrecorder($scope.employeeAttendance[i].DayStatus) !=nullrecorder($scope.employeeAttendance[i].DayStatusNew)
-                )
-                {
+                    || nullrecorder($scope.employeeAttendance[i].DayStatus) != nullrecorder($scope.employeeAttendance[i].DayStatusNew)
+                ) {
                     DataToBeSaved.push($scope.employeeAttendance[i]);
 
                 }
@@ -543,8 +542,8 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
             if (filteredRecords.length == 0) {
                 filteredRecords = $scope.employeeAttendanceBySingleDate
             }
-            for (var i = 0; i < filteredRecords.length; i++) {                
-                    filteredRecords[i].InTime = $scope.Intime;
+            for (var i = 0; i < filteredRecords.length; i++) {
+                filteredRecords[i].InTime = $scope.Intime;
             }
             $scope.employeeAttendanceBySingleDate = filteredRecords;
         } catch (e) {
@@ -582,7 +581,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
                     || nullrecorder($scope.employeeAttendanceBySingleDate[i].InTime) != nullrecorder($scope.employeeAttendanceBySingleDate[i].InTimeOriginal)
                     || nullrecorder($scope.employeeAttendanceBySingleDate[i].OutDate) != nullrecorder($scope.employeeAttendanceBySingleDate[i].OutDateOriginal)
                     || nullrecorder($scope.employeeAttendanceBySingleDate[i].OutTime) != nullrecorder($scope.employeeAttendanceBySingleDate[i].OutTimeOriginal)
-                    || nullrecorder($scope.employeeAttendanceBySingleDate[i].DayStatus) !=nullrecorder($scope.employeeAttendanceBySingleDate[i].DayStatusNew)
+                    || nullrecorder($scope.employeeAttendanceBySingleDate[i].DayStatus) != nullrecorder($scope.employeeAttendanceBySingleDate[i].DayStatusNew)
                 ) {
                     DataToBeSaved.push($scope.employeeAttendanceBySingleDate[i]);
                 }
@@ -618,7 +617,129 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
             }
 
         });
+    }
+    // For the Update Tab
+
+    $scope.UpPlantId = null;
+    $scope.UpFromDate = null;
+    $scope.UpToDate = null;
+
+    $scope.fileData = [];
+    $scope.GetSample = function () {
+        var reportFormat = "Excel";
+
+        if (angular.isUndefinedOrNull($scope.UpPlantId) || angular.isUndefinedOrNull($scope.UpFromDate) || angular.isUndefinedOrNull($scope.UpToDate)) {
+            ShowResult("Please Select Plant, From and To Date!!");
+            throw ("Invalid Request");
+        }
+
+        try {
+            window.open('humanresource/AdminAttendanceControl/GetSampleReport?reportFormat=' + reportFormat + '&PlId=' + $scope.UpPlantId + '&FD=' + $scope.UpFromDate + '&TD=' + $scope.UpToDate, '_blank');
+
+        } catch (e) {
+
+        }
+    }
 
 
+    $("#uploadFile").change(function () {
+        $scope.fileData = this.files[0];
+    });
+
+    $scope.ExcelUploadData = [];
+
+
+    //IMporting The Data From the Excel File
+
+    $scope.ModelNew = {
+        FileName: null
+    }
+
+
+    $scope.ImportData = function () {
+        try {
+            $scope.ExcelUploadData = [];
+            $scope.msg = "";
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.fileData.length == 0) {
+
+                throw ("Please Select A File!!");
+            }
+
+
+            var fileData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.fileData)) {
+                $scope.ModelNew.FileName = $scope.fileData.name;
+            }
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'ImportData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    fileData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.fileData) === false) {
+                        fileData.append('file', data.file);
+                    }
+                    return fileData;
+                },
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.fileData }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+
+                }
+
+                else {
+                    try {
+                        $scope.ExcelUploadData = response.data;
+                    }
+
+                    catch (e) {
+
+                        ShowResult(e, "failure");
+                    }
+
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+
+    //Save the File Data
+    $scope.saveFileList = function () {
+
+
+
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveFileList',
+            data: { 'data': $scope.ExcelUploadData, 'FD':$scope.UpFromDate , 'TD':$scope.UpToDate ,'PlId':$scope.UpPlantId }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                try {
+                    if ($rootScope.isCollapsed == true) {
+                        $rootScope.toggle();
+                    }
+                    //$scope.getCurrentFileList();
+                    ShowResult(response.data.Message, 'success')
+                }
+                catch (e) {
+
+                    ShowResult(e, "failure");
+                }
+            }
+        });
     }
 }
