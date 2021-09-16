@@ -3998,9 +3998,9 @@ namespace Aplos.Areas.Products.Controllers
 						,''ExpiryDate
 						,''BLAWBNo,''BLAWBDate
 						,''PaymentTerm,''BaseOnDueDate
-						,0NoOfDays
+						,0 NoOfDays
 					    ,''MatureDate
-						,0LCAmount
+						,0 LCAmount
 						,''ExFactoryDate
 						,''TransportAgent	
 						
@@ -4008,7 +4008,7 @@ namespace Aplos.Areas.Products.Controllers
 						,''CNFContainerNo
 						,''CNFVesselTrackingNo
 						,''OwnReferenceNo
-						,0RealizeAmount
+						,0 RealizeAmount
 					    ,''RealizeDate
 
 							--,0BalanceAmount
