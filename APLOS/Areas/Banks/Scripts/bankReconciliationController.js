@@ -184,10 +184,10 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
                         response.data[2].Col = "Instrument Received and Reconciled";
                         response.data[3].Col = "Add : Instrument Issued  But Not Yet Reconciled";
                         response.data[4].Col = "Less : Instrument received But Not Yet Reconciled";
-                        response.data[0].After = response.data[0].Before;
-                        response.data[3].After = response.data[3].Before;
-                        response.data[4].After = response.data[4].Before;
-                        response.data[5].After = (response.data[0].Before + response.data[3].Before) - response.data[4].Before;
+                        response.data[0].After = Math.round(response.data[0].Before * 10000 + Number.EPSILON) / 10000;
+                        response.data[3].After = Math.round(response.data[3].Before * 10000 + Number.EPSILON) / 10000;
+                        response.data[4].After = Math.round(response.data[4].Before * 10000 + Number.EPSILON) / 10000;
+                        response.data[5].After = Math.round((response.data[0].Before + response.data[3].Before - response.data[4].Before) * 10000 + Number.EPSILON) / 10000;
                         //$scope.bankReconciliationNew.ClosingBalance = response.data[5].After;
                         $scope.bnkReconList = response.data;
                         $scope.getIssuedReconList();
@@ -472,16 +472,16 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
 
     $scope.isReconciled = function (event, data, i, variable) {
         try {
-            var reconAmount = $scope.bnkReconList[i].ReconciledValue === "" ? 0 : parseFloat($scope.bnkReconList[i].ReconciledValue);
-            var afterAmount = $scope.bnkReconList[i].After === "" ? 0 : parseFloat($scope.bnkReconList[i].After);
+            var reconAmount = $scope.bnkReconList[i].ReconciledValue === "" ? 0 : Math.round(parseFloat($scope.bnkReconList[i].ReconciledValue) * 10000 + Number.EPSILON) / 10000;
+            var afterAmount = $scope.bnkReconList[i].After === "" ? 0 : Math.round(parseFloat($scope.bnkReconList[i].After) * 10000 + Number.EPSILON) / 10000;
             if (event.currentTarget.checked)
-                $scope.bnkReconList[i].ReconciledValue = reconAmount + parseFloat(data.Amount);
+                $scope.bnkReconList[i].ReconciledValue = reconAmount + Math.round(parseFloat(data.Amount) * 10000 + Number.EPSILON) / 10000;
             else
-                $scope.bnkReconList[i].ReconciledValue = reconAmount - parseFloat(data.Amount);
+                $scope.bnkReconList[i].ReconciledValue = reconAmount - Math.round(parseFloat(data.Amount) * 10000 + Number.EPSILON) / 10000;
             //if ($scope.bnkReconList[i].ReconciledValue === 0)
             //    $scope.bnkReconList[i].After = "";
             //else
-            $scope.bnkReconList[i].After = parseFloat($scope.bnkReconList[i].Before) - parseFloat($scope.bnkReconList[i].ReconciledValue);
+            $scope.bnkReconList[i].After = Math.round(parseFloat($scope.bnkReconList[i].Before) - parseFloat($scope.bnkReconList[i].ReconciledValue) * 10000 + Number.EPSILON) / 10000;
             $scope.bnkReconList[$scope.bnkReconList.length - 1].After = afterAmountCalculate($scope.bnkReconList);
             $scope[variable] = $scope.bnkReconList[i].ReconciledValue;
         } catch (e) {
@@ -492,12 +492,12 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
 
     function afterAmountCalculate(list) {
         try {
-            var afterAmount = list[0].After === "" ? 0 : parseFloat(list[0].After),
-                afterAmount1 = list[1].After === "" ? 0 : parseFloat(list[1].After),
-                afterAmount2 = list[2].After === "" ? 0 : parseFloat(list[2].After),
-                afterAmount3 = list[3].After === "" ? 0 : parseFloat(list[3].After),
-                afterAmount4 = list[4].After === "" ? 0 : parseFloat(list[4].After);
-            return afterAmount + (afterAmount1 + afterAmount2 + afterAmount3) - (afterAmount4);
+            var afterAmount = list[0].After === "" ? 0 : Math.round(parseFloat(list[0].After) * 10000 + Number.EPSILON) / 10000,
+                afterAmount1 = list[1].After === "" ? 0 : Math.round(parseFloat(list[1].After) * 10000 + Number.EPSILON) / 10000,
+                afterAmount2 = list[2].After === "" ? 0 : Math.round(parseFloat(list[2].After) * 10000 + Number.EPSILON) / 10000,
+                afterAmount3 = list[3].After === "" ? 0 : Math.round(parseFloat(list[3].After) * 10000 + Number.EPSILON) / 10000,
+                afterAmount4 = list[4].After === "" ? 0 : Math.round(parseFloat(list[4].After) * 10000 + Number.EPSILON) / 10000;
+            return Math.round((afterAmount + (afterAmount1 + afterAmount2 + afterAmount3) - (afterAmount4)) * 10000 + Number.EPSILON) / 10000;
         } catch (e) {
             ShowResult(e, "failure");
         }
