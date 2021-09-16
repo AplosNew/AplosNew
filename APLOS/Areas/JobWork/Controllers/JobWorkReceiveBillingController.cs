@@ -282,8 +282,6 @@ namespace Aplos.Areas.JobWork.Controllers
                     masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                     if (data != null)
                     {
-
-
                         foreach (var item in data)
                         {
                             DataView dv = new DataView(dsBills.Tables[0]);
