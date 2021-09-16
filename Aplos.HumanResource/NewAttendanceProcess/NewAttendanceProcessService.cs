@@ -3558,6 +3558,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     OverUnderStayPrevDay(PreviousDay, out PrevDayOT, PlantValue);
                     if (PrevDayOT.Tables[0].Rows.Count > 0)
                     {
+                        // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
                         string WorkDate = PrevDayOT.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
@@ -3579,16 +3580,18 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.BeginEdit();
                                 if (OverUnderStay > 0)
                                 {
+                                    // Extra Work After ShiftOTHours
                                     dr["OverStay"] = OverUnderStay;
                                     dr["UnderStay"] = 0;
                                 }
                                 else if (OverUnderStay == 0)
-                                {
+                                { 
                                     dr["OverStay"] = 0;
                                     dr["UnderStay"] = 0;
                                 }
                                 else
                                 {
+                                    // Less Work than ShiftOTHours
                                     dr["OverStay"] = 0;
                                     dr["UnderStay"] = OverUnderStay;
                                 }
@@ -3608,6 +3611,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     PrevDurationStatusCal(PreviousDay, out PrevDurationStat, PlantValue);
                     if (PrevDurationStat.Tables[0].Rows.Count > 0)
                     {
+                        // Duration Staus on the Basis of Duration of Work of Employee
                         string WorkDate = PrevDurationStat.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
@@ -3629,6 +3633,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
+                                // In & Out Both Present
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
                                 if (Duration.ToString() != "" &&
@@ -3638,23 +3643,24 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     if (Convert.ToDouble(Duration) >= Convert.ToDouble(FullDayDuration))
                                     {
-                                        dr["DurationStatus"] = "FD";
+                                        dr["DurationStatus"] = "FD"; // Full Day
                                     }
                                     else if (Convert.ToDouble(Duration) >= Convert.ToDouble(HalfDayDuration))
                                     {
-                                        dr["DurationStatus"] = "HD";
+                                        dr["DurationStatus"] = "HD"; // Half Day
                                     }
                                     else if (Convert.ToDouble(Duration) >= Convert.ToDouble(ShortDuration))
                                     {
-                                        dr["DurationStatus"] = "SD";
+                                        dr["DurationStatus"] = "SD"; // Short Day
                                     }
                                     else if (Convert.ToDouble(Duration) < Convert.ToDouble(ShortDuration))
                                     {
-                                        dr["DurationStatus"] = "A";
+                                        dr["DurationStatus"] = "A"; // Absent
                                     }
                                 }
                                 else
                                 {
+                                    // Missing In : Out
                                     if (In.ToString() == "" &&
                                          Out.ToString() == "")
                                     {
@@ -3686,7 +3692,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
 
                     #region Previous Day Status Code              
-                    PrevDayStatusCodeData(PreviousDay, PlantValue);
+                    PrevDayStatusCodeData(PreviousDay, PlantValue); // DayStausCode Text Join 
+                    //HolidayStatus + WeeklyStatus + DurationStatus + EarlyLateIn + EarlyLateOut + LeaveStatus
                     #endregion
 
                     #region Prev User Day Status 
@@ -5141,7 +5148,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #endregion
 
                 #region Manual Day Status Code              
-                ManualDayStatusCodeData(PlantValue);
+                ManualDayStatusCodeData(PlantValue); 
+                // DayStausCode Text Join 
+                //HolidayStatus + WeeklyStatus + DurationStatus + EarlyLateIn + EarlyLateOut + LeaveStatus
                 #endregion
 
                 #region Manual User Day Status 
