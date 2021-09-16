@@ -4578,8 +4578,110 @@ namespace Library.MaterialManagement.Inventory
 
 		#endregion
 
+		public void IssueSlipDelete(string IssueslipDEtailId)  
+		{
+			var flag = false;
+			try
+			{
 
+				_unitOfWork.BeginTransaction();
+				flag = true;
+				var rdBuilder = new System.Text.StringBuilder();
+				var builderSql = "";
+				flag = true;
 
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				builderSql = @"delete from trn.IssueRequestBOQMap where IssueRequestDetailId='" + IssueslipDEtailId + "'";
+				rdBuilder.Append(builderSql);
+				//_sqlRepository.GetDataCollection(sql);
+				builderSql = @"delete from trn.IssueRequest where Id='" + IssueslipDEtailId + "'";
+				rdBuilder.Append(builderSql);
+				//_sqlRepository.GetDataCollection(sql1);
+
+				//var invMaterial = _PurchaseReturnDetailRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + InventoryMaterial + "'").FirstOrDefault();
+				//var sql2 = @"UPDATE [TRN].[InventoryReceiveDetail] SET PurchaseReturnQty='" + Convert.ToDecimal(0.00) + @"' WHERE Id = '" + inventoryReceiveDetailId + "'";
+
+				//_sqlRepository.GetDataCollection(sql2);
+				////var invRcved = _receiveDetailRepository.SqlQuery<InventoryReceiveDetail>(@"SELECT * FROM [TRN].[InventoryReceiveDetail] WHERE Id='" + inventoryReceiveDetailId + "'").FirstOrDefault();
+
+				//var sql3 = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal((invMaterial.TotalQty - Trasantionqty)) + "' WHERE Id='" + InventoryMaterial + "'";
+				//_sqlRepository.GetDataCollection(sql3);
+				_unitOfWork.SaveChanges();
+				_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+
+				flag = false;
+				_unitOfWork.Commit();
+
+			}
+			catch (CustomException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+				Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+				 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+			finally
+			{
+				if (flag)
+				{
+					_unitOfWork.Rollback();
+				}
+			}
+		}
+		public void IssueSlipDeleteFn(string IssueslipDEtailId) 
+		{
+			var flag = false;
+			try
+			{
+
+				_unitOfWork.BeginTransaction();
+				flag = true;
+				var rdBuilder = new System.Text.StringBuilder();
+				var builderSql = "";
+				flag = true;
+
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				builderSql = @"Delete from trn.IssueRequestSKUMap where IssueRequestMasterId='" + IssueslipDEtailId + "'";
+				rdBuilder.Append(builderSql);
+				//_sqlRepository.GetDataCollection(sql);
+				builderSql = @"Delete from trn.IssueRequestMasterSalesOrderMap where IssueRequestMasterId='" + IssueslipDEtailId + "'";
+				rdBuilder.Append(builderSql);
+
+				builderSql = @"Delete from trn.IssueRequestMasterProcessMap where IssueRequestMasterId='" + IssueslipDEtailId + "'";
+				rdBuilder.Append(builderSql);
+
+				builderSql = @"Delete from trn.IssueRequestMaster where Id='" + IssueslipDEtailId + "'";
+				rdBuilder.Append(builderSql);
+
+				
+				_unitOfWork.SaveChanges();
+				_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+
+				flag = false;
+				_unitOfWork.Commit();
+
+			}
+			catch (CustomException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+				Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+				 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+			finally
+			{
+				if (flag)
+				{
+					_unitOfWork.Rollback();
+				}
+			}
+		}
 
 	}
 }
