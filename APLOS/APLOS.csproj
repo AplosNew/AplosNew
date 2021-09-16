@@ -534,6 +534,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\NewAttendanceProcessAuditReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\NewAttdnProcessLockController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataEntityWiseNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataManualStatusNewController.cs" />
@@ -1789,6 +1790,7 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\NewAttendanceProcessAuditReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\NewAttdnProcessLockController.js" />
     <Content Include="Areas\HumanResource\Scripts\ArrearProcessedTotalReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataEntityWiseNewController.js" />
@@ -3692,6 +3694,7 @@
     <Content Include="Areas\Accounts\Views\PostInvoice\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\NewAttendanceProcessPlantWise\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\EntityWiseExpenseAndEarning.cshtml" />
+    <Content Include="Areas\HumanResource\Views\NewAttendanceProcessAuditReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
