@@ -61,7 +61,7 @@
                         <div e-column e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
                         <div e-column e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
                         <div e-column e-template="#SKU" e-headertext="SKU" e-width="100"></div>
-                        <div e-column e-template="#Rate" e-headertext="Rate" e-width="100"></div>
+                        @*<div e-column e-template="#Rate" e-headertext="Rate" e-width="100"></div>*@
                         <div e-column e-template="#ButtonSD" e-width="100"></div>
                     </div>
                 </div>
@@ -133,3 +133,230 @@
 </ej-dialog>
 
 <confirm-modal></confirm-modal>
+
+
+<!-- #region First Characteristics -->
+<div class="modal fade site-modal in" id="firstPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                SKU
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body form-element-ctrl form-horizontal">
+                @*<div class="col-xs-12 col-sm-6 col-md-6 hide">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="char1.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="2" name="Qty" ng-model="char1.Qty" class="form-control text-right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 hide">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Value</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="ValueFreeText" ng-model="char1.ValueFreeText" maxlength="15" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn hide" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li>
+                                <button ng-click="charSave();" class="btn"><i class=""></i> Save</button>
+                            </li>
+                            <li>
+                                <button ng-click="firstSkuClosePopUp();" class="btn">Close</button>
+                            </li>
+                            <li>
+                                <button ng-click="genericDelete(null, 'first');" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                            </li>
+                        </ul>
+                    </div>*@
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    {{FGSizeOrColor}}
+                                </th>
+
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in SKUList">
+
+                                <td>
+                                    {{x.CharValue}}
+                                </td>
+                                <td>
+                                    <input type="text" name="ValueFreeText" ng-model="x.ValueFreeText" maxlength="15" class="form-control" ng-keyup="verifyFirstSkuList()" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="charSave(1);" class="btn"><i class=""></i> Save</button>
+                        </li>
+                        <li>
+                            <button ng-click="closeCharPopUp();" class="btn">Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+<!-- #endregion First Characteristics -->
+<!-- #region Second Characteristics -->
+<div class="modal fade site-modal in" id="secondPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                SKU
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-body">
+                    <div class="form-elements form-horizontal table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>{{rowName}}</th>
+                                    <th ng-repeat="x in skuList[0].childList">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
+                                                    ng-change="chvChange(x.CharacteristicsValueId, $index);">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index);" class="form-control" maxlength="15">
+                                        </div>
+                                    </th>
+                                    <th ng-click="addSkuMatrixColumn()"> Add sku Column </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in skuList">
+                                    <td>
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <input type="text" ng-model="x.ValueFreeText" class="form-control" maxlength="15">
+                                        </div>
+                                    </td>
+                                    <td ng-repeat="y in x.childList">
+                                        <input type="text" only-numbers ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="charSave();" class="btn"><i class=""></i> Save</button>
+                        </li>
+                        <li>
+                            <button ng-click="closeCharPopUp();" class="btn">Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion Second Characteristics -->
+<!-- #region Third Characteristics -->
+<div class="modal fade site-modal in" id="thirdPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                SKU
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select name="Order Status" class="form-control" ng-model="char1.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{rowName}}</th>
+                            <th ng-repeat="x in skuList[0].childList">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char3.Id }:true"
+                                            ng-change="chvChange(x.CharacteristicsValueId, $index);">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index);" class="form-control" maxlength="15">
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in skuList">
+                            <td>
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input type="text" ng-model="x.ValueFreeText" class="form-control" maxlength="15">
+                                </div>
+                            </td>
+                            <td ng-repeat="y in x.childList">
+                                <input type="text" only-numbers ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="charSave();" class="btn"><i class=""></i> Save</button>
+                        </li>
+                        <li>
+                            <button ng-click="closeCharPopUp();" class="btn">Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion Third Characteristics -->

@@ -292,15 +292,15 @@ namespace OTSBD
                                     SUM(ISNULL(CAST(TotalLate As decimal(18, 2)), '0.00')) TotalLate, 
 		                            SUM(ISNULL(CAST(TotalAbsent As decimal(18, 2)), '0.00')) TotalAbsent, 
                                     SUM(ISNULL(CAST(TotalLv As decimal(18, 2)), '0.00')) TotalLv, 
-		                            SUM(ISNULL(TotalMLv,0)) TotalMLv, 
-                                    SUM(ISNULL(TotalWeekOff,0)) TotalWeekOff, 
-                                    SUM(ISNULL(TotalCompAssignLv,0))  TotalCompAssignLv,
-		                            SUM(ISNULL(TotalHoliDay,0)) TotalHoliDay, 
-                                    SUM(ISNULL(TotalWeekOffHoliDay,0)) TotalWeekOffHoliDay,
+		                            SUM(ISNULL(CAST(TotalMLv As decimal(18, 2)),'0.00')) TotalMLv, 
+                                    SUM(ISNULL(CAST(TotalWeekOff As decimal(18, 2)),'0.00')) TotalWeekOff, 
+                                    SUM(ISNULL(CAST(TotalCompAssignLv As decimal(18, 2)),'0.00'))  TotalCompAssignLv,
+		                            SUM(ISNULL(CAST(TotalHoliDay As decimal(18, 2)),'0.00')) TotalHoliDay, 
+                                    SUM(ISNULL(CAST(TotalWeekOffHoliDay As decimal(18, 2)),'0.00')) TotalWeekOffHoliDay,
                                     SUM(ISNULL(CAST(OTHr As decimal(18, 2)), '0.00')) TotalOTHr, 
                                     0.00 TotalNormalOTHr, 
                                     0.00 TotalExtraOTHr, 
-                                    SUM(ISNULL(TotalLWP, 0)) TotalLWP   
+                                    SUM(ISNULL(CAST(TotalLWP As decimal(18, 2)), '0.00')) TotalLWP   
                             FROM (SELECT EmpSystemID, WorkDate, 
 			                             " + ob.GetAttSum() + @"
                                         OTHr

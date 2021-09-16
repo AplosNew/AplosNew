@@ -1,7 +1,7 @@
 ﻿'use strict';
 inventorySalesController.$inject = ['accountService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
 function inventorySalesController(accountService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-	$rootScope.title = "Inventory Sales";
+	$rootScope.title = "Inventory Sales Register";
 	$scope.Action = 'Save';
 	$scope.index = -1;
 	$scope.products = [];
@@ -13,10 +13,10 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$scope.UnApprovedStockList = [];
 	$scope.ApprovedStockList = [];
 
-	$scope.tax = {		
+	$scope.tax = {
 		IncludingTax: true
 	};
-	
+
 	$scope.partyType = "Customer";
 	$scope.path1 = 'Products/PurchaseOrder/';
 	$scope.path = 'Products/InventoryIssue/';
@@ -62,7 +62,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 
 	};
 	//$scope.getdataInventorySales();
-	
+
 	//#region Index Tab
 	$scope.tab = 1;
 	$scope.tabType = 1;
@@ -754,7 +754,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	//#endregion 
 
 
-	//#region report
+	#region report
 	$scope.InventorySalesReportExcels = function (id, reportFormat) {
 
 		if ($scope.productNew.AsOnDate === 'AsOnDate') {
@@ -763,24 +763,6 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				ShowResult('Select To Date', 'failure');
 				return false;
 			}
-			//if ($scope.productNew.Qty) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = '';
-			//}
-			//if ($scope.productNew.Amount) {
-			//	$scope.choice2 = 'Amount';
-			//	$scope.choice1 = '';
-			//}
-			//if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = 'Amount';
-			//}
-			//if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-			//	ShowResult('Select Qty OR Amount', 'failure');
-			//	return false;
-			//}
-
-
 
 		}
 		else {
@@ -793,12 +775,12 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				ShowResult('Select To Date', 'failure');
 				return false;
 			}
-		
+
 
 		}
 
 		var reportFormat = "Excel";
-		//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
+		if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
 		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery + '&WithTax=' + $scope.tax.IncludingTax);
 	};
 
@@ -811,24 +793,6 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				return false;
 			}
 
-
-			//if ($scope.productNew.Qty) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = '';
-			//}
-			//if ($scope.productNew.Amount) {
-			//	$scope.choice1 = '';
-			//	$scope.choice2 = 'Amount';
-			//}
-			//if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = 'Amount';
-			//}
-			//if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-			//	ShowResult('Select Qty OR Amount', 'failure');
-			//	return false;
-			//}
-
 		}
 		else {
 
@@ -840,36 +804,16 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				ShowResult('Select To Date', 'failure');
 				return false;
 			}
-			//if ($scope.productNew.RcptIssue != true) {
-			//    ShowResult('Select With Receipts & Issue', 'failure');
-			//    return false;
-			//}
-			//if ($scope.productNew.Qty) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = '';
-			//}
-			//if ($scope.productNew.Amount) {
-			//	$scope.choice2 = 'Amount';
-			//	$scope.choice1 = '';
-			//}
-			//if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-			//	$scope.choice1 = 'Qty';
-			//	$scope.choice2 = 'Amount';
-			//}
-			//if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-			//	ShowResult('Select Qty OR Amount', 'failure');
-			//	return false;
-			//}
 		}
 
 
 		var reportFormat = "Pdf";
-		//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
+		if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
 		$window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summery=' + $scope.productNew.Summery + '&WithTax=' + $scope.tax.IncludingTax);
 
 	};
 
-	//#endregion
+	#endregion
 
 	//#region Material Tax
 	$scope.materialtaxCategoryListResFinal = [];
@@ -984,7 +928,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		//debugger;
 		$scope.index = index;
 		$scope.selectedRowQty = data.TransactionQty;
-		
+
 		$http({
 			method: 'POST'
 			, url: $scope.path + 'GetSpecificMaterialStock'
@@ -1219,7 +1163,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 			ShowResult("Enter the Doc Date", 'failure');
 			return false;
 		}
-		
+
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;	
 		$scope.productNew.CustomerId = $scope.productNew.PartyId;
@@ -1835,7 +1779,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 						if ($scope.materialtaxCategoryListRes[i].Id === $scope.TaxIdDeletefromList) {
 							//$scope.materialtaxCategoryListRes.splice($scope.materialtaxCategoryList[i].Id);
 							$scope.materialtaxCategoryListRes.splice($scope.materialtaxCategoryListRes[i].Id);
-							
+
 							//$scope.specificStockList.splice(i, 1);
 						}
 					}

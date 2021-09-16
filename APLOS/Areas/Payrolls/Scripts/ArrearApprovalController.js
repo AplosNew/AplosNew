@@ -37,14 +37,14 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
         try {
 
             var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
-            var _selectedBatch = DropDownListYear.getSelectedValue();
+            $scope.SelectedArrearProcessBatchId = DropDownListYear.getSelectedValue();
+         
 
-
-            if (baseService.isUndefinedOrNull(_selectedBatch)) {
+            if (baseService.isUndefinedOrNull($scope.SelectedArrearProcessBatchId)) {
                 throw 'Please select batch';
             }
 
-            var parameters = { 'batchId': _selectedBatch };
+            var parameters = { 'batchId': $scope.SelectedArrearProcessBatchId };
             $http({
                 method: "POST",
                 dataType: 'JSON',
@@ -88,8 +88,8 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
 
         try {
 
-            var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
-            var _selectedBatch = DropDownListYear.getSelectedValue();
+          
+            var _selectedBatch = $scope.SelectedArrearProcessBatchId;
 
 
             if (baseService.isUndefinedOrNull(_selectedBatch)) {
@@ -110,33 +110,37 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
         }
     }
 
+    $scope.clearScreen = function () {
+        $scope.EmployeeListApproved = [];
+        $scope.EmployeeListUnApproved = [];
+        $scope.SelectedArrearProcessBatchId = null;
+    }
 
-
-    $scope.deleteArrear = function (EmpSystemID) {
-
-
+    $scope.SelectedEmployeeForDeleteion = '';
+    $scope.DeleteEmployee = function () {
         try {
 
-            var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
-            var _selectedBatch = DropDownListYear.getSelectedValue();
-
-
-            if (baseService.isUndefinedOrNull(_selectedBatch)) {
+            if (baseService.isUndefinedOrNull($scope.SelectedArrearProcessBatchId)) {
                 throw 'Please select batch';
             }
-
 
             $http({
                 method: "POST",
                 dataType: 'JSON',
                 url: $scope.path + 'DeleteEmployeeArrear',
-                data: { EmployeeSystemId: EmpSystemID, ArrearProcessBatchId: _selectedBatch }
+                data: { EmployeeSystemId: $scope.SelectedEmployeeForDeleteion, ArrearProcessBatchId: $scope.SelectedArrearProcessBatchId }
             }).then(function successCallback(response) {
                 $scope.GetEmployeeInformation();
             });
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    }
+    $scope.deleteArrear = function (EmpSystemID) {
+
+        $scope.SelectedEmployeeForDeleteion = EmpSystemID;
+        $rootScope.openPopupAngular('confirmDelete');
+        
 
     }
 
