@@ -3982,34 +3982,34 @@ namespace Aplos.Areas.Products.Controllers
 								,'' Posted
 								,'' 'NoteForAccounts'
 
-								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
-		,''ContainerNo ,''TransporterName,''TransportDocRefNo 
-								,''TransportDocDate,''AgentName
-								,''AgentCommission
-								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,''ContractNo
-								,''MasterLcNo
-								,''ComercialInvoiceNo
-								,''ExpiryDate
-								,''BLAWBNo,''BLAWBDate
-								,''PaymentTerm,''BaseOnDueDate
-								,0 NoOfDays
-							    ,''MatureDate
-								,0 LCAmount
-								,''ExFactoryDate
-								,''TransportAgent	
-
-								,''CNFAgent
-								,''CNFContainerNo
-								,''CNFVesselTrackingNo
-								,''OwnReferenceNo
-								,0RealizeAmount
-							    ,''RealizeDate
+						,round(isnull(TAxInfo.TaxAmount,0),2)  CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+						,''TransportDocDate,''AgentName
+						,''AgentCommission
+						,'' Insurance
+,''GrossWeight,''LoTNo
+,''ContractNo
+						,''MasterLcNo
+						,''ComercialInvoiceNo
+						,''ExpiryDate
+						,''BLAWBNo,''BLAWBDate
+						,''PaymentTerm,''BaseOnDueDate
+						,0NoOfDays
+					    ,''MatureDate
+						,0LCAmount
+						,''ExFactoryDate
+						,''TransportAgent	
+						
+						,''CNFAgent
+						,''CNFContainerNo
+						,''CNFVesselTrackingNo
+						,''OwnReferenceNo
+						,0RealizeAmount
+					    ,''RealizeDate
 
 							--,0BalanceAmount
 						from trn.InventoryService AS ISS
@@ -5369,7 +5369,6 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			//Start EmployeeAdvanceDueList
 			try
 			{
-
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 				ExcelEngine excelEngine = new ExcelEngine();
