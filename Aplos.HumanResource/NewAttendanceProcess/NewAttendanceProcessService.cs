@@ -3096,7 +3096,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             { 
-                // 1 :- OverStay 2:- Duration 3:- OverStay-EarlyIn
+                // 1 :- On OverStay 2:- On Duration 3:- On (OverStay-EarlyIn)
                 var sql = @"select distinct p.EmpSystemID,
                 format(p.WorkDate,'yyyy-MMM-dd')WorkDate,Result=
                 case when p.DayTypeOTApplicable='1' then 
@@ -3701,6 +3701,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     PrevDayStatus(PreviousDay, out PrevUserDayStat, PlantValue);
                     if (PrevUserDayStat.Tables[0].Rows.Count > 0)
                     {
+                        // ProcessDayStatus Generation from DayStausCode using DaytypeWith Values
                         var WkDate = PrevUserDayStat.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
@@ -3717,9 +3718,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string DayStatus = clsWebLib.RetValidLen(PrevUserDayStat.Tables[0].Rows[i][@"DayType"]).ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            if (dsRef.Tables[0].DefaultView.Count > 0) 
                             {
-
+                                // Updation in AttdnProcessData
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
                                 dr["ProcessDayStatus"] = DayStatus;
