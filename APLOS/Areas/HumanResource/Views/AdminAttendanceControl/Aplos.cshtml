@@ -6,6 +6,7 @@
         <ul>
             <li><a href="#TabEmployee">Employee Wise</a></li>
             <li><a href="#TabDateRange">Date Wise</a></li>
+            <li><a href="#TabUpdate">Manual Data Upload</a></li>
         </ul>
         <div id="TabEmployee">
             <div class="row">
@@ -298,6 +299,99 @@
             </div>
         </div>
 
+
+        <div id="TabUpdate">
+            <div class="row">
+
+                <div class="col-sm-12">
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.CompanyId" ng-change="getPlants()" name="Entity"
+                                            ng-options="item.Value as item.Text for item in CompanyList" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="UpFromDate" e-width="100%" />
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="UpPlantId" name="Plant"
+                                            ng-options="item.Value as item.Text for item in PlantList" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="UpToDate" e-width="100%" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row">
+
+
+                <div class="col-md-10">
+
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0 ; margin-right:8px;">
+                            <input id="uploadFile" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" style="margin-right: 8px;" value="Import Data" ng-disabled="enable" class="btn btn-success" ng-click="ImportData()" />
+                        <button ng-click="GetSample();" class="btn" style="margin-right: 8px;"><i class="glyphicon glyphicon-download"></i> Get Report File </button>
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="common-btn" style="margin-top:10px;">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="saveFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                    @*<li> <button ng-click="clearFileList();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>*@
+
+                </ul>
+            </div>
+
+            <div id="SalGls" ej-grid e-datasource="ExcelUploadData" e-templaterefresh="refreshTemplate"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                <div e-columns>
+                    <div e-column e-field="RowId" e-type="string" e-headertext="Row Id" e-width="80"></div>
+                    <div e-column e-field="EmpSystemID" e-type="string" e-headertext="Emp System ID" e-width="80"></div>
+                    <div e-column e-field="WorkDate" e-type="string" e-headertext="Work Date" e-width="80"></div>
+                    <div e-column e-field="InTime" e-type="string" e-headertext="In Time" e-width="80"></div>
+                    <div e-column e-field="OutTime" e-type="string" e-headertext="Out Time" e-width="80"></div>
+                    <div e-column e-field="ShiftSystemID" e-type="string" e-headertext="Shift System ID" e-width="80"></div>
+                    <div e-column e-field="DayStatus" e-type="string" e-headertext="Day Status" e-width="80"></div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 <style type="text/css">
