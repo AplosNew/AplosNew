@@ -82,7 +82,7 @@ namespace Aplos.Areas.Employees.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            
+
 
             string employeeId = "";
             foreach (string id in empId)
@@ -127,11 +127,6 @@ namespace Aplos.Areas.Employees.Controllers
             }
 
 
-
-
-
-
-
             var fileName = "IDCARD-" + empId;
             var workbook = _employeeInfoService.EmployeeMultipleIDCardPpt(employeeId, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, tempId, issuDate, workTypeId, dataList, IsCurrentIssueDate);
 
@@ -140,6 +135,92 @@ namespace Aplos.Areas.Employees.Controllers
             return null;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetPrintMultipleIDCard(string[] empId, string tempId, string issuDate, string workTypeId, List<Dictionary<string, object>> dataList, bool IsCurrentIssueDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string employeeId = "";
+            foreach (string id in empId)
+            {
+                if (employeeId == "")
+                {
+                    employeeId = "" + id + "";
+                }
+                else
+                {
+                    employeeId += "," + id + "";
+                }
+
+                //string[] empIdList = id.Split(',');
+               
+            }
+
+            ConnectionManager.DAL.ConManager objCon;
+            string sql = "SELECT * FROM [dbo].[EmployeeIdCardIssue] WHERE EmpSystemId IN(" + employeeId + ")";
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");
+
+            foreach (string item in empId)
+            {
+                var empData = _employeeInfoService.Find(item);
+
+                DataView dv = new DataView(dsMaster.Tables[0]);
+                dv.RowFilter = "EmpSystemId='" + item + "'";
+
+                if (dv.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    dr["Id"] = item + "-1";
+                    dr["Sequence"] = 1;
+                    dr["EmpSystemId"] = item;
+                    dr["EmployeeWorkTypeId"] = DBNull.Value;
+                    dr["IssueDate"] = empData.DOJ;
+                    dr["ExpiryDate"] = DBNull.Value;
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+            }
+
+            clsStaticInfo obj = new clsStaticInfo();
+            obj.SaveDataSets(dsMaster);
+
+            var fileName = "IDCARD" + identity.UserId + ".pptx";
+            var workbook = _employeeInfoService.EmployeeMultipleIDCardPpt(employeeId, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, tempId, issuDate, workTypeId, dataList, IsCurrentIssueDate);
+
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+            workbook.Save(fullPath);
+            return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
     }
 
     #endregion

@@ -46,7 +46,7 @@ namespace Aplos.HumanResource
                              ,CG.[Image] CompanyGroupLogo, CNT.PhoneLength, COM.IsTINRequiredForSalaryAbove
                              ,CNT.TINCaption, CNT.NIDCaption, CNT.NIDLength, CNT.TINLength, COM.TINRequiredForSalaryAbove
                              ,DG.UserName GivenDesignation, DP.UserName Department, PMB.Code,PR.UserName PositionName,E.UserName EntityName,DSG.UserName BudgetedDesignation,PR.DesignationId
-                             ,EACT.AccountsGroupId,EAG.AttendanceGroupId,PGM.PayrollGroupId, OM.Code OperationMasterCode , OV.Code OperationVariationCode,LD.UserName LegalDesignation
+                             ,EAG.AttendanceGroupId,PGM.PayrollGroupId, OM.Code OperationMasterCode , OV.Code OperationVariationCode,LD.UserName LegalDesignation
 	                         ,EC.UserName EmpCategoryName, U.UserName Unit,Dv.UserName Division,SD.UserName SubDivision,Se.UserName Section, SuS.UserName SubSection,Ln.UserName Line
 	                         , EBC.StandardName BudgetCategoryName--,ESHIFT.FixSystemID
 							 ,PT.UserName PartyName
@@ -79,7 +79,7 @@ namespace Aplos.HumanResource
                             LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
                             LEFT JOIN dbo.EmployeeAttendanceGroup EAG on EAG.EmployeeId=EI.SystemId
                             LEFT JOIN MST.PayrollGroupMaster PGM on PGM.EmployeeId=EI.SystemId
-                            LEFT JOIN dbo.[EmployeeAccountsGroup] EACT on EACT.EmployeeId=EI.SystemId
+                            
                             LEFT JOIN MST.OperationMaster OM ON OM.Id=EI.OperationMasterID
                             LEFT JOIN MST.OperationVariation OV ON OV.Id=EI.OperationVariationId
                             LEFT JOIN [HKP].[LegalDesignation] LD ON LD.Id=EI.LegalDesignationId
