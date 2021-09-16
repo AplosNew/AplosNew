@@ -774,6 +774,34 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         angular.element(document.querySelector('#commitmentPop')).modal('hide');
     }
 
+    //#region MasterOrderPopUp
+    $scope.MasterOrderList = [];
+
+    $scope.MasterOrderPopUp = function () {
+        $http.get('OrderManagements/SalesOrderUpdate/GetMasterOrderData')
+            .then(function (response) {
+                $scope.MasterOrderList = response.data;
+            });
+        angular.element(document.querySelector('#commitmentPop')).modal('show');
+    }
+
+    $scope.SetCommitment = function (args) {
+        var gridObj = $("#Grid").data("ejGrid");
+        $scope.data = gridObj.getSelectedRecords()[0];
+        $scope.fileNew.CommitmentId = $scope.data.Id;
+        angular.element(document.querySelector('#commitmentPop')).modal('hide');
+    }
+
+    $scope.CloseCommitment = function () {
+        angular.element(document.querySelector('#commitmentPop')).modal('hide');
+    }
+
+    //#Endregion
+
+
+
+
+
     function GetDepartmentPersonCbo() {
         $scope.personCboList = [];
         $http.get($scope.path + "GetDepartmentPersonCbo?plantId=" + $scope.fileNew.PlantId + '&partyAccountGroupId=' + $scope.fileNew.PartyAccountGroupId + '&partyId=' + $scope.fileNew.PartyId)
