@@ -1225,7 +1225,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             {
                 throw ex;
             }
-
         }
 
         [Authorize, HttpGet]
