@@ -21,6 +21,11 @@ using System.Web.Script.Serialization;
 using Library.HumanResource.Attendance.Manual;
 using SetINOUT;
 using Library.HumanResource.NewAttendanceProcess;
+using Syncfusion.XlsIO;
+using Library.Service.Helpers;
+using Library.Model.Enums;
+using Library.Data;
+using System.IO;
 
 #endregion Using
 
@@ -170,7 +175,268 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 return Json(new { Error = false, Message = _rt.msg, Data = _rt.data }, JsonRequestBehavior.AllowGet);
             }
-        }        
+        }
 
+        // For the Update Tab
+        [HttpGet, Authorize]
+        public ActionResult GetSampleReport(ReportFormat reportFormat, string PlId , string FD , string TD)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string date = DateTime.Now.Date.ToString("dd-MMM");//.Substring(0, DateTime.Now.Date.ToString().Length - 12);
+            var reportFileName = "ManualUpload-" + date;
+            var workbook = GetWorkSheet(  PlId,  FD,  TD);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        private IWorkbook GetWorkSheet( string PlId, string FD, string TD)
+        {
+            AdminAttendanceControlService mau = new AdminAttendanceControlService();
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var sheet = workbook.Worksheets[0];
+
+            var sheet2 = workbook.Worksheets[1];
+
+            /// Sheet 1 
+            DataTable data = mau.getCurrentFile(  PlId,  FD,  TD);
+
+            sheet.Name = "Current-Data";
+
+
+
+            int ROW = 1;
+            int endCol = 1;
+            int COL = 1;
+
+            #region Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, "RowId", 8, ExcelHAlign.HAlignLeft);
+            int ColRowId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "EmpSystemID", 8, ExcelHAlign.HAlignLeft);
+            int ColEmpId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "WorkDate", 8, ExcelHAlign.HAlignLeft);
+            int ColWD = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "InTime", 8, ExcelHAlign.HAlignLeft);
+            int ColInT = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "OutTime", 8, ExcelHAlign.HAlignLeft);
+            int ColOuT = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "ShiftSystemID", 8, ExcelHAlign.HAlignLeft);
+            int ColShId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "DayStatus", 8, ExcelHAlign.HAlignLeft);
+            int ColDS = COL;
+            COL++;
+
+            endCol = COL;
+            #endregion Headers
+            ROW++;
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                //sheet[ROW, ColEmpSystemId].Text = data.Rows[i]["EmpSystemId"].ToString();
+                sheet[ROW, ColRowId].Text = data.Rows[i]["RowId"].ToString();
+                sheet[ROW, ColEmpId].Text = data.Rows[i]["EmpSystemID"].ToString();
+                sheet[ROW, ColWD].Text = data.Rows[i]["WorkDate"].ToString();
+                sheet[ROW, ColInT].Text = data.Rows[i]["InTime"].ToString();
+                sheet[ROW, ColOuT].Text = data.Rows[i]["OutTime"].ToString();
+                sheet[ROW, ColShId].Text = data.Rows[i]["ShiftSystemID"].ToString();
+                sheet[ROW, ColDS].Text = data.Rows[i]["DayStatus"].ToString();
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+            endRow = ROW - 1;
+
+
+            
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+           
+            return workbook;
+        }
+
+        //Importing
+        [HttpPost, Authorize]
+        public ActionResult ImportData()
+        {
+            string path;
+
+            try
+            {
+                var file = Request.Files["file"];
+                //string plantId = Request.Files["plantId"].ToString();
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SaveFile(out path);
+                var data = ReadData(path);
+
+                var json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        public List<object> ReadData(string path)
+        {
+
+            DataSet dsExcel = null;
+            try
+            {
+                List<DataMod> data = new List<DataMod>();
+                List<object> ret = new List<object>();
+                ReadFile(path, out dsExcel);
+
+                data = dsExcel.Tables[0].ToList<DataMod>();
+                
+
+                if (data.Count > 0)
+                {
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        ret.Add(data[i]);
+                    }
+
+                }
+
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void ReadFile(string path, out DataSet dsExcel)
+        {
+            FileInfo docFile;
+            dsExcel = null;
+            try
+            {
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = excelEngine.Excel.Workbooks.Open(path);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                dsExcel = new DataSet();
+                dsExcel.Tables.Add(dt);
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    //exception += "\r\nTrying to delete";
+                    docFile.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+                throw (ex);
+            }
+        }
+
+
+        public void SaveFile(out string path)
+        {
+            path = "";
+            try
+            {
+                var file = Request.Files["file"];
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetOTManualFile(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SaveFileList(List<Dictionary<string, object>> data, string PlId, string FD, string TD)
+        {
+            try
+            {
+                AdminAttendanceControlService mau = new AdminAttendanceControlService();
+                mau.SaveFileList(data,  PlId,  FD,  TD);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+        public class DataMod
+        {
+
+            public string RowId { get; set; }
+            public string EmpSystemID { get; set; }
+            public string WorkDate { get; set; }
+            public string InTime { get; set; }
+            public string OutTime { get; set; }
+            public string ShiftSystemID { get; set; }
+            public string DayStatus { get; set; }
+
+        }
     }
 }

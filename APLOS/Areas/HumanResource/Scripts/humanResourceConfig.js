@@ -611,6 +611,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/tables-upload', {
             templateUrl: 'humanresource/TablesUpload/Aplos',
             controller: 'TablesUploadController'
+        })
+        .when('/audit-report-data-new', {
+            templateUrl: 'humanresource/NewAttendanceProcessAuditReport/Aplos',
+            controller: 'NewAttendanceProcessAuditReportController'
         });
     
 

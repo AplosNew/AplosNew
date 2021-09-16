@@ -13,6 +13,7 @@ var upanelApp = angular
     .controller("accountDashboardController", accountDashboardController)
     .controller("advanceJournalController", advanceJournalController)
     .controller("NewAttendanceProcessController", NewAttendanceProcessController)
+    .controller("NewAttendanceProcessAuditReportController", NewAttendanceProcessAuditReportController)
     .controller("NewAttendanceProcessPlantWiseController", NewAttendanceProcessPlantWiseController)
     .controller("advanceJournalOpeningBalanceController", advanceJournalOpeningBalanceController)
     .controller("allowanceDailyController", allowanceDailyController)
@@ -548,6 +549,8 @@ var upanelApp = angular
     .controller('inventoryIssueDeleteController', inventoryIssueDeleteController)
     .controller('inventoryReceivableController', inventoryReceivableController)
     .controller('inventorySalesRegisterController', inventorySalesRegisterController)
+    .controller('inventorySalesController', inventorySalesController)
+
     .controller('inventoryScrapController', inventoryScrapController)
     .controller('InventoryStatusDashboardController', InventoryStatusDashboardController)
     .controller('InventoryDashboardStatusController', InventoryDashboardStatusController)

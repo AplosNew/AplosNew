@@ -151,9 +151,4 @@ $scope.ModelNew = {
     });
     }
 
-    //$scope.onFileSelect = function(event) {
-    //    if (event.target.files.length > 0) {
-    //        console.log(event.target.files[0].name);
-    //    }
-    //}
 }
