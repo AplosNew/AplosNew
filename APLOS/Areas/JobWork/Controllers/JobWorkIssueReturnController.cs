@@ -2034,11 +2034,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         //}
 
         [HttpPost]
-        public JsonResult SaveIssueTransformation(Dictionary<string, object> data, string ContractId, string ContractType)
+        public JsonResult SaveIssueTransformation(Dictionary<string, object> data, string ContractId, string ContractType, IEnumerable<JobWorkTransformationIssueReturnChild> SelectedQuantityData)
         {
             try
             {
-                JWTIR.SaveIssueTransformation(data, ContractId, ContractType);
+                JWTIR.SaveIssueTransformation(data, ContractId, ContractType, SelectedQuantityData);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
@@ -2058,68 +2058,68 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             return sID;
         }
 
-        [HttpPost]
-        public JsonResult SaveTransformationChild(IEnumerable<JobWorkTransformationIssueReturnChild> SelectedQuantityData, string MasterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            try
-            {
-                DataSet ExistOrNot;
+        //[HttpPost]
+        //public JsonResult SaveTransformationChild(IEnumerable<JobWorkTransformationIssueReturnChild> SelectedQuantityData, string MasterId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    try
+        //    {
+        //        DataSet ExistOrNot;
 
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                var MatInputId = "' '";
+        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+        //        var MatInputId = "' '";
             
-                foreach (var empitem in SelectedQuantityData)
-                {
-                    MatInputId += ",'" + empitem.Id + "' ";
+        //        foreach (var empitem in SelectedQuantityData)
+        //        {
+        //            MatInputId += ",'" + empitem.Id + "' ";
                  
-                }
-                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationIssueReturnChild where MaterialInputId IN ( " + MatInputId + ") and TransformationIssueReturnMasterId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+        //        }
+        //        con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationIssueReturnChild where MaterialInputId IN ( " + MatInputId + ") and TransformationIssueReturnMasterId='" + MasterId + "'  ", out ExistOrNot, false, "1");
 
-                foreach (var item in SelectedQuantityData)
-                {
-                    if (ExistOrNot.Tables[0].DefaultView.Count == 0 || ExistOrNot.Tables[0].DefaultView.Count > 0)
-                    {
-                        DataRow dr = ExistOrNot.Tables[0].NewRow();
-                        dr["Id"] = "TC" + GetTransformationChildPK();
+        //        foreach (var item in SelectedQuantityData)
+        //        {
+        //            if (ExistOrNot.Tables[0].DefaultView.Count == 0 || ExistOrNot.Tables[0].DefaultView.Count > 0)
+        //            {
+        //                DataRow dr = ExistOrNot.Tables[0].NewRow();
+        //                dr["Id"] = "TC" + GetTransformationChildPK();
 
-                        dr["TransformationIssueReturnMasterId"] = MasterId;
+        //                dr["TransformationIssueReturnMasterId"] = MasterId;
 
-                        dr["MaterialInputId"] = item.Id;
-                        dr["MaterialMasterId"] = item.InputMaterialId;
-                        dr["Quantity"] = item.Quantity;
-                        dr["Remarks"] = item.Remarks;
-                        dr["MaterialMasterArticleId"] = item.MaterialMasterArticleId;
-                        dr["Value"] = item.Value;
-                        dr["LotNumber"] = item.LotNumber;
+        //                dr["MaterialInputId"] = item.Id;
+        //                dr["MaterialMasterId"] = item.InputMaterialId;
+        //                dr["Quantity"] = item.Quantity;
+        //                dr["Remarks"] = item.Remarks;
+        //                dr["MaterialMasterArticleId"] = item.MaterialMasterArticleId;
+        //                dr["Value"] = item.Value;
+        //                dr["LotNumber"] = item.LotNumber;
                      
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
+        //                dr["AddedBy"] = identity.Name;
+        //                dr["AddedDate"] = System.DateTime.Now.ToString();
+        //                dr["AddedFromIP"] = identity.IPAddress;
+        //                dr["UpdatedBy"] = identity.Name;
+        //                dr["UpdatedDate"] = System.DateTime.Now.ToString();
+        //                dr["UpdatedFromIP"] = identity.IPAddress;
 
-                        ExistOrNot.Tables[0].Rows.Add(dr);
+        //                ExistOrNot.Tables[0].Rows.Add(dr);
 
-                    }
+        //            }
 
-                }
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(ExistOrNot);
+        //        }
+        //        clsStaticInfo _info = new clsStaticInfo();
+        //        _info.SaveDataSets(ExistOrNot);
 
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+        //        return Json(new { Error = false, Message = AplosMessage.Updated });
 
-            }
+        //    }
 
 
-            catch (Exception ex)
-            {
+        //    catch (Exception ex)
+        //    {
 
-                return Json(new { Error = true, Message = ex.Message });
+        //        return Json(new { Error = true, Message = ex.Message });
 
-            }
-        }
+        //    }
+        //}
 
         [HttpGet, Authorize]
         public ActionResult LoadAllMaterialMstDetails(string Id)
@@ -3113,21 +3113,21 @@ public class JobWorkIssueReturnChild
     #endregion Scalar Properties
 }
 
-public class JobWorkTransformationIssueReturnChild
-{
+//public class JobWorkTransformationIssueReturnChild
+//{
 
-    #region Scalar Properties
+//    #region Scalar Properties
 
-    public string Id { get; set; }
-    public string Material { get; set; }
-    public string Article { get; set; }
-    public string InputMaterialId { get; set; }
-    public string MaterialMasterArticleId { get; set; }
-    public string Quantity { get; set; }
-    public string Remarks { get; set; }
-    public string Value { get; set; }
-    public string LotNumber { get; set; }
+//    public string Id { get; set; }
+//    public string Material { get; set; }
+//    public string Article { get; set; }
+//    public string InputMaterialId { get; set; }
+//    public string MaterialMasterArticleId { get; set; }
+//    public string Quantity { get; set; }
+//    public string Remarks { get; set; }
+//    public string Value { get; set; }
+//    public string LotNumber { get; set; }
 
 
-    #endregion Scalar Properties
-}
+//    #endregion Scalar Properties
+//}
