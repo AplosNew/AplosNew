@@ -10,6 +10,7 @@ using System.Threading;
 using Library.Service.Attendances;
 using SetINOUT;
 using Library.Core;
+using bplib;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -479,6 +480,114 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
+        public DataTable getCurrentFile( string PlId, string FD, string TD)
+        {
+            try
+            {
+                var str = @"select RowId,EmpSystemID,WorkDate,InTime,OutTime,ShiftSystemID,DayStatus 
+                            from AttdnProcessData where WorkDate between '" + FD + @"' and '" + TD + @"'
+                            AND PlantID='" + PlId + @"'";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void SaveFileList(List<Dictionary<string, object>> data, string PlId, string FD, string TD)
+        {
+            try
+            {
+
+                
+                DataSet PlantLock;
+                PlantLockCheck(FD , TD , out PlantLock, PlId);
+                string pl = "";
+                if(PlantLock.Tables[0].Rows.Count>0)
+                {
+                    for(var i = 0; i< PlantLock.Tables[0].Rows.Count; i++ )
+                    {
+                        pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", "; 
+                    }
+
+                    throw new Exception("The Plant is Locked for - " + pl);
+                }
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string addedname = identity.Name;
+                string addeddate = System.DateTime.Now.ToString();
+                string TableName = "dbo.AttdnProcessData";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + PlId + @"'", out dsMaster, false, "1");
+
+                if (data.Count > 0)
+                {
+                    for(int i = 0; i < data.Count; i ++)
+                    {
+                        dsMaster.Tables[0].DefaultView.RowFilter = "RowId='" + data[i]["RowId"].ToString() + "'";
+                        dsMaster.Tables[0].DefaultView[0].BeginEdit();
+                        if(data[i]["InTime"] != null)
+                        {
+                            dsMaster.Tables[0].DefaultView[0]["InTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
+                            dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
+                            dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
+                        }
+                        if (data[i]["OutTime"] != null)
+                        {
+                            dsMaster.Tables[0].DefaultView[0]["OutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
+                            dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
+                            dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
+                        }
+
+                        
+                        dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"] = data[i]["ShiftSystemID"].ToString();
+                        if(data[i]["DayStatus"]!=null)
+                        {
+                            dsMaster.Tables[0].DefaultView[0]["DayStatus"] = data[i]["DayStatus"].ToString();
+                            dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"] = data[i]["DayStatus"].ToString();
+                        }
+
+                        dsMaster.Tables[0].DefaultView[0]["DateUpdated"] = DateTime.Now;
+                        dsMaster.Tables[0].DefaultView[0]["UpdatedBy"] = identity.Name;
+                        
+                        dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
+                        dsMaster.Tables[0].DefaultView[0].EndEdit();
+                    }
+
+
+                }
+                
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public void PlantLockCheck(string FDate,string TDate, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string From = Convert.ToDateTime(FDate).ToString("dd-MMM-yyyy");
+                string To = Convert.ToDateTime(TDate).ToString("dd-MMM-yyyy");
+
+                var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
+                and LockedDate between '" + From + "' and '"+To+"' and IsActive='1'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
     }
 }
