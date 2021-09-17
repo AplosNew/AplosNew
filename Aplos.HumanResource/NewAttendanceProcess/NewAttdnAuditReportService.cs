@@ -187,7 +187,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetLeaveWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsLeaveWithPunch);
+                    Gen.GetLeaveWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsLeaveWithPunch);
                     dtLeaveWithPunch = dsLeaveWithPunch.Tables[0];
 
                 }
@@ -369,7 +369,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetOffdayMissingPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOffdayMissingPunch);
+                    Gen.GetOffdayMissingPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOffdayMissingPunch);
                     dtOffdayMissingPunch = dsOffdayMissingPunch.Tables[0];
 
                 }
@@ -379,7 +379,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetOffdayWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOffdayWithPunch);
+                    Gen.GetOffdayWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOffdayWithPunch);
                     dtOffdayWithPunch = dsOffdayWithPunch.Tables[0];
 
                 }
@@ -10179,6 +10179,270 @@ namespace Library.HumanResource.NewAttendanceProcess
                 con = null;
             }
         }//End Function
+
+        public void GetOffdayWithPunchReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId";
+                strSql += columnName();
+                strSql += @" ,AP.DayStatus
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	, InTime = case when AP.InTime is null then ap.PunchInTime else ap.InTime end 
+                        	,OutTime = case when AP.OutTime is null then ap.PunchOutTime else ap.OutTime end
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+							
+                        FROM AttdnProcessData AP
+                        
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+
+                    
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                        ";
+                strSql += tableName();
+                strSql += @"WHERE  
+                                dt.OriginalDayType in ('W','H')  
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                              
+							and (---1
+							
+							( AP.InTime IS Not NULL or AP.PunchInTime Is Not Null)
+							
+							)----1                     		
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetOffdayMissingPunchReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId";
+                strSql += columnName();
+                strSql += @" ,AP.DayStatus
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	, InTime = case when AP.InTime is null then ap.PunchInTime else ap.InTime end 
+                        	,OutTime = case when AP.OutTime is null then ap.PunchOutTime else ap.OutTime end
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+							
+                        FROM AttdnProcessData AP
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+
+                    
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                        ";
+                strSql += tableName();
+                strSql += @"WHERE  
+                                dt.OriginalDayType in ('W','H')  
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                              
+							and (---1
+							( (AP.InTime IS NULL and AP.PunchInTime Is Null)	AND (AP.OutTime IS not NULL or AP.PunchOutTime Is NOT NULL))
+							or 
+							( (AP.InTime IS Not NULL or AP.PunchInTime Is Not Null)	AND (AP.OutTime IS NULL and AP.PunchOutTime Is NULL))
+							--or
+							--( AP.InTime IS not NULL	AND AP.OutTime IS not NULL)
+							)----1                        		
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+
+        public void GetLeaveWithPunchReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                string fd = "01-" + Convert.ToDateTime(FromDate).ToString("MMM") + "-" + Convert.ToDateTime(FromDate).ToString("yyyy");
+                string endDate = Convert.ToDateTime(fd).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+                        	";
+                strSql += columnName();
+                strSql += @"
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.DayStatus,lt.LeaveType,lt.Code
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+                        FROM AttdnProcessData AP
+                        left join [dbo].[LeaveType] lt on lt.Id=AP.LTSystemID
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                       ";
+                strSql += tableName();
+                strSql += @"WHERE 
+                              AP.DayStatus in (select daytype from daytype where category='Leave') 
+                                and AP.IsHalfDayLeave = 0
+                        	AND AP.WorkDate between '" + fd + @"' and  '" + endDate + @"'
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                                
+                             and (---1
+							( AP.InTime IS NULL	AND AP.OutTime IS not NULL)
+							or 
+							( AP.InTime IS not NULL	AND AP.OutTime IS NULL)
+							or
+							( AP.InTime IS not NULL	AND AP.OutTime IS not NULL)
+							)----1
+                        		
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                            ,AP.WorkDate";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }
 
 
     }
