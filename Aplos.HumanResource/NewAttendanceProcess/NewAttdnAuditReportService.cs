@@ -35,7 +35,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataSet dsBioDvAC = null;
             DataSet dsOnlyOt = null;
             DataSet dsAbsent = null;
-            DataSet dsAbsentWithPunch = null;
+            DataSet dsInMissPunch = null;
             DataSet dsOffdayMissingPunch = null;
             DataSet dsOffdayWithPunch = null;
             DataSet dsAbsentWithRawPunch = null;
@@ -63,7 +63,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataTable dtBioDvAC = null;
             DataTable dtOnlyOt = null;
             DataTable dtAbsent = null;
-            DataTable dtAbsentWithPunch = null;
+            DataTable dtInPunchMissing = null;
             DataTable dtOffdayMissingPunch = null;
             DataTable dtOffdayWithPunch = null;
             DataTable dtAbsentWithRawPunch = null;
@@ -167,8 +167,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    Gen.GetAbsentWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAbsentWithPunch);
-                    dtAbsentWithPunch = dsAbsentWithPunch.Tables[0];
+                    Gen.GetInMissingReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsInMissPunch);
+                    dtInPunchMissing = dsInMissPunch.Tables[0];
 
                 }
                 catch (Exception ex)
@@ -601,7 +601,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet20.Range[xlsRow, iLogic].Text = "In Punch Missing";
                     sheet20.Range[xlsRow, iReportName].Text = "5-In Missing";
                     sheet20.Range[xlsRow, iObjective].Text = "Not Sincere About Punch Specially Out punch";
-                    sheet20.Range[xlsRow, iCount].Number = dtAbsentWithPunch.Rows.Count;
+                    sheet20.Range[xlsRow, iCount].Number = dtInPunchMissing.Rows.Count;
 
                     IHyperLink linkAbsentWithPunch = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
                     linkAbsentWithPunch.Type = ExcelHyperLinkType.Workbook;
@@ -2405,74 +2405,73 @@ namespace Library.HumanResource.NewAttendanceProcess
                     #endregion ------------------Column Header------------------
 
 
-                    if (dtAbsentWithPunch.Rows.Count > 0)
+                    if (dtInPunchMissing.Rows.Count > 0)
                     {
                         SLNo = 1;
-                        for (int i = 0; i < dtAbsentWithPunch.Rows.Count; i++)
+                        for (int i = 0; i < dtInPunchMissing.Rows.Count; i++)
                         {
                             #region ----------------------Data-----------------------
                             sheet4.Range[xlsRow, isl].Text = SLNo.ToString();
 
-                            sheet4.Range[xlsRow, iEmployeeCode].Text = dtAbsentWithPunch.Rows[i]["EmployeeCode"].ToString();
+                            sheet4.Range[xlsRow, iEmployeeCode].Text = dtInPunchMissing.Rows[i]["EmployeeCode"].ToString();
 
-                            //sheet4.Range[xlsRow, iRawPunch].Text = dtAbsentWithPunch.Rows[i]["RawPunch"].ToString();
 
-                            sheet4.Range[xlsRow, iDepartment].Text = dtAbsentWithPunch.Rows[i]["Department"].ToString();
+                            sheet4.Range[xlsRow, iDepartment].Text = dtInPunchMissing.Rows[i]["Department"].ToString();
 
-                            sheet4.Range[xlsRow, iEmployeeName].Text = dtAbsentWithPunch.Rows[i]["EmployeeName"].ToString();
+                            sheet4.Range[xlsRow, iEmployeeName].Text = dtInPunchMissing.Rows[i]["EmployeeName"].ToString();
 
-                            sheet4.Range[xlsRow, iEmployeeCurrentStatus].Text = dtAbsentWithPunch.Rows[i]["EmployeeCurrentStatus"].ToString();
+                            sheet4.Range[xlsRow, iEmployeeCurrentStatus].Text = dtInPunchMissing.Rows[i]["EmployeeCurrentStatus"].ToString();
 
-                            sheet4.Range[xlsRow, iDayStatus].Text = dtAbsentWithPunch.Rows[i]["DayStatus"].ToString();
+                            sheet4.Range[xlsRow, iDayStatus].Text = dtInPunchMissing.Rows[i]["DayStatus"].ToString();
                             sheet4.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet4.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            if (bplib.clsWebLib.GetBoolData(dtAbsentWithPunch.Rows[i]["IsManualDayStatus"].ToString().Trim()))
+                            if (bplib.clsWebLib.GetBoolData(dtInPunchMissing.Rows[i]["IsManualDayStatus"].ToString().Trim()))
                             {
                                 sheet4.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Orange;
                             }
 
-                            sheet4.Range[xlsRow, iDesignation].Text = dtAbsentWithPunch.Rows[i]["LegalDesignation"].ToString();
+                            sheet4.Range[xlsRow, iDesignation].Text = dtInPunchMissing.Rows[i]["LegalDesignation"].ToString();
 
-                            sheet4.Range[xlsRow, iSection].Text = dtAbsentWithPunch.Rows[i]["Section"].ToString();
-                            sheet4.Range[xlsRow, iEmployeeCategory].Text = dtAbsentWithPunch.Rows[i]["EmployeeCategory"].ToString();
-                            sheet4.Range[xlsRow, iSubSection].Text = dtAbsentWithPunch.Rows[i]["SubSection"].ToString();
-                            sheet4.Range[xlsRow, iEntity].Text = dtAbsentWithPunch.Rows[i]["EntityName"].ToString();
-                            sheet4.Range[xlsRow, iWorkDate].Text = dtAbsentWithPunch.Rows[i]["WorkDate"].ToString();
+                            sheet4.Range[xlsRow, iSection].Text = dtInPunchMissing.Rows[i]["Section"].ToString();
+                            sheet4.Range[xlsRow, iEmployeeCategory].Text = dtInPunchMissing.Rows[i]["EmployeeCategory"].ToString();
+                            sheet4.Range[xlsRow, iSubSection].Text = dtInPunchMissing.Rows[i]["SubSection"].ToString();
+                            sheet4.Range[xlsRow, iEntity].Text = dtInPunchMissing.Rows[i]["EntityName"].ToString();
+                            sheet4.Range[xlsRow, iWorkDate].Text = dtInPunchMissing.Rows[i]["WorkDate"].ToString();
 
-                            sheet4.Range[xlsRow, iDOJ].Text = dtAbsentWithPunch.Rows[i]["DOJ"].ToString();
+                            sheet4.Range[xlsRow, iDOJ].Text = dtInPunchMissing.Rows[i]["DOJ"].ToString();
 
-                            sheet4.Range[xlsRow, iShiftName].Text = dtAbsentWithPunch.Rows[i]["ShiftName"].ToString();
+                            sheet4.Range[xlsRow, iShiftName].Text = dtInPunchMissing.Rows[i]["ShiftName"].ToString();
 
-                            sheet4.Range[xlsRow, iShiftInTime].Text = dtAbsentWithPunch.Rows[i]["ShiftInTime"].ToString();
+                            sheet4.Range[xlsRow, iShiftInTime].Text = dtInPunchMissing.Rows[i]["ShiftInTime"].ToString();
                             sheet4.Range[xlsRow, iShiftInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet4.Range[xlsRow, iShiftInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            sheet4.Range[xlsRow, iShiftOutTime].Text = dtAbsentWithPunch.Rows[i]["ShiftOutTime"].ToString();
+                            sheet4.Range[xlsRow, iShiftOutTime].Text = dtInPunchMissing.Rows[i]["ShiftOutTime"].ToString();
                             sheet4.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet4.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            if (dtAbsentWithPunch.Rows[i]["InTime"].ToString() != "")
+                            if (dtInPunchMissing.Rows[i]["InTime"].ToString() != "")
                             {
                                 sheet4.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
-                                sheet4.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dtAbsentWithPunch.Rows[i]["InTime"].ToString());
+                                sheet4.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dtInPunchMissing.Rows[i]["InTime"].ToString());
                                 sheet4.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet4.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                if (bplib.clsWebLib.GetBoolData(dtAbsentWithPunch.Rows[i]["IsManualInTime"].ToString().Trim()))
+                                if (bplib.clsWebLib.GetBoolData(dtInPunchMissing.Rows[i]["IsManualInTime"].ToString().Trim()))
                                 {
                                     sheet4.Range[xlsRow, iInTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
                                 }
                             }
 
-                            if (dtAbsentWithPunch.Rows[i]["OutTime"].ToString() != "")
+                            if (dtInPunchMissing.Rows[i]["OutTime"].ToString() != "")
                             {
                                 sheet4.Range[xlsRow, iOutTime].NumberFormat = "hh:mm AM/PM";
-                                sheet4.Range[xlsRow, iOutTime].DateTime = Convert.ToDateTime(dtAbsentWithPunch.Rows[i]["OutTime"].ToString());
+                                sheet4.Range[xlsRow, iOutTime].DateTime = Convert.ToDateTime(dtInPunchMissing.Rows[i]["OutTime"].ToString());
                                 sheet4.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet4.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                if (bplib.clsWebLib.GetBoolData(dtAbsentWithPunch.Rows[i]["IsManualOutTime"].ToString().Trim()))
+                                if (bplib.clsWebLib.GetBoolData(dtInPunchMissing.Rows[i]["IsManualOutTime"].ToString().Trim()))
                                 {
                                     sheet4.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
                                 }
@@ -2640,7 +2639,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet4.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                     sheet4.IsDisplayZeros = false;
 
-                    if (dtAbsentWithPunch.Rows.Count > 0)
+                    if (dtInPunchMissing.Rows.Count > 0)
                     {
                         sheet4.Name = (SheetIndex + 1) + "_In_Missing";
                         sheet4.TabColorRGB = Color.Red;
@@ -3437,7 +3436,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet21.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                     sheet21.IsDisplayZeros = false;
 
-                    if (dtAbsentWithPunch.Rows.Count > 0)
+                    if (dtInPunchMissing.Rows.Count > 0)
                     {
                         sheet21.Name = (SheetIndex + 1) + "_Short_Duration_Absent";
                         sheet21.TabColorRGB = Color.Red;
@@ -10549,7 +10548,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public void GetAbsentWithPunchReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetInMissingReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
         {
             clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
