@@ -3464,6 +3464,360 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
             }
         }
 
+        // Receipt Transformation Without Material
+
+        private string GetTransformationPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "InventoryReceive", out sID);
+            return sID;
+        }
+
+        public void SaveTransformationWOMaterial(Dictionary<string, object> data, string ContractId, string PartyId, IEnumerable<JobWorkTransformationReceiptWOMaterial> SelectedQtyDataWOMat, IEnumerable<JWTransformationReceiptWOMaterialByProduct> SelectedByProductQtyDataWOMat)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where PositionCodeId='" + data["PositionCodeId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("Same Position Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from trn.InventoryReceive where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    dr["Id"] = GetTransformationPK();
+
+                    dr["MaterialStorageId"] = data["MaterialStorageId"];
+                    dr["CurrencyId"] = data["CurrencyId"];
+                    dr["PartyId"] = PartyId;
+                    dr["DocRefNo"] = data["DocRefNo"];
+                    dr["DocDate"] = data["DocDate"];
+                    dr["GateEntryNo"] = data["GateEntryNo"];
+                    dr["GRNDate"] = data["GRNDate"];
+                    dr["ToCurrencyRate"] = data["ToCurrencyRate"];
+                    dr["PartyType"] = "Vendor";
+                    dr["GRNType"] = "GRNBYJW";
+
+                    dr["NoteForAccounts"] = data["NoteForAccounts"];
+                    dr["ByWhomEmployeeId"] = data["ByWhomId"];
+                    dr["TransformationContractId"] = ContractId;
+                    dr["IsNonCreditable"] = data["IsNonCreditable"];
+
+                    dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = identity.PlantId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    //edit
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    dr.BeginEdit();
+
+                    dr["MaterialStorageId"] = data["MaterialStorageId"];
+                    dr["CurrencyId"] = data["CurrencyId"];
+                    dr["PartyId"] = PartyId;
+                    dr["DocRefNo"] = data["DocRefNo"];
+                    dr["DocDate"] = data["DocDate"];
+                    dr["GateEntryNo"] = data["GateEntryNo"];
+                    dr["GRNDate"] = data["GRNDate"];
+                    dr["ToCurrencyRate"] = data["ToCurrencyRate"];
+                    dr["PartyType"] = "Vendor";
+                    dr["GRNType"] = "GRNBYJW";
+
+                    dr["NoteForAccounts"] = data["NoteForAccounts"];
+                    dr["ByWhomEmployeeId"] = data["ByWhomId"];
+                    dr["TransformationContractId"] = ContractId;
+                    dr["IsNonCreditable"] = data["IsNonCreditable"];
+
+                    dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = identity.PlantId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                    dr.EndEdit();
+                }
+                data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                SaveReceiptTransformationWOMaterial(SelectedQtyDataWOMat, MasterId);
+                SaveReceiptByProductWOMaterial(SelectedByProductQtyDataWOMat, MasterId);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private string GetTransformationChildPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "InventoryIssueDetail", out sID);
+            return sID;
+        }
+
+        public void SaveReceiptTransformationWOMaterial(IEnumerable<JobWorkTransformationReceiptWOMaterial> SelectedQtyDataWOMat, string MasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                DataSet ExistOrNot;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+          //      var JWItemId = "' '";
+                var OtMatId = "' '";
+
+                foreach (var empitem in SelectedQtyDataWOMat)
+                {
+           //         JWItemId += ",'" + empitem.JWInputItemId + "' ";
+                    OtMatId += ",'" + empitem.JWTCMDId + "' ";
+
+                }
+                con.OpenDataSetThroughAdapter("select * from TRN.InventoryReceiveDetail where JWTCMDId IN ( " + OtMatId + ") and InventoryReceiveId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+
+                foreach (var item in SelectedQtyDataWOMat)
+                {
+
+                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMDId='" + item.JWTCMDId + "' and InventoryReceiveId='" + MasterId + "' ";
+
+                    if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = ExistOrNot.Tables[0].NewRow();
+                        //        dr["Id"] = "TC" + GetTransformationChildPK();
+                        dr["Id"] = GetTransformationChildPK();
+
+                        dr["InventoryReceiveId"] = MasterId;
+                        dr["TransactionQty"] = item.TransactionQty;
+                        dr["TransactionUoMId"] = item.TransactionUoMId;
+                        dr["BaseQty"] = item.TransactionQty;
+                        dr["QualityStatus"] = item.QualityStatus;
+                        dr["JWTCMId"] = item.JWTCMId;
+                        dr["JWTCMDId"] = item.JWTCMDId;
+                        dr["MaterialFor"] = "JWOUTPUTMaterial";
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        //dr["UpdatedBy"] = identity.Name;
+                        //dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        //dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        ExistOrNot.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMDId='" + item.JWTCMDId + "' and InventoryReceiveId='" + MasterId + "' ";
+
+                        if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow dr = ExistOrNot.Tables[0].NewRow();
+                            dr["Id"] = GetTransformationChildPK();
+
+                            dr["InventoryReceiveId"] = MasterId;
+                            dr["TransactionQty"] = item.TransactionQty;
+                            dr["TransactionUoMId"] = item.TransactionUoMId;
+                            dr["BaseQty"] = item.TransactionQty;
+                            dr["QualityStatus"] = item.QualityStatus;
+                            dr["JWTCMId"] = item.JWTCMId;
+                            dr["JWTCMDId"] = item.JWTCMDId;
+                            dr["MaterialFor"] = "JWOUTPUTMaterial";
+
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = System.DateTime.Now.ToString();
+                            dr["AddedFromIP"] = identity.IPAddress;
+
+                            ExistOrNot.Tables[0].Rows.Add(dr);
+
+                        }
+                        else
+                        {
+                            //edit
+                            DataRow dr = ExistOrNot.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+
+                            dr["InventoryReceiveId"] = MasterId;
+                            dr["TransactionQty"] = item.TransactionQty;
+                            dr["TransactionUoMId"] = item.TransactionUoMId;
+                            dr["BaseQty"] = item.TransactionQty;
+                            dr["QualityStatus"] = item.QualityStatus;
+                            dr["JWTCMId"] = item.JWTCMId;
+                            dr["JWTCMDId"] = item.JWTCMDId;
+                            dr["MaterialFor"] = "JWOUTPUTMaterial";
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                            dr.EndEdit();
+                        }
+
+
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(ExistOrNot);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private string GetTransformationBYProdPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "InventoryIssueDetail", out sID);
+            return sID;
+        }
+
+        public void SaveReceiptByProductWOMaterial(IEnumerable<JWTransformationReceiptWOMaterialByProduct> SelectedByProductQtyDataWOMat, string MasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                DataSet ExistOrNot;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var MIId = "' '";
+                var BPId = "' '";
+
+                foreach (var empitem in SelectedByProductQtyDataWOMat)
+                {
+                    MIId += ",'" + empitem.JWTCMByProductId + "' ";
+                    BPId += ",'" + empitem.JWTCMDByProductId + "' ";
+
+                }
+                con.OpenDataSetThroughAdapter("select * from TRN.InventoryReceiveDetail where JWTCMByProductId IN ( " + MIId + ") and JWTCMDByProductId IN ("+ BPId + ") and InventoryReceiveId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+
+                foreach (var item in SelectedByProductQtyDataWOMat)
+                {
+
+                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMByProductId='" + item.JWTCMByProductId + "' and JWTCMDByProductId='" + item.JWTCMDByProductId + "' and InventoryReceiveId='" + MasterId + "' ";
+
+                    if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = ExistOrNot.Tables[0].NewRow();
+                        //        dr["Id"] = "TC" + GetTransformationChildPK();
+                        dr["Id"] = GetTransformationBYProdPK();
+
+                        dr["InventoryReceiveId"] = MasterId;
+                        dr["TransactionQty"] = item.TransactionQty;
+                        dr["TransactionUoMId"] = item.TransactionUoMId;
+                        dr["BaseQty"] = item.TransactionQty;
+                        dr["QualityStatus"] = item.QualityStatus;
+                        dr["JWTCMByProductId"] = item.JWTCMByProductId;
+                        dr["JWTCMDByProductId"] = item.JWTCMDByProductId;
+                        dr["MaterialFor"] = "JWBYPRODUCTMaterial";
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        //dr["UpdatedBy"] = identity.Name;
+                        //dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        //dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        ExistOrNot.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMByProductId='" + item.JWTCMByProductId + "' and JWTCMDByProductId='" + item.JWTCMDByProductId + "' and InventoryReceiveId='" + MasterId + "' ";
+
+                        if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow dr = ExistOrNot.Tables[0].NewRow();
+                            dr["Id"] = GetTransformationBYProdPK();
+
+                            dr["InventoryReceiveId"] = MasterId;
+                            dr["TransactionQty"] = item.TransactionQty;
+                            dr["TransactionUoMId"] = item.TransactionUoMId;
+                            dr["BaseQty"] = item.TransactionQty;
+                            dr["QualityStatus"] = item.QualityStatus;
+                            dr["JWTCMByProductId"] = item.JWTCMByProductId;
+                            dr["JWTCMDByProductId"] = item.JWTCMDByProductId;
+                            dr["MaterialFor"] = "JWBYPRODUCTMaterial";
+
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = System.DateTime.Now.ToString();
+                            dr["AddedFromIP"] = identity.IPAddress;
+
+                            ExistOrNot.Tables[0].Rows.Add(dr);
+
+                        }
+                        else
+                        {
+                            //edit
+                            DataRow dr = ExistOrNot.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+
+                            dr["InventoryReceiveId"] = MasterId;
+                            dr["TransactionQty"] = item.TransactionQty;
+                            dr["TransactionUoMId"] = item.TransactionUoMId;
+                            dr["BaseQty"] = item.TransactionQty;
+                            dr["QualityStatus"] = item.QualityStatus;
+                            dr["JWTCMByProductId"] = item.JWTCMByProductId;
+                            dr["JWTCMDByProductId"] = item.JWTCMDByProductId;
+                            dr["MaterialFor"] = "JWBYPRODUCTMaterial";
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                            dr.EndEdit();
+                        }
+
+
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(ExistOrNot);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
 public class jobworkreceiptvalueaddedchild
@@ -3524,6 +3878,54 @@ public class JobWorkReceiptTransformationByProduct
     public string Id { get; set; }
     public string ReceiveQuantity { get; set; }
     public string Remarks { get; set; }
+
+    #endregion Scalar Properties
+}
+
+public class JobWorkTransformationReceiptWOMaterial
+{
+
+    #region Scalar Properties
+
+    public string Id { get; set; }
+ //   public string CostCenterId { get; set; }
+    public string JWTCMId { get; set; }
+
+    public string JWTCMDId { get; set; }
+    public string QualityStatus { get; set; }
+    //public string JWInputItemId { get; set; }
+    public string TransactionUoM { get; set; }
+
+    public string TransactionUoMId { get; set; }
+
+    public string BaseUoMId { get; set; }
+    public string TransactionQty { get; set; }
+    //public string Remarks { get; set; }
+    //public string Value { get; set; }
+    //public string LotNumber { get; set; }
+
+
+    #endregion Scalar Properties
+}
+
+public class JWTransformationReceiptWOMaterialByProduct
+{
+
+    #region Scalar Properties
+
+    public string Id { get; set; }
+    //   public string CostCenterId { get; set; }
+    public string JWTCMByProductId { get; set; }
+
+    public string JWTCMDByProductId { get; set; }
+    public string QualityStatus { get; set; }
+    //public string JWInputItemId { get; set; }
+    public string TransactionUoM { get; set; }
+
+    public string TransactionUoMId { get; set; }
+
+    public string BaseUoMId { get; set; }
+    public string TransactionQty { get; set; }
 
     #endregion Scalar Properties
 }
