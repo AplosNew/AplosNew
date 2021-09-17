@@ -157,7 +157,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 try
                 {
-                    objRpt.GetAbsentReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAbsent);
+                    Gen.GetAbsentReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAbsent);
                     dtAbsent = dsAbsent.Tables[0];
 
                 }
@@ -10247,7 +10247,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                               
 							and (---1
 							
-							( AP.InTime IS Not NULL or AP.PunchInTime Is Not Null)
+							( AP.InTime IS Not NULL or AP.PunchInTime Is Not Null )
+                            and 
+                            ( AP.OutTime IS Not NULL or AP.PunchOutTime Is Not Null )
 							
 							)----1                     		
                         ORDER BY 
@@ -10353,6 +10355,109 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }//End Function
 
+        public void GetAbsentReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+            string fd = "01-" + Convert.ToDateTime(ToDate).ToString("MMM") + "-" + Convert.ToDateTime(ToDate).ToString("yyyy");
+            string endDate = Convert.ToDateTime(fd).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+
+                           ";
+                strSql += columnName();
+                strSql += @" ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                        	,PR.UserName PositionName
+                            ,AP.DayStatus
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,l.username as Line
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+                            ,totalabsent.TotalAbsent
+                        FROM AttdnProcessData AP
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+
+                            left join ( SELECT EmpSystemID ,EmployeeCode
+								,sum(TotalAbsent)as TotalAbsent 
+                               FROM(
+								SELECT EmpSystemID, EmployeeCode,DayStatus,   								                        
+                                TotalAbsent = CASE WHEN Category = 'Absent' and LTSystemID is null THEN 1
+                                WHEN Category = 'Absent' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN Category = 'Absent' and LTSystemID is not null and LeaveDuration=1 THEN 1
+                                WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
+                                ELSE 0 END      							                        
+                                FROM dbo.AttdnProcessData a
+                                left join daytype p on a.DayStatus=p.DayType
+                                left join employeeInformation ei on ei.SystemId =a.EmpSystemID 							
+                                WHERE  
+								 WorkDate between '" + fd + @"' AND '" + ToDate + @"'
+								 AND ei.PlantId= '" + plantId + @"' AND EI.CompanyId='" + companyId + @"'
+                                ) A  
+							 group by EmployeeCode,EmpSystemID) totalabsent on totalabsent.EmpSystemID=ap.EmpSystemID and EI.SystemId=totalabsent.EmpSystemID
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                       ";
+                strSql += tableName();
+                strSql += @"WHERE 
+                               AP.DayStatus ='A'
+                        	And AP.InTime IS NULL
+                        	AND AP.OutTime IS NULL
+                            and isnull(ei.EmployeeCurrentStatus,'') not in('TBS','LONG ABSENTEEISM')
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                            
+                        ORDER BY AP.WorkDate
+                        	,EmployeeCodePreFix,EmployeeCodeNumeric";
+
+                con.getDataSet(strSql, out dsRef);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
 
         public void GetLeaveWithPunchReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
         {
