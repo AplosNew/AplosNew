@@ -206,7 +206,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetOTNotEntitledWithOutMissingReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOTNotEntitledWithOutMissing);
+                    Gen.GetOTNotEntitledWithOutMissingReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOTNotEntitledWithOutMissing);
                     dtOTNotEntitledWithOutMissing = dsOTNotEntitledWithOutMissing.Tables[0];
 
                 }
@@ -10101,7 +10101,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         public void GetOTNotEntitledWithOutMissingReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
         {
-            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
 
             try
@@ -10129,8 +10129,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         	,AP.InTime InTime
                         	,AP.OutTime OutTime
                              ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
-                        	,ISNULL(MA.UpdatedBy, MA.AddedBy) ManualAttdnUser
-                        	,ISNULL(ISNULL(MA.DateUpdated, MA.DateAdded), '') ManualAttdnDate
+                        	--,ISNULL(MA.UpdatedBy, MA.AddedBy) ManualAttdnUser
+                        	--,ISNULL(ISNULL(MA.DateUpdated, MA.DateAdded), '') ManualAttdnDate
                         	,AP.IsOTComfirm
                         	,OTF.NormalOTHr ComfirmedOT
                         	,AP.OTHr CalOT
