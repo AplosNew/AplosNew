@@ -11,6 +11,7 @@ using Library.Service.Helpers;
 using System.IO;
 using Syncfusion.XlsIO;
 using System.Drawing;
+using ConnectionManager;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -195,7 +196,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetOTEntitledWithOutMissingReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOTEntitledWithOutMissing);
+                    Gen.GetOTEntitledWithOutMissingReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOTEntitledWithOutMissing);
                     dtOTEntitledWithOutMissing = dsOTEntitledWithOutMissing.Tables[0];
 
                 }
@@ -9954,6 +9955,231 @@ namespace Library.HumanResource.NewAttendanceProcess
 
     public class DataSetGenerationClass
     {
+        private readonly ISqlRepository _sqlRepository;
+        public DataSetGenerationClass()
+        {
+            
+        }
+        public DataSetGenerationClass(ISqlRepository sqlRepository)
+        {
+            _sqlRepository = sqlRepository;
+           
+        }
+       
+        private string tableName()
+        {
+            return @"
+                        LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode = PMB.Id
+                        LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                        LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id                        
+                        LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                        LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                        LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+                        left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+						LEFT JOIN HKP.Designation DeG ON DeG.Id = dm.DesignationId
+                        left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
+                        LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                        ";
+        }
+        
+        private string columnName()
+        {
+            return @",ei.EmployeeCurrentStatus,EI.CellPhnNo TelePhnNo
+                            ,EI.EmployeeCode
+                        	,EI.EmployeeName
+                        	,PMB.Code BudgetCode
+                            , LGD.userName LegalDesignation
+                            , DeG.UserName Designation
+                            , DP.UserName Department
+                            , se.UserName Section
+                            , Sus.UserName SubSection
+                            , E.UserName EntityName
+                            , PR.UserName PositionName
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                            , EC.UserName as EmployeeCategory
+                            , L.UserName Line ";
+
+        }
+        
+        public void GetOTEntitledWithOutMissingReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+                            ";
+                strSql += columnName();
+                strSql += @"
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                            ,AP.DayStatus
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	--,ISNULL(MA.UpdatedBy, MA.AddedBy) ManualAttdnUser
+                        	--,ISNULL(ISNULL(MA.DateUpdated, MA.DateAdded), '') ManualAttdnDate
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+                            ,EC.UserName as EmployeeCategory
+                            --,RawPunch=REPLACE(REPLACE(
+                        --STUFF((select distinct ','+ FORMAT(CAST(rd.PTime AS datetime2), N'hh:mm tt')  from
+                        --AttdnRawData rd
+                       -- WHERE rd.LogDownLoadNum =ap.EmpSystemID and rd.PDate = ap.WorkDate and isnull(rd.PType,'')='' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                       -- ,'&amp;','&'), 'amp;', '')
+
+
+                        FROM AttdnProcessData AP
+                      --  LEFT JOIN AttdnManualData MA ON AP.EmpSystemID = MA.EmpSystemID
+                        --	AND AP.WorkDate = MA.WorkDate
+                        LEFT join (select LogDownLoadNum,PDate,min(PTime)ptime from AttdnRawData where isnull(ptype,'')='' group by LogDownLoadNum,PDate) rd on rd.LogDownLoadNum = ap.EmpSystemID and rd.PDate = ap.WorkDate
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        --LEFT JOIN EmpDateWiseShiftAssign es ON es.EmpSystemID = EI.SystemId
+                        	--AND AP.WorkDate = ES.WorkDate
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                       ";
+                strSql += tableName();
+                strSql += @"WHERE 
+                            --DT.Category IN ('Present','Late')
+                            --and ISNULL(rd.LogDownLoadNum,'')<>''
+                        	AP.InTime IS NOT NULL                        	
+                        	And AP.OutTime IS NULL  
+                            AND  AP.IsOTEntitled = 1
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
+                             
+                        ORDER BY 
+                                EmployeeCodePreFix,EmployeeCodeNumeric
+                                    ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetOTNotEntitledWithOutMissingReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId";
+                strSql += columnName();
+                strSql += @",SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                            ,AP.DayStatus
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,ISNULL(MA.UpdatedBy, MA.AddedBy) ManualAttdnUser
+                        	,ISNULL(ISNULL(MA.DateUpdated, MA.DateAdded), '') ManualAttdnDate
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+                            ,EC.UserName as EmployeeCategory
+                  
+                        FROM AttdnProcessData AP
+                        LEFT join (select LogDownLoadNum,PDate,min(PTime)ptime from AttdnRawData where isnull(ptype,'')='' group by LogDownLoadNum,PDate) rd on rd.LogDownLoadNum = ap.EmpSystemID and rd.PDate = ap.WorkDate
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                       ";
+                strSql += tableName();
+                strSql += @"WHERE 
+                        	AP.InTime IS NOT NULL                        	
+                        	And AP.OutTime IS NULL  
+                            AND  AP.IsOTEntitled = 0
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	                           
+                        ORDER BY 
+                               EmployeeCodePreFix,EmployeeCodeNumeric
+                                    ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
 
     }
 

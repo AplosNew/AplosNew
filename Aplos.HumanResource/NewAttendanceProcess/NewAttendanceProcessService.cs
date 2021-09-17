@@ -3585,7 +3585,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["UnderStay"] = 0;
                                 }
                                 else if (OverUnderStay == 0)
-                                { 
+                                {
                                     dr["OverStay"] = 0;
                                     dr["UnderStay"] = 0;
                                 }
@@ -3718,7 +3718,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string DayStatus = clsWebLib.RetValidLen(PrevUserDayStat.Tables[0].Rows[i][@"DayType"]).ToString();
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0) 
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 // Updation in AttdnProcessData
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
