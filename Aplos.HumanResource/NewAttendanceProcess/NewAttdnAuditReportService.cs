@@ -167,7 +167,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetAbsentWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAbsentWithPunch);
+                    Gen.GetAbsentWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAbsentWithPunch);
                     dtAbsentWithPunch = dsAbsentWithPunch.Tables[0];
 
                 }
@@ -598,8 +598,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     xlsRow++;
 
                     sheet20.Range[xlsRow, isl].Text = "5";
-                    sheet20.Range[xlsRow, iLogic].Text = "Day Status: A with Punch Having Intime or Out time or Both";
-                    sheet20.Range[xlsRow, iReportName].Text = "5-Absent With single Punch";
+                    sheet20.Range[xlsRow, iLogic].Text = "In Punch Missing";
+                    sheet20.Range[xlsRow, iReportName].Text = "5-In Missing";
                     sheet20.Range[xlsRow, iObjective].Text = "Not Sincere About Punch Specially Out punch";
                     sheet20.Range[xlsRow, iCount].Number = dtAbsentWithPunch.Rows.Count;
 
@@ -607,7 +607,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkAbsentWithPunch.Type = ExcelHyperLinkType.Workbook;
                     linkAbsentWithPunch.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkAbsentWithPunch.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
-                    linkAbsentWithPunch.Address = "5_Absent_With_single_Punch!A1";
+                    linkAbsentWithPunch.Address = "5_In_Missing!A1";
 
                     xlsRow++;
 
@@ -2494,7 +2494,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         #endregion Line Setup
                         xlsRow++;
-                        sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "Day Status: A";
+                        sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "In Punch Missing";
                         sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Merge();
                         sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].CellStyle.Font.Bold = true;
 
@@ -2503,7 +2503,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].WrapText = true;
 
                         xlsRow++;
-                        sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "With Punch";
+                        sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "";
                         sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Merge();
                         sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].CellStyle.Font.Bold = true;
 
@@ -2596,7 +2596,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet4.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
-                    sheet4.Range[xlsRow, 3].Text = (SheetIndex + 1) + "-Absent With single Punch: " + FromDate + " To Date: " + ToDate;
+                    sheet4.Range[xlsRow, 3].Text = (SheetIndex + 1) + "-In Punch Missing From: " + FromDate + " To Date: " + ToDate;
                     sheet4.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                     sheet4.Range[xlsRow, 3].CellStyle.Font.Size = 10;
                     sheet4.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
@@ -2642,17 +2642,17 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     if (dtAbsentWithPunch.Rows.Count > 0)
                     {
-                        sheet4.Name = (SheetIndex + 1) + "_Absent_With_single_Punch";
+                        sheet4.Name = (SheetIndex + 1) + "_In_Missing";
                         sheet4.TabColorRGB = Color.Red;
                     }
                     else
                     {
-                        sheet4.Name = (SheetIndex + 1) + "_Absent_With_single_Punch";
+                        sheet4.Name = (SheetIndex + 1) + "_In_Missing";
                     }
 
                     #endregion Page Setup
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
 
                 }
@@ -10357,7 +10357,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         public void GetAbsentReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
         {
-            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
             string fd = "01-" + Convert.ToDateTime(ToDate).ToString("MMM") + "-" + Convert.ToDateTime(ToDate).ToString("yyyy");
             string endDate = Convert.ToDateTime(fd).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
@@ -10549,6 +10549,89 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public void GetAbsentWithPunchReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId";
+                strSql += columnName();
+                strSql += @" ,AP.DayStatus
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+		                
+                        FROM AttdnProcessData AP
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+
+                    
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                    LEFT join (select LogDownLoadNum,PDate,min(PTime)ptime from AttdnRawData where isnull(ptype,'')='' group by LogDownLoadNum,PDate) rd on rd.LogDownLoadNum = ap.EmpSystemID and rd.PDate = ap.WorkDate
+                        ";
+                strSql += tableName();
+                strSql += @"WHERE  
+
+                        	AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                               --and ISNULL(rd.LogDownLoadNum,'')=''
+							and (---1
+							( AP.InTime IS NULL	AND AP.OutTime IS not NULL)							
+							)----1                        		
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
 
     }
 
