@@ -1181,10 +1181,161 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	});
 
 
+	var SelectedWOMaterial = [];
+	var SelectedByProductWOMaterial = [];
 	$scope.JWSave = function () {
 		//debugger;
 
+		//for (var b = 0; b < $scope.inventoryMaterialList.length; b++) {
+		//	if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[b].StandardName)) {
 
+		//          }
+		//}
+
+		if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[0].StandardName)) {
+			if ($scope.inventoryMaterialList.length > 0) {
+				if ($scope.ReceiptTransformation.GRNDate > new Date()) {
+					ShowResult("GRN Date  can not grather than Today's Date", 'failure');
+					return false;
+				}
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.NoteForAccounts)) {
+					ShowResult("Enter Note for accounts", 'failure');
+					return false;
+				}
+				else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.ReceiptTransformation.CheckedBy)) {
+					ShowResult("Please select to be approved by", 'failure');
+					return false;
+				}
+				else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.ReceiptTransformation.CheckedBy)) {
+					ShowResult("Please select to be checked by", 'failure');
+					return false;
+				}
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.InvoicingPartyPlantId)) {
+					return ShowResult('Invoicing by is required', 'failure');
+					return false;
+				}
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DeliveryPartyPlantId)) {
+					return ShowResult('Delivery by is required', 'failure');
+					return false;
+				}
+
+
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DocRefNo)) {
+					return ShowResult('Enter Doc Ref No', 'failure');
+					return false;
+				}
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DocDate)) {
+					return ShowResult('Enter Doc Date', 'failure');
+					return false;
+				}
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.GateEntryNo)) {
+					return ShowResult('Select Gate Entry No', 'failure');
+					return false;
+				}
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.GRNDate)) {
+					return ShowResult('Enter GRN Date', 'failure');
+					return false;
+				}
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.CurrencyId)) {
+					return ShowResult('Select Currency', 'failure');
+					return false;
+				}
+
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.ByWhomName)) {
+					return ShowResult('Select By Whom', 'failure');
+					return false;
+				}
+
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.MaterialStorageId)) {
+					return ShowResult('Select Material Storage', 'failure');
+					return false;
+				}
+				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.NoteForAccounts)) {
+					return ShowResult('Enter the Note For Accounts', 'failure');
+					return false;
+				}
+            }
+
+			for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
+				if ($scope.inventoryMaterialList[i].check == true) {
+					 SelectedWOMaterial = [];
+					 
+
+					//if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].MaterialStorageId)) {
+					//	ShowResult("Please select storage location", 'failure');
+					//	return false;
+					//}
+					 if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].QualityStatus)) {
+						ShowResult("Please select quality status", 'failure');
+						return false;
+					}
+
+					if ($scope.inventoryMaterialList[i].TransactionQty === '0' && $scope.inventoryMaterialList[i].check === true) {
+						ShowResult("Enter the Qty", 'failure');
+						return false;
+					}
+					else if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].TransactionQty) && $scope.inventoryMaterialList[i].check === true) {
+						ShowResult("Enter the Qty", 'failure');
+						return false;
+					}
+					SelectedWOMaterial.push($scope.inventoryMaterialList[i]);
+
+				}
+
+			}
+
+			if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[0].StandardName)) {
+				for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
+					if ($scope.inventoryMaterialListPO[i].check == true) {
+						SelectedByProductWOMaterial = [];
+
+						//if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].MaterialStorageId)) {
+						//	ShowResult("Please select storage location", 'failure');
+						//	return false;
+						//}
+
+						if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].QualityStatus)) {
+							ShowResult("Please select quality status", 'failure');
+							return false;
+						}
+
+						if ($scope.inventoryMaterialListPO[i].TransactionQty === '0' && $scope.inventoryMaterialListPO[i].check === true) {
+							ShowResult("Enter the Qty", 'failure');
+							return false;
+						}
+						else if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].TransactionQty) && $scope.inventoryMaterialListPO[i].check === true) {
+							ShowResult("Enter the Qty", 'failure');
+							return false;
+						}
+						SelectedByProductWOMaterial.push($scope.inventoryMaterialListPO[i]);
+
+					}
+				}
+            }
+
+
+			$http({
+
+				method: 'POST'
+				, url: $scope.path + 'SaveTransformationWOMaterial'
+				, data: {
+					'data': $scope.ReceiptTransformation, 'ContractId': $scope.Transformation.Id, 'PartyId': $scope.Transformation.PartyId
+					, 'SelectedQtyDataWOMat': SelectedWOMaterial, 'SelectedByProductQtyDataWOMat': SelectedByProductWOMaterial
+
+				}
+				, dataType: 'JSON'
+			}).then(function (response) {
+				if (response.data.Error === true)
+					ShowResult(response.data.Message, 'failure');
+				else {
+					ShowResult(response.data.Message, 'success');
+				//	$scope.getdataInventoryIssue();
+				}
+			}), function (response) {
+				ShowResult(response.data.Message, 'failure');
+			};
+		}
+		else {
 
 		$scope.inventoryMaterialListPOnew = [];
 		$scope.inventoryMaterialListPOnew1 = [];
@@ -1706,128 +1857,156 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 						}
 					}
 				}
-					$http({
-						method: 'POST',
-						url: 'Products/GoodsReceiveNote/CreateJWGRN',
-						data:
-						{
-							'entity': $scope.ReceiptTransformation,
-							'entityMatAndImat': JSON.stringify($scope.inventoryMaterialListPOnew),
-							'receiveTaxList': $scope.POMaterialTaxList,
-							'chargesListPO': $scope.chargesListPOnew,
-							'POServiceTaxList': $scope.POServiceTaxList,
-							'GRNType': 'GRNBYJW',
-							'AcceptanceId': $scope.AcceptanceId,
-							'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
-							'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
-							'entityMatByProduct': JSON.stringify($scope.inventoryMaterialListPOnew1),
-						},
-						dataType: 'JSON'
-					}).then(function successCallback(response) {
-						if (response.data.Error === true) {
-							ShowResult(response.data.Message, 'failure');
-						}
-						else {
-							ShowResult(response.data.Message, 'success');
-							$scope.ReceiptTransformation.Id = response.data.entity.Id;
-							//ShowResult(response.data.Message, 'success');
-							//$scope.setTabGRNList(1);
-							//$scope.getDataList();
-							//$scope.GRNListDetails();
-
-							//$scope.productId = response.data.entity.Id;
-							//$scope.productNew.Id = response.data.entity.Id;
-							//$scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
-
-						}
-					}, function errorCallBack(response) {
+				$http({
+					method: 'POST',
+					url: 'Products/GoodsReceiveNote/CreateJWGRN',
+					data:
+					{
+						'entity': $scope.ReceiptTransformation,
+						'entityMatAndImat': JSON.stringify($scope.inventoryMaterialListPOnew),
+						'receiveTaxList': $scope.POMaterialTaxList,
+						'chargesListPO': $scope.chargesListPOnew,
+						'POServiceTaxList': $scope.POServiceTaxList,
+						'GRNType': 'GRNBYJW',
+						'AcceptanceId': $scope.AcceptanceId,
+						'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
+						'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
+						'entityMatByProduct': JSON.stringify($scope.inventoryMaterialListPOnew1),
+					},
+					dataType: 'JSON'
+				}).then(function successCallback(response) {
+					if (response.data.Error === true) {
 						ShowResult(response.data.Message, 'failure');
-					});
+					}
+					else {
+						ShowResult(response.data.Message, 'success');
+						$scope.ReceiptTransformation.Id = response.data.entity.Id;
+						//ShowResult(response.data.Message, 'success');
+						//$scope.setTabGRNList(1);
+						//$scope.getDataList();
+						//$scope.GRNListDetails();
+
+						//$scope.productId = response.data.entity.Id;
+						//$scope.productNew.Id = response.data.entity.Id;
+						//$scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
+
+					}
+				}, function errorCallBack(response) {
+					ShowResult(response.data.Message, 'failure');
+				});
 
 
 
 
-				}
-			
+			}
+
 			// }
 		} catch (e) {
 			throw e;
 		}
+	}
 	};
 
 
 	$scope.calculateAmount = function (data, index) {
-		debugger;
-		if ($scope.Action === 'Save') {
-			//	data.TransactionRate = (data.GrossConsumption * data.TransactionQty) / data.TransactionQty;
-			var MatTranRate = (data.GrossConsumption) / data.PlanQuantity;
-			data.TransactionRate = MatTranRate.toFixed(4);
-		}
-			
-		
-
-		$scope.PreBal = data.Balance;
-		data.TrnAmount = (data.NetQty * data.TransactionRate).toFixed(2);//(data.TransactionQty * data.TransactionRate).toFixed(2);
-		if (data.TrnAmount == 'NaN')
-			data.TrnAmount = 0;
-		data.TaxAmount = 0;
-		data.BaseTaxAmount = 0;
-		for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-
-			$scope.inventoryMaterialList[i].Balance = '';
-			var ToleranceQty = $scope.inventoryMaterialList[i].PlanQuantity * $scope.inventoryMaterialList[i].Tolerance / 100;
-			var newpoQty = $scope.inventoryMaterialList[i].PlanQuantity + ToleranceQty;
-			if ($scope.inventoryMaterialList[i].PlanQuantity < (parseFloat($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty).toFixed(2)) && (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].Tolerance) || $scope.inventoryMaterialList[i].Tolerance === 0)) {
-				$scope.inventoryMaterialList[i].TransactionQty = '';
-				ShowResult('Current quantity can not grater than balance qty!', 'failure');
-				return false;
+		if (!baseService.isUndefinedOrNull(data.StandardName)) {
+			debugger;
+			if ($scope.Action === 'Save') {
+				//	data.TransactionRate = (data.GrossConsumption * data.TransactionQty) / data.TransactionQty;
+				var MatTranRate = (data.GrossConsumption) / data.PlanQuantity;
+				data.TransactionRate = MatTranRate.toFixed(4);
 			}
 
-			else if (newpoQty < (parseFloat($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty).toFixed(2)) && (!baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].Tolerance) || $scope.inventoryMaterialList[i].Tolerance > 0)) {
-				ShowResult('Current quantity can not grater than po qty and Tolerance qty!PO + Tolerance=' + newpoQty, 'failure');
-				return false;
-			}
-			else if ($scope.inventoryMaterialList[i].ShortageQty > $scope.inventoryMaterialList[i].TransactionQty) {
-				ShowResult('Shortage Qty quantity can not grater than current qty!', 'failure');
-				return false;
-			}
-			else if ($scope.inventoryMaterialList[i].RejectionQty > $scope.inventoryMaterialList[i].TransactionQty) {
-				ShowResult('Rejection Qty quantity can not grater than current qty!', 'failure');
-				return false;
-			}
-			else {
-				if ($scope.inventoryMaterialList[i].JWTCMDId == data.JWTCMDId) {
-					$scope.inventoryMaterialList[i].TrnAmount = Math.round(data.TrnAmount * 100 + Number.EPSILON) / 100;
-					$scope.inventoryMaterialList[i].Balance = ($scope.inventoryMaterialList[i].PlanQuantity - ($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty));
-					$scope.inventoryMaterialList[i].ApprovedQty = ($scope.inventoryMaterialList[i].TransactionQty - ($scope.inventoryMaterialList[i].ShortageQty + $scope.inventoryMaterialList[i].RejectionQty));
-					$scope.inventoryMaterialList[i].NetQty = ($scope.inventoryMaterialList[i].TransactionQty - $scope.inventoryMaterialList[i].ShortageQty);
 
+
+			$scope.PreBal = data.Balance;
+			data.TrnAmount = (data.NetQty * data.TransactionRate).toFixed(2);//(data.TransactionQty * data.TransactionRate).toFixed(2);
+			if (data.TrnAmount == 'NaN')
+				data.TrnAmount = 0;
+			data.TaxAmount = 0;
+			data.BaseTaxAmount = 0;
+			for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
+
+				$scope.inventoryMaterialList[i].Balance = '';
+				var ToleranceQty = $scope.inventoryMaterialList[i].PlanQuantity * $scope.inventoryMaterialList[i].Tolerance / 100;
+				var newpoQty = $scope.inventoryMaterialList[i].PlanQuantity + ToleranceQty;
+				if ($scope.inventoryMaterialList[i].PlanQuantity < (parseFloat($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty).toFixed(2)) && (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].Tolerance) || $scope.inventoryMaterialList[i].Tolerance === 0)) {
+					$scope.inventoryMaterialList[i].TransactionQty = '';
+					ShowResult('Current quantity can not grater than balance qty!', 'failure');
+					return false;
 				}
-				else {
-					$scope.inventoryMaterialList[i].Balance = ($scope.inventoryMaterialList[i].PlanQuantity - ($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty));
-					$scope.inventoryMaterialList[i].ApprovedQty = ($scope.inventoryMaterialList[i].TransactionQty - ($scope.inventoryMaterialList[i].ShortageQty + $scope.inventoryMaterialList[i].RejectionQty));
-					$scope.inventoryMaterialList[i].NetQty = ($scope.inventoryMaterialList[i].TransactionQty - $scope.inventoryMaterialList[i].ShortageQty);
-				}
-				if ($scope.ReceiptTransformation.IsNonCreditable == 1) {
-					if ($scope.inventoryMaterialList[i].JWTCDetailId == data.JWTCDetailId) {
-						$scope.inventoryMaterialList[i].TrnAmount = ($scope.inventoryMaterialList[i].NetQty * $scope.inventoryMaterialList[i].TransactionRate).toFixed(2);
-						$scope.inventoryMaterialList[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * 100 + Number.EPSILON) / 100;
-						$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.ReceiptTransformation.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
 
-					}
+				else if (newpoQty < (parseFloat($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty).toFixed(2)) && (!baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].Tolerance) || $scope.inventoryMaterialList[i].Tolerance > 0)) {
+					ShowResult('Current quantity can not grater than po qty and Tolerance qty!PO + Tolerance=' + newpoQty, 'failure');
+					return false;
+				}
+				else if ($scope.inventoryMaterialList[i].ShortageQty > $scope.inventoryMaterialList[i].TransactionQty) {
+					ShowResult('Shortage Qty quantity can not grater than current qty!', 'failure');
+					return false;
+				}
+				else if ($scope.inventoryMaterialList[i].RejectionQty > $scope.inventoryMaterialList[i].TransactionQty) {
+					ShowResult('Rejection Qty quantity can not grater than current qty!', 'failure');
+					return false;
 				}
 				else {
 					if ($scope.inventoryMaterialList[i].JWTCMDId == data.JWTCMDId) {
-						$scope.inventoryMaterialList[i].TrnAmount = Math.round(($scope.inventoryMaterialList[i].NetQty * $scope.inventoryMaterialList[i].TransactionRate) * 100 + Number.EPSILON) / 100;
-						$scope.inventoryMaterialList[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * 100 + Number.EPSILON) / 100;
-						$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.ReceiptTransformation.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
+						$scope.inventoryMaterialList[i].TrnAmount = Math.round(data.TrnAmount * 100 + Number.EPSILON) / 100;
+						$scope.inventoryMaterialList[i].Balance = ($scope.inventoryMaterialList[i].PlanQuantity - ($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty));
+						$scope.inventoryMaterialList[i].ApprovedQty = ($scope.inventoryMaterialList[i].TransactionQty - ($scope.inventoryMaterialList[i].ShortageQty + $scope.inventoryMaterialList[i].RejectionQty));
+						$scope.inventoryMaterialList[i].NetQty = ($scope.inventoryMaterialList[i].TransactionQty - $scope.inventoryMaterialList[i].ShortageQty);
+
+					}
+					else {
+						$scope.inventoryMaterialList[i].Balance = ($scope.inventoryMaterialList[i].PlanQuantity - ($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty));
+						$scope.inventoryMaterialList[i].ApprovedQty = ($scope.inventoryMaterialList[i].TransactionQty - ($scope.inventoryMaterialList[i].ShortageQty + $scope.inventoryMaterialList[i].RejectionQty));
+						$scope.inventoryMaterialList[i].NetQty = ($scope.inventoryMaterialList[i].TransactionQty - $scope.inventoryMaterialList[i].ShortageQty);
+					}
+					if ($scope.ReceiptTransformation.IsNonCreditable == 1) {
+						if ($scope.inventoryMaterialList[i].JWTCDetailId == data.JWTCDetailId) {
+							$scope.inventoryMaterialList[i].TrnAmount = ($scope.inventoryMaterialList[i].NetQty * $scope.inventoryMaterialList[i].TransactionRate).toFixed(2);
+							$scope.inventoryMaterialList[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * 100 + Number.EPSILON) / 100;
+							$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.ReceiptTransformation.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
+
+						}
+					}
+					else {
+						if ($scope.inventoryMaterialList[i].JWTCMDId == data.JWTCMDId) {
+							$scope.inventoryMaterialList[i].TrnAmount = Math.round(($scope.inventoryMaterialList[i].NetQty * $scope.inventoryMaterialList[i].TransactionRate) * 100 + Number.EPSILON) / 100;
+							$scope.inventoryMaterialList[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * 100 + Number.EPSILON) / 100;
+							$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.ReceiptTransformation.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
+						}
 					}
 				}
 			}
 		}
+		//else {
+		//	var Bal = parseFloat(data.PlanQuantity) - parseFloat(data.GRNRcvQty);
+		//	if (parseFloat(data.TransactionQty) > Bal) {
+		//		data.check = false;
+		//		ShowResult('Current Quantity cannot be greater than Balance quantity', 'failure');
+		//		return false;
+  //          }
+  //      }
 	};
 
+	$scope.ValWOMatQty = function (data) {
+		if (baseService.isUndefinedOrNull(data.StandardName)) {
+			var Bal = parseFloat(data.PlanQuantity) - parseFloat(data.GRNRcvQty);
+			if (parseFloat(data.TransactionQty) > Bal) {
+				data.check = false;
+				data.Balance = Bal.toFixed(4);
+				ShowResult('Current Quantity cannot be greater than Balance quantity', 'failure');
+				return false;
+			}
+			else {
+				var BalRem = (parseFloat(data.PlanQuantity) - parseFloat(data.GRNRcvQty)) - parseFloat(data.TransactionQty);
+				data.Balance = BalRem.toFixed(4);
+            }
+        }
+    }
+
 	$scope.calculateAmountByProduct = function (data, index) {
+		if (!baseService.isUndefinedOrNull(data.StandardName)) {
 		debugger;
 		//data.TransactionRate = 1;// Need to remove
 		$scope.PreBal = data.Balance;
@@ -1889,8 +2068,24 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			}
 		}
 
-
+	}
 	};
+
+	$scope.ValWOMatQtyBYProduct = function (data) {
+		if (baseService.isUndefinedOrNull(data.StandardName)) {
+			var Bal = parseFloat(data.PlanQuantity) - parseFloat(data.GRNRcvQty);
+			if (parseFloat(data.TransactionQty) > Bal) {
+				data.check = false;
+				data.Balance = Bal.toFixed(4);
+				ShowResult('Current Quantity cannot be greater than Balance quantity', 'failure');
+				return false;
+			}
+			else {
+				var BalRem = (parseFloat(data.PlanQuantity) - parseFloat(data.GRNRcvQty)) - parseFloat(data.TransactionQty);
+				data.Balance = BalRem.toFixed(4);
+			}
+		}
+	}
 
 	// #region GRN-By-JW Index  All Tab 
 	$scope.GRN = "";
@@ -2288,6 +2483,8 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.GetMaterialInputList = [];
 	$scope.GetIssuedMatInputList = [];
 	$scope.GetIfIssuedOrNot = function (x) {
+		if (!baseService.isUndefinedOrNull(x.StandardName)) {
+
 		$scope.JWPOId = x.JWTCMId;
 		$scope.JWOutputId = x.JWTCMDId;
 
@@ -2348,6 +2545,8 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
             }
 		});
+
+		}
     }
 
 }
