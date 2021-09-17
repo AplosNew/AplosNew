@@ -285,7 +285,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtMaternityLeave = dsMaternityLeave.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -295,7 +295,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtBankRemarks = dsBankRemarks.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -305,7 +305,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtAttendanceNotLock = dsAttendanceNotLock.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -2385,14 +2385,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet4.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet4.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet4.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Red;
-
-                    //xlsCol += 1;
-                    //iRawPunch = xlsCol;
-                    //sheet4.Range[xlsRow, iRawPunch].Text = "Raw Punch";
-                    //sheet4.Range[xlsRow, iRawPunch].ColumnWidth = 28;
-                    //sheet4.Range[xlsRow, iRawPunch].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //sheet4.Range[xlsRow, iRawPunch].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //sheet4.Range[xlsRow, iRawPunch].CellStyle.Font.Color = ExcelKnownColors.Red;
 
                     sheet4.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
                     //sheet4.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.Gray;
