@@ -131,10 +131,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/Packing/Aplos',
             controller: 'PackingController'
         })
-        .when('/finish-goods-book', {
-            templateUrl: 'Productions/FinishGoodsBooking/Aplos',
-            controller: 'FinishGoodsBookingController'
-        })
+        //.when('/finish-goods-book', {
+        //    templateUrl: 'Productions/FinishGoodsBooking/Aplos',
+        //    controller: 'FinishGoodsBookingController'
+        //})
         .when('/finishgoods-book-post', {
             templateUrl: 'Productions/FinishGoodsBooking/ConsumptionBookPost',
             controller: 'FinishGoodsBookingPostController'

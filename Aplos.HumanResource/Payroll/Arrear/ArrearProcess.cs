@@ -301,26 +301,27 @@ namespace Library.HumanResource.Payroll.Arrear
                 con.getDataSet("select * from ArrearSummaryBatchWise M where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId IN (" + employeeIds + @")", out DataSet dsArrearSummaryBatchWise);
 
                 con.getDataSet(@"SELECT am.ArrearProcessBatchId, ac.EmpInfoSystemID,sh.SalaryHead,ac.SalaryHeadID,sh.TransactionType,
-                                    mb.Id AS ManpowerBudgetId, mb.EntityId, mb.PositionId, AG.Id AS AccountsGroupId,e.PlantId,
-                                    e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,mb.CostCenterId,
+                                    mb.Id AS ManpowerBudgetId, mb.EntityId, mb.PositionId,mb.AccountsGroupId,e.PlantId,
+                                    e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,ecc.CostCenterId,
 
                                     SUM(AC.Diff) AS Diff,
                                     SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Dr.','Both') THEN ABS(ac.diff) ELSE 0 END) AS Debit,
                                     SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Cr.','Both') THEN ABS(ac.diff) ELSE 0 END) AS Credit
-                                      FROM ArrearProcMaster AS AM
-                                    JOIN ArrearProcChild AS AC ON am.SystemID=ac.SlrProcMstSystemID
-                                    LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
-                                    LEFT JOIN EmployeeAccountsGroup AS AG ON ag.EmployeeId=ei.SystemId
-                                    LEFT JOIN [MST].[SalaryHeadGL] SGL ON sgl.SalaryHeadId=ac.SalaryHeadID AND sgl.AccountsGroupId=ag.Id
-                                    JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
-                                    LEFT JOIN mst.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-                                    LEFT JOIN org.Entity AS e ON e.Id=mb.EntityId
+		                                    FROM ArrearProcMaster AS AM
+		                                    JOIN ArrearProcChild AS AC ON am.SystemID=ac.SlrProcMstSystemID
+		                                    LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
+		                                    LEFT JOIN mst.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode 
+		                                    LEFT JOIN [MST].[SalaryHeadGL] SGL ON sgl.SalaryHeadId=ac.SalaryHeadID AND sgl.AccountsGroupId=mb.AccountsGroupId
+		                                    JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
+                                   
+		                                    LEFT JOIN org.Entity AS e ON e.Id=mb.EntityId
+		                                    LEFT JOIN org.EntityCostCenter AS ecc ON ecc.EntityId=e.Id
 
                                     WHERE am.ArrearProcessBatchId='" + ArrearProcessBatchId + @"' and AC.EmpInfoSystemID IN (" + employeeIds + @") AND ISNULL(sh.HeadCategory,'')<>'Net Payable'
                                     AND ISNULL(sh.TransactionType,'') IN ('Dr.','Cr.','Both')
                                     GROUP BY  am.ArrearProcessBatchId, ac.EmpInfoSystemID,sh.SalaryHead,ac.SalaryHeadID,sh.TransactionType,
-                                    mb.Id, mb.EntityId, mb.PositionId, AG.Id,e.PlantId,
-                                    e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,mb.CostCenterId", out DataSet dsArrearAccountsSourceData);
+                                    mb.Id, mb.EntityId, mb.PositionId, mb.AccountsGroupId,e.PlantId,
+                                    e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,ecc.CostCenterId", out DataSet dsArrearAccountsSourceData);
 
 
                 con.getDataSet("select * from ArrearAccountsData M where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmpInfoSystemID IN (" + employeeIds + @")", out DataSet dsArrearAccountsData);

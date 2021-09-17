@@ -16,6 +16,9 @@ function inventorySalesRegisterController(accountService, $window, cboService, c
 	$scope.tax = {		
 		IncludingTax: true
 	};
+	$scope.productNew = {
+		AsOnDate: null,
+    }
 	
 	$scope.partyType = "Customer";
 	$scope.path1 = 'Products/PurchaseOrder/';
