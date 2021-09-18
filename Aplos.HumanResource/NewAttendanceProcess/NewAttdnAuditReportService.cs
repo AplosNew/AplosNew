@@ -214,7 +214,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetOtNotConfirmOverstayReport(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOtNotConfirmOverstayReport);
+                    Gen.GetOtNotConfirmOverstayReport(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOtNotConfirmOverstayReport);
                     dtOtNotConfirmOverstay = dsOtNotConfirmOverstayReport.Tables[0];
 
                 }
@@ -625,7 +625,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet20.Range[xlsRow, isl].Text = "11";
                     sheet20.Range[xlsRow, iLogic].Text = "OT Not Confirm Or Over Stay";
                     sheet20.Range[xlsRow, iReportName].Text = "11-OT Not Confirm";
-                    sheet20.Range[xlsRow, iObjective].Text = "Whose OT Are Not Confirm Yet";
+                    sheet20.Range[xlsRow, iObjective].Text = "Whose OT Hasn't Confirmed Yet";
                     sheet20.Range[xlsRow, iCount].Number = dtOtNotConfirmOverstay.Rows.Count;
 
                     IHyperLink linkOtNotConfirm = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
@@ -813,7 +813,6 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 }
                 #endregion  Summary of the report
-
               
                 #region  Absent No Punch Time 2
                 try
@@ -4320,12 +4319,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet11.Range[xlsRow, iOTDifference].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet11.Range[xlsRow, iOTDifference].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                    xlsCol += 1;
-                    iEntryStatus = xlsCol;
-                    sheet11.Range[xlsRow, iEntryStatus].Text = "Entry Status";
-                    sheet11.Range[xlsRow, iEntryStatus].ColumnWidth = 15;
-                    sheet11.Range[xlsRow, iEntryStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet11.Range[xlsRow, iEntryStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //xlsCol += 1;
+                    //iEntryStatus = xlsCol;
+                    //sheet11.Range[xlsRow, iEntryStatus].Text = "Entry Status";
+                    //sheet11.Range[xlsRow, iEntryStatus].ColumnWidth = 15;
+                    //sheet11.Range[xlsRow, iEntryStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet11.Range[xlsRow, iEntryStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                     sheet11.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
                     // sheet11.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
@@ -4359,7 +4358,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                 sheet11.Range[xlsRow, iSection].Text = dtOtNotConfirmOverstay.Rows[i]["Section"].ToString();
 
-                                sheet11.Range[xlsRow, iEntryStatus].Text = dtOtNotConfirmOverstay.Rows[i]["EntryStatus"].ToString();
+                               // sheet11.Range[xlsRow, iEntryStatus].Text = dtOtNotConfirmOverstay.Rows[i]["EntryStatus"].ToString();
 
                                 sheet11.Range[xlsRow, iSubSection].Text = dtOtNotConfirmOverstay.Rows[i]["SubSection"].ToString();
                                 sheet11.Range[xlsRow, iEntity].Text = dtOtNotConfirmOverstay.Rows[i]["EntityName"].ToString();
@@ -8301,6 +8300,90 @@ namespace Library.HumanResource.NewAttendanceProcess
                         ORDER BY 
                                EmployeeCodePreFix,EmployeeCodeNumeric
                                     ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetOtNotConfirmOverstayReport(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+                           ";
+                strSql += columnName();
+                strSql += @"
+                            ,AP.DayStatus
+                            , AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                            ,AP.ProcessedOT OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.ProcessedOT,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	,AP.InTime
+                        	,AP.OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.ProcessedOT CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+                            
+                        FROM AttdnProcessData AP
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                        
+                      ";
+                strSql += tableName();
+                strSql += @"
+                        WHERE 
+                                AP.DayStatus in (select daytype from daytype where category='Present' OR  category='Late')
+                        	AND AP.IsOTEntitled = 1
+                        	AND AP.IsOTComfirm = 0 
+                            and ap.ProcessedOT >0
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
+                              and ei.DOJ<='" + ToDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                        ORDER BY AP.WorkDate
+                        	,EmployeeCodePreFix,EmployeeCodeNumeric";
+
                 con.getDataSet(strSql, out dsRef);
 
             }
