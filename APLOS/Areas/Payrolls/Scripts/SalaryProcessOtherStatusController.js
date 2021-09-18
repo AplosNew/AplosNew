@@ -599,7 +599,7 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
         var eList = [];
         var filtered = $("#GridEmpWise").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0)
-            filtered = EmployeeList_sep;
+            filtered = $scope.EmployeeList_sep;
 
         eList = GetEmpList(filtered);
         $http({

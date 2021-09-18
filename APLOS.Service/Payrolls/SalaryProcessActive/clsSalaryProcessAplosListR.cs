@@ -5197,12 +5197,12 @@ public class clsSalaryProcessAplosR
             {
                 para.ShowLog = "Process sucessfully Completed... " + strAbstractEmp;
                 SendNotification(para.ShowLog);
-                //sendMessage("Processed sucessfully Completed... " + strAbstractEmp);
+                //sendMessage("Process sucessfully Completed... " + strAbstractEmp);
             }
             else
             {
-                //sendMessage("Processed sucessfully Completed... ");
-                para.ShowLog = "Processed sucessfully Completed... ";
+                //sendMessage("Process sucessfully Completed... ");
+                para.ShowLog = "Process sucessfully Completed... ";
                 SendNotification(para.ShowLog);
 
             }

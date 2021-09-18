@@ -89,5 +89,11 @@ namespace Library.Service.OrderManagements
         void DeleteFirstSku(string id);
         object GetSOBookedQtyAndLevel(string salesOrderId);
         object GetPOBookedQtyAndLevel(string salesOrderId);
+
+        void UpdateSODateGraph(SalesOrderMaster salesOrderMaster);
+        void UpdateSODate(SalesOrderMaster salesOrderMaster);
+        void UpdateSORate(SalesOrderMaster salesOrderMaster);
+        void UpdateSOQTY(SalesOrderMaster salesOrderMaster);
+        void UpdateSOStatus(SalesOrderMaster salesOrderMaster);
     }
 }

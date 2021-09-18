@@ -40,7 +40,7 @@ function PlantWiseAttendanceUnLockController(addressService, fileReader, cboServ
 
 
 
-
+   //datesDisabled
 
     $('.datepicker').datepicker({
         startDate: '-36m',
@@ -140,7 +140,7 @@ function PlantWiseAttendanceUnLockController(addressService, fileReader, cboServ
 
         try {
             if (baseService.isUndefinedOrNull($scope.customPara.lockDate)) {
-                ShowResult("Select Date...", 'failure');
+                throw "Select Date...";
             }
 
             $http({
@@ -165,23 +165,8 @@ function PlantWiseAttendanceUnLockController(addressService, fileReader, cboServ
                 ShowResult(response.data.Message, 'failure');
             };
 
-
-            //$.ajax({
-            //    type: "POST",
-            //    url: $scope.saveUnLockUrl,
-            //    data:
-            //    {
-            //        'lockDate': $scope.customPara.lockDate
-            //    },
-            //    dataType: "json",
-            //    success: function (data) {
-            //        ShowResult($scope.customPara.lockDate + " is Un-Loked...", "success");
-
-            //    }
-
-            //});
         } catch (e) {
-            ShowResult(e.Message, 'failure');
+            ShowResult(e, 'failure');
         }
 
 
