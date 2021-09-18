@@ -832,7 +832,7 @@ namespace Aplos.Areas.Attendances.Controllers
                            ---LEFT JOIN OTSlabDefineGeneral pl ON pl.DayType = dt.OriginalDayType                        
 															---AND apd.WorkDate BETWEEN pl.FromDate AND pl.ToDate AND pl.PlantID=EI.PlantID
                            WHERE apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and isnull(apd.EmpSystemID,'') IN ( " + EmpSystemId + @" )                                                 
-                           AND apd.IsOTEntitled=1 ---AND OTFA.IsConfirmed=0
+                           AND apd.IsOTEntitled=1 AND isnull(APD.ProcessedOT,0)>0 ---AND OTFA.IsConfirmed=0
                            --AND isnull(apd.EmpSystemID,'') IN (select distinct isnull(EmpSystemID,'') from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
                                
                            ORDER BY apd.EmpSystemID ,APD.ProcessedOT desc";
