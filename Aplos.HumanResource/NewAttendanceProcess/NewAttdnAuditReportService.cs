@@ -167,17 +167,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtInPunchMissing = dsInMissPunch.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
                 try
                 {
-                    objRpt.GetShortDurationAbsentReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsShortDurationAbsent);
+                    Gen.GetShortDurationAbsentReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsShortDurationAbsent);
                     dtShortDurationAbsent = dsShortDurationAbsent.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -240,7 +240,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetWorkDurationSheet(FromDate, ToDate, plantId, companyId, companyGroupId, out dsWorkDuration);
+                    Gen.GetWorkDurationSheet(FromDate, ToDate, plantId, companyId, companyGroupId, out dsWorkDuration);
                     dtWorkDuration = dsWorkDuration.Tables[0];
 
                 }
@@ -617,10 +617,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     xlsRow++;
 
                     sheet20.Range[xlsRow, isl].Text = "8";
-                    sheet20.Range[xlsRow, iLogic].Text = "Whose Work Duration is less than Shift Duration";
+                    sheet20.Range[xlsRow, iLogic].Text = "Whose Work Duration is less than Shift HalfDuration & Greater than Shift ShortDuration";
                     sheet20.Range[xlsRow, iReportName].Text = "8-Short Duration";
                     sheet20.Range[xlsRow, iObjective].Text = "To Find Who Are Entitle with Short Leave";
-                    sheet20.Range[xlsRow, iCount].Number = dtWorkDuration.Rows.Count;
+                    sheet20.Range[xlsRow, iCount].Number =dtWorkDuration.Rows.Count;
 
                     IHyperLink linkShortDuration = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
                     linkShortDuration.Type = ExcelHyperLinkType.Workbook;
@@ -3701,33 +3701,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet10.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
 
                         #endregion Line Setup
-
-                        xlsRow++;
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "Shift Duration";
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Merge();
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].CellStyle.Font.Bold = true;
-
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].BorderInside(ExcelLineStyle.Hair);
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].BorderAround(ExcelLineStyle.Hair);
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].WrapText = true;
-
-                        xlsRow++;
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "Work Duration";
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Merge();
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].CellStyle.Font.Bold = true;
-
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].BorderInside(ExcelLineStyle.Hair);
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].BorderAround(ExcelLineStyle.Hair);
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].WrapText = true;
-
-                        xlsRow++;
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "Difference Between Work Duration Shift Duration";
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Merge();
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].CellStyle.Font.Bold = true;
-
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].BorderInside(ExcelLineStyle.Hair);
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].BorderAround(ExcelLineStyle.Hair);
-                        sheet10.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].WrapText = true;
 
                     }
 
@@ -9422,7 +9395,187 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = sqlRepository;
            
         }
-       
+
+        public void GetShortDurationAbsentReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId 
+                           ";
+                strSql += columnName();
+                strSql += @"
+
+                            ,AP.DayStatus
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,ISNULL(MA.UpdatedBy, MA.AddedBy) ManualAttdnUser
+                        	,ISNULL(ISNULL(MA.DateUpdated, MA.DateAdded), '') ManualAttdnDate
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+                             ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                        FROM AttdnProcessData AP
+                        LEFT JOIN AttdnManualData MA ON AP.EmpSystemID = MA.EmpSystemID
+                        	AND AP.WorkDate = MA.WorkDate                       
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        LEFT JOIN EmpDateWiseShiftAssign es ON es.EmpSystemID = EI.SystemId
+                        	AND AP.WorkDate = ES.WorkDate
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = es.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = es.ShiftSystemID";
+                strSql += tableName();
+                strSql += @"WHERE  
+                                AP.DayStatus ='A'  
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'                             
+							and  AP.InTime IS not NULL	AND AP.OutTime IS not  NULL								
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetWorkDurationSheet(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"SELECT datediff(minute,KK.intime ,KK.outtime ) WorkDuration,
+                            datediff(minute,KK.ShiftInTime ,CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END )	ShiftDuration,
+                            E.Code EntityCode,E.UserName EntityUserName
+                            ,kk.Id  EmployeeSystemId ,ei.EmployeeCurrentStatus,EI.CellPhnNo TelePhnNo
+                            ,EI.EmployeeCode
+                        	,EI.EmployeeName
+                        	,PMB.Code BudgetCode
+                            , LGD.userName LegalDesignation
+                            , DSG.UserName Designation
+                            , DP.UserName Department
+                            , se.UserName Section
+                            , Sus.UserName SubSection
+                            , E.UserName EntityName
+                            , PR.UserName PositionName
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                            , EC.UserName as EmployeeCategory
+                            , L.UserName Line  , FORMAT(KK.WorkDate,'ddd') AS DayName, 
+                            FORMAT(KK.WorkDate,'dd-MMM-yyyy') AS WorkDate                           
+                            ,kk.ShiftName 
+                            ,FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
+                            ,FORMAT(ShiftInTime,'hh:mm tt') AS ShiftInTime,
+                     	    FORMAT(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'hh:mm tt') ShiftOutTime,
+                            FORMAT(KK.InTime,'dd-MMM-yyyy hh:mm tt') AS  InTime  
+							,FORMAT(KK.OutTime,'dd-MMM-yyyy hh:mm tt') AS  OutTime                           
+                            , FORMAT(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime
+                            , FORMAT(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime
+                            , KK.DayStatus
+                            ,IsManualInTime=CASE WHEN kk.IsManualInTime=1 then 'Yes' else 'No'end
+							,IsManualOutTime=CASE WHEN kk.IsManualOutTime=1 then 'Yes' else 'No'end
+							,IsManualDayStatus=CASE WHEN kk.IsManualDayStatus=1 then 'Yes' else 'No'end
+                                                     
+                            ,DATEDIFF(minute,KK.ShiftInTime ,KK.ShiftOutTime ) ShiftDuration
+                            ,DATEDIFF(minute,KK.InTime ,KK.OutTime )WorkDuration
+							,(DATEDIFF(minute,KK.InTime ,KK.OutTime ))-(datediff(minute,KK.ShiftInTime ,KK.ShiftOutTime ) ) WorkTimeDifferent
+                            ,DATEDIFF(HOUR,KK.ShiftInTime ,KK.ShiftOutTime ) ShiftDurationHour
+                            ,DATEDIFF(HOUR,KK.InTime ,KK.OutTime )WorkDurationHour
+							,(DATEDIFF(HOUR,KK.InTime ,KK.OutTime ))-(datediff(HOUR,KK.ShiftInTime ,KK.ShiftOutTime ) ) WorkTimeDifferentHour
+                            , KK.OTHr OverStay
+                            , KK.TotalOTHr ConfirmedOT
+                            ,IsOTEntitled= CASE WHEN KK.IsOTEntitled=1 THEN 'Yes' else 'No'END
+                             FROM (								
+		                            SELECT Emp.SystemID AS Id,emp.EmployeeCode,O.WorkDate, O.ShiftSystemID,sd.UserName AS ShiftName,
+								    DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),O.WorkDate))  AS ShiftInTime,
+		                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),o.WorkDate))  AS ShiftOutTime,
+		                            O.InTime, O.IsManualInTime,
+		                            O.OutTime, O.IsManualOutTime, 
+                                    emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,
+		                            O.PunchInTime,O.PunchOutTime,
+		                            O.DayStatus, O.OTHr, O.IsOTComfirm,
+		                            O.IsOTEntitled,O.DurationStatus
+									,fo.TotalOTHr ,o.IsManualDayStatus ,emp.BudgetCode,emp.GivenDesignationId
+		                            FROM EmployeeInformation EMP
+		                            inner join AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
+		                            LEFT JOIN FinalOT AS fo  ON EMP.SystemID=fo.EmpSystemID AND fo.WorkDate=o.WorkDate
+		                            LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=o.ShiftSystemID
+		                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON o.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID                       
+                            WHERE o.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and o.IsHalfDayLeave <> 1
+                        ) AS KK
+                        LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=kk.ShiftSystemID
+                        LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON kk.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
+						LEFT OUTER JOIN EmployeeInformation EI ON KK.Id=EI.SystemID                            
+                        LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode = PMB.Id
+                        LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                        LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id
+                        LEFT JOIN HKP.Designation DSG ON PR.DesignationId = DSG.Id
+                        LEFT JOIN HKP.Designation DeG ON DeG.Id = EI.GivenDesignationId
+                        LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
+                        LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                        LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+                        left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+                        left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
+                        LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
+                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId							
+						where kk.DurationStatus='SD'
+						      and
+							  EI.PlantId='" + plantId + @"' and EI.CompanyId='" + companyId + @"' and EI.GroupID='" + companyGroupId + @"'
+                        ORDER BY CONVERT(DATE, WorkDate),kk.EmployeeCode ASC";
+
+               con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function 
+
         private string tableName()
         {
             return @"
