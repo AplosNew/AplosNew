@@ -4,27 +4,20 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Accounts;
-using Library.Model.Addresses;
 using Library.Model.Banks;
 using Library.Model.Commercial;
-using Library.Model.Currencies;
 using Library.Model.Employees;
 using Library.Model.Enums;
 using Library.Model.Invoices;
-using Library.Model.Organizations;
 using Library.Model.Parties;
 using Library.Model.Payments;
 using Library.Model.Taxations;
 using Library.Model.Vouchers;
-using Library.Service.Calendars;
 using Library.Service.Core;
-using Library.Service.Currencies;
 using Library.Service.Employees;
 using Library.Service.Enums;
 using Library.Service.Extension.Accounts;
 using Library.Service.Logs;
-using Library.Service.Materials;
-using Library.Service.Organizations;
 using Library.Service.Systems;
 using Library.Service.Taxations;
 using Library.Service.Vouchers;
@@ -50,28 +43,20 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<MultiplePayment> _multiplePaymentRepository;
         private readonly IRepositoryAsync<MultiplePaymentDetail> _multiplePaymentDetailRepository;
         private readonly IRepositoryAsync<InvoiceDetail> _invoiceDetailRepository;
+        private readonly IRepositoryAsync<CompanyParty> _companyPartyRepository;
+        private readonly IRepositoryAsync<CompanyPartyGL> _companyPartyGLRepository;
         private readonly IRepositoryAsync<InvoiceMaterial> _invoiceMaterialRepository;
+        private readonly IHSNTaxPercentageService _hsnTaxPercentageService;
         private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
         private readonly IRepositoryAsync<InvoiceTaxDetail> _invoiceTaxDetailRepository;
         private readonly IRepositoryAsync<InvoiceWriteOff> _invoiceWriteOffRepository;
         private readonly IRepositoryAsync<InvoiceWriteOffDetail> _invoiceWriteOffDetailRepository;
         private readonly IRepositoryAsync<TaxCode> _taxCodeRepository;
         private readonly IRepositoryAsync<TaxCodeGL> _taxCodeGLRepository;
-        private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
-        private readonly ICompanyService _companyService;
-        private readonly IMaterialMasterService _materialMasterService;
-        private readonly IHSNTaxPercentageService _hsnTaxPercentageService;
         private readonly TaxCategoryGLService _taxCategoryGlService;
-        private readonly IRepositoryAsync<Entity> _entityRepository;
         private readonly IRepositoryAsync<TaxCategory> _taxCategoryRepository;
-        private readonly IRepositoryAsync<AddressMaster> _addressMasterRepository;
-        private readonly IRepositoryAsync<Party> _partyRepository;
-        private readonly ICompanyTaxYearService _companyTaxYearService;
         private readonly IVoucherService _voucherService;
-        private readonly ICompanyFiscalYearService _companyFiscalYearService;
         private readonly IInvoiceTaxService _invoiceTaxService;
-        private readonly IRepositoryAsync<CompanyParty> _companyPartyRepository;
-        private readonly IRepositoryAsync<CompanyPartyGL> _companyPartyGLRepository;
         private readonly IRepositoryAsync<CashMaster> _cashMasterRepository;
         private readonly IRepositoryAsync<Voucher> _voucherRepository;
         private readonly IRepositoryAsync<VoucherDetail> _voucherDetailRepository;
@@ -98,20 +83,12 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<MultiplePayment> multiplePaymentRepository
             , IRepositoryAsync<MultiplePaymentDetail> multiplePaymentDetailRepository
             , ISqlRepository sqlRepository
-            , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IRepositoryAsync<TaxCode> taxCodeRepository
             , IRepositoryAsync<TaxCodeGL> taxCodeGLRepository
-            , ICompanyService companyService
-            , IMaterialMasterService materialMasterService
             , IHSNTaxPercentageService hsnTaxPercentageService
             , TaxCategoryGLService taxCategoryGlService
-            , IRepositoryAsync<Entity> entityRepository
             , IRepositoryAsync<TaxCategory> taxCategoryRepository
-            , IRepositoryAsync<AddressMaster> addressMasterRepository
-            , ICompanyTaxYearService companyTaxYearService
-            , IRepositoryAsync<Party> partyRepository
             , IVoucherService voucherService
-            , ICompanyFiscalYearService companyFiscalYearService
             , IInvoiceTaxService invoiceTaxService
             , IRepositoryAsync<CompanyParty> companyPartyRepository
             , IRepositoryAsync<CompanyPartyGL> companyPartyGLRepository
@@ -140,20 +117,12 @@ namespace Library.Service.Invoices
             _invoiceWriteOffDetailRepository = invoiceWriteOffDetailRepository;
             _multiplePaymentRepository = multiplePaymentRepository;
             _multiplePaymentDetailRepository = multiplePaymentDetailRepository;
-            _companyParallelCurrencyService = companyParallelCurrencyService;
             _taxCodeRepository = taxCodeRepository;
             _taxCodeGLRepository = taxCodeGLRepository;
-            _companyService = companyService;
-            _materialMasterService = materialMasterService;
             _hsnTaxPercentageService = hsnTaxPercentageService;
             _taxCategoryGlService = taxCategoryGlService;
-            _entityRepository = entityRepository;
             _taxCategoryRepository = taxCategoryRepository;
-            _addressMasterRepository = addressMasterRepository;
-            _partyRepository = partyRepository;
-            _companyTaxYearService = companyTaxYearService;
             _voucherService = voucherService;
-            _companyFiscalYearService = companyFiscalYearService;
             _invoiceTaxService = invoiceTaxService;
             _companyPartyRepository = companyPartyRepository;
             _companyPartyGLRepository = companyPartyGLRepository;
@@ -265,9 +234,12 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 if (voucherVM.IsExcludingTax == false)
                 {
@@ -1203,15 +1175,11 @@ namespace Library.Service.Invoices
             {
                 #region Get Company Parallel Currency Id
 
-                var parallerCurrency = _companyParallelCurrencyService.Query(r => r.CompanyId == voucherVM.CompanyId).Select();
-                if (null == parallerCurrency)
-                    throw new CustomException("Company Parallel Currency not found!");
-                var companyCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.CompanyCurrency.ToString());
-                var groupCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.CompanyGroupCurrency.ToString());
-                var hardCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.HardCurrency.ToString());
-                var companyCurrencyId = companyCurrency != null ? companyCurrency.CurrencyId : throw new CustomException("Company Parallel Currency Id not found!");
-                var companyGroupCurrencyId = groupCurrency?.CurrencyId;
-                var hardCurrencyId = hardCurrency?.CurrencyId;
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 #endregion Get Company Parallel Currency Id
 
@@ -1355,10 +1323,8 @@ namespace Library.Service.Invoices
 
                 var partyTaxCategory = _taxCategoryRepository.Query(r => r.Active).Select().ToList();
 
-                var company = _companyService.Find(voucher.CompanyId);
-                var companyAddress = _addressMasterRepository.Find(company.AddressMasterId);
-                var party = _partyRepository.Find(invoice.PartyId);
-                var partyAddress = _addressMasterRepository.Find(party.AddressMasterId);
+                var companyAddress = _accountsCommonService.GetCompanyAddressStateId(voucher.CompanyId);
+                var partyAddress = _accountsCommonService.GetPartyAddressStateId(voucher.CompanyId);
 
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
@@ -1378,12 +1344,12 @@ namespace Library.Service.Invoices
                         UOMId = voucherDetailVM.UomId,
                         Qty = voucherDetailVM.Qty
                     };
-                    var materialMaster = _materialMasterService.Find(invoiceMaterial.MaterialMasterId);
-                    var hsnPercentageList = _hsnTaxPercentageService.Query(r => r.HSNCodeId == materialMaster.HSNCodeId).Select().ToList();
+                    var materialHSNCode = _accountsCommonService.GetMaterialHSNCodeId(invoiceMaterial.MaterialMasterId);
+                    var hsnPercentageList = _hsnTaxPercentageService.Query(r => r.HSNCodeId == materialHSNCode["HSNCodeId"].ToString()).Select().ToList();
                     foreach (var item in hsnPercentageList)
                     {
                         string circle = null;
-                        circle = companyAddress.StateId == partyAddress.StateId ? TaxCircle.InsideState.ToString() : TaxCircle.OutsideState.ToString();
+                        circle = companyAddress["StateId"] == partyAddress["StateId"] ? TaxCircle.InsideState.ToString() : TaxCircle.OutsideState.ToString();
 
                         var tax = partyTaxCategory.FirstOrDefault(r => r.TaxCircle == circle);
                         if (null != tax)
@@ -1480,9 +1446,12 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -2014,9 +1983,11 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
 
                 if (voucherVM.IsExcludingTax == false)
@@ -2607,9 +2578,11 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -3132,9 +3105,11 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -3399,15 +3374,12 @@ namespace Library.Service.Invoices
             {
                 #region Get Company Parallerl Currency Id
 
-                var parallerCurrency = _companyParallelCurrencyService.Query(r => r.CompanyId == voucherVM.CompanyId).Select();
-                if (null == parallerCurrency)
-                    throw new CustomException("Company Parallel Currency not found!");
-                var companyCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.CompanyCurrency.ToString());
-                var groupCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.CompanyGroupCurrency.ToString());
-                var hardCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.HardCurrency.ToString());
-                var companyCurrencyId = companyCurrency != null ? companyCurrency.CurrencyId : throw new CustomException("Company Parallel Currency Id not found!");
-                var companyGroupCurrencyId = groupCurrency?.CurrencyId;
-                var hardCurrencyId = hardCurrency?.CurrencyId;
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+
 
                 #endregion Get Company Parallerl Currency Id
 
@@ -3605,7 +3577,6 @@ namespace Library.Service.Invoices
                             if (null != voucherDetailCurrency)
                             {
                                 // INSERT INTO VoucherDetailCurrency
-                                _voucherService.CurrencyExchange(voucherVM.CurrencyId, companyCurrencyId, companyGroupCurrencyId, hardCurrencyId, voucherDetailCurrency.CompanyCurrencyDr, voucherDetailCurrency.CompanyGroupCurrencyDr, voucherDetailCurrency);
                                 if (!string.IsNullOrEmpty(companyCurrencyId))
                                 {
                                     if (voucherDetailCurrency.CompanyCurrencyDr <= 0)
@@ -3616,56 +3587,13 @@ namespace Library.Service.Invoices
                                         DrAmount = voucherDetailCurrency.CompanyCurrencyDr,
                                         FromCurrencyId = voucherDetailCurrency.CompanyFromCurrencyId,
                                         ParallelCurrencyId = voucherDetailCurrency.CompanyCurrencyId,
-                                        ToCurrencyConversion = 1 / voucherDetailCurrency.CompanyCurrencyRate,
+                                        ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                                         ToCurrencyId = voucherDetailCurrency.ToCurrencyId,
                                         ToCurrencyRate = voucherDetailCurrency.CompanyCurrencyRate
                                     });
                                     totalBankCrAmountCompanyCurr += voucherDetailCurrency.CompanyCurrencyDr;
                                 }
-                                if (!string.IsNullOrEmpty(companyGroupCurrencyId))
-                                {
-                                    if (voucherDetailCurrency.CompanyGroupCurrencyDr <= 0)
-                                        throw new CustomException($"{voucherDetailCurrency.GLGeneralInfoName} GL {voucherDetailCurrency.CompanyGroupCurrencyName} Dr amount must have to greater than zero!");
-
-                                    _voucherService.InsertVoucherDetailCompanyGroupCurrency(voucherDr, new VoucherDetailCurrency
-                                    {
-                                        AddedBy = voucherDr.AddedBy,
-                                        AddedDate = voucherDr.AddedDate,
-                                        AddedFromIP = voucherDr.AddedFromIP,
-                                        CrAmount = 0,
-                                        DrAmount = voucherDetailCurrency.CompanyGroupCurrencyDr,
-                                        FromCurrencyId = voucherDetailCurrency.CompanyGroupFromCurrencyId,
-                                        ParallelCurrencyId = voucherDetailCurrency.CompanyGroupCurrencyId,
-                                        ToCurrencyConversion = 1 / voucherDetailCurrency.CompanyGroupCurrencyRate,
-                                        ToCurrencyId = voucherDetailCurrency.ToCurrencyId,
-                                        ToCurrencyRate = voucherDetailCurrency.CompanyGroupCurrencyRate,
-                                        VoucherDetailId = voucherDr.Id,
-                                        VoucherId = voucherDr.VoucherId
-                                    });
-                                    totalBankCrAmountGroupCurr += voucherDetailCurrency.CompanyGroupCurrencyDr;
-                                }
-                                if (!string.IsNullOrEmpty(hardCurrencyId))
-                                {
-                                    if (voucherDetailCurrency.HardCurrencyDr <= 0)
-                                        throw new CustomException($"{voucherDetailCurrency.GLGeneralInfoName} GL {voucherDetailCurrency.HardCurrencyName} Dr amount must have to greater than zero!");
-
-                                    _voucherService.InsertVoucherDetailHardCurrency(voucherDr, new VoucherDetailCurrency
-                                    {
-                                        AddedBy = voucherDr.AddedBy,
-                                        AddedDate = voucherDr.AddedDate,
-                                        AddedFromIP = voucherDr.AddedFromIP,
-                                        CrAmount = 0,
-                                        DrAmount = voucherDetailCurrency.HardCurrencyDr,
-                                        FromCurrencyId = voucherDetailCurrency.HardFromCurrencyId,
-                                        ParallelCurrencyId = voucherDetailCurrency.HardCurrencyId,
-                                        ToCurrencyConversion = 1 / voucherDetailCurrency.HardCurrencyRate,
-                                        ToCurrencyId = voucherDetailCurrency.ToCurrencyId,
-                                        ToCurrencyRate = voucherDetailCurrency.HardCurrencyRate,
-                                        VoucherDetailId = voucherDr.Id,
-                                        VoucherId = voucherDr.VoucherId
-                                    });
-                                    totalBankCrAmountHardCurr += voucherDetailCurrency.HardCurrencyDr;
-                                }
+                              
                             }
                         }
                     }
@@ -3709,7 +3637,7 @@ namespace Library.Service.Invoices
                                 FromCurrencyId = voucherDetailCurrencyExchangeLoss.CompanyFromCurrencyId,
                                 ParallelCurrencyId = voucherDetailCurrencyExchangeLoss.CompanyCurrencyId,
                                 ToCurrencyConversion = 1 / voucherDetailCurrencyExchangeLoss.CompanyCurrencyRate,
-                                ToCurrencyId = companyCurrency.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherDetailCurrencyExchangeLoss.CompanyCurrencyRate
                             });
                             totalBankCrAmountExLossCompanyCurr += voucherDetailCurrencyExchangeLoss.CompanyCurrencyDr;
@@ -3726,7 +3654,7 @@ namespace Library.Service.Invoices
                                 FromCurrencyId = voucherDetailCurrencyExchangeLoss.CompanyGroupFromCurrencyId,
                                 ParallelCurrencyId = voucherDetailCurrencyExchangeLoss.CompanyGroupCurrencyId,
                                 ToCurrencyConversion = 1 / voucherDetailCurrencyExchangeLoss.CompanyGroupCurrencyRate,
-                                ToCurrencyId = companyCurrency.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherDetailCurrencyExchangeLoss.CompanyGroupCurrencyRate,
                                 VoucherDetailId = voucherDtEx.Id,
                                 VoucherId = voucher.Id
@@ -3745,7 +3673,7 @@ namespace Library.Service.Invoices
                                 FromCurrencyId = voucherDetailCurrencyExchangeLoss.HardFromCurrencyId,
                                 ParallelCurrencyId = voucherDetailCurrencyExchangeLoss.HardCurrencyId,
                                 ToCurrencyConversion = 1 / voucherDetailCurrencyExchangeLoss.HardCurrencyRate,
-                                ToCurrencyId = companyCurrency.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherDetailCurrencyExchangeLoss.HardCurrencyRate,
                                 VoucherDetailId = voucherDtEx.Id,
                                 VoucherId = voucher.Id
@@ -3795,7 +3723,7 @@ namespace Library.Service.Invoices
                                 FromCurrencyId = voucherDetailCurrencyExchangeGain.CompanyFromCurrencyId,
                                 ParallelCurrencyId = voucherDetailCurrencyExchangeGain.CompanyCurrencyId,
                                 ToCurrencyConversion = 1 / voucherDetailCurrencyExchangeGain.CompanyCurrencyRate,
-                                ToCurrencyId = companyCurrency.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherDetailCurrencyExchangeGain.CompanyCurrencyRate
                             });
                             totalBankCrAmountExGainCompanyCurr += voucherDetailCurrencyExchangeGain.CompanyCurrencyCr;
@@ -3812,7 +3740,7 @@ namespace Library.Service.Invoices
                                 FromCurrencyId = voucherDetailCurrencyExchangeGain.CompanyGroupFromCurrencyId,
                                 ParallelCurrencyId = voucherDetailCurrencyExchangeGain.CompanyGroupCurrencyId,
                                 ToCurrencyConversion = 1 / voucherDetailCurrencyExchangeGain.CompanyGroupCurrencyRate,
-                                ToCurrencyId = companyCurrency.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherDetailCurrencyExchangeGain.CompanyGroupCurrencyRate,
                                 VoucherDetailId = voucherDtExGain.Id,
                                 VoucherId = voucher.Id
@@ -3831,7 +3759,7 @@ namespace Library.Service.Invoices
                                 FromCurrencyId = voucherDetailCurrencyExchangeGain.HardFromCurrencyId,
                                 ParallelCurrencyId = voucherDetailCurrencyExchangeGain.HardCurrencyId,
                                 ToCurrencyConversion = 1 / voucherDetailCurrencyExchangeGain.HardCurrencyRate,
-                                ToCurrencyId = companyCurrency.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherDetailCurrencyExchangeGain.HardCurrencyRate,
                                 VoucherDetailId = voucherDtExGain.Id,
                                 VoucherId = voucher.Id
@@ -3874,8 +3802,6 @@ namespace Library.Service.Invoices
                     if (null != voucherDetailCurrency2)
                     {
                         // INSERT INTO voucherDetailCurrency2
-                        _voucherService.CurrencyExchange(voucherVM.CurrencyId, companyCurrencyId, companyGroupCurrencyId, hardCurrencyId,
-                                           voucherDetailCurrency2.CompanyCurrencyCr, voucherDetailCurrency2.CompanyGroupCurrencyCr, voucherDetailCurrency2);
 
                         if (!string.IsNullOrEmpty(companyCurrencyId))
                         {
@@ -3892,51 +3818,7 @@ namespace Library.Service.Invoices
                             if (companyCurrencyId == voucherVM.BankCurrencyId)
                                 voucherVM.BankAmount = voucherDetailCurrency2.CompanyCurrencyCr;
                         }
-                        if (!string.IsNullOrEmpty(companyGroupCurrencyId))
-                        {
-                            _voucherService.InsertVoucherDetailCompanyGroupCurrency(voucherCr, new VoucherDetailCurrency
-                            {
-                                AddedBy = voucherCr.AddedBy,
-                                AddedDate = voucherCr.AddedDate,
-                                AddedFromIP = voucherCr.AddedFromIP,
-                                CrAmount = (totalBankCrAmountGroupCurr + totalBankCrAmountExLossGroupCurr - totalBankCrAmountExGainGroupCurr),
-                                DrAmount = 0,
-                                FromCurrencyId = voucherDetailCurrency2.CompanyGroupFromCurrencyId,
-                                ParallelCurrencyId = voucherDetailCurrency2.CompanyGroupCurrencyId,
-                                ToCurrencyConversion = 1 / voucherDetailCurrency2.CompanyGroupCurrencyRate,
-                                ToCurrencyId = voucherDetailCurrency2.ToCurrencyId,
-                                ToCurrencyRate = voucherDetailCurrency2.CompanyGroupCurrencyRate,
-                                VoucherDetailId = voucherCr.Id,
-                                VoucherId = voucherCr.VoucherId
-                            });
-
-                            if (companyGroupCurrencyId == voucherVM.BankCurrencyId)
-                                voucherVM.BankAmount = voucherDetailCurrency2.CompanyGroupCurrencyCr;
-                        }
-                        if (!string.IsNullOrEmpty(hardCurrencyId))
-                        {
-                            if (voucherDetailCurrency2.HardCurrencyCr <= 0)
-                                throw new CustomException($"{voucherDetailCurrency2.GLGeneralInfoName} GL {voucherDetailCurrency2.HardCurrencyName} Cr amount must have to greater than zero!");
-
-                            _voucherService.InsertVoucherDetailHardCurrency(voucherCr, new VoucherDetailCurrency
-                            {
-                                AddedBy = voucherCr.AddedBy,
-                                AddedDate = voucherCr.AddedDate,
-                                AddedFromIP = voucherCr.AddedFromIP,
-                                CrAmount = totalBankCrAmountHardCurr + totalBankCrAmountExLossHardCurr - totalBankCrAmountExGainHardCurr,
-                                DrAmount = 0,
-                                FromCurrencyId = voucherDetailCurrency2.HardFromCurrencyId,
-                                ParallelCurrencyId = voucherDetailCurrency2.HardCurrencyId,
-                                ToCurrencyConversion = 1 / voucherDetailCurrency2.HardCurrencyRate,
-                                ToCurrencyId = voucherDetailCurrency2.ToCurrencyId,
-                                ToCurrencyRate = voucherDetailCurrency2.HardCurrencyRate,
-                                VoucherDetailId = voucherCr.Id,
-                                VoucherId = voucherCr.VoucherId
-                            });
-
-                            if (hardCurrencyId == voucherVM.BankCurrencyId)
-                                voucherVM.BankAmount = voucherDetailCurrency2.HardCurrencyCr;
-                        }
+                        
                     }
 
                     if (!string.IsNullOrEmpty(voucherCr.BankMasterId))
@@ -4301,10 +4183,12 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
 
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var invoiceserviceMasterCharges = _invoiceServiceMasterChargesRepository.Find(voucherVM.Id);
