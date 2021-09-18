@@ -2512,6 +2512,7 @@
                                             <div e-column e-field="OtherPOQty" e-headertext="Other PO Qty" e-width="80" textAlign='Right'></div>
                                             <div e-column e-field="BalanceQuantity" e-headertext="Balance Quantity" e-width="80" textAlign='Right'></div>
                                             <div e-column e-template="#UOM" e-headertext="UoM" e-width="150"></div>
+                                            @*<div e-column e-template="#CurrentTextQty" e-field="BalanceQuantity" textAlign='right' e-headertext="Current Qty" e-width="100"></div>*@
                                             <div e-column e-template="#CurrentTextQty" e-field="TransactionQty" textAlign='right' e-headertext="Current Qty" e-width="100"></div>
                                             @*<div e-column e-field="TransactionRate" textAlign='right' e-headertext="Rate" e-width="100"></div>*@
                                             <div e-column e-template="#RatePerUnitText" e-field="TransactionRate" textAlign='right' e-headertext="Rate" e-width="100"></div>
@@ -2536,7 +2537,7 @@
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" e-value="data.CheckedStatus" e-change="$parent.getTaxCategoryList1" /> @*e-enabled="{{data.RequiredQtyApproved==='1'}}"*@
                                     </script>
                                     <script type="text/template" id="CurrentTextQty">
-                                        <input type="text" class="input ejinputtext form-control" n-decimals="2" onkeypress="return isNumber(event)" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
+                                        <input type="text" class="input ejinputtext form-control" n-decimals="4" onkeypress="return isNumber(event)" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
 
                                     </script>
                                     <script type="text/template" id="RatePerUnitText">

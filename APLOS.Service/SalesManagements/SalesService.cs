@@ -3,7 +3,6 @@ using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
-using Library.Model.Currencies;
 using Library.Model.Enums;
 using Library.Model.Invoices;
 using Library.Model.Materials;
@@ -11,25 +10,21 @@ using Library.Model.Parties;
 using Library.Model.SalesManagements;
 using Library.Model.Taxations;
 using Library.Model.Vouchers;
-using Library.Service.Calendars;
 using Library.Service.Core;
-using Library.Service.Currencies;
 using Library.Service.Enums;
 using Library.Service.Invoices;
 using Library.Service.Logs;
 using Library.Service.Systems;
-using Library.Service.Taxations;
 using Library.Service.Vouchers;
 using Library.ViewModel.SalesManagements;
 using Library.ViewModel.Vouchers;
-using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using Library.Service.Helpers;
 using Library.Model.OrderManagements;
+using Library.Service.Extension.Accounts;
 
 namespace Library.Service.SalesManagements
 {
@@ -43,9 +38,6 @@ namespace Library.Service.SalesManagements
         private readonly IRepositoryAsync<InvoiceTaxDetail> _invoiceTaxDetailRepository;
         private readonly IRepositoryAsync<TaxCodeGL> _taxCodeGLRepository;
         private readonly IRepositoryAsync<TaxCategoryGL> _taxCategoryGLRepository;
-        private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
-        private readonly ICompanyFiscalYearService _companyFiscalYearService;
-        private readonly ICompanyTaxYearService _companyTaxYearService;
         private readonly IRepositoryAsync<Sales> _salesRepository;
         private readonly IRepositoryAsync<SalesMaterial> _salesMaterialRepository;
         private readonly IRepositoryAsync<SalesOrderItem> _salesMaterialSORepository;
@@ -67,10 +59,7 @@ namespace Library.Service.SalesManagements
         private readonly IRepositoryAsync<ThirdCharacteristics> _thirdCharacteristicsRepository;
         private readonly IInvoiceTaxService _invoiceTaxService;
         public SalesService(
-             ICompanyParallelCurrencyService companyParallelCurrencyService
-            , ICompanyFiscalYearService companyFiscalYearService
-            , ICompanyTaxYearService companyTaxYearService
-            , IInvoiceService invoiceService
+             IInvoiceService invoiceService
             , IVoucherService voucherService
             , IRepositoryAsync<InvoiceDetail> invoiceDetailRepository
             , IRepositoryAsync<InvoiceTax> invoiceTaxRepository
@@ -108,9 +97,6 @@ namespace Library.Service.SalesManagements
             _invoiceTaxDetailRepository = invoiceTaxDetailRepository;
             _taxCodeGLRepository = taxCodeGLRepository;
             _taxCategoryGLRepository = taxCategoryGLRepository;
-            _companyParallelCurrencyService = companyParallelCurrencyService;
-            _companyFiscalYearService = companyFiscalYearService;
-            _companyTaxYearService = companyTaxYearService;
             _salesRepository = salesRepository;
             _salesMaterialRepository = salesMaterialRepository;
             _pkGeneratorService = pkGeneratorService;
@@ -140,9 +126,12 @@ namespace Library.Service.SalesManagements
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -358,7 +347,9 @@ namespace Library.Service.SalesManagements
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1001,13 +992,12 @@ namespace Library.Service.SalesManagements
             try
             {
                 #region Get Company Parallerl Currency Id
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
-                var parallerCurrency = _companyParallelCurrencyService.Query(r => r.CompanyId == voucherVM.CompanyId).Select();
-                if (null == parallerCurrency)
-                    throw new CustomException("Company Parallel Currency not found!");
-                var companyCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.CompanyCurrency.ToString());
-                var companyCurrencyId = companyCurrency != null ? companyCurrency.CurrencyId : throw new CustomException("Company Parallel Currency Id not found!");
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
                 var taxYear = CheckingFiscalYearPeriod(voucherVM.CompanyGroupId, voucherVM.PostingDate);
                 voucherVM.TaxYearId = taxYear["TaxYearId"].ToString();
                 voucherVM.TaxYearPeriodId = taxYear["TaxYearPeriodId"].ToString();
@@ -1559,9 +1549,11 @@ namespace Library.Service.SalesManagements
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1829,8 +1821,8 @@ namespace Library.Service.SalesManagements
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
@@ -2329,14 +2321,11 @@ namespace Library.Service.SalesManagements
             {
                 #region Get Company Parallerl Currency Id
 
-                var parallerCurrency = _companyParallelCurrencyService.Query(r => r.CompanyId == voucherVM.CompanyId).Select();
-                if (null == parallerCurrency)
-                    throw new CustomException("Company Parallel Currency not found!");
-                var companyCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.CompanyCurrency.ToString());
-                var groupCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.CompanyGroupCurrency.ToString());
-                var companyCurrencyId = companyCurrency != null ? companyCurrency.CurrencyId : throw new CustomException("Company Parallel Currency Id not found!");
-                var companyGroupCurrencyId = groupCurrency?.CurrencyId;
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 var taxYear = CheckingFiscalYearPeriod(voucherVM.CompanyGroupId, voucherVM.PostingDate);
                 voucherVM.TaxYearId = taxYear["TaxYearId"].ToString();
                 voucherVM.TaxYearPeriodId = taxYear["TaxYearPeriodId"].ToString();
@@ -2910,10 +2899,11 @@ namespace Library.Service.SalesManagements
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
-
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
@@ -3183,8 +3173,9 @@ namespace Library.Service.SalesManagements
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+             
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
@@ -3679,17 +3670,12 @@ namespace Library.Service.SalesManagements
             {
                 #region Get Company Parallerl Currency Id
 
-                var parallerCurrency = _companyParallelCurrencyService.Query(r => r.CompanyId == voucherVM.CompanyId).Select();
-                if (null == parallerCurrency)
-                    throw new CustomException("Company Parallel Currency not found!");
-                var companyCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.CompanyCurrency.ToString());
-                var groupCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.CompanyGroupCurrency.ToString());
-                var companyCurrencyId = companyCurrency != null ? companyCurrency.CurrencyId : throw new CustomException("Company Parallel Currency Id not found!");
-                var companyGroupCurrencyId = groupCurrency?.CurrencyId;
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                var taxYear = CheckingFiscalYearPeriod(voucherVM.CompanyGroupId, voucherVM.PostingDate);
-                voucherVM.TaxYearId = taxYear["TaxYearId"].ToString();
-                voucherVM.TaxYearPeriodId = taxYear["TaxYearPeriodId"].ToString();
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+           
                 #endregion Get Company Parallerl Currency Id
 
                 _unitOfWork.BeginTransaction();
@@ -4012,11 +3998,11 @@ namespace Library.Service.SalesManagements
                     CompanyGroupId = packing.CompanyGroupId,
                     CompanyId = packing.CompanyId,
                     PlantId = packing.PlantId,
-                    CurrencyId = packing.CurrencyId,
-                    FiscalYearId = packing.FiscalYearId,
-                    FiscalYearPeriodId = packing.FiscalYearPeriodId,
-                    TaxYearId = packing.TaxYearId,
-                    TaxYearPeriodId = packing.TaxYearPeriodId,
+                    CurrencyId = voucherVM.CurrencyId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
                     AddedBy = packing.AddedBy,
                     AddedDate = packing.AddedDate,
                     AddedFromIP = packing.AddedFromIP,
@@ -4030,7 +4016,7 @@ namespace Library.Service.SalesManagements
                     VoucherTypeId = packing.VoucherTypeId,
                 };
                 packingvoucher.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + packingvoucher.Id;
-                _voucherService.InsertVoucher(packingvoucher, packing.FiscalYearPrefix);
+                _voucherService.InsertVoucher(packingvoucher, voucherVM.FiscalYearPrefix);
 
 
                 if (PackingDetailVMList != null)
@@ -4054,9 +4040,8 @@ namespace Library.Service.SalesManagements
                                 CurrencyId = voucherVM.CurrencyId,
                                 DocDate = voucherVM.DocDate,
                                 DocRefNo = voucherVM.DocRefNo,
-                                Narration = sales.Narration,
+                                Narration = packing.Narration,
 
-                                PostingWithoutTaxAllow = invoice.IsExcludingTax,
                                 AddedBy = packingvoucher.AddedBy,
                                 AddedDate = packingvoucher.AddedDate,
                                 AddedFromIP = packingvoucher.AddedFromIP
@@ -4135,8 +4120,7 @@ namespace Library.Service.SalesManagements
                 }
 
                 _unitOfWork.SaveChanges();
-                _unitOfWork.BeginTransaction();
-
+                flag = false;
                 _unitOfWork.Commit();
             }
             catch (Exception ex)

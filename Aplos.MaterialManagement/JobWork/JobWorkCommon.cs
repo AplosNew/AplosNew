@@ -983,6 +983,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
 						,mm.BaseUOMId--,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
                         ,BalanceQuantity=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
+                        ,TransactionQty=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
                         ,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQty
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
