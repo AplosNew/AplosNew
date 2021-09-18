@@ -456,12 +456,16 @@ function OTManualNewController(addressService, cboService, commonMessage, $scope
             try {
                 if (baseService.arrayLength($scope.EmpInOutList) > 0) {
 
-                    $scope.OTManual.EmpName = response.data[0].EmployeeName;
-                    $scope.OTManual.InTime = response.data[0].APDEmpInDateAndTime;
-                    $scope.OTManual.OutTime = response.data[0].APDEmpOutDateAndTime;
-                    $scope.OTManual.EMPOThour = response.data[0].OTHr;
-                    $scope.OTManual.ManualOT = response.data[0].ManualOT;
-                    $scope.OTManual.EmpDayStatus = response.data[0].Category;
+                    if ($scope.EmpInOutList[0].ProcessedOT > 0) {
+                        $scope.OTManual.EmpName = response.data[0].EmployeeName;
+                        $scope.OTManual.InTime = response.data[0].APDEmpInDateAndTime;
+                        $scope.OTManual.OutTime = response.data[0].APDEmpOutDateAndTime;
+                        /*$scope.OTManual.EMPOThour = response.data[0].OTHr;*/
+                        $scope.OTManual.EMPOThour = response.data[0].ProcessedOT;
+                        $scope.OTManual.ManualOT = response.data[0].ManualOT;
+                        $scope.OTManual.EmpDayStatus = response.data[0].Category;
+                    }
+                    
                     var i = 0;
 
                     if ($scope.EmpInOutList[i].PlantId != $scope.OTManual.PlantValue) {

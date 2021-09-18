@@ -668,6 +668,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
             sales.CompanyGroupId = identity.CompanyGroupId;
             sales.CompanyId = identity.CompanyId;
             sales.PlantId = identity.PlantId;
+            packing.CompanyGroupId = identity.CompanyGroupId;
+            packing.CompanyId = identity.CompanyId;
+            packing.PlantId = identity.PlantId;
             if (salesDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != salesDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
                 throw new CustomException("Dr Cr Amount not equal");
             foreach (var item in salesDetailVMList)

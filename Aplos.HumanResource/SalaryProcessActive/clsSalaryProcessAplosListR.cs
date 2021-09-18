@@ -4054,7 +4054,7 @@ public class clsSalaryProcessAplosArrear
             }
             else
             {
-                para.ShowLog = "Processed sucessfully Completed... ";
+                para.ShowLog = "Process sucessfully Completed... ";
                 SendNotification(para.ShowLog, para.FromDate);
 
             }
