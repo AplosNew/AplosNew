@@ -38,7 +38,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataSet dsInMissPunch = null;
             DataSet dsOffdayMissingPunch = null;
             DataSet dsOffdayWithPunch = null;
-            DataSet dsAbsentWithRawPunch = null;
             DataSet dsShiftUnassign = null;
             DataSet dsLeaveWithPunch = null;
             DataSet dsUnApprovedProfile = null;
@@ -66,7 +65,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataTable dtInPunchMissing = null;
             DataTable dtOffdayMissingPunch = null;
             DataTable dtOffdayWithPunch = null;
-            DataTable dtAbsentWithRawPunch = null;
             DataTable dtShiftUnassign = null;
             DataTable dtLeaveWithPunch = null;
             DataTable dtUnApprovedProfile = null;
@@ -210,7 +208,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOTNotEntitledWithOutMissing = dsOTNotEntitledWithOutMissing.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -219,7 +217,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtUnApprovedProfile = dsUnApprovedProfile.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -229,7 +227,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtProfileNoSalary = dsProfileNoSalary.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -239,7 +237,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtNoSalaryStructureApprove = dsNoSalaryStructureApprove.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -248,7 +246,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtWorkDuration = dsWorkDuration.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -257,7 +255,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOtNotConfirmOverstay = dsOtNotConfirmOverstayReport.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -266,7 +264,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtLongAbsentisom = dsLongAbsentisom.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -276,7 +274,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtTBS = dsTBS.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -285,7 +283,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtMaternityLeave = dsMaternityLeave.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -295,7 +293,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtBankRemarks = dsBankRemarks.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -305,7 +303,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtAttendanceNotLock = dsAttendanceNotLock.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -315,7 +313,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtAttendanceNotLockPlant = dsAttendanceNotLockPlant.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -383,17 +381,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOffdayWithPunch = dsOffdayWithPunch.Tables[0];
 
                 }
-                catch (Exception ex)
-                {
-
-                }
-                try
-                {
-                    objRpt.GetAbsentWithRawPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAbsentWithRawPunch);
-                    dtAbsentWithRawPunch = dsAbsentWithRawPunch.Tables[0];
-
-                }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -403,7 +391,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtShiftUnassign = dsShiftUnassign.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -864,30 +852,18 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkOffdayWithpunch.Address = "24_Offday_With_Punch!A1";
                     xlsRow++;
 
-                    sheet20.Range[xlsRow, isl].Text = "25";
-                    sheet20.Range[xlsRow, iLogic].Text = "Absent With Wrong Shift";
-                    sheet20.Range[xlsRow, iReportName].Text = "25-Absent With Wrong Shift";
-                    sheet20.Range[xlsRow, iObjective].Text = "Those Who is Absent but have punch data in Wrong Shift";
-                    sheet20.Range[xlsRow, iCount].Number = dtAbsentWithRawPunch.Rows.Count;
 
-                    IHyperLink linkAbsentWithRawPunch = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
-                    linkAbsentWithRawPunch.Type = ExcelHyperLinkType.Workbook;
-                    linkAbsentWithRawPunch.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
-                    linkAbsentWithRawPunch.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
-                    linkAbsentWithRawPunch.Address = "25_Absent_With_Wrong_Shift!A1";
-                    xlsRow++;
-
-                    sheet20.Range[xlsRow, isl].Text = "26";
+                    sheet20.Range[xlsRow, isl].Text = "2";
                     sheet20.Range[xlsRow, iLogic].Text = "Shift Not Assign";
-                    sheet20.Range[xlsRow, iReportName].Text = "26-Shift Not Assign";
-                    sheet20.Range[xlsRow, iObjective].Text = "Those whos Shift is Not Assign";
+                    sheet20.Range[xlsRow, iReportName].Text = "25-Shift Not Assign";
+                    sheet20.Range[xlsRow, iObjective].Text = "Those whose Shift is Not Assigned";
                     sheet20.Range[xlsRow, iCount].Number = dtShiftUnassign.Rows.Count;
 
                     IHyperLink linkLeaveRejectionReflection = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
                     linkLeaveRejectionReflection.Type = ExcelHyperLinkType.Workbook;
                     linkLeaveRejectionReflection.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkLeaveRejectionReflection.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
-                    linkLeaveRejectionReflection.Address = "26_Shift_Not_Assign!A1";
+                    linkLeaveRejectionReflection.Address = "25_Shift_Not_Assign!A1";
 
                     sheet20.Range[2, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                     sheet20.Range[2, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
@@ -2385,14 +2361,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet4.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet4.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet4.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Red;
-
-                    //xlsCol += 1;
-                    //iRawPunch = xlsCol;
-                    //sheet4.Range[xlsRow, iRawPunch].Text = "Raw Punch";
-                    //sheet4.Range[xlsRow, iRawPunch].ColumnWidth = 28;
-                    //sheet4.Range[xlsRow, iRawPunch].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //sheet4.Range[xlsRow, iRawPunch].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //sheet4.Range[xlsRow, iRawPunch].CellStyle.Font.Color = ExcelKnownColors.Red;
 
                     sheet4.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
                     //sheet4.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.Gray;
@@ -9188,402 +9156,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 }
                 #endregion Offday_With_Punch 24
-
-                #region  Absent With Wrong Shift 25
-                try
-                {
-                    IWorksheet sheet25 = null;
-
-                    xlsRow = 1; xlsCol = 1;
-                    endXlsCol = 1;
-                    FactoryName = "";
-                    CmpName = "";
-                    //var iDayStatus = 0;
-                    SheetIndex++;
-                    sheet25 = workbook.Worksheets[SheetIndex];
-                    xlsRow = 6;
-
-                    #region ------------------Column Header------------------
-                    igoto = xlsCol;
-                    sheet25.Range[5, igoto].Text = "Goto Index";
-                    sheet25.Range[5, igoto].ColumnWidth = 6;
-                    IHyperLink linkgofromAbsentNoPunchTime = sheet25.HyperLinks.Add(sheet25.Range[5, igoto]);
-                    linkgofromAbsentNoPunchTime.Type = ExcelHyperLinkType.Workbook;
-                    linkgofromAbsentNoPunchTime.TextToDisplay = sheet25.Range[5, igoto].Text;
-                    linkgofromAbsentNoPunchTime.ScreenTip = "Go To " + sheet25.Range[5, igoto].Text;
-                    linkgofromAbsentNoPunchTime.Address = "1_Index!A1";
-
-                    isl = xlsCol;
-                    sheet25.Range[xlsRow, isl].Text = "SL";
-                    sheet25.Range[xlsRow, isl].ColumnWidth = 7;
-
-                    xlsCol += 1;
-                    iEmployeeCode = xlsCol;
-                    sheet25.Range[xlsRow, iEmployeeCode].Text = "Code";
-                    sheet25.Range[xlsRow, iEmployeeCode].ColumnWidth = 14;
-
-                    xlsCol += 1;
-                    iWorkDate = xlsCol;
-                    sheet25.Range[xlsRow, iWorkDate].Text = "Work Date";
-                    sheet25.Range[xlsRow, iWorkDate].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iDayStatus = xlsCol;
-                    sheet25.Range[xlsRow, iDayStatus].Text = "Day Status";
-                    sheet25.Range[xlsRow, iDayStatus].ColumnWidth = 18;
-                    sheet25.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Red;
-
-                    xlsCol += 1;
-                    iEmployeeName = xlsCol;
-                    sheet25.Range[xlsRow, iEmployeeName].Text = "Name";
-                    sheet25.Range[xlsRow, iEmployeeName].ColumnWidth = 20;
-
-                    xlsCol += 1;
-                    iTelephoneNo = xlsCol;
-                    sheet25.Range[xlsRow, iTelephoneNo].Text = "Telephone No.";
-                    sheet25.Range[xlsRow, iTelephoneNo].ColumnWidth = 20;
-
-                    xlsCol += 1;
-                    iDesignation = xlsCol;
-                    sheet25.Range[xlsRow, iDesignation].Text = "Designation";
-                    sheet25.Range[xlsRow, iDesignation].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iDepartment = xlsCol;
-                    sheet25.Range[xlsRow, iDepartment].Text = "Department";
-                    sheet25.Range[xlsRow, iDepartment].ColumnWidth = 25;
-
-                    xlsCol += 1;
-                    iSection = xlsCol;
-                    sheet25.Range[xlsRow, iSection].Text = "Section";
-                    sheet25.Range[xlsRow, iSection].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iEmployeeCategory = xlsCol;
-                    sheet25.Range[xlsRow, iEmployeeCategory].Text = "Employee Category";
-                    sheet25.Range[xlsRow, iEmployeeCategory].ColumnWidth = 15;
-
-                    xlsCol += 1;
-                    iSubSection = xlsCol;
-                    sheet25.Range[xlsRow, iSubSection].Text = "SubSection";
-                    sheet25.Range[xlsRow, iSubSection].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iEntity = xlsCol;
-                    sheet25.Range[xlsRow, iEntity].Text = "Entity";
-                    sheet25.Range[xlsRow, iEntity].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iLine = xlsCol;
-                    sheet25.Range[xlsRow, iLine].Text = "Line";
-                    sheet25.Range[xlsRow, iLine].ColumnWidth = 15;
-
-                    xlsCol += 1;
-                    iDOJ = xlsCol;
-                    sheet25.Range[xlsRow, iDOJ].Text = "DOJ";
-                    sheet25.Range[xlsRow, iDOJ].ColumnWidth = 18;
-
-
-                    //xlsCol += 1;
-                    //iTotalAbsentDays = xlsCol;
-                    //sheet25.Range[xlsRow, iTotalAbsentDays].Text = "Total Absent Days(This Month)";
-                    //sheet25.Range[xlsRow, iTotalAbsentDays].ColumnWidth = 25;
-
-                    xlsCol += 1;
-                    iShiftName = xlsCol;
-                    sheet25.Range[xlsRow, iShiftName].Text = "Shift Name";
-                    sheet25.Range[xlsRow, iShiftName].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iShiftInTime = xlsCol;
-                    sheet25.Range[xlsRow, iShiftInTime].Text = "Shift In Time";
-                    sheet25.Range[xlsRow, iShiftInTime].ColumnWidth = 10;
-                    sheet25.Range[xlsRow, iShiftInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iShiftInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iShiftOutTime = xlsCol;
-                    sheet25.Range[xlsRow, iShiftOutTime].Text = "Shift Out Time";
-                    sheet25.Range[xlsRow, iShiftOutTime].ColumnWidth = 10;
-                    sheet25.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iInTime = xlsCol;
-                    sheet25.Range[xlsRow, iInTime].Text = "In Time";
-                    sheet25.Range[xlsRow, iInTime].ColumnWidth = 14;
-                    sheet25.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, iInTime].CellStyle.Font.Color = ExcelKnownColors.Red;
-
-                    xlsCol += 1;
-                    iOutTime = xlsCol;
-                    sheet25.Range[xlsRow, iOutTime].Text = "Out Time";
-                    sheet25.Range[xlsRow, iOutTime].ColumnWidth = 14;
-                    sheet25.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Red;
-
-                    xlsCol += 1;
-                    iRawPunch = xlsCol;
-                    sheet25.Range[xlsRow, iRawPunch].Text = "Raw Punch";
-                    sheet25.Range[xlsRow, iRawPunch].ColumnWidth = 28;
-                    sheet25.Range[xlsRow, iRawPunch].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iRawPunch].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, iRawPunch].CellStyle.Font.Color = ExcelKnownColors.Red;
-
-                    sheet25.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
-                    sheet25.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet25.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
-                    sheet25.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-
-                    xlsRow++;
-                    endXlsCol = xlsCol;
-                    #endregion ------------------Column Header------------------
-                    SLNo = 1;
-                    if (dtAbsentWithRawPunch.Rows.Count > 0)
-                    {
-                        for (int i = 0; i < dtAbsentWithRawPunch.Rows.Count; i++)
-                        {
-
-                            #region ----------------------Data-----------------------
-                            sheet25.Range[xlsRow, isl].Text = SLNo.ToString();
-
-                            sheet25.Range[xlsRow, iEmployeeCode].Text = dtAbsentWithRawPunch.Rows[i]["EmployeeCode"].ToString();
-
-                            sheet25.Range[xlsRow, iEmployeeName].Text = dtAbsentWithRawPunch.Rows[i]["EmployeeName"].ToString();
-                            sheet25.Range[xlsRow, iTelephoneNo].Text = dtAbsentWithRawPunch.Rows[i]["TelePhnNo"].ToString();
-
-                            sheet25.Range[xlsRow, iLine].Text = dtAbsentWithRawPunch.Rows[i]["Line"].ToString();
-                            sheet25.Range[xlsRow, iEmployeeCategory].Text = dtAbsentWithRawPunch.Rows[i]["EmployeeCategory"].ToString();
-                            sheet25.Range[xlsRow, iDayStatus].Text = dtAbsentWithRawPunch.Rows[i]["DayStatus"].ToString();
-                            sheet25.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet25.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            if (bplib.clsWebLib.GetBoolData(dtAbsentWithRawPunch.Rows[i]["IsManualDayStatus"].ToString().Trim()))
-                            {
-                                sheet25.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Orange;
-                            }
-
-                            sheet25.Range[xlsRow, iDepartment].Text = dtAbsentWithRawPunch.Rows[i]["Department"].ToString();
-
-                            sheet25.Range[xlsRow, iDesignation].Text = dtAbsentWithRawPunch.Rows[i]["LegalDesignation"].ToString();
-
-                            sheet25.Range[xlsRow, iSection].Text = dtAbsentWithRawPunch.Rows[i]["Section"].ToString();
-
-                            sheet25.Range[xlsRow, iSubSection].Text = dtAbsentWithRawPunch.Rows[i]["SubSection"].ToString();
-
-                            sheet25.Range[xlsRow, iEntity].Text = dtAbsentWithRawPunch.Rows[i]["EntityName"].ToString();
-
-                            sheet25.Range[xlsRow, iWorkDate].Text = dtAbsentWithRawPunch.Rows[i]["WorkDate"].ToString();
-
-                            sheet25.Range[xlsRow, iDOJ].Text = dtAbsentWithRawPunch.Rows[i]["DOJ"].ToString();
-
-                            sheet25.Range[xlsRow, iShiftName].Text = dtAbsentWithRawPunch.Rows[i]["ShiftName"].ToString();
-
-                            sheet25.Range[xlsRow, iShiftInTime].Text = dtAbsentWithRawPunch.Rows[i]["ShiftInTime"].ToString();
-                            sheet25.Range[xlsRow, iShiftInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet25.Range[xlsRow, iShiftInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            sheet25.Range[xlsRow, iShiftOutTime].Text = dtAbsentWithRawPunch.Rows[i]["ShiftOutTime"].ToString();
-                            sheet25.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet25.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            if (dtAbsentWithRawPunch.Rows[i]["InTime"].ToString() != "")
-                            {
-                                sheet25.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
-                                sheet25.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dtAbsentWithRawPunch.Rows[i]["InTime"].ToString());
-                                sheet25.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                sheet25.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                                if (bplib.clsWebLib.GetBoolData(dtAbsentWithRawPunch.Rows[i]["IsManualInTime"].ToString().Trim()))
-                                {
-                                    sheet25.Range[xlsRow, iInTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
-                                }
-                            }
-
-                            if (dtAbsentWithRawPunch.Rows[i]["OutTime"].ToString() != "")
-                            {
-                                sheet25.Range[xlsRow, iOutTime].NumberFormat = "hh:mm AM/PM";
-                                sheet25.Range[xlsRow, iOutTime].DateTime = Convert.ToDateTime(dtAbsentWithRawPunch.Rows[i]["OutTime"].ToString());
-                                sheet25.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                sheet25.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                                if (bplib.clsWebLib.GetBoolData(dtAbsentWithRawPunch.Rows[i]["IsManualOutTime"].ToString().Trim()))
-                                {
-                                    sheet25.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
-                                }
-                            }
-                            sheet25.Range[xlsRow, iRawPunch].Text = dtAbsentWithRawPunch.Rows[i]["RawPunch"].ToString();
-
-                            xlsRow++;
-                            SLNo++;
-
-                        }
-
-                        #endregion ----------------------Data-----------------------
-
-                        #region Line Setup
-
-                        sheet25.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                        sheet25.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                        sheet25.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
-
-                        #endregion Line Setup
-
-
-                    }
-
-                    #region ******************Report Header******************
-                    try
-                    {
-                        string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
-                        Image companyLogo = Image.FromFile(strPath);
-                        if (companyLogo != null)
-                        {
-                            double totalWidth = sheet25.GetColumnWidth(1) + sheet25.GetColumnWidth(2);
-                            int totalWidthPixel = (int)(totalWidth * 7.5);
-                            int totalheight = (int)((sheet25.GetRowHeight(1) + sheet25.GetRowHeight(2) + sheet25.GetRowHeight(3) + sheet25.GetRowHeight(3)) * 1.50);
-
-                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
-                            IPictureShape pic = null;
-
-                            pic = sheet25.Pictures.AddPicture(1, 1, companyLogo);
-
-                        }
-
-
-                    }
-                    catch (Exception)
-                    {
-
-
-                    }
-
-                    xlsRow = 1;
-                    xlsCol = 1;
-
-                    FactoryName = string.Empty;
-
-                    if (dsCmp.Tables[0].Rows.Count > 0)
-                    {
-                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
-                    }
-                    else
-                    {
-                        CmpName = "";
-                    }
-                    sheet25.Range[xlsRow, 3].Text = CmpName;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Size = 12;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet25.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet25.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    if (dsFactory.Tables[0].Rows.Count > 0)
-                    {
-
-                        FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
-                    }
-                    else
-                    {
-                        FactoryName = "";
-                    }
-                    sheet25.Range[xlsRow, 3].Text = FactoryName;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet25.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet25.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    if (dsFactory.Tables[0].Rows.Count > 0)
-                    {
-                        FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
-                    }
-                    else
-                    {
-                        FactoryAddress = "";
-                    }
-                    sheet25.Range[xlsRow, 3].Text = FactoryAddress;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Size = 22;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
-                    sheet25.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet25.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    sheet25.Range[xlsRow, 3].Text = (SheetIndex + 1) + "-Absent With Wrong Shift";
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                    sheet25.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet25.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    #endregion ******************Report Header******************
-
-                    #region Freeze Panes
-
-                    sheet25.IsDisplayZeros = false;
-                    sheet25.UsedRange["A7"].FreezePanes();
-                    sheet25.FirstVisibleColumn = 1;
-                    sheet25.FirstVisibleRow = 6;
-
-                    #endregion Freeze Panes
-
-                    #region UsedRange Alignment
-
-                    sheet25.UsedRange.WrapText = true;
-                    sheet25.UsedRange.CellStyle.Font.Size = 8;
-                    sheet25.Range["A1"].CellStyle.Font.Size = 14;
-                    sheet25.Range["A2"].CellStyle.Font.Size = 10;
-                    sheet25.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
-
-                    #endregion UsedRange Alignment
-
-                    #region Page Setup
-                    sheet25.PageSetup.TopMargin = 0.5;
-                    sheet25.PageSetup.BottomMargin = 0.7;
-                    sheet25.PageSetup.PrintTitleRows = "$1:$5";
-                    sheet25.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
-                    sheet25.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + username + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
-                    sheet25.PageSetup.LeftMargin = 0.5;
-                    sheet25.PageSetup.RightMargin = 0.2;
-                    sheet25.PageSetup.Orientation = ExcelPageOrientation.Portrait;
-                    sheet25.PageSetup.FitToPagesTall = 0;
-                    sheet25.PageSetup.FitToPagesWide = 1;
-                    sheet25.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
-                    sheet25.IsDisplayZeros = false;
-
-                    if (dtAbsentWithRawPunch.Rows.Count > 0)
-                    {
-                        sheet25.Name = (SheetIndex + 1) + "_Absent_With_Wrong_Shift";
-                        sheet25.TabColorRGB = Color.Red;
-
-                    }
-                    else
-                    {
-                        sheet25.Name = (SheetIndex + 1) + "_Absent_With_Wrong_Shift";
-                    }
-                    #endregion Page Setup
-
-
-                }
-                catch (Exception ex)
-                {
-                }
-                #endregion  Absent With Raw Data 25
-
-                #region  Shift NOT Assign 26
+                               
+                #region  Shift NOT Assign 25
                 try
                 {
                     IWorksheet sheet25 = null;
@@ -9669,13 +9243,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet25.Range[xlsRow, iShiftOutTime].ColumnWidth = 18;
                     sheet25.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet25.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    //xlsCol += 1;
-                    //iInTime = xlsCol;
-                    //sheet25.Range[xlsRow, iInTime].Text = "BudgetCode";
-                    //sheet25.Range[xlsRow, iInTime].ColumnWidth = 14;
-                    //sheet25.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //sheet25.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;                    
 
                     xlsCol += 1;
                     iOutTime = xlsCol;
@@ -9888,10 +9455,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
-                #endregion  Shift NOT Assign 26
+                #endregion  Shift NOT Assign 25
 
                 return workbook;
             }
