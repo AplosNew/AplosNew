@@ -135,8 +135,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @" SELECT  [CheckBoxSelect] = Convert(BIT, 'False'), apd.EmpSystemID
-                              ,SUM(OTFA.OThour) TotalOTHr
-                              ,FactorOT=SUM(OTFA.OThour)*" + FactorOT + @" --,dt.OriginalDayType
+                              ,SUM(apd.ProcessedOT) TotalOTHr
+                              ,FactorOT=SUM(apd.ProcessedOT)*" + FactorOT + @" --,dt.OriginalDayType
                               ,EI.EmployeeCode
                               ,EI.EmployeeName
                               ,format(EI.DOJ,'dd-MMM-yyyy') DOJ                            
@@ -155,7 +155,7 @@ namespace Aplos.Areas.Attendances.Controllers
                               --,LSG.UserName SalaryGrade ,s.UserName  Section,sb.UserName SubSection,IsExceptionOT
                              FROM  AttdnProcessData AS apd
                              INNER JOIN EmployeeInformation EI ON EI.SystemId = apd.EmpSystemID 
-                             INNER JOIN OTfromApp OTFA  on OTFA.EmpSystemId=apd.EmpSystemID and OTFA.WorkDate=apd.WorkDate 
+                             --INNER JOIN OTfromApp OTFA  on OTFA.EmpSystemId=apd.EmpSystemID and OTFA.WorkDate=apd.WorkDate 
 							 --LEFT JOIN DayType dt on dt.DayType=apd.DayStatus
                              --LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                              --LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -178,8 +178,8 @@ namespace Aplos.Areas.Attendances.Controllers
                              LEFT JOIN HourlyOT eot  on eot.EmpSystemId=apd.EmpSystemID and eot.WorkDate=apd.WorkDate 
                              ---LEFT JOIN (select IsExceptionOT=case when id is not null then 1 else 0 end ,EmpSystemId,WorkDate from ExceptionOTProcess) excot  on excot.EmpSystemId=apd.EmpSystemID and excot.WorkDate=apd.WorkDate 
                              WHERE apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND EI.PlantID='" + identity.PlantId + @"'                            
-                             AND  apd.IsOTEntitled=1 ---AND OTFA.IsConfirmed=0
-                             AND apd.EmpSystemID IN (select distinct EmpSystemID from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
+                             AND  apd.IsOTEntitled=1 AND isnull(APD.IsOTComfirm,0)=0
+                             --AND apd.EmpSystemID IN (select distinct EmpSystemID from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
 
                             GROUP BY apd.EmpSystemID 
                               ,EI.EmployeeCode
@@ -808,7 +808,7 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
                 strSql = @"SELECT  apd.EmpSystemID
-                           ,OTFA.OThour TotalOTHr
+                           ,APD.ProcessedOT TotalOTHr
                            ,FORMAT(apd.WorkDate, 'dd-MMM-yyyy') WorkDate
                            ,sd.UserName ShiftName
                            ,FORMAT(sd.InTime, 'hh:mm tt') ShiftInTime
@@ -823,8 +823,8 @@ namespace Aplos.Areas.Attendances.Controllers
                            ---,FirstSlabMin= Isnull(pl.firstSlab,0)*60 
                            ,Isnull(excot.IsExceptionOT,0) IsExceptionOT
                            FROM  AttdnProcessData AS apd
-                           INNER JOIN OTfromApp OTFA  on OTFA.EmpSystemId=apd.EmpSystemID and OTFA.WorkDate=apd.WorkDate 
-                           LEFT JOIN EmployeeInformation EI ON EI.SystemId = OTFA.EmpSystemID 
+                           --INNER JOIN OTfromApp OTFA  on OTFA.EmpSystemId=apd.EmpSystemID and OTFA.WorkDate=apd.WorkDate 
+                           LEFT JOIN EmployeeInformation EI ON EI.SystemId = APD.EmpSystemID 
                            LEFT JOIN ShiftDefination AS sd ON sd.SystemID=apd.ShiftSystemID 
                            LEFT JOIN DayType dt on dt.DayType=apd.DayStatus
                            LEFT JOIN (select IsExceptionOT=case when id is not null then 1 else 0 end ,EmpSystemId,WorkDate from ExceptionOTProcess) excot  on excot.EmpSystemId=apd.EmpSystemID and excot.WorkDate=apd.WorkDate 
@@ -833,9 +833,9 @@ namespace Aplos.Areas.Attendances.Controllers
 															---AND apd.WorkDate BETWEEN pl.FromDate AND pl.ToDate AND pl.PlantID=EI.PlantID
                            WHERE apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and isnull(apd.EmpSystemID,'') IN ( " + EmpSystemId + @" )                                                 
                            AND apd.IsOTEntitled=1 ---AND OTFA.IsConfirmed=0
-                           AND isnull(apd.EmpSystemID,'') IN (select distinct isnull(EmpSystemID,'') from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
+                           --AND isnull(apd.EmpSystemID,'') IN (select distinct isnull(EmpSystemID,'') from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
                                
-                           ORDER BY apd.EmpSystemID ,OTFA.OThour desc";
+                           ORDER BY apd.EmpSystemID ,APD.ProcessedOT desc";
 
                 ConnectionManager.clsConnection _con = new ConnectionManager.clsConnection();
                 _con.getDataSet(strSql, out dsRef);
@@ -1148,7 +1148,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
             DataSet dsManualAttanData = null;
             DataSet dsHourlyOTData = null;
-            DataSet dsOTfromAppData = null;
+            //DataSet dsOTfromAppData = null;
 
             ConnectionManager.DAL.ConManager objCon;
             try
@@ -1186,9 +1186,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 objCon.OpenDataSetThroughAdapter(sqlFinalOT, out dsFinalOT, false, "1");
 
 
-                string sqlOTfromApp = "SELECT * FROM [dbo].[OTfromApp] WHERE EmpSystemID IN (" + EmpSytemId + ") AND WorkDate  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sqlOTfromApp, out dsOTfromAppData, false, "1");
+                
 
 
 
@@ -1201,7 +1199,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 dtAttProc = dsAttProc.Tables[0];
                 dvAttProc = new DataView();
 
-                DataView DvOTfromAppData = new DataView(dsOTfromAppData.Tables[0]);
+               
                 DataView DvManualAttanData = new DataView(dsManualAttanData.Tables[0]);
                 DataView DvHourlyOTData = new DataView(dsHourlyOTData.Tables[0]);
                 Random rnd = new Random((int)DateTime.Now.Ticks);
@@ -1434,20 +1432,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     #endregion
 
 
-                    #region OT From App
-                    DvOTfromAppData.RowFilter = "EmpSystemID = '" + OTLimitTransactionData[i].EmpSystemId + "' AND WorkDate='" + OTLimitTransactionData[i].WorkDate + "'";
-                    if (DvOTfromAppData.Count > 0)
-                    {
-                        DataRow dr = DvOTfromAppData[0].Row;
-                        dr.BeginEdit();
-                        dr["IsConfirmed"] = true;
-                        dr["UpdatedBy"] = bplib.clsWebLib.RetValidLen(identity.Name);
-                        dr["UpdatedDate"] = DateTime.Now;
-                        dr.EndEdit();
-                    }
-
-                    DvOTfromAppData.RowFilter = null;
-                    #endregion
+                  
 
 
 
@@ -1455,7 +1440,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 clsStaticInfo objsave = new clsStaticInfo();
-                objsave.SaveDataSets(dsManualAttanData, dsHourlyOTData, dsFinalOT, dsAttProc, dsOTfromAppData);
+                objsave.SaveDataSets(dsManualAttanData, dsHourlyOTData, dsFinalOT, dsAttProc);
 
 
 
