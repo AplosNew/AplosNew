@@ -345,6 +345,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             --,mo.OThour as ManualOT
 							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt else mo.OThour End
                             ,IsOTEntitled =CASE WHEN dmc.IsOTEntitled=1 THEN 'Yes' ELSE 'No' END
+                            ,apd.ProcessedOT
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -377,6 +378,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             --,mo.OThour as ManualOT
 							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt else mo.OThour End
                             ,IsOTEntitled =CASE WHEN dmc.IsOTEntitled=1 THEN 'Yes' ELSE 'No' END
+                            ,apd.ProcessedOT
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -433,6 +435,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             --,mo.OThour as ManualOT
 							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt else mo.OThour End
                             ,dmc.IsOTEntitled
+                            ,apd.ProcessedOT
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -465,6 +468,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             --,mo.OThour as ManualOT
 							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt else mo.OThour End
                             ,dmc.IsOTEntitled
+                            ,apd.ProcessedOT
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id

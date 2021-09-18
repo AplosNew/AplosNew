@@ -3789,13 +3789,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SandwichLogic(SandwichPrevDay, out SandwichData, PlantValue);
                     if (SandwichData.Tables[0].Rows.Count > 0)
                     {
-
+                        
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and PlantID='" + PlantValue + "'";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
                         objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
-
+                        // DataSet for Changing Previous Days Flags and DayStatuses
                         string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
 
 
@@ -3805,6 +3805,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string EmpId = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
                             string PrevDaySandwich = clsWebLib.RetValidLen(SandwichData.Tables[0].Rows[i][@"SandwichFlag"]).ToString();
 
+                            // Updation in AttdnProcessData
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -3831,7 +3832,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     if (ToDaySandwich == "1")
                                     {
                                         if (FinalStatus != "")
-                                        {                                         
+                                        {            
+                                            // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
+
                                             var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
@@ -3844,6 +3847,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             {
                                                 for (int x = 0; x < RowData.Rows.Count; x++)
                                                 {
+                                                    // Changing DayStatus
                                                     var RowxId = RowData.Rows[x]["RowId"].ToString();
                                                     DataRow drx = SandwichDataSet.Tables[0].NewRow();
                                                     drx["DayStatus"] = FinalStatus;
@@ -3868,6 +3872,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             for (int x = 0; x < RowData.Rows.Count; x++)
                                             {
+                                                // Changing SandwichFlag
                                                 var RowxId = RowData.Rows[x]["RowId"].ToString();
                                                 SandwichFlagRowId += ",'" + RowxId + "'";
                                             }
@@ -3899,6 +3904,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 if (dsMaster.Tables[0].DefaultView.Count > 0)
                                 {
+                                    // DayStatus Change of Range
                                     DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
                                     dry.BeginEdit();                                 
                                     dry["DayStatus"] = DayType; 
@@ -3918,7 +3924,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #endregion
 
                     #region Previous Payroll DayStatus 
-                    PrePayrollDayStatus(PreviousDay, PlantValue);
+                    PrePayrollDayStatus(PreviousDay, PlantValue); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
                     #endregion
 
                     #region Prev DayOT Calculation 
@@ -3926,6 +3932,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     PrevDayOTCalculation(PreviousDay, out PrevOTCalculate, PlantValue);
                     if (PrevOTCalculate.Tables[0].Rows.Count > 0)
                     {
+                        // OverTime DataSet Using OT Per Minute Policy
                         var WkDate = PrevOTCalculate.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
@@ -3935,10 +3942,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         var sqly = @"select * from PlantWiseHRMSSetting where PlantID='" + PlantValue + "'";
                         objCon.OpenDataSetThroughAdapter(sqly, out DataSet OTMode, false, false, "", "1");
-
+                       
+                        // Settings of Modes from PlantWiseHRMSSetting
                         string OTModeValue = clsWebLib.RetValidLen(OTMode.Tables[0].Rows[0][@"ResultendOT"]).ToString();
-                        // 0 means Punched Based 1 means Manual 2 means Mixed
-
+                       
+                        // 0 means Punched Based, 1 means Manual, 2 means Mixed
 
                         for (int i = 0; i < PrevOTCalculate.Tables[0].Rows.Count; i++)
                         {
@@ -3954,6 +3962,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 if (OTModeValue == "0")
                                 {
+                                    // Punched Based
                                     if (Result != "")
                                     {
                                         if (Convert.ToDouble(Result) > 0)
@@ -3967,7 +3976,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 }
                                 else if (OTModeValue == "1")
-                                {
+                                { 
+                                    // Manual Mode
                                     if (PastManualOT != "")
                                     {
                                         if (Convert.ToDouble(PastManualOT) > 0)
@@ -3981,6 +3991,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 else
                                 {
+                                    // Mixed Mode
                                     if (Result != "")
                                     {
                                         if (PastManualOT != "")
@@ -3989,6 +4000,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             {
                                                 if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                                 {
+                                                    // If Manual is less than Processed
                                                     dr.BeginEdit();
                                                     dr["ProcessedOT"] = PastManualOT;
                                                     dr.EndEdit();
@@ -3996,6 +4008,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             }
                                             else
                                             {
+                                                // Otherwise Processed
                                                 dr.BeginEdit();
                                                 dr["ProcessedOT"] = Result;
                                                 dr.EndEdit();
@@ -4003,6 +4016,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         }
                                         else
                                         {
+                                            // Otherwise Processed
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
@@ -4022,6 +4036,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     EarnedLeaveCalculation(PreviousDay, out PrevEarnedLeave, PlantValue);
                     if (PrevEarnedLeave.Tables[0].Rows.Count > 0)
                     {
+                        // Earned Leave Value from DayType With Values Plant & Emptype Category
                         var WkDate = PrevEarnedLeave.Tables[0].Rows[0][@"WorkDate"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -4032,7 +4047,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < PrevEarnedLeave.Tables[0].Rows.Count; i++)
                         {
-
+                            // Value from Source
                             string RowId = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"RowId"]).ToString();
                             string DayType = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"DayType"]).ToString();
                             string EarnedPL = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"EarnedPL"]).ToString();
@@ -4041,7 +4056,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
-
+                                // Updation in LeaveEarned
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
                                 dr["DayStatus"] = DayType;
@@ -4068,6 +4083,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     ManualOT(PreviousDay, out PrevManualOT, PlantValue);
                     if (PrevManualOT.Tables[0].Rows.Count > 0)
                     {
+                        // OTFromApp OT Of Future
                         var WkDate = PrevManualOT.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
@@ -4076,7 +4092,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-
+                        // Settings of Modes from PlantWiseHRMSSetting
                         var sqly = @"select * from PlantWiseHRMSSetting where PlantID='" + PlantValue + "'";
                         objCon.OpenDataSetThroughAdapter(sqly, out DataSet OTMode, false, false, "", "1");
 
@@ -4097,6 +4113,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 if (OTModeValue == "1")
                                 {
+                                    // Manual Mode
                                     if (ManualOT != "")
                                     {
                                         if (Convert.ToDouble(ManualOT) > 0)
@@ -4111,13 +4128,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 else if (OTModeValue == "2")
                                 {
+                                    // Mixed Mode
                                     if (ManualOT != "")
                                     {
                                         if (Convert.ToDouble(ManualOT) > 0)
                                         {
                                             if (Convert.ToDouble(ManualOT) < Convert.ToDouble(AutoOT))
                                             {
-
+                                                // if Manual is less than Processed
                                                 dr.BeginEdit();
                                                 dr["ProcessedOT"] = ManualOT;
                                                 dr["ManualOt"] = ManualOT;
@@ -4349,228 +4367,231 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
 
                 }
-                DataSet TodayPlantLock;
-                PlantLockCheck(Date, out TodayPlantLock, PlantValue);
-                if (TodayPlantLock.Tables[0].Rows.Count > 0)
-                {
 
-                }
-                else
-                {
-                    #region Today Duration EarlyIn Late EarlyOut OverStay
-                    DataSet TodayDurn;
-                    TodayDuration(Date, out TodayDurn, PlantValue);
-                    if (TodayDurn.Tables[0].Rows.Count > 0)
-                    {
-                        string WorkDate = TodayDurn.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+                #region Commented Code of Today DayStatus
+                //DataSet TodayPlantLock;
+                //PlantLockCheck(Date, out TodayPlantLock, PlantValue);
+                //if (TodayPlantLock.Tables[0].Rows.Count > 0)
+                //{
 
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "'";
+                //}
+                //else
+                //{
+                //    #region Today Duration EarlyIn Late EarlyOut OverStay
+                //    DataSet TodayDurn;
+                //    TodayDuration(Date, out TodayDurn, PlantValue);
+                //    if (TodayDurn.Tables[0].Rows.Count > 0)
+                //    {
+                //        string WorkDate = TodayDurn.Tables[0].Rows[0][@"WorkDate"].ToString();
+                //        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                //        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                //        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "'";
 
-                        for (int i = 0; i < TodayDurn.Tables[0].Rows.Count; i++)
-                        {
-                            string EmpId = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                            string ProcessInTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"InTime"]).ToString();
-                            string ProcessOutTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"OutTime"]).ToString();
-                            string ShiftOutTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
-                            string ShiftInTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
-                            string CalDuration = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"CalDuration"]).ToString();
-                            double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
-                            double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
-                            double ShiftEarlyOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftEarlyOutMargin"]).ToString());
-                            double ShiftLateOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftLateOutMargin"]).ToString());
+                //        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
+                //        for (int i = 0; i < TodayDurn.Tables[0].Rows.Count; i++)
+                //        {
+                //            string EmpId = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                //            string ProcessInTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"InTime"]).ToString();
+                //            string ProcessOutTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"OutTime"]).ToString();
+                //            string ShiftOutTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
+                //            string ShiftInTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
+                //            string CalDuration = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"CalDuration"]).ToString();
+                //            double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
+                //            double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
+                //            double ShiftEarlyOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftEarlyOutMargin"]).ToString());
+                //            double ShiftLateOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftLateOutMargin"]).ToString());
 
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
+                //            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                //            if (dsRef.Tables[0].DefaultView.Count > 0)
+                //            {
 
-                                dr["Duration"] = CalDuration;
-                                dr["EarlyLateIn"] = DBNull.Value;
-                                dr["EarlyLateOut"] = DBNull.Value;
-                                if (ShiftInTime != "")
-                                {
-                                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
-                                    {
-                                        TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
-                                        dr["EarlyIn"] = ts.TotalMinutes;
-                                        dr["EarlyLateIn"] = "EI";
-                                    }
-                                    else
-                                    {
-                                        dr["EarlyIn"] = 0;
+                //                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                //                dr.BeginEdit();
 
-                                    }
-                                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
-                                    {
-                                        TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
-                                        dr["LateIn"] = ts.TotalMinutes;
-                                        dr["EarlyLateIn"] = "LI";
-                                    }
-                                    else
-                                    {
-                                        dr["LateIn"] = 0;
+                //                dr["Duration"] = CalDuration;
+                //                dr["EarlyLateIn"] = DBNull.Value;
+                //                dr["EarlyLateOut"] = DBNull.Value;
+                //                if (ShiftInTime != "")
+                //                {
+                //                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                //                    {
+                //                        TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
+                //                        dr["EarlyIn"] = ts.TotalMinutes;
+                //                        dr["EarlyLateIn"] = "EI";
+                //                    }
+                //                    else
+                //                    {
+                //                        dr["EarlyIn"] = 0;
 
-                                    }
-                                }
-                                if (ShiftOutTime != "")
-                                {
-                                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
-                                    {
+                //                    }
+                //                    if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                //                    {
+                //                        TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
+                //                        dr["LateIn"] = ts.TotalMinutes;
+                //                        dr["EarlyLateIn"] = "LI";
+                //                    }
+                //                    else
+                //                    {
+                //                        dr["LateIn"] = 0;
 
-                                        TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
-                                        dr["EarlyOut"] = ts.TotalMinutes;
-                                        dr["EarlyLateOut"] = "EO";
-                                    }
-                                    else
-                                    {
-                                        dr["EarlyOut"] = 0;
+                //                    }
+                //                }
+                //                if (ShiftOutTime != "")
+                //                {
+                //                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                //                    {
 
-                                    }
+                //                        TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
+                //                        dr["EarlyOut"] = ts.TotalMinutes;
+                //                        dr["EarlyLateOut"] = "EO";
+                //                    }
+                //                    else
+                //                    {
+                //                        dr["EarlyOut"] = 0;
 
-                                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
-                                    {
-                                        dr["LateOut"] = 0;
+                //                    }
 
-                                    }
-                                    else
-                                    {
-                                        TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
-                                        dr["LateOut"] = ts.TotalMinutes;
-                                        dr["EarlyLateOut"] = "LO";
-                                    }
-                                }
+                //                    if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                //                    {
+                //                        dr["LateOut"] = 0;
 
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-                            }
-                        }
-                        SaveDataSets(dsRef);
+                //                    }
+                //                    else
+                //                    {
+                //                        TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
+                //                        dr["LateOut"] = ts.TotalMinutes;
+                //                        dr["EarlyLateOut"] = "LO";
+                //                    }
+                //                }
 
-                    }
+                //                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                //                dr.EndEdit();
+                //            }
+                //        }
+                //        SaveDataSets(dsRef);
 
-                    #endregion
+                //    }
 
-                    #region SameDay OverStay UnderStay 
-                    DataSet SameDayOverStay;
-                    OverUnderStaySameDay(Date, out SameDayOverStay, PlantValue);
-                    if (SameDayOverStay.Tables[0].Rows.Count > 0)
-                    {
-                        string WorkDate = SameDayOverStay.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+                //    #endregion
 
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and Duration >0 and PlantID='" + PlantValue + "'";
+                //    #region SameDay OverStay UnderStay 
+                //    DataSet SameDayOverStay;
+                //    OverUnderStaySameDay(Date, out SameDayOverStay, PlantValue);
+                //    if (SameDayOverStay.Tables[0].Rows.Count > 0)
+                //    {
+                //        string WorkDate = SameDayOverStay.Tables[0].Rows[0][@"WorkDate"].ToString();
+                //        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                //        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                //        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and Duration >0 and PlantID='" + PlantValue + "'";
 
-                        for (int i = 0; i < SameDayOverStay.Tables[0].Rows.Count; i++)
-                        {
-                            string EmpId = SameDayOverStay.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                            double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(SameDayOverStay.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
+                //        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
+                //        for (int i = 0; i < SameDayOverStay.Tables[0].Rows.Count; i++)
+                //        {
+                //            string EmpId = SameDayOverStay.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                //            double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(SameDayOverStay.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
 
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                if (OverUnderStay > 0)
-                                {
-                                    dr["OverStay"] = OverUnderStay;
-                                    dr["UnderStay"] = 0;
-                                }
-                                else if (OverUnderStay == 0)
-                                {
-                                    dr["OverStay"] = 0;
-                                    dr["UnderStay"] = 0;
-                                }
-                                else
-                                {
-                                    dr["OverStay"] = 0;
-                                    dr["UnderStay"] = OverUnderStay;
-                                }
+                //            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                //            if (dsRef.Tables[0].DefaultView.Count > 0)
+                //            {
 
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
-                            }
-                        }
-                        SaveDataSets(dsRef);
+                //                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                //                dr.BeginEdit();
+                //                if (OverUnderStay > 0)
+                //                {
+                //                    dr["OverStay"] = OverUnderStay;
+                //                    dr["UnderStay"] = 0;
+                //                }
+                //                else if (OverUnderStay == 0)
+                //                {
+                //                    dr["OverStay"] = 0;
+                //                    dr["UnderStay"] = 0;
+                //                }
+                //                else
+                //                {
+                //                    dr["OverStay"] = 0;
+                //                    dr["UnderStay"] = OverUnderStay;
+                //                }
 
-                    }
+                //                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                //                dr.EndEdit();
+                //            }
+                //        }
+                //        SaveDataSets(dsRef);
 
-                    #endregion
+                //    }
 
-                    #region Today DurationStatus Flagging
-                    DataSet TodayDurationStat;
-                    TodayDurationStatusCal(Date, out TodayDurationStat, PlantValue);
-                    if (TodayDurationStat.Tables[0].Rows.Count > 0)
-                    {
-                        string WorkDate = TodayDurationStat.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+                //    #endregion
 
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and PlantID='" + PlantValue + "'";
+                //    #region Today DurationStatus Flagging
+                //    DataSet TodayDurationStat;
+                //    TodayDurationStatusCal(Date, out TodayDurationStat, PlantValue);
+                //    if (TodayDurationStat.Tables[0].Rows.Count > 0)
+                //    {
+                //        string WorkDate = TodayDurationStat.Tables[0].Rows[0][@"WorkDate"].ToString();
+                //        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                //        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                //        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and PlantID='" + PlantValue + "'";
 
-                        for (int i = 0; i < TodayDurationStat.Tables[0].Rows.Count; i++)
-                        {
-                            string EmpId = TodayDurationStat.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                            string ShortDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftShortDuration"]).ToString();
-                            string FullDayDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftFullDayDuration"]).ToString();
-                            string HalfDayDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftHalfDayDuration"]).ToString();
-                            string Duration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"Duration"]).ToString();
+                //        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                if (Duration.ToString() != "" &&
-                                    FullDayDuration.ToString() != ""
-                                    && ShortDuration.ToString() != ""
-                                    && HalfDayDuration.ToString() != "")
-                                {
-                                    if (Convert.ToDouble(Duration) >= Convert.ToDouble(FullDayDuration))
-                                    {
-                                        dr["DurationStatus"] = "FD";
-                                    }
-                                    else if (Convert.ToDouble(Duration) >= Convert.ToDouble(HalfDayDuration))
-                                    {
-                                        dr["DurationStatus"] = "HD";
-                                    }
-                                    else if (Convert.ToDouble(Duration) >= Convert.ToDouble(ShortDuration))
-                                    {
-                                        dr["DurationStatus"] = "SD";
-                                    }
-                                    else if (Convert.ToDouble(Duration) < Convert.ToDouble(ShortDuration))
-                                    {
-                                        dr["DurationStatus"] = "A";
-                                    }
-                                }
+                //        for (int i = 0; i < TodayDurationStat.Tables[0].Rows.Count; i++)
+                //        {
+                //            string EmpId = TodayDurationStat.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                //            string ShortDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftShortDuration"]).ToString();
+                //            string FullDayDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftFullDayDuration"]).ToString();
+                //            string HalfDayDuration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"ShiftHalfDayDuration"]).ToString();
+                //            string Duration = clsWebLib.RetValidLen(TodayDurationStat.Tables[0].Rows[i][@"Duration"]).ToString();
 
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
+                //            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                //            if (dsRef.Tables[0].DefaultView.Count > 0)
+                //            {
+                //                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                //                dr.BeginEdit();
+                //                if (Duration.ToString() != "" &&
+                //                    FullDayDuration.ToString() != ""
+                //                    && ShortDuration.ToString() != ""
+                //                    && HalfDayDuration.ToString() != "")
+                //                {
+                //                    if (Convert.ToDouble(Duration) >= Convert.ToDouble(FullDayDuration))
+                //                    {
+                //                        dr["DurationStatus"] = "FD";
+                //                    }
+                //                    else if (Convert.ToDouble(Duration) >= Convert.ToDouble(HalfDayDuration))
+                //                    {
+                //                        dr["DurationStatus"] = "HD";
+                //                    }
+                //                    else if (Convert.ToDouble(Duration) >= Convert.ToDouble(ShortDuration))
+                //                    {
+                //                        dr["DurationStatus"] = "SD";
+                //                    }
+                //                    else if (Convert.ToDouble(Duration) < Convert.ToDouble(ShortDuration))
+                //                    {
+                //                        dr["DurationStatus"] = "A";
+                //                    }
+                //                }
 
-                            }
-                        }
-                        SaveDataSets(dsRef);
+                //                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                //                dr.EndEdit();
 
-                    }
+                //            }
+                //        }
+                //        SaveDataSets(dsRef);
 
-                    #endregion
+                //    }
 
-                    #region Today Status Code              
-                    TodayStatusCodeData(Date, PlantValue);
-                    #endregion
+                //    #endregion
 
-                }
+                //    #region Today Status Code              
+                //    TodayStatusCodeData(Date, PlantValue);
+                //    #endregion
+
+                //}
+                #endregion
             }
             catch (Exception ex)
             {

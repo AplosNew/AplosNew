@@ -44,10 +44,11 @@
         <div class="form-group">
             <label class="col-sm-4 control-label"> Date<sup>*</sup></label>
             <div class="col-sm-8">
-                <div class="select-style">
-                    @*<input class="form-control" id="txtLockDate" ng-model="customPara.lockDate" ng-disabled="DatePickerEnable" datepicker placeholder="dd-MM-yyyy" type="text" />*@
-                    <input class="form-control datepicker" autocomplete="off" ng-change="getEmpListData()" id="txtLockDate" ng-model="customPara.lockDate" placeholder="dd-MM-yyyy" type="text" />
-                </div>
+                <input class="form-control datepicker" datepicker autocomplete="off" ng-change="getEmpListData()" id="txtLockDate" ng-model="customPara.lockDate" placeholder="dd-MM-yyyy" type="text" />
+                <!--<div class="select-style">-->
+                @*<input class="form-control" id="txtLockDate" ng-model="customPara.lockDate" ng-disabled="DatePickerEnable" datepicker placeholder="dd-MM-yyyy" type="text" />*@
+                <!--<input class="form-control datepicker" autocomplete="off" ng-change="getEmpListData()" id="txtLockDate" ng-model="customPara.lockDate" placeholder="dd-MM-yyyy" type="text" />
+    </div>-->
             </div>
         </div>
     </div>

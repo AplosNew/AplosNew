@@ -3649,7 +3649,7 @@ namespace Library.Service.HumanResources
             {
 
                 string sql = @"SELECT TOP 100 FORMAT([LockedDate],'dd-MMM-yyyy') [LockedDates]
-                               FROM [PlantWiseAttendanceLock] where  PlantId='" + identity.PlantId + "' and IsActive=1 order by LockedDate desc";
+                               FROM [PlantWiseAttendanceLock] where  PlantId='" + identity.PlantId + "' order by LockedDate desc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");

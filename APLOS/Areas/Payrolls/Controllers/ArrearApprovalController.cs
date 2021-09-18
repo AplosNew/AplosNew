@@ -23,6 +23,7 @@ using Library.Service.Payrolls.SalaryProcessActive;
 using Library.Service.Payrolls.SalaryProcess;
 using Library.HumanResource.Payroll.SalaryProcess;
 using Library.HumanResource.Payroll.Allowance;
+using Syncfusion.XlsIO;
 
 namespace Aplos.Areas.Payrolls.Controllers
 {
@@ -116,5 +117,32 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult ArrearFinancialDataReport(string ArrearProcessBatchId, List<string> EmployeeIds)
+        {
+
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var fileName = "Arrear" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xlsx";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+                ArrearProcess _arrear = new ArrearProcess();
+
+                IWorkbook workbook = _arrear.GetArrearFinancialData(ArrearProcessBatchId, EmployeeIds);
+                workbook.Version = ExcelVersion.Excel2016;
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+            return null;
+        }
     }
 }
