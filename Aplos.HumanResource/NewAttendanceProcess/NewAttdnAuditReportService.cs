@@ -52,7 +52,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataSet dsOTNotEntitledWithOutMissing = null;
             DataSet dsBankRemarks = null;
             DataSet dsSeparatedAbsent = null;
-            DataSet dsAttendanceNotLock = null;
             DataSet dsAttendanceNotLockPlant = null;
             DataSet dsTotalAbsent = null;
             DataSet dsShortDurationAbsent = null;
@@ -79,7 +78,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataTable dtOTNotEntitledWithOutMissing = null;
             DataTable dtBankRemarks = null;
             DataTable dtSeparatedAbsent = null;
-            DataTable dtAttendanceNotLock = null;
             DataTable dtAttendanceNotLockPlant = null;
             DataTable dtTotalAbsent = null;
             DataTable dtShortDurationAbsent = null;
@@ -296,17 +294,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 catch (Exception )
                 {
 
-                }
-                try
-                {
-                    objRpt.GetAttendanceNotLockIndividual(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAttendanceNotLock);
-                    dtAttendanceNotLock = dsAttendanceNotLock.Tables[0];
-
-                }
-                catch (Exception )
-                {
-
-                }
+                }               
                 try
                 {
                     objRpt.GetAttendanceNotLockPlant(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAttendanceNotLockPlant);
@@ -788,10 +776,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     xlsRow++;
 
                     sheet20.Range[xlsRow, isl].Text = "20";
-                    sheet20.Range[xlsRow, iLogic].Text = "Whose Attendance Lock Not Done Yet(" + cc + "/" + dtAttendanceNotLock.Rows.Count + ")";
+                    sheet20.Range[xlsRow, iLogic].Text = "Whose Attendance Lock Not Done Yet(" + cc + "/" + dtAttendanceNotLockPlant.Rows.Count + ")";
                     sheet20.Range[xlsRow, iReportName].Text = "20-Attendance Not Lock";
                     sheet20.Range[xlsRow, iObjective].Text = "Whose Attendance Lock Need to Done";
-                    sheet20.Range[xlsRow, iCount].Number = cc + dtAttendanceNotLock.Rows.Count;
+                    sheet20.Range[xlsRow, iCount].Number = cc + dtAttendanceNotLockPlant.Rows.Count;
 
                     IHyperLink linkAttendanceNotLock = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
                     linkAttendanceNotLock.Type = ExcelHyperLinkType.Workbook;
@@ -7700,105 +7688,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     }
                     xlsRow++;
-
-                    if (dtAttendanceNotLock.Rows.Count > 0)
-                    {
-
-                        #region ------------------Column Header------------------
-                        xlsCol = 1;
-                        isl = xlsCol;
-                        sheet19.Range[xlsRow, isl].Text = "SL";
-                        sheet19.Range[xlsRow, isl].ColumnWidth = 6;
-
-                        xlsCol += 1;
-                        iEmployeeCode = xlsCol;
-                        sheet19.Range[xlsRow, iEmployeeCode].Text = "Code";
-                        sheet19.Range[xlsRow, iEmployeeCode].ColumnWidth = 11;
-
-                        xlsCol += 1;
-                        iWorkDate = xlsCol;
-                        sheet19.Range[xlsRow, iWorkDate].Text = "Work Date";
-                        sheet19.Range[xlsRow, iWorkDate].ColumnWidth = 11;
-
-                        xlsCol += 1;
-                        iEmployeeName = xlsCol;
-                        sheet19.Range[xlsRow, iEmployeeName].Text = "Name";
-                        sheet19.Range[xlsRow, iEmployeeName].ColumnWidth = 20;
-
-                        xlsCol += 1;
-                        iDesignation = xlsCol;
-                        sheet19.Range[xlsRow, iDesignation].Text = "Designation";
-                        sheet19.Range[xlsRow, iDesignation].ColumnWidth = 25;
-
-                        xlsCol += 1;
-                        iDepartment = xlsCol;
-                        sheet19.Range[xlsRow, iDepartment].Text = "Department";
-                        sheet19.Range[xlsRow, iDepartment].ColumnWidth = 25;
-
-                        xlsCol += 1;
-                        iSection = xlsCol;
-                        sheet19.Range[xlsRow, iSection].Text = "Section";
-                        sheet19.Range[xlsRow, iSection].ColumnWidth = 18;
-
-                        xlsCol += 1;
-                        iSubSection = xlsCol;
-                        sheet19.Range[xlsRow, iSubSection].Text = "SubSection";
-                        sheet19.Range[xlsRow, iSubSection].ColumnWidth = 18;
-
-                        xlsCol += 1;
-                        iEntity = xlsCol;
-                        sheet19.Range[xlsRow, iEntity].Text = "Entity";
-                        sheet19.Range[xlsRow, iEntity].ColumnWidth = 18;
-
-                        sheet19.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
-                        //sheet19.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
-                        sheet19.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-                        sheet19.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
-                        sheet19.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-
-                        //xlsRow++;
-                        endXlsCol = xlsCol;
-                        #endregion ------------------Column Header------------------
-                        xlsRow++;
-
-                        SLNo = 1;
-                        for (int i = 0; i < dtAttendanceNotLock.Rows.Count; i++)
-                        {
-                            #region ----------------------Data-----------------------
-                            sheet19.Range[xlsRow, isl].Text = SLNo.ToString();
-
-                            sheet19.Range[xlsRow, iEmployeeCode].Text = dtAttendanceNotLock.Rows[i]["EmployeeCode"].ToString();
-
-                            sheet19.Range[xlsRow, iWorkDate].Text = dtAttendanceNotLock.Rows[i]["WorkDate"].ToString();
-
-                            sheet19.Range[xlsRow, iEmployeeName].Text = dtAttendanceNotLock.Rows[i]["EmployeeName"].ToString();
-
-                            sheet19.Range[xlsRow, iDepartment].Text = dtAttendanceNotLock.Rows[i]["Department"].ToString();
-
-                            sheet19.Range[xlsRow, iDesignation].Text = dtAttendanceNotLock.Rows[i]["LegalDesignation"].ToString();
-
-                            sheet19.Range[xlsRow, iSection].Text = dtAttendanceNotLock.Rows[i]["Section"].ToString();
-
-                            sheet19.Range[xlsRow, iSubSection].Text = dtAttendanceNotLock.Rows[i]["SubSection"].ToString();
-
-                            sheet19.Range[xlsRow, iEntity].Text = dtAttendanceNotLock.Rows[i]["EntityName"].ToString();
-
-                            xlsRow++;
-                            SLNo++;
-                        }
-
-                        #endregion ----------------------Data-----------------------
-
-                        #region Line Setup
-
-                        sheet19.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                        sheet19.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                        sheet19.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
-
-                        #endregion Line Setup
-
-                    }
-
+                    
+                    
                     #region ******************Report Header******************
 
                     xlsRow = 1;
@@ -7902,7 +7793,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet19.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                     sheet19.IsDisplayZeros = false;
 
-                    if (dtAttendanceNotLock.Rows.Count > 0)
+                    if (dtAttendanceNotLockPlant.Rows.Count > 0)
                     {
                         sheet19.Name = (SheetIndex + 1) + "_Attendance_Not_Lock";
                         sheet19.TabColorRGB = Color.Red;
