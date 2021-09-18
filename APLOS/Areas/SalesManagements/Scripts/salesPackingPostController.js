@@ -166,6 +166,11 @@ function salesPackingPostController(cboService, commonMessage, $window, $scope, 
         $scope.GetCboVoucherTypePackingJournalList();
     }
     $scope.Post = function () {
+        $scope.modelPacking.PostingDate = $scope.modelNew.PostingDate;
+        $scope.modelPacking.DocDate = $scope.modelNew.DocDate;
+        $scope.modelPacking.DocRefNo = $scope.modelNew.DocRefNo;
+        $scope.modelPacking.FiscalYearId = $scope.modelNew.FiscalYearId;
+        $scope.modelPacking.FiscalYearPeriodId = $scope.modelNew.FiscalYearPeriodId;
         $http({
             method: "POST",
             url: $scope.postUrl,

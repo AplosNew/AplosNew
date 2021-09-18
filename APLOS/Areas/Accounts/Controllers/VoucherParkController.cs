@@ -104,9 +104,11 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (sourceType == SourceType.LoanPayment.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].FinancingWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].FinancingWriteOff SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";
+                    var subTrn = @"UPDATE [TRN].FinancingSubsequentTransaction SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
+                    rdBuilder.Append(subTrn);
                 }
                 if (sourceType == SourceType.DebitNote.ToString() || sourceType == SourceType.CreditNote.ToString())
                 {
@@ -163,7 +165,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(invoiceSql);
                 }
-                if (sourceType == SourceType.LoanInterestPayable.ToString())
+                if (sourceType == SourceType.LoanInterestPayable.ToString() || sourceType == SourceType.LoanInterestPayableReverse.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var invoiceSql = @"UPDATE TRN.FinancingSubsequentTransaction SET ISPark=1 WHERE VoucherId='" + voucherId + "'";

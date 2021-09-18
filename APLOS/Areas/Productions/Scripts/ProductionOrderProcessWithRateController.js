@@ -12,9 +12,11 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
     baseService.init($scope.getListUrl);
 
     $scope.modelNew = {
+        Id: null,
         ProductionEntityId: null,
         ProcessId: null,
         ProductionOrderId: null,
+        SelectedDropDownValue: null,
     }
 
     $scope.entityList = [];
@@ -44,10 +46,37 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             data: { ProcessId: $scope.modelNew.ProcessId, ProductionOrderId: $scope.modelNew.ProductionOrderId, SkuId: $scope.SelectedProductionOrder.SKUId, Sequence: $scope.SelectedProductionOrder.Sequence }
         }).then(function successCallback(response) {
             $scope.SKUList = response.data;
+            
+            if ($scope.SelectedProductionOrder.Sequence == 2 || $scope.SelectedProductionOrder.Sequence == 1) {
 
+            }
+            else {
+                var Check = 0;
+                $scope.ColumnList = [];
+                for (var i = 0; i < $scope.SKUList.length; i++) {
+                    if ($scope.ColumnList.length == 0) {
+                        Check = $scope.SKUList[i].FirstCharacteristicsValueId;
+                        $scope.ColumnList.push({ "ColorName": $scope.SKUList[i].CharValue1, "ColumnValue": $scope.SKUList[i].FirstCharacteristicsValueId, childList: [] });
+                    }
+                    else {
+                        if (Check != $scope.SKUList[i].FirstCharacteristicsValueId) {
+                            Check = $scope.SKUList[i].FirstCharacteristicsValueId;
+                            $scope.ColumnList.push({ "ColorName": $scope.SKUList[i].CharValue1, "ColumnValue": $scope.SKUList[i].FirstCharacteristicsValueId, childList: [] });
+                        }
+                    }
+                }
+                for (var i = 0; i < $scope.ColumnList.length; i++) {
+                    if ($scope.ColumnList[i].childList.length == 0) {
+                        for (var k = 0; k < $scope.SKUList.length; k++) {
+                            $scope.ColumnList[i].childList.push({ "SizeName": $scope.SKUList[k].CharValue2, "SizeValue": $scope.SKUList[k].SecondCharacteristicsValueId, "Rate": $scope.SKUList[k].Rate });
+                        }
+                    }
+                }
+            }
             $scope.FGSizeOrColor = $scope.SKUList[0].Char;
         });
     }
+
     $scope.ProductionOrderList = [];
     $scope.getData = function () {
         try {
@@ -77,28 +106,21 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
 
             $scope.SelectedProductionOrder = row;
             $scope.modelNew.ProductionOrderId = $scope.SelectedProductionOrder.POId;
-            //$scope.modelNew.Sequence = $scope.SelectedProductionOrder.Sequence;
 
             for (var i = 0; i < row.Charactaristics.length; i++) {
                 if ($scope.SelectedProductionOrder.SKUId == row.Charactaristics[i].Value) {
                     $scope.SelectedProductionOrder.Sequence = row.Charactaristics[i].Sequence;
                 }
             }
-
+            $scope.getMatrixValue();
             if ($scope.SelectedProductionOrder.Sequence == 2 || $scope.SelectedProductionOrder.Sequence == 1) {
-                //var eDialog = $("#firstPopup").data("ejDialog");
-                //eDialog.open();
                 angular.element(document.querySelector('#firstPopup')).modal('show');
             }
             else {
-                //var eDialog = $("#secondPopup").data("ejDialog");
-                //eDialog.open();
                 angular.element(document.querySelector('#secondPopup')).modal('show');
             }
-            //var eDialog = $("#SKUPopUp").data("ejDialog");
-            //eDialog.open();
 
-            $scope.getMatrixValue();
+
 
         } catch (e) {
             ShowResult(e, "failure");
@@ -112,5 +134,56 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#firstPopup')).modal('hide');
         angular.element(document.querySelector('#secondPopup')).modal('hide');
         angular.element(document.querySelector('#thirdPopup')).modal('hide');
+    };
+    $scope.charSave = function () {
+        try {
+            for (var i = 0; i < $scope.ProductionOrderList.length; i++) {
+                if ($scope.ProductionOrderList[i].SKUId != "") {
+                    $scope.modelNew.SelectedDropDownValue = $scope.ProductionOrderList[i].SKUId;
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'Master': $scope.modelNew, 'ChildData': $scope.SKUList, 'Sequence': $scope.SelectedProductionOrder.Sequence },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.closeCharPopUp();
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.Delete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl,
+                data: { 'MasterId': $scope.SKUList[0].MasterId},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.closeCharPopUp();
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
 }

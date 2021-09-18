@@ -65,12 +65,9 @@
                         <div e-column e-template="#ButtonSD" e-width="100"></div>
                     </div>
                 </div>
-                <script type="text/template" id="Rate">
-                    <input type="text" name="Rate" ng-disabled="data.Charactaristics.length>0" ng-model="data.Rate" class="form-control" style="background-color:antiquewhite;font-weight:bold;color:black;" tabindex="5" maxlength="50">
-                </script>
                 <script type="text/template" id="SKU">
                     <div class="select-style">
-                        <select class="form-control" ng-model="data.SKUId" name="SKUId" ng-options="item.Value as item.Text for item in data.Charactaristics" required>
+                        <select class="form-control" ng-disabled="data.IsDisable" ng-model="data.SKUId" name="SKUId" ng-options="item.Value as item.Text for item in data.Charactaristics" required>
                             <option value=""></option>
                         </select>
                     </div>
@@ -83,16 +80,7 @@
                     </div>
                 </script>
             </div>
-            <div class="col-md-12" ng-show="ProductionOrderList.length>0">
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                    </ul>
-                </div>
-            </div>
         </div>
-
     </div>
 </div>
 
@@ -144,45 +132,29 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body form-element-ctrl form-horizontal">
-                @*<div class="col-xs-12 col-sm-6 col-md-6 hide">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="char1.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="2" name="Qty" ng-model="char1.Qty" class="form-control text-right">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6 hide">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Value</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="ValueFreeText" ng-model="char1.ValueFreeText" maxlength="15" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="common-btn hide" style="padding-right: 15px;">
-                        <ul class="list-inline text-right">
-                            <li>
-                                <button ng-click="charSave();" class="btn"><i class=""></i> Save</button>
-                            </li>
-                            <li>
-                                <button ng-click="firstSkuClosePopUp();" class="btn">Close</button>
-                            </li>
-                            <li>
-                                <button ng-click="genericDelete(null, 'first');" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
-                            </li>
-                        </ul>
-                    </div>*@
+
+                <div class="row" style="padding-bottom:10px;">
+                    <div class="col-xs-1 small text-nowrap">Prod. Order No</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.POId}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Buyer Order</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.BuyerOrder}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Own Order</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.OwnOrder}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">SO No</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.SONo}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Description</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Description}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Qty</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Qty}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">LSD</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.LSD}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Commitment Date</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.CommitmentDate}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Production Status</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.ProductionStatus}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Buyer Item</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.BuyerItem}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Own Item</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.OwnItem}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Product Category</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.ProductCategory}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Product</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Product}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Customer</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Customer}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Buyer</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Buyer}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Material Master</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.MaterialMaster}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">Article</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Article}}</span></div>
+                    <div class="col-xs-1 small text-nowrap">PONumber</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.PONumber}}</span></div>
+                </div>
+
+                
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -201,20 +173,23 @@
                                     {{x.CharValue}}
                                 </td>
                                 <td>
-                                    <input type="text" name="ValueFreeText" ng-model="x.ValueFreeText" maxlength="15" class="form-control" ng-keyup="verifyFirstSkuList()" />
+                                    <input type="text" name="ValueFreeText" ng-model="x.Rate" maxlength="15" class="form-control" />
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="common-btn" style="padding-right: 15px;">
+                <div class="common-btn" >
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="charSave(1);" class="btn"><i class=""></i> Save</button>
+                            <button ng-click="charSave(1);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
                         </li>
                         <li>
-                            <button ng-click="closeCharPopUp();" class="btn">Close</button>
+                            <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                        </li>
+                        <li>
+                            <button ng-click="closeCharPopUp();" class="btn"><i class="glyphicon glyphicon-remove"></i> Close</button>
                         </li>
                     </ul>
                 </div>
@@ -235,39 +210,44 @@
             </div>
             <div class="modal-body">
                 <div class="modal-body">
+                    <div class="row" style="padding-bottom:10px;">
+                        <div class="col-xs-1 small text-nowrap">Prod. Order No</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.POId}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Buyer Order</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.BuyerOrder}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Own Order</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.OwnOrder}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">SO No</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.SONo}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Description</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Description}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Qty</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Qty}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">LSD</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.LSD}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Commitment Date</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.CommitmentDate}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Production Status</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.ProductionStatus}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Buyer Item</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.BuyerItem}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Own Item</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.OwnItem}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Product Category</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.ProductCategory}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Product</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Product}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Customer</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Customer}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Buyer</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Buyer}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Material Master</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.MaterialMaster}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">Article</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.Article}}</span></div>
+                        <div class="col-xs-1 small text-nowrap">PONumber</div><div class="col-xs-2 small text-nowrap"><span>: {{SelectedProductionOrder.PONumber}}</span></div>
+                    </div>
                     <div class="form-elements form-horizontal table-responsive modal-table">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>{{rowName}}</th>
-                                    <th ng-repeat="x in skuList[0].childList">
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
-                                                    ng-change="chvChange(x.CharacteristicsValueId, $index);">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index);" class="form-control" maxlength="15">
-                                        </div>
+                                    <th>FG Size</th>
+                                    <th ng-repeat="x in ColumnList[0].childList">
+                                        {{x.SizeName}}
                                     </th>
-                                    <th ng-click="addSkuMatrixColumn()"> Add sku Column </th>
+                                    @*<th ng-click="addSkuMatrixColumn()"> Add sku Column </th>*@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="x in skuList">
+                                <tr ng-repeat="x in ColumnList">
                                     <td>
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <input type="text" ng-model="x.ValueFreeText" class="form-control" maxlength="15">
-                                        </div>
+                                        {{x.ColorName}}
                                     </td>
                                     <td ng-repeat="y in x.childList">
-                                        <input type="text" only-numbers ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right">
+                                        <input type="text" only-numbers ng-model="y.Rate" class="form-control text-right">
                                     </td>
                                 </tr>
                             </tbody>
