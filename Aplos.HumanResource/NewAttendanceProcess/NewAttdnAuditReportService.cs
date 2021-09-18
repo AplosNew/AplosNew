@@ -11,6 +11,7 @@ using Library.Service.Helpers;
 using System.IO;
 using Syncfusion.XlsIO;
 using System.Drawing;
+using ConnectionManager;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -29,14 +30,14 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             #region declare
             clsReport objRpt = null;
+            DataSetGenerationClass Gen = null;
             ReportUtility oru = new ReportUtility();
             DataSet dsBioDvAC = null;
             DataSet dsOnlyOt = null;
             DataSet dsAbsent = null;
-            DataSet dsAbsentWithPunch = null;
+            DataSet dsInMissPunch = null;
             DataSet dsOffdayMissingPunch = null;
             DataSet dsOffdayWithPunch = null;
-            DataSet dsAbsentWithRawPunch = null;
             DataSet dsShiftUnassign = null;
             DataSet dsLeaveWithPunch = null;
             DataSet dsUnApprovedProfile = null;
@@ -51,7 +52,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataSet dsOTNotEntitledWithOutMissing = null;
             DataSet dsBankRemarks = null;
             DataSet dsSeparatedAbsent = null;
-            DataSet dsAttendanceNotLock = null;
             DataSet dsAttendanceNotLockPlant = null;
             DataSet dsTotalAbsent = null;
             DataSet dsShortDurationAbsent = null;
@@ -61,10 +61,9 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataTable dtBioDvAC = null;
             DataTable dtOnlyOt = null;
             DataTable dtAbsent = null;
-            DataTable dtAbsentWithPunch = null;
+            DataTable dtInPunchMissing = null;
             DataTable dtOffdayMissingPunch = null;
             DataTable dtOffdayWithPunch = null;
-            DataTable dtAbsentWithRawPunch = null;
             DataTable dtShiftUnassign = null;
             DataTable dtLeaveWithPunch = null;
             DataTable dtUnApprovedProfile = null;
@@ -79,7 +78,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataTable dtOTNotEntitledWithOutMissing = null;
             DataTable dtBankRemarks = null;
             DataTable dtSeparatedAbsent = null;
-            DataTable dtAttendanceNotLock = null;
             DataTable dtAttendanceNotLockPlant = null;
             DataTable dtTotalAbsent = null;
             DataTable dtShortDurationAbsent = null;
@@ -125,6 +123,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 objRpt = new clsReport();
 
+                Gen = new DataSetGenerationClass();
+
+
                 dvPayDays = new DataView();
 
                 string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
@@ -152,7 +153,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 try
                 {
-                    objRpt.GetAbsentReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAbsent);
+                    Gen.GetAbsentReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAbsent);
                     dtAbsent = dsAbsent.Tables[0];
 
                 }
@@ -162,8 +163,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetAbsentWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAbsentWithPunch);
-                    dtAbsentWithPunch = dsAbsentWithPunch.Tables[0];
+                    Gen.GetInMissingReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsInMissPunch);
+                    dtInPunchMissing = dsInMissPunch.Tables[0];
 
                 }
                 catch (Exception ex)
@@ -182,7 +183,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetLeaveWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsLeaveWithPunch);
+                    Gen.GetLeaveWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsLeaveWithPunch);
                     dtLeaveWithPunch = dsLeaveWithPunch.Tables[0];
 
                 }
@@ -191,7 +192,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetOTEntitledWithOutMissingReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOTEntitledWithOutMissing);
+                    Gen.GetOTEntitledWithOutMissingReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOTEntitledWithOutMissing);
                     dtOTEntitledWithOutMissing = dsOTEntitledWithOutMissing.Tables[0];
 
                 }
@@ -201,11 +202,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetOTNotEntitledWithOutMissingReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOTNotEntitledWithOutMissing);
+                    Gen.GetOTNotEntitledWithOutMissingReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOTNotEntitledWithOutMissing);
                     dtOTNotEntitledWithOutMissing = dsOTNotEntitledWithOutMissing.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -214,7 +215,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtUnApprovedProfile = dsUnApprovedProfile.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -224,7 +225,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtProfileNoSalary = dsProfileNoSalary.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -234,7 +235,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtNoSalaryStructureApprove = dsNoSalaryStructureApprove.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -243,7 +244,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtWorkDuration = dsWorkDuration.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -252,7 +253,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOtNotConfirmOverstay = dsOtNotConfirmOverstayReport.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -261,7 +262,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtLongAbsentisom = dsLongAbsentisom.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -271,7 +272,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtTBS = dsTBS.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -280,7 +281,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtMaternityLeave = dsMaternityLeave.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -290,27 +291,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtBankRemarks = dsBankRemarks.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
-                }
-                try
-                {
-                    objRpt.GetAttendanceNotLockIndividual(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAttendanceNotLock);
-                    dtAttendanceNotLock = dsAttendanceNotLock.Tables[0];
-
-                }
-                catch (Exception ex)
-                {
-
-                }
+                }               
                 try
                 {
                     objRpt.GetAttendanceNotLockPlant(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAttendanceNotLockPlant);
                     dtAttendanceNotLockPlant = dsAttendanceNotLockPlant.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -364,7 +355,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetOffdayMissingPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOffdayMissingPunch);
+                    Gen.GetOffdayMissingPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOffdayMissingPunch);
                     dtOffdayMissingPunch = dsOffdayMissingPunch.Tables[0];
 
                 }
@@ -374,21 +365,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 try
                 {
-                    objRpt.GetOffdayWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOffdayWithPunch);
+                    Gen.GetOffdayWithPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsOffdayWithPunch);
                     dtOffdayWithPunch = dsOffdayWithPunch.Tables[0];
 
                 }
-                catch (Exception ex)
-                {
-
-                }
-                try
-                {
-                    objRpt.GetAbsentWithRawPunchReports(FromDate, ToDate, plantId, companyId, companyGroupId, out dsAbsentWithRawPunch);
-                    dtAbsentWithRawPunch = dsAbsentWithRawPunch.Tables[0];
-
-                }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -398,7 +379,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtShiftUnassign = dsShiftUnassign.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -593,16 +574,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                     xlsRow++;
 
                     sheet20.Range[xlsRow, isl].Text = "5";
-                    sheet20.Range[xlsRow, iLogic].Text = "Day Status: A with Punch Having Intime or Out time or Both";
-                    sheet20.Range[xlsRow, iReportName].Text = "5-Absent With single Punch";
+                    sheet20.Range[xlsRow, iLogic].Text = "In Punch Missing";
+                    sheet20.Range[xlsRow, iReportName].Text = "5-In Missing";
                     sheet20.Range[xlsRow, iObjective].Text = "Not Sincere About Punch Specially Out punch";
-                    sheet20.Range[xlsRow, iCount].Number = dtAbsentWithPunch.Rows.Count;
+                    sheet20.Range[xlsRow, iCount].Number = dtInPunchMissing.Rows.Count;
 
                     IHyperLink linkAbsentWithPunch = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
                     linkAbsentWithPunch.Type = ExcelHyperLinkType.Workbook;
                     linkAbsentWithPunch.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkAbsentWithPunch.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
-                    linkAbsentWithPunch.Address = "5_Absent_With_single_Punch!A1";
+                    linkAbsentWithPunch.Address = "5_In_Missing!A1";
 
                     xlsRow++;
 
@@ -795,10 +776,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     xlsRow++;
 
                     sheet20.Range[xlsRow, isl].Text = "20";
-                    sheet20.Range[xlsRow, iLogic].Text = "Whose Attendance Lock Not Done Yet(" + cc + "/" + dtAttendanceNotLock.Rows.Count + ")";
+                    sheet20.Range[xlsRow, iLogic].Text = "Whose Attendance Lock Not Done Yet(" + cc + "/" + dtAttendanceNotLockPlant.Rows.Count + ")";
                     sheet20.Range[xlsRow, iReportName].Text = "20-Attendance Not Lock";
                     sheet20.Range[xlsRow, iObjective].Text = "Whose Attendance Lock Need to Done";
-                    sheet20.Range[xlsRow, iCount].Number = cc + dtAttendanceNotLock.Rows.Count;
+                    sheet20.Range[xlsRow, iCount].Number = cc + dtAttendanceNotLockPlant.Rows.Count;
 
                     IHyperLink linkAttendanceNotLock = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
                     linkAttendanceNotLock.Type = ExcelHyperLinkType.Workbook;
@@ -859,30 +840,18 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkOffdayWithpunch.Address = "24_Offday_With_Punch!A1";
                     xlsRow++;
 
-                    sheet20.Range[xlsRow, isl].Text = "25";
-                    sheet20.Range[xlsRow, iLogic].Text = "Absent With Wrong Shift";
-                    sheet20.Range[xlsRow, iReportName].Text = "25-Absent With Wrong Shift";
-                    sheet20.Range[xlsRow, iObjective].Text = "Those Who is Absent but have punch data in Wrong Shift";
-                    sheet20.Range[xlsRow, iCount].Number = dtAbsentWithRawPunch.Rows.Count;
 
-                    IHyperLink linkAbsentWithRawPunch = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
-                    linkAbsentWithRawPunch.Type = ExcelHyperLinkType.Workbook;
-                    linkAbsentWithRawPunch.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
-                    linkAbsentWithRawPunch.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
-                    linkAbsentWithRawPunch.Address = "25_Absent_With_Wrong_Shift!A1";
-                    xlsRow++;
-
-                    sheet20.Range[xlsRow, isl].Text = "26";
+                    sheet20.Range[xlsRow, isl].Text = "2";
                     sheet20.Range[xlsRow, iLogic].Text = "Shift Not Assign";
-                    sheet20.Range[xlsRow, iReportName].Text = "26-Shift Not Assign";
-                    sheet20.Range[xlsRow, iObjective].Text = "Those whos Shift is Not Assign";
+                    sheet20.Range[xlsRow, iReportName].Text = "25-Shift Not Assign";
+                    sheet20.Range[xlsRow, iObjective].Text = "Those whose Shift is Not Assigned";
                     sheet20.Range[xlsRow, iCount].Number = dtShiftUnassign.Rows.Count;
 
                     IHyperLink linkLeaveRejectionReflection = sheet20.HyperLinks.Add(sheet20.Range[xlsRow, iReportName]);
                     linkLeaveRejectionReflection.Type = ExcelHyperLinkType.Workbook;
                     linkLeaveRejectionReflection.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkLeaveRejectionReflection.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
-                    linkLeaveRejectionReflection.Address = "26_Shift_Not_Assign!A1";
+                    linkLeaveRejectionReflection.Address = "25_Shift_Not_Assign!A1";
 
                     sheet20.Range[2, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                     sheet20.Range[2, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
@@ -2381,14 +2350,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet4.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet4.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Red;
 
-                    //xlsCol += 1;
-                    //iRawPunch = xlsCol;
-                    //sheet4.Range[xlsRow, iRawPunch].Text = "Raw Punch";
-                    //sheet4.Range[xlsRow, iRawPunch].ColumnWidth = 28;
-                    //sheet4.Range[xlsRow, iRawPunch].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //sheet4.Range[xlsRow, iRawPunch].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //sheet4.Range[xlsRow, iRawPunch].CellStyle.Font.Color = ExcelKnownColors.Red;
-
                     sheet4.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
                     //sheet4.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.Gray;
                     sheet4.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
@@ -2400,74 +2361,73 @@ namespace Library.HumanResource.NewAttendanceProcess
                     #endregion ------------------Column Header------------------
 
 
-                    if (dtAbsentWithPunch.Rows.Count > 0)
+                    if (dtInPunchMissing.Rows.Count > 0)
                     {
                         SLNo = 1;
-                        for (int i = 0; i < dtAbsentWithPunch.Rows.Count; i++)
+                        for (int i = 0; i < dtInPunchMissing.Rows.Count; i++)
                         {
                             #region ----------------------Data-----------------------
                             sheet4.Range[xlsRow, isl].Text = SLNo.ToString();
 
-                            sheet4.Range[xlsRow, iEmployeeCode].Text = dtAbsentWithPunch.Rows[i]["EmployeeCode"].ToString();
+                            sheet4.Range[xlsRow, iEmployeeCode].Text = dtInPunchMissing.Rows[i]["EmployeeCode"].ToString();
 
-                            //sheet4.Range[xlsRow, iRawPunch].Text = dtAbsentWithPunch.Rows[i]["RawPunch"].ToString();
 
-                            sheet4.Range[xlsRow, iDepartment].Text = dtAbsentWithPunch.Rows[i]["Department"].ToString();
+                            sheet4.Range[xlsRow, iDepartment].Text = dtInPunchMissing.Rows[i]["Department"].ToString();
 
-                            sheet4.Range[xlsRow, iEmployeeName].Text = dtAbsentWithPunch.Rows[i]["EmployeeName"].ToString();
+                            sheet4.Range[xlsRow, iEmployeeName].Text = dtInPunchMissing.Rows[i]["EmployeeName"].ToString();
 
-                            sheet4.Range[xlsRow, iEmployeeCurrentStatus].Text = dtAbsentWithPunch.Rows[i]["EmployeeCurrentStatus"].ToString();
+                            sheet4.Range[xlsRow, iEmployeeCurrentStatus].Text = dtInPunchMissing.Rows[i]["EmployeeCurrentStatus"].ToString();
 
-                            sheet4.Range[xlsRow, iDayStatus].Text = dtAbsentWithPunch.Rows[i]["DayStatus"].ToString();
+                            sheet4.Range[xlsRow, iDayStatus].Text = dtInPunchMissing.Rows[i]["DayStatus"].ToString();
                             sheet4.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet4.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            if (bplib.clsWebLib.GetBoolData(dtAbsentWithPunch.Rows[i]["IsManualDayStatus"].ToString().Trim()))
+                            if (bplib.clsWebLib.GetBoolData(dtInPunchMissing.Rows[i]["IsManualDayStatus"].ToString().Trim()))
                             {
                                 sheet4.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Orange;
                             }
 
-                            sheet4.Range[xlsRow, iDesignation].Text = dtAbsentWithPunch.Rows[i]["LegalDesignation"].ToString();
+                            sheet4.Range[xlsRow, iDesignation].Text = dtInPunchMissing.Rows[i]["LegalDesignation"].ToString();
 
-                            sheet4.Range[xlsRow, iSection].Text = dtAbsentWithPunch.Rows[i]["Section"].ToString();
-                            sheet4.Range[xlsRow, iEmployeeCategory].Text = dtAbsentWithPunch.Rows[i]["EmployeeCategory"].ToString();
-                            sheet4.Range[xlsRow, iSubSection].Text = dtAbsentWithPunch.Rows[i]["SubSection"].ToString();
-                            sheet4.Range[xlsRow, iEntity].Text = dtAbsentWithPunch.Rows[i]["EntityName"].ToString();
-                            sheet4.Range[xlsRow, iWorkDate].Text = dtAbsentWithPunch.Rows[i]["WorkDate"].ToString();
+                            sheet4.Range[xlsRow, iSection].Text = dtInPunchMissing.Rows[i]["Section"].ToString();
+                            sheet4.Range[xlsRow, iEmployeeCategory].Text = dtInPunchMissing.Rows[i]["EmployeeCategory"].ToString();
+                            sheet4.Range[xlsRow, iSubSection].Text = dtInPunchMissing.Rows[i]["SubSection"].ToString();
+                            sheet4.Range[xlsRow, iEntity].Text = dtInPunchMissing.Rows[i]["EntityName"].ToString();
+                            sheet4.Range[xlsRow, iWorkDate].Text = dtInPunchMissing.Rows[i]["WorkDate"].ToString();
 
-                            sheet4.Range[xlsRow, iDOJ].Text = dtAbsentWithPunch.Rows[i]["DOJ"].ToString();
+                            sheet4.Range[xlsRow, iDOJ].Text = dtInPunchMissing.Rows[i]["DOJ"].ToString();
 
-                            sheet4.Range[xlsRow, iShiftName].Text = dtAbsentWithPunch.Rows[i]["ShiftName"].ToString();
+                            sheet4.Range[xlsRow, iShiftName].Text = dtInPunchMissing.Rows[i]["ShiftName"].ToString();
 
-                            sheet4.Range[xlsRow, iShiftInTime].Text = dtAbsentWithPunch.Rows[i]["ShiftInTime"].ToString();
+                            sheet4.Range[xlsRow, iShiftInTime].Text = dtInPunchMissing.Rows[i]["ShiftInTime"].ToString();
                             sheet4.Range[xlsRow, iShiftInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet4.Range[xlsRow, iShiftInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            sheet4.Range[xlsRow, iShiftOutTime].Text = dtAbsentWithPunch.Rows[i]["ShiftOutTime"].ToString();
+                            sheet4.Range[xlsRow, iShiftOutTime].Text = dtInPunchMissing.Rows[i]["ShiftOutTime"].ToString();
                             sheet4.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet4.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            if (dtAbsentWithPunch.Rows[i]["InTime"].ToString() != "")
+                            if (dtInPunchMissing.Rows[i]["InTime"].ToString() != "")
                             {
                                 sheet4.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
-                                sheet4.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dtAbsentWithPunch.Rows[i]["InTime"].ToString());
+                                sheet4.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dtInPunchMissing.Rows[i]["InTime"].ToString());
                                 sheet4.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet4.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                if (bplib.clsWebLib.GetBoolData(dtAbsentWithPunch.Rows[i]["IsManualInTime"].ToString().Trim()))
+                                if (bplib.clsWebLib.GetBoolData(dtInPunchMissing.Rows[i]["IsManualInTime"].ToString().Trim()))
                                 {
                                     sheet4.Range[xlsRow, iInTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
                                 }
                             }
 
-                            if (dtAbsentWithPunch.Rows[i]["OutTime"].ToString() != "")
+                            if (dtInPunchMissing.Rows[i]["OutTime"].ToString() != "")
                             {
                                 sheet4.Range[xlsRow, iOutTime].NumberFormat = "hh:mm AM/PM";
-                                sheet4.Range[xlsRow, iOutTime].DateTime = Convert.ToDateTime(dtAbsentWithPunch.Rows[i]["OutTime"].ToString());
+                                sheet4.Range[xlsRow, iOutTime].DateTime = Convert.ToDateTime(dtInPunchMissing.Rows[i]["OutTime"].ToString());
                                 sheet4.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet4.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                if (bplib.clsWebLib.GetBoolData(dtAbsentWithPunch.Rows[i]["IsManualOutTime"].ToString().Trim()))
+                                if (bplib.clsWebLib.GetBoolData(dtInPunchMissing.Rows[i]["IsManualOutTime"].ToString().Trim()))
                                 {
                                     sheet4.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
                                 }
@@ -2489,7 +2449,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         #endregion Line Setup
                         xlsRow++;
-                        sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "Day Status: A";
+                        sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "In Punch Missing";
                         sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Merge();
                         sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].CellStyle.Font.Bold = true;
 
@@ -2498,7 +2458,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].WrapText = true;
 
                         xlsRow++;
-                        sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "With Punch";
+                        sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Text = "";
                         sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].Merge();
                         sheet4.Range[xlsRow, iEmployeeCode, xlsRow, iWorkDate].CellStyle.Font.Bold = true;
 
@@ -2591,7 +2551,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet4.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
-                    sheet4.Range[xlsRow, 3].Text = (SheetIndex + 1) + "-Absent With single Punch: " + FromDate + " To Date: " + ToDate;
+                    sheet4.Range[xlsRow, 3].Text = (SheetIndex + 1) + "-In Punch Missing From: " + FromDate + " To Date: " + ToDate;
                     sheet4.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                     sheet4.Range[xlsRow, 3].CellStyle.Font.Size = 10;
                     sheet4.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
@@ -2635,19 +2595,19 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet4.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                     sheet4.IsDisplayZeros = false;
 
-                    if (dtAbsentWithPunch.Rows.Count > 0)
+                    if (dtInPunchMissing.Rows.Count > 0)
                     {
-                        sheet4.Name = (SheetIndex + 1) + "_Absent_With_single_Punch";
+                        sheet4.Name = (SheetIndex + 1) + "_In_Missing";
                         sheet4.TabColorRGB = Color.Red;
                     }
                     else
                     {
-                        sheet4.Name = (SheetIndex + 1) + "_Absent_With_single_Punch";
+                        sheet4.Name = (SheetIndex + 1) + "_In_Missing";
                     }
 
                     #endregion Page Setup
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
 
                 }
@@ -3432,7 +3392,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet21.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                     sheet21.IsDisplayZeros = false;
 
-                    if (dtAbsentWithPunch.Rows.Count > 0)
+                    if (dtInPunchMissing.Rows.Count > 0)
                     {
                         sheet21.Name = (SheetIndex + 1) + "_Short_Duration_Absent";
                         sheet21.TabColorRGB = Color.Red;
@@ -7728,105 +7688,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     }
                     xlsRow++;
-
-                    if (dtAttendanceNotLock.Rows.Count > 0)
-                    {
-
-                        #region ------------------Column Header------------------
-                        xlsCol = 1;
-                        isl = xlsCol;
-                        sheet19.Range[xlsRow, isl].Text = "SL";
-                        sheet19.Range[xlsRow, isl].ColumnWidth = 6;
-
-                        xlsCol += 1;
-                        iEmployeeCode = xlsCol;
-                        sheet19.Range[xlsRow, iEmployeeCode].Text = "Code";
-                        sheet19.Range[xlsRow, iEmployeeCode].ColumnWidth = 11;
-
-                        xlsCol += 1;
-                        iWorkDate = xlsCol;
-                        sheet19.Range[xlsRow, iWorkDate].Text = "Work Date";
-                        sheet19.Range[xlsRow, iWorkDate].ColumnWidth = 11;
-
-                        xlsCol += 1;
-                        iEmployeeName = xlsCol;
-                        sheet19.Range[xlsRow, iEmployeeName].Text = "Name";
-                        sheet19.Range[xlsRow, iEmployeeName].ColumnWidth = 20;
-
-                        xlsCol += 1;
-                        iDesignation = xlsCol;
-                        sheet19.Range[xlsRow, iDesignation].Text = "Designation";
-                        sheet19.Range[xlsRow, iDesignation].ColumnWidth = 25;
-
-                        xlsCol += 1;
-                        iDepartment = xlsCol;
-                        sheet19.Range[xlsRow, iDepartment].Text = "Department";
-                        sheet19.Range[xlsRow, iDepartment].ColumnWidth = 25;
-
-                        xlsCol += 1;
-                        iSection = xlsCol;
-                        sheet19.Range[xlsRow, iSection].Text = "Section";
-                        sheet19.Range[xlsRow, iSection].ColumnWidth = 18;
-
-                        xlsCol += 1;
-                        iSubSection = xlsCol;
-                        sheet19.Range[xlsRow, iSubSection].Text = "SubSection";
-                        sheet19.Range[xlsRow, iSubSection].ColumnWidth = 18;
-
-                        xlsCol += 1;
-                        iEntity = xlsCol;
-                        sheet19.Range[xlsRow, iEntity].Text = "Entity";
-                        sheet19.Range[xlsRow, iEntity].ColumnWidth = 18;
-
-                        sheet19.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
-                        //sheet19.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
-                        sheet19.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-                        sheet19.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
-                        sheet19.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-
-                        //xlsRow++;
-                        endXlsCol = xlsCol;
-                        #endregion ------------------Column Header------------------
-                        xlsRow++;
-
-                        SLNo = 1;
-                        for (int i = 0; i < dtAttendanceNotLock.Rows.Count; i++)
-                        {
-                            #region ----------------------Data-----------------------
-                            sheet19.Range[xlsRow, isl].Text = SLNo.ToString();
-
-                            sheet19.Range[xlsRow, iEmployeeCode].Text = dtAttendanceNotLock.Rows[i]["EmployeeCode"].ToString();
-
-                            sheet19.Range[xlsRow, iWorkDate].Text = dtAttendanceNotLock.Rows[i]["WorkDate"].ToString();
-
-                            sheet19.Range[xlsRow, iEmployeeName].Text = dtAttendanceNotLock.Rows[i]["EmployeeName"].ToString();
-
-                            sheet19.Range[xlsRow, iDepartment].Text = dtAttendanceNotLock.Rows[i]["Department"].ToString();
-
-                            sheet19.Range[xlsRow, iDesignation].Text = dtAttendanceNotLock.Rows[i]["LegalDesignation"].ToString();
-
-                            sheet19.Range[xlsRow, iSection].Text = dtAttendanceNotLock.Rows[i]["Section"].ToString();
-
-                            sheet19.Range[xlsRow, iSubSection].Text = dtAttendanceNotLock.Rows[i]["SubSection"].ToString();
-
-                            sheet19.Range[xlsRow, iEntity].Text = dtAttendanceNotLock.Rows[i]["EntityName"].ToString();
-
-                            xlsRow++;
-                            SLNo++;
-                        }
-
-                        #endregion ----------------------Data-----------------------
-
-                        #region Line Setup
-
-                        sheet19.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                        sheet19.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                        sheet19.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
-
-                        #endregion Line Setup
-
-                    }
-
+                    
+                    
                     #region ******************Report Header******************
 
                     xlsRow = 1;
@@ -7930,7 +7793,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet19.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                     sheet19.IsDisplayZeros = false;
 
-                    if (dtAttendanceNotLock.Rows.Count > 0)
+                    if (dtAttendanceNotLockPlant.Rows.Count > 0)
                     {
                         sheet19.Name = (SheetIndex + 1) + "_Attendance_Not_Lock";
                         sheet19.TabColorRGB = Color.Red;
@@ -9184,402 +9047,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 }
                 #endregion Offday_With_Punch 24
-
-                #region  Absent With Wrong Shift 25
-                try
-                {
-                    IWorksheet sheet25 = null;
-
-                    xlsRow = 1; xlsCol = 1;
-                    endXlsCol = 1;
-                    FactoryName = "";
-                    CmpName = "";
-                    //var iDayStatus = 0;
-                    SheetIndex++;
-                    sheet25 = workbook.Worksheets[SheetIndex];
-                    xlsRow = 6;
-
-                    #region ------------------Column Header------------------
-                    igoto = xlsCol;
-                    sheet25.Range[5, igoto].Text = "Goto Index";
-                    sheet25.Range[5, igoto].ColumnWidth = 6;
-                    IHyperLink linkgofromAbsentNoPunchTime = sheet25.HyperLinks.Add(sheet25.Range[5, igoto]);
-                    linkgofromAbsentNoPunchTime.Type = ExcelHyperLinkType.Workbook;
-                    linkgofromAbsentNoPunchTime.TextToDisplay = sheet25.Range[5, igoto].Text;
-                    linkgofromAbsentNoPunchTime.ScreenTip = "Go To " + sheet25.Range[5, igoto].Text;
-                    linkgofromAbsentNoPunchTime.Address = "1_Index!A1";
-
-                    isl = xlsCol;
-                    sheet25.Range[xlsRow, isl].Text = "SL";
-                    sheet25.Range[xlsRow, isl].ColumnWidth = 7;
-
-                    xlsCol += 1;
-                    iEmployeeCode = xlsCol;
-                    sheet25.Range[xlsRow, iEmployeeCode].Text = "Code";
-                    sheet25.Range[xlsRow, iEmployeeCode].ColumnWidth = 14;
-
-                    xlsCol += 1;
-                    iWorkDate = xlsCol;
-                    sheet25.Range[xlsRow, iWorkDate].Text = "Work Date";
-                    sheet25.Range[xlsRow, iWorkDate].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iDayStatus = xlsCol;
-                    sheet25.Range[xlsRow, iDayStatus].Text = "Day Status";
-                    sheet25.Range[xlsRow, iDayStatus].ColumnWidth = 18;
-                    sheet25.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Red;
-
-                    xlsCol += 1;
-                    iEmployeeName = xlsCol;
-                    sheet25.Range[xlsRow, iEmployeeName].Text = "Name";
-                    sheet25.Range[xlsRow, iEmployeeName].ColumnWidth = 20;
-
-                    xlsCol += 1;
-                    iTelephoneNo = xlsCol;
-                    sheet25.Range[xlsRow, iTelephoneNo].Text = "Telephone No.";
-                    sheet25.Range[xlsRow, iTelephoneNo].ColumnWidth = 20;
-
-                    xlsCol += 1;
-                    iDesignation = xlsCol;
-                    sheet25.Range[xlsRow, iDesignation].Text = "Designation";
-                    sheet25.Range[xlsRow, iDesignation].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iDepartment = xlsCol;
-                    sheet25.Range[xlsRow, iDepartment].Text = "Department";
-                    sheet25.Range[xlsRow, iDepartment].ColumnWidth = 25;
-
-                    xlsCol += 1;
-                    iSection = xlsCol;
-                    sheet25.Range[xlsRow, iSection].Text = "Section";
-                    sheet25.Range[xlsRow, iSection].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iEmployeeCategory = xlsCol;
-                    sheet25.Range[xlsRow, iEmployeeCategory].Text = "Employee Category";
-                    sheet25.Range[xlsRow, iEmployeeCategory].ColumnWidth = 15;
-
-                    xlsCol += 1;
-                    iSubSection = xlsCol;
-                    sheet25.Range[xlsRow, iSubSection].Text = "SubSection";
-                    sheet25.Range[xlsRow, iSubSection].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iEntity = xlsCol;
-                    sheet25.Range[xlsRow, iEntity].Text = "Entity";
-                    sheet25.Range[xlsRow, iEntity].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iLine = xlsCol;
-                    sheet25.Range[xlsRow, iLine].Text = "Line";
-                    sheet25.Range[xlsRow, iLine].ColumnWidth = 15;
-
-                    xlsCol += 1;
-                    iDOJ = xlsCol;
-                    sheet25.Range[xlsRow, iDOJ].Text = "DOJ";
-                    sheet25.Range[xlsRow, iDOJ].ColumnWidth = 18;
-
-
-                    //xlsCol += 1;
-                    //iTotalAbsentDays = xlsCol;
-                    //sheet25.Range[xlsRow, iTotalAbsentDays].Text = "Total Absent Days(This Month)";
-                    //sheet25.Range[xlsRow, iTotalAbsentDays].ColumnWidth = 25;
-
-                    xlsCol += 1;
-                    iShiftName = xlsCol;
-                    sheet25.Range[xlsRow, iShiftName].Text = "Shift Name";
-                    sheet25.Range[xlsRow, iShiftName].ColumnWidth = 18;
-
-                    xlsCol += 1;
-                    iShiftInTime = xlsCol;
-                    sheet25.Range[xlsRow, iShiftInTime].Text = "Shift In Time";
-                    sheet25.Range[xlsRow, iShiftInTime].ColumnWidth = 10;
-                    sheet25.Range[xlsRow, iShiftInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iShiftInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iShiftOutTime = xlsCol;
-                    sheet25.Range[xlsRow, iShiftOutTime].Text = "Shift Out Time";
-                    sheet25.Range[xlsRow, iShiftOutTime].ColumnWidth = 10;
-                    sheet25.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    xlsCol += 1;
-                    iInTime = xlsCol;
-                    sheet25.Range[xlsRow, iInTime].Text = "In Time";
-                    sheet25.Range[xlsRow, iInTime].ColumnWidth = 14;
-                    sheet25.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, iInTime].CellStyle.Font.Color = ExcelKnownColors.Red;
-
-                    xlsCol += 1;
-                    iOutTime = xlsCol;
-                    sheet25.Range[xlsRow, iOutTime].Text = "Out Time";
-                    sheet25.Range[xlsRow, iOutTime].ColumnWidth = 14;
-                    sheet25.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Red;
-
-                    xlsCol += 1;
-                    iRawPunch = xlsCol;
-                    sheet25.Range[xlsRow, iRawPunch].Text = "Raw Punch";
-                    sheet25.Range[xlsRow, iRawPunch].ColumnWidth = 28;
-                    sheet25.Range[xlsRow, iRawPunch].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet25.Range[xlsRow, iRawPunch].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, iRawPunch].CellStyle.Font.Color = ExcelKnownColors.Red;
-
-                    sheet25.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
-                    sheet25.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet25.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
-                    sheet25.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-
-                    xlsRow++;
-                    endXlsCol = xlsCol;
-                    #endregion ------------------Column Header------------------
-                    SLNo = 1;
-                    if (dtAbsentWithRawPunch.Rows.Count > 0)
-                    {
-                        for (int i = 0; i < dtAbsentWithRawPunch.Rows.Count; i++)
-                        {
-
-                            #region ----------------------Data-----------------------
-                            sheet25.Range[xlsRow, isl].Text = SLNo.ToString();
-
-                            sheet25.Range[xlsRow, iEmployeeCode].Text = dtAbsentWithRawPunch.Rows[i]["EmployeeCode"].ToString();
-
-                            sheet25.Range[xlsRow, iEmployeeName].Text = dtAbsentWithRawPunch.Rows[i]["EmployeeName"].ToString();
-                            sheet25.Range[xlsRow, iTelephoneNo].Text = dtAbsentWithRawPunch.Rows[i]["TelePhnNo"].ToString();
-
-                            sheet25.Range[xlsRow, iLine].Text = dtAbsentWithRawPunch.Rows[i]["Line"].ToString();
-                            sheet25.Range[xlsRow, iEmployeeCategory].Text = dtAbsentWithRawPunch.Rows[i]["EmployeeCategory"].ToString();
-                            sheet25.Range[xlsRow, iDayStatus].Text = dtAbsentWithRawPunch.Rows[i]["DayStatus"].ToString();
-                            sheet25.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet25.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            if (bplib.clsWebLib.GetBoolData(dtAbsentWithRawPunch.Rows[i]["IsManualDayStatus"].ToString().Trim()))
-                            {
-                                sheet25.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Orange;
-                            }
-
-                            sheet25.Range[xlsRow, iDepartment].Text = dtAbsentWithRawPunch.Rows[i]["Department"].ToString();
-
-                            sheet25.Range[xlsRow, iDesignation].Text = dtAbsentWithRawPunch.Rows[i]["LegalDesignation"].ToString();
-
-                            sheet25.Range[xlsRow, iSection].Text = dtAbsentWithRawPunch.Rows[i]["Section"].ToString();
-
-                            sheet25.Range[xlsRow, iSubSection].Text = dtAbsentWithRawPunch.Rows[i]["SubSection"].ToString();
-
-                            sheet25.Range[xlsRow, iEntity].Text = dtAbsentWithRawPunch.Rows[i]["EntityName"].ToString();
-
-                            sheet25.Range[xlsRow, iWorkDate].Text = dtAbsentWithRawPunch.Rows[i]["WorkDate"].ToString();
-
-                            sheet25.Range[xlsRow, iDOJ].Text = dtAbsentWithRawPunch.Rows[i]["DOJ"].ToString();
-
-                            sheet25.Range[xlsRow, iShiftName].Text = dtAbsentWithRawPunch.Rows[i]["ShiftName"].ToString();
-
-                            sheet25.Range[xlsRow, iShiftInTime].Text = dtAbsentWithRawPunch.Rows[i]["ShiftInTime"].ToString();
-                            sheet25.Range[xlsRow, iShiftInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet25.Range[xlsRow, iShiftInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            sheet25.Range[xlsRow, iShiftOutTime].Text = dtAbsentWithRawPunch.Rows[i]["ShiftOutTime"].ToString();
-                            sheet25.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet25.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            if (dtAbsentWithRawPunch.Rows[i]["InTime"].ToString() != "")
-                            {
-                                sheet25.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
-                                sheet25.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dtAbsentWithRawPunch.Rows[i]["InTime"].ToString());
-                                sheet25.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                sheet25.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                                if (bplib.clsWebLib.GetBoolData(dtAbsentWithRawPunch.Rows[i]["IsManualInTime"].ToString().Trim()))
-                                {
-                                    sheet25.Range[xlsRow, iInTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
-                                }
-                            }
-
-                            if (dtAbsentWithRawPunch.Rows[i]["OutTime"].ToString() != "")
-                            {
-                                sheet25.Range[xlsRow, iOutTime].NumberFormat = "hh:mm AM/PM";
-                                sheet25.Range[xlsRow, iOutTime].DateTime = Convert.ToDateTime(dtAbsentWithRawPunch.Rows[i]["OutTime"].ToString());
-                                sheet25.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                sheet25.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                                if (bplib.clsWebLib.GetBoolData(dtAbsentWithRawPunch.Rows[i]["IsManualOutTime"].ToString().Trim()))
-                                {
-                                    sheet25.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
-                                }
-                            }
-                            sheet25.Range[xlsRow, iRawPunch].Text = dtAbsentWithRawPunch.Rows[i]["RawPunch"].ToString();
-
-                            xlsRow++;
-                            SLNo++;
-
-                        }
-
-                        #endregion ----------------------Data-----------------------
-
-                        #region Line Setup
-
-                        sheet25.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                        sheet25.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                        sheet25.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
-
-                        #endregion Line Setup
-
-
-                    }
-
-                    #region ******************Report Header******************
-                    try
-                    {
-                        string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
-                        Image companyLogo = Image.FromFile(strPath);
-                        if (companyLogo != null)
-                        {
-                            double totalWidth = sheet25.GetColumnWidth(1) + sheet25.GetColumnWidth(2);
-                            int totalWidthPixel = (int)(totalWidth * 7.5);
-                            int totalheight = (int)((sheet25.GetRowHeight(1) + sheet25.GetRowHeight(2) + sheet25.GetRowHeight(3) + sheet25.GetRowHeight(3)) * 1.50);
-
-                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
-                            IPictureShape pic = null;
-
-                            pic = sheet25.Pictures.AddPicture(1, 1, companyLogo);
-
-                        }
-
-
-                    }
-                    catch (Exception)
-                    {
-
-
-                    }
-
-                    xlsRow = 1;
-                    xlsCol = 1;
-
-                    FactoryName = string.Empty;
-
-                    if (dsCmp.Tables[0].Rows.Count > 0)
-                    {
-                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
-                    }
-                    else
-                    {
-                        CmpName = "";
-                    }
-                    sheet25.Range[xlsRow, 3].Text = CmpName;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Size = 12;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet25.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet25.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    if (dsFactory.Tables[0].Rows.Count > 0)
-                    {
-
-                        FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
-                    }
-                    else
-                    {
-                        FactoryName = "";
-                    }
-                    sheet25.Range[xlsRow, 3].Text = FactoryName;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet25.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet25.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    if (dsFactory.Tables[0].Rows.Count > 0)
-                    {
-                        FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
-                    }
-                    else
-                    {
-                        FactoryAddress = "";
-                    }
-                    sheet25.Range[xlsRow, 3].Text = FactoryAddress;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Size = 22;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
-                    sheet25.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet25.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    xlsRow += 1;
-                    sheet25.Range[xlsRow, 3].Text = (SheetIndex + 1) + "-Absent With Wrong Shift";
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                    sheet25.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                    sheet25.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet25.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet25.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                    #endregion ******************Report Header******************
-
-                    #region Freeze Panes
-
-                    sheet25.IsDisplayZeros = false;
-                    sheet25.UsedRange["A7"].FreezePanes();
-                    sheet25.FirstVisibleColumn = 1;
-                    sheet25.FirstVisibleRow = 6;
-
-                    #endregion Freeze Panes
-
-                    #region UsedRange Alignment
-
-                    sheet25.UsedRange.WrapText = true;
-                    sheet25.UsedRange.CellStyle.Font.Size = 8;
-                    sheet25.Range["A1"].CellStyle.Font.Size = 14;
-                    sheet25.Range["A2"].CellStyle.Font.Size = 10;
-                    sheet25.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
-
-                    #endregion UsedRange Alignment
-
-                    #region Page Setup
-                    sheet25.PageSetup.TopMargin = 0.5;
-                    sheet25.PageSetup.BottomMargin = 0.7;
-                    sheet25.PageSetup.PrintTitleRows = "$1:$5";
-                    sheet25.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
-                    sheet25.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + username + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
-                    sheet25.PageSetup.LeftMargin = 0.5;
-                    sheet25.PageSetup.RightMargin = 0.2;
-                    sheet25.PageSetup.Orientation = ExcelPageOrientation.Portrait;
-                    sheet25.PageSetup.FitToPagesTall = 0;
-                    sheet25.PageSetup.FitToPagesWide = 1;
-                    sheet25.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
-                    sheet25.IsDisplayZeros = false;
-
-                    if (dtAbsentWithRawPunch.Rows.Count > 0)
-                    {
-                        sheet25.Name = (SheetIndex + 1) + "_Absent_With_Wrong_Shift";
-                        sheet25.TabColorRGB = Color.Red;
-
-                    }
-                    else
-                    {
-                        sheet25.Name = (SheetIndex + 1) + "_Absent_With_Wrong_Shift";
-                    }
-                    #endregion Page Setup
-
-
-                }
-                catch (Exception ex)
-                {
-                }
-                #endregion  Absent With Raw Data 25
-
-                #region  Shift NOT Assign 26
+                               
+                #region  Shift NOT Assign 25
                 try
                 {
                     IWorksheet sheet25 = null;
@@ -9665,13 +9134,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet25.Range[xlsRow, iShiftOutTime].ColumnWidth = 18;
                     sheet25.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet25.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                    //xlsCol += 1;
-                    //iInTime = xlsCol;
-                    //sheet25.Range[xlsRow, iInTime].Text = "BudgetCode";
-                    //sheet25.Range[xlsRow, iInTime].ColumnWidth = 14;
-                    //sheet25.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //sheet25.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;                    
 
                     xlsCol += 1;
                     iOutTime = xlsCol;
@@ -9884,10 +9346,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
-                #endregion  Shift NOT Assign 26
+                #endregion  Shift NOT Assign 25
 
                 return workbook;
             }
@@ -9945,6 +9407,688 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
 
+
+    }
+
+    public class DataSetGenerationClass
+    {
+        private readonly ISqlRepository _sqlRepository;
+        public DataSetGenerationClass()
+        {
+            
+        }
+        public DataSetGenerationClass(ISqlRepository sqlRepository)
+        {
+            _sqlRepository = sqlRepository;
+           
+        }
+       
+        private string tableName()
+        {
+            return @"
+                        LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode = PMB.Id
+                        LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                        LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id                        
+                        LEFT JOIN ORG.Department DP ON DP.Id = PR.DepartmentId
+                        LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                        LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+                        left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+						LEFT JOIN HKP.Designation DeG ON DeG.Id = dm.DesignationId
+                        left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
+                        LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
+                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+                        ";
+        }
+        
+        private string columnName()
+        {
+            return @",ei.EmployeeCurrentStatus,EI.CellPhnNo TelePhnNo
+                            ,EI.EmployeeCode
+                        	,EI.EmployeeName
+                        	,PMB.Code BudgetCode
+                            , LGD.userName LegalDesignation
+                            , DeG.UserName Designation
+                            , DP.UserName Department
+                            , se.UserName Section
+                            , Sus.UserName SubSection
+                            , E.UserName EntityName
+                            , PR.UserName PositionName
+                            , FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                            , EC.UserName as EmployeeCategory
+                            , L.UserName Line ";
+
+        }
+        
+        public void GetOTEntitledWithOutMissingReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+                            ";
+                strSql += columnName();
+                strSql += @"
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                            ,AP.DayStatus
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	--,ISNULL(MA.UpdatedBy, MA.AddedBy) ManualAttdnUser
+                        	--,ISNULL(ISNULL(MA.DateUpdated, MA.DateAdded), '') ManualAttdnDate
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+                            ,EC.UserName as EmployeeCategory
+                            --,RawPunch=REPLACE(REPLACE(
+                        --STUFF((select distinct ','+ FORMAT(CAST(rd.PTime AS datetime2), N'hh:mm tt')  from
+                        --AttdnRawData rd
+                       -- WHERE rd.LogDownLoadNum =ap.EmpSystemID and rd.PDate = ap.WorkDate and isnull(rd.PType,'')='' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                       -- ,'&amp;','&'), 'amp;', '')
+
+
+                        FROM AttdnProcessData AP
+                      --  LEFT JOIN AttdnManualData MA ON AP.EmpSystemID = MA.EmpSystemID
+                        --	AND AP.WorkDate = MA.WorkDate
+                        LEFT join (select LogDownLoadNum,PDate,min(PTime)ptime from AttdnRawData where isnull(ptype,'')='' group by LogDownLoadNum,PDate) rd on rd.LogDownLoadNum = ap.EmpSystemID and rd.PDate = ap.WorkDate
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        --LEFT JOIN EmpDateWiseShiftAssign es ON es.EmpSystemID = EI.SystemId
+                        	--AND AP.WorkDate = ES.WorkDate
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                       ";
+                strSql += tableName();
+                strSql += @"WHERE 
+                            --DT.Category IN ('Present','Late')
+                            --and ISNULL(rd.LogDownLoadNum,'')<>''
+                        	AP.InTime IS NOT NULL                        	
+                        	And AP.OutTime IS NULL  
+                            AND  AP.IsOTEntitled = 1
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
+                             
+                        ORDER BY 
+                                EmployeeCodePreFix,EmployeeCodeNumeric
+                                    ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetOTNotEntitledWithOutMissingReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId";
+                strSql += columnName();
+                strSql += @",SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                            ,AP.DayStatus
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	--,ISNULL(MA.UpdatedBy, MA.AddedBy) ManualAttdnUser
+                        	--,ISNULL(ISNULL(MA.DateUpdated, MA.DateAdded), '') ManualAttdnDate
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+                            ,EC.UserName as EmployeeCategory
+                  
+                        FROM AttdnProcessData AP
+                        LEFT join (select LogDownLoadNum,PDate,min(PTime)ptime from AttdnRawData where isnull(ptype,'')='' group by LogDownLoadNum,PDate) rd on rd.LogDownLoadNum = ap.EmpSystemID and rd.PDate = ap.WorkDate
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                       ";
+                strSql += tableName();
+                strSql += @"WHERE 
+                        	AP.InTime IS NOT NULL                        	
+                        	And AP.OutTime IS NULL  
+                            AND  AP.IsOTEntitled = 0
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	                           
+                        ORDER BY 
+                               EmployeeCodePreFix,EmployeeCodeNumeric
+                                    ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetOffdayWithPunchReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId";
+                strSql += columnName();
+                strSql += @" ,AP.DayStatus
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	, InTime = case when AP.InTime is null then ap.PunchInTime else ap.InTime end 
+                        	,OutTime = case when AP.OutTime is null then ap.PunchOutTime else ap.OutTime end
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+							
+                        FROM AttdnProcessData AP
+                        
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+
+                    
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                        ";
+                strSql += tableName();
+                strSql += @"WHERE  
+                                dt.OriginalDayType in ('W','H')  
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                              
+							and (---1
+							
+							( AP.InTime IS Not NULL or AP.PunchInTime Is Not Null )
+                            and 
+                            ( AP.OutTime IS Not NULL or AP.PunchOutTime Is Not Null )
+							
+							)----1                     		
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetOffdayMissingPunchReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId";
+                strSql += columnName();
+                strSql += @" ,AP.DayStatus
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	, InTime = case when AP.InTime is null then ap.PunchInTime else ap.InTime end 
+                        	,OutTime = case when AP.OutTime is null then ap.PunchOutTime else ap.OutTime end
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+							
+                        FROM AttdnProcessData AP
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+
+                    
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                        ";
+                strSql += tableName();
+                strSql += @"WHERE  
+                                dt.OriginalDayType in ('W','H')  
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                              
+							and (---1
+							( (AP.InTime IS NULL and AP.PunchInTime Is Null)	AND (AP.OutTime IS not NULL or AP.PunchOutTime Is NOT NULL))
+							or 
+							( (AP.InTime IS Not NULL or AP.PunchInTime Is Not Null)	AND (AP.OutTime IS NULL and AP.PunchOutTime Is NULL))
+							--or
+							--( AP.InTime IS not NULL	AND AP.OutTime IS not NULL)
+							)----1                        		
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetAbsentReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+            string fd = "01-" + Convert.ToDateTime(ToDate).ToString("MMM") + "-" + Convert.ToDateTime(ToDate).ToString("yyyy");
+            string endDate = Convert.ToDateTime(fd).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+
+                           ";
+                strSql += columnName();
+                strSql += @" ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                        	,PR.UserName PositionName
+                            ,AP.DayStatus
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,l.username as Line
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+                            ,totalabsent.TotalAbsent
+                        FROM AttdnProcessData AP
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+
+                            left join ( SELECT EmpSystemID ,EmployeeCode
+								,sum(TotalAbsent)as TotalAbsent 
+                               FROM(
+								SELECT EmpSystemID, EmployeeCode,DayStatus,   								                        
+                                TotalAbsent = CASE WHEN Category = 'Absent' and LTSystemID is null THEN 1
+                                WHEN Category = 'Absent' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN Category = 'Absent' and LTSystemID is not null and LeaveDuration=1 THEN 1
+                                WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
+                                ELSE 0 END      							                        
+                                FROM dbo.AttdnProcessData a
+                                left join daytype p on a.DayStatus=p.DayType
+                                left join employeeInformation ei on ei.SystemId =a.EmpSystemID 							
+                                WHERE  
+								 WorkDate between '" + fd + @"' AND '" + ToDate + @"'
+								 AND ei.PlantId= '" + plantId + @"' AND EI.CompanyId='" + companyId + @"'
+                                ) A  
+							 group by EmployeeCode,EmpSystemID) totalabsent on totalabsent.EmpSystemID=ap.EmpSystemID and EI.SystemId=totalabsent.EmpSystemID
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                       ";
+                strSql += tableName();
+                strSql += @"WHERE 
+                               AP.DayStatus ='A'
+                        	And AP.InTime IS NULL
+                        	AND AP.OutTime IS NULL
+                            and isnull(ei.EmployeeCurrentStatus,'') not in('TBS','LONG ABSENTEEISM')
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                            
+                        ORDER BY AP.WorkDate
+                        	,EmployeeCodePreFix,EmployeeCodeNumeric";
+
+                con.getDataSet(strSql, out dsRef);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetLeaveWithPunchReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                string fd = "01-" + Convert.ToDateTime(FromDate).ToString("MMM") + "-" + Convert.ToDateTime(FromDate).ToString("yyyy");
+                string endDate = Convert.ToDateTime(fd).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+                        	";
+                strSql += columnName();
+                strSql += @"
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.DayStatus,lt.LeaveType,lt.Code
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+                        FROM AttdnProcessData AP
+                        left join [dbo].[LeaveType] lt on lt.Id=AP.LTSystemID
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                       ";
+                strSql += tableName();
+                strSql += @"WHERE 
+                              AP.DayStatus in (select daytype from daytype where category='Leave') 
+                                and AP.IsHalfDayLeave = 0
+                        	AND AP.WorkDate between '" + fd + @"' and  '" + endDate + @"'
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                                
+                             and (---1
+							( AP.InTime IS NULL	AND AP.OutTime IS not NULL)
+							or 
+							( AP.InTime IS not NULL	AND AP.OutTime IS NULL)
+							or
+							( AP.InTime IS not NULL	AND AP.OutTime IS not NULL)
+							)----1
+                        		
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                            ,AP.WorkDate";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }
+
+        public void GetInMissingReports(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId";
+                strSql += columnName();
+                strSql += @" ,AP.DayStatus
+                            ,AP.OTHr OverStay
+                            ,OTF.TotalOTHr
+							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
+                            ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
+                        	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
+                        	,SD.ShiftDefinationName ShiftName
+                        	,sd.ShiftType
+                        	,ShiftOutTime = CASE 
+                        		WHEN cs.OutTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.OutTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                        		END
+                        	,ShiftInTime = CASE 
+                        		WHEN cs.InTime IS NULL
+                        			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+                        		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+                        		END
+                        	,AP.InTime InTime
+                        	,AP.OutTime OutTime
+                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
+                        	,AP.IsOTComfirm
+                        	,OTF.NormalOTHr ComfirmedOT
+                        	,AP.OTHr CalOT
+                        	,ISNULL(AP.PunchInTime, '') PunchInTime
+                        	,AP.PunchOutTime PunchOutTime
+                            ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
+		                
+                        FROM AttdnProcessData AP
+                        LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
+                        	AND AP.WorkDate = OTF.WorkDate
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus
+
+                    
+
+                        LEFT JOIN (
+                        	SELECT m.ShiftDefinationID
+                        		,c.ShiftDate
+                        		,m.InTime
+                        		,m.SystemID
+                        		,m.OutTime
+                        	FROM [ShiftTimeChgMaster] m
+                        	LEFT JOIN [ShiftTimeChgChild] c ON m.SystemID = c.STCMasterSystemID
+                        	) CS ON cs.ShiftDefinationID = AP.ShiftSystemID
+                        	AND cs.ShiftDate = AP.WorkDate
+                        LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
+                    LEFT join (select LogDownLoadNum,PDate,min(PTime)ptime from AttdnRawData where isnull(ptype,'')='' group by LogDownLoadNum,PDate) rd on rd.LogDownLoadNum = ap.EmpSystemID and rd.PDate = ap.WorkDate
+                        ";
+                strSql += tableName();
+                strSql += @"WHERE  
+
+                        	AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                               --and ISNULL(rd.LogDownLoadNum,'')=''
+							and (---1
+							( AP.InTime IS NULL	AND AP.OutTime IS not NULL)							
+							)----1                        		
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
 
     }
 
