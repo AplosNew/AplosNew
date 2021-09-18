@@ -2739,7 +2739,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             throw new CustomException("Please select another employee for Check by.");
                         }
                     }
-                    else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+                    if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
                     {
                         data["AuthorizedBy"] = data["CheckedBy"];
                         data["AuthorizedByStatus"] = "For Approval";
@@ -2749,7 +2749,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         data["IsApproved"] = false;
 
                     }
-                    else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+                    if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
                     {
                         data["AuthorizedBy"] = null;
                         data["AuthorizedByStatus"] = null;
@@ -2793,7 +2793,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             throw new CustomException("Please select another employee for Check by.");
                         }
                     }
-                    else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+                    if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
                     {
                         data["AuthorizedBy"] = data["CheckedBy"];
                         data["AuthorizedByStatus"] = "For Approval";
@@ -2803,7 +2803,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         data["IsApproved"] = false;
 
                     }
-                    else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+                    if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
                     {
                         data["AuthorizedBy"] = null;
                         data["AuthorizedByStatus"] = null;
