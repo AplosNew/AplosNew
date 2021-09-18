@@ -317,12 +317,13 @@ namespace Library.OrderManagement.Packing
 				drInventoryReceive["CompanyId"] = identity.CompanyId;
 				drInventoryReceive["PlantId"] = identity.PlantId;
 				drInventoryReceive["ToCurrencyRate"] = 1;
+				drInventoryReceive["FixedAssetOrInventory"] = "Inventory";
 				drInventoryReceive["GRNType"] = "GRN";
 				drInventoryReceive["EntityId"] = data["ProductionEntityId"].ToString();
 				drInventoryReceive["AddedBy"] = identity.Name;
 				drInventoryReceive["AddedDate"] = DateTime.Now;
 				drInventoryReceive["AddedFromIP"] = identity.IPAddress;
-				dsInventoryReceive.Tables[0].Rows.Add(dsInventoryReceive);
+				dsInventoryReceive.Tables[0].Rows.Add(drInventoryReceive);
 
 				//DateWiseConsumption
 				for (int i = 0; i < dsFromDateWiseConsumption.Tables[0].Rows.Count; i++)
@@ -404,18 +405,42 @@ namespace Library.OrderManagement.Packing
 
 						//InventoryReceiveDetail
 						DataRow drInventoryReceiveDetail = dsInventoryReceiveDetail.Tables[0].NewRow();
-						drInventoryReceiveDetail["Id"] = iID+"-"+ K;
-						drInventoryReceiveDetail["InventoryReceive"] = iID;
+						drInventoryReceiveDetail["Id"] = iID+"-"+(K + 1);
+						drInventoryReceiveDetail["InventoryReceiveId"] = iID;
 						drInventoryReceiveDetail["TransactionQty"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Qty"].ToString();
 						drInventoryReceiveDetail["BaseQty"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Qty"].ToString();
 						drInventoryReceiveDetail["MaterialTranRate"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Rate"].ToString();
 						drInventoryReceiveDetail["MaterialTranAmount"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Amount"].ToString();
+						drInventoryReceiveDetail["TotalMaterialTranAmount"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Amount"].ToString();
+						drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Amount"].ToString();
+						drInventoryReceiveDetail["BooksCurrencyBaseRate"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Rate"].ToString();
+						drInventoryReceiveDetail["TrnCurrencyBaseRate"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Rate"].ToString();
 						
+						drInventoryReceiveDetail["BaseUoMFactor"] = 1;
+						drInventoryReceiveDetail["TotalTaxAmount"] = 0;
+						drInventoryReceiveDetail["ChargesTranAmount"] = 0;
+						drInventoryReceiveDetail["ChargesTaxTranAmount"] = 0;
+						drInventoryReceiveDetail["BaseIssueQty"] = 0;
+						drInventoryReceiveDetail["ShortageQty"] = 0;
+						drInventoryReceiveDetail["RejectionQty"] = 0;
+						drInventoryReceiveDetail["ApprovedQty"] = 0;
+						drInventoryReceiveDetail["ShortageRatePercent"] = 0;
+						drInventoryReceiveDetail["ShortageValue"] = 0;
+						drInventoryReceiveDetail["RejectRatePercent"] = 0;
+						drInventoryReceiveDetail["RejectClamPercent"] = 0;
+						drInventoryReceiveDetail["ShortRejFlag"] = 0;
+						drInventoryReceiveDetail["PostDrGLGeneralInfoId"] =null;
+						drInventoryReceiveDetail["PostDrBudgetMasterId"] =null;
+						drInventoryReceiveDetail["PostCRGLGeneralInfoId"] =null;
+						drInventoryReceiveDetail["PostCRBudgetMasterId"] =null;
+						drInventoryReceiveDetail["PostCRActivityId"] =null;
+						drInventoryReceiveDetail["CapitalizeVoucherDetailId"] =null;
+						drInventoryReceiveDetail["IsAsset"] =0;
+
 						drInventoryReceiveDetail["AddedBy"] = identity.Name;
 						drInventoryReceiveDetail["AddedDate"] = DateTime.Now;
 						drInventoryReceiveDetail["AddedFromIP"] = identity.IPAddress;
 						dsInventoryReceiveDetail.Tables[0].Rows.Add(drInventoryReceiveDetail);
-
 
 					}
 
