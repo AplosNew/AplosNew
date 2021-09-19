@@ -2594,11 +2594,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return null;
         }
 
-        public ActionResult EntityWiseExpenseAndEarningreportDateWise(string fromDate, string toDate, string entityId, string parallelCurrency)
+        public ActionResult EntityWiseExpenseAndEarningreportDateWise(string fromDate, string toDate, string entityId, string entity, string parallelCurrency)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var fileName = "Entity Wise Expense And Earning Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
-            var workbook = _voucharReportService.GetEntityWiseExpenseAndEarningReportDateWise(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, entityId, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency));
+            var fileName = "EntityWiseExpenseAndEarning Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
+            var workbook = _voucharReportService.GetEntityWiseExpenseAndEarningReportDateWise(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, entityId, entity, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency));
             workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
             return null;
         }

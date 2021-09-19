@@ -3344,10 +3344,15 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         }
                         if (data[i].ContainsKey("RequiredQty"))
                         {
-                            if (clsStaticInfo.dbl(data[i]["TransactionQty"].ToString()) + clsStaticInfo.dbl(data[i]["OtherPOQty"].ToString()) > clsStaticInfo.dbl(data[i]["RequiredQty"].ToString()))
+                            dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
+                            if(dsMaster.Tables[0].DefaultView.Count == 0)
                             {
-                                throw new Exception("Current Qty can't be Greater then Transaction Qty.");
+                                if (clsStaticInfo.dbl(data[i]["TransactionQty"].ToString()) + clsStaticInfo.dbl(data[i]["OtherPOQty"].ToString()) > clsStaticInfo.dbl(data[i]["RequiredQty"].ToString()))
+                                {
+                                    throw new Exception("Current Qty can't be Greater then Transaction Qty.");
+                                }
                             }
+                  
                         }
 
                         var _locUOM = data.Where(ee => ee["TransactionUoMId"].ToString().Trim() != data[i]["TransactionUoMId"].ToString().Trim()).ToList();
@@ -5033,6 +5038,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                 dataInserted.Add(new Dictionary<string, object>(data[i]));
                 dataInserted[dataInserted.Count - 1]["TransactionQty"] = 0;
+                dataInserted[dataInserted.Count - 1]["RequiredQty"] = 0;
                 dataInserted[dataInserted.Count - 1]["ReferenceNoM"] = "";
                 dataInserted[dataInserted.Count - 1]["BuyerItemReferenceNo"] = "";
                 dataInserted[dataInserted.Count - 1]["BOQId"] = "' '";
@@ -5048,6 +5054,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             if (CurrentKey == MakeKey(data[M]))
                             {
                                 dataInserted[KK]["TransactionQty"] = clsStaticInfo.dbl(dataInserted[KK]["TransactionQty"]) + clsStaticInfo.dbl(data[M]["TransactionQty"]);
+                                dataInserted[KK]["RequiredQty"] = clsStaticInfo.dbl(dataInserted[KK]["RequiredQty"]) + clsStaticInfo.dbl(data[M]["RequiredQty"]);
 
                                 if (data[M].ContainsKey("OwnItemReferenceNo"))
                                 {

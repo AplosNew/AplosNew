@@ -1608,7 +1608,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		}
 		for (var i = 0; i < $scope.detailList.length; i++) {
 
-			if ($scope.detailList[i].isSelectedMatInput == true && !baseService.isUndefinedOrNull($scope.detailList[i].MaterialMasterName) && !baseService.isUndefinedOrNull($scope.detailList[i].ArticleId)) {
+			if ($scope.detailList[i].isSelectedMatInput == true && !baseService.isUndefinedOrNull($scope.detailList[i].MaterialMasterId) && !baseService.isUndefinedOrNull($scope.detailList[i].ArticleId)) {
 
 				if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
 					ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
@@ -1647,7 +1647,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 			}
 
-			if ($scope.detailList[i].isSelectedMatInput == true && baseService.isUndefinedOrNull($scope.detailList[i].MaterialMasterName) && baseService.isUndefinedOrNull($scope.detailList[i].ArticleId)) {
+			if ($scope.detailList[i].isSelectedMatInput == true && baseService.isUndefinedOrNull($scope.detailList[i].MaterialMasterId) && baseService.isUndefinedOrNull($scope.detailList[i].ArticleId)) {
 				if (baseService.isUndefinedOrNull($scope.detailList[i].TransactionQty)) {
 					ShowResult("Enter the Issue Qty");
 					return false;
@@ -1660,11 +1660,11 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		}
 
 		for (var j = 0; j < $scope.detailList.length; j++) {
-			if ($scope.detailList[j].isSelectedMatInput == true && !baseService.isUndefinedOrNull($scope.detailList[j].MaterialMasterName) && !baseService.isUndefinedOrNull($scope.detailList[j].ArticleId)) {
+			if ($scope.detailList[j].isSelectedMatInput == true && !baseService.isUndefinedOrNull($scope.detailList[j].MaterialMasterId) && !baseService.isUndefinedOrNull($scope.detailList[j].ArticleId)) {
 				SelectedMaterialInputdata.push($scope.detailList[j]);
 			}
 
-			if ($scope.detailList[j].isSelectedMatInput == true && baseService.isUndefinedOrNull($scope.detailList[j].MaterialMasterName) && baseService.isUndefinedOrNull($scope.detailList[j].ArticleId)) {
+			if ($scope.detailList[j].isSelectedMatInput == true && baseService.isUndefinedOrNull($scope.detailList[j].MaterialMasterId) && baseService.isUndefinedOrNull($scope.detailList[j].ArticleId)) {
 				SelectedMaterialInputdata.push($scope.detailList[j]);
             }
         }
@@ -1681,7 +1681,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		//$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		if ($scope.Action === "Save") {
 			if (SelectedMaterialInputdata.length > 0) {
-				if (baseService.isUndefinedOrNull(SelectedMaterialInputdata[0].MaterialMasterName) && baseService.isUndefinedOrNull(SelectedMaterialInputdata[0].ArticleId)) {
+				if (baseService.isUndefinedOrNull(SelectedMaterialInputdata[0].MaterialMasterId) && baseService.isUndefinedOrNull(SelectedMaterialInputdata[0].ArticleId)) {
 					$http({
 
 						//method: 'POST',
@@ -1882,7 +1882,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		// alert('qtyalert');
 		var BaltoIssue;
 		for (var i = 0; i < $scope.detailList.length; i++) {
-			if (baseService.isUndefinedOrNull($scope.detailList[index].MaterialMasterName) && baseService.isUndefinedOrNull($scope.detailList[index].ArticleId)) {
+			if (baseService.isUndefinedOrNull($scope.detailList[index].MaterialMasterId) && baseService.isUndefinedOrNull($scope.detailList[index].ArticleId)) {
 				if (($scope.detailList[index].JWTCMId === $scope.detailList[i].JWTCMId) && ($scope.detailList[index].JWInputItem === $scope.detailList[i].JWInputItem)) {
 
 					if ($scope.detailList[i].TIRCTotalQty == null) {
@@ -1903,8 +1903,8 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
                 }
 
 			}
-			if (!baseService.isUndefinedOrNull($scope.detailList[index].MaterialMasterName) && !baseService.isUndefinedOrNull($scope.detailList[index].ArticleId)) {
-				if (($scope.detailList[index].MaterialMasterName === $scope.detailList[i].MaterialMstId) && $scope.detailList[index].ArticleId === $scope.detailList[i].ArticleId) {
+			if (!baseService.isUndefinedOrNull($scope.detailList[index].MaterialMasterId) && !baseService.isUndefinedOrNull($scope.detailList[index].ArticleId)) {
+				if (($scope.detailList[index].MaterialMasterId === $scope.detailList[i].MaterialMstId) && $scope.detailList[index].ArticleId === $scope.detailList[i].ArticleId) {
 
 					if ((Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100) > Math.round(($scope.detailList[i].PostingQty) * 100 + Number.EPSILON) / 100) {
 						ShowResult("Issue qty must be less than or equal Ready for Issue Qty");

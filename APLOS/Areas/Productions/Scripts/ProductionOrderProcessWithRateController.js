@@ -10,11 +10,13 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
-
+    $scope.Rate = null;
     $scope.modelNew = {
+        Id: null,
         ProductionEntityId: null,
         ProcessId: null,
         ProductionOrderId: null,
+        SelectedDropDownValue: null,
     }
 
     $scope.entityList = [];
@@ -45,29 +47,38 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
         }).then(function successCallback(response) {
             $scope.SKUList = response.data;
 
-            var Check = 0;
-            $scope.ColumnList = [];
-            for (var i = 0; i < $scope.SKUList.length; i++) {
-                if ($scope.ColumnList.length == 0) {
-                    Check = $scope.SKUList[i].FirstCharacteristicsValueId;
-                    $scope.ColumnList.push({ "ColorName": $scope.SKUList[i].CharValue1, "ColumnValue": $scope.SKUList[i].FirstCharacteristicsValueId, childList: [] });
-                }
-                else {
-                    if (Check != $scope.SKUList[i].FirstCharacteristicsValueId) {
-                        Check = $scope.SKUList[i].FirstCharacteristicsValueId;
-                        $scope.ColumnList.push({ "ColorName": $scope.SKUList[i].CharValue1, "ColumnValue": $scope.SKUList[i].FirstCharacteristicsValueId, childList: [] });
-                    }
-                }
-            }
-            for (var i = 0; i < $scope.ColumnList.length; i++) {
-                if ($scope.ColumnList[i].childList.length == 0) {
-                    for (var k = 0; k < $scope.SKUList.length; k++) {
-                        $scope.ColumnList[i].childList.push({ "SizeName": $scope.SKUList[k].CharValue2, "SizeValue": $scope.SKUList[k].SecondCharacteristicsValueId, "Rate": $scope.SKUList[k].Rate });
-                    }
-                }
-            }
+            if ($scope.SelectedProductionOrder.Sequence == 2 || $scope.SelectedProductionOrder.Sequence == 1) {
 
-            $scope.FGSizeOrColor = $scope.SKUList[0].Char;            
+            }
+            else if ($scope.SelectedProductionOrder.Sequence == "Both") {
+                var Check = 0;
+                $scope.ColumnList = [];
+                for (var i = 0; i < $scope.SKUList.length; i++) {
+                    if ($scope.ColumnList.length == 0) {
+                        Check = $scope.SKUList[i].FirstCharacteristicsValueId;
+                        $scope.ColumnList.push({ "ColorName": $scope.SKUList[i].CharValue1, "ColumnValue": $scope.SKUList[i].FirstCharacteristicsValueId, childList: [], "FirstCharacteristicsId": $scope.SKUList[i].FirstCharacteristicsId });
+                    }
+                    else {
+                        if (Check != $scope.SKUList[i].FirstCharacteristicsValueId) {
+                            Check = $scope.SKUList[i].FirstCharacteristicsValueId;
+                            $scope.ColumnList.push({ "ColorName": $scope.SKUList[i].CharValue1, "ColumnValue": $scope.SKUList[i].FirstCharacteristicsValueId, childList: [], "FirstCharacteristicsId": $scope.SKUList[i].FirstCharacteristicsId });
+                        }
+                    }
+                }
+                for (var i = 0; i < $scope.ColumnList.length; i++) {
+                    if ($scope.ColumnList[i].childList.length == 0) {
+                        for (var k = 0; k < $scope.SKUList.length; k++) {
+                            if ($scope.SKUList[k].FirstCharacteristicsValueId == $scope.ColumnList[i].ColumnValue) {
+                                $scope.ColumnList[i].childList.push({ "SizeName": $scope.SKUList[k].CharValue2, "SizeValue": $scope.SKUList[k].SecondCharacteristicsValueId, "Rate": $scope.SKUList[k].Rate, "SecondCharacteristicsId": $scope.SKUList[k].SecondCharacteristicsId });
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+
+            }
+            $scope.FGSizeOrColor = $scope.SKUList[0].Char;
         });
     }
 
@@ -83,6 +94,15 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
                     function successCallback(response) {
                         if (baseService.arrayLength(response.data) > 0) {
                             $scope.ProductionOrderList = response.data;
+
+                            for (var i = 0; i < $scope.ProductionOrderList.length; i++) {
+                                for (var j = 0; j < $scope.ProductionOrderList[i].Charactaristics.length; j++) {
+                                    if ($scope.ProductionOrderList[i].Charactaristics[j].Value == null && $scope.ProductionOrderList[i].Charactaristics[j].Text == null) {
+                                        $scope.ProductionOrderList[i].IsDisable = true;
+                                    }
+                                }
+                            }
+
                         }
                     },
                     function errorCallback(response) {
@@ -100,7 +120,7 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
 
             $scope.SelectedProductionOrder = row;
             $scope.modelNew.ProductionOrderId = $scope.SelectedProductionOrder.POId;
-            //$scope.modelNew.Sequence = $scope.SelectedProductionOrder.Sequence;
+            $scope.modelNew.SelectedDropDownValue = $scope.SelectedProductionOrder.SKUId;
 
             for (var i = 0; i < row.Charactaristics.length; i++) {
                 if ($scope.SelectedProductionOrder.SKUId == row.Charactaristics[i].Value) {
@@ -108,21 +128,23 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
                 }
             }
 
-            if ($scope.SelectedProductionOrder.Sequence == 2 || $scope.SelectedProductionOrder.Sequence == 1) {
-                //var eDialog = $("#firstPopup").data("ejDialog");
-                //eDialog.open();
-                angular.element(document.querySelector('#firstPopup')).modal('show');
+            if ($scope.SelectedProductionOrder.IsDisable == false && $scope.SelectedProductionOrder.SKUId == "") {
+                throw "Select SKU..!";
             }
             else {
-                //var eDialog = $("#secondPopup").data("ejDialog");
-                //eDialog.open();
-                angular.element(document.querySelector('#secondPopup')).modal('show');
+                if ($scope.SelectedProductionOrder.Sequence == 2 || $scope.SelectedProductionOrder.Sequence == 1) {
+                    $scope.getMatrixValue();
+                    angular.element(document.querySelector('#firstPopup')).modal('show');
+                }
+                else if ($scope.SelectedProductionOrder.Sequence == 'Both') {
+                    $scope.getMatrixValue();
+                    angular.element(document.querySelector('#secondPopup')).modal('show');
+                }
+                else {
+                    $scope.getRateData($scope.modelNew.ProductionEntityId, $scope.modelNew.ProcessId, $scope.modelNew.ProductionOrderId);
+                    angular.element(document.querySelector('#thirdPopup')).modal('show');
+                }
             }
-            //var eDialog = $("#SKUPopUp").data("ejDialog");
-            //eDialog.open();
-
-            $scope.getMatrixValue();
-
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -136,4 +158,140 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#secondPopup')).modal('hide');
         angular.element(document.querySelector('#thirdPopup')).modal('hide');
     };
+    $scope.charSave = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'Master': $scope.modelNew, 'ChildData': $scope.SKUList, 'Sequence': $scope.SelectedProductionOrder.Sequence },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.closeCharPopUp();
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.Delete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl,
+                data: { 'MasterId': $scope.SKUList[0].MasterId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.closeCharPopUp();
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.SaveMatrix = function () {
+        try {
+            for (var i = 0; i < $scope.ColumnList.length; i++) {
+                for (var j = 0; j < $scope.SKUList.length; j++) {
+                    for (var k = 0; k < $scope.ColumnList[i].childList.length; k++) {
+                        if ($scope.SKUList[j].FirstCharacteristicsValueId == $scope.ColumnList[i].ColumnValue
+                            && $scope.SKUList[j].SecondCharacteristicsValueId == $scope.ColumnList[i].childList[k].SizeValue
+                            && $scope.SKUList[j].FirstCharacteristicsId == $scope.ColumnList[i].FirstCharacteristicsId
+                            && $scope.SKUList[j].SecondCharacteristicsId == $scope.ColumnList[i].childList[k].SecondCharacteristicsId && $scope.ColumnList[i].childList[k].Rate != null) {
+                            $scope.SKUList[j].Rate = $scope.ColumnList[i].childList[k].Rate;
+                        }
+                    }
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'Master': $scope.modelNew, 'ChildData': $scope.SKUList, 'Sequence': $scope.SelectedProductionOrder.Sequence },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.closeCharPopUp();
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.SaveRate = function () {
+        try {
+            var VList = [];
+            VList.push({ "Rate": $scope.Rate, "FirstCharacteristicsId": null, "FirstCharacteristicsValueId": null, "SecondCharacteristicsId": null, "SecondCharacteristicsValueId": null });
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'Master': $scope.modelNew, 'ChildData': VList, 'Sequence': $scope.SelectedProductionOrder.Sequence },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.closeCharPopUp();
+                    //$scope.getRateData($scope.modelNew.ProductionEntityId,);
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.getRateData = function (ProductionEntityId, ProcessId, ProductionOrderId) {
+
+        $http({
+            method: 'GET',
+            url: 'Productions/ProductionOrderProcessWithRate/GetRate?ProductionEntityId=' + ProductionEntityId + '&ProcessId=' + ProcessId + '&ProductionOrderId=' + ProductionOrderId,
+        }).then(function successCallback(response) {
+            if (response.data.length > 0) {
+                $scope.Rate = response.data[0].Rate;
+                $scope.MasterId = response.data[0].MasterId;
+            }
+            else {
+                $scope.Rate = null;
+                $scope.MasterId = null;
+            }
+
+        });
+    };
+
+    $scope.ConfirmDelete = function () {
+        var eDialog = $("#DeletePopUp").data("ejDialog");
+        eDialog.open();
+    };
+    $scope.ConfirmDeleteClose = function () {
+        var eDialog = $("#DeletePopUp").data("ejDialog");
+        eDialog.close();
+    };
+
 }

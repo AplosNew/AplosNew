@@ -90,7 +90,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
                             LEFT JOIN [HKP].[Party] AS PM ON C.MarketingCommisssionId=PM.Id 
                             WHERE M.Id='" + masterId + "'";
-         
+
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -293,12 +293,31 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
 
-        [HttpPost, Authorize]
-        public JsonResult UpdateSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster, IEnumerable<SalesOrderTax> taxCategoryList)
+        [HttpPost]
+        public JsonResult UpdateSODate(SalesOrderMaster salesOrderMaster)
         {
-            _masterOrderService.UpdateSOGraph(masterItemId, salesOrderMaster, taxCategoryList);
-            Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
-            mo.GenerateLogForTnA(masterItemId, Library.Service.Enums.TaskAppliedOnEnum.Style);
+            _masterOrderService.UpdateSODate(salesOrderMaster);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateSORate(SalesOrderMaster salesOrderMaster)
+        {
+            _masterOrderService.UpdateSORate(salesOrderMaster);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateSOQTY(SalesOrderMaster salesOrderMaster)
+        {
+            _masterOrderService.UpdateSOQTY(salesOrderMaster);
+            return Json(new { Message = AplosMessage.Updated });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateSOStatus(SalesOrderMaster salesOrderMaster)
+        {
+            _masterOrderService.UpdateSOStatus(salesOrderMaster);
             return Json(new { Message = AplosMessage.Updated });
         }
 
@@ -1614,7 +1633,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId,A.AddedDate AS CreationDate,a.AddedBy AS CreatedBy
+            string sql = @"SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId,FORMAT( A.AddedDate,'dd-MMM_yyyy') CreationDate,a.AddedBy AS CreatedBy
                                     , A.OrderType, A.PartyId, P.UserName AS CustomerName, A.BuyerId,B.UserName Buyer
                                     , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
                                     , A.OrderCategoryId,OC.UserName AS OrderCategory, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
@@ -1625,7 +1644,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 								                            AND PartyId=A.PartyId AND PartyType='Customer' AND PlantId=A.PlantId)
 								    ,A.OrderWastagePercentage
 								    ,A.ExtraOrderPercentage,A.BuyerDepartmentId
-								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,A.SpecialTaxId,A.IsExtraOrderPercentage,PM.UserName ProductMaster,OS.UserName OrderStatus,A.AddedDate,A.AddedBy
+								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,A.SpecialTaxId,A.IsExtraOrderPercentage,PM.UserName ProductMaster,OS.UserName OrderStatus,FORMAT( A.AddedDate,'dd-MMM_yyyy') AddedDate,A.AddedBy
                                       ,A.OwnReferenceNo,A.BuyerReferenceNo,A.PaymentTermId,A.PaymentTermDays,A.ExceptionalProcessId,A.ExceptionalSubProcessId
                                     ,[BuyerItem]=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
 																			trn.MasterOrderItem XMOI 	  
@@ -1640,7 +1659,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
 															INNER JOIN TRN.MasterOrderItem XMOI  ON XMOI.ContractId=CNT.Id
 															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            															,MOI.Id MasterOrderItemId
                             FROM [TRN].[MasterOrder] AS A
+							left outer join TRN.MasterOrderItem MOI on MOI.MasterOrderId=A.Id
                             JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
                             LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
                             LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
@@ -1652,7 +1673,44 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             LEFT JOIN HKP.OrderStatus OS ON OS.Id=A.OrderStatusId
                             LEFT JOIN hkp.OrderCategory AS oc ON oc.Id=a.OrderCategoryId
                             LEFT JOIN HKP.Buyer B ON B.Id=A.BuyerId
-                            WHERE A.CompanyId='"+identity.CompanyId+@"'";
+                            WHERE A.CompanyId='" + identity.CompanyId + @"'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetSOData(string MasterOrderItemId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"SELECT SO.Id,SO.ParentId
+                            , SO.MasterOrderItemId
+                            , MOI.MaterialMasterId
+                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), SO.DeliveryDate, 106),' ','-')
+                            , SO.DestinationId, D.UserName Destination
+                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
+                            , SO.ShipmentModeId
+                            , SO.CustomerPOId
+		                    , po.PONumber
+                            ,MOI.TotalQty MOIQty
+                            ,SO.DestinationDescription
+                            , SO.OrderStatusId, SO.OrderCategoryId
+                            , SO.SOType, SO.ResponsiblePersonId
+                            , SO.UpCharge, SO.Qty, SO.Rate, SO.IsFirstEntry,SO.Discount,EMP.EmployeeName ResponsiblePersonName
+                            ,FORMAT (SO.LSD, 'dd-MMM-yyyy') as LSD ,FORMAT (SO.MainRawMaterialInhouseDate, 'dd-MMM-yyyy') as MainRawMaterialInhouseDate
+                            ,FORMAT (SO.OtherRawMaterialInhouseDate, 'dd-MMM-yyyy') as OtherRawMaterialInhouseDate
+                            ,FORMAT (SO.PlanExFactoryDate, 'dd-MMM-yyyy') as PlanExFactoryDate
+                            , hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)                            ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
+                            , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
+                            ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense
+                    FROM [TRN].[SalesOrder] AS SO
+                   -- LEFT JOIN TRN.FirstCharacteristics SKU ON SKU.SalesOrderId=SO.Id
+                    JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+                    LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                    LEFT JOIN dbo.EmployeeInformation AS EMP ON EMP.SystemId = SO.ResponsiblePersonId
+                    LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+                    LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
+                    WHERE SO.MasterOrderItemId='" + MasterOrderItemId + @"' ORDER BY SO.DeliveryDate";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

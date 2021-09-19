@@ -10,7 +10,10 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         ProcessId: null,
         ProductionOrderId: null,
         FromDate: null,
-        ToDate: null
+        ToDate: null,
+        MaterialStorageId:null,
+        ToCurrencyRate: null,
+        CurrencyId:null
     }
 
     $scope.GetFromDate = function () {
@@ -51,6 +54,45 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
             }
         });
 
+    };
+
+    $scope.storageList = [];
+    $http({
+        method: 'GET',
+        url: 'Materials/MaterialStorage/getcbo'
+    }).then(function (response) {
+        $scope.storageList = response.data;
+    });
+
+    cboService.getCboTransactionCurrencyByCompany('', function (result) {
+        $scope.currencyList = result;
+    });
+
+    $scope.companyCurrencyId = null;
+    $http({
+        method: 'GET',
+        url: 'currencies/CompanyParallelCurrency/CurrencyParallel'
+    }).then(function successCallback(response) {
+        angular.forEach(response.data, function (item, i) {
+            if (item.ParallelCurrencyType === 'CompanyCurrency') {
+                $scope.companyCurrencyId = item.CurrencyId;
+            }
+        });
+    });
+
+    $scope.GetCurrencyExchangeRateList = function () {
+        if (!baseService.isUndefinedOrNull($scope.modelNew.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + $scope.modelNew.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.modelNew.ToCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
     };
 
     $scope.Action = "Save";
