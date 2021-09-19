@@ -34,8 +34,8 @@
                         <span class="input-group-addon"> {{productNew.PartyCode}}</span>
                         <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" readonly>
                         <span class="input-group-btn">
-                            <button name="submit" ng-click="showPartyPopUpNew()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                            <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="LCRef!==null || GRNValue!==0 || AcptValue!==0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="invoicingPartyPopUp()" ng-disabled="LCRef!==null || GRNValue!==0 || AcptValue!==0" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                         </span>
                     </div>
                 </div>
