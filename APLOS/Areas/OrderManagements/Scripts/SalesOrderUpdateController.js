@@ -105,41 +105,22 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         , SalesExpense: null
         , NetSalesRealization: null
     };
+    $http.get("OrderManagements/ordercategory/getcbo/")
+        .then(function (response) {
+            $scope.orderCategoryList = response.data;
+        });
 
+    $http.get("OrderManagements/orderstatus/getcbo/")
+        .then(function (response) {
+            $scope.orderStatusList = response.data;
+        });
+    cboService.getCboTransactionCurrencyByCompany('', function (result) {
+        $scope.currencyList = [];
+        $scope.currencyList = result;
+        $scope.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+    });
     function clearSO() {
-        $scope.soModel = {
-            Id: null
-            , MasterOrderItemId: $scope.masterItemId
-            , DeliveryDate: null
-            , CommitmentDate: null
-            , DestinationId: null
-            , ShipmentModeId: null
-            , CustomerPOId: null
-            , PONumber: null
-            , UpCharge: null
-            , OrderStatusId: $scope.fileNew.OrderStatusId
-            , OrderCategoryId: $scope.fileNew.OrderCategoryId
-            , SOType: null
-            , ResponsiblePersonId: $scope.ResponsiblePersonId
-            , ResponsiblePersonName: $scope.ResponsiblePersonName
-            , Qty: null
-            , Rate: null
-            , HSNCodeId: $scope.HSNCodeId
-            , TotalTaxAmount: 0
-            , MainRawMaterialInhouseDate: null
-            , OtherRawMaterialInhouseDate: null
-            , CM: 0
-            , SalesOrderYear: null
-            , WeekNo: null
-            , PlanExFactoryDate: null
-            , ProductionBookedQty: null
-            , ProductionBookingLevel: null
-            , QtyChangedBy: null
-            , QtyChangedDate: null
-            , QtyChangedFromIP: null
-            , DestinationDescription: null
-            , SalesExpense: null
-            , NetSalesRealization: null
+        $scope.soModel();
         };
     }
 
@@ -459,14 +440,15 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
                     }
                     else {
                         ShowResult(response.data.Message, 'success', 'salesOrderEditPopUp');
-                        getSalesOrderList();
-                        clearSO();
-                        $scope.getMasterItemList();
+                        //getSalesOrderList();
+                        //clearSO();
+                        $scope.getSOData();
+                        //$scope.getMasterItemList();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
                 };
-            } 
+            }
         }
     };
     $scope.saveSalesOrderRate = function () {
@@ -477,8 +459,8 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         }
         $scope.$broadcast('show-errors-check-validity');
 
-        if ($scope.soForm.$valid) {
-            if (baseService.isUndefinedOrNull($scope.soModel.Id)) {
+        if ($scope.soRateForm.$valid) {
+            if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
                 $http({
                     method: 'POST'
                     , url: $scope.path + 'UpdateSORate'
@@ -490,15 +472,14 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
                     }
                     else {
                         ShowResult(response.data.Message, 'success', 'salesOrderEditPopUp');
-                        getSalesOrderList();
-                        clearSO();
-                        $scope.getMasterItemList();
+                        //getSalesOrderList();
+                        //clearSO();
+                        $scope.getSOData();
+                        //$scope.getMasterItemList();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
                 };
-            } else {
-                getSalesOrderTaxCategoryUpdateList($scope.soModel.Id);
             }
         }
     };
@@ -509,8 +490,8 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         }
         $scope.$broadcast('show-errors-check-validity');
 
-        if ($scope.soForm.$valid) {
-            if (baseService.isUndefinedOrNull($scope.soModel.Id)) {
+        if ($scope.soQTYForm.$valid) {
+            if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
                 $http({
                     method: 'POST'
                     , url: $scope.path + 'UpdateSOQTY'
@@ -522,15 +503,14 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
                     }
                     else {
                         ShowResult(response.data.Message, 'success', 'salesOrderEditPopUp');
-                        getSalesOrderList();
-                        clearSO();
-                        $scope.getMasterItemList();
+                       // getSalesOrderList();
+                        //clearSO();
+                        $scope.getSOData();
+                        //$scope.getMasterItemList();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
                 };
-            } else {
-                getSalesOrderTaxCategoryUpdateList($scope.soModel.Id);
             }
         }
     };
@@ -545,8 +525,8 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
 
         $scope.$broadcast('show-errors-check-validity');
 
-        if ($scope.soForm.$valid) {
-            if (baseService.isUndefinedOrNull($scope.soModel.Id)) {
+        if ($scope.soStatusForm.$valid) {
+            if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
                 $http({
                     method: 'POST'
                     , url: $scope.path + 'UpdateSOStatus'
@@ -558,20 +538,64 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
                     }
                     else {
                         ShowResult(response.data.Message, 'success', 'salesOrderEditPopUp');
-                        getSalesOrderList();
-                        clearSO();
-                        $scope.getMasterItemList();
+                      //getSalesOrderList();
+                       // clearSO();
+                        $scope.getSOData();
+                        //$scope.getMasterItemList();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
                 };
-            } else {
-                getSalesOrderTaxCategoryUpdateList($scope.soModel.Id);
             }
+        }
+    };
+    $scope.SetNetSalesRealization = function () {
+        $scope.soModel.NetSalesRealization = $scope.soModel.SalesExpense - $scope.soModel.Discount;
+    }
+    $scope.SetTotalProdQty = function () {
+        $scope.TotalProducedQty = $scope.soModel.ProductionBookedQty + $scope.ProdBookedQty;
+    }
+    $scope.ProdBookedQty = 0;
+    $scope.TotalProducedQty = 0;
+    $scope.GetSOBookedQtyAndLevel = function (salesOrderId) {
+        //$scope.TotalProducedQty = 0;
+        //$scope.ProdBookedQty = 0;
+        if (!baseService.isUndefinedOrNull($scope.soModel.Id) && $scope.soModel.OrderStatusId !== 'Active') {
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/MasterOrder/GetSOBookedQtyAndLevel?salesOrderId=' + salesOrderId
+            }).then(function successCallback(response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    if ($scope.soModel.ProductionBookedQty === 0) {
+                        $scope.soModel.ProductionBookedQty = response.data[0].Quantity;
+                        $scope.soModel.ProductionBookingLevel = response.data[0].BookingLevel;
+                        $scope.ProdBookedQty = response.data[0].Quantity;
+                        $scope.TotalProducedQty = $scope.ProdBookedQty;
+                    }
+
+                }
+                if ($scope.soModel.ProductionBookedQty == 0.00) {
+                    $http({
+                        method: 'GET',
+                        url: 'OrderManagements/MasterOrder/GetPOBookedQtyAndLevel?salesOrderId=' + salesOrderId
+                    }).then(function successCallback(response) {
+                        if (baseService.arrayLength(response.data) > 0) {
+                            if ($scope.soModel.ProductionBookedQty === 0) {
+                                $scope.soModel.ProductionBookedQty = 0;
+                                $scope.soModel.ProductionBookingLevel = response.data[0].BookingLevel;
+                                $scope.ProdBookedQty = response.data[0].Quantity;
+                                $scope.TotalProducedQty = $scope.ProdBookedQty;
+                            }
+
+                        }
+                    });
+                }
+            });
+        } else {
+            $scope.soModel.ProductionBookedQty = 0;
         }
     };
 
 
-}
 
 

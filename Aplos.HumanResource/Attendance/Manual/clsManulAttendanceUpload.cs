@@ -243,9 +243,9 @@ namespace Library.HumanResource.Attendance.Manual
                 {
                     if (data.InDate != null && data.InTime != null)
                     {
-                        if(data.InDate!=data.InDateOriginal || data.InTime!=data.InTimeOriginal)
+                        if (data.InDate != data.InDateOriginal || data.InTime != data.InTimeOriginal)
                         {
-                        dr["InTime"] = data.InDate + " " + data.InTime;
+                            dr["InTime"] = data.InDate + " " + data.InTime;
                         }
                     }
                     else
@@ -255,9 +255,9 @@ namespace Library.HumanResource.Attendance.Manual
 
                     if (data.OutDate != null && data.OutTime != null)
                     {
-                        if(data.OutDate!=data.OutDateOriginal || data.OutTime!=data.OutTimeOriginal)
+                        if (data.OutDate != data.OutDateOriginal || data.OutTime != data.OutTimeOriginal)
                         {
-                        dr["OutTime"] = data.OutDate + " " + data.OutTime;
+                            dr["OutTime"] = data.OutDate + " " + data.OutTime;
                         }
                     }
                     else
@@ -280,7 +280,7 @@ namespace Library.HumanResource.Attendance.Manual
                 bplib.clsGenID objId = new bplib.clsGenID();
                 for (int i = 0; i < data.Count; i++)
                 {
-                    
+
 
                     DataSet dsManualAttendance = null;
                     //DataSet dsManualAttendanceFromApp = null;
@@ -341,7 +341,7 @@ namespace Library.HumanResource.Attendance.Manual
                         else
                         {
                             dr["WorkDate"] = data[i].WorkDate;
-                        }                        
+                        }
                         dr["GroupID"] = identity.CompanyGroupId;
                         _setValue(data[i], ref dr);
                         dr["UpdatedBy"] = identity.Name;
@@ -604,7 +604,7 @@ namespace Library.HumanResource.Attendance.Manual
                             //dsDailyShiftAssignment.Tables[0].Rows[0]["EmpSftAssiSystemID"] = TodaySystemID;
                             dsDailyShiftAssignment.Tables[0].Rows[0]["ShiftSystemID"] = data[i].ShiftSystemID;
                             dsDailyShiftAssignment.Tables[0].Rows[0]["ManualShiftId"] = data[i].ShiftSystemID;
-                            dsDailyShiftAssignment.Tables[0].Rows[0]["UpdatedBy"] =identity.Name;
+                            dsDailyShiftAssignment.Tables[0].Rows[0]["UpdatedBy"] = identity.Name;
                             dsDailyShiftAssignment.Tables[0].Rows[0]["DateUpdated"] = DateTime.Now;
                             dsDailyShiftAssignment.Tables[0].Rows[0].EndEdit();
                         }
@@ -1363,6 +1363,7 @@ kk.workdate = '" + data + @"'
         public bool IsOTEntitled { get; set; } = false;
         public bool IsError { get; set; } = false;
         public string ErrorMessage { get; set; } = "";
+        public bool IsPunchMissing { get; set; } = false;
     }
 
     public class apd

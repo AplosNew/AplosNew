@@ -504,6 +504,15 @@ namespace Library.Service.Helpers
             sheet.Range[row, col].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, col].HorizontalAlignment = al;
         }
+
+        public void SetTextEntity(ref IWorksheet sheet, int row, int col, string entity, ExcelHAlign al)
+        {
+            sheet.Range[row, col].Text = entity;
+            sheet.Range[row, col].IgnoreErrorOptions = ExcelIgnoreError.NumberAsText;
+            sheet.Range[row, col].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[row, col].HorizontalAlignment = al;
+        }
+
         public void SetText(IWorksheet sheet, int row, int col, string txt, ExcelHAlign al)
         {
             sheet.Range[row, col].Text = txt;

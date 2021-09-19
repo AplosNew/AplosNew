@@ -850,6 +850,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 todate = fromdate;
             }
             return @" SELECT convert(bit, 0) AS Active,
+                          CONVERT(BIT,  CASE WHEN (ISNULL(KK.InTime,'')<>'' OR ISNULL(KK.OutTime,'')<>'' ) AND (ISNULL(KK.InTime,'')='' OR ISNULL(KK.OutTime,'')='') THEN 1 ELSE 0 END) AS IsPunchMissing,
                             kk.Id,kk.EmployeeCode,E.UserName as Entity,
                             emp.EmployeeName,isnull(s.UserName,'') AS Section,isnull(ss.UserName,'') AS SubSection,isnull(d.UserName,'') AS Designation,isnull(dept.UserName,'') AS Department,
                             format(KK.WorkDate,'ddd') AS DayName, 
