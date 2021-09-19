@@ -1010,6 +1010,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		//document.getElementById('abc').value = null;
 		//$scope.Resignation.AttachLetter = null;
 		//$scope.imageSrc = virtualPath.EmployeePic + '';
+		$scope.productNew.ProcessId = '';
+		$scope.productNew.CheckedBy = '';
 	};
 	function ClearOb(obj) {
 		for (var i in obj) {
@@ -2626,6 +2628,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		$scope.modelList = [];
 		$scope.SOListSelected = [];
 		$scope.FilterList123 = [];
+		$scope.productNew.ProcessId = null;
+		$scope.productNew.CheckedBy = null;
 	}
 
 	$scope.showMaterialWiseStockModal = function (x, index) {

@@ -258,5 +258,23 @@ namespace Library.Service.Extension.Accounts
 
             return bankTemp;
         }
+
+        public Dictionary<string, object> GetMaterialHSNCodeId(string materialMasterId)
+        {
+            var cmdText = @"select HSNCodeId from mst.MaterialMaster where Id = '" + materialMasterId + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
+        public Dictionary<string, object> GetCompanyAddressStateId(string companyId)
+        {
+            var cmdText = @"select AM.StateId from MST.AddressMaster AM left join ORG.Company C ON C.AddressMasterId=AM.Id
+            where C.Id= '" + companyId + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
+        public Dictionary<string, object> GetPartyAddressStateId(string partyId)
+        {
+            var cmdText = @"select AM.StateId from MST.AddressMaster AM left join HKP.Party P ON P.AddressMasterId=AM.Id
+            where P.Id= '" + partyId + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
     }
 }

@@ -5,6 +5,8 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Payrolls/ArrearApproval/';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExport';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
 
@@ -38,7 +40,7 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
 
             var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
             $scope.SelectedArrearProcessBatchId = DropDownListYear.getSelectedValue();
-         
+
 
             if (baseService.isUndefinedOrNull($scope.SelectedArrearProcessBatchId)) {
                 throw 'Please select batch';
@@ -88,7 +90,7 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
 
         try {
 
-          
+
             var _selectedBatch = $scope.SelectedArrearProcessBatchId;
 
 
@@ -140,14 +142,14 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
 
         $scope.SelectedEmployeeForDeleteion = EmpSystemID;
         $rootScope.openPopupAngular('confirmDelete');
-        
+
 
     }
 
-    
+
     $scope.dataBoundemployeeUnApproved = function (args) {
         if (args.rowIndex == 0) {
-            $("#headchkUnApproved").ejCheckBox({"change": headCheckChangeUnApproved });
+            $("#headchkUnApproved").ejCheckBox({ "change": headCheckChangeUnApproved });
         }
     }
     function headCheckChangeUnApproved(e) {
@@ -216,4 +218,37 @@ function ArrearApprovalController(cboService, commonMessage, $scope, $rootScope,
     }
 
 
+    $scope.ArrearFinancialDataReport = function () {
+        try {
+            var parameters = [];
+            var gridObj = $("#empInfoGridApproved").ejGrid("instance");
+            var filteredRecords = gridObj.getFilteredRecords();
+
+            if (filteredRecords.length == 0) {
+                filteredRecords = $scope.EmployeeListApproved;
+
+            }
+
+
+            var EmpIds = ej.DataManager(filteredRecords).executeLocal(ej.Query().select(["EmpSystemID"]));
+           
+            $http({
+                method: 'POST',
+                url: $scope.path + 'ArrearFinancialDataReport',
+                data: {
+                    'ArrearProcessBatchId': $scope.SelectedArrearProcessBatchId,
+                    'EmployeeIds': EmpIds,
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 }

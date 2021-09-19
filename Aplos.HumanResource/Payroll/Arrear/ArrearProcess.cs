@@ -1,5 +1,7 @@
 ﻿using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using OTSBD;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -300,27 +302,33 @@ namespace Library.HumanResource.Payroll.Arrear
                 con.BeginTransaction();
                 con.getDataSet("select * from ArrearSummaryBatchWise M where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmployeeSystemId IN (" + employeeIds + @")", out DataSet dsArrearSummaryBatchWise);
 
-                con.getDataSet(@"SELECT am.ArrearProcessBatchId, ac.EmpInfoSystemID,sh.SalaryHead,ac.SalaryHeadID,sh.TransactionType,
-                                    mb.Id AS ManpowerBudgetId, mb.EntityId, mb.PositionId, AG.Id AS AccountsGroupId,e.PlantId,
-                                    e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,mb.CostCenterId,
+                con.getDataSet(@"SELECT am.ArrearProcessBatchId, ac.EmpInfoSystemID,sh.SalaryHead,ac.SalaryHeadID,sh.TransactionTypeNew,
+                                    mb.Id AS ManpowerBudgetId, mb.EntityId, mb.PositionId,mb.AccountsGroupId,e.PlantId,
+                                    e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,ecc.CostCenterId,
 
-                                    SUM(AC.Diff) AS Diff,
-                                    SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Dr.','Both') THEN ABS(ac.diff) ELSE 0 END) AS Debit,
-                                    SUM(CASE WHEN ISNULL(sh.TransactionType,'') IN ('Cr.','Both') THEN ABS(ac.diff) ELSE 0 END) AS Credit
-                                      FROM ArrearProcMaster AS AM
-                                    JOIN ArrearProcChild AS AC ON am.SystemID=ac.SlrProcMstSystemID
-                                    LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
-                                    LEFT JOIN EmployeeAccountsGroup AS AG ON ag.EmployeeId=ei.SystemId
-                                    LEFT JOIN [MST].[SalaryHeadGL] SGL ON sgl.SalaryHeadId=ac.SalaryHeadID AND sgl.AccountsGroupId=ag.Id
-                                    JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
-                                    LEFT JOIN mst.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-                                    LEFT JOIN org.Entity AS e ON e.Id=mb.EntityId
+                                    SUM(ABS(AC.Diff)) AS Amount
+                                   
+		                                    FROM ArrearProcMaster AS AM
+		                                    JOIN ArrearProcChild AS AC ON am.SystemID=ac.SlrProcMstSystemID
+		                                    LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
+		                                    LEFT JOIN mst.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode 
+		                                    LEFT JOIN [MST].[SalaryHeadGL] SGL ON sgl.SalaryHeadId=ac.SalaryHeadID AND sgl.AccountsGroupId=mb.AccountsGroupId
+		                                     JOIN (
+        		                                    SELECT *,CASE WHEN ISNULL(sh.TransactionType,'')='Both' THEN 'Dr.' ELSE sh.TransactionType END AS TransactionTypeNew
+        		                                    FROM SalaryHead AS sh WHERE  ISNULL(sh.TransactionType,'') IN ('Dr.','Both') 
+					                                    UNION ALL 
+				                                    SELECT *,CASE WHEN ISNULL(sh.TransactionType,'')='Both' THEN 'Cr.' ELSE sh.TransactionType END AS TransactionTypeNew
+        		                                    FROM SalaryHead AS sh WHERE  ISNULL(sh.TransactionType,'') IN ('Cr.','Both') 
+                                                ) AS sh ON sh.SalaryHeadID=ac.SalaryHeadId    
+                                   
+		                                    LEFT JOIN org.Entity AS e ON e.Id=mb.EntityId
+		                                    LEFT JOIN org.EntityCostCenter AS ecc ON ecc.EntityId=e.Id
 
-                                    WHERE am.ArrearProcessBatchId='" + ArrearProcessBatchId + @"' and AC.EmpInfoSystemID IN (" + employeeIds + @") AND ISNULL(sh.HeadCategory,'')<>'Net Payable'
+                                    WHERE am.ArrearProcessBatchId='" + ArrearProcessBatchId + @"' and AC.EmpInfoSystemID IN (" + employeeIds + @") --AND ISNULL(sh.HeadCategory,'')<>'Net Payable'
                                     AND ISNULL(sh.TransactionType,'') IN ('Dr.','Cr.','Both')
-                                    GROUP BY  am.ArrearProcessBatchId, ac.EmpInfoSystemID,sh.SalaryHead,ac.SalaryHeadID,sh.TransactionType,
-                                    mb.Id, mb.EntityId, mb.PositionId, AG.Id,e.PlantId,
-                                    e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,mb.CostCenterId", out DataSet dsArrearAccountsSourceData);
+                                    GROUP BY  am.ArrearProcessBatchId, ac.EmpInfoSystemID,sh.SalaryHead,ac.SalaryHeadID,sh.TransactionTypeNew,
+                                    mb.Id, mb.EntityId, mb.PositionId, mb.AccountsGroupId,e.PlantId,
+                                    e.ThirdPartyBusinessArea, e.ThirdPartyProfitCenter,ecc.CostCenterId", out DataSet dsArrearAccountsSourceData);
 
 
                 con.getDataSet("select * from ArrearAccountsData M where ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND EmpInfoSystemID IN (" + employeeIds + @")", out DataSet dsArrearAccountsData);
@@ -337,7 +345,7 @@ namespace Library.HumanResource.Payroll.Arrear
                         dr["IsApproved"] = true;
 
                         dsArrearAccountsSourceData.Tables[0].DefaultView.RowFilter = "EmpInfoSystemID='" + dr["EmployeeSystemId"].ToString() + @"'";
-                        
+
                         dsArrearAccountsData.Tables[0].DefaultView.RowFilter = "EmpInfoSystemID='" + dr["EmployeeSystemId"].ToString() + @"'";
                         while (dsArrearAccountsData.Tables[0].DefaultView.Count > 0)
                             dsArrearAccountsData.Tables[0].DefaultView[0].Delete();
@@ -358,9 +366,8 @@ namespace Library.HumanResource.Payroll.Arrear
                             drDestination["ThirdPartyBusinessArea"] = drSource["ThirdPartyBusinessArea"];
                             drDestination["ThirdPartyProfitCenter"] = drSource["ThirdPartyProfitCenter"];
                             drDestination["CostCenterId"] = drSource["CostCenterId"];
-                            drDestination["Debit"] = drSource["Debit"];
-                            drDestination["Credit"] = drSource["Credit"];
-
+                            drDestination["TransactionType"] = drSource["TransactionTypeNew"];
+                            drDestination["Amount"] = drSource["Amount"];
                             drDestination["AddedBy"] = identity.Name;
                             drDestination["AddedDate"] = System.DateTime.Now.ToString();
                             drDestination["AddedFromIP"] = identity.IPAddress;
@@ -375,8 +382,8 @@ namespace Library.HumanResource.Payroll.Arrear
                     else
                     {
                         dr["IsApproved"] = false;
-                        
-                        
+
+
                         dsArrearAccountsData.Tables[0].DefaultView.RowFilter = "EmpInfoSystemID='" + dr["EmployeeSystemId"].ToString() + @"'";
                         while (dsArrearAccountsData.Tables[0].DefaultView.Count > 0)
                             dsArrearAccountsData.Tables[0].DefaultView[0].Delete();
@@ -437,6 +444,183 @@ namespace Library.HumanResource.Payroll.Arrear
                 throw ex;
 
             }
+
+        }
+        public IWorkbook GetArrearFinancialData(string ArrearProcessBatchId, List<string> EmployeeIds)
+        {
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            try
+            {
+                string empids = "''";
+                foreach (var item in EmployeeIds)
+                    empids += ",'" + item + @"'";
+
+
+
+                string sql = @"SELECT ag.UserName AS EmployeeCategory,  ei.EmployeeCode, 
+                                    sh.HeadCategory,sh.SalaryHead,
+                                    CASE WHEN ac.TransactionType='Dr.' THEN sgl.DrDirectOtherGLCode
+                                    ELSE sgl.CrDirectOtherGLCode END AS GLCode,
+
+                                    CASE WHEN ac.TransactionType='Dr.' THEN sgl.DrDirectOtherGL
+                                    ELSE sgl.CrDirectOtherGL END AS GLName,
+                                    p.UserName AS Plant,ac.TransactionType,ac.Amount
+
+                                    FROM ArrearAccountsData AS ac
+	                                    LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
+                                    LEFT JOIN mst.ManpowerBudget AS mb ON mb.Id=ac.ManpowerBudgetId 
+                                    LEFT JOIN AccountsGroup AS ag ON ag.Id=mb.AccountsGroupId
+                                    LEFT JOIN [MST].[SalaryHeadGL] SGL ON sgl.SalaryHeadId=ac.SalaryHeadID AND sgl.AccountsGroupId=mb.AccountsGroupId
+
+                                    JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadId                       
+                                    LEFT JOIN org.Entity AS e ON e.Id=ac.EntityId
+                                    LEFT JOIN org.Company AS c ON c.Id=e.CompanyId
+                                    LEFT JOIN org.Plant AS p ON p.Id=e.PlantId
+                                    LEFT JOIN org.EntityCostCenter AS ecc ON ecc.EntityId=e.Id
+                                    WHERE ac.ArrearProcessBatchId='" + ArrearProcessBatchId + @"' AND ac.EmpInfoSystemID IN (" + empids + @")";
+
+                DataTable dtArrearFinanceData = _sqlRepository.GetDataTable(sql);
+                if (dtArrearFinanceData.Rows.Count == 0)
+                    throw new Exception("No data found");
+
+                DataTable dtArrear = _sqlRepository.GetDataTable("SELECT * FROM ArrearProcessBatch AS apb WHERE apb.Id='" + ArrearProcessBatchId + @"'");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[0].Name = "Arrear";
+                sheet = workbook.Worksheets[0];
+
+
+
+                int ROW = 1; int COL = 1;
+                sheet[ROW, 1].Text = "Arrear Report";
+                sheet[ROW, 1].CellStyle.Font.Size = 12;
+                sheet[ROW, 1].RowHeight = 22;
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, 10].Merge();
+                ROW++;
+                sheet[ROW, 1].Text = "Desc :" + dtArrear.Rows[0]["ArrearDesc"].ToString();
+                sheet[ROW, 1].CellStyle.Font.Size = 12;
+                sheet[ROW, 1].RowHeight = 16;
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, 10].Merge();
+                ROW++;
+                sheet[ROW, 1].Text = "From :" + Convert.ToDateTime(dtArrear.Rows[0]["ArrearFromDate"].ToString()).ToString("MMM/yyyy") + " To :" + Convert.ToDateTime(dtArrear.Rows[0]["ArrearToDate"].ToString()).ToString("MMM/yyyy");
+                sheet[ROW, 1].CellStyle.Font.Size = 12;
+                sheet[ROW, 1].RowHeight = 16;
+                sheet[ROW, 1].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, 10].Merge();
+                ROW++;
+
+                ROW += 2;
+
+
+                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEmployeeCategory = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colEmployeeCode = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Head Category";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colHeadCategory = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Salary Head";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSalaryHead = COL;
+                COL++;
+                sheet[ROW, COL].Text = "GL Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colGLCode = COL;
+                COL++;
+                sheet[ROW, COL].Text = "GL Name";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colGLName = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Plant";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPlant = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Tran. Type";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int colTransactionType = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colAmount = COL;
+
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 10f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < dtArrearFinanceData.Rows.Count; i++)
+                {
+                    sheet[ROW, colEmployeeCategory].Text = dtArrearFinanceData.Rows[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, colEmployeeCode].Text = dtArrearFinanceData.Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, colHeadCategory].Text = dtArrearFinanceData.Rows[i]["HeadCategory"].ToString();
+                    sheet[ROW, colSalaryHead].Text = dtArrearFinanceData.Rows[i]["SalaryHead"].ToString();
+                    sheet[ROW, colGLCode].Text = dtArrearFinanceData.Rows[i]["GLCode"].ToString();
+                    sheet[ROW, colGLName].Text = dtArrearFinanceData.Rows[i]["GLName"].ToString();
+                    sheet[ROW, colPlant].Text = dtArrearFinanceData.Rows[i]["Plant"].ToString();
+                    sheet[ROW, colTransactionType].Text = dtArrearFinanceData.Rows[i]["TransactionType"].ToString();
+                    sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtArrearFinanceData.Rows[i]["Amount"].ToString());
+
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+
+
+                sheet.UsedRange.NumberFormat = "#,##0;[Red](#,##0)";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+
+                sheet.IsDisplayZeros = false;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.PrintTitleRows = "$1:$5";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+                workbook.Version = ExcelVersion.Excel2016;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+            return workbook;
 
         }
 

@@ -2217,13 +2217,23 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 			{
 				throw ex;
 			}
-
-	//		var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-			//_inventoryReveiveService.InventoryReceive(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
-
-			//return null;
 		}
+
+		[HttpPost]
+		public JsonResult SaveTransformationWOMaterial(Dictionary<string, object> data, string ContractId, string PartyId, IEnumerable<JobWorkTransformationReceiptWOMaterial> SelectedQtyDataWOMat, IEnumerable<JWTransformationReceiptWOMaterialByProduct> SelectedByProductQtyDataWOMat)
+		{
+			try
+			{
+				R.SaveTransformationWOMaterial(data, ContractId, PartyId, SelectedQtyDataWOMat, SelectedByProductQtyDataWOMat);
+				return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+			}
+			catch (Exception ex)
+			{
+				return Json(new { Error = true, Message = ex.Message });
+			}
+		}
+
 
 	}
 }
