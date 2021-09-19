@@ -305,6 +305,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
 
+        
+
         [HttpPost, Authorize]
         public JsonResult CreateSalesOrderTax(string salesOrderId, IEnumerable<SalesOrderTax> taxCategoryList)
         {

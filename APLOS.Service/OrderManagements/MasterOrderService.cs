@@ -4036,6 +4036,180 @@ namespace Library.Service.OrderManagements
                 throw ex;
             }
         }
+
+
+        public void UpdateSODateGraph(SalesOrderMaster salesOrderMaster)
+        {
+            try
+            {
+
+                if (!string.IsNullOrEmpty(salesOrderMaster.Id))
+                {
+                    var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
+                    AuditService.UpdatedLog(salesOrderMaster);
+                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+
+
+
+                    _salesOrderRepository.Update(sodata);
+
+                }
+               
+                _unitOfWork.SaveChanges();
+
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
+        public void UpdateSODate(SalesOrderMaster salesOrderMaster)
+        {
+            try
+            {
+
+                if (!string.IsNullOrEmpty(salesOrderMaster.Id))
+                {
+                    var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
+                    AuditService.UpdatedLog(salesOrderMaster);
+                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+
+
+
+                    _salesOrderRepository.Update(sodata);
+
+                }
+
+                _unitOfWork.SaveChanges();
+
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
+        public void UpdateSORate(SalesOrderMaster salesOrderMaster)
+        {
+            try
+            {
+
+                if (!string.IsNullOrEmpty(salesOrderMaster.Id))
+                {
+                    var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
+                    AuditService.UpdatedLog(salesOrderMaster);
+                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+
+
+
+                    _salesOrderRepository.Update(sodata);
+
+                }
+
+                _unitOfWork.SaveChanges();
+
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
+        public void UpdateSOQTY(SalesOrderMaster salesOrderMaster)
+        {
+            try
+            {
+
+                if (!string.IsNullOrEmpty(salesOrderMaster.Id))
+                {
+                    var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
+                    AuditService.UpdatedLog(salesOrderMaster);
+                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+
+
+
+                    _salesOrderRepository.Update(sodata);
+
+                }
+
+                _unitOfWork.SaveChanges();
+
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
+        public void UpdateSOStatus(SalesOrderMaster salesOrderMaster)
+        {
+            try
+            {
+
+                if (!string.IsNullOrEmpty(salesOrderMaster.Id))
+                {
+                    var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
+                    AuditService.UpdatedLog(salesOrderMaster);
+                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+
+
+
+                    _salesOrderRepository.Update(sodata);
+
+                }
+
+                _unitOfWork.SaveChanges();
+
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+        }
+
+
+
     }
 
 }

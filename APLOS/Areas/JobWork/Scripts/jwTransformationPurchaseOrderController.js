@@ -2067,13 +2067,16 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         return false;
                     }
 
-                    if (!baseService.isUndefinedOrNull($scope.detailModelList[i].TransactionQty)) {
-                        if ($scope.detailModelList[i].TransactionQty > $scope.detailModelList[i].BalanceQuantity) {
-                            ShowResult('Current Quantity cannot be greater than Balance Quantity for Material ' + $scope.detailModelList[i].UserName + ' and Article ' + $scope.detailModelList[i].StandardName + ' ', 'failure', 'ListOfPOMaterial');
-                            return false;
+                    if ($scope.Action === "Save") {
+                        if (!baseService.isUndefinedOrNull($scope.detailModelList[i].TransactionQty)) {
+                            if ($scope.detailModelList[i].TransactionQty > $scope.detailModelList[i].BalanceQuantity) {
+                                ShowResult('Current Quantity cannot be greater than Balance Quantity for Material ' + $scope.detailModelList[i].UserName + ' and Article ' + $scope.detailModelList[i].StandardName + ' ', 'failure', 'ListOfPOMaterial');
+                                return false;
+                            }
+
                         }
-                     
                     }
+      
 
                     var MaterialId = $scope.detailModelList[i].MaterialMasterId;
                     var ArticleId = $scope.detailModelList[i].ArticleId;
