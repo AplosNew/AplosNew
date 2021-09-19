@@ -26,6 +26,6 @@ namespace Library.Service.Vouchers
         IWorkbook GetIncomeStatementReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate, string[] parallelCurrencies);
         IWorkbook GetBalanceSheetReportDateWise(string companyId, string plantName, string fromDate, string toDate);
 
-        IWorkbook GetEntityWiseExpenseAndEarningReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate, string entityId, string[] parallelCurrencies);
+        IWorkbook GetEntityWiseExpenseAndEarningReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate, string entityId, string entity, string[] parallelCurrencies);
     }
 }
