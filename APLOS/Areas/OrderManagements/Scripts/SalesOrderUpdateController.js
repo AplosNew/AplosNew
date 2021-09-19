@@ -74,6 +74,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
     $scope.soModel = {
         Id: null
         , MasterOrderItemId: $scope.masterItemId
+        , MOIQty : 0 
         , DeliveryDate: null
         , CommitmentDate: null
         , DestinationId: null
@@ -91,6 +92,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         , HSNCodeId: $scope.HSNCodeId
         , TotalTaxAmount: 0
         , MainRawMaterialInhouseDate: null
+        , LSD: null 
         , OtherRawMaterialInhouseDate: null
         , CM: 0
         , SalesOrderYear: null
@@ -104,6 +106,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         , DestinationDescription: null
         , SalesExpense: null
         , NetSalesRealization: null
+
     };
     $http.get("OrderManagements/ordercategory/getcbo/")
         .then(function (response) {
@@ -119,10 +122,10 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         $scope.currencyList = result;
         $scope.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
     });
-    function clearSO() {
-        $scope.soModel();
-        };
-    }
+    //function clearSO() {
+    //    $scope.soModel();
+    //    };
+    //}
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -154,153 +157,6 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         return $scope.tab4 === tabNum;
     };
 
-    $scope.Save = function () {
-
-        if (baseService.isUndefinedOrNull($scope.fileNew.ResponsiblePersonId)) {
-            return ShowResult('Responsible Person is required.', 'failure');
-        }
-        $scope.customerName = $scope.fileNew.CustomerName;
-        $scope.modelNew.CustomerId = $scope.fileNew.PartyId;
-        $scope.modelNew.CustomerName = $scope.fileNew.CustomerName;
-        $scope.ResponsiblePersonName = $scope.fileNew.ResponsiblePersonName;
-        $scope.ResponsiblePersonId = $scope.fileNew.ResponsiblePersonId;
-        if ($scope.isBuyerApplicable) {
-            if (baseService.isUndefinedOrNull($scope.fileNew.BuyerId)) {
-                return ShowResult('Buyer is required.', 'failure');
-            }
-            if (baseService.isUndefinedOrNull($scope.fileNew.BuyerDivisionId)) {
-                return ShowResult('Division is required.', 'failure');
-            }
-            if (baseService.isUndefinedOrNull($scope.fileNew.BuyerDepartmentId)) {
-                return ShowResult('Department is required.', 'failure');
-            }
-        }
-
-        if (parseFloat(baseService.isUndefinedOrNull($scope.fileNew.TotalQty) ? 0 : $scope.fileNew.TotalQty) === 0) return ShowResult('Please insert total qty.', 'failure');
-
-        if (baseService.isUndefinedOrNull($scope.fileNew.TotalQtyUOMId)) {
-            return ShowResult('Total Quantity UoM is required.', 'failure');
-        }
-
-        if ($scope.fileNew.IsExtraOrderPercentage && $scope.fileNew.ExtraOrderPercentage === 0)
-            return ShowResult('Please insert Extra Order Percentage.', 'failure');
-        if (!baseService.isUndefinedOrNull($scope.fileNew.OrderWastagePercentage)) {
-            if ($scope.fileNew.OrderWastagePercentage > 99) {
-                return ShowResult('Order Wastage Percentage should less than 99 Percent.', 'failure');
-            }
-        }
-        angular.copy($scope.fileNew, $scope.file);
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.fileNewForm.$valid) {
-
-            if ($scope.ExchangeSaveExchangeRates($scope.fileNew.CurrencyId) == false) {
-                return;
-            }
-
-            if ($scope.Action === "Save") {
-
-                //if (baseService.arrayLength($scope.taskList) === 0) {
-                //    return ShowResult('Select Task.', 'failure');
-                //}
-
-                for (var i = 0; i < $scope.taskList.length; i++) {
-
-                    if ($scope.taskList[i].Active) {
-                        $scope.taskList[i].IsRequired = $scope.taskList[i].Active;
-                    }
-                }
-
-                $http({
-                    method: 'POST'
-                    , url: $scope.saveUrl
-                    , data: {
-                        'entity': $scope.file, 'taskList': $scope.taskList, 'CurrencyData': $scope.ExchangeDisplayCurrency
-                    }
-                    , dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.fileNew = response.data.MasterOrder;
-                        $scope.ExchangeDisplayExchangeRates(response.data.MasterOrder.Id, response.data.MasterOrder.CurrencyId);//reloading currency exchange rates
-                        $scope.getData();
-                        $scope.setTab(2);
-                        $scope.getMasterItemList();
-                        //$scope.getAllEntities();
-                        $scope.Action = 'Update';
-                        $scope.fileNew.CustomerName = $scope.customerName;
-                        $scope.fileNew.ResponsiblePersonName = $scope.ResponsiblePersonName;
-                        $scope.fileNew.ResponsiblePersonId = $scope.ResponsiblePersonId;
-                        //ClearFields();
-                        cboService.getBuyerDivisionCboByBuyer($scope.fileNew.BuyerId, function (result) {
-                            $scope.divisionList = result;
-                        });
-                        cboService.getBuyerDepartmentCboByBuyer($scope.fileNew.BuyerId, function (result) {
-                            $scope.departmentList = result;
-                        });
-                        angular.element(document.querySelector('#TaskListPopUp')).modal('hide');
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
-            }
-            else if ($scope.Action === "Update") {
-                for (var i = 0; i < baseService.arrayLength($scope.itemList); i++) {
-                    if (baseService.isUndefinedOrNull($scope.itemList[i].MaterialMasterId))
-                        return ShowResult('Material master need in row number ' + (i + 1), 'failure');
-                    if (!baseService.isUndefinedOrNull($scope.modelNew.Id)) {
-                        $scope.itemList[i].ContractId = $scope.modelNew.Id;
-                    }
-                }
-                $http({
-                    method: 'POST'
-                    , url: $scope.updateUrl
-                    , data: {
-                        'entity': $scope.file
-                        , 'masterId': $scope.fileNew.Id
-                        , 'personList': $scope.personList
-                        , 'itemList': $scope.itemList
-                        , 'CurrencyData': $scope.ExchangeDisplayCurrency
-                    }
-                    , dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-
-
-                        //$scope.GetResponsiblePersonList();
-                        $scope.getMasterItemList();
-                        $scope.getData();
-                        //GetDepartmentPersonCbo();
-                        //$scope.getAllEntities();
-                        $scope.mmChangeFlag = false;
-                        $scope.fileNew.ResponsiblePersonName = $scope.ResponsiblePersonName;
-                        $scope.fileNew.ResponsiblePersonId = $scope.ResponsiblePersonId;
-                        if (!baseService.isUndefinedOrNull($scope.fileNew.SpecialTaxId)) {
-                            $scope.SpecialTax = true;
-                        }
-                        cboService.getBuyerDivisionCboByBuyer($scope.fileNew.BuyerId, function (result) {
-                            $scope.divisionList = result;
-                        });
-                        cboService.getBuyerDepartmentCboByBuyer($scope.fileNew.BuyerId, function (result) {
-                            $scope.departmentList = result;
-                        });
-
-                        $scope.ExchangeDisplayExchangeRates($scope.fileNew.Id, $scope.fileNew.CurrencyId);//reloading currency exchange rates
-
-                    }
-                }, function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                });
-            }
-        }
-    };
-
     $scope.removeMaster = function () {
         try {
             $scope.message_confirmation = "Are you sure want to permanent delete";
@@ -308,51 +164,6 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         }
         catch (e) {
             ShowResult(e, 'Error');
-        }
-    };
-
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.fileNew.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.fileNew.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.files.splice($scope.index, 1);
-                    baseService.paginationRemove();
-                    ClearFields();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-    };
-
-    $scope.deleteItem = function () {
-        if (!baseService.isUndefinedOrNull($scope.id)) {
-            $http({
-                method: 'POST'
-                , url: $scope.path + 'deleteItem?id=' + $scope.id
-                , dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.getMasterItemList();
-                    $scope.id = null;
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
         }
     };
 
@@ -390,7 +201,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
             .then(function (response) {
                 $scope.MasterOrderList = response.data;
             });
-    
+
         angular.element(document.querySelector('#masterOrderPopUp')).modal('show');
     }
 
@@ -412,7 +223,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
             .then(function (response) {
                 $scope.SOList = response.data;
             });
-       
+
     }
 
     $scope.EditSOPopUp = function (obj) {
@@ -426,13 +237,21 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
     $scope.saveSalesOrderDate = function () {
 
         $scope.$broadcast('show-errors-check-validity');
-
+        try {
         if ($scope.soDateForm.$valid) {
             if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
+                if (new Date($scope.soModel.LSD) <= new Date($scope.soModel.MainRawMaterialInhouseDate))
+                    throw " Main raw material in house date can not be greater than LSD date.";
+                if (new Date($scope.soModel.LSD) <= new Date($scope.soModel.OtherRawMaterialInhouseDate))
+                    throw " Other raw material in house date can not be greater than LSD date.";
+                if (new Date($scope.soModel.PlanExFactoryDate) <= new Date($scope.soModel.LSD))
+                    throw " LSD date can not be greater than plan ex factory date.";
+                if (new Date($scope.soModel.DeliveryDate) <= new Date($scope.soModel.PlanExFactoryDate))
+                    throw "Plan ex factory date can not be greater than delivery date.";
                 $http({
                     method: 'POST'
                     , url: $scope.path + 'UpdateSODate'
-                    , data: {'salesOrderMaster': $scope.soModel}
+                    , data: { 'salesOrderMaster': $scope.soModel }
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -449,10 +268,14 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
                     ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
                 };
             }
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
         }
+
     };
     $scope.saveSalesOrderRate = function () {
-   
+
         if ($scope.soModel.Rate < $scope.soModel.Discount) {
             ShowResult("Sales order discount can't greater than Rate", 'failure', 'salesOrderEditPopUp');
             return false;
@@ -489,9 +312,12 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
             return false;
         }
         $scope.$broadcast('show-errors-check-validity');
-
+        try {
         if ($scope.soQTYForm.$valid) {
             if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
+                if ($scope.soModel.MOIQty < $scope.soModel.Quantity) 
+                    throw "Sales order quantity can not be greater than Master order quantity.";
+                
                 $http({
                     method: 'POST'
                     , url: $scope.path + 'UpdateSOQTY'
@@ -503,7 +329,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
                     }
                     else {
                         ShowResult(response.data.Message, 'success', 'salesOrderEditPopUp');
-                       // getSalesOrderList();
+                        // getSalesOrderList();
                         //clearSO();
                         $scope.getSOData();
                         //$scope.getMasterItemList();
@@ -512,6 +338,9 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
                     ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
                 };
             }
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
         }
     };
     $scope.saveSalesOrderStatus = function () {
@@ -520,7 +349,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
             if ($scope.soModel.ProductionBookedQty < 0) {
                 ShowResult("Production Booked Qty can't less than 0.", 'failure', 'salesOrderEditPopUp');
                 return false;
-            }          
+            }
         }
 
         $scope.$broadcast('show-errors-check-validity');
@@ -538,8 +367,8 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
                     }
                     else {
                         ShowResult(response.data.Message, 'success', 'salesOrderEditPopUp');
-                      //getSalesOrderList();
-                       // clearSO();
+                        //getSalesOrderList();
+                        // clearSO();
                         $scope.getSOData();
                         //$scope.getMasterItemList();
                     }
@@ -572,7 +401,6 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
                         $scope.ProdBookedQty = response.data[0].Quantity;
                         $scope.TotalProducedQty = $scope.ProdBookedQty;
                     }
-
                 }
                 if ($scope.soModel.ProductionBookedQty == 0.00) {
                     $http({
@@ -586,7 +414,6 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
                                 $scope.ProdBookedQty = response.data[0].Quantity;
                                 $scope.TotalProducedQty = $scope.ProdBookedQty;
                             }
-
                         }
                     });
                 }
@@ -595,7 +422,4 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
             $scope.soModel.ProductionBookedQty = 0;
         }
     };
-
-
-
-
+}

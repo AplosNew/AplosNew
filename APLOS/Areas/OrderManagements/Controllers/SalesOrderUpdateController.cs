@@ -1682,7 +1682,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"SELECT  SO.Id,SO.ParentId
+            string sql = @"SELECT SO.Id,SO.ParentId
                             , SO.MasterOrderItemId
                             , MOI.MaterialMasterId
                             , DeliveryDate = REPLACE(CONVERT(CHAR(11), SO.DeliveryDate, 106),' ','-')
@@ -1691,6 +1691,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             , SO.ShipmentModeId
                             , SO.CustomerPOId
 		                    , po.PONumber
+                            ,MOI.TotalQty MOIQty
                             ,SO.DestinationDescription
                             , SO.OrderStatusId, SO.OrderCategoryId
                             , SO.SOType, SO.ResponsiblePersonId
