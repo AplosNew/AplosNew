@@ -9,12 +9,12 @@
 
             @*<div class="select-style">*@
             @*<select name="EntityId" ng-model="EntityId" ng-change="getData()" class="col-sm-3 form-control"
-                ng-options="item.Id as item.UserName for item in entityList" tabindex="1" required>
-            <option value=""></option>
-        </select>*@
+                        ng-options="item.Id as item.UserName for item in entityList" tabindex="1" required>
+                    <option value=""></option>
+                </select>*@
 
             @*</div>*@
-            <input id="EntityList" ej-dropdownlist e-multiselectmode="visualmode" e-datasource="entityList" e-value="EntityId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" e-showcheckbox="true"/>
+            <input id="EntityList" ej-dropdownlist e-multiselectmode="visualmode" e-datasource="entityList" e-value="EntityId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" e-showcheckbox="true" />
 
 
         </div>
@@ -131,29 +131,27 @@
                             </div>
                         </div>*@
                     <div e-columns>
-                        @*ShiftSystemID	ShiftName	ShiftInTime	ShiftOutTime*@
-                        @*<div e-column e-field="ShiftSystemID" e-headertext="ShiftSystemID" e-width="4"></div>*@
-                        <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
-                        <div e-column e-field="DayName" e-headertext="Day" e-width="50"></div>
+                        <div e-column e-type="string" e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
+                        <div e-column e-type="string" e-field="DayName" e-headertext="Day" e-width="50"></div>
                         <div e-column e-template="#shift" e-headertext="Shift" e-width="220"></div>
-                       
 
                         <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
                         <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
-                        <div e-column e-field="IsManualInTime" e-headertext="Manual" e-width="50"></div>
+                        <div e-column e-type="boolean" e-field="IsManualInTime" e-headertext="Manual" e-width="50"></div>
                         <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
                         <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
-                        <div e-column e-field="IsManualOutTime" e-headertext="Manual" e-width="50"></div>
-                        <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
-                        <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
+                        <div e-column e-type="boolean" e-field="IsManualOutTime" e-headertext="Manual" e-width="50"></div>
+                        <div e-column e-type="string" e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
+                        <div e-column e-type="boolean" e-field="IsPunchMissing" e-headertext="Missing Punch" e-width="50"></div>
+                        <div e-column e-type="boolean" e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
                         <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
-                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
-                        <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
+                        <div e-column e-type="string" e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
+                        <div e-column e-type="string" e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
 
-                        <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
-                        <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
-                        <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
-                        <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
+                        <div e-column e-type="string" e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
+                        <div e-column e-type="boolean" e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
+                        <div e-column e-type="boolean" e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
+                        <div e-column e-type="string" e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
 
 
                     </div>
@@ -198,41 +196,34 @@
                      e-actioncomplete="actionCompleteSingleDay" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
                      e-filtersettings-filterType="excel">
                     <div e-columns>
-                        @*ShiftSystemID	ShiftName	ShiftInTime	ShiftOutTime*@
-                        @*<div e-column e-field="ShiftSystemID" e-headertext="ShiftSystemID" e-width="4"></div>*@
-                        @*<div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>*@
-
-
-                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100" e-primarykey="true"></div>
-                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
-                        <div e-column e-template="#allShiftSingleDay" e-headertext="Shift" e-width="220"></div>
-                        @*<div e-column e-field="ShiftInTime" e-headertext="Shift In Time" e-width="5" e-primarykey="true"></div>
-        <div e-column e-field="ShiftOutTime" e-headertext="Shift Out Time" e-width="5" e-primarykey="true"></div>*@
+                        <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="100" e-primarykey="true"></div>
+                        <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
+                        <div e-columne-template="#allShiftSingleDay" e-headertext="Shift" e-width="220"></div>
 
                         <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
                         <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
-                        <div e-column e-field="IsManualInTime" e-headertext="Manual" e-width="50"></div>
+                        <div e-column e-type="boolean" e-field="IsManualInTime" e-headertext="Manual" e-width="50"></div>
                         <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
                         <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
-                        <div e-column e-field="IsManualOutTime" e-headertext="Manual" e-width="50"></div>
-                        <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
-                        <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
+                        <div e-column e-type="boolean" e-field="IsManualOutTime" e-headertext="Manual" e-width="50"></div>
+                        <div e-column e-type="string" e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
+                        <div e-column e-type="boolean" e-field="IsPunchMissing" e-headertext="Missing Punch" e-width="100"></div>
+                        <div e-column e-type="boolean" e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
                         <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
-                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
-                        <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
+                        <div e-column e-type="string" e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
+                        <div e-column e-type="string" e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
 
-                        <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
-                        <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
-                        <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
+                        <div e-column e-type="string" e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
+                        <div e-column e-type="boolean" e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
+                        <div e-column e-type="boolean" e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
 
-                        <div e-column e-field="Department" e-headertext="Department" e-width="150"></div>
-                        <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
-                        <div e-column e-field="Section" e-headertext="Section" e-width="150"></div>
-                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="150"></div>
-                        <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
+                        <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="150"></div>
+                        <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="150"></div>
+                        <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="150"></div>
+                        <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="150"></div>
+                        <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="150"></div>
 
-
-                        <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
+                        <div e-column e-type="string" e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
 
 
                     </div>
