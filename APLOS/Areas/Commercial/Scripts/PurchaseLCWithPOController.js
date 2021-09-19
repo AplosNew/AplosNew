@@ -264,6 +264,18 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
         $scope.purchaseLCNew.CustomerName = null;
     }
 
+    $scope.companyCurrencyId = null;
+    $http({
+        method: 'GET',
+        url: 'currencies/CompanyParallelCurrency/CurrencyParallel'
+    }).then(function successCallback(response) {
+        angular.forEach(response.data, function (item, i) {
+            if (item.ParallelCurrencyType === 'CompanyCurrency') {
+                $scope.companyCurrencyId = item.CurrencyId;
+            }
+        });
+    });
+
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.purchaseLCNew.CurrencyId)) {
             $http({

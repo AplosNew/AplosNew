@@ -330,15 +330,15 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
 
     $scope.Save = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.LCRef)) {
-                throw "Data update is not possible as this PO has LC.";
-            }
-            if ($scope.GRNValue!=0) {
-                throw "Data update is not possible as this PO has GRN value.";
-            }
-            if ($scope.AcptValue!=0) {
-                throw "Data update is not possible as this PO has Acceptance value.";
-            }
+            //if (!baseService.isUndefinedOrNull($scope.LCRef)) {
+            //    throw "Data update is not possible as this PO has LC.";
+            //}
+            //if ($scope.GRNValue!=0) {
+            //    throw "Data update is not possible as this PO has GRN value.";
+            //}
+            //if ($scope.AcptValue!=0) {
+            //    throw "Data update is not possible as this PO has Acceptance value.";
+            //}
             $scope.product = Object.assign({}, $scope.productNew);
             if ($scope.Action == "Update") {
                 $http({
