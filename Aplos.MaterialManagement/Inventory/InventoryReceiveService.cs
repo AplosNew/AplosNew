@@ -9719,7 +9719,7 @@ ORDER BY tg.[Sequence]";
 	                          ,TUoM.UserName AS TransactionUoM
                               ,IRD.Id InventoryReceiveDetailId
 							  ,IR.IssueType,E.UserName AS Entity,IR.Remarks,EI.EmployeeName +'-'+EI.EmployeeCode As EmployeeName,CC.UserName CostCenter,IRD.Comments 
-                              ,IR.ContractId,IR.ProductionOrderId,Con.ContractNo,IR.OrderRefNo,p.UserName ProcessName,POD.ProductionOrderId ProductionOrderNo
+                              ,IR.ContractId,IR.ProductionOrderId,Con.ContractNo,IR.OrderRefNo,p.UserName ProcessName,PO.ProductionOrder ProductionOrderNo,PO.SalesOrderId
                          FROM TRN.InventoryIssue IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -9748,8 +9748,50 @@ ORDER BY tg.[Sequence]";
 						 left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
 
 						 left join trn.IssueRequestMaster IRM on IRM.Id=IR.IssueRequestMasterId
-						 left join [TRN].[IssueRequestMasterSalesOrderMap] IRMMAp ON IRMMAp.IssueRequestMasterId=IRM.Id
-						 left join [TRN].[ProductionOrderDetail] POd On POd.SalesOrderId=IRMMAp.SalesOrderId
+						 --left join [TRN].[IssueRequestMasterSalesOrderMap] IRMMAp ON IRMMAp.IssueRequestMasterId=IRM.Id
+						 --left join [TRN].[ProductionOrderDetail] POd On POd.SalesOrderId=IRMMAp.SalesOrderId
+						LEFT JOIN(
+							SELECT distinct PDAMAP.IssueRequestMasterId
+								,SalesOrderId=STUFF((select distinct ','+xPDAMAP.SalesOrderId from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,FGColor1=STUFF((select distinct ','+FCV.UserName from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+							   ,FGColor2=STUFF((select distinct ','+SCV.UserName from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,FGColor3=STUFF((select distinct ','+TCV.UserName from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,ProductionOrder=STUFF((select distinct ','+PrOrderDetail.ProductionOrderId from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								left join trn.ProductionOrderDetail PrOrderDetail ON PrOrderDetail.SalesOrderId=xPDAMAP.SalesOrderId
+								
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+								from  trn.IssueRequestMasterSalesOrderMap PDAMAP 							 
+							  group by  PDAMAP.IssueRequestMasterId
+							)PO ON PO.IssueRequestMasterId = IRM.Id
                          WHERE IR.Id ='" + OrderMasterID + "'";
 
 				return _sqlRepository.GetDataTable(strSQL);
@@ -13697,11 +13739,57 @@ ORDER BY tg.[Sequence]";
 						                   when IsR.AuthorizedByStatus='Approved' Then 'Approved'
 						                   else ''
 							                END
+,p.UserName ProcessName,po.SalesOrderId,FGColor=isnull(po.FGColor1,'')+','+isnull(po.FGColor2,'')+','+isnull(po.FGColor3,'')
+											,po.ProductionOrder
 						FROM TRN.IssueRequestMaster As IsR
 						                LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IsR.CheckedBy
                                          LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IsR.AuthorizedBy
 							             LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=IsR.AddedBy
-										 	Left Join EmployeeInformation EmIU on EmIU.SystemId=IsR.UpdatedBy
+										 Left Join EmployeeInformation EmIU on EmIU.SystemId=IsR.UpdatedBy
+										 left join trn.IssueRequestMasterProcessMap IRPmap On IRPmap.IssueRequestMasterId=IsR.Id
+										 left join hkp.Process p On p.Id=IRPmap.ProcessId
+										 LEFT JOIN(
+							SELECT distinct PDAMAP.IssueRequestMasterId
+								,SalesOrderId=STUFF((select distinct ','+xPDAMAP.SalesOrderId from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,FGColor1=STUFF((select distinct ','+FCV.UserName from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+							   ,FGColor2=STUFF((select distinct ','+SCV.UserName from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,FGColor3=STUFF((select distinct ','+TCV.UserName from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,ProductionOrder=STUFF((select distinct ','+PrOrderDetail.ProductionOrderId from
+								trn.IssueRequestMaster xpo
+								INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
+								left join trn.ProductionOrderDetail PrOrderDetail ON PrOrderDetail.SalesOrderId=xPDAMAP.SalesOrderId
+								
+								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+								from  trn.IssueRequestMasterSalesOrderMap PDAMAP 							 
+							  group by  PDAMAP.IssueRequestMasterId
+							)PO ON PO.IssueRequestMasterId = IsR.Id
                       WHERE IsR.Id ='" + issueId + "'";
 
 				return _sqlRepository.GetDataTable(strSQL);
