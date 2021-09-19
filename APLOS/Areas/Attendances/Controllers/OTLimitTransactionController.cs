@@ -1003,9 +1003,16 @@ namespace Aplos.Areas.Attendances.Controllers
                 Dictionary<string, DataRow> dicAttProc = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsAttProc.Tables[0].Rows.Count; i++)
                 {
+
+
                     string Key = constructKey(dsAttProc.Tables[0].Rows[i]["EmpSystemID"].ToString(), dsAttProc.Tables[0].Rows[i]["WorkDate"].ToString());
                     if (dicAttProc.ContainsKey(Key) == false)
                         dicAttProc.Add(Key, dsAttProc.Tables[0].Rows[i]);
+
+                    dsAttProc.Tables[0].Rows[i].BeginEdit();
+                    dsAttProc.Tables[0].Rows[i]["IsOTComfirm"] = true;
+                    dsAttProc.Tables[0].Rows[i].EndEdit();
+
                 }
 
 
@@ -1077,14 +1084,12 @@ namespace Aplos.Areas.Attendances.Controllers
                     DateTime d2 = Convert.ToDateTime(RandomOutTime);
                     DateTime ExtraOTOutTime = d2.AddMinutes(Convert.ToInt32(OTLimitTransactionData[i].ExtraOT));
 
-                    //if (OTLimitTransactionData[i].OriginalDayType.ToString().ToUpper() == "NW")
+                  
                     if (OTLimitTransactionData[i].IsExtraOTOnly == false)
                     {
 
                         #region Manual Attendance 
-                        //Manual Attendance 
-                        //DvManualAttanData.RowFilter = "EmpSystemID='" + OTLimitTransactionData[i].EmpSystemId + "' AND WorkDate='" + OTLimitTransactionData[i].WorkDate + "'";
-                        if (dicManualAttanData.ContainsKey(Key) == false)
+                          if (dicManualAttanData.ContainsKey(Key) == false)
                         {
 
                             DataRow dr = dsManualAttanData.Tables[0].NewRow();
@@ -1113,13 +1118,12 @@ namespace Aplos.Areas.Attendances.Controllers
                             dr.EndEdit();
 
                         }
-                        //DvManualAttanData.RowFilter = null;
-                        #endregion
+                
+                          #endregion
 
 
                         #region Final OT
-                        //dvFinalOT.Table = dtFinalOT;
-                        //dvFinalOT.RowFilter = "EmpSystemID = '" + OTLimitTransactionData[i].EmpSystemId + "' AND WorkDate='" + OTLimitTransactionData[i].WorkDate + "'";
+                 
                         if (dicFinalOT.ContainsKey(Key))
                         {
                             drFinalOT = dicFinalOT[Key];// dvFinalOT[0].Row;
@@ -1164,8 +1168,6 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
                         #region Attdn Proc
-                        //dvAttProc.Table = dtAttProc;
-                        //dvAttProc.RowFilter = "EmpSystemID = '" + OTLimitTransactionData[i].EmpSystemId + "' AND WorkDate='" + OTLimitTransactionData[i].WorkDate + "'";
                         if (dicAttProc.ContainsKey(Key))
                         {
                             drAttProc = dicAttProc[Key];// dvAttProc[0].Row;
@@ -1183,7 +1185,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             drAttProc.EndEdit();
                         }
 
-                        //dvAttProc.RowFilter = null;
+     
                         #endregion
                     }
 
@@ -1191,14 +1193,13 @@ namespace Aplos.Areas.Attendances.Controllers
                     #region Extra OT                   
 
 
-                    //DvHourlyOTData.RowFilter = "EmpSystemID='" + OTLimitTransactionData[i].EmpSystemId + "' AND WorkDate='" + OTLimitTransactionData[i].WorkDate + "'";
                     if (dicHourlyOTData.ContainsKey(Key) == false)
                     {
                         if (string.IsNullOrEmpty(sID))
                         {
                             bplib.clsGenID objGenID = new bplib.clsGenID();
                             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "HourlyOT", out sID);
-                            sID = "OX" + sID ;
+                            sID = "OX" + sID;
                         }
                         DataRow dr = dsHourlyOTData.Tables[0].NewRow();
                         dr["Id"] = sID + "-" + (i + 1).ToString();
@@ -1259,33 +1260,12 @@ namespace Aplos.Areas.Attendances.Controllers
                         dr["OTType"] = "OTLIMIT";
                         dr.EndEdit();
                     }
-                    //DvHourlyOTData.RowFilter = null;
-
-
-
-
-
-
-
 
                     #endregion
-
-
-
-
-
-
-
                 }
 
                 clsStaticInfo objsave = new clsStaticInfo();
                 objsave.SaveDataSets(dsManualAttanData, dsHourlyOTData, dsFinalOT, dsAttProc);
-
-
-
-
-
-
 
             }
             catch (Exception ex)
