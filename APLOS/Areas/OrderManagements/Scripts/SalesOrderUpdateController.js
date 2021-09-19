@@ -596,6 +596,6 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         }
     };
 
-}
+
 
 
