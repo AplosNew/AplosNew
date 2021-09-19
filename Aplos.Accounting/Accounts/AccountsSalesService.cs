@@ -38,7 +38,7 @@ namespace Library.Accounting.Accounts
 									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.ToCurrencyRate
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
                                     , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark, CP.TaxApplicable,CP.PartyAccountGroupId,CP.IsPaymentTermChangeable
-									, S.SourceType
+									, S.SourceType,SP.Id SalesPackingId
 									FROM [TRN].[Sales] AS S
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
                                     LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND S.PlantId=CP.PlantId AND CP.PartyType='Customer'
@@ -51,6 +51,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=S.CurrencyId
 									LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=S.PlantId
 									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
+									LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
                                     WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND ISNULL(S.VoucherId,'')='' and S.SourceType in ('MasterOrderSales','Packing')";
@@ -219,7 +220,7 @@ namespace Library.Accounting.Accounts
 									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
                                     , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark
-									,V.VoucherNo
+									,V.VoucherNo,SP.VoucherId SalesPackingVoucherId
 									FROM [TRN].[Sales] AS S
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
 									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=S.InvoicingPartyPlantId
@@ -231,6 +232,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=S.CurrencyId
 									LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=S.PlantId
 									LEFT JOIN [TRN].Voucher V ON V.Id=S.VoucherId
+									LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=S.Id
 									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
@@ -1397,6 +1399,22 @@ namespace Library.Accounting.Accounts
 				  
 					ORDER BY TrnType DESC 
 ";
+			return _sqlRepository.GetDataCollection(sql);
+
+		}
+
+		public IEnumerable<object> GetPackingDetail(string companyId, string plantId, string salesId)
+		{
+			var sql = @"SELECT S.Id,S.Id AS SalesId,SP.Id SalesMaterialId,MGM.UserName MaterialGroup
+			,MM.MaterialGroupMasterId,MM.UserName Material
+			,PL.MaterialMasterId,MMA.StandardName Article,PL.ArticleId,SP.Qty,SP.Amount
+			FROM dbo.SalesPacking SP 
+			JOIN  [TRN].[Sales] AS S ON S.Id=SP.SalesId
+			LEFT JOIN dbo.ProductLibrary PL ON PL.Id=SP.ProductLibraryId
+			LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
+			LEFT JOIN MST.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
+			LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
+			where SP.SalesId='"+ salesId + "' AND S.PlantId='"+ plantId + "'  ";
 			return _sqlRepository.GetDataCollection(sql);
 
 		}

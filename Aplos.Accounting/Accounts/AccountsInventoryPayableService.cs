@@ -3604,7 +3604,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 			try
 			{
 				parameters.CmdText = @"DECLARE  @issueId varchar(10)='" + issueId + "', @companyId varchar(10)='" + companyId + @"'
-                            SELECT IR.Id InventoryIssueId,IRD.Id InventoryIssueDetailId,IR.CompanyGroupId
+                            SELECT IR.Id InventoryIssueId,IRD.Id InventoryIssueDetailId,IR.CompanyGroupId,IRD.CostCenterId
                                 ,IR.CompanyId
                                 ,Plant.GSTIN 
 								,IR.Id PONumber                                 
