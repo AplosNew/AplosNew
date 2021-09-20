@@ -2312,6 +2312,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             _advanceWriteOffService.DeleteVendorInvoiceCharge(invoiceWriteOffId, voucherId);
             return Json(new { Message = AplosMessage.Deleted });
+
         }
 
         //Vendor invoice charge writeoff
