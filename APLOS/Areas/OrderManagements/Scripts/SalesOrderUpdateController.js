@@ -317,7 +317,6 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
             if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
                 if ($scope.soModel.MOIQty < $scope.soModel.Quantity) 
                     throw "Sales order quantity can not be greater than Master order quantity.";
-                
                 $http({
                     method: 'POST'
                     , url: $scope.path + 'UpdateSOQTY'
