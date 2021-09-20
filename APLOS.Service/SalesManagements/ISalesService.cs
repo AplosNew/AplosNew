@@ -36,6 +36,6 @@ namespace Library.Service.SalesManagements
         void PackingSalesPost(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList
            , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList
             , IEnumerable<SalesServiceViewModel> salesServiceDetailGLList
-            , VoucherViewModel packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList);
+            , SalesPacking packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList, string packingVoucherTypeId);
     }
 }

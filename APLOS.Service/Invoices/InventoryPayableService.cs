@@ -2620,7 +2620,8 @@ namespace Library.Service.Invoices
                             ActivityId = voucherDetailVM.ActivityId,
                             CurrencyId = voucher.CurrencyId,
                             DrAmount = 0,
-                            CrAmount = voucherDetailVM.Amount
+                            CrAmount = voucherDetailVM.Amount,
+                            CostCenterId=voucherDetailVM.CostCenterId
                         };
                         currentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
@@ -5366,7 +5367,7 @@ namespace Library.Service.Invoices
                         };
                         invtotalAmountCr += invvoucherCr.CrAmount;
                         invvoucherDetailVM.Id = invvoucherCr.Id;
-                        currentVoucherDetaiRecord++;
+                        invcurrentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(invvoucher, invvoucherCr, invcurrentVoucherDetaiRecord);
 
                         //foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == invvoucherCr.GLGeneralInfoId
