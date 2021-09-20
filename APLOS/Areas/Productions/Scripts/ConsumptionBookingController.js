@@ -114,6 +114,14 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
+    $scope.calculateAmount = function (data) {
+        
+        data.Amount = parseFloat(data.Qty * data.Rate).toFixed(2);
+        var gridObj = $("#GridLineItems").data("ejGrid");
+        gridObj.refreshContent(true);
+        gridObj.refreshTemplate();
+    }
+
     $scope.selectedLineItems = [];
     $scope.Save = function () {
         try {

@@ -61,14 +61,14 @@
             <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
             <div class="col-sm-5 show-message">
                 <div class="select-style">
-                    <select class="form-control" id="currency" ng-model="modelNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
-                            ng-change="GetCurrencyExchangeRateList();" tabindex="8">
+                    <select class="form-control" name="Currency" ng-model="modelNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
+                            ng-change="GetCurrencyExchangeRateList();" tabindex="8" required>
                         <option value=""></option>
                     </select>
                 </div>
             </div>
             <div class="col-sm-3 show-message" style="width: 22%; margin-left: -30px;">
-                <input type="text" n-decimals="2" id="ToCurrencyRate" name="ToCurrencyRate" ng-model="modelNew.ToCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="modelNew.CurrencyId==companyCurrencyId">
+                <input type="text" n-decimals="2" id="ToCurrencyRate" name="ToCurrencyRate" ng-model="modelNew.ToCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="modelNew.CurrencyId==companyCurrencyId" required>
             </div>
         </div>
     </div>
@@ -100,6 +100,7 @@
                 <div e-column e-field="CostingMasterTemplateId" e-headertext="CostingId" e-width="80"></div>
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
                 <div e-column e-field="Rate" e-headertext="Rate" e-width="50" e-textalign="right" e-format="{0:0.0000}"></div>
+                <div e-column e-template="#Rate" e-headertext="Rate" e-width="100" style="height: 20px;"></div>
                 <div e-column e-field="Amount" e-headertext="Amount" e-width="50" e-textalign="right" e-format="{0:0.00}"></div>
                 <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-textalign="center" e-width="50"></div>
             </div>
@@ -110,7 +111,13 @@
         <script type="text/x-jsrender" id="PkheaderTemplate">
             <input type="checkbox" id="Pkheadchk" />
         </script>*@
-
+        <script type="text/template" id="Rate">
+            <div class="col-sm-10" style="padding:0px; width:100px;">
+                @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.Rate" e-width="100" e-change="$parent.calculateAmount(data)"/>*@
+                <input type="text" class="form-control" n-decimals="4" ng-model="data.Rate" ng-change="$parent.calculateAmount(data)"/>
+                
+            </div>
+        </script>
         <script type="text/template" id="ShowActionButtons">
             <div class="common-btn">
                 <ul class="list-inline text-right">

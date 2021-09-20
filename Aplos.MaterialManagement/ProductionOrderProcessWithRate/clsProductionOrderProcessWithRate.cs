@@ -249,6 +249,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
             {
                 DataSet dsMaster;
                 DataSet dsChild;
+                DataRow dr = null;
                 string sID = string.Empty;
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 int Count = 0;
@@ -281,67 +282,100 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 
                 con.OpenDataSetThroughAdapter("select * from ProductionOrderProcessWithRateDetails where ProductionOrderProcessWithRateMasterId='" + MasterID + "'", out dsChild, false, "1");
 
-                while (dsChild.Tables[0].DefaultView.Count > 0)
-                {
-                    dsChild.Tables[0].DefaultView[0].Delete();
-                }
-
                 objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[ProductionOrderProcessWithRateDetails]", out sID);
                 for (int i = 0; i < ChildData.Count; i++)
                 {
                     if (Convert.ToDecimal(ChildData[i]["Rate"]) != 0)
                     {
-                        DataRow dr = dsChild.Tables[0].NewRow();
-                        Count++;
-                        dr["Id"] = "POPWRD_" + sID + Count;
-                        dr["ProductionOrderProcessWithRateMasterId"] = MasterID;
-                        if (Sequence == "1")
+                        dsChild.Tables[0].DefaultView.RowFilter = "Id = <> ";
+                        if (dsChild.Tables[0].DefaultView.Count == 0)
                         {
-                            dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
-                            dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
-                            dr["SecondCharacteristicsId"] = DBNull.Value;
-                            dr["SecondCharacteristicsValueId"] = DBNull.Value;
-                        }
-                        else if (Sequence == "2")
-                        {
-                            dr["FirstCharacteristicsId"] = DBNull.Value;
-                            dr["FirstCharacteristicsValueId"] = DBNull.Value;
-                            dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
-                            dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
-                        }
-                        else if (Sequence == "Both")
-                        {
-                            dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
-                            dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
-                            dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
-                            dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                            dr = dsChild.Tables[0].NewRow();
+                            Count++;
+                            dr["Id"] = "POPWRD_" + sID + Count;
+                            dr["ProductionOrderProcessWithRateMasterId"] = MasterID;
+                            if (Sequence == "1")
+                            {
+                                dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                                dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                                dr["SecondCharacteristicsId"] = DBNull.Value;
+                                dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                            }
+                            else if (Sequence == "2")
+                            {
+                                dr["FirstCharacteristicsId"] = DBNull.Value;
+                                dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                                dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                                dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                            }
+                            else if (Sequence == "Both")
+                            {
+                                dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                                dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                                dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                                dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                            }
+                            else
+                            {
+                                dr["FirstCharacteristicsId"] = DBNull.Value;
+                                dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                                dr["SecondCharacteristicsId"] = DBNull.Value;
+                                dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                            }
+
+                            dr["Rate"] = ChildData[i]["Rate"];
+
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = DateTime.Now;
+                            dr["AddedFromIP"] = identity.IPAddress;
+                            dsChild.Tables[0].Rows.Add(dr);
                         }
                         else
                         {
-                            dr["FirstCharacteristicsId"] = DBNull.Value;
-                            dr["FirstCharacteristicsValueId"] = DBNull.Value;
-                            dr["SecondCharacteristicsId"] = DBNull.Value;
-                            dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                            dr = dsChild.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            if (Sequence == "1")
+                            {
+                                dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                                dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                                dr["SecondCharacteristicsId"] = DBNull.Value;
+                                dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                            }
+                            else if (Sequence == "2")
+                            {
+                                dr["FirstCharacteristicsId"] = DBNull.Value;
+                                dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                                dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                                dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                            }
+                            else if (Sequence == "Both")
+                            {
+                                dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                                dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                                dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                                dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                            }
+                            else
+                            {
+                                dr["FirstCharacteristicsId"] = DBNull.Value;
+                                dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                                dr["SecondCharacteristicsId"] = DBNull.Value;
+                                dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                            }
+
+                            dr["Rate"] = ChildData[i]["Rate"];
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr.EndEdit();
                         }
-
-                        dr["Rate"] = ChildData[i]["Rate"];
-
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = DateTime.Now;
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = DateTime.Now;
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                        dsChild.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        dsChild.Tables[0].Rows[i].Delete();
                     }
                 }
-
-                //dsChild.Tables[0].DefaultView.RowFilter = "ProductionOrderProcessWithRateMasterId = '"+ dsMaster.Tables[0].Rows[0]["Id"].ToString() + "'";
-                //if (dsChild.Tables[0].DefaultView.Count == 0)
-                //{
-                //    dsMaster.Tables[0].DefaultView[0].Delete();
-                //}
 
                 #endregion
 
@@ -352,7 +386,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 _sqlRepository.ExecuteSqlCommand(@"delete from ProductionOrderProcessWithRateMaster where Id IN (
                                     select M.Id from ProductionOrderProcessWithRateMaster M
                                     left join ProductionOrderProcessWithRateDetails D on D.Id=(select top 1 Id from ProductionOrderProcessWithRateDetails  WHere ProductionOrderProcessWithRateMasterId=M.Id )
-                                    where isnull(D.Id,'')=''  and M.Id='" + dsMaster.Tables[0].Rows[0]["Id"].ToString() + "') and Id= '"+dsMaster.Tables[0].Rows[0]["Id"].ToString()+"'");
+                                    where isnull(D.Id,'')=''  and M.Id='" + dsMaster.Tables[0].Rows[0]["Id"].ToString() + "') and Id= '" + dsMaster.Tables[0].Rows[0]["Id"].ToString() + "'");
             }
             catch (Exception ex)
             {
