@@ -69,15 +69,14 @@ namespace Library.HumanResource.Payroll.IncrementReport
                                     left join org.SubSection ss on ss.id=p.SubSectionId
                                     left join [MST].[LegalSalaryGradeDesignation] gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
                                     left join scs.LegalSalaryGrade grd on grd.id=gr.LegalSalaryGradeId
-                                    where e.PlantId='" + identity.PlantId+@"' 
+                                    where e.PlantId='" + identity.PlantId + @"' 
 									and e.SystemId in 									
 									                (
 								                    SELECT  sidm.EmpInfoSystemID FROM SalaryInfoDefineMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"' AND sidm.EffectiveDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
 								                    UNION 
 								                    SELECT  sidm.EmpInfoSystemID FROM SalaryInfoBackMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"'  AND sidm.EffectiveDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
-								                    )";
-
-
+								                    )
+                                                    AND DATEDIFF(day, FORMAT(E.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy'))>365";
 
                 ExcelEngine excelEngine = new ExcelEngine();
                 //Instantiate the Excel application object
@@ -87,28 +86,28 @@ namespace Library.HumanResource.Payroll.IncrementReport
                 application.DefaultVersion = ExcelVersion.Excel2013;
                 IWorkbook workbook = application.Workbooks.Create(1);
                 IWorksheet sheet = workbook.Worksheets[0];
-             
+
                 sheet.Name = "Increment Report";
 
                 DataTable dtEmployeeData = _sqlRepository.GetDataTable(sql);
 
                 clsOTCalculation otc = new clsOTCalculation();
 
-                otc.LoadSalaryStructureNew(identity.PlantId, FromDate, ToDate,"Gross", out DataSet dsNewGrossSStructure);
+                otc.LoadSalaryStructureNew(identity.PlantId, FromDate, ToDate, "Gross", out DataSet dsNewGrossSStructure);
                 Dictionary<string, DataRow> dicNewGross = Cluster(dsNewGrossSStructure, "Gross");
 
                 otc.LoadSalaryStructureNew(identity.PlantId, FromDate, ToDate, "Basic", out DataSet dsNewBasicSStructure);
-                Dictionary<string, DataRow> dicNewBasic= Cluster(dsNewBasicSStructure, "Basic");
+                Dictionary<string, DataRow> dicNewBasic = Cluster(dsNewBasicSStructure, "Basic");
 
 
                 otc.LoadSalaryStructureOld(identity.PlantId, FromDate, ToDate, "Gross", out DataSet dsOldGrossSStructure);
                 Dictionary<string, DataRow> dicOldGross = Cluster(dsOldGrossSStructure, "Gross");
 
                 otc.LoadSalaryStructureOld(identity.PlantId, FromDate, ToDate, "Basic", out DataSet dsOldBasicSStructure);
-                 Dictionary<string, DataRow> dicOldBasic = Cluster(dsOldBasicSStructure, "Basic");
+                Dictionary<string, DataRow> dicOldBasic = Cluster(dsOldBasicSStructure, "Basic");
 
                 int ROW = 6;
-                int COL = 1;        
+                int COL = 1;
 
                 sheet[ROW, COL].Text = "Sl.No";
                 sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -158,7 +157,7 @@ namespace Library.HumanResource.Payroll.IncrementReport
                 COL++;
                 sheet[ROW, COL].Text = "New Grade";
                 sheet[ROW, COL].ColumnWidth = 15;
-                int colNewGrade = COL;               
+                int colNewGrade = COL;
 
                 COL++;
                 sheet[ROW, COL].Text = "Old Effective Date";
@@ -175,15 +174,15 @@ namespace Library.HumanResource.Payroll.IncrementReport
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colOldBasic = COL;
                 COL++;
-                sheet[ROW, COL].Text = "New Effective Date";               
+                sheet[ROW, COL].Text = "New Effective Date";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colNewEffectiveDate = COL;
                 COL++;
                 sheet[ROW, COL].Text = "New Gross";
                 sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet[ROW, COL].ColumnWidth = 10;
-                int colNewGross = COL;                
-                
+                int colNewGross = COL;
+
                 COL++;
                 sheet[ROW, COL].Text = "New Basic";
                 sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -206,7 +205,23 @@ namespace Library.HumanResource.Payroll.IncrementReport
                 int StartRow = ROW; //row 20
                 for (int i = 0; i < dtEmployeeData.Rows.Count; i++)
                 {
+                    //string NewEffectivedate = "";
+                    //string OldEffectivedate = "";
+                    //if (dicOldGross.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))
+                    //{
+                    //    DataRow dr = dicOldGross[dtEmployeeData.Rows[i]["SystemId"].ToString()];
+                    //    OldEffectivedate = Convert.ToDateTime(dr["EffectiveDate"].ToString()).ToString("dd-MMM-yyyy");
+                    //}
+                    //if (dicNewGross.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))
+                    //{
+                    //    DataRow dr = dicNewGross[dtEmployeeData.Rows[i]["SystemId"].ToString()];
+                    //    NewEffectivedate = Convert.ToDateTime(dr["EffectiveDate"].ToString()).ToString("dd-MMM-yyyy");
+                    //}
 
+                    //if (OldEffectivedate)
+                    //{
+
+                    //}
 
                     sheet[ROW, colSlNo].Number = (i + 1);
 
@@ -220,23 +235,25 @@ namespace Library.HumanResource.Payroll.IncrementReport
                     sheet[ROW, colSubsection].Text = dtEmployeeData.Rows[i]["Subsection"].ToString();
                     sheet[ROW, colNewGrade].Text = dtEmployeeData.Rows[i]["Grade"].ToString();
 
-                    sheet[ROW, colTotalIncrementAmount].Formula = clsStaticInfo.GetxlsCol(colNewGross)+ ROW.ToString()+"-"+clsStaticInfo.GetxlsCol(colOldGross)+ROW.ToString();
-                    sheet[ROW, colTotalIncrementAmount].NumberFormat= "#,##0.00;(#,##0.00)";
+                    sheet[ROW, colTotalIncrementAmount].Formula = "If(" + clsStaticInfo.GetxlsCol(colOldGross) + ROW.ToString() + "<>0," + clsStaticInfo.GetxlsCol(colNewGross) + ROW.ToString() + "-" + clsStaticInfo.GetxlsCol(colOldGross) + ROW.ToString() + ",0)";
+                    sheet[ROW, colTotalIncrementAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
                     if (dicNewGross.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))
-                    {                        
+                    {
                         DataRow dr = dicNewGross[dtEmployeeData.Rows[i]["SystemId"].ToString()];
                         sheet[ROW, colNewGross].Number = clsStaticInfo.dbl(dr["Amount"].ToString());
                         sheet[ROW, colNewGross].NumberFormat = "#,##0.00;(#,##0.00)";
 
                         sheet[ROW, colOldLegalDesignation].Text = dr["OldLegalDesignation"].ToString();
                         sheet[ROW, colOldGrade].Text = dr["OldGradeCode"].ToString();
-                        sheet[ROW, colNewEffectiveDate].Text =Convert.ToDateTime( dr["EffectiveDate"].ToString()).ToString("dd-MMM-yyyy");
+                        sheet[ROW, colNewEffectiveDate].Text = Convert.ToDateTime(dr["EffectiveDate"].ToString()).ToString("dd-MMM-yyyy");
 
                     }
-                    
+
                     if (dicNewBasic.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))
                     {
-                        
+
                         DataRow dr = dicNewBasic[dtEmployeeData.Rows[i]["SystemId"].ToString()];
                         sheet[ROW, colNewBasic].Number = clsStaticInfo.dbl(dr["Amount"].ToString());
                         sheet[ROW, colNewBasic].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -244,22 +261,20 @@ namespace Library.HumanResource.Payroll.IncrementReport
                     }
 
                     if (dicOldGross.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))
-
                     {
                         DataRow dr = dicOldGross[dtEmployeeData.Rows[i]["SystemId"].ToString()];
                         sheet[ROW, colOldGross].Number = clsStaticInfo.dbl(dr["Amount"].ToString());
                         sheet[ROW, colOldGross].NumberFormat = "#,##0.00;(#,##0.00)";
-
                         sheet[ROW, colOldEffectiveDate].Text = Convert.ToDateTime(dr["EffectiveDate"].ToString()).ToString("dd-MMM-yyyy");
 
                     }
 
 
-                    if(dicOldBasic.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))
+                    if (dicOldBasic.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))
                     {
                         DataRow dr = dicOldBasic[dtEmployeeData.Rows[i]["SystemId"].ToString()];
                         sheet[ROW, colOldBasic].Number = clsStaticInfo.dbl(dr["Amount"].ToString());
-                        sheet[ROW, colOldBasic].NumberFormat="#,##0.00;(#,##0.00)";
+                        sheet[ROW, colOldBasic].NumberFormat = "#,##0.00;(#,##0.00)";
                     }
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -274,7 +289,7 @@ namespace Library.HumanResource.Payroll.IncrementReport
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
 
-                sheet["A"+StartRow.ToString()].FreezePanes();
+                sheet["A" + StartRow.ToString()].FreezePanes();
 
                 sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
                 sheet.Range[StartRow, colSlNo, ROW, colSlNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
