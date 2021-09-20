@@ -258,6 +258,17 @@ namespace Library.Service.Extension.Accounts
 
             return bankTemp;
         }
+        public Dictionary<string, object> GetCashMaster(string cashMasterId)
+        {
+
+            var sql = @"SELECT TOP(1) * FROM [MST].[CashMaster]  
+                        WHERE Id='" + cashMasterId + "'";
+            var cashTemp = _sqlRepository.GetData(sql);
+            if (null == cashTemp || cashTemp.Count == 0)
+                throw new CustomException("Cash Master  not Found!");
+
+            return cashTemp;
+        }
 
         public Dictionary<string, object> GetMaterialHSNCodeId(string materialMasterId)
         {
@@ -276,5 +287,80 @@ namespace Library.Service.Extension.Accounts
             where P.Id= '" + partyId + "'";
             return _sqlRepository.GetData(cmdText);
         }
+
+        public Dictionary<string, object> GetPartyByCompany(string companyGroupId, string companyId)
+        {
+            var sql = @"select TOP(1) Id from hkp.Party where CompanyGroupId='"+ companyGroupId + @"' and CompanyId='"+ companyId + "'";
+            var partyTemp = _sqlRepository.GetData(sql);
+            if (null == sql || partyTemp.Count==0)
+                throw new CustomException("This Company is not created as InterCompany Party.");
+            return partyTemp;
+        }
+
+        public Dictionary<string, object> GetPartyPlantByPlant(string partyId, string plantId)
+        {
+            var sql = @"select TOP(1) Id from hkp.PartyPlant where PlantId='" + plantId + @"' and PartyId='" + partyId + "'";
+            var partyPlantTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || partyPlantTemp.Count==0)
+                throw new CustomException("This Company is not created as InterCompany Party Plant.");
+            return partyPlantTemp;
+        }
+
+        public Dictionary<string, object> GetCompanyParty(string companyId, string plantId,string partyId,string partyType)
+        {
+            var sql = @"select TOP(1) * from hkp.CompanyParty where CompanyId='"+ companyId + "' PlantId='" + plantId + "' and PartyId='" + partyId + "' and PartyType='"+ partyType + @"'";
+            var partyPlantTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || partyPlantTemp.Count == 0)
+                throw new CustomException("Plant party mapping not found.");
+            return partyPlantTemp;
+        }
+
+        public Dictionary<string, object> GetCompanyPartyGL(string partyId,string companyPartyId,string partyGLType)
+        {
+            var sql = @"select TOP(1) * from hkp.CompanyPartyGL where PartyId='" + partyId + "' CompanyPartyId='" + companyPartyId + "'  and PartyGLType='" + partyGLType + @"'";
+            var partyPlantTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || partyPlantTemp.Count == 0)
+                throw new CustomException("Party DownPayment GL not found!.");
+            return partyPlantTemp;
+        }
+
+        public Dictionary<string, object> GetFinancingTypeGL(string companyId, string financingTypeId)
+        {
+            var sql = @"SELECT TOP(1) FTGL.* FROM [HKP].[FinancingTypeGL] AS FTGL
+                        INNER JOIN [ORG].[Company] AS C ON C.COAId=FTGL.COAId
+                        WHERE C.Id='" + companyId + "' AND FTGL.FinancingTypeId='" + financingTypeId + "'";
+            var glTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || glTemp.Count == 0)
+                throw new CustomException("This Transaction Type GL not Found!.");
+            return glTemp;
+        }
+        public Dictionary<string, object> GetExchangeGainGL(FinancingTypeEnum sourceType)
+        {
+            var st = sourceType.ToString();
+            var sql = @"SELECT TOP(1) * FROM SCS.ExchangeGainLossGL 
+                        WHERE  SourceType='" + st + "' and ExchangeStatus='ExchangeGain'";
+            var gainTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || gainTemp.Count == 0)
+                throw new CustomException("Exchange Gain GL not found!.");
+            return gainTemp;
+        }
+
+        public Dictionary<string, object> GetExchangeLossGL(FinancingTypeEnum sourceType)
+        {
+            var st = sourceType.ToString();
+            var sql = @"SELECT TOP(1) * FROM SCS.ExchangeGainLossGL 
+                        WHERE  SourceType='" + st + "' and ExchangeStatus='ExchangeLoss'";
+            var gainTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || gainTemp.Count == 0)
+                throw new CustomException("Exchange Loss GL not found!.");
+            return gainTemp;
+        }
+
     }
 }
