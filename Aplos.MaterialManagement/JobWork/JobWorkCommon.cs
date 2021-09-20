@@ -3331,7 +3331,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 {
                     dataBoq = data;
                     detailBoq = data;
-                    data = MakePodetail(data);
+                    if(data[0]["BOQId"] != null)
+                    {
+                        data = MakePodetail(data);
+                    }
+                    
                     //dataBoq = new List<Dictionary<string, object>>(data);
                     #region Validation
 
