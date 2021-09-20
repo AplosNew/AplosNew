@@ -13,18 +13,14 @@ using Library.Model.Parties;
 using Library.Model.Payments;
 using Library.Model.Vouchers;
 using Library.Service.Banks;
-using Library.Service.Calendars;
 using Library.Service.Core;
-using Library.Service.Currencies;
 using Library.Service.Employees;
 using Library.Service.Enums;
-using Library.Service.Finances;
+using Library.Service.Extension.Accounts;
 using Library.Service.Invoices;
 using Library.Service.Logs;
-using Library.Service.Parties;
 using Library.Service.Properties;
 using Library.Service.Systems;
-using Library.Service.Taxations;
 using Library.Service.Vouchers;
 using Library.ViewModel.Vouchers;
 using System;
@@ -43,25 +39,16 @@ namespace Library.Service.Advances
         private readonly ISqlRepository _sqlRepository;
         private readonly IAdvanceService _advanceService;
         private readonly IVoucherService _voucherService;
-        private readonly ICompanyTaxYearService _companyTaxYearService;
-        private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
-        private readonly ICompanyFiscalYearService _companyFiscalYearService;
         private readonly IEmployeePayableWriteOffService _employeePayableWriteOffService;
         private readonly IInvoiceService _invoiceService;
         private readonly IInvoiceWriteOffService _invoiceWriteOffService;
         private readonly IPKGeneratorService _pKGeneratorService;
         private readonly IEmployeePayableService _employeePayableService;
-        private readonly IRepositoryAsync<BankMaster> _bankMasterRepository;
-        private readonly IRepositoryAsync<CashMaster> _cashMasterRepository;
         private readonly IRepositoryAsync<Advance> _advanceRepository;
         private readonly IRepositoryAsync<AdvanceDetail> _advanceDetailRepository;
         private readonly IRepositoryAsync<AdvanceWriteOff> _advanceWriteOffRepository;
         private readonly IRepositoryAsync<AdvanceWriteOffDetail> _advanceWriteOffDetailRepository;
         private readonly IRepositoryAsync<InvoiceWriteOffDetail> _invoiceWriteOffDetailRepository;
-        private readonly IExchangeGainLossService _exchangeGainLossService;
-        private readonly IPartyService _partyService;
-        private readonly IRepositoryAsync<CompanyParty> _companyPartyRepository;
-        private readonly IRepositoryAsync<CompanyPartyGL> _companyPartyGLRepository;
         private readonly IRepositoryAsync<EmployeePayable> _employeePayableRepository;
         private readonly IRepositoryAsync<EmployeePayableDetail> _employeePayableDetailRepository;
         private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
@@ -70,34 +57,24 @@ namespace Library.Service.Advances
         private readonly IRepositoryAsync<VoucherDetail> _voucherDetailRepository;
         private readonly IRepositoryAsync<VoucherDetailCurrency> _voucherDetailCurrencyRepository;
         private readonly IBankChargeService _bankChargeService;
-        private readonly IFinancingTypeGLService _financingTypeGLService;
         private readonly IInvoiceTaxService _invoiceTaxService;
         private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
+        private readonly IRepositoryAsync<InvoiceDetail> _invoiceDetailRepository;
 
         public AdvanceWriteOffService(
               IRepositoryAsync<AdvanceWriteOff> advanceWriteOffRepository
             , IUnitOfWork unitOfWork
             , IPKGeneratorService pkGeneratorService
             , ISqlRepository sqlRepository
-            , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IRepositoryAsync<AdvanceWriteOffDetail> advanceWriteOffDetailRepository
             , IRepositoryAsync<InvoiceWriteOffDetail> invoiceWriteOffDetailRepository
-            , ICompanyTaxYearService companyTaxYearService
             , IAdvanceService advanceService
             , IVoucherService voucherService
             , IInvoiceService invoiceService
             , IInvoiceWriteOffService invoiceWriteOffService
             , IEmployeePayableWriteOffService employeePayableWriteOffService
-            , ICompanyFiscalYearService companyFiscalYearService
             , IEmployeePayableService employeePayableService
-            , IRepositoryAsync<BankMaster> bankMasterRepository
-            , IRepositoryAsync<CashMaster> cashMasterRepository
-            , IExchangeGainLossService exchangeGainLossService
-            , IPartyService partyService
-            , IRepositoryAsync<CompanyParty> companyPartyRepository
-            , IRepositoryAsync<CompanyPartyGL> companyPartyGLRepository
             , IBankChargeService bankChargeService
-            , IFinancingTypeGLService financingTypeGLService
             , IInvoiceTaxService invoiceTaxService
             , IRepositoryAsync<InvoiceTax> invoiceTaxRepository
             , IRepositoryAsync<Voucher> voucherRepository
@@ -109,6 +86,7 @@ namespace Library.Service.Advances
             , IRepositoryAsync<Advance> advanceRepository
             , IRepositoryAsync<AdvanceDetail> advanceDetailRepository
             , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
+            , IRepositoryAsync<InvoiceDetail> invoiceDetailRepository
             ) : base(advanceWriteOffRepository, unitOfWork, pkGeneratorService)
         {
             _advanceWriteOffDetailRepository = advanceWriteOffDetailRepository;
@@ -117,23 +95,13 @@ namespace Library.Service.Advances
             _sqlRepository = sqlRepository;
             _unitOfWork = unitOfWork;
             _pKGeneratorService = pkGeneratorService;
-            _companyParallelCurrencyService = companyParallelCurrencyService;
             _advanceWriteOffRepository = advanceWriteOffRepository;
-            _companyTaxYearService = companyTaxYearService;
             _voucherService = voucherService;
             _invoiceService = invoiceService;
             _invoiceWriteOffService = invoiceWriteOffService;
             _employeePayableWriteOffService = employeePayableWriteOffService;
-            _companyFiscalYearService = companyFiscalYearService;
             _employeePayableService = employeePayableService;
-            _bankMasterRepository = bankMasterRepository;
-            _cashMasterRepository = cashMasterRepository;
-            _exchangeGainLossService = exchangeGainLossService;
-            _partyService = partyService;
-            _companyPartyRepository = companyPartyRepository;
-            _companyPartyGLRepository = companyPartyGLRepository;
             _bankChargeService = bankChargeService;
-            _financingTypeGLService = financingTypeGLService;
             _invoiceTaxService = invoiceTaxService;
             _invoiceTaxRepository = invoiceTaxRepository;
             _voucherRepository = voucherRepository;
@@ -145,6 +113,7 @@ namespace Library.Service.Advances
             _advanceRepository = advanceRepository;
             _advanceDetailRepository = advanceDetailRepository;
             _employeeSubsequentTransactionRepository = employeeSubsequentTransactionRepository;
+            _invoiceDetailRepository = invoiceDetailRepository;
         }
 
         #endregion Constructor
@@ -254,10 +223,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode, out string companyGroupCurrencyId, out string companyGroupCurrencyCode, out string hardCurrencyId, out string hardCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
-
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
@@ -449,12 +419,12 @@ namespace Library.Service.Advances
 
                         if (voucherDetailVM.ExchangeType == "ExchangeGain")
                         {
-                            var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                            var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                             var voucherDetailGain = new VoucherDetail
                             {
-                                GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = gainGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 PartyType = voucherDetailVM.ExchangeType
                             };
@@ -473,12 +443,12 @@ namespace Library.Service.Advances
                         }
                         else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                         {
-                            var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                            var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                             var voucherDetailLoss = new VoucherDetail
                             {
-                                GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = lossGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 PartyType = voucherDetailVM.ExchangeType
                             };
@@ -504,14 +474,14 @@ namespace Library.Service.Advances
                     if (voucherVM.PaymentSource == PaymentSource.Cash.ToString() && string.IsNullOrEmpty(voucherVM.CashMasterId))
                         throw new CustomException("Cash Id is null!");
 
-                    var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
+                    var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
 
                     // INSERT INTO VoucherDetail
                     var voucherDetailCr = new VoucherDetail
                     {
-                        GLGeneralInfoId = bankMaster.GLGeneralInfoId,
-                        BudgetMasterId = bankMaster.BudgetMasterId,
-                        ActivityId = bankMaster.ActivityId,
+                        GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString(),
+                        BudgetMasterId = bankMaster["BudgetMasterId"].ToString(),
+                        ActivityId = bankMaster["ActivityId"].ToString(),
                         EntityId = voucherVM.EntityId,
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
@@ -563,12 +533,12 @@ namespace Library.Service.Advances
 
                     if (voucherVM.CompanyCurrencyRate > advance.CompanyCurrencyRate)
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                         var voucherDetailGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId
                         };
                         currentVoucherDetailId++;
@@ -586,12 +556,12 @@ namespace Library.Service.Advances
                     }
                     else if (voucherVM.CompanyCurrencyRate < advance.CompanyCurrencyRate)
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                         var voucherDetailLoss = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId
                         };
                         currentVoucherDetailId++;
@@ -636,10 +606,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
-
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
@@ -836,12 +807,12 @@ namespace Library.Service.Advances
 
                         if (voucherDetailVM.ExchangeType == "ExchangeGain")
                         {
-                            var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                            var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                             var voucherDetailGain = new VoucherDetail
                             {
-                                GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = gainGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 PartyType = voucherDetailVM.ExchangeType
                             };
@@ -860,12 +831,12 @@ namespace Library.Service.Advances
                         }
                         else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                         {
-                            var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                            var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                             var voucherDetailLoss = new VoucherDetail
                             {
-                                GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = lossGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 PartyType = voucherDetailVM.ExchangeType
                             };
@@ -891,14 +862,14 @@ namespace Library.Service.Advances
                     if (voucherVM.PaymentSource == PaymentSource.Cash.ToString() && string.IsNullOrEmpty(voucherVM.CashMasterId))
                         throw new CustomException("Cash Id is null!");
 
-                    var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
+                    var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
 
                     // INSERT INTO VoucherDetail
                     var voucherDetailCr = new VoucherDetail
                     {
-                        GLGeneralInfoId = bankMaster.GLGeneralInfoId,
-                        BudgetMasterId = bankMaster.BudgetMasterId,
-                        ActivityId = bankMaster.ActivityId,
+                        GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString(),
+                        BudgetMasterId = bankMaster["BudgetMasterId"].ToString(),
+                        ActivityId = bankMaster["ActivityId"].ToString(),
                         EntityId = voucherVM.EntityId,
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
@@ -950,12 +921,12 @@ namespace Library.Service.Advances
 
                     if (voucherVM.CompanyCurrencyRate > voucherVM.OtherCompanyCurrencyRate)
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                         var voucherDetailGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId
                         };
                         currentVoucherDetailId++;
@@ -973,12 +944,12 @@ namespace Library.Service.Advances
                     }
                     else if (voucherVM.CompanyCurrencyRate < voucherVM.OtherCompanyCurrencyRate)
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                         var voucherDetailLoss = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId
                         };
                         currentVoucherDetailId++;
@@ -1002,8 +973,8 @@ namespace Library.Service.Advances
                     if (string.IsNullOrEmpty(voucherVM.InterPlantId))
                         throw new CustomException("Inter Company Plant Id is null!");
 
-                    var party = _partyService.GetPartyByCompany(advanceWriteOff.CompanyGroupId, voucherVM.InterCompanyId);
-                    var partyPlant = _partyService.GetPartyPlantByPlant(party.Id, voucherVM.InterPlantId);
+                    var party = _accountsCommonService.GetPartyByCompany(advanceWriteOff.CompanyGroupId, voucherVM.InterCompanyId);
+                    var partyPlant = _accountsCommonService.GetPartyPlantByPlant(party["Id"].ToString(), voucherVM.InterPlantId);
 
                     var interAdvance = _advanceService.InsertAdvance(new Advance
                     {
@@ -1031,31 +1002,18 @@ namespace Library.Service.Advances
                         VoucherDate = DateTime.Now,
                         VoucherTypeId = advanceWriteOff.VoucherTypeId,
                         VoucherId = advanceWriteOff.VoucherId,
-                        PartyId = party.Id,
-                        PartyPlantId = partyPlant.Id
+                        PartyId = party["Id"].ToString(),
+                        PartyPlantId = partyPlant["Id"].ToString()
                     });
 
-                    var financingTypeGL = _financingTypeGLService.GetFinancingTypeGL(voucherVM.CompanyId, voucherVM.FinancingTypeId);
-                    if (null == financingTypeGL)
-                        throw new CustomException("Transaction Type GL  not found!");
-
-                    //var companyParty = _companyPartyRepository.Query(r => r.CompanyId == interAdvance.CompanyId && r.PlantId == interAdvance.PlantId && r.PartyId == interAdvance.PartyId && r.PartyType == interAdvance.PartyType).Select().FirstOrDefault();
-                    //if (null == companyParty)
-                    //    throw new CustomException("Plant party mapping not found!");
-                    //var companyPartyGLList = _companyPartyGLRepository.Query(r => r.PartyId == companyParty.PartyId && r.CompanyPartyId == companyParty.Id).Select().ToList();
-                    //if (null == companyPartyGLList)
-                    //    throw new CustomException("Party GL not found!");
-
-                    //var reconGL = PartyGLType.ReconciliationGL.ToString();
-                    //var regularGL = companyPartyGLList.FirstOrDefault(r => r.PartyGLType == reconGL);
-                    //if (null == regularGL)
-                    //    throw new CustomException("Party Reconciliation GL not found!");
+                    var financingTypeGL = _accountsCommonService.GetFinancingTypeGL(voucherVM.CompanyId, voucherVM.FinancingTypeId);
+                   
 
                     var interAdvanceDetail = _advanceService.InsertAdvanceDetail(interAdvance, new AdvanceDetail
                     {
-                        GLGeneralInfoId = financingTypeGL.LiabilityGLId,
-                        BudgetMasterId = financingTypeGL.LiabilityBudgetMasterId,
-                        ActivityId = financingTypeGL.LiabilityActivityId,
+                        GLGeneralInfoId = financingTypeGL["LiabilityGLId"].ToString(),
+                        BudgetMasterId = financingTypeGL["LiabilityBudgetMasterId"].ToString(),
+                        ActivityId = financingTypeGL["LiabilityActivityId"].ToString(),
                         CompanyId = voucherVM.InterCompanyId,
                         PlantId = voucherVM.InterPlantId,
                         PartyType = PartyType.Company.ToString(),
@@ -1126,23 +1084,15 @@ namespace Library.Service.Advances
                         PartyPlantId = advanceWriteOff.PartyPlantId
                     });
 
-                    var companyParty = _companyPartyRepository.Query(r => r.CompanyId == interAdvance.CompanyId && r.PlantId == interAdvance.PlantId && r.PartyId == interAdvance.PartyId && r.PartyType == interAdvance.PartyType).Select().FirstOrDefault();
-                    if (null == companyParty)
-                        throw new CustomException("Plant party mapping not found!");
-                    var companyPartyGLList = _companyPartyGLRepository.Query(r => r.PartyId == companyParty.PartyId && r.CompanyPartyId == companyParty.Id).Select().ToList();
-                    if (null == companyPartyGLList)
-                        throw new CustomException("Party GL not found!");
-
-                    var downGL = PartyGLType.DownPaymentGL.ToString();
-                    var advanceGL = companyPartyGLList.FirstOrDefault(r => r.PartyGLType == downGL);
-                    if (null == advanceGL)
-                        throw new CustomException("Party DownPayment GL not found!");
-
+                    var companyParty = _accountsCommonService.GetCompanyParty(interAdvance.CompanyId,interAdvance.PlantId,interAdvance.PartyId,interAdvance.PartyType);
+                    var companyPartyGLList = _accountsCommonService.GetCompanyPartyGL(companyParty["PartyId"].ToString(),companyParty["Id"].ToString(), PartyGLType.DownPaymentGL.ToString());
+                   
+                  
                     var interAdvanceDetail = _advanceService.InsertAdvanceDetail(interAdvance, new AdvanceDetail
                     {
-                        GLGeneralInfoId = advanceGL.GLGeneralInfoId,
-                        BudgetMasterId = advanceGL.BudgetMasterId,
-                        ActivityId = advanceGL.ActivityId,
+                        GLGeneralInfoId = companyPartyGLList["GLGeneralInfoId"].ToString(),
+                        BudgetMasterId = companyPartyGLList["BudgetMasterId"].ToString(),
+                        ActivityId = companyPartyGLList["ActivityId"].ToString(),
                         CompanyId = interAdvance.CompanyId,
                         PlantId = interAdvance.PlantId,
                         PartyType = PartyType.Customer.ToString(),
@@ -1261,9 +1211,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1421,12 +1373,12 @@ namespace Library.Service.Advances
 
                     if (voucherDetailVM.ExchangeType == "ExchangeGain")
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                         var voucherDetailGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             PartyType = voucherDetailVM.ExchangeType
                         };
@@ -1445,12 +1397,12 @@ namespace Library.Service.Advances
                     }
                     else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                         var voucherDetailLoss = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             PartyType = voucherDetailVM.ExchangeType
                         };
@@ -1499,9 +1451,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1671,12 +1625,12 @@ namespace Library.Service.Advances
 
                     if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
                         var voucherDtEx = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -1699,12 +1653,12 @@ namespace Library.Service.Advances
 
                     if (voucherDetailVM.ExchangeType == "ExchangeGain" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
                         var voucherDtExGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -1767,10 +1721,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
-
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 // INSERT INTO AdvanceWriteOff
@@ -2036,18 +1991,18 @@ namespace Library.Service.Advances
                     // INSRT INTO GLTransactionDetail
                     if (voucherVM.PaymentSource == PaymentSource.Bank.ToString())
                     {
-                        var bankMaster = _bankMasterRepository.Find(voucherDetailCr.BankMasterId);
-                        voucherDetailCr.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
-                        voucherDetailCr.BudgetMasterId = bankMaster.BudgetMasterId;
-                        voucherDetailCr.ActivityId = bankMaster.ActivityId;
+                        var bankMaster = _accountsCommonService.GetBankMaster(voucherDetailCr.BankMasterId);
+                        voucherDetailCr.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailCr.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                        voucherDetailCr.ActivityId = bankMaster["ActivityId"].ToString();
                         voucherDetailCr.PartyType = PartyType.Bank.ToString();
                     }
                     else if (voucherVM.PaymentSource == PaymentSource.Cash.ToString())
                     {
-                        var cashMaster = _cashMasterRepository.Find(voucherDetailCr.CashMasterId);
-                        voucherDetailCr.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
-                        voucherDetailCr.BudgetMasterId = cashMaster.BudgetMasterId;
-                        voucherDetailCr.ActivityId = cashMaster.ActivityId;
+                        var cashMaster = _accountsCommonService.GetCashMaster(voucherDetailCr.CashMasterId);
+                        voucherDetailCr.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailCr.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                        voucherDetailCr.ActivityId = cashMaster["ActivityId"].ToString();
                         voucherDetailCr.PartyType = PartyType.Cash.ToString();
                     }
 
@@ -2100,10 +2055,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
-
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 // INSERT INTO AdvanceWriteOff
@@ -2328,18 +2284,18 @@ namespace Library.Service.Advances
                     // INSRT INTO GLTransactionDetail
                     if (voucherVM.PaymentSource == PaymentSource.Bank.ToString())
                     {
-                        var bankMaster = _bankMasterRepository.Find(voucherDetailCr.BankMasterId);
-                        voucherDetailCr.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
-                        voucherDetailCr.BudgetMasterId = bankMaster.BudgetMasterId;
-                        voucherDetailCr.ActivityId = bankMaster.ActivityId;
+                        var bankMaster = _accountsCommonService.GetBankMaster(voucherDetailCr.BankMasterId);
+                        voucherDetailCr.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailCr.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                        voucherDetailCr.ActivityId = bankMaster["ActivityId"].ToString();
                         voucherDetailCr.PartyType = PartyType.Bank.ToString();
                     }
                     else if (voucherVM.PaymentSource == PaymentSource.Cash.ToString())
                     {
-                        var cashMaster = _cashMasterRepository.Find(voucherDetailCr.CashMasterId);
-                        voucherDetailCr.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
-                        voucherDetailCr.BudgetMasterId = cashMaster.BudgetMasterId;
-                        voucherDetailCr.ActivityId = cashMaster.ActivityId;
+                        var cashMaster = _accountsCommonService.GetCashMaster(voucherDetailCr.CashMasterId);
+                        voucherDetailCr.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailCr.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                        voucherDetailCr.ActivityId = cashMaster["ActivityId"].ToString();
                         voucherDetailCr.PartyType = PartyType.Cash.ToString();
                     }
 
@@ -2522,10 +2478,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
-
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
@@ -2707,9 +2664,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -2926,15 +2885,115 @@ namespace Library.Service.Advances
             }
         }
 
+        public void DeleteVendorInvoiceCharge(string invoiceWriteOffId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherRepository.Find(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var invoicewriteOff = _invoiceWriteOffService.Find(invoiceWriteOffId);
+                var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
+                var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+                }
+                
+                foreach (var item in voucherdetail)
+                {
+                    
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE Id='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    _voucherDetailRepository.Delete(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var invoicetaxDdetail = _invoiceTaxDetailRepository.Query(r => r.InvoiceTaxId == item.Id).Select().ToList();
+                        foreach (var item1 in invoicetaxDdetail)
+                        {
+                            _invoiceTaxDetailRepository.Delete(item1.Id);
+                        }
+                        _invoiceTaxRepository.Delete(item.Id);
+                    }
+                }
+
+                foreach (var item in invoiceWriteOffDetail)
+                {
+
+                    var invoice = _invoiceService.Find(item.InvoiceId);
+                    var invoiceDetail = _invoiceDetailRepository.Find(item.InvoiceDetailId);
+                    invoiceDetail.WrittenOffAmount -= item.Amount;
+                    invoice.WrittenOffAmount -= item.Amount;
+                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+                    _invoiceDetailRepository.Update(invoiceDetail);
+                    _invoiceService.Update(invoice);
+                    _invoiceWriteOffDetailRepository.Delete(item.Id);
+                }
+
+
+                var rdBuilderbc = new System.Text.StringBuilder();
+                var builderbcSql = @"Delete [TRN].BankCharge  WHERE InvoiceWriteOffId='" + invoiceWriteOffId + "'";
+                rdBuilderbc.Append(builderbcSql);
+                _sqlRepository.ExecuteSqlCommand(rdBuilderbc.ToString());
+
+                _invoiceWriteOffService.Delete(invoiceWriteOffId);
+                _voucherRepository.Delete(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
 
         public string InsertEmployeeSalaryPayable(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -3356,9 +3415,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode, out string companyGroupCurrencyId, out string companyGroupCurrencyCode, out string hardCurrencyId, out string hardCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -3569,12 +3630,12 @@ namespace Library.Service.Advances
 
                             if (voucherDetailVM.ExchangeType == "ExchangeGain")
                             {
-                                var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                                var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailGain = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = gainGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -3593,12 +3654,12 @@ namespace Library.Service.Advances
                             }
                             else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                             {
-                                var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                                var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailLoss = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = lossGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -3715,12 +3776,12 @@ namespace Library.Service.Advances
 
                             if (voucherDetailVM.ExchangeType == "ExchangeGain")
                             {
-                                var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                                var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailGain = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = gainGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -3739,12 +3800,12 @@ namespace Library.Service.Advances
                             }
                             else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                             {
-                                var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                                var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailLoss = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = lossGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -3794,9 +3855,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode, out string companyGroupCurrencyId, out string companyGroupCurrencyCode, out string hardCurrencyId, out string hardCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -4007,12 +4070,12 @@ namespace Library.Service.Advances
 
                             if (voucherDetailVM.ExchangeType == "ExchangeGain")
                             {
-                                var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                                var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailGain = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = gainGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -4031,12 +4094,12 @@ namespace Library.Service.Advances
                             }
                             else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                             {
-                                var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                                var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailLoss = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = lossGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -4153,12 +4216,12 @@ namespace Library.Service.Advances
 
                             if (voucherDetailVM.ExchangeType == "ExchangeGain")
                             {
-                                var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                                var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailGain = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = gainGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -4177,12 +4240,12 @@ namespace Library.Service.Advances
                             }
                             else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                             {
-                                var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                                var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailLoss = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = lossGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -4230,9 +4293,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode, out string companyGroupCurrencyId, out string companyGroupCurrencyCode, out string hardCurrencyId, out string hardCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -4440,12 +4505,12 @@ namespace Library.Service.Advances
 
                             if (voucherDetailVM.ExchangeType == "ExchangeGain")
                             {
-                                var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                                var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailGain = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = gainGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -4464,12 +4529,12 @@ namespace Library.Service.Advances
                             }
                             else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                             {
-                                var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                                var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailLoss = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = lossGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -4586,12 +4651,12 @@ namespace Library.Service.Advances
 
                             if (voucherDetailVM.ExchangeType == "ExchangeGain")
                             {
-                                var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                                var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailGain = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = gainGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -4610,12 +4675,12 @@ namespace Library.Service.Advances
                             }
                             else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                             {
-                                var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                                var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailLoss = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = lossGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -4665,9 +4730,11 @@ namespace Library.Service.Advances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode, out string companyGroupCurrencyId, out string companyGroupCurrencyCode, out string hardCurrencyId, out string hardCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -4877,12 +4944,12 @@ namespace Library.Service.Advances
 
                             if (voucherDetailVM.ExchangeType == "ExchangeGain")
                             {
-                                var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                                var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailGain = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = gainGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -4901,12 +4968,12 @@ namespace Library.Service.Advances
                             }
                             else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                             {
-                                var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                                var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailLoss = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = lossGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -5023,12 +5090,12 @@ namespace Library.Service.Advances
 
                             if (voucherDetailVM.ExchangeType == "ExchangeGain")
                             {
-                                var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                                var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailGain = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = gainGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };
@@ -5047,12 +5114,12 @@ namespace Library.Service.Advances
                             }
                             else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                             {
-                                var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                                var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                                 var voucherDetailLoss = new VoucherDetail
                                 {
-                                    GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                    BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                    ActivityId = lossGL.CompanyCurrencyActivityId,
+                                    GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                    BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                    ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                     CurrencyId = voucher.CurrencyId,
                                     PartyType = voucherDetailVM.ExchangeType
                                 };

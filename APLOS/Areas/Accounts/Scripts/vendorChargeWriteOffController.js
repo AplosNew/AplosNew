@@ -69,6 +69,7 @@ function vendorChargeWriteOffController(bankService, cboService, commonMessage, 
         VoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: null,
+        InvoicePostingDate: null,
         DocDate: null,
         DocRefNo: null,
         FiscalYearId: null,
@@ -240,6 +241,16 @@ function vendorChargeWriteOffController(bankService, cboService, commonMessage, 
         } else {
             $scope.invalidPostingDate = false;
         }
+
+        
+        if (new Date($scope.advance.InvoicePostingDate) > new Date($scope.advance.PostingDate)) {
+            msg = "Posting date must be below or equal to payable of " + $scope.advance.VoucherNo;
+                $scope.invalidPostingDate = true;
+            }
+            else {
+                $scope.invalidPostingDate = false;
+            }
+
         return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
     };
 
@@ -488,6 +499,7 @@ function vendorChargeWriteOffController(bankService, cboService, commonMessage, 
         $scope.advance.CompanyCurrencyRate = data.CompanyCurrencyRate;
         $scope.advance.EntityId = data.EntityId;
         $scope.advance.CompanyId = data.CompanyId;
+        $scope.advance.InvoicePostingDate = data.PostingDate;
         $scope.advance.PlantId = data.PlantId;
         $scope.advance.InvoiceId = data.InvoiceId;
         $scope.advance.InvoiceDetailId = data.InvoiceDetailId;
@@ -650,7 +662,7 @@ function vendorChargeWriteOffController(bankService, cboService, commonMessage, 
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkPostingDate();
-        if ($scope.form0.$valid && !$scope.validation()) {
+        if ($scope.form0.$valid && !$scope.validation()  && !$scope.invalidPostingDate) {
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
@@ -995,5 +1007,38 @@ function vendorChargeWriteOffController(bankService, cboService, commonMessage, 
 
     $scope.removeRow = function (index) {
         $scope.voucherDetailList.splice(index, 1);
+    };
+    $scope.deleteUrl = $scope.url + "/DeleteVenodrInvoiceCharge";
+    $scope.delete = function (invoiceWriteOffId, voucherId) {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "invoiceWriteOffId": invoiceWriteOffId, "voucherId": voucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.invoiceWriteOffId = null;
+                $scope.voucherId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.invoiceId = null;
+    $scope.confirmDelete = function (invoiceWriteOffId, voucherId) {
+        $scope.invoiceWriteOffId = invoiceWriteOffId;
+        $scope.voucherId = voucherId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
 }

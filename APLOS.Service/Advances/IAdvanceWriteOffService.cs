@@ -47,5 +47,6 @@ namespace Library.Service.Advances
         string InsertPartyAssetAdvanceReconciliation(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> invoiceDetailVMList);
         void PostPartyReconciliation(string voucherId);
         void DeleteCustomerAdvanceWriteOff(string voucherId);
+        void DeleteVendorInvoiceCharge(string invoiceWriteOffId, string voucherId);
     }
 }

@@ -273,9 +273,9 @@ namespace Library.OrderManagement.Packing
 
                 }
 
-                DataSet dsMaster, dsItemScanChild, dsFromDateWiseConsumption, dsDateWiseConsumption, dsFinishGoodsBookingDetail, dsConsumptionByCosting, dsFromConsumptionByCosting, dsProductionSummary, dsInventoryReceive, dsInventoryReceiveDetail;
+                DataSet dsMaster, dsItemScanChild, dsFromDateWiseConsumption, dsConsumptionByCosting, dsFromConsumptionByCosting, dsProductionSummary, dsInventoryReceive, dsInventoryReceiveDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                DataSet dsNewDateWiseConsumption = null;
+              
                 GetDateWiseConsumptionData(data["FromDate"].ToString(), data["ToDate"].ToString(), out dsFromDateWiseConsumption);
                 //GetDateWiseDetailDataData(data["ProductionEntityId"].ToString(), data["FromDate"].ToString(), data["ToDate"].ToString(), out dsFromFinishGoodsBookingDetail);
 
@@ -346,46 +346,7 @@ namespace Library.OrderManagement.Packing
                     dsInventoryReceive.Tables[0].Rows.Add(drInventoryReceive);
                 }
 
-                //for (int K = 0; K < dsFromFinishGoodsBookingDetail.Tables[0].DefaultView.Count; K++)
-                //{
-                //    //InventoryReceive
-                //    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "InventoryReceive", out iID);
-
-                //    dsFromDateWiseConsumption.Tables[0].DefaultView.RowFilter = "WorkDate=#" + Convert.ToDateTime(dsFromFinishGoodsBookingDetail.Tables[0].Rows[K]["WorkDate"].ToString()).ToString("dd-MMM-yyyy") + "#";
-                                        
-
-                //    DataRow drInventoryReceive = dsInventoryReceive.Tables[0].NewRow();
-                //    drInventoryReceive["Id"] = iID;
-                //    drInventoryReceive["CompanyGroupId"] = identity.CompanyGroupId;
-                //    drInventoryReceive["CompanyId"] = identity.CompanyId;
-                //    drInventoryReceive["PlantId"] = identity.PlantId;
-                //    drInventoryReceive["DocRefNo"] = iID;
-                //    drInventoryReceive["CurrencyId"] = data["CurrencyId"];
-                //    drInventoryReceive["MaterialStorageId"] = data["MaterialStorageId"];
-                //    drInventoryReceive["ToCurrencyRate"] = data["ToCurrencyRate"];
-                //    drInventoryReceive["FixedAssetOrInventory"] = "Inventory";
-                //    drInventoryReceive["GRNType"] = "FG";
-                //    drInventoryReceive["EntityId"] = data["ProductionEntityId"].ToString();
-                //    drInventoryReceive["GRNDate"] = dsFromDateWiseConsumption.Tables[0].DefaultView[0].Row["WorkDate"];
-                //    drInventoryReceive["DocDate"] = DBNull.Value;
-                //    drInventoryReceive["EntryDate"] = DateTime.Now;
-                //    drInventoryReceive["PODepended"] = false;
-                //    drInventoryReceive["AlongwithInvoice"] = false;
-                //    drInventoryReceive["IsNonCreditable"] = false;
-                //    drInventoryReceive["IsTaxApplicable"] = false;
-                //    drInventoryReceive["IsApproved"] = false;
-                //    drInventoryReceive["IsPaymentHold"] = false;
-                //    drInventoryReceive["IsNonVendor"] = false;
-                //    drInventoryReceive["IsFOC"] = false;
-                //    drInventoryReceive["IsInvoice"] = false;
-                //    drInventoryReceive["AddedBy"] = identity.Name;
-                //    drInventoryReceive["AddedDate"] = DateTime.Now;
-                //    drInventoryReceive["AddedFromIP"] = identity.IPAddress;
-                //    dsInventoryReceive.Tables[0].Rows.Add(drInventoryReceive);
-
-                //}
-
-
+                
                 // XDateWiseConsumption  InventoryReceive
                 for (int i = 0; i < dsInventoryReceive.Tables[0].Rows.Count; i++)
                 {
@@ -473,7 +434,7 @@ namespace Library.OrderManagement.Packing
 
                                 dsConsumptionByCosting.Tables[0].Rows.Add(drConsumptionByCosting);
                             }
-
+                           
                             //ItemScanChild
                             if (dsItemScanChild.Tables[0].Rows.Count > 0)
                             {
@@ -499,116 +460,10 @@ namespace Library.OrderManagement.Packing
                         
                     }
 
-                    //for (int K = 0; K < dsFromFinishGoodsBookingDetail.Tables[0].DefaultView.Count; K++)
-                    //{
-                    //    //InventoryReceiveDetail
-                    //    DataRow drInventoryReceiveDetail = dsInventoryReceiveDetail.Tables[0].NewRow();
-                    //    drInventoryReceiveDetail["Id"] = iID + "-" + (K + 1);
-                    //    detailId = iID + "-" + (K + 1);
-                    //    drInventoryReceiveDetail["InventoryReceiveId"] = iID;
-                    //    drInventoryReceiveDetail["TransactionQty"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Qty"].ToString();
-                    //    drInventoryReceiveDetail["BaseQty"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Qty"].ToString();
-                    //    drInventoryReceiveDetail["MaterialTranRate"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Rate"].ToString();
-                    //    drInventoryReceiveDetail["MaterialTranAmount"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Amount"].ToString();
-                    //    drInventoryReceiveDetail["TotalMaterialTranAmount"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Amount"].ToString();
-                    //    drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Amount"].ToString();
-                    //    drInventoryReceiveDetail["BooksCurrencyBaseRate"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Rate"].ToString();
-                    //    drInventoryReceiveDetail["TrnCurrencyBaseRate"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Rate"].ToString();
-                    //    drInventoryReceiveDetail["MaterialStorageId"] = data["MaterialStorageId"];
-
-
-                    //    drInventoryReceiveDetail["BaseUoMFactor"] = 1;
-                    //    drInventoryReceiveDetail["TotalTaxAmount"] = 0;
-                    //    drInventoryReceiveDetail["ChargesTranAmount"] = 0;
-                    //    drInventoryReceiveDetail["ChargesTaxTranAmount"] = 0;
-                    //    drInventoryReceiveDetail["BaseIssueQty"] = 0;
-                    //    drInventoryReceiveDetail["ShortageQty"] = 0;
-                    //    drInventoryReceiveDetail["RejectionQty"] = 0;
-                    //    drInventoryReceiveDetail["ApprovedQty"] = 0;
-                    //    drInventoryReceiveDetail["ShortageRatePercent"] = 0;
-                    //    drInventoryReceiveDetail["ShortageValue"] = 0;
-                    //    drInventoryReceiveDetail["RejectRatePercent"] = 0;
-                    //    drInventoryReceiveDetail["RejectClamPercent"] = 0;
-                    //    drInventoryReceiveDetail["ShortRejFlag"] = 0;
-                    //    drInventoryReceiveDetail["PostDrGLGeneralInfoId"] = null;
-                    //    drInventoryReceiveDetail["PostDrBudgetMasterId"] = null;
-                    //    drInventoryReceiveDetail["PostCRGLGeneralInfoId"] = null;
-                    //    drInventoryReceiveDetail["PostCRBudgetMasterId"] = null;
-                    //    drInventoryReceiveDetail["PostCRActivityId"] = null;
-                    //    drInventoryReceiveDetail["CapitalizeVoucherDetailId"] = null;
-                    //    drInventoryReceiveDetail["IsAsset"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["IsAsset"].ToString();
-                    //    drInventoryReceiveDetail["TransactionUoMId"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["UOM"].ToString();
-                    //    drInventoryReceiveDetail["BaseUOMId"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["UOM"].ToString();
-
-                    //    drInventoryReceiveDetail["AddedBy"] = identity.Name;
-                    //    drInventoryReceiveDetail["AddedDate"] = DateTime.Now;
-                    //    drInventoryReceiveDetail["AddedFromIP"] = identity.IPAddress;
-                    //    dsInventoryReceiveDetail.Tables[0].Rows.Add(drInventoryReceiveDetail);
-
-                    //    //ProductionSummary
-                    //    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
-                    //    DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
-                    //    drProductionSummary["Id"] = sID;
-                    //    drProductionSummary["PlantId"] = identity.PlantId;
-                    //    drProductionSummary["EntityId"] = data["ProductionEntityId"].ToString();
-                    //    drProductionSummary["ProcessId"] = data["ProcessId"].ToString();
-                    //    drProductionSummary["ProductionDate"] = Convert.ToDateTime(dsFromDateWiseConsumption.Tables[0].Rows[i]["WorkDate"].ToString()).ToString("dd-MMM-yyyy");
-                    //    drProductionSummary["Quantity"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["Qty"].ToString();
-                    //    drProductionSummary["ProductionOrderId"] = dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row["ProductionOrderId"].ToString();
-                    //    drProductionSummary["AddedBy"] = identity.Name;
-                    //    drProductionSummary["AddedDate"] = DateTime.Now;
-                    //    drProductionSummary["AddedFromIP"] = identity.IPAddress;
-                    //    dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
-
-                    //    //ConsumptionByCosting
-                    //    GetConsumptionByCostingData(dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K]["CostingMasterTemplateId"].ToString(), out dsFromConsumptionByCosting);
-                    //    dsFromConsumptionByCosting.Tables[0].DefaultView.RowFilter = "CostingId='" + dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K]["CostingMasterTemplateId"].ToString() + "'";
-                    //    for (int l = 0; l < dsFromConsumptionByCosting.Tables[0].DefaultView.Count; l++)
-                    //    {
-                    //        DataRow drConsumptionByCosting = dsConsumptionByCosting.Tables[0].NewRow();
-                    //        CopyRow(dsFromConsumptionByCosting.Tables[0].DefaultView[l].Row, ref drConsumptionByCosting);
-                    //        drConsumptionByCosting["Id"] = detailId + (l + 1);
-                    //        drConsumptionByCosting["InventoryReceiveDetailId"] = detailId;
-                    //        drConsumptionByCosting["GrossConsumption"] = dsFromConsumptionByCosting.Tables[0].DefaultView[l]["GrossConsumption"].ToString();
-                    //        drConsumptionByCosting["GrossAmount"] = dsFromConsumptionByCosting.Tables[0].DefaultView[l]["GrossAmount"].ToString();
-                    //        drConsumptionByCosting["InPutCostingItemId"] = dsFromConsumptionByCosting.Tables[0].DefaultView[l]["InPutCostingItemId"].ToString();
-                    //        drConsumptionByCosting["TotalInputConsumption"] = Convert.ToDecimal(dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K]["Qty"].ToString()) * Convert.ToDecimal(dsFromConsumptionByCosting.Tables[0].DefaultView[l]["GrossConsumption"].ToString());
-
-                    //        drConsumptionByCosting["TotalInputStandardCost"] = Convert.ToDecimal(dsFromConsumptionByCosting.Tables[0].DefaultView[l]["GrossAmount"].ToString()) * Convert.ToDecimal(dsFromConsumptionByCosting.Tables[0].DefaultView[l]["GrossConsumption"].ToString());
-
-                    //        dsConsumptionByCosting.Tables[0].Rows.Add(drConsumptionByCosting);
-                    //    }
-
-                    //    //ItemScanChild
-                    //    if (dsItemScanChild.Tables[0].Rows.Count > 0)
-                    //    {
-                    //        for (int j = 0; j < dsItemScanChild.Tables[0].Rows.Count; j++)
-                    //        {
-                    //            dsItemScanChild.Tables[0].DefaultView.RowFilter = "Id='" + dsItemScanChild.Tables[0].Rows[j]["Id"].ToString() + "' AND POId = '" + dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K]["ProductionOrderId"] + "' AND ProductCode = '" + dsFromFinishGoodsBookingDetail.Tables[0].DefaultView[K]["ProductCode"] + "'";
-
-                    //            if (dsItemScanChild.Tables[0].DefaultView.Count > 0)
-                    //            {
-                    //                //edit
-                    //                DataRow dr = dsItemScanChild.Tables[0].DefaultView[0].Row;
-                    //                dr.BeginEdit();
-
-                    //                dr["InventoryReceiveDetailId"] = detailId;
-                    //                dr["UpdatedBy"] = identity.Name;
-                    //                dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                    //                dr.EndEdit();
-                    //            }
-                    //        }
-                    //    }
-
-
-
-                    //}
-
-
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();
-                // obj.SaveDataSets(dsMaster, dsDateWiseConsumption, dsFinishGoodsBookingDetail, dsConsumptionByCosting, dsItemScanChild, dsProductionSummary, dsInventoryReceive, dsInventoryReceiveDetail);
+               
                 obj.SaveDataSets(dsMaster, dsInventoryReceive, dsInventoryReceiveDetail, dsConsumptionByCosting, dsItemScanChild, dsProductionSummary);
             }
             catch (Exception ex)
