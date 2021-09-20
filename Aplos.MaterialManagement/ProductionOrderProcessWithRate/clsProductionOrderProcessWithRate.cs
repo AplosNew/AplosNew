@@ -289,7 +289,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[ProductionOrderProcessWithRateDetails]", out sID);
                 for (int i = 0; i < ChildData.Count; i++)
                 {
-                    if ( Convert.ToDecimal(ChildData[i]["Rate"]) != 0 )
+                    if (Convert.ToDecimal(ChildData[i]["Rate"]) != 0)
                     {
                         DataRow dr = dsChild.Tables[0].NewRow();
                         Count++;
@@ -337,10 +337,22 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                     }
                 }
 
+                //dsChild.Tables[0].DefaultView.RowFilter = "ProductionOrderProcessWithRateMasterId = '"+ dsMaster.Tables[0].Rows[0]["Id"].ToString() + "'";
+                //if (dsChild.Tables[0].DefaultView.Count == 0)
+                //{
+                //    dsMaster.Tables[0].DefaultView[0].Delete();
+                //}
+
                 #endregion
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsChild);
+
+                //to clean master orphan data (without any child item)
+                _sqlRepository.ExecuteSqlCommand(@"delete from ProductionOrderProcessWithRateMaster where Id IN (
+                                    select M.Id from ProductionOrderProcessWithRateMaster M
+                                    left join ProductionOrderProcessWithRateDetails D on D.Id=(select top 1 Id from ProductionOrderProcessWithRateDetails  WHere ProductionOrderProcessWithRateMasterId=M.Id )
+                                    where isnull(D.Id,'')=''  and M.Id='" + dsMaster.Tables[0].Rows[0]["Id"].ToString() + "') and Id= '"+dsMaster.Tables[0].Rows[0]["Id"].ToString()+"'");
             }
             catch (Exception ex)
             {

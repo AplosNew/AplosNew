@@ -250,6 +250,9 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
     $scope.SaveRate = function () {
         try {
             var VList = [];
+            if (baseService.isUndefinedOrNull($scope.Rate)) {
+                $scope.Rate = null;
+            }
             VList.push({ "Rate": $scope.Rate, "FirstCharacteristicsId": null, "FirstCharacteristicsValueId": null, "SecondCharacteristicsId": null, "SecondCharacteristicsValueId": null });
             $http({
                 method: 'POST',
