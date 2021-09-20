@@ -1988,7 +1988,7 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
     function ValidationMaster() {
         try {
             CheckField($scope.salaryRuleNew.SalaryRuleName, 'Salary Rule Name');
-            CheckField($scope.salaryRuleNew.IncomeTaxGroup, 'Income Tax Group');
+            //CheckField($scope.salaryRuleNew.IncomeTaxGroup, 'Income Tax Group');
             CheckField($scope.salaryRuleNew.CurrencyRuleSystemID, 'Currency Rule');
         } catch (e) {
             throw e;

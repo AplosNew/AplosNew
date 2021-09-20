@@ -172,6 +172,13 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(invoiceSql);
                 }
+                if (sourceType == SourceType.VendorInvoiceCharge.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var invoiceSql = @"UPDATE TRN.InvoiceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(invoiceSql);
+                }
                 _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                 _unitOfWork.SaveChanges();
                 flag = false;
