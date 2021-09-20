@@ -13589,8 +13589,8 @@ ORDER BY tg.[Sequence]";
 
 				//document.Replace("{Remarks}", dtOrderMaster.Rows[0]["Remarks"].ToString(), false, false);
 				//document.Replace("{PreparedBy}", dtOrderMaster.Rows[0]["PreparedBy"].ToString(), false, false);
-				document.Replace("{CheckedByName}", dtOrderMaster.Rows[0]["CheckedBy"].ToString(), false, false);
-				document.Replace("{AuthorizedByName}", dtOrderMaster.Rows[0]["AuthorizedBy"].ToString(), false, false);
+				document.Replace("{CheckedByName}", dtOrderMaster.Rows[0]["CheckedByName"].ToString(), false, false);
+				document.Replace("{AuthorizedByName}", dtOrderMaster.Rows[0]["AuthorizedByName"].ToString(), false, false);
 				document.Replace("{EmployeeName}", dtOrderMaster.Rows[0]["ReceivedBy"].ToString(), false, false);
 
 
@@ -13721,31 +13721,32 @@ ORDER BY tg.[Sequence]";
 			{
 				strSQL = @"SELECT 
                              EmIU.EmployeeName ReceivedBy
-							,IsR.Id IssueId
-							,REPLACE(CONVERT(VARCHAR(11),IsR.AddedDate, 113), ' ', '-') IssueDate
-							 ,CheckedBy=CASE WHEN IsR.CheckedByStatus='Checked' Then eI.EmployeeName else '' END 
-                                                ,AuthorizedBy=CASE When IsR.AuthorizedByStatus='Approved'then eI1.EmployeeName else '' END
-                                                ,AddedBy=CASE When IsR.CheckedByStatus='ForChecked' OR IsR.CheckedByStatus='Hold' OR IsR.CheckedByStatus='Reject' OR IsR.CheckedByStatus='Checked'then eI3.EmployeeName else ''  END 
-												,PurOrCheckedStatus= CASE when IsR.CheckedByStatus='ForChecked' Then 'To be checked'
-                                           when IsR.CheckedByStatus='Hold' Then 'Hold'
-						                   when IsR.CheckedByStatus='Reject' Then 'Reject'
-						                   when IsR.CheckedByStatus='Checked' Then 'Checked'
-						                  else ''
-							                END
-			                           ,PurOrApprovedStatus= CASE 
-						                   when IsR.AuthorizedByStatus='Reject' Then 'Reject For Approved'
-						                   when IsR.AuthorizedByStatus='Hold' Then 'Hold For Approved'
-						                   when IsR.AuthorizedByStatus='For Approval' Then 'To be Approval'
-						                   when IsR.AuthorizedByStatus='Approved' Then 'Approved'
-						                   else ''
-							                END
-,p.UserName ProcessName,po.SalesOrderId,FGColor=isnull(po.FGColor1,'')+','+isnull(po.FGColor2,'')+','+isnull(po.FGColor3,'')
-											,po.ProductionOrder
+						,IsR.Id IssueId
+						,REPLACE(CONVERT(VARCHAR(11),IsR.AddedDate, 113), ' ', '-') IssueDate
+						,CheckedByName=CASE WHEN IsR.CheckedByStatus='Checked' Then eI.EmployeeName else '' END 
+						,AuthorizedByName=CASE When IsR.AuthorizedByStatus='Approved'then eI1.EmployeeName else '' END
+						--,AddedBy=CASE When IsR.CheckedByStatus='ForChecked' OR IsR.CheckedByStatus='Hold' OR IsR.CheckedByStatus='Reject' OR IsR.CheckedByStatus='Checked'then eI3.EmployeeName else ''  END 
+						,PurOrCheckedStatus= CASE when IsR.CheckedByStatus='ForChecked' Then 'To be checked'
+						when IsR.CheckedByStatus='Hold' Then 'Hold'
+						when IsR.CheckedByStatus='Reject' Then 'Reject'
+						when IsR.CheckedByStatus='Checked' Then 'Checked'
+						else ''
+						END
+						,PurOrApprovedStatus= CASE 
+						when IsR.AuthorizedByStatus='Reject' Then 'Reject For Approved'
+						when IsR.AuthorizedByStatus='Hold' Then 'Hold For Approved'
+						when IsR.AuthorizedByStatus='For Approval' Then 'To be Approval'
+						when IsR.AuthorizedByStatus='Approved' Then 'Approved'
+						else ''
+						END
+						,p.UserName ProcessName,po.SalesOrderId,FGColor=isnull(po.FGColor1,'')+','+isnull(po.FGColor2,'')+','+isnull(po.FGColor3,'')
+						,po.ProductionOrder,PreparedBy.EmployeeName AddedBy
 						FROM TRN.IssueRequestMaster As IsR
 						                LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IsR.CheckedBy
                                          LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IsR.AuthorizedBy
 							             LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=IsR.AddedBy
 										 Left Join EmployeeInformation EmIU on EmIU.SystemId=IsR.UpdatedBy
+										  Left Join EmployeeInformation PreparedBy on PreparedBy.SystemId=IsR.Preparedby
 										 left join trn.IssueRequestMasterProcessMap IRPmap On IRPmap.IssueRequestMasterId=IsR.Id
 										 left join hkp.Process p On p.Id=IRPmap.ProcessId
 										 LEFT JOIN(
