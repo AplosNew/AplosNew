@@ -67,6 +67,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         , IsPaymentTermChangeable: null
         , ExceptionalProcessId: null
         , ExceptionalSubProcessId: null
+       
     };
     $scope.fileNew = Object.assign({}, $scope.file);
     $scope.isBuyerApplicable = false;
@@ -74,7 +75,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
     $scope.soModel = {
         Id: null
         , MasterOrderItemId: $scope.masterItemId
-        , MOIQty : 0 
+        , MOIQty: 0
         , DeliveryDate: null
         , CommitmentDate: null
         , DestinationId: null
@@ -92,7 +93,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         , HSNCodeId: $scope.HSNCodeId
         , TotalTaxAmount: 0
         , MainRawMaterialInhouseDate: null
-        , LSD: null 
+        , LSD: null
         , OtherRawMaterialInhouseDate: null
         , CM: 0
         , SalesOrderYear: null
@@ -106,6 +107,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         , DestinationDescription: null
         , SalesExpense: null
         , NetSalesRealization: null
+        , Currency: null      
 
     };
     $http.get("OrderManagements/ordercategory/getcbo/")
@@ -120,7 +122,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
     cboService.getCboTransactionCurrencyByCompany('', function (result) {
         $scope.currencyList = [];
         $scope.currencyList = result;
-        $scope.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+        $scope.soModel.Currency=  $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
     });
     //function clearSO() {
     //    $scope.soModel();
@@ -209,7 +211,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         var gridObj = $("#Grid").data("ejGrid");
         $scope.data = gridObj.getSelectedRecords()[0];
         $scope.MasterOrderNo = $scope.data.MasterOrderNo;
-        $scope.MasterOrderItemId = $scope.data.MasterOrderItemId;
+        $scope.MasterOrderId = $scope.data.Id;
         angular.element(document.querySelector('#masterOrderPopUp')).modal('hide');
         $scope.getSOData();
     }
@@ -219,13 +221,33 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
     }
     $scope.SOList = [];
     $scope.getSOData = function () {
-        $http.get('OrderManagements/SalesOrderUpdate/GetSOData?MasterOrderItemId=' + $scope.MasterOrderItemId)
+        $http.get('OrderManagements/SalesOrderUpdate/GetSOData?MasterOrderId=' + $scope.MasterOrderId)
             .then(function (response) {
                 $scope.SOList = response.data;
             });
 
     }
+    function ValidateSOQtyWithItem() {
+        try {
 
+            var AllSOList = ej.DataManager($scope.SOList).executeLocal(ej.Query().where("MasterOrderItemId", "equal", $scope.soModel.MasterOrderItemId));
+            var SOQty = 0;
+            for (var i = 0; i < AllSOList.length; i++) {
+                if (AllSOList[i]["Id"] == $scope.soModel.Id) {
+                    SOQty += $scope.soModel.Qty;
+                }
+                else {
+                    SOQty += AllSOList[i].Qty;
+                }
+            }
+
+            if (SOQty > $scope.soModel.MOIQty)
+                throw 'Total SO Qty cannot be greater than master order item qty'
+
+        } catch (e) {
+            throw e;
+        }
+    }
     $scope.EditSOPopUp = function (obj) {
         $scope.soModel = Object.assign({}, obj.data);
         angular.element(document.querySelector('#salesOrderEditPopUp')).modal('show');
@@ -238,36 +260,38 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
 
         $scope.$broadcast('show-errors-check-validity');
         try {
-        if ($scope.soDateForm.$valid) {
-            if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
-                if (new Date($scope.soModel.LSD) <= new Date($scope.soModel.MainRawMaterialInhouseDate))
-                    throw " Main raw material in house date can not be greater than LSD date.";
-                if (new Date($scope.soModel.LSD) <= new Date($scope.soModel.OtherRawMaterialInhouseDate))
-                    throw " Other raw material in house date can not be greater than LSD date.";
-                if (new Date($scope.soModel.PlanExFactoryDate) <= new Date($scope.soModel.LSD))
-                    throw " LSD date can not be greater than plan ex factory date.";
-                if (new Date($scope.soModel.DeliveryDate) <= new Date($scope.soModel.PlanExFactoryDate))
-                    throw "Plan ex factory date can not be greater than delivery date.";
-                $http({
-                    method: 'POST'
-                    , url: $scope.path + 'UpdateSODate'
-                    , data: { 'salesOrderMaster': $scope.soModel }
-                    , dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
+            if ($scope.soDateForm.$valid) {
+                if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
+                    if (new Date($scope.soModel.LSD) < new Date($scope.soModel.MainRawMaterialInhouseDate))
+                        throw " Main raw material in house date can not be greater than LSD date.";
+                    if (new Date($scope.soModel.LSD) < new Date($scope.soModel.OtherRawMaterialInhouseDate))
+                        throw " Other raw material in house date can not be greater than LSD date.";
+                    if (new Date($scope.soModel.PlanExFactoryDate) < new Date($scope.soModel.LSD))
+                        throw " LSD date can not be greater than plan ex factory date.";
+                    if (new Date($scope.soModel.DeliveryDate) < new Date($scope.soModel.PlanExFactoryDate))
+                        throw "Plan ex factory date can not be greater than delivery date.";
+                    if (new Date($scope.soModel.DeliveryDate) < new Date($scope.soModel.CommitmentDate))
+                        throw "Commitment date can not be greater than delivery date.";
+                    $http({
+                        method: 'POST'
+                        , url: $scope.path + 'UpdateSODate'
+                        , data: { 'salesOrderMaster': $scope.soModel }
+                        , dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success', 'salesOrderEditPopUp');
+                            //getSalesOrderList();
+                            //clearSO();
+                            $scope.getSOData();
+                            //$scope.getMasterItemList();
+                        }
+                    }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success', 'salesOrderEditPopUp');
-                        //getSalesOrderList();
-                        //clearSO();
-                        $scope.getSOData();
-                        //$scope.getMasterItemList();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
-                };
-            }
+                    };
+                }
             }
         } catch (e) {
             ShowResult(e, "failure");
@@ -313,30 +337,29 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
         }
         $scope.$broadcast('show-errors-check-validity');
         try {
-        if ($scope.soQTYForm.$valid) {
-            if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
-                if ($scope.soModel.MOIQty < $scope.soModel.Quantity) 
-                    throw "Sales order quantity can not be greater than Master order quantity.";
-                $http({
-                    method: 'POST'
-                    , url: $scope.path + 'UpdateSOQTY'
-                    , data: { 'salesOrderMaster': $scope.soModel }
-                    , dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
+            ValidateSOQtyWithItem();
+            if ($scope.soQTYForm.$valid) {
+                if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
+                    $http({
+                        method: 'POST'
+                        , url: $scope.path + 'UpdateSOQTY'
+                        , data: { 'salesOrderMaster': $scope.soModel }
+                        , dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success', 'salesOrderEditPopUp');
+                            // getSalesOrderList();
+                            //clearSO();
+                            $scope.getSOData();
+                            //$scope.getMasterItemList();
+                        }
+                    }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success', 'salesOrderEditPopUp');
-                        // getSalesOrderList();
-                        //clearSO();
-                        $scope.getSOData();
-                        //$scope.getMasterItemList();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure', 'salesOrderEditPopUp');
-                };
-            }
+                    };
+                }
             }
         } catch (e) {
             ShowResult(e, "failure");
