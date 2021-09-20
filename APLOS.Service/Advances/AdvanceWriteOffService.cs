@@ -59,7 +59,6 @@ namespace Library.Service.Advances
         private readonly IBankChargeService _bankChargeService;
         private readonly IInvoiceTaxService _invoiceTaxService;
         private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
-        private readonly IRepositoryAsync<InvoiceDetail> _invoiceDetailRepository;
 
         public AdvanceWriteOffService(
               IRepositoryAsync<AdvanceWriteOff> advanceWriteOffRepository
@@ -86,7 +85,6 @@ namespace Library.Service.Advances
             , IRepositoryAsync<Advance> advanceRepository
             , IRepositoryAsync<AdvanceDetail> advanceDetailRepository
             , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
-            , IRepositoryAsync<InvoiceDetail> invoiceDetailRepository
             ) : base(advanceWriteOffRepository, unitOfWork, pkGeneratorService)
         {
             _advanceWriteOffDetailRepository = advanceWriteOffDetailRepository;
@@ -113,7 +111,6 @@ namespace Library.Service.Advances
             _advanceRepository = advanceRepository;
             _advanceDetailRepository = advanceDetailRepository;
             _employeeSubsequentTransactionRepository = employeeSubsequentTransactionRepository;
-            _invoiceDetailRepository = invoiceDetailRepository;
         }
 
         #endregion Constructor
@@ -2902,6 +2899,7 @@ namespace Library.Service.Advances
                 var invoicewriteOff = _invoiceWriteOffService.Find(invoiceWriteOffId);
                 var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var bangcHarges = _bankChargeService.QueryByInvoiceWriteOff(invoiceWriteOffId).Select().FirstOrDefault();
 
                 foreach (var item in voucherdetailcurrnecy)
                 {
@@ -2921,10 +2919,10 @@ namespace Library.Service.Advances
                 foreach (var item in voucherdetail)
                 {
                     
-                        var rdBuilder = new System.Text.StringBuilder();
-                        var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE Id='" + item.Id + "'";
-                        rdBuilder.Append(builderSql);
-                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                        var rdBuildervd = new System.Text.StringBuilder();
+                        var buildervdSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE Id='" + item.Id + "'";
+                        rdBuildervd.Append(buildervdSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuildervd.ToString());
                     _voucherDetailRepository.Delete(item.Id);
                 }
                 if (invoiceTax != null)
@@ -2944,22 +2942,16 @@ namespace Library.Service.Advances
                 {
 
                     var invoice = _invoiceService.Find(item.InvoiceId);
-                    var invoiceDetail = _invoiceDetailRepository.Find(item.InvoiceDetailId);
+                    var invoiceDetail = _invoiceService.FindInvoiceDetail(item.InvoiceDetailId);
                     invoiceDetail.WrittenOffAmount -= item.Amount;
                     invoice.WrittenOffAmount -= item.Amount;
                     invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
                     invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
-                    _invoiceDetailRepository.Update(invoiceDetail);
+                    _invoiceService.UpdateInvoiceDetail(invoiceDetail);
                     _invoiceService.Update(invoice);
                     _invoiceWriteOffDetailRepository.Delete(item.Id);
                 }
-
-
-                var rdBuilderbc = new System.Text.StringBuilder();
-                var builderbcSql = @"Delete [TRN].BankCharge  WHERE InvoiceWriteOffId='" + invoiceWriteOffId + "'";
-                rdBuilderbc.Append(builderbcSql);
-                _sqlRepository.ExecuteSqlCommand(rdBuilderbc.ToString());
-
+                _bankChargeService.BankChargeDelete(bangcHarges.Id);
                 _invoiceWriteOffService.Delete(invoiceWriteOffId);
                 _voucherRepository.Delete(voucher.Id);
                 _unitOfWork.SaveChanges();
