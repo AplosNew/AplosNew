@@ -88,6 +88,9 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             if ($scope.modelNew.ProductionEntityId == null) {
                 throw "Select Production Entity.."
             }
+            if ($scope.modelNew.ProcessId == null) {
+                throw "Select Process.."
+            }
             $scope.ProductionOrderList = [];
             $http.get("Productions/ProductionOrderProcessWithRate/GetProductionOrderDataList?entityId=" + $scope.modelNew.ProductionEntityId + "&ProcessId=" + $scope.modelNew.ProcessId)
                 .then(
@@ -121,6 +124,7 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             $scope.SelectedProductionOrder = row;
             $scope.modelNew.ProductionOrderId = $scope.SelectedProductionOrder.POId;
             $scope.modelNew.SelectedDropDownValue = $scope.SelectedProductionOrder.SKUId;
+            $scope.modelNew.Id = $scope.SelectedProductionOrder.Id;
 
             for (var i = 0; i < row.Charactaristics.length; i++) {
                 if ($scope.SelectedProductionOrder.SKUId == row.Charactaristics[i].Value) {
@@ -128,7 +132,8 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
                 }
             }
 
-            if ($scope.SelectedProductionOrder.IsDisable == false && $scope.SelectedProductionOrder.SKUId == "") {
+            if ($scope.SelectedProductionOrder.IsDisable == false && $scope.SelectedProductionOrder.SKUId == "" || $scope.SelectedProductionOrder.IsDisable == false && baseService.isUndefinedOrNull($scope.SelectedProductionOrder.SKUId))
+            {
                 throw "Select SKU..!";
             }
             else {
@@ -186,7 +191,7 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.deleteUrl,
-                data: { 'MasterId': $scope.SKUList[0].MasterId },
+                data: { 'MasterId': $scope.modelNew.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -291,6 +296,22 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
     };
     $scope.ConfirmDeleteClose = function () {
         var eDialog = $("#DeletePopUp").data("ejDialog");
+        eDialog.close();
+    };
+    $scope.ConfirmDeleteFirst = function () {
+        var eDialog = $("#DeletePopUpFirst").data("ejDialog");
+        eDialog.open();
+    };
+    $scope.ConfirmDeleteCloseFirst = function () {
+        var eDialog = $("#DeletePopUpFirst").data("ejDialog");
+        eDialog.close();
+    };
+    $scope.ConfirmDeleteThird = function () {
+        var eDialog = $("#DeletePopUpThird").data("ejDialog");
+        eDialog.open();
+    };
+    $scope.ConfirmDeleteCloseThird = function () {
+        var eDialog = $("#DeletePopUpThird").data("ejDialog");
         eDialog.close();
     };
 
