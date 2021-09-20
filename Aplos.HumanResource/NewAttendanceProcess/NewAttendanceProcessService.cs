@@ -3789,7 +3789,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SandwichLogic(SandwichPrevDay, out SandwichData, PlantValue);
                     if (SandwichData.Tables[0].Rows.Count > 0)
                     {
-                        
+
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and PlantID='" + PlantValue + "'";
 
@@ -3832,14 +3832,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     if (ToDaySandwich == "1")
                                     {
                                         if (FinalStatus != "")
-                                        {            
+                                        {
                                             // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
 
                                             var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                            from AttdnProcessData where WorkDate <= '"+SandwichPrevDay+@"'--considering this date has flag=2 (starting point)
-                                            and EmpSystemID='"+EmpId+@"' 
+                                            from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=2 (starting point)
+                                            and EmpSystemID='" + EmpId + @"' 
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1)";
 
                                             var RowData = _sqlRepository.GetDataTable(sqly);
@@ -3866,7 +3866,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=2 (starting point)
                                             and EmpSystemID='" + EmpId + @"' 
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1)";
-                                     
+
                                         var RowData = _sqlRepository.GetDataTable(sqly);
                                         if (RowData.Rows.Count > 0)
                                         {
@@ -3882,7 +3882,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             }
                         }
-                       
+
                         SaveDataSets(dsRef); // Saving Main DataSet 
 
                         ConnectionManager.DAL.ConManager NewConection = new ConnectionManager.DAL.ConManager("1");
@@ -3906,8 +3906,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     // DayStatus Change of Range
                                     DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
-                                    dry.BeginEdit();                                 
-                                    dry["DayStatus"] = DayType; 
+                                    dry.BeginEdit();
+                                    dry["DayStatus"] = DayType;
                                     dry["Sandwichstatus"] = DayType;
                                     dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                     dry["UpdatedBy"] = "Sandwich";
@@ -3917,7 +3917,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsMaster); // Saving If Part of Sandwich Logic     
 
                         }
-                        
+
                         ProcessSandwichFlag(SandwichFlagRowId);  // Saving Else Part of Sandwich Logic                       
 
                     }
@@ -4003,6 +4003,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                     // If Manual is less than Processed
                                                     dr.BeginEdit();
                                                     dr["ProcessedOT"] = PastManualOT;
+                                                    dr.EndEdit();
+                                                }
+                                                else
+                                                {
+                                                    // Otherwise Processed
+                                                    dr.BeginEdit();
+                                                    dr["ProcessedOT"] = Result;
                                                     dr.EndEdit();
                                                 }
                                             }
@@ -4159,12 +4166,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     DayTypeforOTProcess(PreviousDay, out DaytypeLimitOT, PlantValue);
                     if (DaytypeLimitOT.Tables[0].Rows.Count > 0)
                     {
+                        // DayType of Employee H,W,NW Updation
                         var WkDate = DaytypeLimitOT.Tables[0].Rows[0][@"WorkDate"].ToString();
                         var PlantId = DaytypeLimitOT.Tables[0].Rows[0][@"PlantID"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "'", out DataSet dsRef, false, false, "", "1");
 
+                        // Executed only Once
                         for (int i = 0; i < DaytypeLimitOT.Tables[0].Rows.Count; i++)
                         {
                             string RowId = DaytypeLimitOT.Tables[0].Rows[i][@"RowId"].ToString();
@@ -4176,6 +4185,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string Day = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
                                 if (Day == "")
                                 {
+                                    // Updation in OTProcessDayLimit if not Updated Only Then
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                     dr.BeginEdit();
                                     dr["DayType"] = DayType;
@@ -4195,6 +4205,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     PreallocatedOTSource(PreviousDay, out PreallocatedOT, PlantValue);
                     if (PreallocatedOT.Tables[0].Rows.Count > 0)
                     {
+                        // Preallocated OT Planned from PreallocatedOT Table
                         var WkDate = PreallocatedOT.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
                         var PlantId = PreallocatedOT.Tables[0].Rows[0][@"PlantID"].ToString();
@@ -4206,7 +4217,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             string EmpId = PreallocatedOT.Tables[0].Rows[i][@"EmpSystemID"].ToString();
                             string OTMinutes = PreallocatedOT.Tables[0].Rows[i][@"PreAllocatedOTMinutes"].ToString();
-
+                            // Updation in OTProcessDayLimit in Minutes
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -4227,6 +4238,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     FixedOTSettingSource(PreviousDay, out FixedOTSetting, PlantValue);
                     if (FixedOTSetting.Tables[0].Rows.Count > 0)
                     {
+                        // DataSet From Setting against Employee Finding the Holiday,WeekOff and NormalDay Limits
+
                         var WkDate = FixedOTSetting.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
                         var PlantId = FixedOTSetting.Tables[0].Rows[0][@"PlantId"].ToString();
@@ -4240,6 +4253,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string WeekOffOT = FixedOTSetting.Tables[0].Rows[i][@"WeekOffOT"].ToString();
                             string NormalDayOT = FixedOTSetting.Tables[0].Rows[i][@"NormalDayOT"].ToString();
                             string HolidayOT = FixedOTSetting.Tables[0].Rows[i][@"HolidayOT"].ToString();
+                            
+                            // Checking What DayType it is And Updating the Same Value against his Daytype
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
@@ -4248,6 +4263,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
                                 if (DayType != "")
                                 {
+                                    // Updation in OTProcessDayLimit
                                     dr.BeginEdit();
                                     if (DayType == "H")
                                     {
@@ -4278,6 +4294,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     WeekLimitOTSource(PreviousDay, out WeekOTSource, PlantValue);
                     if (WeekOTSource.Tables[0].Rows.Count > 0)
                     {
+                        // DataSet From today's Date Finding WeekNo
+                        // and From Respective Week Finding the Holiday,WeekOff and NormalDay Limits
+
                         var WkDate = WeekOTSource.Tables[0].Rows[0][@"WorkDate"].ToString();
                         var PlantId = WeekOTSource.Tables[0].Rows[0][@"PlantID"].ToString();
 
@@ -4291,6 +4310,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string NormalDayOT = WeekOTSource.Tables[0].Rows[i][@"NormalDayOT"].ToString();
                             string HolidayOT = WeekOTSource.Tables[0].Rows[i][@"HolidayOT"].ToString();
 
+                            // Checking What DayType it is And Updating the Same Value against his Daytype
+
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -4298,6 +4319,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
                                 if (DayType != "")
                                 {
+                                    // Updation in OTProcessDayLimit
                                     dr.BeginEdit();
                                     if (DayType == "H")
                                     {
@@ -4328,6 +4350,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SlabOTSource(PreviousDay, out SlabOT, PlantValue);
                     if (SlabOT.Tables[0].Rows.Count > 0)
                     {
+                       //  OT Slab Setting against the Plant from OTSlabDefineGeneral
                         var WkDate = SlabOT.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
                         var PlantId = SlabOT.Tables[0].Rows[0][@"PlantId"].ToString();
@@ -4339,7 +4362,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             string RowId = SlabOT.Tables[0].Rows[i][@"RowId"].ToString();
                             string firstSlab = clsWebLib.RetValidLen(SlabOT.Tables[0].Rows[i][@"firstSlab"]).ToString();
-
+                            // Slab OT Allowed for a Day 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -4349,6 +4372,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     if (firstSlab != "")
                                     {
+                                        // Updation in OTProcessDayLimit
                                         dr.BeginEdit();
                                         dr["SlabOT"] = firstSlab;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
@@ -4948,6 +4972,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualDuration(out ManualDurn, PlantValue);
                 if (ManualDurn.Tables[0].Rows.Count > 0)
                 {
+                    // Dataset Generated for Duration EarlyIn EarlyOut Calculation
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1";
@@ -4976,9 +5001,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
 
+                            // Updation in AttdnProcessData 
                             dr["Duration"] = CalDuration;
                             dr["EarlyLateIn"] = DBNull.Value;
                             dr["EarlyLateOut"] = DBNull.Value;
+
+                            // If Intime + EarlyMargin < ShiftInTime :- EarlyIn
                             if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                             {
                                 TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
@@ -4990,6 +5018,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["EarlyIn"] = 0;
 
                             }
+                            
+                            // If Intime - LateMargin > ShiftInTime :- LateIn
                             if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                             {
                                 TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
@@ -5001,6 +5031,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["LateIn"] = 0;
 
                             }
+
+                            // If OutTime + EarlyMargin < ShiftOutTime :- EarlyOut
                             if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
                             {
 
@@ -5014,6 +5046,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             }
 
+                            // If OutTime - LateMargin < ShiftOutTime :- 0
                             if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
                             {
                                 dr["LateOut"] = 0;
@@ -5042,6 +5075,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualOverUnderStayData(out ManualOverUnderStay, PlantValue);
                 if (ManualOverUnderStay.Tables[0].Rows.Count > 0)
                 {
+                    // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "'";
@@ -5064,6 +5098,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dr.BeginEdit();
                             if (OverUnderStay > 0)
                             {
+                                // Extra Work After ShiftOTHours
                                 dr["OverStay"] = OverUnderStay;
                                 dr["UnderStay"] = 0;
                             }
@@ -5074,6 +5109,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             else
                             {
+
+                                // Less Work than ShiftOTHours
                                 dr["OverStay"] = 0;
                                 dr["UnderStay"] = OverUnderStay;
                             }
@@ -5094,6 +5131,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualDurationStatusCal(out ManualDurationStat, PlantValue);
                 if (ManualDurationStat.Tables[0].Rows.Count > 0)
                 {
+                    // Duration Staus on the Basis of Duration of Work of Employee
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
@@ -5117,6 +5155,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
+
+                            // In & Out Both Present
                             if (Duration.ToString() != "" &&
                                 FullDayDuration.ToString() != ""
                                 && ShortDuration.ToString() != ""
@@ -5124,23 +5164,25 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 if (Convert.ToDouble(Duration) >= Convert.ToDouble(FullDayDuration))
                                 {
-                                    dr["DurationStatus"] = "FD";
+                                    dr["DurationStatus"] = "FD";  // Full Day
                                 }
                                 else if (Convert.ToDouble(Duration) >= Convert.ToDouble(HalfDayDuration))
                                 {
-                                    dr["DurationStatus"] = "HD";
+                                    dr["DurationStatus"] = "HD";  // Half Day
                                 }
                                 else if (Convert.ToDouble(Duration) >= Convert.ToDouble(ShortDuration))
                                 {
-                                    dr["DurationStatus"] = "SD";
+                                    dr["DurationStatus"] = "SD";  // Short Day
                                 }
                                 else if (Convert.ToDouble(Duration) < Convert.ToDouble(ShortDuration))
                                 {
-                                    dr["DurationStatus"] = "A";
+                                    dr["DurationStatus"] = "A";  // Absent
                                 }
                             }
                             else
                             {
+
+                                // Missing In : Out
                                 if (In.ToString() == "" &&
                                      Out.ToString() == "")
                                 {
@@ -5182,7 +5224,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualDayStatus(out ManualUserDayStat, PlantValue);
                 if (ManualUserDayStat.Tables[0].Rows.Count > 0)
                 {
-
+                    // ProcessDayStatus Generation from DayStausCode using DaytypeWith Values
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
 
@@ -5200,7 +5242,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
-
+                            // Updation in AttdnProcessData
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             dr["ProcessDayStatus"] = DayStatus;
@@ -5215,7 +5257,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #endregion
 
                 #region ProcessFinalDayStatus 
-                DataSet ManualFinalDayStat;
+                DataSet ManualFinalDayStat;  // Process DayStatus & Manual DayStatus Comparison
                 ManualFinalDayStatus(out ManualFinalDayStat, PlantValue);
                 if (ManualFinalDayStat.Tables[0].Rows.Count > 0)
                 {
@@ -5228,6 +5270,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     for (int i = 0; i < ManualFinalDayStat.Tables[0].Rows.Count; i++)
                     {
+                        // Localizing Diff Flags on the Basis of Processed FinalDayStatus 
+
                         var WkDate = ManualFinalDayStat.Tables[0].Rows[i][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
                         string EmpId = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
@@ -5240,7 +5284,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
-
+                            // Updations in APD Table 
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             dr["ProcessFinalDayStatus"] = Result;
@@ -5249,6 +5293,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dr["DayTypeGoodWorkApplicable"] = Goodwork;
                             if (AutoLock == "True")
                             {
+                                // Individual Lock
                                 dr["IsLock"] = true;
                                 dr["LockedDate"] = DateTime.Now;
                                 dr["LockedBy"] = "AutoLock";
@@ -5273,6 +5318,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                   
+                    // DataSet for Changing Previous Days Flags and DayStatuses
                     objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where 1=2", out DataSet SandwichDataSet, false, false, "", "1");
 
 
@@ -5284,6 +5331,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         string PrevDaySandwich = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"PrevDayFlag"]).ToString();
                         var PrevWkDate = clsWebLib.RetValidLen(ManualSandwichData.Tables[0].Rows[i][@"PrevWorkDate"]).ToString();
 
+                        // Updation in AttdnProcessData
                         dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
@@ -5311,6 +5359,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     if (FinalStatus != "")
                                     {
+                                        // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
+
                                         var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
@@ -5323,6 +5373,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         {
                                             for (int x = 0; x < RowData.Rows.Count; x++)
                                             {
+                                                // Changing DayStatus
                                                 var RowxId = RowData.Rows[x]["RowId"].ToString();
                                                 DataRow drx = SandwichDataSet.Tables[0].NewRow();
                                                 drx["DayStatus"] = FinalStatus;
@@ -5335,6 +5386,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 else if (TodaySandwich == "0" && PrevWkDate != "")
                                 {
+                                    // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
+
                                     var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
@@ -5345,6 +5398,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     var RowData = _sqlRepository.GetDataTable(sqly);
                                     if (RowData.Rows.Count > 0)
                                     {
+                                        // Changing SandwichFlag
                                         for (int x = 0; x < RowData.Rows.Count; x++)
                                         {
                                             var RowxId = RowData.Rows[x]["RowId"].ToString();
@@ -5355,7 +5409,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                         }
                     }
-                    SaveDataSets(dsRef);
+                    SaveDataSets(dsRef); // Saving Main DataSet 
 
                     ConnectionManager.DAL.ConManager NewConection = new ConnectionManager.DAL.ConManager("1");
 
@@ -5376,6 +5430,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             if (dsMaster.Tables[0].DefaultView.Count > 0)
                             {
+                                // DayStatus Change of Range
                                 DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
                                 dry.BeginEdit();
                                 dry["DayStatus"] = DayType;
@@ -5389,12 +5444,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     }
 
-                    ProcessSandwichFlag(SandwichFlagRowId);
+                    ProcessSandwichFlag(SandwichFlagRowId);  // Saving Else Part of Sandwich Logic   
                 }
                 #endregion
 
                 #region Payroll DayStatus 
-                PayrollDayStatus(PlantValue);
+                PayrollDayStatus(PlantValue); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
                 #endregion
 
                 #region OT Calculation 
@@ -5402,11 +5457,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ProcessedOTCalculation(out ProcessOTCalculate, PlantValue);
                 if (ProcessOTCalculate.Tables[0].Rows.Count > 0)
                 {
+                    // OverTime DataSet Using OT Per Minute Policy
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and IsOTEntitled='1' and PlantID='" + PlantValue + "'";
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
+                    // Settings of Modes from PlantWiseHRMSSetting
                     var sqly = @"select * from PlantWiseHRMSSetting where PlantID='" + PlantValue + "'";
                     objCon.OpenDataSetThroughAdapter(sqly, out DataSet OTMode, false, false, "", "1");
 
@@ -5428,6 +5485,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             if (OTModeValue == "0")
                             {
+                                // Punched Based
                                 if (Result != "")
                                 {
                                     if (Convert.ToDouble(Result) > 0)
@@ -5443,6 +5501,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                             else if (OTModeValue == "1")
                             {
+                                // Manual Mode
                                 if (PastManualOT != "")
                                 {
                                     if (Convert.ToDouble(PastManualOT) > 0)
@@ -5458,12 +5517,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             else 
                             {
+                                // Mixed Mode
                                 if (Result != "")
                                 {
                                     if (PastManualOT != "")
                                     {
                                         if (Convert.ToDouble(PastManualOT) > 0)
                                         {
+                                            // If Manual is less than Processed
                                             if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                             {
                                                 dr.BeginEdit();
@@ -5472,9 +5533,17 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 dr.EndEdit();
                                                 CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
                                             }
+                                            else
+                                            {
+                                                // Otherwise Processed
+                                                dr.BeginEdit();
+                                                dr["ProcessedOT"] = Result;
+                                                dr.EndEdit();
+                                            }
                                         }
                                         else
                                         {
+                                            // Otherwise Processed
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = Result;
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
@@ -5485,6 +5554,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     }
                                     else
                                     {
+                                        // Otherwise Processed
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = Result;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
@@ -5506,7 +5576,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualEarnedLeave(out ManualEarnedLeaveData, PlantValue);
                 if (ManualEarnedLeaveData.Tables[0].Rows.Count > 0)
                 {
-
+                    // Earned Leave Value from DayType With Values Plant & Emptype Category
                     string RowIdDataSet = "''";
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
@@ -5524,6 +5594,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < ManualEarnedLeaveData.Tables[0].Rows.Count; i++)                            
                         {
+                                // Value from Source                           
                                 string RowId = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"RowId"]).ToString();
                                 string DayType = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"DayType"]).ToString();
                                 string EarnedPL = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"EarnedPL"]).ToString();
@@ -5532,7 +5603,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                                 if (dsRef.Tables[0].DefaultView.Count > 0)
                                 {
-
+                                    // Updation in LeaveEarned
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                     dr.BeginEdit();
                                     dr["DayStatus"] = DayType;
@@ -5558,7 +5629,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #endregion
 
                 #region Set Manual Flag ->0              
-                ProcessManualFlag(ManualFlagRowId);
+                ProcessManualFlag(ManualFlagRowId); // Set ManualFlag to 0
                 #endregion
 
 

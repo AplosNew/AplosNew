@@ -2429,12 +2429,13 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             url: $scope.detailGridListUrl + $scope.productNew.Id
         }).then(function successCallback(response) {
             $scope.PoChildList = response.data;
-            //if ($scope.PoChildList.length > 0) {
-            //    for (var i = 0; i < $scope.PoChildList.length; i++) {
-            //        $scope.Transformation[i].ServiceId = $scope.PoChildList[i].ServiceId;
-            //    }
+            if ($scope.PoChildList.length > 0) {
+                for (var i = 0; i < $scope.PoChildList.length; i++) {
+                    $scope.PoChildList[i].JWDeliveryDate = $filter('dateFiltering')($scope.PoChildList[i].DeliveryDate, 'dd-M-yyyy');
+                }
                 
-            //}
+            }
+            
         });
     };
     $scope.PoChildListAll = [];

@@ -86,7 +86,7 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        [HttpPost,Authorize]
+        [HttpPost]
         public ActionResult delete(string MasterId)
         {
             try
