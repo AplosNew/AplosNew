@@ -102,6 +102,7 @@
     <Compile Include="OrderControl\OrderControlReport.cs" />
     <Compile Include="OrderControl\ProductionQtyDistributionSO.cs" />
     <Compile Include="Packing\clsFinishGoodsBooking.cs" />
+    <Compile Include="Production\ExpectedSOWiseDateService.cs" />
     <Compile Include="Production\ItemScanService.cs" />
     <Compile Include="Production\MovementData.cs" />
     <Compile Include="Production\FGValuation.cs" />
