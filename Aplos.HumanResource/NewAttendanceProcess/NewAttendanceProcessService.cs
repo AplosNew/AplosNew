@@ -4159,12 +4159,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     DayTypeforOTProcess(PreviousDay, out DaytypeLimitOT, PlantValue);
                     if (DaytypeLimitOT.Tables[0].Rows.Count > 0)
                     {
+                        // DayType of Employee H,W,NW Updation
                         var WkDate = DaytypeLimitOT.Tables[0].Rows[0][@"WorkDate"].ToString();
                         var PlantId = DaytypeLimitOT.Tables[0].Rows[0][@"PlantID"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter("select * from OTProcessDayLimit where WorkDate='" + WkDate + "'and PlantID='" + PlantId + "'", out DataSet dsRef, false, false, "", "1");
 
+                        // Executed only Once
                         for (int i = 0; i < DaytypeLimitOT.Tables[0].Rows.Count; i++)
                         {
                             string RowId = DaytypeLimitOT.Tables[0].Rows[i][@"RowId"].ToString();
@@ -4176,6 +4178,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string Day = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
                                 if (Day == "")
                                 {
+                                    // Updation in OTProcessDayLimit if not Updated Only Then
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                     dr.BeginEdit();
                                     dr["DayType"] = DayType;
@@ -4195,6 +4198,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     PreallocatedOTSource(PreviousDay, out PreallocatedOT, PlantValue);
                     if (PreallocatedOT.Tables[0].Rows.Count > 0)
                     {
+                        // Preallocated OT Planned from PreallocatedOT Table
                         var WkDate = PreallocatedOT.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
                         var PlantId = PreallocatedOT.Tables[0].Rows[0][@"PlantID"].ToString();
@@ -4206,7 +4210,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             string EmpId = PreallocatedOT.Tables[0].Rows[i][@"EmpSystemID"].ToString();
                             string OTMinutes = PreallocatedOT.Tables[0].Rows[i][@"PreAllocatedOTMinutes"].ToString();
-
+                            // Updation in OTProcessDayLimit in Minutes
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -4227,6 +4231,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     FixedOTSettingSource(PreviousDay, out FixedOTSetting, PlantValue);
                     if (FixedOTSetting.Tables[0].Rows.Count > 0)
                     {
+                        // DataSet From Setting against Employee Finding the Holiday,WeekOff and NormalDay Limits
+
                         var WkDate = FixedOTSetting.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
                         var PlantId = FixedOTSetting.Tables[0].Rows[0][@"PlantId"].ToString();
@@ -4240,6 +4246,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string WeekOffOT = FixedOTSetting.Tables[0].Rows[i][@"WeekOffOT"].ToString();
                             string NormalDayOT = FixedOTSetting.Tables[0].Rows[i][@"NormalDayOT"].ToString();
                             string HolidayOT = FixedOTSetting.Tables[0].Rows[i][@"HolidayOT"].ToString();
+                            
+                            // Checking What DayType it is And Updating the Same Value against his Daytype
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
@@ -4248,6 +4256,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
                                 if (DayType != "")
                                 {
+                                    // Updation in OTProcessDayLimit
                                     dr.BeginEdit();
                                     if (DayType == "H")
                                     {
@@ -4278,6 +4287,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     WeekLimitOTSource(PreviousDay, out WeekOTSource, PlantValue);
                     if (WeekOTSource.Tables[0].Rows.Count > 0)
                     {
+                        // DataSet From today's Date Finding WeekNo
+                        // and From Respective Week Finding the Holiday,WeekOff and NormalDay Limits
+
                         var WkDate = WeekOTSource.Tables[0].Rows[0][@"WorkDate"].ToString();
                         var PlantId = WeekOTSource.Tables[0].Rows[0][@"PlantID"].ToString();
 
@@ -4291,6 +4303,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string NormalDayOT = WeekOTSource.Tables[0].Rows[i][@"NormalDayOT"].ToString();
                             string HolidayOT = WeekOTSource.Tables[0].Rows[i][@"HolidayOT"].ToString();
 
+                            // Checking What DayType it is And Updating the Same Value against his Daytype
+
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -4298,6 +4312,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 string DayType = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"DayType"]).ToString();
                                 if (DayType != "")
                                 {
+                                    // Updation in OTProcessDayLimit
                                     dr.BeginEdit();
                                     if (DayType == "H")
                                     {
@@ -4328,6 +4343,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SlabOTSource(PreviousDay, out SlabOT, PlantValue);
                     if (SlabOT.Tables[0].Rows.Count > 0)
                     {
+                       //  OT Slab Setting against the Plant from OTSlabDefineGeneral
                         var WkDate = SlabOT.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
                         var PlantId = SlabOT.Tables[0].Rows[0][@"PlantId"].ToString();
@@ -4339,7 +4355,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             string RowId = SlabOT.Tables[0].Rows[i][@"RowId"].ToString();
                             string firstSlab = clsWebLib.RetValidLen(SlabOT.Tables[0].Rows[i][@"firstSlab"]).ToString();
-
+                            // Slab OT Allowed for a Day 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -4349,6 +4365,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     if (firstSlab != "")
                                     {
+                                        // Updation in OTProcessDayLimit
                                         dr.BeginEdit();
                                         dr["SlabOT"] = firstSlab;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
@@ -4948,6 +4965,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualDuration(out ManualDurn, PlantValue);
                 if (ManualDurn.Tables[0].Rows.Count > 0)
                 {
+                    // Dataset Generated for Duration EarlyIn EarlyOut Calculation
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1";
@@ -4976,9 +4994,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
 
+                            // Updation in AttdnProcessData 
                             dr["Duration"] = CalDuration;
                             dr["EarlyLateIn"] = DBNull.Value;
                             dr["EarlyLateOut"] = DBNull.Value;
+
+                            // If Intime + EarlyMargin < ShiftInTime :- EarlyIn
                             if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                             {
                                 TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
@@ -4990,6 +5011,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["EarlyIn"] = 0;
 
                             }
+                            
+                            // If Intime - LateMargin > ShiftInTime :- LateIn
                             if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                             {
                                 TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
@@ -5001,6 +5024,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["LateIn"] = 0;
 
                             }
+
+                            // If OutTime + EarlyMargin < ShiftOutTime :- EarlyOut
                             if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
                             {
 
@@ -5014,6 +5039,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             }
 
+                            // If OutTime - LateMargin < ShiftOutTime :- 0
                             if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
                             {
                                 dr["LateOut"] = 0;
@@ -5394,7 +5420,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #endregion
 
                 #region Payroll DayStatus 
-                PayrollDayStatus(PlantValue);
+                PayrollDayStatus(PlantValue); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
                 #endregion
 
                 #region OT Calculation 
