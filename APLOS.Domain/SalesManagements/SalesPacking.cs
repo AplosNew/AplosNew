@@ -38,6 +38,7 @@ namespace Library.Model.SalesManagements
         public string SalesId { get; set; }
 
         public string PackingId { get; set; }
+        public string VoucherId { get; set; }
 
       
 

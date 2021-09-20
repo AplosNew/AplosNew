@@ -18,6 +18,23 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
         {
             _sqlRepository = new SqlRepository();
         }
+        public IEnumerable<object> GetDetailRate(string ProductionEntityId, string ProcessId, string ProductionOrderId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+
+                strSQL = @"select M.Id MasterId,D.Rate from ProductionOrderProcessWithRateDetails D
+                                Left join ProductionOrderProcessWithRateMaster m on m.Id=D.ProductionOrderProcessWithRateMasterId
+                                where M.ProductionEntityId='" + ProductionEntityId + "' and M.ProcessId='" + ProcessId + "' and M.ProductionOrderId='" + ProductionOrderId + "' ";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
         public IEnumerable<object> GetSKU(string ProcessId, string ProductionOrderId, string SkuId, string Sequence)
         {
             try
@@ -97,10 +114,10 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 
             try
             {
-                string sql = @"SELECT null as Charactaristics, SKUId=case when Ma.SelectedDropDownValue is null then '' else Ma.SelectedDropDownValue end,'' as [Sequence],'' Rate,IsDisable= case when Ma.SelectedDropDownValue is null then Convert(bit,'False') else CONVERT(bit,'True') end,
+                string sql = @"SELECT Ma.Id,null as Charactaristics, SKUId=case when Ma.SelectedDropDownValue is null then '' else Ma.SelectedDropDownValue end,'' as [Sequence],'' Rate,IsDisable= case when Ma.SelectedDropDownValue is null then Convert(bit,'False') else CONVERT(bit,'True') end,
                                     PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, sum(PD.Qty)Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
-                                   ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
+                                   ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity,PD.Article,PD.MaterialMaster
 									,SONo=STUFF((select distinct ','+XSO.Id from 
                                                                  trn.SalesOrder XSO 
                                                                  JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -112,8 +129,8 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 								  
 								   LEFT JOIN 
 								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory,SO.Qty
-								   
-								   ,Buyer=  REPLACE(REPLACE(
+                                        ,mm.UserName MaterialMaster,mma.StandardName Article								   
+								        ,Buyer=  REPLACE(REPLACE(
 										            STUFF((select distinct ','+XB.UserName from 
 	                                                    trn.SalesOrder XSO 
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -179,6 +196,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 							       LEFT JOIN  TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
 								   LEFT JOIN TRN.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                    LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                   LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=MOI.ArticleId 
 								   LEFT JOIN TRN.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
 								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
@@ -186,9 +204,9 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 									LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = PD.ProductionOrderId
                                     left join ProductionOrderProcessWithRateMaster Ma on Ma.ProductionEntityId = PO.EntityId and Ma.ProcessId =POSP.ProcessId and Ma.ProductionOrderId =PO.Id
 								   WHERE  E.Id='" + entityId + "' and POSP.ProcessId='" + ProcessId + "' and PS.StandardName in ('Active','Running')" +
-                                   "group by [Sequence], PO.Id ,PS.UserName,PO.RequiredTimeUnit,LSD,CommitmentDate,PD.Product" +
+                                   "group by Ma.Id,[Sequence], PO.Id ,PS.UserName,PO.RequiredTimeUnit,LSD,CommitmentDate,PD.Product" +
                                    ", PD.ProductCategory,PD.Buyer,PD.Customer" +
-                                   ", PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName,Ma.SelectedDropDownValue";
+                                   ", PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName,Ma.SelectedDropDownValue,PD.MaterialMaster,PD.Article";
                 List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
 
                 string strSQL = @"select p.ProductionOrderId,c.Id Value,c.UserName Text, m.Sequence
@@ -209,9 +227,9 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                     {
                         Dictionary<string, object> DicTemp = new Dictionary<string, object>();
                         DicTemp.Add("ProductionOrderId", data[i]["POId"].ToString());
-                        DicTemp.Add("Value", null);
+                        DicTemp.Add("Value", "Both");
                         DicTemp.Add("Text", "Both");
-                        DicTemp.Add("Sequence", null);
+                        DicTemp.Add("Sequence", "Both");
                         TempData.Add(DicTemp);
                     }
                     data[i]["Charactaristics"] = TempData;
@@ -231,6 +249,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
             {
                 DataSet dsMaster;
                 DataSet dsChild;
+                DataRow dr = null;
                 string sID = string.Empty;
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 int Count = 0;
@@ -263,62 +282,111 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 
                 con.OpenDataSetThroughAdapter("select * from ProductionOrderProcessWithRateDetails where ProductionOrderProcessWithRateMasterId='" + MasterID + "'", out dsChild, false, "1");
 
-                while (dsChild.Tables[0].DefaultView.Count > 0)
-                {
-                    dsChild.Tables[0].DefaultView[0].Delete();
-                }
-
                 objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[ProductionOrderProcessWithRateDetails]", out sID);
                 for (int i = 0; i < ChildData.Count; i++)
                 {
-                    DataRow dr = dsChild.Tables[0].NewRow();
-                    Count++;
-                    dr["Id"] = "POPWRD_" + sID + Count;
-                    dr["ProductionOrderProcessWithRateMasterId"] = MasterID;
-                    if (Sequence == "1")
+                    if (Convert.ToDecimal(ChildData[i]["Rate"]) != 0)
                     {
-                        dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
-                        dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
-                        dr["SecondCharacteristicsId"] = DBNull.Value;
-                        dr["SecondCharacteristicsValueId"] = DBNull.Value;
-                    }
-                    else if (Sequence == "2")
-                    {
-                        dr["FirstCharacteristicsId"] = DBNull.Value;
-                        dr["FirstCharacteristicsValueId"] = DBNull.Value;
-                        dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
-                        dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                        dsChild.Tables[0].DefaultView.RowFilter = "Id = <> ";
+                        if (dsChild.Tables[0].DefaultView.Count == 0)
+                        {
+                            dr = dsChild.Tables[0].NewRow();
+                            Count++;
+                            dr["Id"] = "POPWRD_" + sID + Count;
+                            dr["ProductionOrderProcessWithRateMasterId"] = MasterID;
+                            if (Sequence == "1")
+                            {
+                                dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                                dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                                dr["SecondCharacteristicsId"] = DBNull.Value;
+                                dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                            }
+                            else if (Sequence == "2")
+                            {
+                                dr["FirstCharacteristicsId"] = DBNull.Value;
+                                dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                                dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                                dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                            }
+                            else if (Sequence == "Both")
+                            {
+                                dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                                dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                                dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                                dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                            }
+                            else
+                            {
+                                dr["FirstCharacteristicsId"] = DBNull.Value;
+                                dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                                dr["SecondCharacteristicsId"] = DBNull.Value;
+                                dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                            }
+
+                            dr["Rate"] = ChildData[i]["Rate"];
+
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = DateTime.Now;
+                            dr["AddedFromIP"] = identity.IPAddress;
+                            dsChild.Tables[0].Rows.Add(dr);
+                        }
+                        else
+                        {
+                            dr = dsChild.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            if (Sequence == "1")
+                            {
+                                dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                                dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                                dr["SecondCharacteristicsId"] = DBNull.Value;
+                                dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                            }
+                            else if (Sequence == "2")
+                            {
+                                dr["FirstCharacteristicsId"] = DBNull.Value;
+                                dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                                dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                                dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                            }
+                            else if (Sequence == "Both")
+                            {
+                                dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                                dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                                dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                                dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                            }
+                            else
+                            {
+                                dr["FirstCharacteristicsId"] = DBNull.Value;
+                                dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                                dr["SecondCharacteristicsId"] = DBNull.Value;
+                                dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                            }
+
+                            dr["Rate"] = ChildData[i]["Rate"];
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr.EndEdit();
+                        }
                     }
                     else
                     {
-                        dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
-                        dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
-                        dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
-                        dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                        dsChild.Tables[0].Rows[i].Delete();
                     }
-
-                    if (ChildData[i]["Rate"] == null || ChildData[i]["Rate"].ToString() == "")
-                    {
-                        dr["Rate"] = DBNull.Value;
-                    }
-                    else
-                    {
-                        dr["Rate"] = ChildData[i]["Rate"];
-                    }
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = DateTime.Now;
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = DateTime.Now;
-                    dr["UpdatedFromIP"] = identity.IPAddress;
-
-                    dsChild.Tables[0].Rows.Add(dr);
                 }
 
                 #endregion
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsChild);
+
+                //to clean master orphan data (without any child item)
+                _sqlRepository.ExecuteSqlCommand(@"delete from ProductionOrderProcessWithRateMaster where Id IN (
+                                    select M.Id from ProductionOrderProcessWithRateMaster M
+                                    left join ProductionOrderProcessWithRateDetails D on D.Id=(select top 1 Id from ProductionOrderProcessWithRateDetails  WHere ProductionOrderProcessWithRateMasterId=M.Id )
+                                    where isnull(D.Id,'')=''  and M.Id='" + dsMaster.Tables[0].Rows[0]["Id"].ToString() + "') and Id= '" + dsMaster.Tables[0].Rows[0]["Id"].ToString() + "'");
             }
             catch (Exception ex)
             {

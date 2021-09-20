@@ -53,23 +53,29 @@ namespace Library.Service.Setups
         public void InsertOrUpdateGraph(IEnumerable<EntityConfig> entities,string entityId)
         {
             var flag = false;
+            string sID = null;
             try
             {
                 //if (entities == null)
                 //    throw new CustomException("Data can not null.");
                 _unitOfWork.BeginTransaction();
                 flag = true;
+                bplib.clsGenID objGenID = new bplib.clsGenID();
                 var dbList = Query(t => t.EntityId == entityId).Select().AsEnumerable();
-                var pk = GetMaxNumber(nameof(EntityConfig), PKGeneratorEnum.Yearly, null, DateTime.Now);
+                //var pk = GetMaxNumber(nameof(EntityConfig), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+               
 
                 if (entities != null)
                 {
                     foreach (var item in entities)
                     {
+                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(EntityConfig), out sID);
+
                         if (string.IsNullOrEmpty(item.Id))
                         {
-                            pk.MaxNumber++;
-                            item.Id = pk.MaxNumber.ToString();
+                            //pk.MaxNumber++;
+                            item.Id = sID;
                             InsertGraph(item);
                         }
                         else

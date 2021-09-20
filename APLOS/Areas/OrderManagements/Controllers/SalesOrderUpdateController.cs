@@ -1633,7 +1633,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId,FORMAT( A.AddedDate,'dd-MMM_yyyy') CreationDate,a.AddedBy AS CreatedBy
+            string sql = @"SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId,FORMAT( A.AddedDate,'dd-MMM_yyyy') CreationDate
+                                    , a.AddedBy AS CreatedBy
                                     , A.OrderType, A.PartyId, P.UserName AS CustomerName, A.BuyerId,B.UserName Buyer
                                     , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
                                     , A.OrderCategoryId,OC.UserName AS OrderCategory, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
@@ -1659,9 +1660,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
 															INNER JOIN TRN.MasterOrderItem XMOI  ON XMOI.ContractId=CNT.Id
 															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                            															,MOI.Id MasterOrderItemId
+                            															
                             FROM [TRN].[MasterOrder] AS A
-							left outer join TRN.MasterOrderItem MOI on MOI.MasterOrderId=A.Id
+						
                             JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
                             LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
                             LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
@@ -1678,11 +1679,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetSOData(string MasterOrderItemId)
+        public ActionResult GetSOData(string MasterOrderId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"SELECT  SO.Id,SO.ParentId
+            string sql = @"SELECT SO.Id,SO.ParentId
                             , SO.MasterOrderItemId
                             , MOI.MaterialMasterId
                             , DeliveryDate = REPLACE(CONVERT(CHAR(11), SO.DeliveryDate, 106),' ','-')
@@ -1691,6 +1692,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             , SO.ShipmentModeId
                             , SO.CustomerPOId
 		                    , po.PONumber
+                            ,MOI.TotalQty MOIQty
                             ,SO.DestinationDescription
                             , SO.OrderStatusId, SO.OrderCategoryId
                             , SO.SOType, SO.ResponsiblePersonId
@@ -1701,15 +1703,18 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             , hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)                            ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
                             , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
                             ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
-                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,C.Code As Currency
+							
                     FROM [TRN].[SalesOrder] AS SO
                    -- LEFT JOIN TRN.FirstCharacteristics SKU ON SKU.SalesOrderId=SO.Id
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+					left outer join TRN.MasterOrder MO on Mo.Id=MOI.MasterOrderId
+					left outer join SCS.Currency C on C.Id=MO.CurrencyId
                     LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                     LEFT JOIN dbo.EmployeeInformation AS EMP ON EMP.SystemId = SO.ResponsiblePersonId
                     LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
                     LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
-                    WHERE SO.MasterOrderItemId='" + MasterOrderItemId + @"' ORDER BY SO.DeliveryDate";
+                    WHERE  MOI.MasterOrderId='" + MasterOrderId + @"' ORDER BY SO.DeliveryDate";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

@@ -4082,17 +4082,17 @@ namespace Library.Service.OrderManagements
                     var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
                     AuditService.UpdatedLog(salesOrderMaster);
                     sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
-                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
-
-
+                    sodata.CommitmentDate = salesOrderMaster.CommitmentDate;
+                    sodata.MainRawMaterialInhouseDate = salesOrderMaster.MainRawMaterialInhouseDate;
+                    sodata.PlanExFactoryDate = salesOrderMaster.PlanExFactoryDate;
+                    sodata.OtherRawMaterialInhouseDate = salesOrderMaster.OtherRawMaterialInhouseDate;
+                    sodata.LSD = salesOrderMaster.LSD;
 
                     _salesOrderRepository.Update(sodata);
 
                 }
 
                 _unitOfWork.SaveChanges();
-
-
             }
             catch (CustomException)
             {
@@ -4110,22 +4110,20 @@ namespace Library.Service.OrderManagements
         {
             try
             {
-
                 if (!string.IsNullOrEmpty(salesOrderMaster.Id))
                 {
                     var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
                     AuditService.UpdatedLog(salesOrderMaster);
-                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
-                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
-
-
-
+                    sodata.Rate = salesOrderMaster.Rate;                   
+                    sodata.CM = salesOrderMaster.CM;                   
+                    sodata.UpCharge = salesOrderMaster.UpCharge;                   
+                    sodata.Discount = salesOrderMaster.Discount;                   
+                    sodata.SalesExpense = salesOrderMaster.SalesExpense;                   
                     _salesOrderRepository.Update(sodata);
 
                 }
 
                 _unitOfWork.SaveChanges();
-
 
             }
             catch (CustomException)
@@ -4149,17 +4147,14 @@ namespace Library.Service.OrderManagements
                 {
                     var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
                     AuditService.UpdatedLog(salesOrderMaster);
-                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
-                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
-
-
+                    sodata.Qty = salesOrderMaster.Qty;
+                    sodata.ProductionBookingLevel = salesOrderMaster.ProductionBookingLevel;
 
                     _salesOrderRepository.Update(sodata);
 
                 }
 
                 _unitOfWork.SaveChanges();
-
 
             }
             catch (CustomException)
@@ -4183,10 +4178,16 @@ namespace Library.Service.OrderManagements
                 {
                     var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
                     AuditService.UpdatedLog(salesOrderMaster);
-                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
-                    sodata.DeliveryDate = salesOrderMaster.DeliveryDate;
+                    sodata.OrderStatusId = salesOrderMaster.OrderStatusId;
 
-
+                    if (sodata.OrderStatusId != OrderStatusEnum.Active.ToString())
+                    {
+                        sodata.OrderStatusChangedBy = salesOrderMaster.UpdatedBy;
+                        sodata.OrderStatusChangedDate = salesOrderMaster.UpdatedDate;
+                        sodata.OrderStatusChangedFromIP = salesOrderMaster.UpdatedFromIP;
+                        sodata.ProductionBookedQty = salesOrderMaster.ProductionBookedQty;
+                        
+                    }
 
                     _salesOrderRepository.Update(sodata);
 

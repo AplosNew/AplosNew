@@ -28,6 +28,8 @@
                          e-filtersettings-filterType="excel" e-enabletouch="false"
                          e-allowselection="false">
                         <div e-columns>
+                            <div e-column e-headertext="Edit" e-textalign="center" e-template="#SOedit" e-width="70"></div>
+
                             <div e-column e-type="string" e-field="Id" e-headertext="Sales order No." e-width="150"></div>
                             <div e-column e-type="date" e-field="DeliveryDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Delivery Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="Destination" e-headertext="Destination" e-width="100"></div>
@@ -45,7 +47,6 @@
                             <div e-column e-type="date" e-field="MainRawMaterialInhouseDate" e-format="{0:dd-MMM-yyyy}" e-headertext="MainRawMaterialInhouseDate" e-width="80"></div>
                             <div e-column e-type="date" e-field="OtherRawMaterialInhouseDate" e-format="{0:dd-MMM-yyyy}" e-headertext="OtherRawMaterialInhouseDate" e-width="80"></div>
                             <div e-column e-type="string" e-field="OrderStatusId" e-headertext="Order Status" e-width="80"></div>
-                            <div e-column e-headertext="Action" e-template="#SOedit" e-width="100"></div>
 
                         </div>
                         <script id="SOedit" type="text/template">
@@ -128,7 +129,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                {{mName}} > Sales Order
+                {{mName}} Sales Order
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="tab-design" id="tab_show">
@@ -197,59 +198,139 @@
                                     </li>
                                 </ul>
                             </div>
-
                         </div>
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
-                                    <div class="col-sm-6 show-message">
-                                        <input type="text" n-decimals="4" name="Rate" ng-model="soModel.Rate" class="form-control text-right" required tabindex="110">
+                            <div ng-form="soRateForm">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
+                                        <div class="col-sm-6 show-message">
+                                            <input type="text" n-decimals="4" name="Rate" ng-model="soModel.Rate" class="form-control text-right" required tabindex="110">
+                                        </div>
+                                        <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
+                                            <input type="text" ng-model=soModel.Currency class="form-control" disabled />
+                                           
+                                           
+                                        </div>
+                                    </div>
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">Sales Expense<sup>*</sup></label>
+                                        <div class="col-sm-8  show-message">
+                                            <input type="text" n-decimals="2" name="Sales Expense" ng-model="soModel.SalesExpense" ng-keyup="SetNetSalesRealization();" class="form-control text-right" tabindex="113" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Up Charge</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" n-decimals="2" name="UpCharge" ng-model="soModel.UpCharge" class="form-control text-right" tabindex="113">
+                                        </div>
                                     </div>
                                 </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Discount</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" n-decimals="2" name="Discount" ng-model="soModel.Discount" class="form-control text-right" tabindex="112">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Net Sales Realization</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" n-decimals="2" name="NetSalesRealization" disabled ng-model="soModel.NetSalesRealization" class="form-control text-right" tabindex="113">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">CM</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" n-decimals="4" name="CM" ng-model="soModel.CM" class="form-control text-right" tabindex="113">
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Produced Qty<span ng-show="soModel.ProductionBookingLevel!=='SalesOrder'">(Without SO)</span></label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="Booked Quantity" ng-model="ProdBookedQty" disabled class="form-control text-right" tabindex="101">
-                                    </div>
-                                </div>
+                            <div class="common-btn" style="padding-right: 15px;">
+                                <ul class="list-inline text-right">
+                                    <li>
+                                        <button ng-click="saveSalesOrderRate();" class="btn">Update</button>
+                                    </li>
+                                    <li>
+                                        <button ng-click="closeSOPopUp();" class="btn">Close</button>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
-                                    <div class="col-sm-8">
-                                        <input type="text" n-decimals="2" name="Qty" ng-model="soModel.Qty" class="form-control text-right" tabindex="111">
+                            <div ng-form="soQTYForm">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" n-decimals="2" name="Qty" ng-model="soModel.Qty" class="form-control text-right" tabindex="111">
+                                        </div>
                                     </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+
                                 </div>
                             </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Produced Qty<span ng-show="soModel.ProductionBookingLevel!=='SalesOrder'">(Without SO)</span></label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="Booked Quantity" ng-model="ProdBookedQty" disabled class="form-control text-right" tabindex="101">
-                                    </div>
-                                </div>
+                            <div class="common-btn" style="padding-right: 15px;">
+                                <ul class="list-inline text-right">
+                                    <li>
+                                        <button ng-click="saveSalesOrderQTY();" class="btn">Update</button>
+                                    </li>
+                                    <li>
+                                        <button ng-click="closeSOPopUp();" class="btn">Close</button>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Order Status<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <div class="select-style">
-                                            <select name="Order Status" class="form-control" ng-model="soModel.OrderStatusId" ng-options="item.Value as item.Text for item in orderStatusList" required tabindex="105" ng-change="GetSOBookedQtyAndLevel(soModel.Id);">
-                                                <option value="">--Select--</option>
-                                            </select>
+                            <div ng-form="soStatusForm">
+                                <div class="form-group">
+                                    <label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Booked <span style="text-transform: lowercase;">as Sales Order. </span>This <span style="text-transform: lowercase;">qty will reduce from Produce qty.</span></label>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">Order Status<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <div class="select-style">
+                                                <select name="Order Status" class="form-control" ng-model="soModel.OrderStatusId" ng-options="item.Value as item.Text for item in orderStatusList" required tabindex="105" ng-change="GetSOBookedQtyAndLevel(soModel.Id);">
+                                                    <option value="">--Select--</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">SO Production Allocation</label>
+
+                                        <div class="col-sm-3">
+                                            <input type="text" name="SO Production Allocation" hidden ng-model="soModel.ProductionBookingLevel" disabled class="form-control text-right" tabindex="101">
+                                            <input type="text" only-numbers name="Booked Quantity" ng-model="soModel.ProductionBookedQty" ng-disabled="soModel.ProductionBookingLevel==='SalesOrder' || soModel.OrderStatusId==='Active'" class="form-control text-right" tabindex="101" ng-change="SetTotalProdQty();">
+                                        </div>
+                                        <label class="col-sm-3 control-label" style="padding-left: 5px;">Total Prd. Qty</label>
+                                        <div class="col-sm-2">
+                                            <input type="text" name="Total Produced Qty" ng-model="TotalProducedQty" disabled class="form-control text-right" tabindex="101">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Produced Qty<span ng-show="soModel.ProductionBookingLevel!=='SalesOrder'">(Without SO)</span></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" name="Booked Quantity" ng-model="ProdBookedQty" disabled class="form-control text-right" tabindex="101">
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-
+                            <div class="common-btn" style="padding-right: 15px;">
+                                <ul class="list-inline text-right">
+                                    <li>
+                                        <button ng-click="saveSalesOrderStatus();" class="btn">Update</button>
+                                    </li>
+                                    <li>
+                                        <button ng-click="closeSOPopUp();" class="btn">Close</button>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>

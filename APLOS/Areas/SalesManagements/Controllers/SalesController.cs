@@ -619,6 +619,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetPackingDetail(string salesId)
+        {
+            AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsSalesService.GetPackingDetail(identity.CompanyId, identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
+
+        }
+
         //[HttpGet, Authorize]
         //public ActionResult GetMasterOrderSalesList()
         //{
@@ -662,15 +671,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpPost]
         public JsonResult PostSalesPacking(VoucherViewModel sales, IEnumerable<SalesMaterialViewModel> salesDetailVMList
             , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList
-            , VoucherViewModel packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList)
+            , SalesPacking packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList,string packingVoucherTypeId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sales.CompanyGroupId = identity.CompanyGroupId;
             sales.CompanyId = identity.CompanyId;
             sales.PlantId = identity.PlantId;
-            packing.CompanyGroupId = identity.CompanyGroupId;
-            packing.CompanyId = identity.CompanyId;
-            packing.PlantId = identity.PlantId;
+            
             if (salesDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != salesDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
                 throw new CustomException("Dr Cr Amount not equal");
             foreach (var item in salesDetailVMList)
@@ -682,7 +689,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 if (item.ActivityId == null)
                     throw new CustomException("Activity is not found");
             }
-            _salesService.PackingSalesPost(sales, salesDetailVMList, salesMaterialDetailGLList, salesServiceDetailGLList, packing, PackingDetailVMList);
+            _salesService.PackingSalesPost(sales, salesDetailVMList, salesMaterialDetailGLList, salesServiceDetailGLList, packing, PackingDetailVMList, packingVoucherTypeId);
 
             return Json(new { Message = AplosMessage.Posted });
         }
