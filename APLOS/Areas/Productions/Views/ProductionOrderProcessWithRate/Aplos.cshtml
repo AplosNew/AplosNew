@@ -149,7 +149,7 @@
                             <button ng-click="charSave(1);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
                         </li>
                         <li>
-                            <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                            <button ng-click="ConfirmDeleteFirst();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>
                         </li>
                         <li>
                             <button ng-click="closeCharPopUp();" class="btn"><i class="glyphicon glyphicon-remove"></i> Close</button>
@@ -243,7 +243,7 @@
             </div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-6">
-                    <label class="col-sm-6 control-label">Production Entity<sup>*</sup></label>
+                    <label class="col-sm-6 control-label">Rate<sup>*</sup></label>
                     <div class="col-sm-6 ">
                         <input type="text" only-numbers ng-model="Rate" class="form-control text-right">
                     </div>
@@ -253,7 +253,7 @@
                         <li>
                             <button ng-click="SaveRate();" class="btn"><i class=""></i> Save</button>
                         </li>
-                        <li> <button ng-click="ConfirmDelete();" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="ConfirmDeleteThird();" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                         <li>
                             <button ng-click="closeCharPopUp();" class="btn">Close</button>
                         </li>
@@ -273,6 +273,28 @@
         <ul class="list-inline text-right">
             <li><button ng-click="Delete();ConfirmDeleteClose()" class="btn">Yes</button></li>
             <li><button ng-click="ConfirmDeleteClose();" class="btn"> No</button></li>
+        </ul>
+    </p>
+</ej-dialog>
+<ej-dialog id="DeletePopUpFirst" title="Confirm Delete?" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#firstPopup" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+    <p>
+        Are you sure to delete ?
+    </p>
+    <p class="text-right">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Delete();ConfirmDeleteCloseFirst()" class="btn">Yes</button></li>
+            <li><button ng-click="ConfirmDeleteCloseFirst();" class="btn"> No</button></li>
+        </ul>
+    </p>
+</ej-dialog>
+<ej-dialog id="DeletePopUpThird" title="Confirm Delete?" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#thirdPopup" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+    <p>
+        Are you sure to delete ?
+    </p>
+    <p class="text-right">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Delete();ConfirmDeleteCloseThird()" class="btn">Yes</button></li>
+            <li><button ng-click="ConfirmDeleteCloseThird();" class="btn"> No</button></li>
         </ul>
     </p>
 </ej-dialog>
