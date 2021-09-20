@@ -54,6 +54,18 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
         [HttpGet, Authorize]
+        public ActionResult GetRate(string ProductionEntityId, string ProcessId, string ProductionOrderId)
+        {
+            try
+            {
+                return Json(R.GetDetailRate(ProductionEntityId, ProcessId, ProductionOrderId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpGet, Authorize]
         public JsonResult GetProductionOrderDataList(string entityId,string ProcessId)
         {
             return Json(R.GetProductionOrderData(entityId, ProcessId), JsonRequestBehavior.AllowGet);
@@ -74,13 +86,13 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        [HttpPost,Authorize]
+        [HttpPost]
         public ActionResult delete(string MasterId)
         {
             try
             {
                 if (string.IsNullOrEmpty(MasterId))
-                    throw new Exception("Select Valid Id first");
+                    throw new Exception("Select Id first");
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("delete from ProductionOrderProcessWithRateDetails where ProductionOrderProcessWithRateMasterId='" + MasterId + "'");

@@ -35,7 +35,7 @@ namespace Aplos.Areas.Banks.Controllers
 
         #region Aplos
 
-        [Authorize]
+       
         public ActionResult BankReconciliation()
         {
             return View("~/Areas/Banks/Views/BankReconciliation.cshtml");

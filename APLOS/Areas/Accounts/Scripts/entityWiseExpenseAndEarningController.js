@@ -41,6 +41,8 @@ function entityWiseExpenseAndEarningController(cboService, commonMessage, $scope
 
     //}
 
+
+
     $scope.getReport = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.form.$valid) {
@@ -49,14 +51,27 @@ function entityWiseExpenseAndEarningController(cboService, commonMessage, $scope
         }
     };
 
-    $scope.incomeStatementReportDownLoad = function () {
-        if ($scope.incomeStatementReport.Type === "ForThePeriod") {
-            $scope.getDateWiseTrialBalanceReport();
-        }
-        else {
-            $scope.getReport();
 
-        }
+    $scope.entityChange = function (id) {
+        var entity = $.grep($scope.entityList, function (item) {
+            return item.Value === id;
+        })[0];
+
+        $scope.Entiy = entity.Text;
+    }
+
+
+
+    $scope.incomeStatementReportDownLoad = function () {
+        $scope.getDateWiseTrialBalanceReport();
+
+        //if ($scope.incomeStatementReport.Type === "ForThePeriod") {
+        //    $scope.getDateWiseTrialBalanceReport();
+        //}
+        //else {
+        //    $scope.getReport();
+
+        //}
     };
 
     $scope.getDateWiseTrialBalanceReport = function () {
@@ -67,7 +82,7 @@ function entityWiseExpenseAndEarningController(cboService, commonMessage, $scope
             manualValidation('div_WDToDate', true, "To Date is required.");
         }
         else {
-            location.href = 'accounts/voucher/EntityWiseExpenseAndEarningreportDateWise?fromDate=' + $scope.incomeStatementReport.FromDate + '&toDate=' + $scope.incomeStatementReport.ToDate + '&entityId=' + $scope.incomeStatementReport.EntityId + '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds));
+            location.href = 'accounts/voucher/EntityWiseExpenseAndEarningreportDateWise?fromDate=' + $scope.incomeStatementReport.FromDate + '&toDate=' + $scope.incomeStatementReport.ToDate + '&entityId=' + $scope.incomeStatementReport.EntityId + '&entity=' + $scope.Entiy +  '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds));
 
             //var url = 'Accounts/Voucher/DateRangeWiseTrialBalanceReport?reportFormat=' + $scope.report.ReportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel;
             //$window.open(url, '_blank');

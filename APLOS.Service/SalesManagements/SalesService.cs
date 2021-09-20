@@ -3664,7 +3664,7 @@ namespace Library.Service.SalesManagements
         public void PackingSalesPost(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList
            , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList
             , IEnumerable<SalesServiceViewModel> salesServiceDetailGLList
-            , VoucherViewModel packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList)
+            , SalesPacking packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList, string packingVoucherTypeId)
         {
             var flag = false;
             try
@@ -3996,10 +3996,10 @@ namespace Library.Service.SalesManagements
                 // INSERT INTO Voucher TABLE
                 var packingvoucher = new Voucher
                 {
-                    CompanyGroupId = packing.CompanyGroupId,
-                    CompanyId = packing.CompanyId,
-                    PlantId = packing.PlantId,
-                    CurrencyId = voucherVM.CurrencyId,
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    CurrencyId = companyCurrencyId,//voucherVM.CurrencyId,
                     FiscalYearId = voucherVM.FiscalYearId,
                     FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
                     TaxYearId = voucherVM.TaxYearId,
@@ -4007,14 +4007,14 @@ namespace Library.Service.SalesManagements
                     AddedBy = packing.AddedBy,
                     AddedDate = packing.AddedDate,
                     AddedFromIP = packing.AddedFromIP,
-                    VoucherDate = packing.VoucherDate,
-                    DocDate = packing.DocDate,
-                    DocRefNo = packing.DocRefNo,
-                    IsPark = packing.IsPark,
-                    Narration = packing.Narration,
-                    PostingDate = packing.PostingDate,
+                    VoucherDate = voucherVM.VoucherDate,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    IsPark = voucherVM.IsPark,
+                    Narration = voucherVM.Narration,
+                    PostingDate = voucherVM.PostingDate,
                     SourceType = SourceType.PackingJournal.ToString(),
-                    VoucherTypeId = packing.VoucherTypeId,
+                    VoucherTypeId = packingVoucherTypeId,
                 };
                 packingvoucher.TransactionRefNo = DateTime.Now.Year.ToString().Substring(2) + packingvoucher.Id;
                 _voucherService.InsertVoucher(packingvoucher, voucherVM.FiscalYearPrefix);
@@ -4038,10 +4038,10 @@ namespace Library.Service.SalesManagements
                                 BudgetMasterId = packingDetailVM.BudgetMasterId,
                                 ActivityId = packingDetailVM.ActivityId,
                                 DrAmount = packingDetailVM.Amount,
-                                CurrencyId = voucherVM.CurrencyId,
+                                CurrencyId = companyCurrencyId,// voucherVM.CurrencyId,
                                 DocDate = voucherVM.DocDate,
                                 DocRefNo = voucherVM.DocRefNo,
-                                Narration = packing.Narration,
+                                Narration = voucherVM.Narration,
 
                                 AddedBy = packingvoucher.AddedBy,
                                 AddedDate = packingvoucher.AddedDate,
@@ -4055,9 +4055,9 @@ namespace Library.Service.SalesManagements
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = voucherPackingDr.CurrencyId,
                                 ToCurrencyId = companyCurrencyId,
-                                ToCurrencyRate = sales.ToCurrencyRate,
-                                ToCurrencyConversion = 1 / sales.ToCurrencyRate,
-                                DrAmount = voucherPackingDr.DrAmount * sales.ToCurrencyRate
+                                ToCurrencyRate = 1,//sales.ToCurrencyRate,
+                                ToCurrencyConversion = 1,// / sales.ToCurrencyRate,
+                                DrAmount = voucherPackingDr.DrAmount //* sales.ToCurrencyRate
                             });
                         }
                         if (packingDetailVM.TrnType == "Cr")
@@ -4068,7 +4068,7 @@ namespace Library.Service.SalesManagements
                                 BudgetMasterId = packingDetailVM.BudgetMasterId,
                                 ActivityId = packingDetailVM.ActivityId,
                                 CrAmount = packingDetailVM.Amount,
-                                CurrencyId = voucherVM.CurrencyId,
+                                CurrencyId = companyCurrencyId,//voucherVM.CurrencyId,
                                 DocDate = voucherVM.DocDate,
                                 DocRefNo = voucherVM.DocRefNo,
                                 Narration = sales.Narration,
@@ -4081,44 +4081,23 @@ namespace Library.Service.SalesManagements
                             currentVoucherDetaiRecord++;
                             _voucherService.InsertVoucherDetail(packingvoucher, voucherPackingCr, currentVoucherDetaiRecord);
                             packingDetailVM.VoucherDetailId = voucherPackingCr.Id;
-                            //_salesMaterialRepository.Update(voucherDetailVM);
-
-                           // if (voucherDetailVM.OtherName == "Sales")
-                           // {
-                           //     foreach (var item in salesMaterialDetailGLList.Where(r => r.GLGeneralInfoId == voucherCr.GLGeneralInfoId
-                           //&& r.BudgetMasterId == voucherCr.BudgetMasterId && r.ActivityId == voucherCr.ActivityId))
-                           //     {
-                           //         if (item.SalesMaterialId != null)
-                           //         {
-                           //             var salesMaterial = _salesMaterialRepository.Find(item.SalesMaterialId);
-                           //             salesMaterial.VoucherDetailId = voucherCr.Id;
-                           //             salesMaterial.ModelState = ModelState.Modified;
-                           //             salesMaterial.PostCrGLGeneralInfoId = voucherCr.GLGeneralInfoId;
-                           //             salesMaterial.PostCrBudgetMasterId = voucherCr.BudgetMasterId;
-                           //             salesMaterial.PostCrActivityId = voucherCr.ActivityId;
-                           //             salesMaterial.PostDrGLGeneralInfoId = invoiceDetail.GLGeneralInfoId;
-                           //             salesMaterial.PostDrBudgetMasterId = invoiceDetail.BudgetMasterId;
-                           //             salesMaterial.PostDrActivityId = invoiceDetail.ActivityId;
-                           //             AuditService.UpdatedLog(salesMaterial);
-                           //             _salesMaterialRepository.Update(salesMaterial);
-                           //         }
-
-                           //     }
-                           // }
 
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherPackingCr, new VoucherDetailCurrency
                             {
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = voucherPackingCr.CurrencyId,
                                 ToCurrencyId = companyCurrencyId,
-                                ToCurrencyRate = sales.ToCurrencyRate,
-                                ToCurrencyConversion = 1 / sales.ToCurrencyRate,
-                                CrAmount = voucherPackingCr.CrAmount * sales.ToCurrencyRate
+                                ToCurrencyRate =1,// sales.ToCurrencyRate,
+                                ToCurrencyConversion = 1, /// sales.ToCurrencyRate,
+                                CrAmount = voucherPackingCr.CrAmount// * sales.ToCurrencyRate
                             });
 
                         }
                     }
                 }
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
                 ConnectionManager.DAL.ConManager objCon;
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 DataSet dsBillMaster;
@@ -4135,16 +4114,16 @@ namespace Library.Service.SalesManagements
                     drmo["VoucherId"] = packingvoucher.Id;
                     drmo["UpdatedBy"] = packingvoucher.AddedBy;
                     drmo["UpdatedDate"] = DateTime.Now.ToString();
-                    drmo["UpdatedFromIP"] = voucher.AddedFromIP;
+                    drmo["UpdatedFromIP"] = packingvoucher.AddedFromIP;
                     drmo.EndEdit();
                 }
 
-                clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets( dsBillMaster);
+                
 
-                _unitOfWork.SaveChanges();
-                flag = false;
-                _unitOfWork.Commit();
+                
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(dsBillMaster);
+                
             }
             catch (Exception ex)
             {

@@ -309,7 +309,34 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Material Group</th>
+                                <th>Material Master</th>
+                                <th>Article</th>
+                                <th>Qty</th>
+                                <th>Amount (TRN)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in packingDetailList">
+                                <td>{{x.MaterialGroup}}</td>
+                                <td>{{x.Material}}</td>
+                                <td>{{x.Article}}</td>
+                                <td class="text-right">{{x.Qty}}</td>
+                                <td class="text-right">{{x.Amount | number| setDecimal:2}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-right"><strong>Total : </strong></td>
+                                <td class="text-right" ><strong>{{packingDetailList | sumByKey : 'Qty' }}</strong></td>
+                                <td class="text-right"><strong>{{packingDetailList | sumByKey : 'Amount'| number| setDecimal:2}}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <div class="clearfix"></div>
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
@@ -385,13 +412,42 @@
                 <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="100"></div>
                 <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
                 <div e-column e-field="RowState" e-headertext="Status" e-width="100"></div>
-                <div e-column e-headertext="PDF Sales" e-commands="commandPDFMOS" e-isunbound=true e-textalign="center" e-width="60"></div>
-                <div e-column e-headertext="Excel Sales" e-commands="commandExcelMOS" e-isunbound=true e-textalign="left" e-width="80"></div>
-                <div e-column e-headertext="PDF Posting" e-commands="commandPDFPostingMOS" e-isunbound=true e-textalign="left" e-width="100"></div>
-                <div e-column e-headertext="Excel Posting" e-commands="commandExcelPostingMOS" e-isunbound=true e-textalign="left" e-width="100"></div>
-
+                <div e-column e-headertext="Sales" e-template="#SalesTemplate" e-width="60"></div>
+                <div e-column e-headertext=" Posting " e-template="#PostingTemplate" e-width="80"></div>
             </div>
         </div>
+        <script id="SalesTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.onClickReportMOS(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                            <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickReportExcelMOS(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                            <i class="fa fa-file-excel-o"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
+
+        <script id="PostingTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.onClickReportPDFPosting(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                            <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickReportExcelPosting(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                            <i class="fa fa-file-excel-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickReportPDFPackingPosting(data);" ng-show="data.SalesPackingVoucherId" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Packing">
+                            <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
     </div>
 </div>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(salesdb)"></confirm-archive-generic>

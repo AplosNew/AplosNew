@@ -1480,7 +1480,7 @@ namespace Library.Service.Accounts
             }
         }
 
-        public IWorkbook EntityWiseExpenseandEarning_Report_DateRange(ExcelEngine excelEngine, string companyId, string plantId, string plantName, string fromDate, string toDate, string entityId, string[] parallelCurrencies)
+        public IWorkbook EntityWiseExpenseandEarning_Report_DateRange(ExcelEngine excelEngine, string companyId, string plantId, string plantName, string fromDate, string toDate, string entityId, string entity,string[] parallelCurrencies)
         {
             ReportUtility oRU = null;
             IWorkbook workbook = null;
@@ -1491,14 +1491,14 @@ namespace Library.Service.Accounts
                 // DataSet dsLocal = GetIncomeStatementInfoDateRange(companyId, plantId, fromDate, toDate, parallelCurrencies);
                 workbook = oRU.GetWorkbook(ref excelEngine, 1);
                 sheet1 = workbook.Worksheets[0];
-                CreateSheet_EntityWiseExpenseAndEarning_DateRange(ref sheet1, oRU, "Entity Wise Expense And Earning", "Entity Wise Expense and Earning Report", companyId, plantId, plantName, fromDate, toDate, entityId, parallelCurrencies);
+                CreateSheet_EntityWiseExpenseAndEarning_DateRange(ref sheet1, oRU, "Entity Wise Expense And Earning Report", "EntityWiseExpenseandEarning Report", companyId, plantId, plantName, fromDate, toDate, entityId, entity,parallelCurrencies);
 
                 workbook.Version = ExcelVersion.Excel2013;
                 return workbook;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw;
+                throw e;
             }
         }
 
@@ -2511,7 +2511,7 @@ namespace Library.Service.Accounts
             }
         }
 
-        private void CreateSheet_EntityWiseExpenseAndEarning_DateRange(ref IWorksheet sheet, ReportUtility oRU, string SheetHeader, string SheetName, string companyId, string plantId, string plantName, string fromDate, string toDate, string entityId, string[] parallelCurrency)
+        private void CreateSheet_EntityWiseExpenseAndEarning_DateRange(ref IWorksheet sheet, ReportUtility oRU, string SheetHeader, string SheetName, string companyId, string plantId, string plantName, string fromDate, string toDate, string entityId, string entity,string[] parallelCurrency)
         {
             DataTable dtGeneralVoucher = null;
             DataTable dtCustomerCheckByCompany = null;
@@ -2900,21 +2900,25 @@ namespace Library.Service.Accounts
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.CellStyle.Font.Size = 8;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                oRU.CompanyPlantHeader(ref sheet, shet2EndxlsCol, SheetHeader, identity.CompanyId, plantName, null);
-                oRU.SetText(ref sheet, 5, 2, "From Date " + fromDate + " To Date " + toDate + "", ExcelHAlign.HAlignCenter);
+                oRU.CompanyPlantHeader(ref sheet, shet2EndxlsCol, SheetHeader ,identity.CompanyId, plantName, null);
+                oRU.SetTextEntity(ref sheet, 5, 2, entity, ExcelHAlign.HAlignCenter);
+
+                oRU.SetText(ref sheet, 6, 2 ,  "From Date " + fromDate + " To Date " + toDate + "", ExcelHAlign.HAlignCenter);
 
                 sheet.Range[oRU.GetColumnNameForXls(1) + 5 + ":" + oRU.GetColumnNameForXls(shet2EndxlsCol) + 5].Merge();
                 sheet.Range[oRU.GetColumnNameForXls(1) + 4 + ":" + oRU.GetColumnNameForXls(shet2EndxlsCol) + 4].Merge();
+                sheet.Range[oRU.GetColumnNameForXls(1) + 6 + ":" + oRU.GetColumnNameForXls(shet2EndxlsCol) + 6].Merge();
+
                 sheet.Range[Row_Total_Start, 1, _rowL, colHeaderClosingBalance].BorderAround(ExcelLineStyle.Hair);
-                oRU.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
+                oRU.PageSetup(ref sheet, 6, ExcelPageOrientation.Portrait);
             }
             else
             {
                 sheet.Name = "Entity Wise Expense and Earning report";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                oRU.CompanyPlantHeader(ref sheet, 5, SheetHeader, identity.CompanyId, plantName, null);
-                oRU.SetText(ref sheet, 5, 3, "No Data Found !", ExcelHAlign.HAlignCenter);
-                oRU.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
+                oRU.CompanyPlantHeader(ref sheet, 6, SheetHeader, identity.CompanyId, plantName, null);
+                oRU.SetText(ref sheet, 6, 3, "No Data Found !", ExcelHAlign.HAlignCenter);
+                oRU.PageSetup(ref sheet, 6, ExcelPageOrientation.Portrait);
             }
         }
 

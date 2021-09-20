@@ -127,14 +127,14 @@ namespace Library.Service.Vouchers
             }
         }
 
-        public IWorkbook GetEntityWiseExpenseAndEarningReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate,  string entityId, string[] parallelCurrencies)
+        public IWorkbook GetEntityWiseExpenseAndEarningReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate,  string entityId, string entity, string[] parallelCurrencies)
         {
             try
             {
                 var obj = new ReportGeneralVoucher();
                 using (ExcelEngine excelEngine = new ExcelEngine())
                 {
-                    var workbook = obj.EntityWiseExpenseandEarning_Report_DateRange(excelEngine, companyId, PlantId, plantName, fromDate, toDate, entityId, parallelCurrencies);
+                    var workbook = obj.EntityWiseExpenseandEarning_Report_DateRange(excelEngine, companyId, PlantId, plantName, fromDate, toDate, entityId, entity,parallelCurrencies);
                     return workbook;
                 }
             }
