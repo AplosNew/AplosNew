@@ -24,7 +24,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
             {
                 string strSQL = string.Empty;
 
-                strSQL = @"select M.Id MasterId,D.Rate from ProductionOrderProcessWithRateDetails D
+                strSQL = @"select M.Id MasterId,D.Rate,D.Id ChildId from ProductionOrderProcessWithRateDetails D
                                 Left join ProductionOrderProcessWithRateMaster m on m.Id=D.ProductionOrderProcessWithRateMasterId
                                 where M.ProductionEntityId='" + ProductionEntityId + "' and M.ProcessId='" + ProcessId + "' and M.ProductionOrderId='" + ProductionOrderId + "' ";
                 return _sqlRepository.GetDataCollection(strSQL);
@@ -89,7 +89,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 
                 string strSQL = string.Empty;
 
-                strSQL = @"select c.*,d.Rate,m.Id MasterId from (
+                strSQL = @"select c.*,d.Rate,m.Id MasterId,d.Id ChildId from (
 								select distinct p.ProductionOrderId,p.ProcessId " + Column + @"								
 							from trn.ProductionOrder PR
 							join [TRN].[ProductionOrderProcessSet] p on p.ProductionOrderId=pr.Id and  p.ProcessId='" + ProcessId + @"'
@@ -285,10 +285,11 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[ProductionOrderProcessWithRateDetails]", out sID);
                 for (int i = 0; i < ChildData.Count; i++)
                 {
-                    if (Convert.ToDecimal(ChildData[i]["Rate"]) != 0)
+
+                    dsChild.Tables[0].DefaultView.RowFilter = "Id = '" + ChildData[i]["ChildId"] + "' ";
+                    if (dsChild.Tables[0].DefaultView.Count == 0)
                     {
-                        dsChild.Tables[0].DefaultView.RowFilter = "Id = <> ";
-                        if (dsChild.Tables[0].DefaultView.Count == 0)
+                        if (Convert.ToDecimal(ChildData[i]["Rate"]) != 0)
                         {
                             dr = dsChild.Tables[0].NewRow();
                             Count++;
@@ -330,53 +331,61 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                             dr["AddedFromIP"] = identity.IPAddress;
                             dsChild.Tables[0].Rows.Add(dr);
                         }
-                        else
-                        {
-                            dr = dsChild.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-
-                            if (Sequence == "1")
-                            {
-                                dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
-                                dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
-                                dr["SecondCharacteristicsId"] = DBNull.Value;
-                                dr["SecondCharacteristicsValueId"] = DBNull.Value;
-                            }
-                            else if (Sequence == "2")
-                            {
-                                dr["FirstCharacteristicsId"] = DBNull.Value;
-                                dr["FirstCharacteristicsValueId"] = DBNull.Value;
-                                dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
-                                dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
-                            }
-                            else if (Sequence == "Both")
-                            {
-                                dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
-                                dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
-                                dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
-                                dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
-                            }
-                            else
-                            {
-                                dr["FirstCharacteristicsId"] = DBNull.Value;
-                                dr["FirstCharacteristicsValueId"] = DBNull.Value;
-                                dr["SecondCharacteristicsId"] = DBNull.Value;
-                                dr["SecondCharacteristicsValueId"] = DBNull.Value;
-                            }
-
-                            dr["Rate"] = ChildData[i]["Rate"];
-                            dr["UpdatedFromIP"] = identity.IPAddress;
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = DateTime.Now;
-                            dr.EndEdit();
-                        }
                     }
                     else
+                    {
+
+                        dr = dsChild.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        if (Sequence == "1")
+                        {
+                            dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                            dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                            dr["SecondCharacteristicsId"] = DBNull.Value;
+                            dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                        }
+                        else if (Sequence == "2")
+                        {
+                            dr["FirstCharacteristicsId"] = DBNull.Value;
+                            dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                            dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                            dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                        }
+                        else if (Sequence == "Both")
+                        {
+                            dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                            dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                            dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                            dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                        }
+                        else
+                        {
+                            dr["FirstCharacteristicsId"] = DBNull.Value;
+                            dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                            dr["SecondCharacteristicsId"] = DBNull.Value;
+                            dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                        }
+
+                        dr["Rate"] = clsStaticInfo.dbl(ChildData[i]["Rate"]);
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr.EndEdit();
+
+                        //else
+                        //{
+                        //    dsChild.Tables[0].Rows[0].Delete();
+                        //}
+                    }
+                }
+                for (int i = 0; i < dsChild.Tables[0].Rows.Count; i++)
+                {
+                    if (clsStaticInfo.dbl(dsChild.Tables[0].Rows[i]["Rate"].ToString()) == 0)
                     {
                         dsChild.Tables[0].Rows[i].Delete();
                     }
                 }
-
                 #endregion
 
                 clsStaticInfo _info = new clsStaticInfo();
