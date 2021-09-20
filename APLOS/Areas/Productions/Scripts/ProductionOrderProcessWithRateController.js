@@ -132,8 +132,7 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
                 }
             }
 
-            if ($scope.SelectedProductionOrder.IsDisable == false && $scope.SelectedProductionOrder.SKUId == "" || $scope.SelectedProductionOrder.IsDisable == false && baseService.isUndefinedOrNull($scope.SelectedProductionOrder.SKUId))
-            {
+            if ($scope.SelectedProductionOrder.IsDisable == false && $scope.SelectedProductionOrder.SKUId == "" || $scope.SelectedProductionOrder.IsDisable == false && baseService.isUndefinedOrNull($scope.SelectedProductionOrder.SKUId)) {
                 throw "Select SKU..!";
             }
             else {
@@ -164,6 +163,9 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#thirdPopup')).modal('hide');
     };
     $scope.charSave = function () {
+        for (var i = 0; i < $scope.SKUList.length; i++) {
+            $scope.SKUList[i].Rate = $scope.SKUList[i].Rate == "" ? null : $scope.SKUList[i].Rate;
+        }
         try {
             $http({
                 method: 'POST',
@@ -218,7 +220,7 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
                             && $scope.SKUList[j].SecondCharacteristicsValueId == $scope.ColumnList[i].childList[k].SizeValue
                             && $scope.SKUList[j].FirstCharacteristicsId == $scope.ColumnList[i].FirstCharacteristicsId
                             && $scope.SKUList[j].SecondCharacteristicsId == $scope.ColumnList[i].childList[k].SecondCharacteristicsId && $scope.ColumnList[i].childList[k].Rate != null) {
-                            $scope.SKUList[j].Rate = $scope.ColumnList[i].childList[k].Rate;
+                            $scope.SKUList[j].Rate = $scope.ColumnList[i].childList[k].Rate == "" ? null : $scope.ColumnList[i].childList[k].Rate;
                         }
                     }
                 }

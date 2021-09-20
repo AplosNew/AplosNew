@@ -26,7 +26,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 
                 strSQL = @"select M.Id MasterId,D.Rate from ProductionOrderProcessWithRateDetails D
                                 Left join ProductionOrderProcessWithRateMaster m on m.Id=D.ProductionOrderProcessWithRateMasterId
-                                where M.ProductionEntityId='" + ProductionEntityId + "' and M.ProcessId='"+ ProcessId + "' and M.ProductionOrderId='"+ ProductionOrderId + "' ";
+                                where M.ProductionEntityId='" + ProductionEntityId + "' and M.ProcessId='" + ProcessId + "' and M.ProductionOrderId='" + ProductionOrderId + "' ";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -266,7 +266,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrderProcessWithRateMaster", out _Id);
 
-                    Master["Id"] = "POPWRM_" + _Id;                    
+                    Master["Id"] = "POPWRM_" + _Id;
                     MasterID = Master["Id"].ToString();
                     AddNewRow(dsMaster.Tables[0], Master);
                 }
@@ -289,55 +289,52 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[ProductionOrderProcessWithRateDetails]", out sID);
                 for (int i = 0; i < ChildData.Count; i++)
                 {
-                    DataRow dr = dsChild.Tables[0].NewRow();
-                    Count++;
-                    dr["Id"] = "POPWRD_" + sID + Count;
-                    dr["ProductionOrderProcessWithRateMasterId"] = MasterID;
-                    if (Sequence == "1")
+                    if ( Convert.ToDecimal(ChildData[i]["Rate"]) != 0 )
                     {
-                        dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
-                        dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
-                        dr["SecondCharacteristicsId"] = DBNull.Value;
-                        dr["SecondCharacteristicsValueId"] = DBNull.Value;
-                    }
-                    else if (Sequence == "2")
-                    {
-                        dr["FirstCharacteristicsId"] = DBNull.Value;
-                        dr["FirstCharacteristicsValueId"] = DBNull.Value;
-                        dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
-                        dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
-                    }
-                    else if (Sequence == "Both")
-                    {
-                        dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
-                        dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
-                        dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
-                        dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
-                    }
-                    else
-                    {
-                        dr["FirstCharacteristicsId"] = DBNull.Value;
-                        dr["FirstCharacteristicsValueId"] = DBNull.Value;
-                        dr["SecondCharacteristicsId"] = DBNull.Value;
-                        dr["SecondCharacteristicsValueId"] = DBNull.Value;
-                    }
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        Count++;
+                        dr["Id"] = "POPWRD_" + sID + Count;
+                        dr["ProductionOrderProcessWithRateMasterId"] = MasterID;
+                        if (Sequence == "1")
+                        {
+                            dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                            dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                            dr["SecondCharacteristicsId"] = DBNull.Value;
+                            dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                        }
+                        else if (Sequence == "2")
+                        {
+                            dr["FirstCharacteristicsId"] = DBNull.Value;
+                            dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                            dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                            dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                        }
+                        else if (Sequence == "Both")
+                        {
+                            dr["FirstCharacteristicsId"] = ChildData[i]["FirstCharacteristicsId"];
+                            dr["FirstCharacteristicsValueId"] = ChildData[i]["FirstCharacteristicsValueId"];
+                            dr["SecondCharacteristicsId"] = ChildData[i]["SecondCharacteristicsId"];
+                            dr["SecondCharacteristicsValueId"] = ChildData[i]["SecondCharacteristicsValueId"];
+                        }
+                        else
+                        {
+                            dr["FirstCharacteristicsId"] = DBNull.Value;
+                            dr["FirstCharacteristicsValueId"] = DBNull.Value;
+                            dr["SecondCharacteristicsId"] = DBNull.Value;
+                            dr["SecondCharacteristicsValueId"] = DBNull.Value;
+                        }
 
-                    if (ChildData[i]["Rate"] == null || ChildData[i]["Rate"].ToString() == "")
-                    {
-                        dr["Rate"] = DBNull.Value;
-                    }
-                    else
-                    {
                         dr["Rate"] = ChildData[i]["Rate"];
-                    }
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = DateTime.Now;
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = DateTime.Now;
-                    dr["UpdatedFromIP"] = identity.IPAddress;
 
-                    dsChild.Tables[0].Rows.Add(dr);
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
                 }
 
                 #endregion
