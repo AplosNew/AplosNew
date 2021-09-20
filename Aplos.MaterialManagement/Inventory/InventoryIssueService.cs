@@ -10198,6 +10198,20 @@ namespace Library.MaterialManagement.Inventory
                     #region ===========IssueDetail And IssueHistory And Update GRN And Stock=======
                     try
                     {
+                        if (entities.IsNotNull())
+                        {
+                            foreach(var itemWOMat in entities)
+                            {
+                                if (itemWOMat.ArticleId.IsNotNull())
+                                {
+
+                        //        }
+                        //        else
+                        //        {
+                        //            SaveIssueTransformationChild(entities, _pk);
+                        //        }
+                        //    }
+                        //}
 
                         var uiList = entities.ToList();
                         var currentId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueDetail] WHERE InventoryIssueId='{inventoryIssue.Id}'").First();
@@ -10878,6 +10892,14 @@ namespace Library.MaterialManagement.Inventory
                         //_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
 
                     }
+                                else
+                    {
+                        SaveIssueTransformationChild(entities, _pk);
+                    }
+                }
+            }
+
+                    }
                     catch (CustomException)
                     {
                         throw;
@@ -10908,6 +10930,126 @@ namespace Library.MaterialManagement.Inventory
                 {
                     _unitOfWork.Rollback();
                 }
+            }
+        }
+
+        // Save Issue Tranformation Wihtout Material
+
+        private string GetTransformationChildPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "InventoryIssueDetail", out sID);
+            return sID;
+        }
+
+        public void SaveIssueTransformationChild(IEnumerable<InventoryMaterialViewModel> entities, string MasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                DataSet ExistOrNot;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var JWItemId = "' '";
+                var OtMatId = "' '";
+
+                foreach (var empitem in entities)
+                {
+         //           JWItemId += ",'" + empitem.JWInputItemId + "' ";
+                    OtMatId += ",'" + empitem.JWTCMId + "' ";
+
+                }
+                con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTCMID IN ( " + OtMatId + ") and JWTCInputId IN (" + JWItemId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+
+                foreach (var item in entities)
+                {
+
+         //           ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
+
+                    if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = ExistOrNot.Tables[0].NewRow();
+                        dr["Id"] = GetTransformationChildPK();
+
+                        dr["InventoryIssueId"] = MasterId;
+                        dr["TransactionQty"] = item.TransactionQty;
+                        dr["TransactionUoMId"] = item.TransactionUoMId;
+                        dr["BaseUOMId"] = item.BaseUOMId;
+                        dr["CostCenterId"] = item.CostCenterId;
+                        dr["JWTCMID"] = item.JWTCMId;
+           //             dr["JWTCInputId"] = item.JWInputItemId;
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        //dr["UpdatedBy"] = identity.Name;
+                        //dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        //dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        ExistOrNot.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+         //               ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
+
+                        if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow dr = ExistOrNot.Tables[0].NewRow();
+                            dr["Id"] = GetTransformationChildPK();
+
+                            dr["InventoryIssueId"] = MasterId;
+                            dr["TransactionQty"] = item.TransactionQty;
+                            dr["TransactionUoMId"] = item.TransactionUoMId;
+                            dr["BaseUOMId"] = item.BaseUOMId;
+                            dr["CostCenterId"] = item.CostCenterId;
+                            dr["JWTCMID"] = item.JWTCMId;
+            //                dr["JWTCInputId"] = item.JWInputItemId;
+
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = System.DateTime.Now.ToString();
+                            dr["AddedFromIP"] = identity.IPAddress;
+
+                            ExistOrNot.Tables[0].Rows.Add(dr);
+
+                        }
+                        else
+                        {
+                            //edit
+                            DataRow dr = ExistOrNot.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+
+                            dr["InventoryIssueId"] = MasterId;
+                            dr["TransactionQty"] = item.TransactionQty;
+                            dr["TransactionUoMId"] = item.TransactionUoMId;
+                            dr["BaseUOMId"] = item.BaseUOMId;
+                            dr["CostCenterId"] = item.CostCenterId;
+                            dr["JWTCMID"] = item.JWTCMId;
+               //             dr["JWTCInputId"] = item.JWInputItemId;
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                            dr.EndEdit();
+                        }
+
+
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(ExistOrNot);
+
+                //         return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
