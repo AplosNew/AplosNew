@@ -3789,7 +3789,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SandwichLogic(SandwichPrevDay, out SandwichData, PlantValue);
                     if (SandwichData.Tables[0].Rows.Count > 0)
                     {
-                        
+
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and PlantID='" + PlantValue + "'";
 
@@ -3832,14 +3832,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     if (ToDaySandwich == "1")
                                     {
                                         if (FinalStatus != "")
-                                        {            
+                                        {
                                             // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
 
                                             var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
-                                            from AttdnProcessData where WorkDate <= '"+SandwichPrevDay+@"'--considering this date has flag=2 (starting point)
-                                            and EmpSystemID='"+EmpId+@"' 
+                                            from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=2 (starting point)
+                                            and EmpSystemID='" + EmpId + @"' 
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1)";
 
                                             var RowData = _sqlRepository.GetDataTable(sqly);
@@ -3866,7 +3866,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=2 (starting point)
                                             and EmpSystemID='" + EmpId + @"' 
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1)";
-                                     
+
                                         var RowData = _sqlRepository.GetDataTable(sqly);
                                         if (RowData.Rows.Count > 0)
                                         {
@@ -3882,7 +3882,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             }
                         }
-                       
+
                         SaveDataSets(dsRef); // Saving Main DataSet 
 
                         ConnectionManager.DAL.ConManager NewConection = new ConnectionManager.DAL.ConManager("1");
@@ -3906,8 +3906,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     // DayStatus Change of Range
                                     DataRow dry = dsMaster.Tables[0].DefaultView[0].Row;
-                                    dry.BeginEdit();                                 
-                                    dry["DayStatus"] = DayType; 
+                                    dry.BeginEdit();
+                                    dry["DayStatus"] = DayType;
                                     dry["Sandwichstatus"] = DayType;
                                     dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                     dry["UpdatedBy"] = "Sandwich";
@@ -3917,7 +3917,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsMaster); // Saving If Part of Sandwich Logic     
 
                         }
-                        
+
                         ProcessSandwichFlag(SandwichFlagRowId);  // Saving Else Part of Sandwich Logic                       
 
                     }
@@ -4003,6 +4003,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                     // If Manual is less than Processed
                                                     dr.BeginEdit();
                                                     dr["ProcessedOT"] = PastManualOT;
+                                                    dr.EndEdit();
+                                                }
+                                                else
+                                                {
+                                                    // Otherwise Processed
+                                                    dr.BeginEdit();
+                                                    dr["ProcessedOT"] = Result;
                                                     dr.EndEdit();
                                                 }
                                             }
@@ -5525,6 +5532,13 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                                 dr.EndEdit();
                                                 CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                                            }
+                                            else
+                                            {
+                                                // Otherwise Processed
+                                                dr.BeginEdit();
+                                                dr["ProcessedOT"] = Result;
+                                                dr.EndEdit();
                                             }
                                         }
                                         else
