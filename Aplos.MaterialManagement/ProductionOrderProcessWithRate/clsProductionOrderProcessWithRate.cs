@@ -35,6 +35,40 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
             }
 
         }//End Function
+        public IEnumerable<object> GetEntitys()
+        {
+            try
+            {
+                string strSQL = string.Empty;
+
+                strSQL = @"select distinct e.UserName EntityName,e.Id EntityId  from [TRN].[ProductionOrderProcessSet] Pr
+                                    join ORG.Entity e on e.Id=pr.EntityIdWithinCompany
+                                    where JobWorkType = 'EntityWithinCompany'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+        public IEnumerable<object> GetProcessList(string EntityId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+
+                strSQL = @"select distinct p.UserName ProcessName,P.Id ProcessId  from [TRN].[ProductionOrderProcessSet] Pr
+                                join hkp.Process p on p.Id = pr.ProcessId
+                                where Pr.EntityIdWithinCompany='" + EntityId + "'";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
         public IEnumerable<object> GetSKU(string ProcessId, string ProductionOrderId, string SkuId, string Sequence)
         {
             try
@@ -200,24 +234,25 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 								   LEFT JOIN TRN.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
 								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-								   ) PD ON PD.ProductionOrderId=PO.Id
-									LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = PD.ProductionOrderId
-                                    left join ProductionOrderProcessWithRateMaster Ma on Ma.ProductionEntityId = PO.EntityId and Ma.ProcessId =POSP.ProcessId and Ma.ProductionOrderId =PO.Id
-								   WHERE  E.Id='" + entityId + "' and POSP.ProcessId='" + ProcessId + "' and PS.StandardName in ('Active','Running')" +
-                                   "group by Ma.Id,[Sequence], PO.Id ,PS.UserName,PO.RequiredTimeUnit,LSD,CommitmentDate,PD.Product" +
-                                   ", PD.ProductCategory,PD.Buyer,PD.Customer" +
-                                   ", PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName,Ma.SelectedDropDownValue,PD.MaterialMaster,PD.Article";
+								   ) PD ON PD.ProductionOrderId=PO.Id									
+                                    left join ProductionOrderProcessWithRateMaster Ma on --Ma.ProductionEntityId = PO.EntityId and							
+									 Ma.ProductionOrderId =PO.Id
+								   WHERE  
+								   PO.Id IN(select ProductionOrderId  from [TRN].[ProductionOrderProcessSet] Pr where Pr.EntityIdWithinCompany='" + entityId + "' and ProcessId='" + ProcessId + @"')
+                                   and PS.StandardName in ('Active', 'Running')
+                                   group by Ma.Id, PO.Id ,PS.UserName,PO.RequiredTimeUnit,LSD,CommitmentDate,PD.Product, PD.ProductCategory
+								   ,PD.Buyer,PD.Customer, PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId
+								   ,E.UserName,Ma.SelectedDropDownValue,PD.MaterialMaster,PD.Article";
                 List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
 
                 string strSQL = @"select p.ProductionOrderId,c.Id Value,c.UserName Text, m.Sequence
 							from trn.ProductionOrder PR
-							join [TRN].[ProductionOrderProcessSet] p on p.ProductionOrderId=pr.Id and  p.ProcessId='" + ProcessId + @"'
+							join [TRN].[ProductionOrderProcessSet] p on p.ProductionOrderId=pr.Id and  p.ProcessId=(select top 1 ProcessId from hkp.EntityProcessTag where entityid='" + entityId + "' and ProcessId='" + ProcessId + @"')
 							left join trn.ProductionOrderDetail PD ON pd.Id=(select top 1 Id from trn.ProductionOrderDetail PDX where pdx.ProductionOrderId=pr.Id)
 							left join trn.SalesOrder SO ON so.Id=pd.SalesOrderId
 							left join trn.MasterOrderItem MOI ON moi.id=so.MasterOrderItemId
 							left join MST.MaterialMasterCharacteristics m on m.MaterialMasterId=MOI.MaterialMasterId
-                            left join HKP.Characteristics c on c.Id=m.CharacteristicsId
-							where PR.EntityId='" + entityId + @"'";
+                            left join HKP.Characteristics c on c.Id=m.CharacteristicsId";
                 List<Dictionary<string, object>> CharList = _sqlRepository.GetDataCollection(strSQL, null);
 
                 for (int i = 0; i < data.Count; i++)

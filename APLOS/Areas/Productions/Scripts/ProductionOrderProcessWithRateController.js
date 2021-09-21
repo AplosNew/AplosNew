@@ -24,19 +24,23 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
     $scope.getAllEntities = function () {
         $http({
             method: 'POST',
-            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
+            url: "Productions/ProductionOrderProcessWithRate/GetEntity"
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
             if (baseService.arrayLength(response.data) === 1) {
                 $scope.modelNew.ProductionEntityId = $scope.entityList[0].Value;
-                //default                
+                //default
             }
         });
     }
     $scope.getAllEntities();
     $scope.loadProcessList = function () {
-        cboService.GetEntityProcessCbo($scope.modelNew.ProductionEntityId, function (result) {
-            $scope.processList = result;
+        $http({
+            method: 'POST',
+            url: "Productions/ProductionOrderProcessWithRate/GetProcess",
+            data: { 'EntityId': $scope.modelNew.ProductionEntityId },
+        }).then(function successCallback(response) {
+            $scope.processList = response.data;
         });
     };
     $scope.SKUList = [];
