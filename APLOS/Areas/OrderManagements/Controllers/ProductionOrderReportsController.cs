@@ -4908,7 +4908,15 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 //    OwnReferenceNo  MaterialRowId PONumber    
                 //    ProductionOrderId isProductionScheduled   
                 //    DeliveryDate CommitmentDate  SOQty PONumber    PODate
-
+                COL++;
+                sheet[ROW, COL].Text = "Expected Completion Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colExpectedCompletionDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SO Distributed Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSODistributedQty = COL;
                 COL++;
                 sheet[ROW, COL].Text = "PR No";
                 sheet[ROW, COL].ColumnWidth = 12;
@@ -5035,6 +5043,9 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                     sheet[ROW, colUOM].Text = dtOrderMaster.Rows[i]["UOM"].ToString();
                     sheet[ROW, colCurrency].Text = dtOrderMaster.Rows[i]["Currency"].ToString();
                     sheet[ROW, colMasterOrderCreationDate].Text = dtOrderMaster.Rows[i]["MasterOrderCreationDate"].ToString();
+
+                    sheet[ROW, colExpectedCompletionDate].Text = dtOrderMaster.Rows[i]["ExpectedCompletionDate"].ToString();
+                    sheet[ROW, colSODistributedQty].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["SODistributedQty"].ToString());
 
 
                     sheet[ROW, colBulletinId].Text = dtOrderMaster.Rows[i]["BulletinId"].ToString();
@@ -5773,7 +5784,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
 
             string sql = @"	SELECT so.Id AS SalesOrderId,btn.BulletinId,btn.NoOfWS,btn.TotalSPT,
-	con.Id ContractId,PA.UserName ContractName,M.LCRef LCNo,
+	con.Id ContractId,PA.UserName ContractName,M.LCRef LCNo,format(XCOM.ExpectedCompletionDate,'dd-MMM-yyyy') AS ExpectedCompletionDate,XCOM.Quantity SODistributedQty,
 					format(mo.AddedDate,'dd-MMM-yyyy') AS MasterOrderCreationDate,PO.Remarks, 
 					b.UserName AS Buyer,ei.EmployeeName AS ResponsiblePerson,mo.MasterOrderNo,mm.UserName AS Material,
                            OC.UserName AS OrderCategory,os.UserName AS OrderStatus,OC1.UserName AS SOCategory,os1.UserName AS SOStatus,    MA.StandardName AS Article,                   
@@ -5807,6 +5818,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 							left outer join MasterLC M on m.Id=con.MasterLCId
 
                             left join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
+                            left join [ExpectedSOWiseProductionCompletion] XCOM on XCOM.SalesOrderId=SO.Id
                             LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS SED ON sed.ProductionOrderID=pod.ProductionOrderId
                             LEFT OUTER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
