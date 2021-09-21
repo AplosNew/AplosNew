@@ -38,6 +38,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 else
                 {
+                    
                     #region AssignedShift Process           
                     DataSet UnProcessed;
                     UnProcessedEmp(Date, out UnProcessed, PlantValue); //DataSet of Employees For Row Creation
@@ -172,7 +173,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["WrongShift"] = 0;
                                 dr["OTHr"] = "0";
                                 dr["ProcessedOT"] = "0";
-                                dr["ManualOt"] = "0";
                                 dr["IsOTComfirm"] = 0;
                                 dr["IsLock"] = 0;
                                 dr["IsOTEntitled"] = 0;
@@ -333,7 +333,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #region Ramadan Shift Flagging
                     DataSet RamadanShift;
                     ChangedShift(Date, out RamadanShift, PlantValue); // Building Dataset for Ramadan Shift Days
-                    if (RamadanShift.Tables[0].Rows.Count > 0) 
+                    if (RamadanShift.Tables[0].Rows.Count > 0)
                     {
                         string WorkDate = RamadanShift.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
@@ -550,6 +550,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     OriginalDateData(Date, out OriginalDateComp, PlantValue);
                     if (OriginalDateComp.Tables[0].Rows.Count > 0)
                     {
+                        string OWCompensatory = "", OHCompensatory="";
                         // Holiday or Weekoff But Employee is Working (Compensatory Logic)
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
@@ -573,41 +574,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 if (Type == "W")
                                 {
-                                    // If Entire Plant Working on WeekOff Then WeeklyStatus Updated to WW 
-                                    var sql = @"Update AttdnProcessData Set WeeklyStatus='WW'    
-                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus='W' AND " +
-                                      "isnull(EmpSystemID,'') IN" +
-                                      " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
-
+                                    OWCompensatory = "1";                                   
                                 }
                                 if (Type == "H")
                                 {
-                                    // If Entire Plant Working on Holiday HolidayStaus Updated to NH
-                                    var sql = @"Update AttdnProcessData Set HolidayStatus='NH'  
-                                                         WHERE WorkDate='" + WkDate + "' AND HolidayStatus='H' AND " +
-                                      "isnull(EmpSystemID,'') IN" +
-                                      " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
-
+                                    OHCompensatory = "1";                                   
                                 }
                             }
                             else
@@ -644,6 +615,48 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                         }
                         SaveDataSets(dsRef);
+
+                        #region Entire Plant Flagging Exceptional Case
+                        if (OWCompensatory=="1")
+                        {
+                            // If Entire Plant Working on WeekOff Then WeeklyStatus Updated to WW 
+                            var sql = @"Update AttdnProcessData Set WeeklyStatus='WW'    
+                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus='W' AND " +
+                              "isnull(EmpSystemID,'') IN" +
+                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
+
+
+                            ConnectionManager.DAL.ConManager objCone = null;
+                            objCone = new ConnectionManager.DAL.ConManager("1");
+                            objCone.OpenConnection("1");
+                            objCone.BeginTransaction();
+
+                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                            objCone.CommitTransaction();
+
+                        }
+                        if (OHCompensatory=="1")
+                        {
+                            // If Entire Plant Working on Holiday HolidayStaus Updated to NH
+                            var sql = @"Update AttdnProcessData Set HolidayStatus='NH'  
+                                                         WHERE WorkDate='" + WkDate + "' AND HolidayStatus='H' AND " +
+                              "isnull(EmpSystemID,'') IN" +
+                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
+
+
+                            ConnectionManager.DAL.ConManager objCone = null;
+                            objCone = new ConnectionManager.DAL.ConManager("1");
+                            objCone.OpenConnection("1");
+                            objCone.BeginTransaction();
+
+                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                            objCone.CommitTransaction();
+
+                        }
+                        #endregion
+                   
                     }
                     #endregion
 
@@ -652,6 +665,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     CompensatoryData(Date, out CompensatoryDateComp, PlantValue);
                     if (CompensatoryDateComp.Tables[0].Rows.Count > 0)
                     {
+                        string WCompenstory = "", HCompenstory="";
+
                         // Date of Normal Working Day Taken Compensatory
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
@@ -675,45 +690,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 if (Type == "W")
                                 {
-                                    // If Entire Plant taken Compensatory on WeekOff
-                                    // Then ManualDayStatus Updated to CW 
-
-                                    var sql = @"Update AttdnProcessData Set ManualDayStatus='CW',IsManualDayStatus=1   
-                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus!='W' AND " +
-                                      "isnull(EmpSystemID,'') IN" +
-                                      " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
-
+                                    WCompenstory = "1";                                   
                                 }
                                 if (Type == "H")
                                 {
-                                    // If Entire Plant taken Compensatory on Holiday
-                                    // Then ManualDayStatus Updated to AH 
-
-                                    var sql = @"Update AttdnProcessData Set ManualDayStatus='AH',IsManualDayStatus=1  
-                                             WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
-                                      "isnull(EmpSystemID,'') IN" +
-                                      " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
-
+                                    HCompenstory = "1";                                    
                                 }
                             }
                             else
@@ -752,6 +733,51 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                         }
                         SaveDataSets(dsRef);
+
+                        #region Entire Plant Flagging Exceptional Case
+                        if (WCompenstory=="1")
+                        {
+                            // If Entire Plant taken Compensatory on WeekOff
+                            // Then ManualDayStatus Updated to CW 
+
+                            var sql = @"Update AttdnProcessData Set ManualDayStatus='CW',IsManualDayStatus=1   
+                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus!='W' AND " +
+                              "isnull(EmpSystemID,'') IN" +
+                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
+
+                            ConnectionManager.DAL.ConManager objCone = null;
+                            objCone = new ConnectionManager.DAL.ConManager("1");
+                            objCone.OpenConnection("1");
+                            objCone.BeginTransaction();
+
+                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                            objCone.CommitTransaction();
+
+                        }
+
+                        if(HCompenstory=="1")
+                        {
+                            // If Entire Plant taken Compensatory on Holiday
+                            // Then ManualDayStatus Updated to AH 
+
+                            var sql = @"Update AttdnProcessData Set ManualDayStatus='AH',IsManualDayStatus=1  
+                                             WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
+                              "isnull(EmpSystemID,'') IN" +
+                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
+
+
+                            ConnectionManager.DAL.ConManager objCone = null;
+                            objCone = new ConnectionManager.DAL.ConManager("1");
+                            objCone.OpenConnection("1");
+                            objCone.BeginTransaction();
+
+                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                            objCone.CommitTransaction();
+
+                        }
+                        #endregion
                     }
                     #endregion
 
@@ -3157,44 +3183,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void MonthlySummarySource(string Date, out DataSet ds)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-
-                var sql = @"select dd.*,Month(dd.FromDate)Month,YEAR(dd.FromDate)Year from (select distinct p.EmpSystemID,MIN(p.WorkDate) FromDate,
-                MAX(p.WorkDate) ToDate,(select PlantID
-                from EmployeeInformation where SystemId=p.EmpSystemID)PlantId,(select GroupID
-                from EmployeeInformation where SystemId=p.EmpSystemID)GroupID,
-                COUNT(p.WorkDate) TotalProcDate,
-                isnull(SUM(dt.PresentValuePD),'0')TotalPresent,isnull(SUM(dt.LateValueLV),'0')TotalLate,isnull(SUM(dt.AbsentValueAB),'0')TotalAbsent,
-                isnull(SUM(dt.LeaveValueLP),'0')TotalLv,isnull(SUM(dt.MaternityLeaveValueMLV),'0')TotalMlv,isnull(SUM(dt.CompAssignLv),'0')TotalCompAssignLv,
-                isnull(SUM(dt.WeeklyOffWO),'0')TotalWeekOff,isnull(SUM(dt.HolidayH),'0')TotalHoliDay,isnull(SUM(dt.WeekOffHoliDayWOH),'0')TotalWeekOffHoliDay,
-                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,isnull(SUM(dt.LeaveValueLWP),'0')TotalLWP,isnull(SUM(dt.CasualLeaveValueCV),'0')TotalCasualLeave,
-                isnull(SUM(dt.PriviledgeLeavePL),'0')TotalPriviledgeLeave,isnull(SUM(dt.MedicalLeaveValueMV),'0')TotalMedicalLeave,isnull(SUM(dt.TotalWorkingDay),'0')TotalWorkingDay,
-				isnull(SUM(dt.ActualWorkingDay),'0')ActualWorkingDay,isnull(SUM(dt.PayDay),'0')TotalPayDay,isnull(SUM(dt.NonPayDay),'0')TotalNonPayDay
-                        from AttdnProcessData p
-                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-                        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-                        and dc.PlantId=ei.PlantId
-                        left join DayStatusHeader dh on dh.Id=dc.headerId
-                        left join DayTypeWithValues dt on dt.HeaderId=dh.Id                                          
-                        where dt.DayType=p.DayStatus AND  isnull(p.DayStatus,'')!='' and		
-                        MONTH(WorkDate) = MONTH('"+Date+@"') AND 
-						YEAR(WorkDate) = YEAR('"+Date+@"')                       					
-                        GROUP BY EmpSystemID) as dd";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void EarnedLeaveCalculation(string PreDay, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3232,6 +3220,74 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 p.ShiftShortDuration from AttdnProcessData p 
                 where WorkDate='"+Today+@"' 
                 and p.PlantID='"+Plant+"' and ISNULL(intime,'')!='' and ISNULL(outtime,'')!=''";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
+
+        #region Monthly Summary Source Data
+
+        public void MonthlySummarySource(string Date, out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+
+                var sql = @"select dd.*,Month(dd.FromDate)Month,YEAR(dd.FromDate)Year from (select distinct p.EmpSystemID,MIN(p.WorkDate) FromDate,
+                MAX(p.WorkDate) ToDate,(select PlantID
+                from EmployeeInformation where SystemId=p.EmpSystemID)PlantId,(select GroupID
+                from EmployeeInformation where SystemId=p.EmpSystemID)GroupID,
+                COUNT(p.WorkDate) TotalProcDate,
+                isnull(SUM(dt.PresentValuePD),'0')TotalPresent,isnull(SUM(dt.LateValueLV),'0')TotalLate,isnull(SUM(dt.AbsentValueAB),'0')TotalAbsent,
+                isnull(SUM(dt.LeaveValueLP),'0')TotalLv,isnull(SUM(dt.MaternityLeaveValueMLV),'0')TotalMlv,isnull(SUM(dt.CompAssignLv),'0')TotalCompAssignLv,
+                isnull(SUM(dt.WeeklyOffWO),'0')TotalWeekOff,isnull(SUM(dt.HolidayH),'0')TotalHoliDay,isnull(SUM(dt.WeekOffHoliDayWOH),'0')TotalWeekOffHoliDay,
+                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,isnull(SUM(dt.LeaveValueLWP),'0')TotalLWP,isnull(SUM(dt.CasualLeaveValueCV),'0')TotalCasualLeave,
+                isnull(SUM(dt.PriviledgeLeavePL),'0')TotalPriviledgeLeave,isnull(SUM(dt.MedicalLeaveValueMV),'0')TotalMedicalLeave,isnull(SUM(dt.TotalWorkingDay),'0')TotalWorkingDay,
+				isnull(SUM(dt.ActualWorkingDay),'0')ActualWorkingDay,isnull(SUM(dt.PayDay),'0')TotalPayDay,isnull(SUM(dt.NonPayDay),'0')TotalNonPayDay
+                        from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                        left join mst.DesignationMasterLegalDesignation ddm on
+                        ddm.LegalDesignationId = ei.LegalDesignationId
+                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+                        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
+                        and dc.PlantId=ei.PlantId
+                        left join DayStatusHeader dh on dh.Id=dc.headerId
+                        left join DayTypeWithValues dt on dt.HeaderId=dh.Id                                          
+                        where dt.DayType=p.DayStatus AND  isnull(p.DayStatus,'')!='' and		
+                        MONTH(WorkDate) = MONTH('" + Date + @"') AND 
+						YEAR(WorkDate) = YEAR('" + Date + @"')                       					
+                        GROUP BY EmpSystemID) as dd";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void PastDOJ(out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
+                     CONVERT(date,e.DateAdded) as Today,m.ShiftDefinationId as ShiftId,s.ShiftDuration,
+                     s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
+                     CASE WHEN s.InTime>s.OutTime THEN DATEADD(DAY,1,s.OutTime) ELSE s.OutTime END as ShiftOut,
+				     e.DateAdded
+                     FROM EmployeeInformation E
+                     left join mst.ManpowerBudget m on m.Id=e.BudgetCode
+                     left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
+                     WHERE CONVERT(DATE,'2021-06-01'--Here getdate() will come
+                     )=CONVERT(date,E.DateAdded) 
+				     and DOJ<= CONVERT(DATE,'2021-06-01')
+				     and e.PlantId='202016'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }

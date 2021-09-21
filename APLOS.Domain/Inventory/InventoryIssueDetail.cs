@@ -23,6 +23,7 @@ namespace Library.Model.Inventory
         public string Comments { get; set; }
         public string JWTCMID { get; set; } 
         public bool IsAsset { get; set; }
+        public string JWTCInputId { get; set; }
 
         #endregion Scalar Properties
 
