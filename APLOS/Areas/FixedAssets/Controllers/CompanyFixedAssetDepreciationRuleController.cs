@@ -1,9 +1,12 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
+using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.FixedAssets;
 using Library.Service.FixedAssets;
 using System.Collections.Generic;
+using System.Threading;
 using System.Web.Mvc;
 
 namespace Aplos.Areas.FixedAssets.Controllers
@@ -11,11 +14,22 @@ namespace Aplos.Areas.FixedAssets.Controllers
     public class CompanyFixedAssetDepreciationRuleController : BaseController
     {
         private readonly ICompanyFixedAssetDepreciationRuleService _companyFixedAssetDepreciationRuleService;
+        private readonly ISqlRepository _sqlRepository;
 
-        public CompanyFixedAssetDepreciationRuleController(ICompanyFixedAssetDepreciationRuleService companyFixedAssetDepreciationRuleService)
+        public CompanyFixedAssetDepreciationRuleController(ICompanyFixedAssetDepreciationRuleService companyFixedAssetDepreciationRuleService
+                                                            ,ISqlRepository R
+                                                            )
         {
             _companyFixedAssetDepreciationRuleService = companyFixedAssetDepreciationRuleService;
+            _sqlRepository = R;
         }
+
+        #region Constructor
+
+  
+
+        #endregion Constructor
+
 
         [HttpGet]
         public ActionResult GetList(GridParameter parameters, string companyId)
@@ -28,6 +42,26 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View();
         }
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetFixedAssetMasterList(GridParameter parameters)
+        {
+            return Json(_companyFixedAssetDepreciationRuleService.QueryAssetMaster(parameters), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetListAssetMaster()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"	select * from mst.FixedAssetMaster";
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
 
         [HttpGet]
         public JsonResult GetCompanyDepreciationRuleById(string id)
