@@ -12721,6 +12721,14 @@ ORDER BY tg.[Sequence]";
 						,ISNull(po.ContractNo,'') ContractNo
 						,isnull(PO.LCANo,'') LCANo
 						,isnull(PO.LCDate,'') LCDate
+						,ISNULL(IRD.IssueQty,0) IssueQty
+						,ISNULL(IRD.BaseIssueQty,0) BaseIssueQty
+						,ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty
+						,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty
+						,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty
+						,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty
+						,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty	 				
+						,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -12845,7 +12853,7 @@ ORDER BY tg.[Sequence]";
 								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 
-								,LCANo=STUFF((select distinct ','+PLC.LCANo from
+								,LCANo=STUFF((select distinct ','+PLC.LCRef from
 								trn.PurchaseOrder xpo
 								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
 								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
@@ -12998,6 +13006,14 @@ ORDER BY tg.[Sequence]";
 					,'' ContractNo
 					,'' LCANo
 					,'' LCDate
+					,0 IssueQty
+					,0 BaseIssueQty
+					,0 PurchaseReturnQty
+					,0 IssueReturnQty
+					,0 ReductionByAdjustmentQty
+					,0 InventorySalesQty
+					,0 InventoryScrapQty						
+					,0 InventoryTransferQty
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId

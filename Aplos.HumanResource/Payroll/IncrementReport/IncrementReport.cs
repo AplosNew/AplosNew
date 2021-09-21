@@ -70,13 +70,21 @@ namespace Library.HumanResource.Payroll.IncrementReport
                                     left join [MST].[LegalSalaryGradeDesignation] gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
                                     left join scs.LegalSalaryGrade grd on grd.id=gr.LegalSalaryGradeId
                                     where e.PlantId='" + identity.PlantId + @"' 
-									and e.SystemId in 									
+									AND e.SystemId in 									
 									                (
 								                    SELECT  sidm.EmpInfoSystemID FROM SalaryInfoDefineMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"' AND sidm.EffectiveDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
 								                    UNION 
 								                    SELECT  sidm.EmpInfoSystemID FROM SalaryInfoBackMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"'  AND sidm.EffectiveDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
 								                    )
-                                                    AND DATEDIFF(day, FORMAT(E.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy'))>365";
+
+									AND  e.SystemId in 	(
+													SELECT  sidm.EmpInfoSystemID FROM SalaryInfoDefineMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"' AND sidm.EffectiveDate <'" + FromDate + @"'
+
+								                    UNION 
+								                    SELECT  sidm.EmpInfoSystemID FROM SalaryInfoBackMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"'  AND sidm.EffectiveDate < '" + FromDate + @"'
+													)
+                                                   -- AND DATEDIFF(day, FORMAT(E.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy'))>365
+";
 
                 ExcelEngine excelEngine = new ExcelEngine();
                 //Instantiate the Excel application object
@@ -205,24 +213,6 @@ namespace Library.HumanResource.Payroll.IncrementReport
                 int StartRow = ROW; //row 20
                 for (int i = 0; i < dtEmployeeData.Rows.Count; i++)
                 {
-                    //string NewEffectivedate = "";
-                    //string OldEffectivedate = "";
-                    //if (dicOldGross.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))
-                    //{
-                    //    DataRow dr = dicOldGross[dtEmployeeData.Rows[i]["SystemId"].ToString()];
-                    //    OldEffectivedate = Convert.ToDateTime(dr["EffectiveDate"].ToString()).ToString("dd-MMM-yyyy");
-                    //}
-                    //if (dicNewGross.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))
-                    //{
-                    //    DataRow dr = dicNewGross[dtEmployeeData.Rows[i]["SystemId"].ToString()];
-                    //    NewEffectivedate = Convert.ToDateTime(dr["EffectiveDate"].ToString()).ToString("dd-MMM-yyyy");
-                    //}
-
-                    //if (OldEffectivedate)
-                    //{
-
-                    //}
-
                     sheet[ROW, colSlNo].Number = (i + 1);
 
                     sheet[ROW, colEmployeeCode].Text = dtEmployeeData.Rows[i]["EmployeeCode"].ToString();
@@ -253,11 +243,9 @@ namespace Library.HumanResource.Payroll.IncrementReport
 
                     if (dicNewBasic.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))
                     {
-
                         DataRow dr = dicNewBasic[dtEmployeeData.Rows[i]["SystemId"].ToString()];
                         sheet[ROW, colNewBasic].Number = clsStaticInfo.dbl(dr["Amount"].ToString());
                         sheet[ROW, colNewBasic].NumberFormat = "#,##0.00;(#,##0.00)";
-
                     }
 
                     if (dicOldGross.ContainsKey(dtEmployeeData.Rows[i]["SystemId"].ToString()))

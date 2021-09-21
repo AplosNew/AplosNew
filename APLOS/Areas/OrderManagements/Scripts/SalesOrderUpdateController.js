@@ -365,6 +365,9 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
             ShowResult(e, "failure");
         }
     };
+    $scope.SetTotalProdQty = function () {
+        $scope.TotalProducedQty = $scope.soModel.ProductionBookedQty + $scope.ProdBookedQty;
+    }
     $scope.saveSalesOrderStatus = function () {
 
         if ($scope.soModel.OrderStatusId !== 'Active') {
@@ -403,9 +406,7 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
     $scope.SetNetSalesRealization = function () {
         $scope.soModel.NetSalesRealization = $scope.soModel.SalesExpense - $scope.soModel.Discount;
     }
-    $scope.SetTotalProdQty = function () {
-        $scope.TotalProducedQty = $scope.soModel.ProductionBookedQty + $scope.ProdBookedQty;
-    }
+
     $scope.ProdBookedQty = 0;
     $scope.TotalProducedQty = 0;
     $scope.GetSOBookedQtyAndLevel = function (salesOrderId) {
