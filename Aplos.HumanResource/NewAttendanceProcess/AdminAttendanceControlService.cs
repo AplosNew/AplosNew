@@ -484,9 +484,19 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
+                string EmpSel = "";
+                if (Emps == "''")
+                {
+                    EmpSel = "";
+                }
+                else
+                {
+                    EmpSel = "and EmpSystemID in (" + Emps + ")";
+                }
+
                 var str = @"select RowId,EmpSystemID,WorkDate,InTime,OutTime,ShiftSystemID,DayStatus 
                             from AttdnProcessData where WorkDate between '" + FD + @"' and '" + TD + @"'
-                            AND PlantID='" + PlId + @"' and EmpSystemID in ("+Emps+@")";
+                            AND PlantID='" + PlId + @"' "+EmpSel+"";
                 return _sqlRepository.GetDataTable(str);
             }
             catch(Exception ex)
@@ -514,13 +524,23 @@ namespace Library.HumanResource.NewAttendanceProcess
                     throw new Exception("The Plant is Locked for - " + pl);
                 }
 
+                string EmpSel = "";
+                if(Emps == "''")
+                {
+                    EmpSel = "";
+                }
+                else
+                {
+                    EmpSel = "and EmpSystemID in (" + Emps + ")";
+                }
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string addedname = identity.Name;
                 string addeddate = System.DateTime.Now.ToString();
                 string TableName = "dbo.AttdnProcessData";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + PlId + @"' and EmpSystemID in ("+Emps+")", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + PlId + @"' "+EmpSel+"", out dsMaster, false, "1");
 
                 if (data.Count > 0)
                 {
