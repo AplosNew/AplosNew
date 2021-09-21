@@ -340,13 +340,13 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetServicePostingList()
+        [HttpPost, Authorize]
+        public JsonResult GetServicePostingList(string column, string value)
         {
             AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsInventoryPayableService.GetServicePostingList(identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsInventoryPayableService.GetServicePostingList(column, value,identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
 

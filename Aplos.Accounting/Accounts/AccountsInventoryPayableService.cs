@@ -3509,11 +3509,15 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 			}
 		}
 
-		public IEnumerable<object> GetServicePostingList(string plantId)
+		public IEnumerable<object> GetServicePostingList(string column, string value, string plantId)
 		{
 			try
 			{
-				var sql = @"SELECT IR.Id,  IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+				string strkey = "1=1";
+				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+					strkey = column + " like '%" + value + "%'";
+				var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+				select top 100 * from (SELECT IR.Id,  IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
 								, P.UserName AS PartyName
 			                    , CP.UserName AS PartyAccountGroupName
 			                   
@@ -3531,7 +3535,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 								, CP.TaxApplicable, IR.IsTaxApplicable, IR.ToCurrencyRate
 								,IR.NoteForAccounts Narration
 								,V.VoucherNo,IR.VoucherId, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
-                                    ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.ServiceAcknowledgementMasterId IS NULL THEN '' ELSE 'Parked' end
+                                   ,IsTDSTaxPost=CASE WHEN VT.IsPark=0 THEN 'TDSPosted' WHEN  ADT.ServiceAcknowledgementMasterId IS NULL THEN '' ELSE 'TDSParked' end
 									,VT.VoucherNo TDSVoucherNo
 									,iv.Id InvoiceId
 									,V.IsPark
@@ -3558,7 +3562,9 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					LEFT JOIN TRN.AdditionalTax ADT ON ADT.ServiceAcknowledgementMasterId=IR.Id
 				  LEFT JOIN TRN.Voucher VT ON VT.Id=ADT.VoucherId
                     WHERE IR.PlantId='" + plantId + @"' 
-					AND IR.[Status]='Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1";
+					AND IR.[Status]='Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1
+					) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
+
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -3633,7 +3639,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 	                          ,TC.UserName ThirdChar
 	                          ,ROUND(IRD.TransactionQty, 2) TransactionQty
 	                          ,ROUND(IRD.PolicyRate, 2) TransactionRate
-	                          ,ROUND((IRD.PolicyAmount), 2) AS TrnAmount
+	                          --,ROUND((IRD.PolicyAmount), 2) AS TrnAmount
+	                          ,ROUND((IH.Amount), 2) AS TrnAmount
 	                          ,IRD.BaseUOMId
 	                          ,TUoM.UserName AS TransactionUoM
 							  --,BI.UserName BudgetName

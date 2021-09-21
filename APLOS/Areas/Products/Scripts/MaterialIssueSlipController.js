@@ -2227,12 +2227,18 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 		});
 	}
-
+	$scope.uoMList = [];
+	$scope.uom = function () {
+		cboService.getUoMCbo(function (response) {
+			$scope.uoMList = response;
+		});
+	}
+	$scope.uom();
 	$scope.GetIssueSlipFilterData();
 	$scope.FilterList123 = [];
 	$scope.getDataMaterialWise = function () {
 		$scope.IssueSlipType = 'InventorySlip';
-
+		//$scope.uom();
 		//debugger;
 		//alert('gg');
 		var obj1 = $("#Grid22").ejGrid("instance");
