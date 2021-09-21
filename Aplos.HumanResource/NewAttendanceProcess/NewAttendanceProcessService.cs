@@ -173,7 +173,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["WrongShift"] = 0;
                                 dr["OTHr"] = "0";
                                 dr["ProcessedOT"] = "0";
-                                dr["ManualOt"] = "0";
                                 dr["IsOTComfirm"] = 0;
                                 dr["IsLock"] = 0;
                                 dr["IsOTEntitled"] = 0;
@@ -3184,44 +3183,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void MonthlySummarySource(string Date, out DataSet ds)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-
-                var sql = @"select dd.*,Month(dd.FromDate)Month,YEAR(dd.FromDate)Year from (select distinct p.EmpSystemID,MIN(p.WorkDate) FromDate,
-                MAX(p.WorkDate) ToDate,(select PlantID
-                from EmployeeInformation where SystemId=p.EmpSystemID)PlantId,(select GroupID
-                from EmployeeInformation where SystemId=p.EmpSystemID)GroupID,
-                COUNT(p.WorkDate) TotalProcDate,
-                isnull(SUM(dt.PresentValuePD),'0')TotalPresent,isnull(SUM(dt.LateValueLV),'0')TotalLate,isnull(SUM(dt.AbsentValueAB),'0')TotalAbsent,
-                isnull(SUM(dt.LeaveValueLP),'0')TotalLv,isnull(SUM(dt.MaternityLeaveValueMLV),'0')TotalMlv,isnull(SUM(dt.CompAssignLv),'0')TotalCompAssignLv,
-                isnull(SUM(dt.WeeklyOffWO),'0')TotalWeekOff,isnull(SUM(dt.HolidayH),'0')TotalHoliDay,isnull(SUM(dt.WeekOffHoliDayWOH),'0')TotalWeekOffHoliDay,
-                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,isnull(SUM(dt.LeaveValueLWP),'0')TotalLWP,isnull(SUM(dt.CasualLeaveValueCV),'0')TotalCasualLeave,
-                isnull(SUM(dt.PriviledgeLeavePL),'0')TotalPriviledgeLeave,isnull(SUM(dt.MedicalLeaveValueMV),'0')TotalMedicalLeave,isnull(SUM(dt.TotalWorkingDay),'0')TotalWorkingDay,
-				isnull(SUM(dt.ActualWorkingDay),'0')ActualWorkingDay,isnull(SUM(dt.PayDay),'0')TotalPayDay,isnull(SUM(dt.NonPayDay),'0')TotalNonPayDay
-                        from AttdnProcessData p
-                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-                        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-                        and dc.PlantId=ei.PlantId
-                        left join DayStatusHeader dh on dh.Id=dc.headerId
-                        left join DayTypeWithValues dt on dt.HeaderId=dh.Id                                          
-                        where dt.DayType=p.DayStatus AND  isnull(p.DayStatus,'')!='' and		
-                        MONTH(WorkDate) = MONTH('"+Date+@"') AND 
-						YEAR(WorkDate) = YEAR('"+Date+@"')                       					
-                        GROUP BY EmpSystemID) as dd";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void EarnedLeaveCalculation(string PreDay, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3259,6 +3220,74 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 p.ShiftShortDuration from AttdnProcessData p 
                 where WorkDate='"+Today+@"' 
                 and p.PlantID='"+Plant+"' and ISNULL(intime,'')!='' and ISNULL(outtime,'')!=''";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
+
+        #region Monthly Summary Source Data
+
+        public void MonthlySummarySource(string Date, out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+
+                var sql = @"select dd.*,Month(dd.FromDate)Month,YEAR(dd.FromDate)Year from (select distinct p.EmpSystemID,MIN(p.WorkDate) FromDate,
+                MAX(p.WorkDate) ToDate,(select PlantID
+                from EmployeeInformation where SystemId=p.EmpSystemID)PlantId,(select GroupID
+                from EmployeeInformation where SystemId=p.EmpSystemID)GroupID,
+                COUNT(p.WorkDate) TotalProcDate,
+                isnull(SUM(dt.PresentValuePD),'0')TotalPresent,isnull(SUM(dt.LateValueLV),'0')TotalLate,isnull(SUM(dt.AbsentValueAB),'0')TotalAbsent,
+                isnull(SUM(dt.LeaveValueLP),'0')TotalLv,isnull(SUM(dt.MaternityLeaveValueMLV),'0')TotalMlv,isnull(SUM(dt.CompAssignLv),'0')TotalCompAssignLv,
+                isnull(SUM(dt.WeeklyOffWO),'0')TotalWeekOff,isnull(SUM(dt.HolidayH),'0')TotalHoliDay,isnull(SUM(dt.WeekOffHoliDayWOH),'0')TotalWeekOffHoliDay,
+                SUM(ISNULL(p.OTHr, 0)) TotalOTHr,isnull(SUM(dt.LeaveValueLWP),'0')TotalLWP,isnull(SUM(dt.CasualLeaveValueCV),'0')TotalCasualLeave,
+                isnull(SUM(dt.PriviledgeLeavePL),'0')TotalPriviledgeLeave,isnull(SUM(dt.MedicalLeaveValueMV),'0')TotalMedicalLeave,isnull(SUM(dt.TotalWorkingDay),'0')TotalWorkingDay,
+				isnull(SUM(dt.ActualWorkingDay),'0')ActualWorkingDay,isnull(SUM(dt.PayDay),'0')TotalPayDay,isnull(SUM(dt.NonPayDay),'0')TotalNonPayDay
+                        from AttdnProcessData p
+                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
+                        left join mst.DesignationMasterLegalDesignation ddm on
+                        ddm.LegalDesignationId = ei.LegalDesignationId
+                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+                        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
+                        and dc.PlantId=ei.PlantId
+                        left join DayStatusHeader dh on dh.Id=dc.headerId
+                        left join DayTypeWithValues dt on dt.HeaderId=dh.Id                                          
+                        where dt.DayType=p.DayStatus AND  isnull(p.DayStatus,'')!='' and		
+                        MONTH(WorkDate) = MONTH('" + Date + @"') AND 
+						YEAR(WorkDate) = YEAR('" + Date + @"')                       					
+                        GROUP BY EmpSystemID) as dd";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void PastDOJ(out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
+                     CONVERT(date,e.DateAdded) as Today,m.ShiftDefinationId as ShiftId,s.ShiftDuration,
+                     s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
+                     CASE WHEN s.InTime>s.OutTime THEN DATEADD(DAY,1,s.OutTime) ELSE s.OutTime END as ShiftOut,
+				     e.DateAdded
+                     FROM EmployeeInformation E
+                     left join mst.ManpowerBudget m on m.Id=e.BudgetCode
+                     left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
+                     WHERE CONVERT(DATE,'2021-06-01'--Here getdate() will come
+                     )=CONVERT(date,E.DateAdded) 
+				     and DOJ<= CONVERT(DATE,'2021-06-01')
+				     and e.PlantId='202016'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }

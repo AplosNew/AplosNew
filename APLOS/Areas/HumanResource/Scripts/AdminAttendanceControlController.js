@@ -678,11 +678,6 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
             throw ("Invalid Request");
         }
 
-        if (EmpSelList == "''") {
-            ShowResult("Please Select the Employees!!");
-            throw ("Invalid Request");
-        }
-
         try {
 
             $http({

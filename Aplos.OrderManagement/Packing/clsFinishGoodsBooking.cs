@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Linq;
+using Library.Service.Systems;
+
 namespace Library.OrderManagement.Packing
 {
     public class clsFinishGoodsBooking
@@ -240,6 +242,7 @@ namespace Library.OrderManagement.Packing
             }
         }
 
+
         public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -248,13 +251,16 @@ namespace Library.OrderManagement.Packing
             {
                 string pOId = null;
                 string productCode = null;
+                string MaterialMasterId = null;
+                string ArticleId = null;
+
                 bplib.clsGenID objGenID = new bplib.clsGenID();
+
                 foreach (var item in FinishGoodsBookingDetailList)
                 {
                     if (pOId == null)
                     {
                         pOId = "'" + item["ProductionOrderId"].ToString() + "'";
-
                     }
                     else
                     {
@@ -270,18 +276,33 @@ namespace Library.OrderManagement.Packing
                     {
                         productCode += ",'" + item["ProductCode"].ToString() + "'";
                     }
+                    if (MaterialMasterId == null)
+                    {
+                        MaterialMasterId = "'" + item["MaterialMasterId"].ToString() + "'";
+                    }
+                    else
+                    {
+                        MaterialMasterId += ",'" + item["MaterialMasterId"].ToString() + "'";
+                    }
+                    if (ArticleId == null)
+                    {
+                        ArticleId = "'" + item["ArticleId"].ToString() + "'";
+                    }
+                    else
+                    {
+                        ArticleId += ",'" + item["ArticleId"].ToString() + "'";
+                    }
 
                 }
 
-                DataSet dsMaster, dsItemScanChild, dsFromDateWiseConsumption, dsConsumptionByCosting, dsFromConsumptionByCosting, dsProductionSummary, dsInventoryReceive, dsInventoryReceiveDetail;
+                DataSet dsMaster, dsItemScanChild, dsFromDateWiseConsumption, dsConsumptionByCosting, dsFromConsumptionByCosting, dsProductionSummary, dsInventoryReceive, dsInventoryReceiveDetail, dsInventoryMaterial;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-              
+
                 GetDateWiseConsumptionData(data["FromDate"].ToString(), data["ToDate"].ToString(), out dsFromDateWiseConsumption);
                 //GetDateWiseDetailDataData(data["ProductionEntityId"].ToString(), data["FromDate"].ToString(), data["ToDate"].ToString(), out dsFromFinishGoodsBookingDetail);
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[FinishGoodsBooking] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                //con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DateWiseConsumption WHERE FinishGoodsBookingId ='" + data["Id"] + "'", out dsDateWiseConsumption, false, "1");
-                //con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FinishGoodsBookingDetail WHERE 1 = 2", out dsFinishGoodsBookingDetail, false, "1");
+
                 con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceive WHERE 1 = 2", out dsInventoryReceive, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceiveDetail WHERE 1 = 2", out dsInventoryReceiveDetail, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionSummary WHERE 1 = 2", out dsProductionSummary, false, "1");
@@ -289,12 +310,15 @@ namespace Library.OrderManagement.Packing
 
                 con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "') AND POId IN (" + pOId + @") AND ProductCode IN (" + productCode + @") AND ISNULL(InventoryReceiveDetailId,'')=''", out dsItemScanChild, false, "1");
 
-                string _Id = "", masterId = "", detailId = "", iID = "";
+                con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[InventoryMaterial] where MaterialMasterId IN(" + MaterialMasterId + ") and ArticleId IN(" + ArticleId + ")  and CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'", out dsInventoryMaterial, false, "1");
 
+                string _Id = null, masterId = null, detailId = null, iID = null, inventoryMaterialId = null;
+
+                #region FinishGoodsBooking
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FinishGoodsBooking", out _Id);
+
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FinishGoodsBooking", out _Id);
 
                     data["Id"] = _Id;
 
@@ -308,13 +332,15 @@ namespace Library.OrderManagement.Packing
                 }
 
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                #endregion
+
+                #region InventoryReceive
 
                 foreach (var item in FinishGoodsBookingDetailList)
                 {
                     objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "InventoryReceive", out iID);
 
                     dsFromDateWiseConsumption.Tables[0].DefaultView.RowFilter = "WorkDate=#" + Convert.ToDateTime(item["WorkDate"].ToString()) + "#";
-
 
                     DataRow drInventoryReceive = dsInventoryReceive.Tables[0].NewRow();
                     drInventoryReceive["Id"] = iID;
@@ -340,28 +366,72 @@ namespace Library.OrderManagement.Packing
                     drInventoryReceive["IsNonVendor"] = false;
                     drInventoryReceive["IsFOC"] = false;
                     drInventoryReceive["IsInvoice"] = false;
+
+                    drInventoryReceive["FinishGoodsBookingId"] = masterId;
+
                     drInventoryReceive["AddedBy"] = identity.Name;
                     drInventoryReceive["AddedDate"] = DateTime.Now;
                     drInventoryReceive["AddedFromIP"] = identity.IPAddress;
                     dsInventoryReceive.Tables[0].Rows.Add(drInventoryReceive);
                 }
 
-                
-                // XDateWiseConsumption  InventoryReceive
+                #endregion
+
                 for (int i = 0; i < dsInventoryReceive.Tables[0].Rows.Count; i++)
                 {
-
-                    //dsFromFinishGoodsBookingDetail.Tables[0].DefaultView.RowFilter = "WorkDate=#" + Convert.ToDateTime(dsInventoryReceive.Tables[0].Rows[i]["GRNDate"].ToString()).ToString("dd-MMM-yyyy") + "#";
                     var detailData = FinishGoodsBookingDetailList.Where(xx => Convert.ToDateTime(xx["WorkDate"].ToString()) == Convert.ToDateTime(dsInventoryReceive.Tables[0].Rows[i]["GRNDate"].ToString())).ToList();
-                    if (detailData!=null)
+                    if (detailData != null)
                     {
                         foreach (var item in detailData)
                         {
-                            //InventoryReceiveDetail
+                            #region InventoryMaterial
+
+                            if (dsInventoryMaterial.Tables[0].Rows.Count > 0)
+                            {
+                                dsInventoryMaterial.Tables[0].DefaultView.RowFilter = "MaterialMasterId='" + item["MaterialMasterId"].ToString() + "' AND ArticleId = '" + item["ArticleId"] + "'";
+
+                                if (dsInventoryMaterial.Tables[0].DefaultView.Count > 0)
+                                {
+                                    DataRow dr = dsInventoryMaterial.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+
+                                    dr["TotalQty"] = Convert.ToDecimal(dr["TotalQty"].ToString()) + Convert.ToDecimal(item["Qty"].ToString());
+
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                                    dr.EndEdit();
+                                }
+                            }
+                            else
+                            {
+                                objGenID.GenerateIDAuto("InventoryMaterial", out inventoryMaterialId);
+
+                                DataRow drInventoryMaterial = dsInventoryMaterial.Tables[0].NewRow();
+                                drInventoryMaterial["Id"] = inventoryMaterialId;
+                                drInventoryMaterial["CompanyGroupId"] = identity.CompanyGroupId;
+                                drInventoryMaterial["CompanyId"] = identity.CompanyId;
+                                drInventoryMaterial["PlantId"] = identity.PlantId;
+                                drInventoryMaterial["MaterialMasterId"] = item["MaterialMasterId"];
+                                drInventoryMaterial["ArticleId"] = item["ArticleId"];
+                                drInventoryMaterial["TotalQty"] = item["Qty"];
+                                drInventoryMaterial["AvgRate"] = 0;
+
+                                drInventoryMaterial["AddedBy"] = identity.Name;
+                                drInventoryMaterial["AddedDate"] = DateTime.Now;
+                                drInventoryMaterial["AddedFromIP"] = identity.IPAddress;
+
+                                dsInventoryMaterial.Tables[0].Rows.Add(drInventoryMaterial);
+                            }
+
+                            #endregion
+
+                            #region InventoryReceiveDetail
+
                             DataRow drInventoryReceiveDetail = dsInventoryReceiveDetail.Tables[0].NewRow();
                             drInventoryReceiveDetail["Id"] = iID + "-" + (i + 1);
                             detailId = iID + "-" + (i + 1);
                             drInventoryReceiveDetail["InventoryReceiveId"] = iID;
+                            drInventoryReceiveDetail["InventoryMaterialId"] = dsInventoryMaterial.Tables[0].Rows[0]["Id"].ToString();
                             drInventoryReceiveDetail["TransactionQty"] = item["Qty"];
 
                             drInventoryReceiveDetail["BaseQty"] = item["Qty"];
@@ -377,7 +447,9 @@ namespace Library.OrderManagement.Packing
                             drInventoryReceiveDetail["TotalTaxAmount"] = 0;
                             drInventoryReceiveDetail["ChargesTranAmount"] = 0;
                             drInventoryReceiveDetail["ChargesTaxTranAmount"] = 0;
+
                             drInventoryReceiveDetail["BaseIssueQty"] = 0;
+
                             drInventoryReceiveDetail["ShortageQty"] = 0;
                             drInventoryReceiveDetail["RejectionQty"] = 0;
                             drInventoryReceiveDetail["ApprovedQty"] = 0;
@@ -386,6 +458,7 @@ namespace Library.OrderManagement.Packing
                             drInventoryReceiveDetail["RejectRatePercent"] = 0;
                             drInventoryReceiveDetail["RejectClamPercent"] = 0;
                             drInventoryReceiveDetail["ShortRejFlag"] = 0;
+
                             drInventoryReceiveDetail["PostDrGLGeneralInfoId"] = null;
                             drInventoryReceiveDetail["PostDrBudgetMasterId"] = null;
                             drInventoryReceiveDetail["PostCRGLGeneralInfoId"] = null;
@@ -400,8 +473,10 @@ namespace Library.OrderManagement.Packing
                             drInventoryReceiveDetail["AddedDate"] = DateTime.Now;
                             drInventoryReceiveDetail["AddedFromIP"] = identity.IPAddress;
                             dsInventoryReceiveDetail.Tables[0].Rows.Add(drInventoryReceiveDetail);
+                            #endregion
 
-                            //ProductionSummary
+                            #region ProductionSummary
+
                             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
                             DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
                             drProductionSummary["Id"] = sID;
@@ -411,12 +486,15 @@ namespace Library.OrderManagement.Packing
                             drProductionSummary["ProductionDate"] = Convert.ToDateTime(dsFromDateWiseConsumption.Tables[0].Rows[i]["WorkDate"].ToString()).ToString("dd-MMM-yyyy");
                             drProductionSummary["Quantity"] = item["Qty"];
                             drProductionSummary["ProductionOrderId"] = item["ProductionOrderId"];
+                            drProductionSummary["FinishGoodsBookingId"] = masterId;
                             drProductionSummary["AddedBy"] = identity.Name;
                             drProductionSummary["AddedDate"] = DateTime.Now;
                             drProductionSummary["AddedFromIP"] = identity.IPAddress;
                             dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
+                            #endregion
 
-                            //ConsumptionByCosting
+                            #region ConsumptionByCosting
+
                             GetConsumptionByCostingData(item["CostingMasterTemplateId"].ToString(), out dsFromConsumptionByCosting);
                             dsFromConsumptionByCosting.Tables[0].DefaultView.RowFilter = "CostingId='" + item["CostingMasterTemplateId"].ToString() + "'";
                             for (int l = 0; l < dsFromConsumptionByCosting.Tables[0].DefaultView.Count; l++)
@@ -434,8 +512,10 @@ namespace Library.OrderManagement.Packing
 
                                 dsConsumptionByCosting.Tables[0].Rows.Add(drConsumptionByCosting);
                             }
-                           
-                            //ItemScanChild
+
+                            #endregion
+
+                            #region ItemScanChild
                             if (dsItemScanChild.Tables[0].Rows.Count > 0)
                             {
                                 for (int j = 0; j < dsItemScanChild.Tables[0].Rows.Count; j++)
@@ -455,13 +535,13 @@ namespace Library.OrderManagement.Packing
                                     }
                                 }
                             }
+                            #endregion
                         }
                     }
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();
-               
-                obj.SaveDataSets(dsMaster, dsInventoryReceive, dsInventoryReceiveDetail, dsConsumptionByCosting, dsItemScanChild, dsProductionSummary);
+                obj.SaveDataSets(dsMaster, dsInventoryReceive, dsInventoryMaterial, dsInventoryReceiveDetail, dsConsumptionByCosting, dsItemScanChild, dsProductionSummary);
             }
             catch (Exception ex)
             {
@@ -948,7 +1028,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
             {
                 string sql = @"SELECT SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
 							,Qty=ROUND(CAST(SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END) AS DECIMAL(18,2)), 2),ISNULL(B.Rate,0)Rate
-							,Amount=FORMAT(CONVERT(decimal(18,2),SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END))*CONVERT(decimal(18,4),B.Rate),'N2'),MM.IsAsset,FORMAT(ISN.WorkDate,'dd-MMM-yyyy')WorkDate
+							,Amount=FORMAT(CONVERT(decimal(18,2),SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END))*CONVERT(decimal(18,4),B.Rate),'N2'),MM.IsAsset,FORMAT(ISN.WorkDate,'dd-MMM-yyyy')WorkDate,CT.UOM
+                            ,MM.Id MaterialMasterId,MMA.Id ArticleId
 						FROM dbo.ItemScanChild SC 
 						LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
 						LEFT JOIN dbo.ItemScan ISN ON ISN.Id=SC.MasterId
@@ -978,7 +1059,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
 						LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
 						WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
-						GROUP BY SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName,MM.IsAsset,ISN.WorkDate";
+						GROUP BY SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName,MM.IsAsset,ISN.WorkDate,CT.UOM,MM.Id,MMA.Id";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
