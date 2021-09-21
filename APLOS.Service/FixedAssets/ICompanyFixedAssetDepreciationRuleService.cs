@@ -20,5 +20,7 @@ namespace Library.Service.FixedAssets
         void InsertUpdateCDepreciation(IEnumerable<CompanyFixedAssetDepreciationRule> entities);
 
         void DeleteGraph(string id);
+
+        GridModel QueryAssetMaster(GridParameter parameters);
     }
 }

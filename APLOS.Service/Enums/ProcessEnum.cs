@@ -51,10 +51,10 @@
         Annually,
         Semi,
         Quarterly,
-        Monthly,
-        Fortnightly,
-        Weekly,
-        Daily
+        Monthly
+        //Fortnightly,
+        //Weekly,
+        //Daily
     }
     public enum EnumJobDescriptionNatureOrActivityList
     {
