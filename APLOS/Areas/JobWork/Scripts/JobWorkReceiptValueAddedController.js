@@ -1192,150 +1192,150 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 		//          }
 		//}
 
-		if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[0].StandardName)) {
-			if ($scope.inventoryMaterialList.length > 0) {
-				if ($scope.ReceiptTransformation.GRNDate > new Date()) {
-					ShowResult("GRN Date  can not grather than Today's Date", 'failure');
-					return false;
-				}
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.NoteForAccounts)) {
-					ShowResult("Enter Note for accounts", 'failure');
-					return false;
-				}
-				else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.ReceiptTransformation.CheckedBy)) {
-					ShowResult("Please select to be approved by", 'failure');
-					return false;
-				}
-				else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.ReceiptTransformation.CheckedBy)) {
-					ShowResult("Please select to be checked by", 'failure');
-					return false;
-				}
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.InvoicingPartyPlantId)) {
-					return ShowResult('Invoicing by is required', 'failure');
-					return false;
-				}
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DeliveryPartyPlantId)) {
-					return ShowResult('Delivery by is required', 'failure');
-					return false;
-				}
+		//if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[0].StandardName)) {
+		//	if ($scope.inventoryMaterialList.length > 0) {
+		//		if ($scope.ReceiptTransformation.GRNDate > new Date()) {
+		//			ShowResult("GRN Date  can not grather than Today's Date", 'failure');
+		//			return false;
+		//		}
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.NoteForAccounts)) {
+		//			ShowResult("Enter Note for accounts", 'failure');
+		//			return false;
+		//		}
+		//		else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.ReceiptTransformation.CheckedBy)) {
+		//			ShowResult("Please select to be approved by", 'failure');
+		//			return false;
+		//		}
+		//		else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.ReceiptTransformation.CheckedBy)) {
+		//			ShowResult("Please select to be checked by", 'failure');
+		//			return false;
+		//		}
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.InvoicingPartyPlantId)) {
+		//			return ShowResult('Invoicing by is required', 'failure');
+		//			return false;
+		//		}
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DeliveryPartyPlantId)) {
+		//			return ShowResult('Delivery by is required', 'failure');
+		//			return false;
+		//		}
 
 
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DocRefNo)) {
-					return ShowResult('Enter Doc Ref No', 'failure');
-					return false;
-				}
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DocDate)) {
-					return ShowResult('Enter Doc Date', 'failure');
-					return false;
-				}
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.GateEntryNo)) {
-					return ShowResult('Select Gate Entry No', 'failure');
-					return false;
-				}
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.GRNDate)) {
-					return ShowResult('Enter GRN Date', 'failure');
-					return false;
-				}
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.CurrencyId)) {
-					return ShowResult('Select Currency', 'failure');
-					return false;
-				}
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DocRefNo)) {
+		//			return ShowResult('Enter Doc Ref No', 'failure');
+		//			return false;
+		//		}
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.DocDate)) {
+		//			return ShowResult('Enter Doc Date', 'failure');
+		//			return false;
+		//		}
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.GateEntryNo)) {
+		//			return ShowResult('Select Gate Entry No', 'failure');
+		//			return false;
+		//		}
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.GRNDate)) {
+		//			return ShowResult('Enter GRN Date', 'failure');
+		//			return false;
+		//		}
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.CurrencyId)) {
+		//			return ShowResult('Select Currency', 'failure');
+		//			return false;
+		//		}
 
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.ByWhomName)) {
-					return ShowResult('Select By Whom', 'failure');
-					return false;
-				}
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.ByWhomName)) {
+		//			return ShowResult('Select By Whom', 'failure');
+		//			return false;
+		//		}
 
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.MaterialStorageId)) {
-					return ShowResult('Select Material Storage', 'failure');
-					return false;
-				}
-				else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.NoteForAccounts)) {
-					return ShowResult('Enter the Note For Accounts', 'failure');
-					return false;
-				}
-            }
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.MaterialStorageId)) {
+		//			return ShowResult('Select Material Storage', 'failure');
+		//			return false;
+		//		}
+		//		else if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.NoteForAccounts)) {
+		//			return ShowResult('Enter the Note For Accounts', 'failure');
+		//			return false;
+		//		}
+  //          }
 
-			for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-				if ($scope.inventoryMaterialList[i].check == true) {
-					 SelectedWOMaterial = [];
+		//	for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
+		//		if ($scope.inventoryMaterialList[i].check == true) {
+		//			 SelectedWOMaterial = [];
 					 
 
-					//if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].MaterialStorageId)) {
-					//	ShowResult("Please select storage location", 'failure');
-					//	return false;
-					//}
-					 if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].QualityStatus)) {
-						ShowResult("Please select quality status", 'failure');
-						return false;
-					}
+		//			//if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].MaterialStorageId)) {
+		//			//	ShowResult("Please select storage location", 'failure');
+		//			//	return false;
+		//			//}
+		//			 if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].QualityStatus)) {
+		//				ShowResult("Please select quality status", 'failure');
+		//				return false;
+		//			}
 
-					if ($scope.inventoryMaterialList[i].TransactionQty === '0' && $scope.inventoryMaterialList[i].check === true) {
-						ShowResult("Enter the Qty", 'failure');
-						return false;
-					}
-					else if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].TransactionQty) && $scope.inventoryMaterialList[i].check === true) {
-						ShowResult("Enter the Qty", 'failure');
-						return false;
-					}
-					SelectedWOMaterial.push($scope.inventoryMaterialList[i]);
+		//			if ($scope.inventoryMaterialList[i].TransactionQty === '0' && $scope.inventoryMaterialList[i].check === true) {
+		//				ShowResult("Enter the Qty", 'failure');
+		//				return false;
+		//			}
+		//			else if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].TransactionQty) && $scope.inventoryMaterialList[i].check === true) {
+		//				ShowResult("Enter the Qty", 'failure');
+		//				return false;
+		//			}
+		//			SelectedWOMaterial.push($scope.inventoryMaterialList[i]);
 
-				}
+		//		}
 
-			}
+		//	}
 
-			if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[0].StandardName)) {
-				for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-					if ($scope.inventoryMaterialListPO[i].check == true) {
-						SelectedByProductWOMaterial = [];
+		//	if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[0].StandardName)) {
+		//		for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
+		//			if ($scope.inventoryMaterialListPO[i].check == true) {
+		//				SelectedByProductWOMaterial = [];
 
-						//if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].MaterialStorageId)) {
-						//	ShowResult("Please select storage location", 'failure');
-						//	return false;
-						//}
+		//				//if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].MaterialStorageId)) {
+		//				//	ShowResult("Please select storage location", 'failure');
+		//				//	return false;
+		//				//}
 
-						if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].QualityStatus)) {
-							ShowResult("Please select quality status", 'failure');
-							return false;
-						}
+		//				if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].QualityStatus)) {
+		//					ShowResult("Please select quality status", 'failure');
+		//					return false;
+		//				}
 
-						if ($scope.inventoryMaterialListPO[i].TransactionQty === '0' && $scope.inventoryMaterialListPO[i].check === true) {
-							ShowResult("Enter the Qty", 'failure');
-							return false;
-						}
-						else if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].TransactionQty) && $scope.inventoryMaterialListPO[i].check === true) {
-							ShowResult("Enter the Qty", 'failure');
-							return false;
-						}
-						SelectedByProductWOMaterial.push($scope.inventoryMaterialListPO[i]);
+		//				if ($scope.inventoryMaterialListPO[i].TransactionQty === '0' && $scope.inventoryMaterialListPO[i].check === true) {
+		//					ShowResult("Enter the Qty", 'failure');
+		//					return false;
+		//				}
+		//				else if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].TransactionQty) && $scope.inventoryMaterialListPO[i].check === true) {
+		//					ShowResult("Enter the Qty", 'failure');
+		//					return false;
+		//				}
+		//				SelectedByProductWOMaterial.push($scope.inventoryMaterialListPO[i]);
 
-					}
-				}
-            }
+		//			}
+		//		}
+  //          }
 
 
-			$http({
+		//	$http({
 
-				method: 'POST'
-				, url: $scope.path + 'SaveTransformationWOMaterial'
-				, data: {
-					'data': $scope.ReceiptTransformation, 'ContractId': $scope.Transformation.Id, 'PartyId': $scope.Transformation.PartyId
-					, 'SelectedQtyDataWOMat': SelectedWOMaterial, 'SelectedByProductQtyDataWOMat': SelectedByProductWOMaterial
+		//		method: 'POST'
+		//		, url: $scope.path + 'SaveTransformationWOMaterial'
+		//		, data: {
+		//			'data': $scope.ReceiptTransformation, 'ContractId': $scope.Transformation.Id, 'PartyId': $scope.Transformation.PartyId
+		//			, 'SelectedQtyDataWOMat': SelectedWOMaterial, 'SelectedByProductQtyDataWOMat': SelectedByProductWOMaterial
 
-				}
-				, dataType: 'JSON'
-			}).then(function (response) {
-				if (response.data.Error === true)
-					ShowResult(response.data.Message, 'failure');
-				else {
-					ShowResult(response.data.Message, 'success');
-				//	$scope.getdataInventoryIssue();
-				}
-			}), function (response) {
-				ShowResult(response.data.Message, 'failure');
-			};
-		}
-		else {
+		//		}
+		//		, dataType: 'JSON'
+		//	}).then(function (response) {
+		//		if (response.data.Error === true)
+		//			ShowResult(response.data.Message, 'failure');
+		//		else {
+		//			ShowResult(response.data.Message, 'success');
+		//		//	$scope.getdataInventoryIssue();
+		//		}
+		//	}), function (response) {
+		//		ShowResult(response.data.Message, 'failure');
+		//	};
+		//}
+		//else {
 
 		$scope.inventoryMaterialListPOnew = [];
 		$scope.inventoryMaterialListPOnew1 = [];
@@ -1904,7 +1904,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 		} catch (e) {
 			throw e;
 		}
-	}
+//	}
 	};
 
 
@@ -1913,7 +1913,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			debugger;
 			if ($scope.Action === 'Save') {
 				//	data.TransactionRate = (data.GrossConsumption * data.TransactionQty) / data.TransactionQty;
-				var MatTranRate = (data.GrossConsumption) / data.PlanQuantity;
+				var MatTranRate = ((data.GrossConsumption) / data.PlanQuantity) / (parseFloat($scope.ReceiptTransformation.ToCurrencyRate));
 				data.TransactionRate = MatTranRate.toFixed(4);
 			}
 

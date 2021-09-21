@@ -30,6 +30,7 @@ using Syncfusion.Office;
 using Library.Service.Productions.ProductionBooking;
 using System.Text.RegularExpressions;
 using Syncfusion.Pdf.Parsing;
+using Library.OrderManagement.Production;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
@@ -4907,7 +4908,15 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 //    OwnReferenceNo  MaterialRowId PONumber    
                 //    ProductionOrderId isProductionScheduled   
                 //    DeliveryDate CommitmentDate  SOQty PONumber    PODate
-
+                COL++;
+                sheet[ROW, COL].Text = "Expected Completion Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colExpectedCompletionDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SO Distributed Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSODistributedQty = COL;
                 COL++;
                 sheet[ROW, COL].Text = "PR No";
                 sheet[ROW, COL].ColumnWidth = 12;
@@ -5034,6 +5043,9 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                     sheet[ROW, colUOM].Text = dtOrderMaster.Rows[i]["UOM"].ToString();
                     sheet[ROW, colCurrency].Text = dtOrderMaster.Rows[i]["Currency"].ToString();
                     sheet[ROW, colMasterOrderCreationDate].Text = dtOrderMaster.Rows[i]["MasterOrderCreationDate"].ToString();
+
+                    sheet[ROW, colExpectedCompletionDate].Text = dtOrderMaster.Rows[i]["ExpectedCompletionDate"].ToString();
+                    sheet[ROW, colSODistributedQty].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["SODistributedQty"].ToString());
 
 
                     sheet[ROW, colBulletinId].Text = dtOrderMaster.Rows[i]["BulletinId"].ToString();
@@ -5772,7 +5784,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
 
             string sql = @"	SELECT so.Id AS SalesOrderId,btn.BulletinId,btn.NoOfWS,btn.TotalSPT,
-	con.Id ContractId,PA.UserName ContractName,M.LCRef LCNo,
+	con.Id ContractId,PA.UserName ContractName,M.LCRef LCNo,format(XCOM.ExpectedCompletionDate,'dd-MMM-yyyy') AS ExpectedCompletionDate,XCOM.Quantity SODistributedQty,
 					format(mo.AddedDate,'dd-MMM-yyyy') AS MasterOrderCreationDate,PO.Remarks, 
 					b.UserName AS Buyer,ei.EmployeeName AS ResponsiblePerson,mo.MasterOrderNo,mm.UserName AS Material,
                            OC.UserName AS OrderCategory,os.UserName AS OrderStatus,OC1.UserName AS SOCategory,os1.UserName AS SOStatus,    MA.StandardName AS Article,                   
@@ -5806,6 +5818,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 							left outer join MasterLC M on m.Id=con.MasterLCId
 
                             left join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
+                            left join [ExpectedSOWiseProductionCompletion] XCOM on XCOM.SalesOrderId=SO.Id
                             LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS SED ON sed.ProductionOrderID=pod.ProductionOrderId
                             LEFT OUTER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
@@ -7216,193 +7229,6 @@ TNA.SONo, TNA.PRNo
 
             return null;
         }
-
-        [HttpGet, Authorize]
-        public void ExpectedSOWiseProductionCompletionSave(string entityid)
-        {
-            ExcelEngine excelEngine = null;
-            IApplication application = null;
-            IWorkbook workbook = null;
-            IWorksheet sheet = null;
-            try
-            {
-                if (string.IsNullOrEmpty(entityid) || entityid == "''")
-                    throw new Exception("Select entity");
-
-
-                Dictionary<string, List<DataRow>> dicProductionQtyDistribution;
-                DataTable dt, dtOrderMaster;
-                getSalesOrderDistribution(System.DateTime.Now.ToString("dd-MMM-yyyy"), entityid, out dicProductionQtyDistribution, out dt);
-
-                getOrderMaster(entityid, out dtOrderMaster);
-
-
-                if (dtOrderMaster.Rows.Count == 0)
-                    throw new Exception("No data found");
-
-                excelEngine = new ExcelEngine();
-                application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(5);
-                workbook.Worksheets[3].Name = "OS3 Data";
-                sheet = workbook.Worksheets[3];
-
-
-                int ROW = 1; int COL = 1;
-
-                #region columns
-
-                sheet[ROW, COL].Text = "EntityId";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colEntity = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SalesOrderId";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colSalesOrderId = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "ProductionOrderId";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colProductionOrderId = COL;
-                COL++;
-                
-               
-                sheet[ROW, COL].Text = "ExpectedCompletionDate";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colExpectedCompletionDate = COL;
-                COL++;
-                sheet[ROW, COL].Text = "ProducedQty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colAvailableProducedQty = COL;
-                COL++;
-                sheet[ROW, COL].Text = "PlanQty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colAvailablePlanQty = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Qty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colTotalAvailableQty = COL;
-
-                #endregion columns
-
-                int endCol = COL;
-
-               
-
-                ROW++;
-
-                int startRow = ROW;
-
-                string ExpectedProductionStartDate = "";
-                double PRCumulativePlanQty = 0;
-                string PRId = "";
-                for (int i = 0; i < dtOrderMaster.Rows.Count; i++)
-                {
-                    if (dtOrderMaster.Rows[i]["ProductionOrderId"].ToString() == "2087")
-                    {
-
-                    }
-                    if (PRId != dtOrderMaster.Rows[i]["ProductionOrderId"].ToString())
-                    {
-                        PRCumulativePlanQty = 0;
-                        ExpectedProductionStartDate = "";
-                    }
-                    PRId = dtOrderMaster.Rows[i]["ProductionOrderId"].ToString();
-
-                    PRCumulativePlanQty += clsStaticInfo.dbl(dtOrderMaster.Rows[i]["PlannedQty"].ToString());
-                    dtOrderMaster.Rows[i]["CummPlannedQty"] = PRCumulativePlanQty;
-
-                    
-                    sheet[ROW, colEntity].Text = dtOrderMaster.Rows[i]["EntityId"].ToString();
-                    sheet[ROW, colProductionOrderId].Text = dtOrderMaster.Rows[i]["ProductionOrderId"].ToString();
-
-                    sheet[ROW, colSalesOrderId].Text = dtOrderMaster.Rows[i]["SalesOrderId"].ToString();
-                    
-                    //if (dtOrderMaster.Rows[i]["ProductionOrderId"].ToString() == "20104")
-                    //{
-
-                    //ProductionStartDate
-                    //}
-
-                    if (dicProductionQtyDistribution.ContainsKey(dtOrderMaster.Rows[i]["ProductionOrderId"].ToString()))
-                    {
-                        DataRow dr = GetExpectedCompletionDate(PRCumulativePlanQty, dicProductionQtyDistribution[dtOrderMaster.Rows[i]["ProductionOrderId"].ToString()]);
-                        if (dr != null)
-                        {
-                            if (ExpectedProductionStartDate == "")
-                                ExpectedProductionStartDate = GetDate(dr["ProductionStartDate"].ToString());
-
-                            sheet[ROW, colExpectedCompletionDate].Text = GetDate(dr["ProductionDate"].ToString());
-                            sheet[ROW, colExpectedCompletionDate].NumberFormat = "dd-MMM-yyyy";
-                            sheet[ROW, colAvailableProducedQty].Number = clsStaticInfo.dbl(dr["CummProductionQty"].ToString());
-                            sheet[ROW, colAvailablePlanQty].Number = clsStaticInfo.dbl(dr["CummPlanQty"].ToString());
-                            sheet[ROW, colTotalAvailableQty].Number = clsStaticInfo.dbl(dr["CummPlanQty"].ToString())+ clsStaticInfo.dbl(dr["CummProductionQty"].ToString());
-
-                            ExpectedProductionStartDate = GetDate(dr["ProductionDate"].ToString());
-                        }
-
-                    }
-
-                    
-                    ROW++;
-
-                }
-
-
-                DataTable dtTrial = sheet.ExportDataTable(1, 1, ROW, endCol, ExcelExportDataTableOptions.ColumnNames);
-                dtTrial.Columns.Add("Id", typeof(string));
-
-                
-
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from dbo.ExpectedSOWiseProductionCompletion where 1 = 2", out dsMaster, false, "1");
-                DataRow da = null;
-                for (var i = 0; i < dtTrial.Rows.Count; i++)
-                {
-                    da = dsMaster.Tables[0].NewRow();
-                    string id = "" + dtTrial.Rows[i]["EntityId"].ToString() + "" + i;
-                    dtTrial.Rows[i]["Id"] = id;
-
-                    da["Id"] = dtTrial.Rows[i]["Id"];
-                    da["EntityId"] = dtTrial.Rows[i]["EntityId"];
-                    da["ProductionOrderId"] = dtTrial.Rows[i]["ProductionOrderId"];
-                    da["SalesOrderId"] = dtTrial.Rows[i]["SalesOrderId"];
-                    da["ExpectedCompletionDate"] = dtTrial.Rows[i]["ExpectedCompletionDate"];
-                    da["Quantity"] = dtTrial.Rows[i]["Qty"];
-
-                    dsMaster.Tables[0].Rows.Add(da);
-                }
-                
-                
-
-                var sqls = @"Delete from dbo.ExpectedSOWiseProductionCompletion 
-                                where EntityId in (" + entityid + @")";
-
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
-
-                objCone.ExecuteNonQueryWrapper(sqls, true, "1");
-                objCone.CommitTransaction();
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-            }
-            catch (Exception ex)
-            {
-               throw ex;
-
-            }
-
-        }
-    
-
 
 
         private class fields

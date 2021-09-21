@@ -6,6 +6,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
     $scope.index = -1;
     $scope.preRecruitmentEmployees = [];
     $scope.path = 'HumanResource/AdminAttendanceControl/';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
 
     $scope.ModelNew = {
@@ -618,7 +619,51 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
 
         });
     }
+    //
+    //
+    //
     // For the Update Tab
+
+
+    //For the Employee Selection Modal
+    $scope.EmpList = [];
+
+    $scope.EmpsListCh = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "getEmployees",
+            params: { 'plantId': $scope.UpPlantId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EmpList = response.data;
+           
+        });
+    }
+
+    $scope.selectEmps = function () {
+        angular.element(document.querySelector('#EmpSelectModal')).modal('show');
+    }
+
+
+    var EmpSelList = "''";
+    $scope.EmpSels = null;
+    
+    $scope.closeEmpSel = function () {
+        $scope.EmpSelList = "''";
+        if ($scope.EmpList.length > 0) {
+            
+            for (var i = 0; i < $scope.EmpList.length; i++) {
+                if ($scope.EmpList[i].checked == true) {
+                    $scope.EmpSels = $scope.EmpList[i].EmployeeCode;
+                    EmpSelList = EmpSelList + ",'" + $scope.EmpList[i].SystemId + "'";
+                }
+            }
+        }
+        
+    }
+
+
+    // The Importing Sections
 
     $scope.UpPlantId = null;
     $scope.UpFromDate = null;
@@ -634,7 +679,24 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
         }
 
         try {
-            window.open('humanresource/AdminAttendanceControl/GetSampleReport?reportFormat=' + reportFormat + '&PlId=' + $scope.UpPlantId + '&FD=' + $scope.UpFromDate + '&TD=' + $scope.UpToDate, '_blank');
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'GetSampleReport',
+                data: {
+                    'PlId': $scope.UpPlantId,
+                    'FD': $scope.UpFromDate,
+                    'TD': $scope.UpToDate,
+                    'Emps': EmpSelList,
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            });
 
         } catch (e) {
 
@@ -722,7 +784,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
         $http({
             method: 'POST',
             url: $scope.path + 'SaveFileList',
-            data: { 'data': $scope.ExcelUploadData, 'FD':$scope.UpFromDate , 'TD':$scope.UpToDate ,'PlId':$scope.UpPlantId }
+            data: { 'data': $scope.ExcelUploadData, 'FD': $scope.UpFromDate, 'TD': $scope.UpToDate, 'PlId': $scope.UpPlantId, 'Emps': EmpSelList, }
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, "failure");

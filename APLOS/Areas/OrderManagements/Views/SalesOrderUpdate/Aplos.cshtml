@@ -1,10 +1,11 @@
-﻿<div class="row">
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{FormTitle}}</h3>
+<div class="row">
     <div ng-form="fileNewForm" id="ganttContainer">
         <div class="form-element-ctrl form-horizontal">
 
             <div class="col-xs-5 col-sm-5 col-md-5">
                 <div class="form-group">
-                    MasterOrderNo
+                    @*MasterOrderNo*@
                     <label class="col-sm-4 control-label">Master Order</label>
                     <div class="col-sm-8">
                         <div class="input-group">
@@ -129,7 +130,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                {{mName}} > Sales Order
+                {{mName}} Sales Order
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="tab-design" id="tab_show">
@@ -208,13 +209,9 @@
                                             <input type="text" n-decimals="4" name="Rate" ng-model="soModel.Rate" class="form-control text-right" required tabindex="110">
                                         </div>
                                         <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
-                                            @*<input type="text" ng-model=currency class="form-control" disabled />*@
-                                            @*{{currency}}*@
-                                            <div class="select-style">
-                                                <select name="Currency" class="form-control" ng-model="CurrencyId" disabled ng-options="item.Value as item.Text for item in currencyList" tabindex="16">
-                                                    <option value="">--Select--</option>
-                                                </select>
-                                            </div>
+                                            <input type="text" ng-model=soModel.Currency class="form-control" disabled />
+                                           
+                                           
                                         </div>
                                     </div>
                                     <div class="form-group" show-errors>

@@ -3799,11 +3799,11 @@ namespace Aplos.Areas.Products.Controllers
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 								--, ISNULL(TAxInfo.HSCode,'') HSNCode
 
-								,IID.PolicyRate BaseRate
+								,IID.SalesRate BaseRate
 								,0 BaseUoMFactor
-								,IID.PolicyRate TransactionRate
+								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
-								,IID.TransactionQty *IID.PolicyRate TransactionAmount
+								,IID.TransactionQty *IID.SalesRate TransactionAmount
 								,SCr1.TaxAmount TaxAmount
 								,0 NetAmount
 								,II.VoucherId VoucherDetailId
@@ -3891,39 +3891,49 @@ namespace Aplos.Areas.Products.Controllers
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						LEFT JOIN(Select sum(Amount) Amount, sum(TotalTaxAmount) TotalTaxAmount, InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
 						LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
-			LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount--hs.Code HSCode 
-								   FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='CGST' and A.InventorySalesServiceId IS NULL								
-								   ) TAxInfo	ON TAxInfo.InventorySalesId=IID.InventorySalesId 
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount--,hs.Code HSCode 
+			LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
 									FROM [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='IGST' and A.InventorySalesServiceId IS NULL									
-									) TAxInfo1	ON TAxInfo1.InventorySalesId=IID.InventorySalesId 
-							  		 
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount--,hs.Code HSCode 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='SGST' and A.InventorySalesServiceId IS NULL 									
-									) TAxInfo2	ON TAxInfo2.InventorySalesId=IID.InventorySalesId 
 
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount 
+									WHERE B.Code='CGST' and A.InventorySalesServiceId IS NULL	
+									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId								
+								   ) TAxInfo	ON TAxInfo.InventorySalesId=IID.InventorySalesId and TAxInfo.InventorySalesDetailId=IID.Id
+						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
 									FROM [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									WHERE B.Code='TDS' and A.InventorySalesServiceId IS NULL 					
-									) TAxInfo3	ON TAxInfo3.InventorySalesId=IID.InventorySalesId 							
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+
+									WHERE B.Code='IGST' and A.InventorySalesServiceId IS NULL	
+									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId									
+									) TAxInfo1	ON TAxInfo1.InventorySalesId=IID.InventorySalesId and TAxInfo1.InventorySalesDetailId=IID.Id 
+							  		 
+						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
+									FROM [TRN].[InventorySalesTax] A
+									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+
+									WHERE B.Code='SGST' and A.InventorySalesServiceId IS NULL	
+									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId										
+									) TAxInfo2	ON TAxInfo2.InventorySalesId=IID.InventorySalesId and TAxInfo2.InventorySalesDetailId=IID.Id 
+
+						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
+									FROM [TRN].[InventorySalesTax] A
+									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+
+									WHERE B.Code='TDS' and A.InventorySalesServiceId IS NULL	
+									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId						
+									) TAxInfo3	ON TAxInfo3.InventorySalesId=IID.InventorySalesId and TAxInfo3.InventorySalesDetailId=IID.Id 							
 					
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM 
+						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount FROM 
 									[TRN].InventorySalesAdditionalTax A
 									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='TCS' 								
+									WHERE B.Code='TCS' 	
+									Group by A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
-						WHERE II.PlantId='"+identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
+						WHERE II.PlantId='" + identity.PlantId+@"' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
 					
 
 								UNION ALL
@@ -4023,48 +4033,51 @@ namespace Aplos.Areas.Products.Controllers
 						left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
 						left join trn.Voucher V1 on V1.Id=ep.VoucherId
 						Left JOIN [ORG].[Entity] E On E.id= IR.EntityId
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount--,HS.Code HSCode 
+						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='CGST'  
+									Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 									--Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
 									) TAxInfo	ON TAxInfo.InventorySalesServiceId=ISs.Id AND TAxInfo.InventorySalesServiceId IS NOT NULL
 
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount--,HS.Code HSCode 
+						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='IGST'  
-
+									Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 									) TAxInfo1	ON TAxInfo1.InventorySalesServiceId=ISs.Id AND TAxInfo1.InventorySalesServiceId IS NOT NULL 
 							  		 
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount--,HS.Code HSCode 
+						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='SGST'  
-
+                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 											) TAxInfo2	ON TAxInfo2.InventorySalesServiceId=ISs.Id AND TAxInfo2.InventorySalesServiceId IS NOT NULL
 
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount--,HS.Code HSCode 
+						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='TDS' 
+                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 									) TAxInfo3	ON TAxInfo3.InventorySalesServiceId=ISs.Id AND TAxInfo3.InventorySalesServiceId IS NOT NULL
 							
 					
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.TaxAmount TaxAmount--,HS.Code HSCode 
+						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,Sum(A.Percentage) Percentage
+									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 									WHERE B.Code='TCS' 
+                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
 
 								WHERE IR.PlantId='" + identity.PlantId + @"' AND convert(Date,IR.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' ";

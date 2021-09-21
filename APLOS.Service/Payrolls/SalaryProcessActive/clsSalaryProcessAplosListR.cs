@@ -5639,7 +5639,8 @@ public class clsSalaryProcessAplosR
             if (dvWO.Count > 0)
             {
                 string _wo = dvWO[0]["OffDay"].ToString().ToUpper();
-                _Week_off_count = WeekOffList[_wo];
+                if (WeekOffList.ContainsKey(_wo))
+                    _Week_off_count = WeekOffList[_wo];
 
                 WeekOffAfterJoin = 0;
                 DateTime dtFrom = Convert.ToDateTime(DOJ);

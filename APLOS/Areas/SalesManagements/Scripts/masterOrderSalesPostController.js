@@ -199,7 +199,8 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
                     "salesMaterialDetailGLList": $scope.masterOrderDetailList,
                     "salesServiceDetailGLList": $scope.masterOrderServiceDetailList,
                      "packing": $scope.modelPacking,
-                    "PackingDetailVMList": $scope.packingJournaldataList
+                    "PackingDetailVMList": $scope.packingJournaldataList,
+                    "packingVoucherTypeId": $scope.modelPacking.VoucherTypeId
                 },
                 dataType: "JSON"
             }).then(function successCallback(response) {
@@ -291,75 +292,38 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
     }];
 
 
-    $scope.onClickReportMOS = function (args) {
-
-        var gridObj = $("#GridPost").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
+    $scope.onClickReportMOS = function (data) {
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(data.SalesId)) return ShowResult('No Id found', 'failure');
         $window.open('SalesManagements/Sales/SalesReport?reportFormat=' + reportFormat + '&&salesId=' + data.SalesId, '_blank');
     };
 
-    $scope.commandPDFMOS = [{
-        type: "details", buttonOptions: {
-            text: "P MOS",
-            width: "50",
-            height: "20",
-            click: $scope.onClickReportMOS
-        }
-    }];
 
-    $scope.onClickReportExcelMOS = function (args) {
-
-        var gridObj = $("#GridPost").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
+    $scope.onClickReportExcelMOS = function (data) {
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.SalesId)) return ShowResult('No Id found', 'failure');
         $window.open('SalesManagements/Sales/SalesReport?reportFormat=' + reportFormat + '&&salesId=' + data.SalesId, '_blank');
     };
-    $scope.commandExcelMOS = [{
-        type: "details", buttonOptions: {
-            text: "E MOS",
-            width: "50",
-            height: "20",
-            click: $scope.onClickReportExcelMOS
-        }
-    }];
+   
 
-    $scope.onClickReportExcelPosting = function (args) {
-
-        var gridObj = $("#GridPost").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
+    $scope.onClickReportExcelPosting = function (data) {
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.VoucherId)) return ShowResult('No Id found', 'failure');
         $window.open('SalesManagements/Sales/SalesReceivableReport?reportFormat=' + reportFormat + '&&voucherId=' + data.VoucherId, '_blank');
     };
-    $scope.commandExcelPostingMOS = [{
-        type: "details", buttonOptions: {
-            text: "E Posting",
-            width: "70",
-            height: "20",
-            click: $scope.onClickReportExcelPosting
-        }
-    }];
-
-    $scope.onClickReportPDFPosting = function (args) {
-
-        var gridObj = $("#GridPost").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
+    $scope.onClickReportPDFPosting = function (data) {
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(data.VoucherId)) return ShowResult('No Id found', 'failure');
         $window.open('SalesManagements/Sales/SalesReceivableReport?reportFormat=' + reportFormat + '&&voucherId=' + data.VoucherId, '_blank');
     };
-    $scope.commandPDFPostingMOS = [{
-        type: "details", buttonOptions: {
-            text: "P Posting",
-            width: "70",
-            height: "20",
-            click: $scope.onClickReportPDFPosting
-        }
-    }];
+   
 
+    $scope.onClickReportPDFPackingPosting = function (data) {
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.VoucherId)) return ShowResult('No Id found', 'failure');
+        $window.open('SalesManagements/Sales/SalesReceivableReport?reportFormat=' + reportFormat + '&&voucherId=' + data.SalesPackingVoucherId, '_blank');
+    };
+  
     //$scope.onClickGRNID = function (args) {
 
     $scope.popUp = function () {
@@ -381,6 +345,9 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
         //GetCurrencyExchangeRateList();
         $scope.modelNew.SourceType = x.data.SourceType;
         if ($scope.modelNew.SourceType == 'Packing') {
+            $scope.modelPacking.Id = x.data.SalesPackingId
+
+            $scope.GetPackingDetail();
             $scope.packingJournal();
             $scope.GetCboVoucherTypePackingJournalList();
         }
@@ -645,6 +612,14 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
         $http.get('SalesManagements/Sales/GetPackingJournal?salesId=' + $scope.modelNew.Id)
             .then(function (response) {
                 $scope.packingJournaldataList = response.data;
+            });
+    }
+    $scope.packingDetailList = [];
+    $scope.GetPackingDetail = function () {
+        $scope.packingDetailList = [];
+        $http.get('SalesManagements/Sales/GetPackingDetail?salesId=' + $scope.modelNew.Id)
+            .then(function (response) {
+                $scope.packingDetailList = response.data;
             });
     }
 }

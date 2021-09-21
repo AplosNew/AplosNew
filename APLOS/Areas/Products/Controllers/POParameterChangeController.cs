@@ -66,14 +66,15 @@ namespace Aplos.Areas.Products.Controllers
         private void SaveData(PurchaseOrder data)
         {
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster;
+            DataSet dsMaster, dsInvMaster;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
             {
-                string sql = "SELECT * FROM [TRN].[PurchaseOrder] WHERE Id='" + data.Id + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM [TRN].[PurchaseOrder] WHERE Id='" + data.Id + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.InventoryReceive WHERE Id IN(SELECT InventoryReceiveId FROM TRN.InventoryReceiveDetail WHERE POId='" + data.Id + "') AND ISNULL(VoucherId,'')='' AND ISNULL(Status,'')=''", out dsInvMaster, false, "1");
 
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
@@ -98,8 +99,28 @@ namespace Aplos.Areas.Products.Controllers
                     dr.EndEdit();
                 }
 
+                if (dsInvMaster.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < dsInvMaster.Tables[0].Rows.Count; i++)
+                    {
+                        dsInvMaster.Tables[0].DefaultView.RowFilter = "Id='" + dsInvMaster.Tables[0].Rows[i]["Id"].ToString() + "'";
+
+                        if (dsInvMaster.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow dr = dsInvMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            dr["PaymentTermId"] = data.PaymentTermId;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr.EndEdit(); 
+                        }
+                    } 
+                }
+
+
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+                obj.SaveDataSets(dsMaster, dsInvMaster);
             }
             catch (Exception ex)
             {

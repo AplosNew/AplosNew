@@ -183,7 +183,26 @@ namespace Library.Service.Invoices
         {
             CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
         }
-
+        public IQueryFluent<InvoiceWriteOff> QueryInvoiceWriteOff(string voucherId)
+        {
+            return base.Query(r => r.VoucherId == voucherId);
+        }
+        public InvoiceWriteOff FindInvoiceWriteOff(string Id)
+        {
+            return base.Find(Id);
+        }
+        public void DeleteInvoiceWriteOff(string id)
+        {
+            base.Delete(id);
+        }
+        public IQueryFluent<InvoiceWriteOffDetail> QueryInvoiceWriteOffDetail(string invoiceWriteOffId)
+        {
+            return _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId);
+        }
+        public void DeleteInvoiceWriteOffDetail(string id)
+        {
+            _invoiceWriteOffDetailRepository.Delete(id);
+        }
         public InvoiceWriteOff InsertInvoiceWriteOff(VoucherViewModel voucherVM)
         {
             if (voucherVM.PaymentSource == PaymentSource.Bank.ToString())

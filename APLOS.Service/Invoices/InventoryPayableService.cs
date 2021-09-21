@@ -4,12 +4,10 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Accounts;
-using Library.Model.Addresses;
 using Library.Model.Employees;
 using Library.Model.Enums;
 using Library.Model.Inventory;
 using Library.Model.Invoices;
-using Library.Model.Organizations;
 using Library.Model.Parties;
 using Library.Model.Payments;
 using Library.Model.Systems;
@@ -21,9 +19,6 @@ using Library.Service.Enums;
 using Library.Service.Extension;
 using Library.Service.Extension.Accounts;
 using Library.Service.Logs;
-using Library.Service.Materials;
-using Library.Service.Organizations;
-using Library.Service.Payments;
 using Library.Service.Systems;
 using Library.Service.Taxations;
 using Library.Service.Vouchers;
@@ -2620,7 +2615,8 @@ namespace Library.Service.Invoices
                             ActivityId = voucherDetailVM.ActivityId,
                             CurrencyId = voucher.CurrencyId,
                             DrAmount = 0,
-                            CrAmount = voucherDetailVM.Amount
+                            CrAmount = voucherDetailVM.Amount,
+                            CostCenterId=voucherDetailVM.CostCenterId
                         };
                         currentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
@@ -4539,6 +4535,99 @@ namespace Library.Service.Invoices
             }
         }
 
+        public void DeleteTDSPostServicePayable(string invoiceWriteOffId, string voucherId, string serviceAckId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
+                var invoiceWriteOff = _invoiceWriteOffService.Find(invoiceWriteOffId);
+                var invoiceWriteOffDetail = _invoiceWriteOffService.QueryInvoiceWriteOffDetail(invoiceWriteOffId).Select().ToList();
+                var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                }
+
+                foreach (var item in voucherdetail)
+                {
+                    var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
+                    if (glTransactionDetail != null)
+                    {
+                        _voucherService.DeleteGLTransactionDetail(item.Id);
+                    }
+                    _voucherService.DeleteVoucherDetail(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+
+                        var invoicetaxDdetail = _invoiceTaxDetailRepository.Query(r => r.InvoiceTaxId == item.Id).Select().ToList();
+                        foreach (var item1 in invoicetaxDdetail)
+                        {
+                            _invoiceTaxDetailRepository.Delete(item1.Id);
+                        }
+                        _invoiceTaxRepository.Delete(item.Id);
+                    }
+                }
+                
+                foreach (var item in invoiceWriteOffDetail)
+                {
+
+                    var invoice = _invoiceService.Find(item.InvoiceId);
+                    var invoiceDetail = _invoiceService.FindInvoiceDetail(item.InvoiceDetailId);
+                    invoiceDetail.WrittenOffAmount -= item.Amount;
+                    invoice.WrittenOffAmount -= item.Amount;
+                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+
+                    _invoiceService.UpdateInvoiceDetail(invoiceDetail);
+                    _invoiceService.Update(invoice);
+                    _invoiceWriteOffService.DeleteInvoiceWriteOffDetail(item.Id);
+                }
+                _invoiceWriteOffService.Delete(invoiceWriteOffId);
+
+                var rdBuilderAT = new System.Text.StringBuilder();
+                var builderSqlAT = @"UPDATE [TRN].AdditionalTax SET VoucherId=NULL WHERE ServiceAcknowledgementMasterId='" + serviceAckId + "'";
+                rdBuilderAT.Append(builderSqlAT);
+                _sqlRepository.ExecuteSqlCommand(rdBuilderAT.ToString());
+
+                 _voucherService.DeleteVoucher(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         #endregion
 
         #region InventorySalesPosting
@@ -5366,7 +5455,7 @@ namespace Library.Service.Invoices
                         };
                         invtotalAmountCr += invvoucherCr.CrAmount;
                         invvoucherDetailVM.Id = invvoucherCr.Id;
-                        currentVoucherDetaiRecord++;
+                        invcurrentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(invvoucher, invvoucherCr, invcurrentVoucherDetaiRecord);
 
                         //foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == invvoucherCr.GLGeneralInfoId
@@ -6416,5 +6505,7 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+
+
     }
 }

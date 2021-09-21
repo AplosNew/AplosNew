@@ -69,6 +69,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		, OrderRefNo: null
 		, RefferenceNo: null
 		, OrderSpecific: null
+		, OrderSpecific1: 'No'
 		, ConsumptionBookingName: null
 		, ProductionOrderId: null
 		, ContractNo: null
@@ -2045,6 +2046,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		$scope.issueId = x.data.Id;
 		$scope.isuuedate = x.data.AddedDate;
 		$scope.productNew.OrderSpecific = x.data.Orderspecific;
+		
 		$scope.productNew.ProcessName = x.data.ProcessName;
 		// var gridObj = $("#GridTest").ejGrid("instance");
 

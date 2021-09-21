@@ -480,13 +480,23 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
-        public DataTable getCurrentFile( string PlId, string FD, string TD)
+        public DataTable getCurrentFile( string PlId, string FD, string TD, string Emps)
         {
             try
             {
+                string EmpSel = "";
+                if (Emps == "''")
+                {
+                    EmpSel = "";
+                }
+                else
+                {
+                    EmpSel = "and EmpSystemID in (" + Emps + ")";
+                }
+
                 var str = @"select RowId,EmpSystemID,WorkDate,InTime,OutTime,ShiftSystemID,DayStatus 
                             from AttdnProcessData where WorkDate between '" + FD + @"' and '" + TD + @"'
-                            AND PlantID='" + PlId + @"'";
+                            AND PlantID='" + PlId + @"' "+EmpSel+"";
                 return _sqlRepository.GetDataTable(str);
             }
             catch(Exception ex)
@@ -495,7 +505,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public void SaveFileList(List<Dictionary<string, object>> data, string PlId, string FD, string TD)
+        public void SaveFileList(List<Dictionary<string, object>> data, string PlId, string FD, string TD, string Emps)
         {
             try
             {
@@ -514,45 +524,84 @@ namespace Library.HumanResource.NewAttendanceProcess
                     throw new Exception("The Plant is Locked for - " + pl);
                 }
 
+                string EmpSel = "";
+                if(Emps == "''")
+                {
+                    EmpSel = "";
+                }
+                else
+                {
+                    EmpSel = "and EmpSystemID in (" + Emps + ")";
+                }
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string addedname = identity.Name;
                 string addeddate = System.DateTime.Now.ToString();
                 string TableName = "dbo.AttdnProcessData";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + PlId + @"'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + PlId + @"' "+EmpSel+"", out dsMaster, false, "1");
 
                 if (data.Count > 0)
                 {
                     for(int i = 0; i < data.Count; i ++)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "RowId='" + data[i]["RowId"].ToString() + "'";
+
                         dsMaster.Tables[0].DefaultView[0].BeginEdit();
+                       
+
                         if(data[i]["InTime"] != null)
                         {
+                            if(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString() != data[i]["InTime"].ToString())
+                            {
+                                dsMaster.Tables[0].DefaultView[0]["DateUpdated"] = DateTime.Now;
+                                dsMaster.Tables[0].DefaultView[0]["UpdatedBy"] = identity.Name;
+                                dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
+                            }
                             dsMaster.Tables[0].DefaultView[0]["InTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
                             dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
                             dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
+                            
                         }
                         if (data[i]["OutTime"] != null)
                         {
+                            if (dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString() != data[i]["OutTime"].ToString())
+                            {
+                                dsMaster.Tables[0].DefaultView[0]["DateUpdated"] = DateTime.Now;
+                                dsMaster.Tables[0].DefaultView[0]["UpdatedBy"] = identity.Name;
+                                dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
+                            }
                             dsMaster.Tables[0].DefaultView[0]["OutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
                             dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
                             dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
                         }
 
-                        
-                        dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"] = data[i]["ShiftSystemID"].ToString();
-                        if(data[i]["DayStatus"]!=null)
+                        if (data[i]["ShiftSystemID"].ToString() != dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"].ToString())
                         {
+                            if (dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"].ToString() != data[i]["ShiftSystemID"].ToString())
+                            {
+                                dsMaster.Tables[0].DefaultView[0]["DateUpdated"] = DateTime.Now;
+                                dsMaster.Tables[0].DefaultView[0]["UpdatedBy"] = identity.Name;
+                                dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
+                            }
+                            dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"] = data[i]["ShiftSystemID"].ToString();
+                        }
+                            
+
+                        if (data[i]["DayStatus"]!=null)
+                        {
+                            if (dsMaster.Tables[0].DefaultView[0]["DayStatus"].ToString() != data[i]["DayStatus"].ToString())
+                            {
+                                dsMaster.Tables[0].DefaultView[0]["DateUpdated"] = DateTime.Now;
+                                dsMaster.Tables[0].DefaultView[0]["UpdatedBy"] = identity.Name;
+                                dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
+                            }
                             dsMaster.Tables[0].DefaultView[0]["DayStatus"] = data[i]["DayStatus"].ToString();
                             dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"] = data[i]["DayStatus"].ToString();
                         }
 
-                        dsMaster.Tables[0].DefaultView[0]["DateUpdated"] = DateTime.Now;
-                        dsMaster.Tables[0].DefaultView[0]["UpdatedBy"] = identity.Name;
-                        
-                        dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
+                       
                         dsMaster.Tables[0].DefaultView[0].EndEdit();
                     }
 
@@ -562,6 +611,28 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getEmployees(string plantId)
+        {
+            try
+            {
+                var str = @"select EmployeeCode , SystemId , EmployeeName from dbo.EmployeeInformation where PlantId='"+plantId+"'";
+                DataTable dt = _sqlRepository.GetDataTable(str);
+
+                dt.Columns.Add("checked", typeof(bool));
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    dt.Rows[i]["checked"] = false;
+                }
+
+                return Service.Helpers.DataTableExtensions.DataTableToJson(dt);
+                
             }
             catch (Exception e)
             {
