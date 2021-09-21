@@ -3799,11 +3799,11 @@ namespace Aplos.Areas.Products.Controllers
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 								--, ISNULL(TAxInfo.HSCode,'') HSNCode
 
-								,IID.PolicyRate BaseRate
+								,IID.SalesRate BaseRate
 								,0 BaseUoMFactor
-								,IID.PolicyRate TransactionRate
+								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
-								,IID.TransactionQty *IID.PolicyRate TransactionAmount
+								,IID.TransactionQty *IID.SalesRate TransactionAmount
 								,SCr1.TaxAmount TaxAmount
 								,0 NetAmount
 								,II.VoucherId VoucherDetailId

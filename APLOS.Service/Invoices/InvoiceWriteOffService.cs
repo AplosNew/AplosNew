@@ -6719,6 +6719,123 @@ namespace Library.Service.Invoices
 
         #endregion
 
-        
+        public void DeleteTDSServicePayable(string invoiceWriteOffId, string voucherId,string serviceAckId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherRepository.Find(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var invoiceWriteOff = _invoiceWriteOffRepository.Find(invoiceWriteOffId);
+                var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
+                var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var invoicetds = _additionalTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                }
+
+                foreach (var item in voucherdetail)
+                {
+                    var glTransactionDetail = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().FirstOrDefault();
+                    if (glTransactionDetail != null)
+                    {
+                        _gLTransactionDetailRepository.Delete(item.Id);
+                    }
+                    _voucherDetailRepository.Delete(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+
+                        var invoicetaxDdetail = _invoiceTaxDetailRepository.Query(r => r.InvoiceTaxId == item.Id).Select().ToList();
+                        foreach (var item1 in invoicetaxDdetail)
+                        {
+                            _invoiceTaxDetailRepository.Delete(item1.Id);
+                        }
+                        _invoiceTaxRepository.Delete(item.Id);
+                    }
+                }
+                if (invoicetds != null)
+                {
+
+                    foreach (var tds in invoicetds)
+                    {
+                        if (tds.InvoiceWriteOffId == null && tds.InvoiceId != null)
+                        {
+                            var rdBuildertds = new System.Text.StringBuilder();
+                            var builderSql = @"UPDATE [TRN].AdditionalTax SET VoucherId=NULL WHERE Id='" + tds.Id + "'";
+                            rdBuildertds.Append(builderSql);
+                            _sqlRepository.ExecuteSqlCommand(rdBuildertds.ToString());
+                        }
+                        if (tds.InvoiceWriteOffId != null && tds.InvoiceId == null)
+                        {
+                            var tdsdetail = _additionalTaxDetailRepository.Query(r => r.AdditionalTaxId == tds.Id).Select().ToList();
+                            foreach (var item in tdsdetail)
+                            {
+                                _additionalTaxDetailRepository.Delete(item);
+                            }
+                            _additionalTaxRepository.Delete(tds);
+                        }
+
+                    }
+
+
+                }
+                foreach (var item in invoiceWriteOffDetail)
+                {
+
+                    var invoice = _invoiceRepository.Find(item.InvoiceId);
+                    var invoiceDetail = _invoiceDetailRepository.Find(item.InvoiceDetailId);
+                    invoiceDetail.WrittenOffAmount -= item.Amount;
+                    invoice.WrittenOffAmount -= item.Amount;
+                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
+
+                    _invoiceDetailRepository.Update(invoiceDetail);
+                    _invoiceRepository.Update(invoice);
+                    _invoiceWriteOffDetailRepository.Delete(item.Id);
+                }
+                _invoiceWriteOffRepository.Delete(invoiceWriteOffId);
+
+                var rdBuilderAT = new System.Text.StringBuilder();
+                var builderSqlAT = @"UPDATE [TRN].AdditionalTax SET Voucher=NULL WHERE Id='" + serviceAckId + "'";
+                rdBuilderAT.Append(builderSqlAT);
+                _sqlRepository.ExecuteSqlCommand(rdBuilderAT.ToString());
+
+                _voucherRepository.Delete(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
     }
 }

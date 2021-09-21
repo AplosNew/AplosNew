@@ -330,14 +330,14 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetServicePostingList()
-        {
-            AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+        //[Authorize, HttpGet]
+        //public JsonResult GetServicePostingList()
+        //{
+        //    AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
 
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsInventoryPayableService.GetServicePostingList(identity.PlantId), JsonRequestBehavior.AllowGet);
-        }
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    return Json(accountsInventoryPayableService.GetServicePostingList(identity.PlantId), JsonRequestBehavior.AllowGet);
+        //}
 
 
         [HttpGet, Authorize]

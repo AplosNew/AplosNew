@@ -888,16 +888,10 @@ namespace Aplos.Areas.Attendances.Controllers
 
             DataSet dsFinalOT = null;
             DataRow drFinalOT = null;
-            DataTable dtFinalOT = null;
-
-
+       
             DataSet dsAttProc = null;
             DataRow drAttProc = null;
-            DataTable dtAttProc = null;
-            DataView dvAttProc = null;
-
-
-
+     
 
             AttendanceProcessAplos objAttdnProc;
             objAttdnProc = new AttendanceProcessAplos();
@@ -941,17 +935,6 @@ namespace Aplos.Areas.Attendances.Controllers
 
             }
 
-
-
-
-
-
-
-
-
-
-
-
             DataSet dsManualAttanData = null;
             DataSet dsHourlyOTData = null;
             //DataSet dsOTfromAppData = null;
@@ -970,18 +953,6 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 Delete(EmpSytemId, FromDate, ToDate);
-
-                string sql = "SELECT * FROM [dbo].[AttdnManualData] WHERE EmpSystemID IN (" + EmpSytemId + ") AND WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsManualAttanData, false, "1");
-                Dictionary<string, DataRow> dicManualAttanData = new Dictionary<string, DataRow>();
-                for (int i = 0; i < dsManualAttanData.Tables[0].Rows.Count; i++)
-                {
-                    string Key = constructKey(dsManualAttanData.Tables[0].Rows[i]["EmpSystemID"].ToString(), dsManualAttanData.Tables[0].Rows[i]["WorkDate"].ToString());
-                    if (dicManualAttanData.ContainsKey(Key) == false)
-                        dicManualAttanData.Add(Key, dsManualAttanData.Tables[0].Rows[i]);
-                }
-
 
                 string sql1 = "SELECT * FROM [dbo].[HourlyOT] WHERE EmpSystemID IN (" + EmpSytemId + ") AND WorkDate  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1028,22 +999,6 @@ namespace Aplos.Areas.Attendances.Controllers
                         dicFinalOT.Add(Key, dsFinalOT.Tables[0].Rows[i]);
                 }
 
-
-
-
-
-
-                ////////objAttdnManOT.GetFinalOT(identity.CompanyGroupId, identity.PlantId, lblEmpSysIDForAttdSummry, ProcDate, out dsFinalOT);
-                //////dtFinalOT = dsFinalOT.Tables[0];
-                //////dvFinalOT = new DataView();
-
-                ////////objAttdnManOT.GetAttdnProcessData(identity.CompanyGroupId, identity.PlantId, lblEmpSysIDForAttdSummry.Trim(), ProcDate, out dsAttProc);
-                //////dtAttProc = dsAttProc.Tables[0];
-                //////dvAttProc = new DataView();
-
-
-                //////DataView DvManualAttanData = new DataView(dsManualAttanData.Tables[0]);
-                //////DataView DvHourlyOTData = new DataView(dsHourlyOTData.Tables[0]);
                 string sID = string.Empty;
                 Random rnd = new Random((int)DateTime.Now.Ticks);
                 for (int i = 0; i < OTLimitTransactionData.Count; i++)
@@ -1087,41 +1042,6 @@ namespace Aplos.Areas.Attendances.Controllers
                   
                     if (OTLimitTransactionData[i].IsExtraOTOnly == false)
                     {
-
-                        #region Manual Attendance 
-                          if (dicManualAttanData.ContainsKey(Key) == false)
-                        {
-
-                            DataRow dr = dsManualAttanData.Tables[0].NewRow();
-                            dr["EmpSystemID"] = OTLimitTransactionData[i].EmpSystemId;
-                            dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
-                            dr["GroupID"] = identity.CompanyGroupId;
-                            //dr["PlantID"] = identity.PlantId;
-                            dr["EntryFlag"] = "OTLIMIT";
-                            //dr["OutTime"] = AttendanceProcessData[i].NewOutTime;
-                            dr["OutTime"] = Convert.ToDateTime(RandomOutTime);
-                            dr["AddedBy"] = identity.Name;
-                            dr["DateAdded"] = DateTime.Now;
-
-                            dsManualAttanData.Tables[0].Rows.Add(dr);
-
-                        }
-                        else
-                        {
-                            DataRow dr = dicManualAttanData[Key];
-                            dr.BeginEdit();
-                            dr["EntryFlag"] = "OTLIMIT";
-                            //dr["OutTime"] = AttendanceProcessData[i].NewOutTime;
-                            dr["OutTime"] = Convert.ToDateTime(RandomOutTime);
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["DateUpdated"] = System.DateTime.Now.ToString();
-                            dr.EndEdit();
-
-                        }
-                
-                          #endregion
-
-
                         #region Final OT
                  
                         if (dicFinalOT.ContainsKey(Key))
@@ -1173,8 +1093,9 @@ namespace Aplos.Areas.Attendances.Controllers
                             drAttProc = dicAttProc[Key];// dvAttProc[0].Row;
                             drAttProc.BeginEdit();
 
-                            drAttProc["IsManualOutTime"] = true;
                             drAttProc["OutTime"] = Convert.ToDateTime(RandomOutTime);
+                            drAttProc["IsManualOutTime"] = true;
+                            drAttProc["ManualOutTime"] = Convert.ToDateTime(RandomOutTime);
                             drAttProc["OTHr"] = Convert.ToDecimal(OTLimitTransactionData[i].OT);
 
                             drAttProc["IsOTComfirm"] = true;
@@ -1265,7 +1186,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 clsStaticInfo objsave = new clsStaticInfo();
-                objsave.SaveDataSets(dsManualAttanData, dsHourlyOTData, dsFinalOT, dsAttProc);
+                objsave.SaveDataSets(dsHourlyOTData, dsFinalOT, dsAttProc);
 
             }
             catch (Exception ex)
