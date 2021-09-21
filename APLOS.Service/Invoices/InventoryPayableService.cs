@@ -4628,6 +4628,45 @@ namespace Library.Service.Invoices
             }
         }
 
+        public void DeleteTDSServicePayable(string additionalTaxId,string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                
+                if (voucherId != null)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var rdBuilderAT = new System.Text.StringBuilder();
+                var builderSqlDetail = @"Delete [TRN].AdditionalTaxDetail  WHERE AdditionalTaxId='" + additionalTaxId + "'";
+                var builderSql = @"Delete [TRN].AdditionalTax  WHERE Id='" + additionalTaxId + "'";
+                rdBuilderAT.Append(builderSqlDetail);
+                rdBuilderAT.Append(builderSql);
+                _sqlRepository.ExecuteSqlCommand(rdBuilderAT.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         #endregion
 
         #region InventorySalesPosting

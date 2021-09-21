@@ -51,5 +51,6 @@ namespace Library.Service.Invoices
         , IEnumerable<VoucherDetailViewModel> voucherDetailVMList
         , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList);
         void DeleteTDSPostServicePayable(string invoiceWriteOffId, string voucherId, string serviceAckId);
+        void DeleteTDSServicePayable(string additionalTaxId,string voucherId);
     }
 }
