@@ -38,6 +38,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 else
                 {
+                    
                     #region AssignedShift Process           
                     DataSet UnProcessed;
                     UnProcessedEmp(Date, out UnProcessed, PlantValue); //DataSet of Employees For Row Creation
@@ -333,7 +334,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     #region Ramadan Shift Flagging
                     DataSet RamadanShift;
                     ChangedShift(Date, out RamadanShift, PlantValue); // Building Dataset for Ramadan Shift Days
-                    if (RamadanShift.Tables[0].Rows.Count > 0) 
+                    if (RamadanShift.Tables[0].Rows.Count > 0)
                     {
                         string WorkDate = RamadanShift.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
@@ -550,6 +551,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     OriginalDateData(Date, out OriginalDateComp, PlantValue);
                     if (OriginalDateComp.Tables[0].Rows.Count > 0)
                     {
+                        string OWCompensatory = "", OHCompensatory="";
                         // Holiday or Weekoff But Employee is Working (Compensatory Logic)
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
@@ -573,41 +575,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 if (Type == "W")
                                 {
-                                    // If Entire Plant Working on WeekOff Then WeeklyStatus Updated to WW 
-                                    var sql = @"Update AttdnProcessData Set WeeklyStatus='WW'    
-                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus='W' AND " +
-                                      "isnull(EmpSystemID,'') IN" +
-                                      " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
-
+                                    OWCompensatory = "1";                                   
                                 }
                                 if (Type == "H")
                                 {
-                                    // If Entire Plant Working on Holiday HolidayStaus Updated to NH
-                                    var sql = @"Update AttdnProcessData Set HolidayStatus='NH'  
-                                                         WHERE WorkDate='" + WkDate + "' AND HolidayStatus='H' AND " +
-                                      "isnull(EmpSystemID,'') IN" +
-                                      " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
-
+                                    OHCompensatory = "1";                                   
                                 }
                             }
                             else
@@ -644,6 +616,48 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                         }
                         SaveDataSets(dsRef);
+
+                        #region Entire Plant Flagging Exceptional Case
+                        if (OWCompensatory=="1")
+                        {
+                            // If Entire Plant Working on WeekOff Then WeeklyStatus Updated to WW 
+                            var sql = @"Update AttdnProcessData Set WeeklyStatus='WW'    
+                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus='W' AND " +
+                              "isnull(EmpSystemID,'') IN" +
+                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
+
+
+                            ConnectionManager.DAL.ConManager objCone = null;
+                            objCone = new ConnectionManager.DAL.ConManager("1");
+                            objCone.OpenConnection("1");
+                            objCone.BeginTransaction();
+
+                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                            objCone.CommitTransaction();
+
+                        }
+                        if (OHCompensatory=="1")
+                        {
+                            // If Entire Plant Working on Holiday HolidayStaus Updated to NH
+                            var sql = @"Update AttdnProcessData Set HolidayStatus='NH'  
+                                                         WHERE WorkDate='" + WkDate + "' AND HolidayStatus='H' AND " +
+                              "isnull(EmpSystemID,'') IN" +
+                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
+
+
+                            ConnectionManager.DAL.ConManager objCone = null;
+                            objCone = new ConnectionManager.DAL.ConManager("1");
+                            objCone.OpenConnection("1");
+                            objCone.BeginTransaction();
+
+                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                            objCone.CommitTransaction();
+
+                        }
+                        #endregion
+                   
                     }
                     #endregion
 
@@ -652,6 +666,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     CompensatoryData(Date, out CompensatoryDateComp, PlantValue);
                     if (CompensatoryDateComp.Tables[0].Rows.Count > 0)
                     {
+                        string WCompenstory = "", HCompenstory="";
+
                         // Date of Normal Working Day Taken Compensatory
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
@@ -675,45 +691,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 if (Type == "W")
                                 {
-                                    // If Entire Plant taken Compensatory on WeekOff
-                                    // Then ManualDayStatus Updated to CW 
-
-                                    var sql = @"Update AttdnProcessData Set ManualDayStatus='CW',IsManualDayStatus=1   
-                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus!='W' AND " +
-                                      "isnull(EmpSystemID,'') IN" +
-                                      " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
-
+                                    WCompenstory = "1";                                   
                                 }
                                 if (Type == "H")
                                 {
-                                    // If Entire Plant taken Compensatory on Holiday
-                                    // Then ManualDayStatus Updated to AH 
-
-                                    var sql = @"Update AttdnProcessData Set ManualDayStatus='AH',IsManualDayStatus=1  
-                                             WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
-                                      "isnull(EmpSystemID,'') IN" +
-                                      " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                                      "  ei WHERE  ei.PlantId ='" + Plant + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-
-                                    ConnectionManager.DAL.ConManager objCone = null;
-                                    objCone = new ConnectionManager.DAL.ConManager("1");
-                                    objCone.OpenConnection("1");
-                                    objCone.BeginTransaction();
-
-                                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                                    objCone.CommitTransaction();
-
+                                    HCompenstory = "1";                                    
                                 }
                             }
                             else
@@ -752,6 +734,51 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
                         }
                         SaveDataSets(dsRef);
+
+                        #region Entire Plant Flagging Exceptional Case
+                        if (WCompenstory=="1")
+                        {
+                            // If Entire Plant taken Compensatory on WeekOff
+                            // Then ManualDayStatus Updated to CW 
+
+                            var sql = @"Update AttdnProcessData Set ManualDayStatus='CW',IsManualDayStatus=1   
+                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus!='W' AND " +
+                              "isnull(EmpSystemID,'') IN" +
+                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
+
+                            ConnectionManager.DAL.ConManager objCone = null;
+                            objCone = new ConnectionManager.DAL.ConManager("1");
+                            objCone.OpenConnection("1");
+                            objCone.BeginTransaction();
+
+                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                            objCone.CommitTransaction();
+
+                        }
+
+                        if(HCompenstory=="1")
+                        {
+                            // If Entire Plant taken Compensatory on Holiday
+                            // Then ManualDayStatus Updated to AH 
+
+                            var sql = @"Update AttdnProcessData Set ManualDayStatus='AH',IsManualDayStatus=1  
+                                             WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
+                              "isnull(EmpSystemID,'') IN" +
+                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
+                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
+
+
+                            ConnectionManager.DAL.ConManager objCone = null;
+                            objCone = new ConnectionManager.DAL.ConManager("1");
+                            objCone.OpenConnection("1");
+                            objCone.BeginTransaction();
+
+                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                            objCone.CommitTransaction();
+
+                        }
+                        #endregion
                     }
                     #endregion
 
