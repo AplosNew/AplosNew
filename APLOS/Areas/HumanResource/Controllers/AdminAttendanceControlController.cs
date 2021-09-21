@@ -178,28 +178,39 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         // For the Update Tab
-        [HttpGet, Authorize]
-        public ActionResult GetSampleReport(ReportFormat reportFormat, string PlId , string FD , string TD)
+
+        [Authorize, HttpGet]
+        public ActionResult getEmployees(string plantId)
         {
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string date = DateTime.Now.Date.ToString("dd-MMM");//.Substring(0, DateTime.Now.Date.ToString().Length - 12);
-            var reportFileName = "ManualUpload-" + date;
-            var workbook = GetWorkSheet(  PlId,  FD,  TD);
-            switch (reportFormat)
+            try
             {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return RenderReportAsExcel(workbook, reportFileName);
+                AdminAttendanceControlService mau = new AdminAttendanceControlService();
+                return Json(mau.getEmployees(plantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
-        private IWorkbook GetWorkSheet( string PlId, string FD, string TD)
+        [HttpPost, Authorize]
+        public ActionResult GetSampleReport(string PlId , string FD , string TD , string Emps)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var fileName = "ManualUpload" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xlsx";
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+            IWorkbook workbook = GetWorkSheet(PlId, FD, TD , Emps);
+            workbook.Version = ExcelVersion.Excel2016;
+            workbook.SaveAs(fullPath);
+
+            return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            
+        }
+
+        private IWorkbook GetWorkSheet( string PlId, string FD, string TD , string Emps)
         {
             AdminAttendanceControlService mau = new AdminAttendanceControlService();
             var excelEngine = new ExcelEngine();
@@ -209,10 +220,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             var sheet = workbook.Worksheets[0];
 
-            var sheet2 = workbook.Worksheets[1];
 
             /// Sheet 1 
-            DataTable data = mau.getCurrentFile(  PlId,  FD,  TD);
+            DataTable data = mau.getCurrentFile(  PlId,  FD,  TD , Emps);
 
             sheet.Name = "Current-Data";
 
@@ -411,12 +421,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult SaveFileList(List<Dictionary<string, object>> data, string PlId, string FD, string TD)
+        public ActionResult SaveFileList(List<Dictionary<string, object>> data, string PlId, string FD, string TD , string Emps)
         {
             try
             {
                 AdminAttendanceControlService mau = new AdminAttendanceControlService();
-                mau.SaveFileList(data,  PlId,  FD,  TD);
+                mau.SaveFileList(data,  PlId,  FD,  TD , Emps);
                 return Json(new { Error = false, Message = AplosMessage.Success });
             }
             catch (Exception ex)

@@ -11,6 +11,7 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.Rate = null;
+    $scope.ChildId = null;
     $scope.modelNew = {
         Id: null,
         ProductionEntityId: null,
@@ -219,8 +220,13 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
                         if ($scope.SKUList[j].FirstCharacteristicsValueId == $scope.ColumnList[i].ColumnValue
                             && $scope.SKUList[j].SecondCharacteristicsValueId == $scope.ColumnList[i].childList[k].SizeValue
                             && $scope.SKUList[j].FirstCharacteristicsId == $scope.ColumnList[i].FirstCharacteristicsId
-                            && $scope.SKUList[j].SecondCharacteristicsId == $scope.ColumnList[i].childList[k].SecondCharacteristicsId && $scope.ColumnList[i].childList[k].Rate != null) {
-                            $scope.SKUList[j].Rate = $scope.ColumnList[i].childList[k].Rate == "" ? null : $scope.ColumnList[i].childList[k].Rate;
+                            && $scope.SKUList[j].SecondCharacteristicsId == $scope.ColumnList[i].childList[k].SecondCharacteristicsId) {
+                            if (baseService.isUndefinedOrNull($scope.ColumnList[i].childList[k].Rate)) {
+                                $scope.SKUList[j].Rate = null;
+                            }
+                            else {
+                                $scope.SKUList[j].Rate = $scope.ColumnList[i].childList[k].Rate == "" ? null : $scope.ColumnList[i].childList[k].Rate;
+                            }
                         }
                     }
                 }
@@ -253,7 +259,7 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             if (baseService.isUndefinedOrNull($scope.Rate)) {
                 $scope.Rate = null;
             }
-            VList.push({ "Rate": $scope.Rate, "FirstCharacteristicsId": null, "FirstCharacteristicsValueId": null, "SecondCharacteristicsId": null, "SecondCharacteristicsValueId": null });
+            VList.push({ "Rate": $scope.Rate, "FirstCharacteristicsId": null, "FirstCharacteristicsValueId": null, "SecondCharacteristicsId": null, "SecondCharacteristicsValueId": null, "ChildId": $scope.ChildId });
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -286,10 +292,12 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             if (response.data.length > 0) {
                 $scope.Rate = response.data[0].Rate;
                 $scope.MasterId = response.data[0].MasterId;
+                $scope.ChildId = response.data[0].ChildId;
             }
             else {
                 $scope.Rate = null;
                 $scope.MasterId = null;
+                $scope.ChildId = null;
             }
 
         });

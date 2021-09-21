@@ -456,10 +456,7 @@ namespace Library.OrderManagement.Packing
                                 }
                             }
                         }
-
-                        
                     }
-
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();

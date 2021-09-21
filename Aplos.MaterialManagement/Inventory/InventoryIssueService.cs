@@ -10196,6 +10196,9 @@ namespace Library.MaterialManagement.Inventory
 
 
                     #region ===========IssueDetail And IssueHistory And Update GRN And Stock=======
+
+      
+
                     try
                     {
 
@@ -10236,7 +10239,8 @@ namespace Library.MaterialManagement.Inventory
                         {
                             foreach (var issue in uiList)
                             {
-
+                                if (issue.ArticleId.IsNotNull())
+                                {
                                 var receiveDetailRow = receiveDetailList.FirstOrDefault(t => t.InventoryMaterialId == issue.InventoryMaterialId);
 
                                 decimal detailtrnAmount = 0;
@@ -10599,7 +10603,7 @@ namespace Library.MaterialManagement.Inventory
 
                                 //===================
 
-
+                            }
                             }
 
                         }
@@ -10717,155 +10721,164 @@ namespace Library.MaterialManagement.Inventory
                                     CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
                                     Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
                                     JWTCMID= entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.JWTCMId).FirstOrDefault(),
+                                    //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
+                                  //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
                                     ModelState = ModelState.Added
                                 };
+                                            if (invMaterial.ArticleId.IsNotNull())
+                                            {
+                                                // start
 
-                                var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
-                                foreach (var item in stockList)
-                                {
+                                                var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
+                                                foreach (var item in stockList)
+                                                {
 
-                                    if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
+                                                    if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
 
-                                    if (item.TransactionUoMId != item.BaseUOMId)
-                                        totalReqQty = Convert.ToInt32(item.RequisitionQty * item.BaseUoMFactor);
-                                    else
-                                        totalReqQty = item.RequisitionQty;
-                                    historyId++;
-                                    var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
-                                    var history = new InventoryIssueHistory
-                                    {
-                                        Id = MakePK(issueDetail.Id, historyId, 2),
-                                        InventoryIssueDetailId = issueDetail.Id,
-                                        InventoryReceiveDetailId = item.InventoryReceiveDetailId,
-                                        Qty = totalReqQty, //item.RequisitionQty,
-                                        //Rate = Convert.ToDecimal(item.BaseRate),
-                                        //Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty), 4),
-                                        //TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
-                                        Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
-                                        TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
-                                        IssueRequestDetailId = item.IssueRequest,
-                                        IssueReturnQty = 0,
-                                        BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
-                                        TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2)
-                                    };
-                                    //policyAmmount += history.Qty * history.Rate;
+                                                    if (item.TransactionUoMId != item.BaseUOMId)
+                                                        totalReqQty = Convert.ToInt32(item.RequisitionQty * item.BaseUoMFactor);
+                                                    else
+                                                        totalReqQty = item.RequisitionQty;
+                                                    historyId++;
+                                                    var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
+                                                    var history = new InventoryIssueHistory
+                                                    {
+                                                        Id = MakePK(issueDetail.Id, historyId, 2),
+                                                        InventoryIssueDetailId = issueDetail.Id,
+                                                        InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+                                                        Qty = totalReqQty, //item.RequisitionQty,
+                                                                           //Rate = Convert.ToDecimal(item.BaseRate),
+                                                                           //Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty), 4),
+                                                                           //TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+                                                        Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
+                                                        TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+                                                        IssueRequestDetailId = item.IssueRequest,
+                                                        IssueReturnQty = 0,
+                                                        BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
+                                                        TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2)
+                                                    };
+                                                    //policyAmmount += history.Qty * history.Rate;
 
 
 
-                                    builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(item.RequisitionQty + item.IssueQty) + @"' 
+                                                    builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(item.RequisitionQty + item.IssueQty) + @"' 
 										,BaseIssueQty = '" + (Convert.ToDecimal(Convert.ToDecimal(item.BaseIssueQty) + Convert.ToDecimal(totalReqQty))) + "' WHERE Id = '" + item.InventoryReceiveDetailId + "'";
 
-                                    rdBuilder.Append(builderSql);
-                                    AuditService.AddedLog(history);
-                                    _issueHistoryRepository.Insert(history);
+                                                    rdBuilder.Append(builderSql);
+                                                    AuditService.AddedLog(history);
+                                                    _issueHistoryRepository.Insert(history);
 
 
 
-                                    //Mapping Data=========================================================
-                                    if (entitiesAll.IsNotNull())
-                                    {
-                                        foreach (var itemall in entitiesAll)
-                                        {
-                                            var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
+                                                    //Mapping Data=========================================================
+                                                    if (entitiesAll.IsNotNull())
+                                                    {
+                                                        foreach (var itemall in entitiesAll)
+                                                        {
+                                                            var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
 															from [TRN].[IssueRequestBOQMap] IRBM
 															Left Join (Select IssueRequestBOQMapId, sum(Qty) Qty from [TRN].[IssueDetailAndIssueRequestMap]  group by IssueRequestBOQMapId) IDRM ON IDRM.IssueRequestBOQMapId=IRBM.BOQID
 															where IssueRequestDetailId='" + itemall.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
-                                            if (receiveDetailList1.IsNotNull())
-                                            {
-                                                bool isQtyAlocated = true;
-                                                decimal temp = 0;
-                                                int count = 0;
-                                                foreach (var receiveDetailListNew in receiveDetailList1)
-                                                {
+                                                            if (receiveDetailList1.IsNotNull())
+                                                            {
+                                                                bool isQtyAlocated = true;
+                                                                decimal temp = 0;
+                                                                int count = 0;
+                                                                foreach (var receiveDetailListNew in receiveDetailList1)
+                                                                {
 
 
-                                                    //count++;
-                                                    //if (count == 1)
-                                                    //{
-                                                    //    if (((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) > issueDetail.TransactionQty)
-                                                    //    {
+                                                                    //count++;
+                                                                    //if (count == 1)
+                                                                    //{
+                                                                    //    if (((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) > issueDetail.TransactionQty)
+                                                                    //    {
 
-                                                    //        issueDetail.TransactionQty =Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
-                                                    //        //temp += itemDetail.TransactionQty;
-                                                    //        isQtyAlocated = false;
+                                                                    //        issueDetail.TransactionQty =Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
+                                                                    //        //temp += itemDetail.TransactionQty;
+                                                                    //        isQtyAlocated = false;
 
-                                                    //    }
-                                                    //    else if (((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) < issueDetail.TransactionQty)
-                                                    //    {
-                                                    //        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                    //        temp = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
-                                                    //        issueDetail.TransactionQty = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
-                                                    //        isQtyAlocated = true;
+                                                                    //    }
+                                                                    //    else if (((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) < issueDetail.TransactionQty)
+                                                                    //    {
+                                                                    //        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                                    //        temp = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
+                                                                    //        issueDetail.TransactionQty = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
+                                                                    //        isQtyAlocated = true;
 
-                                                    //    }
-                                                    //    else
-                                                    //    {
-                                                    //        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                    //        issueDetail.TransactionQty = Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
-                                                    //        isQtyAlocated = true;
+                                                                    //    }
+                                                                    //    else
+                                                                    //    {
+                                                                    //        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                                    //        issueDetail.TransactionQty = Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
+                                                                    //        isQtyAlocated = true;
 
-                                                    //    }
-                                                    //}
-                                                    //if (count > 1)
-                                                    //{
-                                                    //    if (isQtyAlocated == true)
-                                                    //    {
-                                                    //        if ((Convert.ToDecimal(receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) > temp)
-                                                    //        {
-                                                    //            //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
-                                                    //            issueDetail.TransactionQty = Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
-                                                    //            isQtyAlocated = false;
-                                                    //        }
-                                                    //        if ((Convert.ToDecimal(receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) < temp)
-                                                    //        {
-                                                    //            //temp = temp - issue.TransactionQtyForPO;
-                                                    //            temp = Convert.ToDecimal(temp - ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor));
-                                                    //            //itemDetail.TransactionQty = issue.TransactionQtyForPO;
-                                                    //            issueDetail.TransactionQty = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
-                                                    //            isQtyAlocated = true;
-                                                    //        }
-                                                    //        else
-                                                    //        {
-                                                    //            //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                                    //            issueDetail.TransactionQty = temp;
-                                                    //            isQtyAlocated = true;
+                                                                    //    }
+                                                                    //}
+                                                                    //if (count > 1)
+                                                                    //{
+                                                                    //    if (isQtyAlocated == true)
+                                                                    //    {
+                                                                    //        if ((Convert.ToDecimal(receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) > temp)
+                                                                    //        {
+                                                                    //            //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+                                                                    //            issueDetail.TransactionQty = Convert.ToDecimal(issueDetail.TransactionQty * item.BaseUoMFactor);
+                                                                    //            isQtyAlocated = false;
+                                                                    //        }
+                                                                    //        if ((Convert.ToDecimal(receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor) < temp)
+                                                                    //        {
+                                                                    //            //temp = temp - issue.TransactionQtyForPO;
+                                                                    //            temp = Convert.ToDecimal(temp - ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor));
+                                                                    //            //itemDetail.TransactionQty = issue.TransactionQtyForPO;
+                                                                    //            issueDetail.TransactionQty = Convert.ToDecimal((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) * item.BaseUoMFactor);
+                                                                    //            isQtyAlocated = true;
+                                                                    //        }
+                                                                    //        else
+                                                                    //        {
+                                                                    //            //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                                                                    //            issueDetail.TransactionQty = temp;
+                                                                    //            isQtyAlocated = true;
 
-                                                    //        }
+                                                                    //        }
 
-                                                    //    }
-                                                    //    else
-                                                    //    {
-                                                    //        issueDetail.TransactionQty = 0;
-                                                    //    }
-                                                    //}
+                                                                    //    }
+                                                                    //    else
+                                                                    //    {
+                                                                    //        issueDetail.TransactionQty = 0;
+                                                                    //    }
+                                                                    //}
 
 
-                                                    var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
-                                                    {
-                                                        Id = GetIssueDetailAndIssueRequestMapPK(),
-                                                        InventoryIssueDetailId = issueDetail.Id,
-                                                        IssueRequestBOQMapId = receiveDetailListNew.Id,
-                                                        Qty = receiveDetailListNew.IssueRequestBOQMapQty,
-                                                        //AutoAllocate = true
+                                                                    var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
+                                                                    {
+                                                                        Id = GetIssueDetailAndIssueRequestMapPK(),
+                                                                        InventoryIssueDetailId = issueDetail.Id,
+                                                                        IssueRequestBOQMapId = receiveDetailListNew.Id,
+                                                                        Qty = receiveDetailListNew.IssueRequestBOQMapQty,
+                                                                        //AutoAllocate = true
 
-                                                    };
-                                                    AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
-                                                    _IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
+                                                                    };
+                                                                    AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
+                                                                    _IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
+                                                                }
+                                                            }
+
+
+                                                        }
+                                                    }
+
+
                                                 }
+
+
+                                                builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(invMaterial.TotalQty - issueDetail.BaseQty) + "' WHERE Id='" + invMaterialId + "'";
+                                                rdBuilder.Append(builderSql);
+
+                                                // End
+
                                             }
 
-
-                                        }
-                                    }
-
-
-                                }
-
-
-                                builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(invMaterial.TotalQty - issueDetail.BaseQty) + "' WHERE Id='" + invMaterialId + "'";
-                                rdBuilder.Append(builderSql);
-
-                                AuditService.AddedLog(issueDetail);
+                                            AuditService.AddedLog(issueDetail);
                                 _issueDetailService.InsertGraph(issueDetail);
 
 
@@ -10875,7 +10888,7 @@ namespace Library.MaterialManagement.Inventory
                         }
 
 
-                        //_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                //        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
 
                     }
                     catch (CustomException)
@@ -10890,6 +10903,7 @@ namespace Library.MaterialManagement.Inventory
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                     flag = false;
                     _unitOfWork.Commit();
+                    SaveIssueTransformationChild(entities, _pk);
                 }
             }
             catch (CustomException)
@@ -10908,6 +10922,132 @@ namespace Library.MaterialManagement.Inventory
                 {
                     _unitOfWork.Rollback();
                 }
+            }
+        }
+
+        // Save Issue Tranformation Wihtout Material
+
+        private string GetTransformationChildPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "InventoryIssueDetail", out sID);
+            return sID;
+        }
+
+        public void SaveIssueTransformationChild(IEnumerable<InventoryMaterialViewModel> entities, string MasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                DataSet ExistOrNot;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var JWItemId = "' '";
+                var OtMatId = "' '";
+
+                foreach (var empitem in entities)
+                {
+                    if (empitem.ArticleId.IsNull())
+                    {
+                        JWItemId += ",'" + empitem.JWInputItemId + "' ";
+                        OtMatId += ",'" + empitem.JWTCMId + "' ";
+                    }
+                   
+
+                }
+                con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTCMID IN ( " + OtMatId + ") and JWTCInputId IN (" + JWItemId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+
+                foreach (var item in entities)
+                {
+                    if (item.ArticleId.IsNull())
+                    {
+
+                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
+
+                    if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = ExistOrNot.Tables[0].NewRow();
+                        dr["Id"] = GetTransformationChildPK();
+
+                        dr["InventoryIssueId"] = MasterId;
+                        dr["TransactionQty"] = item.TransactionQty;
+                        dr["TransactionUoMId"] = item.TransactionUoMId;
+                        dr["BaseUOMId"] = item.BaseUOMId;
+                        dr["CostCenterId"] = item.CostCenterId;
+                        dr["JWTCMID"] = item.JWTCMId;
+                        dr["JWTCInputId"] = item.JWInputItemId;
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        //dr["UpdatedBy"] = identity.Name;
+                        //dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        //dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        ExistOrNot.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
+
+                        if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow dr = ExistOrNot.Tables[0].NewRow();
+                            dr["Id"] = GetTransformationChildPK();
+
+                            dr["InventoryIssueId"] = MasterId;
+                            dr["TransactionQty"] = item.TransactionQty;
+                            dr["TransactionUoMId"] = item.TransactionUoMId;
+                            dr["BaseUOMId"] = item.BaseUOMId;
+                            dr["CostCenterId"] = item.CostCenterId;
+                            dr["JWTCMID"] = item.JWTCMId;
+                            dr["JWTCInputId"] = item.JWInputItemId;
+
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = System.DateTime.Now.ToString();
+                            dr["AddedFromIP"] = identity.IPAddress;
+
+                            ExistOrNot.Tables[0].Rows.Add(dr);
+
+                        }
+                        else
+                        {
+                            //edit
+                            DataRow dr = ExistOrNot.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+
+                            dr["InventoryIssueId"] = MasterId;
+                            dr["TransactionQty"] = item.TransactionQty;
+                            dr["TransactionUoMId"] = item.TransactionUoMId;
+                            dr["BaseUOMId"] = item.BaseUOMId;
+                            dr["CostCenterId"] = item.CostCenterId;
+                            dr["JWTCMID"] = item.JWTCMId;
+                            dr["JWTCInputId"] = item.JWInputItemId;
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                            dr.EndEdit();
+                        }
+
+
+                    }
+                }
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(ExistOrNot);
+
+                //         return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
