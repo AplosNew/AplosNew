@@ -248,14 +248,48 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
             throw e;
         }
     }
+
     $scope.EditSOPopUp = function (obj) {
         $scope.soModel = Object.assign({}, obj.data);
+        if (!baseService.isUndefinedOrNull($scope.soModel.Id) && $scope.soModel.OrderStatusId !== 'Active') {
+            if ($scope.soModel.ProductionBookingLevel === 'SalesOrder') {
+                $http({
+                    method: 'GET',
+                    url: 'OrderManagements/MasterOrder/GetSOBookedQtyAndLevel?salesOrderId=' + $scope.soModel.Id
+                }).then(function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+
+                        $scope.ProdBookedQty = response.data[0].Quantity;
+                        $scope.TotalProducedQty = $scope.soModel.ProductionBookedQty + $scope.ProdBookedQty;
+                    }
+
+                });
+            }
+            else if ($scope.soModel.ProductionBookingLevel === 'ProductionOrder') {
+
+                $http({
+                    method: 'GET',
+                    url: 'OrderManagements/MasterOrder/GetPOBookedQtyAndLevel?salesOrderId=' + $scope.soModel.Id
+                }).then(function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.ProdBookedQty = response.data[0].Quantity;
+                        $scope.TotalProducedQty = $scope.soModel.ProductionBookedQty + $scope.ProdBookedQty;
+                    }
+                });
+
+            }
+        }
         angular.element(document.querySelector('#salesOrderEditPopUp')).modal('show');
     }
     $scope.closeSOPopUp = function () {
         angular.element(document.querySelector('#salesOrderEditPopUp')).modal('hide');
     };
-
+    $scope.ProdBookedQty = 0;
+    $scope.TotalProducedQty = 0;
+   
+    $scope.SetTotalProdQty = function () {
+        $scope.TotalProducedQty = $scope.soModel.ProductionBookedQty + $scope.ProdBookedQty;
+    }
     $scope.saveSalesOrderDate = function () {
 
         $scope.$broadcast('show-errors-check-validity');
@@ -365,9 +399,6 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
             ShowResult(e, "failure");
         }
     };
-    $scope.SetTotalProdQty = function () {
-        $scope.TotalProducedQty = $scope.soModel.ProductionBookedQty + $scope.ProdBookedQty;
-    }
     $scope.saveSalesOrderStatus = function () {
 
         if ($scope.soModel.OrderStatusId !== 'Active') {
@@ -403,46 +434,10 @@ function SalesOrderUpdateController(accountService, $window, cboService, commonM
             }
         }
     };
+
     $scope.SetNetSalesRealization = function () {
         $scope.soModel.NetSalesRealization = $scope.soModel.SalesExpense - $scope.soModel.Discount;
     }
 
-    $scope.ProdBookedQty = 0;
-    $scope.TotalProducedQty = 0;
-    $scope.GetSOBookedQtyAndLevel = function (salesOrderId) {
-        //$scope.TotalProducedQty = 0;
-        //$scope.ProdBookedQty = 0;
-        if (!baseService.isUndefinedOrNull($scope.soModel.Id) && $scope.soModel.OrderStatusId !== 'Active') {
-            $http({
-                method: 'GET',
-                url: 'OrderManagements/MasterOrder/GetSOBookedQtyAndLevel?salesOrderId=' + salesOrderId
-            }).then(function successCallback(response) {
-                if (baseService.arrayLength(response.data) > 0) {
-                    if ($scope.soModel.ProductionBookedQty === 0) {
-                        $scope.soModel.ProductionBookedQty = response.data[0].Quantity;
-                        $scope.soModel.ProductionBookingLevel = response.data[0].BookingLevel;
-                        $scope.ProdBookedQty = response.data[0].Quantity;
-                        $scope.TotalProducedQty = $scope.ProdBookedQty;
-                    }
-                }
-                if ($scope.soModel.ProductionBookedQty == 0.00) {
-                    $http({
-                        method: 'GET',
-                        url: 'OrderManagements/MasterOrder/GetPOBookedQtyAndLevel?salesOrderId=' + salesOrderId
-                    }).then(function successCallback(response) {
-                        if (baseService.arrayLength(response.data) > 0) {
-                            if ($scope.soModel.ProductionBookedQty === 0) {
-                                $scope.soModel.ProductionBookedQty = 0;
-                                $scope.soModel.ProductionBookingLevel = response.data[0].BookingLevel;
-                                $scope.ProdBookedQty = response.data[0].Quantity;
-                                $scope.TotalProducedQty = $scope.ProdBookedQty;
-                            }
-                        }
-                    });
-                }
-            });
-        } else {
-            $scope.soModel.ProductionBookedQty = 0;
-        }
-    };
+
 }
