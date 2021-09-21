@@ -1695,6 +1695,15 @@ namespace Library.MaterialManagement.InventoryManagements
 						,ISNull(po.ContractNo,'') ContractNo
 						,isnull(PO.LCANo,'') LCANo
 						,isnull(PO.LCDate,'') LCDate
+						,IRD.IssueQty
+						,IRD.BaseIssueQty
+						,IRD.PurchaseReturnQty
+						,IRD.IssueReturnQty
+						
+						,IRD.ReductionByAdjustmentQty
+						,IRD.InventorySalesQty
+						,IRD.InventoryScrapQty						
+						,IRD.InventoryTransferQty
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -1846,7 +1855,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 
-								,LCANo=STUFF((select distinct ','+PLC.LCANo from
+								,LCANo=STUFF((select distinct ','+PLC.LCRef from
 								trn.PurchaseOrder xpo
 								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
 								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
@@ -2009,6 +2018,15 @@ namespace Library.MaterialManagement.InventoryManagements
 					,'' ContractNo
 					,'' LCANo
 					,'' LCDate
+					,0 IssueQty
+					,0 BaseIssueQty
+					,0 PurchaseReturnQty
+					,0 IssueReturnQty
+					
+					,0 ReductionByAdjustmentQty
+					,0 InventorySalesQty
+					,0 InventoryScrapQty						
+					,0 InventoryTransferQty
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
@@ -3119,7 +3137,7 @@ namespace Library.MaterialManagement.InventoryManagements
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "LCANo";
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "LCRef";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3131,6 +3149,62 @@ namespace Library.MaterialManagement.InventoryManagements
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			//----------------------------
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "IssueQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "BaseIssueQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PurchaseReturnQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "IssueReturnQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ReductionByAdjustmentQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventorySalesQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventoryScrapQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventoryTransferQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			
+
+
+
+
+
+
 
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
@@ -3263,6 +3337,15 @@ namespace Library.MaterialManagement.InventoryManagements
 					report.SetText(ref sheet1, _rowL, 90, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
 					report.SetText(ref sheet1, _rowL, 91, inventoryMaterialList.Rows[n]["LCANo"].ToString());
 					report.SetText(ref sheet1, _rowL, 92, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
+
+				report.SetText(ref sheet1, _rowL, 93, inventoryMaterialList.Rows[n]["IssueQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 94, inventoryMaterialList.Rows[n]["BaseIssueQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 95, inventoryMaterialList.Rows[n]["PurchaseReturnQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 96, inventoryMaterialList.Rows[n]["IssueReturnQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 97, inventoryMaterialList.Rows[n]["ReductionByAdjustmentQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 98, inventoryMaterialList.Rows[n]["InventorySalesQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 99, inventoryMaterialList.Rows[n]["InventoryScrapQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 100, inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString());
 
 				//}
 			}
@@ -4954,8 +5037,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					--,x.InventoryMaterialId
 					--,x.GRNDate
 					,x.UOM,ISNULL(x.IsAsset,0) IsAsset
-					,(SUM( x.OpeningBalance))  OpeningBalance---Sum(x.OpeningIssueQty)-sum(ISNULL(x.PurchaseReturnOpeningQty,0))-SUM( x.InventorySalesQtyOpening)
-					,(Sum(x.OpeningBalanceAmount)) OpeningBalanceAmount---Sum(x.PolicyAmount)-sum(isnull(PurchaseReturnOpeningAmount,0))-SUM( x.InventorySalesOpeningAmount)
+					,(SUM( x.OpeningBalance)-Sum(x.OpeningIssueQty)-sum(ISNULL(x.PurchaseReturnOpeningQty,0))-SUM( x.InventorySalesQtyOpening))  OpeningBalance---Sum(x.OpeningIssueQty)-sum(ISNULL(x.PurchaseReturnOpeningQty,0))-SUM( x.InventorySalesQtyOpening)
+					,(Sum(x.OpeningBalanceAmount)-Sum(x.PolicyAmount)-sum(isnull(PurchaseReturnOpeningAmount,0))-SUM( x.InventorySalesOpeningAmount)) OpeningBalanceAmount---Sum(x.PolicyAmount)-sum(isnull(PurchaseReturnOpeningAmount,0))-SUM( x.InventorySalesOpeningAmount)
 					,Sum(x.OpeningIssueQty) OpeningIssueQty
 					,Sum(x.PolicyAmount) PolicyAmount
 					,sum(x.ReceivedForThePeriod) ReceivedForThePeriod
@@ -4978,8 +5061,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					,Sum(x.InventoryScrapForThePeriodAmount) InventoryScrapForThePeriodAmount
 					,Sum(x.InventoryTransferQtyForThePeriod) InventoryTransferQtyForThePeriod
 					,Sum(x.InventoryTransferForThePeriodAmount) InventoryTransferForThePeriodAmount							
-					,sum(((((((((isnull(x.OpeningBalance,0) + isnull(x.ReceivedForThePeriod,0))-isnull(x.IssueForThePeriod,0)) + isnull(x.IssueReturnQtyForThePeriod,0))  - ISNULL(x.PurchaseReturnQtyForThePeriod,0))- isnull(x.AdjustmentQtyForThePeriod,0))-isnull(x.InventorySalesQtyForThePeriod,0))-isnull(x.InventoryScrapQtyForThePeriod,0))-Isnull(InventoryTransferQtyForThePeriod,0))- ISNULL(x.PurchaseReturnOpeningQty,0)) Closing ---isnull(x.OpeningIssueQty,0)
-					,sum((((((((isnull(x.OpeningBalanceAmount,0) + isnull(x.ReceivedForThePeriodAmount,0))-isnull(x.IssueForThePeriodAmount,0)-isnull(x.AdjustmentForThePeriodAmount,0))-isnull(x.PurchaseReturnForThePeriodAmount,0))+isnull(x.IssueReturnForThePeriodAmount,0)-isnull(x.InventorySalesForThePeriodAmount,0))-isnull(x.InventoryScrapForThePeriodAmount,0))-isnull(x.InventoryTransferForThePeriodAmount,0))-isnull(PurchaseReturnOpeningAmount,0))) ClosingAmount---isnull(x.PolicyAmount,0)
+					,sum(((((((((isnull(x.OpeningBalance,0)-isnull(x.OpeningIssueQty,0)-ISNULL(x.PurchaseReturnOpeningQty,0)-isnull( x.InventorySalesQtyOpening,0) + isnull(x.ReceivedForThePeriod,0))-isnull(x.IssueForThePeriod,0)) + isnull(x.IssueReturnQtyForThePeriod,0))  - ISNULL(x.PurchaseReturnQtyForThePeriod,0))- isnull(x.AdjustmentQtyForThePeriod,0))-isnull(x.InventorySalesQtyForThePeriod,0))-isnull(x.InventoryScrapQtyForThePeriod,0))-Isnull(InventoryTransferQtyForThePeriod,0))- ISNULL(x.PurchaseReturnOpeningQty,0)) Closing ---isnull(x.OpeningIssueQty,0)
+					,sum((((((((isnull(x.OpeningBalanceAmount,0) -isnull(x.PolicyAmount,0)-isnull(PurchaseReturnOpeningAmount,0)-isnull( x.InventorySalesOpeningAmount,0) + isnull(x.ReceivedForThePeriodAmount,0))-isnull(x.IssueForThePeriodAmount,0)-isnull(x.AdjustmentForThePeriodAmount,0))-isnull(x.PurchaseReturnForThePeriodAmount,0))+isnull(x.IssueReturnForThePeriodAmount,0)-isnull(x.InventorySalesForThePeriodAmount,0))-isnull(x.InventoryScrapForThePeriodAmount,0))-isnull(x.InventoryTransferForThePeriodAmount,0))-isnull(PurchaseReturnOpeningAmount,0))) ClosingAmount---isnull(x.PolicyAmount,0)
 
 
 
@@ -5166,7 +5249,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					Left JOIN TRN.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
 					Left JOIn TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
 					Left JOIn Trn.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-					WHERE convert(Date,IR.GRNDate) < '" + fromDate + @"' AND II.PlantId='" + plantId + @"' AND IR.OpeningBalanceId IS NULL
+					WHERE convert(Date,II.IssueDate) < '" + fromDate + @"' AND II.PlantId='" + plantId + @"' AND IR.OpeningBalanceId IS NULL
 					GROUP BY IID.InventoryMaterialId,IRD.IsAsset
 					--,IRD.MaterialStorageId,IR.GRNDate
 					) IFD3 On IFD3.InventoryMaterialId=IM.Id
@@ -6081,7 +6164,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						Left join [TRN].[InventorySales] Ins on Ins.Id=ISD.InventorySalesId
 						Left join trn.InventoryReceiveDetail IRD ON IRD.Id=ISH.InventoryReceiveDetailId
 						LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-						WHERE convert(Date,IR.GRNDate) < '" + fromDate + @"'  AND Ins.PlantId='" + plantId + @"'
+						WHERE convert(Date,Ins.SalesDate) < '" + fromDate + @"'  AND Ins.PlantId='" + plantId + @"'
 						GROUP BY ISD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
 					)InventorySalesData ON InventorySalesData.InventoryMaterialId=IM.Id    
                                 

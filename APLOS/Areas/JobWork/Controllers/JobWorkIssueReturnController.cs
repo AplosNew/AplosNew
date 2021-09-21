@@ -2685,12 +2685,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             decimal c = 0;
             for (int j = 0; j < TransformationIssueGRNdata.Rows.Count; j++)
             {
-
-                a = Convert.ToDecimal(TransformationIssueGRNdata.Rows[j]["GRNIssueQty"]);
-                c = a + b;
-                b = c;
-                sheet[GRNROW, ColTotalGRNIssQty].Number = clsStaticInfo.dbl(b);
-                sheet.Range[GRNROW, ColTotalGRNIssQty].CellStyle.Font.Bold = true;
+                    a = Convert.ToDecimal(TransformationIssueGRNdata.Rows[j]["GRNIssueQty"]);
+                    c = a + b;
+                    b = c;
+                    sheet[GRNROW, ColTotalGRNIssQty].Number = clsStaticInfo.dbl(b);
+                    sheet.Range[GRNROW, ColTotalGRNIssQty].CellStyle.Font.Bold = true;
             }
 
             // SUM OF TOTAL GRN Amount
@@ -2700,12 +2699,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             decimal zz = 0;
             for (int j = 0; j < TransformationIssueGRNdata.Rows.Count; j++)
             {
-
-                xx =Math.Round(Convert.ToDecimal(TransformationIssueGRNdata.Rows[j]["TotalAmount"]),2);
-                zz = Math.Round(xx,2) + Math.Round(yy,2);
-                yy = Math.Round(zz,2);
-                sheet[GRNROW, ColTotalGRNAmount].Number = Math.Round(clsStaticInfo.dbl(yy),2);
-                sheet.Range[GRNROW, ColTotalGRNAmount].CellStyle.Font.Bold = true;
+                    xx = Math.Round(Convert.ToDecimal(TransformationIssueGRNdata.Rows[j]["TotalAmount"]), 2);
+                    zz = Math.Round(xx, 2) + Math.Round(yy, 2);
+                    yy = Math.Round(zz, 2);
+                    sheet[GRNROW, ColTotalGRNAmount].Number = Math.Round(clsStaticInfo.dbl(yy), 2);
+                    sheet.Range[GRNROW, ColTotalGRNAmount].CellStyle.Font.Bold = true;
             }
 
             GRNEndRows = GRNROW - 1;
@@ -3021,7 +3019,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             //            where IID.InventoryIssueId='" + IssueId + @"'";
 
             var sql = @"select om.Id, IRD.InventoryReceiveId as GRNNo,IRD.Id as GRNRowId,uom.UserName as IssueUoM,IIH.Qty as GRNIssueQty,mm.UserName as JWInputMaterial
-                        , mma.StandardName as JWInputArticle, C.Code as TransactionCurrency, IIH.Rate as TransactionRate--, IR.ToCurrencyRate as BaseRate
+                        , mma.StandardName as JWInputArticle, C.Code as TransactionCurrency--, IIH.Rate as TransactionRate
+                        ,TransactionRate=(IIH.Rate/86)
+                         --, IR.ToCurrencyRate as BaseRate
                          ,BaseRate=(IIH.Rate * IR.ToCurrencyRate)
                          , CC.Code as BaseCurrency--,(IIH.Rate * IIH.Qty) as TotalAmount
 						-- ,TotalAmount=round((IR.ToCurrencyRate * IIH.Qty),2)
@@ -3037,7 +3037,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
                         left join SCS.Currency C on C.Id=IR.CurrencyId
                         left join SCS.Currency CC on CC.Id=IR.BaseCurrencyId
-                        where IID.InventoryIssueId='" + IssueId + @"' ";
+                        where IID.InventoryIssueId='" + IssueId + @"' and IRD.InventoryReceiveId is not null ";
 
             return _sqlRepository.GetDataTable(sql);
         }

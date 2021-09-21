@@ -1819,6 +1819,10 @@ WHERE WCM.EntityId='" + entityid + @"' AND ps.UserName NOT IN ('" + PlanningStat
                     //saving final PR data
                     saveProductionPlan(_ProductionBlock, productionOrders.Rows[i]["ProductionOrderID"].ToString(), entityid, processid);
                 }
+                SendNotification("Distributing production quantity in sales orders and calculating expected completion date");
+                Library.OrderManagement.Production.ExpectedSOWiseDateService expectedSO = new Library.OrderManagement.Production.ExpectedSOWiseDateService();
+                expectedSO.ExpectedSOWiseProductionCompletionSave(entityid);
+
                 SendNotification("Simulation Completed");
                 _lock.UnlockProcess();
             }
