@@ -934,4 +934,41 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
         });
         return true;
     }
+
+    $scope.onClickTDSPostDeletePopUp = function (x) {
+        var data = x;
+        $scope.ServiceAckId = data.Id;
+        $scope.TDSTaxVoucherId = data.TDSTaxVoucherId;
+        $scope.InvoiceWriteOffId = data.InvoiceWriteOffId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmTDSPostDeletePopUp')).modal('show');
+    };
+    $scope.deletePostAdditionalTax = function (voucherId, serviceAckId, invoiceWriteOffId) {
+        $http({
+            method: "POST",
+            url: 'accounts/InvoicePost/DeleteTDSPostServicePayable',
+            data: {
+                "voucherId": voucherId, "serviceAckId": serviceAckId, "invoiceWriteOffId": invoiceWriteOffId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.ServiceAckId = null;
+                $scope.VoucherId = null;
+                $scope.TDSTaxVoucherId = null;
+                $scope.TDSVoucherNo = null;
+                $scope.InvoiceId = null;
+                $scope.InvoiceWriteOffId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    }
 }
