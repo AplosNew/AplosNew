@@ -3019,7 +3019,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             //            where IID.InventoryIssueId='" + IssueId + @"'";
 
             var sql = @"select om.Id, IRD.InventoryReceiveId as GRNNo,IRD.Id as GRNRowId,uom.UserName as IssueUoM,IIH.Qty as GRNIssueQty,mm.UserName as JWInputMaterial
-                        , mma.StandardName as JWInputArticle, C.Code as TransactionCurrency, IIH.Rate as TransactionRate--, IR.ToCurrencyRate as BaseRate
+                        , mma.StandardName as JWInputArticle, C.Code as TransactionCurrency--, IIH.Rate as TransactionRate
+                        ,TransactionRate=(IIH.Rate/86)
+                         --, IR.ToCurrencyRate as BaseRate
                          ,BaseRate=(IIH.Rate * IR.ToCurrencyRate)
                          , CC.Code as BaseCurrency--,(IIH.Rate * IIH.Qty) as TotalAmount
 						-- ,TotalAmount=round((IR.ToCurrencyRate * IIH.Qty),2)
