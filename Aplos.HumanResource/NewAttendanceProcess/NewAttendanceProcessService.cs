@@ -173,7 +173,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["WrongShift"] = 0;
                                 dr["OTHr"] = "0";
                                 dr["ProcessedOT"] = "0";
-                                dr["ManualOt"] = "0";
                                 dr["IsOTComfirm"] = 0;
                                 dr["IsLock"] = 0;
                                 dr["IsOTEntitled"] = 0;
@@ -3277,14 +3276,18 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                var sql = @" SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID,
-                 CONVERT(date,e.DateAdded) as Today,m.ShiftDefinationId as ShiftId,s.ShiftDuration,
-                 s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
-                 S.OutTime as ShiftOut,e.PlantId,e.DateAdded
-                 FROM EmployeeInformation E
-                 left join mst.ManpowerBudget m on m.Id=e.BudgetCode
-                 left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
-                 WHERE CONVERT(DATE,GETDATE())=CONVERT(date,E.DateAdded) and e.PlantId='"+Plant+"' ";
+                var sql = @"SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
+                     CONVERT(date,e.DateAdded) as Today,m.ShiftDefinationId as ShiftId,s.ShiftDuration,
+                     s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
+                     CASE WHEN s.InTime>s.OutTime THEN DATEADD(DAY,1,s.OutTime) ELSE s.OutTime END as ShiftOut,
+				     e.DateAdded
+                     FROM EmployeeInformation E
+                     left join mst.ManpowerBudget m on m.Id=e.BudgetCode
+                     left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
+                     WHERE CONVERT(DATE,'2021-06-01'--Here getdate() will come
+                     )=CONVERT(date,E.DateAdded) 
+				     and DOJ<= CONVERT(DATE,'2021-06-01')
+				     and e.PlantId='202016'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
