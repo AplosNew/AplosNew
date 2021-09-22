@@ -5101,294 +5101,294 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string ManualFlagRowId = "''", SandwichFlagRowId = "''";
 
 
-                //#region Manual Day Duration  
-                //DataSet ManualDurn;
-                //ManualDuration(out ManualDurn, PlantValue);
-                //if (ManualDurn.Tables[0].Rows.Count > 0)
-                //{
-                //    // Dataset Generated for Duration EarlyIn EarlyOut Calculation
+                #region Manual Day Duration  
+                DataSet ManualDurn;
+                ManualDuration(out ManualDurn, PlantValue);
+                if (ManualDurn.Tables[0].Rows.Count > 0)
+                {
+                    // Dataset Generated for Duration EarlyIn EarlyOut Calculation
 
-                //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                //    var sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1";
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1";
 
-                //    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                //    for (int i = 0; i < ManualDurn.Tables[0].Rows.Count; i++)
-                //    {
-                //        string EmpId = ManualDurn.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                //        string WorkDate = ManualDurn.Tables[0].Rows[i][@"WorkDate"].ToString();
-                //        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
-                //        string ProcessInTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"InTime"]).ToString();
-                //        string ProcessOutTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"OutTime"]).ToString();
-                //        string ShiftOutTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
-                //        string ShiftInTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
-                //        string CalDuration = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"CalDuration"]).ToString();
-                //        double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
-                //        double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
-                //        double ShiftEarlyOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftEarlyOutMargin"]).ToString());
-                //        double ShiftLateOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftLateOutMargin"]).ToString());
+                    for (int i = 0; i < ManualDurn.Tables[0].Rows.Count; i++)
+                    {
+                        string EmpId = ManualDurn.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                        string WorkDate = ManualDurn.Tables[0].Rows[i][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+                        string ProcessInTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"InTime"]).ToString();
+                        string ProcessOutTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"OutTime"]).ToString();
+                        string ShiftOutTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
+                        string ShiftInTime = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
+                        string CalDuration = clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"CalDuration"]).ToString();
+                        double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
+                        double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
+                        double ShiftEarlyOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftEarlyOutMargin"]).ToString());
+                        double ShiftLateOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualDurn.Tables[0].Rows[i][@"ShiftLateOutMargin"]).ToString());
 
-                //        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                //        if (dsRef.Tables[0].DefaultView.Count > 0)
-                //        {
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
 
-                //            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                //            dr.BeginEdit();
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
 
-                //            // Updation in AttdnProcessData 
-                //            dr["Duration"] = CalDuration;
-                //            dr["EarlyLateIn"] = DBNull.Value;
-                //            dr["EarlyLateOut"] = DBNull.Value;
+                            // Updation in AttdnProcessData 
+                            dr["Duration"] = CalDuration;
+                            dr["EarlyLateIn"] = DBNull.Value;
+                            dr["EarlyLateOut"] = DBNull.Value;
 
-                //            // If Intime + EarlyMargin < ShiftInTime :- EarlyIn
-                //            if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
-                //            {
-                //                TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
-                //                dr["EarlyIn"] = ts.TotalMinutes;
-                //                dr["EarlyLateIn"] = "EI";
-                //            }
-                //            else
-                //            {
-                //                dr["EarlyIn"] = 0;
+                            // If Intime + EarlyMargin < ShiftInTime :- EarlyIn
+                            if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                            {
+                                TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
+                                dr["EarlyIn"] = ts.TotalMinutes;
+                                dr["EarlyLateIn"] = "EI";
+                            }
+                            else
+                            {
+                                dr["EarlyIn"] = 0;
 
-                //            }
-                            
-                //            // If Intime - LateMargin > ShiftInTime :- LateIn
-                //            if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
-                //            {
-                //                TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
-                //                dr["LateIn"] = ts.TotalMinutes;
-                //                dr["EarlyLateIn"] = "LI";
-                //            }
-                //            else
-                //            {
-                //                dr["LateIn"] = 0;
+                            }
 
-                //            }
+                            // If Intime - LateMargin > ShiftInTime :- LateIn
+                            if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                            {
+                                TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
+                                dr["LateIn"] = ts.TotalMinutes;
+                                dr["EarlyLateIn"] = "LI";
+                            }
+                            else
+                            {
+                                dr["LateIn"] = 0;
 
-                //            // If OutTime + EarlyMargin < ShiftOutTime :- EarlyOut
-                //            if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
-                //            {
+                            }
 
-                //                TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
-                //                dr["EarlyOut"] = ts.TotalMinutes;
-                //                dr["EarlyLateOut"] = "EO";
-                //            }
-                //            else
-                //            {
-                //                dr["EarlyOut"] = 0;
+                            // If OutTime + EarlyMargin < ShiftOutTime :- EarlyOut
+                            if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                            {
 
-                //            }
+                                TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
+                                dr["EarlyOut"] = ts.TotalMinutes;
+                                dr["EarlyLateOut"] = "EO";
+                            }
+                            else
+                            {
+                                dr["EarlyOut"] = 0;
 
-                //            // If OutTime - LateMargin < ShiftOutTime :- 0
-                //            if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
-                //            {
-                //                dr["LateOut"] = 0;
+                            }
 
-                //            }
-                //            else
-                //            {
-                //                TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
-                //                dr["LateOut"] = ts.TotalMinutes;
-                //                dr["EarlyLateOut"] = "LO";
-                //            }
+                            // If OutTime - LateMargin < ShiftOutTime :- 0
+                            if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                            {
+                                dr["LateOut"] = 0;
 
-                //            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                //            dr.EndEdit();
-                //            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
-                //        }
-                //    }
-                //    SaveDataSets(dsRef);
+                            }
+                            else
+                            {
+                                TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
+                                dr["LateOut"] = ts.TotalMinutes;
+                                dr["EarlyLateOut"] = "LO";
+                            }
 
-                //}
+                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                            dr.EndEdit();
+                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                        }
+                    }
+                    SaveDataSets(dsRef);
 
-                //#endregion
+                }
 
-                //#region Manual OverStay UnderStay 
-                //DataSet ManualOverUnderStay;
-                //ManualOverUnderStayData(out ManualOverUnderStay, PlantValue);
-                //if (ManualOverUnderStay.Tables[0].Rows.Count > 0)
-                //{
-                //    // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
+                #endregion
 
-                //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                //    var sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "'";
+                #region Manual OverStay UnderStay 
+                DataSet ManualOverUnderStay;
+                ManualOverUnderStayData(out ManualOverUnderStay, PlantValue);
+                if (ManualOverUnderStay.Tables[0].Rows.Count > 0)
+                {
+                    // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
 
-                //    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "'";
 
-                //    for (int i = 0; i < ManualOverUnderStay.Tables[0].Rows.Count; i++)
-                //    {
-                //        string WorkDate = ManualOverUnderStay.Tables[0].Rows[i][@"WorkDate"].ToString();
-                //        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                //        string EmpId = ManualOverUnderStay.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                //        double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(ManualOverUnderStay.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
+                    for (int i = 0; i < ManualOverUnderStay.Tables[0].Rows.Count; i++)
+                    {
+                        string WorkDate = ManualOverUnderStay.Tables[0].Rows[i][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
-                //        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                //        if (dsRef.Tables[0].DefaultView.Count > 0)
-                //        {
+                        string EmpId = ManualOverUnderStay.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                        double OverUnderStay = Convert.ToDouble(clsWebLib.RetValidLen(ManualOverUnderStay.Tables[0].Rows[i][@"OverUnderStay"]).ToString());
 
-                //            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                //            dr.BeginEdit();
-                //            if (OverUnderStay > 0)
-                //            {
-                //                // Extra Work After ShiftOTHours
-                //                dr["OverStay"] = OverUnderStay;
-                //                dr["UnderStay"] = 0;
-                //            }
-                //            else if (OverUnderStay == 0)
-                //            {
-                //                dr["OverStay"] = 0;
-                //                dr["UnderStay"] = 0;
-                //            }
-                //            else
-                //            {
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
 
-                //                // Less Work than ShiftOTHours
-                //                dr["OverStay"] = 0;
-                //                dr["UnderStay"] = OverUnderStay;
-                //            }
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            if (OverUnderStay > 0)
+                            {
+                                // Extra Work After ShiftOTHours
+                                dr["OverStay"] = OverUnderStay;
+                                dr["UnderStay"] = 0;
+                            }
+                            else if (OverUnderStay == 0)
+                            {
+                                dr["OverStay"] = 0;
+                                dr["UnderStay"] = 0;
+                            }
+                            else
+                            {
 
-                //            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                //            dr.EndEdit();
-                //            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
-                //        }
-                //    }
-                //    SaveDataSets(dsRef);
+                                // Less Work than ShiftOTHours
+                                dr["OverStay"] = 0;
+                                dr["UnderStay"] = OverUnderStay;
+                            }
 
-                //}
+                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                            dr.EndEdit();
+                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                        }
+                    }
+                    SaveDataSets(dsRef);
 
-                //#endregion
+                }
 
-                //#region Manual DurationStatus Flagging
-                //DataSet ManualDurationStat;
-                //ManualDurationStatusCal(out ManualDurationStat, PlantValue);
-                //if (ManualDurationStat.Tables[0].Rows.Count > 0)
-                //{
-                //    // Duration Staus on the Basis of Duration of Work of Employee
+                #endregion
 
-                //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                //    var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                #region Manual DurationStatus Flagging
+                DataSet ManualDurationStat;
+                ManualDurationStatusCal(out ManualDurationStat, PlantValue);
+                if (ManualDurationStat.Tables[0].Rows.Count > 0)
+                {
+                    // Duration Staus on the Basis of Duration of Work of Employee
 
-                //    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
 
-                //    for (int i = 0; i < ManualDurationStat.Tables[0].Rows.Count; i++)
-                //    {
-                //        string WorkDate = ManualDurationStat.Tables[0].Rows[i][@"WorkDate"].ToString();
-                //        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
-                //        string EmpId = ManualDurationStat.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                //        string ShortDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftShortDuration"]).ToString();
-                //        string FullDayDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftFullDayDuration"]).ToString();
-                //        string HalfDayDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftHalfDayDuration"]).ToString();
-                //        string Duration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"Duration"]).ToString();
-                //        string In = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"InTime"]).ToString();
-                //        string Out = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"OutTime"]).ToString();
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                //        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                //        if (dsRef.Tables[0].DefaultView.Count > 0)
-                //        {
-                //            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                //            dr.BeginEdit();
+                    for (int i = 0; i < ManualDurationStat.Tables[0].Rows.Count; i++)
+                    {
+                        string WorkDate = ManualDurationStat.Tables[0].Rows[i][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+                        string EmpId = ManualDurationStat.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                        string ShortDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftShortDuration"]).ToString();
+                        string FullDayDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftFullDayDuration"]).ToString();
+                        string HalfDayDuration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"ShiftHalfDayDuration"]).ToString();
+                        string Duration = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"Duration"]).ToString();
+                        string In = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"InTime"]).ToString();
+                        string Out = clsWebLib.RetValidLen(ManualDurationStat.Tables[0].Rows[i][@"OutTime"]).ToString();
 
-                //            // In & Out Both Present
-                //            if (Duration.ToString() != "" &&
-                //                FullDayDuration.ToString() != ""
-                //                && ShortDuration.ToString() != ""
-                //                && HalfDayDuration.ToString() != "")
-                //            {
-                //                if (Convert.ToDouble(Duration) >= Convert.ToDouble(FullDayDuration))
-                //                {
-                //                    dr["DurationStatus"] = "FD";  // Full Day
-                //                }
-                //                else if (Convert.ToDouble(Duration) >= Convert.ToDouble(HalfDayDuration))
-                //                {
-                //                    dr["DurationStatus"] = "HD";  // Half Day
-                //                }
-                //                else if (Convert.ToDouble(Duration) >= Convert.ToDouble(ShortDuration))
-                //                {
-                //                    dr["DurationStatus"] = "SD";  // Short Day
-                //                }
-                //                else if (Convert.ToDouble(Duration) < Convert.ToDouble(ShortDuration))
-                //                {
-                //                    dr["DurationStatus"] = "A";  // Absent
-                //                }
-                //            }
-                //            else
-                //            {
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
 
-                //                // Missing In : Out
-                //                if (In.ToString() == "" &&
-                //                     Out.ToString() == "")
-                //                {
-                //                    dr["DurationStatus"] = "NP"; // No Punch
-                //                }
-                //                else if (In.ToString() == "" &&
-                //                    Out.ToString() != "")
-                //                {
-                //                    dr["DurationStatus"] = "IM"; //In Miss
-                //                }
-                //                else if (In.ToString() != "" &&
-                //                    Out.ToString() == "")
-                //                {
-                //                    dr["DurationStatus"] = "OM"; //Out Miss
-                //                }
+                            // In & Out Both Present
+                            if (Duration.ToString() != "" &&
+                                FullDayDuration.ToString() != ""
+                                && ShortDuration.ToString() != ""
+                                && HalfDayDuration.ToString() != "")
+                            {
+                                if (Convert.ToDouble(Duration) >= Convert.ToDouble(FullDayDuration))
+                                {
+                                    dr["DurationStatus"] = "FD";  // Full Day
+                                }
+                                else if (Convert.ToDouble(Duration) >= Convert.ToDouble(HalfDayDuration))
+                                {
+                                    dr["DurationStatus"] = "HD";  // Half Day
+                                }
+                                else if (Convert.ToDouble(Duration) >= Convert.ToDouble(ShortDuration))
+                                {
+                                    dr["DurationStatus"] = "SD";  // Short Day
+                                }
+                                else if (Convert.ToDouble(Duration) < Convert.ToDouble(ShortDuration))
+                                {
+                                    dr["DurationStatus"] = "A";  // Absent
+                                }
+                            }
+                            else
+                            {
 
-                //            }
+                                // Missing In : Out
+                                if (In.ToString() == "" &&
+                                     Out.ToString() == "")
+                                {
+                                    dr["DurationStatus"] = "NP"; // No Punch
+                                }
+                                else if (In.ToString() == "" &&
+                                    Out.ToString() != "")
+                                {
+                                    dr["DurationStatus"] = "IM"; //In Miss
+                                }
+                                else if (In.ToString() != "" &&
+                                    Out.ToString() == "")
+                                {
+                                    dr["DurationStatus"] = "OM"; //Out Miss
+                                }
 
-
-                //            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                //            dr.EndEdit();
-                //            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
-                //        }
-                //    }
-                //    SaveDataSets(dsRef);
-
-                //}
-
-                //#endregion
-
-                //#region Manual Day Status Code              
-                //ManualDayStatusCodeData(PlantValue); 
-                //// DayStausCode Text Join 
-                ////HolidayStatus + WeeklyStatus + DurationStatus + EarlyLateIn + EarlyLateOut + LeaveStatus
-                //#endregion
-
-                //#region Manual User Day Status 
-                //DataSet ManualUserDayStat;
-                //ManualDayStatus(out ManualUserDayStat, PlantValue);
-                //if (ManualUserDayStat.Tables[0].Rows.Count > 0)
-                //{
-                //    // ProcessDayStatus Generation from DayStausCode using DaytypeWith Values
-                //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                //    var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
-
-                //    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                            }
 
 
-                //    for (int i = 0; i < ManualUserDayStat.Tables[0].Rows.Count; i++)
-                //    {
-                //        var WkDate = ManualUserDayStat.Tables[0].Rows[i][@"WorkDate"].ToString();
-                //        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                            dr.EndEdit();
+                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                        }
+                    }
+                    SaveDataSets(dsRef);
 
-                //        string EmpId = clsWebLib.RetValidLen(ManualUserDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                //        string DayStatus = clsWebLib.RetValidLen(ManualUserDayStat.Tables[0].Rows[i][@"DayType"]).ToString();
+                }
 
-                //        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                //        if (dsRef.Tables[0].DefaultView.Count > 0)
-                //        {
-                //            // Updation in AttdnProcessData
-                //            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                //            dr.BeginEdit();
-                //            dr["ProcessDayStatus"] = DayStatus;
-                //            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                //            dr.EndEdit();
-                //            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
-                //        }
-                //    }
-                //    SaveDataSets(dsRef);
+                #endregion
 
-                //}
-                //#endregion
+                #region Manual Day Status Code              
+                ManualDayStatusCodeData(PlantValue);
+                // DayStausCode Text Join 
+                //HolidayStatus + WeeklyStatus + DurationStatus + EarlyLateIn + EarlyLateOut + LeaveStatus
+                #endregion
+
+                #region Manual User Day Status 
+                DataSet ManualUserDayStat;
+                ManualDayStatus(out ManualUserDayStat, PlantValue);
+                if (ManualUserDayStat.Tables[0].Rows.Count > 0)
+                {
+                    // ProcessDayStatus Generation from DayStausCode using DaytypeWith Values
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                    for (int i = 0; i < ManualUserDayStat.Tables[0].Rows.Count; i++)
+                    {
+                        var WkDate = ManualUserDayStat.Tables[0].Rows[i][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+
+                        string EmpId = clsWebLib.RetValidLen(ManualUserDayStat.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                        string DayStatus = clsWebLib.RetValidLen(ManualUserDayStat.Tables[0].Rows[i][@"DayType"]).ToString();
+
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+                            // Updation in AttdnProcessData
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["ProcessDayStatus"] = DayStatus;
+                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                            dr.EndEdit();
+                            CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
+                        }
+                    }
+                    SaveDataSets(dsRef);
+
+                }
+                #endregion
 
                 #region ProcessFinalDayStatus 
                 DataSet ManualFinalDayStat;  // Sandwich,Process DayStatus & Manual DayStatus Comparison
