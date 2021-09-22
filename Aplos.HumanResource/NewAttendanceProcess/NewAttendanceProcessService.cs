@@ -5397,7 +5397,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
