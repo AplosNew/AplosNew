@@ -227,6 +227,22 @@ namespace Library.Service.Invoices
         {
             CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
         }
+        public Invoice FindInvoice(string Id)
+        {
+            return base.Find(Id);
+        }
+        public void DeleteInvoice(string id)
+        {
+            base.Delete(id);
+        }
+        public IQueryFluent<InvoiceDetail> QueryInvoiceDetail(string invoiceId)
+        {
+            return _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId);
+        }
+        public void DeleteInvoiceDetail(string id)
+        {
+            _invoiceDetailRepository.Delete(id);
+        }
 
         public string InsertCustomerInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, OtherInvoice otherInvoiceVM)

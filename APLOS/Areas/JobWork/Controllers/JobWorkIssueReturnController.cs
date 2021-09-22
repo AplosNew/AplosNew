@@ -2970,7 +2970,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 										left join (select Sum(x.TotalAmount) as TotalAmt,x.MaterialId,x.JWInputMaterial,x.ArticleId,x.JWInputArticle,x.Id,x.InventoryMaterialId 
 										from (
                         select om.Id,IIH.Qty as GRNIssueQty,IID.InventoryMaterialId,mm.Id as MaterialId,mm.UserName as JWInputMaterial,mma.Id as ArticleId, mma.StandardName as JWInputArticle
-                          ,TotalAmount=round((IIH.Rate * IR.ToCurrencyRate * IIH.Qty),2)
+                          --,TotalAmount=round((IIH.Rate * IR.ToCurrencyRate * IIH.Qty),2)
+                           ,TotalAmount=round(((IIH.Rate/86) * IR.ToCurrencyRate * IIH.Qty),2)
                         from dbo.JobWorkTransformationContractChild om left join TRN.InventoryIssueDetail IID on om.Id=IID.JWTCMID
                         left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
                         left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
@@ -3022,11 +3023,13 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         , mma.StandardName as JWInputArticle, C.Code as TransactionCurrency--, IIH.Rate as TransactionRate
                         ,TransactionRate=(IIH.Rate/86)
                          --, IR.ToCurrencyRate as BaseRate
-                         ,BaseRate=(IIH.Rate * IR.ToCurrencyRate)
+                         --,BaseRate=(IIH.Rate * IR.ToCurrencyRate)
+                           ,BaseRate=((IIH.Rate/86) * IR.ToCurrencyRate)
                          , CC.Code as BaseCurrency--,(IIH.Rate * IIH.Qty) as TotalAmount
 						-- ,TotalAmount=round((IR.ToCurrencyRate * IIH.Qty),2)
                           --,TotalAmount=round((IIH.Rate * IR.ToCurrencyRate),2)
-                           ,TotalAmount=round((IIH.Rate * IR.ToCurrencyRate * IIH.Qty),2)
+                           --,TotalAmount=round((IIH.Rate * IR.ToCurrencyRate * IIH.Qty),2)
+                            ,TotalAmount=round(((IIH.Rate/86) * IR.ToCurrencyRate * IIH.Qty),2)
                         from dbo.JobWorkTransformationContractChild om left join TRN.InventoryIssueDetail IID on om.Id=IID.JWTCMID
                         left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
                         left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId

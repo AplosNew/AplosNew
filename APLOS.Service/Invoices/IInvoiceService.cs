@@ -52,7 +52,10 @@ namespace Library.Service.Invoices
 
         InvoiceDetail FindInvoiceDetail(string invoiceDetailId);
         void DeleteInvoice(string invoiceId, string voucherId);
-       
+        Invoice FindInvoice(string Id);
+        void DeleteInvoice(string id);
+        IQueryFluent<InvoiceDetail> QueryInvoiceDetail(string invoiceId);
+        void DeleteInvoiceDetail(string id);
 
         string InsertInvoiceOverhead(VoucherViewModel voucherVM, IEnumerable<ServiceChargesViewModel> voucherDetailVMList, IEnumerable<ServiceChargesTaxViewModel> taxDetailVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList);
         string InsertInvoiceOverheadPost(VoucherViewModel voucherVM, IEnumerable<ServiceChargesViewModel> voucherDetailVMList);

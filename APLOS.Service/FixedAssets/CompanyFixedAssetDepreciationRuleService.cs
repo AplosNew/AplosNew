@@ -36,6 +36,32 @@ namespace Library.Service.FixedAssets
 
         #endregion Constructor
 
+        public GridModel QueryAssetMaster(GridParameter parameters)
+        {
+            parameters.CmdText = @"SELECT FAMT.Id, BM.COAId, FAMT.FixedAssetMasterId, BM.Id AS BudgetMasterId, BM.RefNo, BM.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                , B.Code AS BudgetCode, B.UserName AS BudgetName, BC.UserName AS BudgetCategoryName, BSC.UserName AS BudgetSubCategoryName
+                                FROM [MST].[BudgetMaster] AS BM
+                                LEFT JOIN [HKP].[BudgetGroup] AS BG ON BG.Id=bm.BudgetGroupId
+                                LEFT JOIN [HKP].[BudgetCategory] AS BC ON BC.Id=BM.BudgetCategoryId
+                                LEFT JOIN [HKP].[BudgetSubCategory] AS BSC ON BSC.Id=BM.BudgetSubCategoryId
+                                LEFT JOIN [HKP].[Budget] B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
+                                LEFT JOIN [HKP].[GLAccountType] AS GLAT ON GLAT.GLGeneralInfoId=GLGI.Id
+                                LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+                                LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+                                LEFT JOIN [HKP].[FixedAssetMasterBudgetTag] AS FAMT ON FAMT.BudgetMasterId=BM.Id
+                                WHERE BM.Archive=0 AND BM.Active=1 ";
+            return _sqlRepository.GetGridData(parameters);
+        }
+
+
+
+
+
+
+
+
+
         public GridModel Query(GridParameter parameters, string companyId)
         {
             try
