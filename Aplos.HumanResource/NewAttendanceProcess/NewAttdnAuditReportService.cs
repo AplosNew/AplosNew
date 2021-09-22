@@ -8827,7 +8827,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         ";
                 strSql += tableName();
                 strSql += @"WHERE  
-
+                            AP.DAYSTATUS='A' AND
                         	AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
                            and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
                                --and ISNULL(rd.LogDownLoadNum,'')=''
@@ -8942,6 +8942,42 @@ namespace Library.HumanResource.NewAttendanceProcess
                 con = null;
             }
         }//End Function 
+
+        public void GetOtNotConfirmOverstayReport(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+
+                        FROM AttdnProcessData AP
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId                        
+                        WHERE 
+                                AP.DayStatus in (select daytype from daytype where category='Present' OR  category='Late')
+                        	AND AP.IsOTEntitled = 1
+                        	AND AP.IsOTComfirm = 0 and AP.ManualOT is null 
+                            and ap.ProcessedOT >0
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
+                              and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + ToDate + @"')
+                        ORDER BY AP.WorkDate
+                        	,EmployeeCodePreFix,EmployeeCodeNumeric";
+
+                con.getDataSet(strSql, out dsRef);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
 
     }
 
