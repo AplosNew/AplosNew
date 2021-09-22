@@ -3535,9 +3535,11 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 								, CP.TaxApplicable, IR.IsTaxApplicable, IR.ToCurrencyRate
 								,IR.NoteForAccounts Narration
 								,V.VoucherNo,IR.VoucherId, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
-                                   ,IsTDSTaxPost=CASE WHEN VT.IsPark=0 THEN 'TDSPosted' WHEN  ADT.ServiceAcknowledgementMasterId IS NULL THEN '' ELSE 'TDSParked' end
+                                   ,IsTDSTaxPost=CASE WHEN  ADT.VoucherId IS NULL THEN 'ToBePost' 
+													 WHEN VT.IsPark=0 THEN 'TDSPosted'
+													 ELSE 'TDSParked' end
 									,VT.VoucherNo TDSVoucherNo
-									,iv.Id InvoiceId
+									,iv.Id InvoiceId,IW.Id InvoiceWriteOffId
 									,V.IsPark
 
                     FROM [TRN].[ServiceAcknowledgementMaster] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
@@ -3561,6 +3563,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					
 					LEFT JOIN TRN.AdditionalTax ADT ON ADT.ServiceAcknowledgementMasterId=IR.Id
 				  LEFT JOIN TRN.Voucher VT ON VT.Id=ADT.VoucherId
+					LEFT JOIN TRN.InvoiceWriteOff IW ON IW.VoucherId=VT.Id
                     WHERE IR.PlantId='" + plantId + @"' 
 					AND IR.[Status]='Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1
 					) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
