@@ -3097,12 +3097,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         #region Reports for Inventory Issue
 
         [HttpGet, Authorize]
-        public ActionResult GetIIPrintReport(ReportFormat reportFormat, string PrintTabId, string IssueId)
+        public ActionResult GetIIPrintReport(ReportFormat reportFormat, string IssueId)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var reportFileName = " Inventory Issue Chalaan " + IssueId + "";
-            var workbook = GetIIReportWorkSheet(PrintTabId, IssueId);
+            var workbook = GetIIReportWorkSheet(IssueId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -3116,7 +3116,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             }
         }
 
-        private IWorkbook GetIIReportWorkSheet(string PrintTabId, string IssueId)
+        private IWorkbook GetIIReportWorkSheet(string IssueId)
         {
 
             var excelEngine = new ExcelEngine();
@@ -3134,8 +3134,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             int COL = 1;
 
 
-            DataTable data = GetIIReportDataById(PrintTabId, IssueId);
-            DataTable TransformationIssueReturnChilddata = GetIIIssueReturnChildDataById(PrintTabId, IssueId);
+            DataTable data = GetIIReportDataById(IssueId);
+            DataTable TransformationIssueReturnChilddata = GetIIIssueReturnChildDataById(IssueId);
             DataTable TransformationIssueGRNdata = GetIIGRNDataById(IssueId);
             if (data.Rows.Count > 0)
             {
@@ -3671,7 +3671,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             return workbook;
         }
 
-        private DataTable GetIIReportDataById(string PrintTabId, string IssueId)
+        private DataTable GetIIReportDataById(string IssueId)
         {
 
             var sql = @"select II.EntityId ,II.IssueDate,e.UserName as Entity,II.Id as TransformationIssueId,FORMAT(II.IssueDate,'dd-MMM-yyyy') as TransformationDate,emp.EmployeeName as ByWhom
@@ -3689,7 +3689,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             return _sqlRepository.GetDataTable(sql);
         }
 
-        private DataTable GetIIIssueReturnChildDataById(string PrintTabId, string IssueId)
+        private DataTable GetIIIssueReturnChildDataById(string IssueId)
         {
 
             var sql = @"select distinct IID.Id,IID.InventoryIssueId,kk.TotalIssuedQty,IID.InventoryMaterialId ,kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article--, mp.Id as JWOutputId
