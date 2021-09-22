@@ -65,6 +65,30 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+        [HttpPost, Authorize]
+        public ActionResult GetEntity()
+        {
+            try
+            {
+                return Json(R.GetEntitys(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetProcess(string EntityId)
+        {
+            try
+            {
+                return Json(R.GetProcessList(EntityId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         [HttpGet, Authorize]
         public JsonResult GetProductionOrderDataList(string entityId,string ProcessId)
         {

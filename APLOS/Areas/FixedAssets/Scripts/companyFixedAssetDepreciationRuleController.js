@@ -7,7 +7,7 @@ function companyFixedAssetDepreciationRuleController(cboService, commonMessage, 
     $scope.companyDepreciationRules = [];
     $scope.CompanyDepreciaitonRuleWithCombineList = [];
     $scope.path = 'fixedassets/companyFixedAssetDepreciationRule/';
-    $scope.getListUrl = 'fixedassets/companyFixedAssetDepreciationRule/getlist';
+    $scope.getListUrl = 'fixedassets/companyFixedAssetDepreciationRule/';
     $scope.getUrl = $scope.path + 'get';
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
@@ -343,9 +343,92 @@ function companyFixedAssetDepreciationRuleController(cboService, commonMessage, 
         $scope.DepreciationRuleList = result;
     });
 
-    cboService.getCboCompanyByCompanyGroup(' ', function (result) {
+    //cboService.getCboCompanyByCompanyGroup(' ', function (result) {
+    //    $scope.CompanyList = result;
+    //});
+    cboService.getCboCompanyByCompanyGroup(null, function (result) {
         $scope.CompanyList = result;
     });
+
+    //$scope.getfixedAssetMasterBudgetTag = function () {
+    //    baseService.setCurrentPage('fixedAssetMasterList');
+        //$scope.loadData = function (pageno) {
+        //    baseService.paginationBase($scope.path + 'GetFixedAssetMasterList' + pageno, $scope.fixedAssetMasterBudgetTagListParameters)
+        //        .then(function (result) {
+        //            $scope.fixedAssetMasterList = result.Rows;
+        //            $scope.fixedAssetMasterList.total_count = result.Total;
+        //            angular.forEach($scope.fixedAssetMasterList, function (item, i) {
+        //                if (checkExistTempList($scope.tempList, item.BudgetMasterId)) {
+        //                    item.FixedAssetMasterId = cacheFixedAssetMasterValue($scope.tempList, item.BudgetMasterId);
+        //                }
+        //            });
+        //        }, function () {
+        //            ShowResult(commonMessage.NetworkError, 'failure');
+        //        }).finally(function () {
+        //        });
+        //};
+        //$scope.loadData();
+    //};
+
+    //$scope.fixedAssetMasterBudgetTagListParameters = {
+    //    limit: 10,
+    //    offset: 0,
+    //    order: 'ASC',
+    //    sort: 'GLGeneralInfoName, BudgetName',
+    //    searchBy: 'BudgetName',
+    //    pageSize: 10,
+    //    total_count: 0,
+    //    search: null,
+    //    serverPagination: true
+    //};
+    //$scope.getfixedAssetMasterBudgetTag = function () {
+    //    baseService.setCurrentPage('fixedAssetMasterBudgetTagList');
+    //    $scope.loadData = function (pageno) {
+    //        baseService.paginationBase($scope.path + 'GetFixedAssetMasterBudgetTagList?coaId=' + $scope.fixedAssetMasterBudgetTagNew.COAId, pageno, $scope.fixedAssetMasterBudgetTagListParameters)
+    //            .then(function (result) {
+    //                $scope.fixedAssetMasterBudgetTagList = result.Rows;
+    //                $scope.fixedAssetMasterBudgetTagListParameters.total_count = result.Total;
+    //                angular.forEach($scope.fixedAssetMasterBudgetTagList, function (item, i) {
+    //                    if (checkExistTempList($scope.tempList, item.BudgetMasterId)) {
+    //                        item.FixedAssetMasterId = cacheFixedAssetMasterValue($scope.tempList, item.BudgetMasterId);
+    //                    }
+    //                });
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure');
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    $scope.loadData();
+    //};
+
+
+
+
+    $scope.fixedAssetMasterBudgetTagListParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'ASC',
+        sort: 'UserName',
+        searchBy: 'UserName',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+        $scope.getdata = function () {
+        $http({
+            method: 'post',
+            url: $scope.path + "GetListAssetMaster",
+            data: { paginationParameters: $scope.fixedAssetMasterBudgetTagListParameters },
+            datatype: 'json'
+        }).then(function successcallback(response) {
+            $scope.fixedAssetMasterList = response.data;
+            //clearfields(response.data.sequence);
+           // $scope.getsequence();
+        });
+    }
+
 
     /***/
     // #region ******DepreciationType GL******

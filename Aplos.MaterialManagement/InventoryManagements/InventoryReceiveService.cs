@@ -5061,8 +5061,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					,Sum(x.InventoryScrapForThePeriodAmount) InventoryScrapForThePeriodAmount
 					,Sum(x.InventoryTransferQtyForThePeriod) InventoryTransferQtyForThePeriod
 					,Sum(x.InventoryTransferForThePeriodAmount) InventoryTransferForThePeriodAmount							
-					,sum(((((((((isnull(x.OpeningBalance,0)-isnull(x.OpeningIssueQty,0)-ISNULL(x.PurchaseReturnOpeningQty,0)-isnull( x.InventorySalesQtyOpening,0) + isnull(x.ReceivedForThePeriod,0))-isnull(x.IssueForThePeriod,0)) + isnull(x.IssueReturnQtyForThePeriod,0))  - ISNULL(x.PurchaseReturnQtyForThePeriod,0))- isnull(x.AdjustmentQtyForThePeriod,0))-isnull(x.InventorySalesQtyForThePeriod,0))-isnull(x.InventoryScrapQtyForThePeriod,0))-Isnull(InventoryTransferQtyForThePeriod,0))- ISNULL(x.PurchaseReturnOpeningQty,0)) Closing ---isnull(x.OpeningIssueQty,0)
-					,sum((((((((isnull(x.OpeningBalanceAmount,0) -isnull(x.PolicyAmount,0)-isnull(PurchaseReturnOpeningAmount,0)-isnull( x.InventorySalesOpeningAmount,0) + isnull(x.ReceivedForThePeriodAmount,0))-isnull(x.IssueForThePeriodAmount,0)-isnull(x.AdjustmentForThePeriodAmount,0))-isnull(x.PurchaseReturnForThePeriodAmount,0))+isnull(x.IssueReturnForThePeriodAmount,0)-isnull(x.InventorySalesForThePeriodAmount,0))-isnull(x.InventoryScrapForThePeriodAmount,0))-isnull(x.InventoryTransferForThePeriodAmount,0))-isnull(PurchaseReturnOpeningAmount,0))) ClosingAmount---isnull(x.PolicyAmount,0)
+					,sum(((((((((isnull(x.OpeningBalance,0)-isnull(x.OpeningIssueQty,0)-ISNULL(x.PurchaseReturnOpeningQty,0)-isnull( x.InventorySalesQtyOpening,0) + isnull(x.ReceivedForThePeriod,0))-isnull(x.IssueForThePeriod,0)) + isnull(x.IssueReturnQtyForThePeriod,0))  - ISNULL(x.PurchaseReturnQtyForThePeriod,0))- isnull(x.AdjustmentQtyForThePeriod,0))-isnull(x.InventorySalesQtyForThePeriod,0))-isnull(x.InventoryScrapQtyForThePeriod,0))-Isnull(InventoryTransferQtyForThePeriod,0))) Closing ---isnull(x.OpeningIssueQty,0)
+					,sum((((((((isnull(x.OpeningBalanceAmount,0) -isnull(x.PolicyAmount,0)-isnull(PurchaseReturnOpeningAmount,0)-isnull( x.InventorySalesOpeningAmount,0) + isnull(x.ReceivedForThePeriodAmount,0))-isnull(x.IssueForThePeriodAmount,0)-isnull(x.AdjustmentForThePeriodAmount,0))-isnull(x.PurchaseReturnForThePeriodAmount,0))+isnull(x.IssueReturnForThePeriodAmount,0)-isnull(x.InventorySalesForThePeriodAmount,0))-isnull(x.InventoryScrapForThePeriodAmount,0))-isnull(x.InventoryTransferForThePeriodAmount,0)))) ClosingAmount---isnull(x.PolicyAmount,0)
 
 
 
@@ -6128,8 +6128,8 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
 					--Inventory Sales
-					,InventorySalesData.InventorySalesQty InventorySalesQtyForThePeriod	
-					,InventorySalesData.InventorySalesAmount InventorySalesForThePeriodAmount	
+					,0 InventorySalesQtyForThePeriod	
+					,0 InventorySalesForThePeriodAmount	
 
 					--Inventory Sales opening
 					,InventorySalesData.InventorySalesQty InventorySalesQtyOpening
