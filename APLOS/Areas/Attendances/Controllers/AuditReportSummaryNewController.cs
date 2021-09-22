@@ -200,7 +200,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     dvPlant = new DataView();
                     dvPlant.Table = dsPlant.Tables[0];
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -259,32 +259,11 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, isl, xlsRow, iTotal].CellStyle.Font.Bold = true;
                 endXlsCol = xlsCol;
                 xlsRow++;
+                
+                int startCol = iReportName + 1;
+                
 
                 sheet1.Range[xlsRow, isl].Text = "1";
-                sheet1.Range[xlsRow, iReportName].Text = "Manual OUT Time";
-                int startCol = iReportName + 1;
-                for (int i = 0; i < dvPlant.Count; i++)
-                {
-                    obj.GetManualOutTimeForOTDateWiseReport(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsBioDvAC);
-                    dtBioDvAC = dsBioDvAC.Tables[0];
-                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtBioDvAC.Rows.Count;
-                }
-                sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
-                xlsRow++;
-
-                sheet1.Range[xlsRow, isl].Text = "2";
-                sheet1.Range[xlsRow, iReportName].Text = "Modified OT";
-
-                for (int i = 0; i < dvPlant.Count; i++)
-                {
-                    obj.GetModifiedReport(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsOnlyOt);
-                    dtOnlyOt = dsOnlyOt.Tables[0];
-                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtOnlyOt.Rows.Count;
-                }
-                sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
-                xlsRow++;
-
-                sheet1.Range[xlsRow, isl].Text = "3";
                 sheet1.Range[xlsRow, iReportName].Text = "Absent No Punch Time";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -313,17 +292,6 @@ namespace Aplos.Areas.Attendances.Controllers
                     obj.GetLeaveWithPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsLeaveWithPunch);
                     dtLeaveWithPunch = dsLeaveWithPunch.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtLeaveWithPunch.Rows.Count;
-                }
-                sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
-                xlsRow++;
-
-                sheet1.Range[xlsRow, isl].Text = "6";
-                sheet1.Range[xlsRow, iReportName].Text = "Short Duration Absent";
-                for (int i = 0; i < dvPlant.Count; i++)
-                {
-                    obj.GetShortDurationAbsentReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsShortDurationAbsent);
-                    dtShortDurationAbsent = dsShortDurationAbsent.Tables[0];
-                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtShortDurationAbsent.Rows.Count;
                 }
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
@@ -525,16 +493,16 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "24";
-                sheet1.Range[xlsRow, iReportName].Text = "Absent With Wrong Shift";
-                for (int i = 0; i < dvPlant.Count; i++)
-                {
-                    obj.GetAbsentWithRawPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsAbsentWithRawPunch);
-                    dtAbsentWithRawPunch = dsAbsentWithRawPunch.Tables[0];
-                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtAbsentWithRawPunch.Rows.Count;
-                }
-                sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
-                xlsRow++;
+                //sheet1.Range[xlsRow, isl].Text = "24";
+                //sheet1.Range[xlsRow, iReportName].Text = "Absent With Wrong Shift";
+                //for (int i = 0; i < dvPlant.Count; i++)
+                //{
+                //    obj.GetAbsentWithRawPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsAbsentWithRawPunch);
+                //    dtAbsentWithRawPunch = dsAbsentWithRawPunch.Tables[0];
+                //    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtAbsentWithRawPunch.Rows.Count;
+                //}
+                //sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
+                //xlsRow++;
 
                 sheet1.Range[xlsRow, isl].Text = "25";
                 sheet1.Range[xlsRow, iReportName].Text = "Shift Not Assign";
