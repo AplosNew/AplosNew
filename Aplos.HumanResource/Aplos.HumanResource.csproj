@@ -277,7 +277,7 @@
     <Compile Include="Report\OT\MHourlyOT.cs" />
     <Compile Include="Report\Payroll\clsPayRegister.cs" />
     <Compile Include="Report\Payroll\PayrollReports.cs" />
-    <Compile Include="SalaryProcessActive\clsSalaryProcessAplosListR.cs" />
+    <Compile Include="ArrearProcessActive\clsSalaryProcessAplosArrear.cs" />
     <Compile Include="ShiftChange\clsShiftChangeSectionWise.cs" />
     <Compile Include="SmsSend\clsSMSSendNotification.cs" />
   </ItemGroup>
