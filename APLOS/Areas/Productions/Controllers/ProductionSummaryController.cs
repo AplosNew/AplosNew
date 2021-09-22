@@ -231,9 +231,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSFGWIPQty(string EntityId,string processId, string workCenterMasterId, string salesOrderId, string productionOrderId, string status, bool IsCrossAllowed)
+        public ActionResult GetSFGWIPQty(string EntityId, string processId, string workCenterMasterId, string salesOrderId, string productionOrderId, string status, bool IsCrossAllowed)
         {
-            return Json(_productionSummaryData.GetSFGWIPQty(EntityId,processId, workCenterMasterId, salesOrderId, productionOrderId, status, IsCrossAllowed), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetSFGWIPQty(EntityId, processId, workCenterMasterId, salesOrderId, productionOrderId, status, IsCrossAllowed), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -357,26 +357,27 @@ namespace Aplos.Areas.Productions.Controllers
                         {
                             throw new Exception("Produced Quantity should less than Sales Order Quantity.");
                         }
-                    } 
+                    }
                 }
 
                 if (IsFirst == false)
                 {
-                    var wipData = _productionSummaryData.GetWIPQtyValidation(ps.Id, ps.EntityId,processId, ps.WorkCenterMasterId, salesOrderId, productionOrderId, status, IsCrossAllowed);
+                    var wipData = _productionSummaryData.GetWIPQtyValidation(ps.Id, ps.EntityId, processId, ps.WorkCenterMasterId, salesOrderId, productionOrderId, status, IsCrossAllowed);
 
                     if (wipData != null)
                     {
                         decimal InQ = Convert.ToDecimal(wipData["InQuantity"].ToString());
                         decimal OutQ = Convert.ToDecimal(wipData["OutQuantity"].ToString());
 
-                        if (InQ - (OutQ + ps.Quantity) < 0) {
+                        if (InQ - (OutQ + ps.Quantity) < 0)
+                        {
                             throw new Exception("Total out quantity is greater than total in quantity.");
                         }
                     }
 
                 }
 
-                if (IsFirst == true && status== "INVENTORY")
+                if (IsFirst == true && status == "INVENTORY")
                 {
                     var wipData = _productionSummaryData.GetWIPQtyValidation(ps.Id, ps.EntityId, processId, ps.WorkCenterMasterId, salesOrderId, productionOrderId, status, IsCrossAllowed);
 
@@ -457,5 +458,8 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         #endregion
+
+        
+
     }
 }
