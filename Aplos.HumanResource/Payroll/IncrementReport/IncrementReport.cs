@@ -72,17 +72,16 @@ namespace Library.HumanResource.Payroll.IncrementReport
                                     where e.PlantId='" + identity.PlantId + @"' 
 									AND e.SystemId in 									
 									                (
-								                    SELECT  sidm.EmpInfoSystemID FROM SalaryInfoDefineMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"' AND sidm.EffectiveDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+								                    SELECT  sidm.EmpInfoSystemID FROM SalaryInfoDefineMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"' AND e.DOJ<>sidm.EffectiveDate AND sidm.EffectiveDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
 								                    UNION 
-								                    SELECT  sidm.EmpInfoSystemID FROM SalaryInfoBackMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"'  AND sidm.EffectiveDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
+								                    SELECT  sidm.EmpInfoSystemID FROM SalaryInfoBackMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"' AND e.DOJ<>sidm.EffectiveDate  AND sidm.EffectiveDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'
 								                    )
+									--AND  e.SystemId in 	(
+									--				SELECT  sidm.EmpInfoSystemID FROM SalaryInfoDefineMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='20181' AND sidm.EffectiveDate <'01-Sep-2021'
 
-									AND  e.SystemId in 	(
-													SELECT  sidm.EmpInfoSystemID FROM SalaryInfoDefineMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"' AND sidm.EffectiveDate <'" + FromDate + @"'
-
-								                    UNION 
-								                    SELECT  sidm.EmpInfoSystemID FROM SalaryInfoBackMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='" + identity.PlantId + @"'  AND sidm.EffectiveDate < '" + FromDate + @"'
-													)
+								 --                   UNION 
+								 --                   SELECT  sidm.EmpInfoSystemID FROM SalaryInfoBackMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='20181'  AND sidm.EffectiveDate < '01-Sep-2021'
+									--				)
                                                    -- AND DATEDIFF(day, FORMAT(E.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy'))>365
 ";
 
