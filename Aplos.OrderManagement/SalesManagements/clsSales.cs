@@ -492,12 +492,12 @@ namespace Library.OrderManagement.Sales
             {
 				string sql = @"Select PackingID,Sum(NetWeight) Qty,Sum(Amount) Amount,TembTbl.ProductLibraryId from
 							(
-							SELECT PK.PackingId,IsNull(ISC.NetWeight,0) NetWeight,IsNull(FGBD.Rate,0) Rate,IsNull(ISC.NetWeight,0) * IsNull(FGBD.Rate,0) Amount,PL.Id ProductLibraryId FROM
+							SELECT PK.PackingId,IsNull(ISC.NetWeight,0) NetWeight,IsNull(RD.MaterialTranRate,0) Rate,IsNull(ISC.NetWeight,0) * IsNull(RD.MaterialTranRate,0) Amount,PL.Id ProductLibraryId FROM
 							dbo.ItemScanChild ISC
 							LEFT JOIN TRN.POLotReference POR ON ISC.PackingId=POR.Id
 							LEFT JOIN TRN.PackingLineItem PLI ON POR.PackingLineItemId=PLI.PackingLineItemId
 							LEFT JOIN TRN.Packing PK ON PLI.PackingId=PK.PackingId
-							LEFT JOIN FinishGoodsBookingDetail FGBD ON ISC.FinishGoodsBookingDetailId=FGBD.Id
+							LEFT JOIN TRN.InventoryReceiveDetail RD ON ISC.InventoryReceiveDetailId=RD.Id
 							LEFT JOIN dbo.ProductLibrary PL ON PL.Code=ISC.ProductCode
 							Where PK.PackingId='"+ packingid + @"'
 							) TembTbl group by PackingId,ProductLibraryId";
