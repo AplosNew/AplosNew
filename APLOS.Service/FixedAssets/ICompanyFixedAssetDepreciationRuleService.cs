@@ -22,5 +22,7 @@ namespace Library.Service.FixedAssets
         void DeleteGraph(string id);
 
         GridModel QueryAssetMaster(GridParameter parameters);
+        List<Dictionary<string, object>> GetListAssetMaster(string companyId);
+
     }
 }
