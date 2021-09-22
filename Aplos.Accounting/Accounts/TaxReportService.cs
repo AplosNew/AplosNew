@@ -334,11 +334,12 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 perStartRow = xlsRow;
                 bool isFirst = true;
 
-
+                string Particulars = "";
                 for (int i = 0; i < dtRCMPayable.Rows.Count; i++)
                 {
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
                     {
+                       
                         voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper();
                         taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "'";
                     }
@@ -363,7 +364,8 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
 
                     }
 
-                    if (voucherNo != voucherNocomp)
+
+                    if (voucherNo != voucherNocomp )
                     {
 
                         if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
@@ -1221,7 +1223,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 LEFT JOIN HKP.PartyPlant PP ON PP.Id=IT.PartyPlantId
 				
                 LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
-                LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
 	                LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
                 --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
@@ -1262,7 +1264,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
                 LEFT JOIN HKP.PartyPlant PP ON PP.Id=IT.PartyPlantId
                 LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
-                LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
 	                LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
                 --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
@@ -1303,7 +1305,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=IT.PartyPlantId
                 LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
-                LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
 	                LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
                 LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId = V.Id

@@ -12,7 +12,8 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.products = [];    $scope.searchByPostedService = "Id"; $scope.searchService = "";    $scope.searchByPostedServiceList = [{ value: 'Id', name: "Acknowledge No" }, { value: 'GRNDate', name: "Acknowledge Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
         , { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRef No" }
-        , { value: 'DocDate', name: "Doc Date" }];    $scope.getDataList = function () {        $http({            method: 'GET',            url: 'Accounts/InventoryPayable/GetServicePostingList',            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },        }).then(function successCallback(response) {            $scope.products = response.data;        });    };
+        , { value: 'DocDate', name: "Doc Date" }];    $scope.getDataList = function () {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetServicePostingList',            data: { column: $scope.searchByPostedService, value: $scope.searchService },    
+        }).then(function successCallback(response) {            $scope.products = response.data;        });    };
     $scope.getDataList();
 
     $scope.model = {
@@ -896,4 +897,73 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
         return true;
     };
 
+    $scope.onClickTDSDeletePopUp = function (x) {
+        var data = x;
+        $scope.AdditionalTaxId = data.AdditionalTaxId;
+        $scope.TDSTaxVoucherId = data.TDSTaxVoucherId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmTDSDeletePopUp')).modal('show');
+    };
+    $scope.deleteAdditionalTax = function (additionalTaxId, tDSTaxVoucherId) {
+        $http({
+            method: "POST",
+            url: 'accounts/InvoicePost/DeleteTDSServicePayable',
+            data: {
+                "additionalTaxId": additionalTaxId, "voucherId": tDSTaxVoucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.AdditionalTaxId = null;
+                $scope.VoucherId = null;
+                $scope.TDSTaxVoucherId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    }
+
+    $scope.onClickTDSPostDeletePopUp = function (x) {
+        var data = x;
+        $scope.ServiceAckId = data.Id;
+        $scope.TDSTaxVoucherId = data.TDSTaxVoucherId;
+        $scope.InvoiceWriteOffId = data.InvoiceWriteOffId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmTDSPostDeletePopUp')).modal('show');
+    };
+    $scope.deletePostAdditionalTax = function (voucherId, serviceAckId, invoiceWriteOffId) {
+        $http({
+            method: "POST",
+            url: 'accounts/InvoicePost/DeleteTDSPostServicePayable',
+            data: {
+                "voucherId": voucherId, "serviceAckId": serviceAckId, "invoiceWriteOffId": invoiceWriteOffId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.ServiceAckId = null;
+                $scope.VoucherId = null;
+                $scope.TDSTaxVoucherId = null;
+                $scope.TDSVoucherNo = null;
+                $scope.InvoiceId = null;
+                $scope.InvoiceWriteOffId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    }
 }

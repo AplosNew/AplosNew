@@ -208,7 +208,7 @@
                 <label class="col-sm-4 control-label">To Production Entity<sup>*</sup></label>
                 <div class="col-sm-5">
                     <div class="select-style">
-                        <select class="form-control" id="ToEntity" ng-disabled="ToEntitydisable" ng-model="productionSummaryNew.ToEntityId" @*ng-change="GetSFGMovementFromCbo(productionSummaryNew.EntityId)"*@ name="ToEntity" ng-options="item.Id as item.UserName for item in entityList">
+                        <select class="form-control" id="ToEntity" ng-disabled="ToEntitydisable" ng-model="productionSummaryNew.ToEntityId" ng-change="GetSFGMovementToCbo()" name="ToEntity" ng-options="item.Id as item.UserName for item in entityList">
                             <option value=""></option>
                         </select>
                     </div>

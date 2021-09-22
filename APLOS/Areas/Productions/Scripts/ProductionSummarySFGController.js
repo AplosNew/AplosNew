@@ -439,7 +439,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.GetSFGMovementToCbo = function () {
         $http({
             method: 'GET',
-            url: 'Productions/ProductionSummary/GetSFGMovementToCbo?FromId=' + $scope.productionSummaryNew.ProcessId + "&flag=" + $scope.Status + "&EntityId=" + $scope.productionSummaryNew.EntityId,
+            url: 'Productions/ProductionSummary/GetSFGMovementToCbo?FromId=' + $scope.productionSummaryNew.ProcessId + "&flag=" + $scope.Status + "&EntityId=" + $scope.productionSummaryNew.ToEntityId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -473,6 +473,17 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
             });
         }
     };
+
+    //$scope.Validation = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: "Productions/productionSummary/GetValidationData",
+    //        data: { 'EntityId': $scope.productionSummaryNew.EntityId, 'ProcessId': $scope.productionSummaryNew.ToProcessId },
+    //    }).then(function successCallback(response) {
+    //        $scope.processList = response.data;
+    //    });
+    //};
+
 
     $scope.LotNumberList = [];
     $scope.disGo = false;

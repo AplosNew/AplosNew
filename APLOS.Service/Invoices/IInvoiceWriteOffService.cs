@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Data.Repositories;
 using Library.Model.Accounts;
 using Library.Model.Commercial;
 using Library.Model.Enums;
@@ -15,6 +16,11 @@ namespace Library.Service.Invoices
 {
     public interface IInvoiceWriteOffService : IService<InvoiceWriteOff>
     {
+        InvoiceWriteOff FindInvoiceWriteOff(string Id);
+        IQueryFluent<InvoiceWriteOff> QueryInvoiceWriteOff(string voucherId);
+        void DeleteInvoiceWriteOff(string id);
+        IQueryFluent<InvoiceWriteOffDetail> QueryInvoiceWriteOffDetail(string invoiceWriteOffId);
+        void DeleteInvoiceWriteOffDetail(string id);
         InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff);
 
         InvoiceWriteOff InsertInvoiceWriteOff(VoucherViewModel voucherVM);

@@ -19,7 +19,7 @@
                 <div class="input-group">
                     <input type="text" name="@Library.Model.Parties.PartyType.Vendor.ToString()" ng-model="budgetTransactionMaster.PartyName" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="showPartyPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                         <button ng-click="clearPartyPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                     </span>
                 </div>
@@ -41,17 +41,17 @@
             </div>
         </div>
         @*<div class="form-group">
-            <label class="col-sm-4 control-label">Approving Authority (additional)</label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <input type="text" name="EmployeeName" ng-model="budgetTransactionMaster.ResponsiblePersonName" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button ng-click="showResponsiblePersonListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                        <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                    </span>
+                <label class="col-sm-4 control-label">Approving Authority (additional)</label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="EmployeeName" ng-model="budgetTransactionMaster.ResponsiblePersonName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="showResponsiblePersonListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </span>
+                    </div>
                 </div>
-            </div>
-        </div>*@
+            </div>*@
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
@@ -112,8 +112,8 @@
                     <input type="text" id="uploadFile" ng-model="budgetTransactionMaster.FileName" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 183px;" />
                 </div>
                 @*<div class="col-sm-2" style="padding-left:0px;">
-                    <button ng-click="DocumentRemove(budgetTransactionMaster.Id);" class="btn" ng-disabled="disableBtn();savedisable" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
-                </div>*@
+                        <button ng-click="DocumentRemove(budgetTransactionMaster.Id);" class="btn" ng-disabled="disableBtn();savedisable" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
+                    </div>*@
             </div>
         </div>
     </div>
@@ -150,7 +150,7 @@
                         <div class="input-group">
                             <input type="text" name="Register" ng-model="ActivityType" class="form-control" readonly>
                             <span class="input-group-btn">
-                                <button ng-click="showFuleExpPopUp();"  class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="showFuleExpPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                             </span>
                         </div>
                     </div>
@@ -202,7 +202,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="col-sm-9 control-label"></label>
                     <div class="col-sm-3">
@@ -356,5 +356,7 @@
 @Html.Partial("~/Areas/Accounts/Views/ExpenseBooking/_BudgetMasterPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/ExpenseBooking/_ConvenyenceExpPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/ExpenseBooking/_FuelExpPopUp.cshtml")
-@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+
+@*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
 @Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetRegisterExpensesBookingPopUp.cshtml")

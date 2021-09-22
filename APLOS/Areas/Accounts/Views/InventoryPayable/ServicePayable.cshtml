@@ -485,5 +485,7 @@
 @Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedServiceAcKnowledgeDetailPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AdditionalTaxPopUp.cshtml")
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(ServiceAckId,VoucherId,InvoiceId,TDSTaxVoucherId,TDSVoucherNo)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmTDSDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteAdditionalTax(AdditionalTaxId,TDSTaxVoucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmTDSPostDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deletePostAdditionalTax(TDSTaxVoucherId,ServiceAckId,InvoiceWriteOffId)"></confirm-archive-generic>
 
 

@@ -8377,7 +8377,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 AP.DayStatus in (select daytype from daytype where category='Present' OR  category='Late')
                         	AND AP.IsOTEntitled = 1
                         	AND AP.IsOTComfirm = 0 
-                            and ap.ProcessedOT >0
+                            and ap.ProcessedOT >0 and  ap.ManualOT is null
                         	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
                               and ei.DOJ<='" + ToDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
@@ -8827,7 +8827,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         ";
                 strSql += tableName();
                 strSql += @"WHERE  
-
+                            AP.DAYSTATUS='A' AND
                         	AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
                            and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
                                --and ISNULL(rd.LogDownLoadNum,'')=''
@@ -8839,6 +8839,135 @@ namespace Library.HumanResource.NewAttendanceProcess
                                ,AP.WorkDate";
 
                 con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+    }
+
+    public class NewAuditReportSummaryService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public NewAuditReportSummaryService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+        }
+        public void GetInMissingReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+
+                        FROM AttdnProcessData AP
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        WHERE  
+                                AP.DayStatus ='A'  
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"' 
+                           and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'                               
+							and (---1
+							( AP.InTime IS NULL	AND AP.OutTime IS not NULL)
+													
+							)----1                        		
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric
+                               ,AP.WorkDate";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetWorkDurationSheet(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"SELECT datediff(minute,KK.intime ,KK.outtime ) WorkDuration,
+                            datediff(minute,KK.ShiftInTime ,CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END )	ShiftDuration
+                             FROM (								
+		                            SELECT Emp.SystemID AS Id,emp.EmployeeCode,O.WorkDate, O.ShiftSystemID,sd.UserName AS ShiftName,
+								    DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),O.WorkDate))  AS ShiftInTime,
+		                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),o.WorkDate))  AS ShiftOutTime,
+		                            O.InTime, O.IsManualInTime,
+		                            O.OutTime, O.IsManualOutTime, 
+                                    emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,
+		                            O.PunchInTime,O.PunchOutTime,
+		                            O.DayStatus, O.OTHr, O.IsOTComfirm,
+		                            O.IsOTEntitled,O.Duration,O.ShiftFullDayDuration
+									,fo.TotalOTHr ,o.IsManualDayStatus ,emp.BudgetCode,emp.GivenDesignationId
+		                            FROM EmployeeInformation EMP
+		                            inner join AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
+		                            LEFT JOIN FinalOT AS fo  ON EMP.SystemID=fo.EmpSystemID AND fo.WorkDate=o.WorkDate
+		                            LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=o.ShiftSystemID
+		                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON o.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID                       
+                            WHERE o.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and o.IsHalfDayLeave <> 1
+                        ) AS KK
+						LEFT OUTER JOIN EmployeeInformation EI ON KK.Id=EI.SystemID  
+						where kk.Duration < KK.ShiftFullDayDuration	
+                              and
+							  EI.PlantId='" + plantId + @"' and EI.CompanyId='" + companyId + @"' and EI.GroupID='" + companyGroupId + @"'
+                             and DayStatus in (select DayType from DayType where Category in ('Present', 'Late'))
+                        ORDER BY CONVERT(DATE, WorkDate),kk.EmployeeCode ASC";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function 
+
+        public void GetOtNotConfirmOverstayReport(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+
+                        FROM AttdnProcessData AP
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId                        
+                        WHERE 
+                                AP.DayStatus in (select daytype from daytype where category='Present' OR  category='Late')
+                        	AND AP.IsOTEntitled = 1
+                        	AND AP.IsOTComfirm = 0 and AP.ManualOT is null 
+                            and ap.ProcessedOT >0
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
+                              and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + ToDate + @"')
+                        ORDER BY AP.WorkDate
+                        	,EmployeeCodePreFix,EmployeeCodeNumeric";
+
+                con.getDataSet(strSql, out dsRef);
+
             }
             catch (Exception ex)
             {

@@ -571,7 +571,12 @@
 
 						<td class="text-right">{{x.RequisitionQty}}</td>
 
-						<td>
+						<td  ng-show="productNew.OrderSpecific==='No'">
+							<div class="select-style">
+								<select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in uoMList" ng-change="ConvertedDataRow(x)"></select>
+							</div>
+						</td>
+						<td ng-show="productNew.OrderSpecific==='Yes'">
 							<div class="select-style">
 								<select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in x.uoMList" ng-change="ConvertedDataRow(x)"></select>
 							</div>
