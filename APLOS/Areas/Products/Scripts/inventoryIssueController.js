@@ -148,15 +148,10 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 	$scope.ConfirmIssueReportPrint = function (data) {
 		try {
-			//var x = "#" + p;
-			//var gridObj = $(x).data("ejGrid");
-			//var data = gridObj.getSelectedRecords()[0];
-
 	//		$scope.PrintTabId = data.JWContractId;
 			$scope.IssueId = data.Id;
 			var reportFormat = "Excel";
-			window.open('JobWork/JobWorkIssueReturn/GetIIPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
-			//   $scope.getData();
+			window.open('JobWork/JobWorkIssueReturn/GetIIPrintReport?reportFormat=' + reportFormat + '&IssueId=' + $scope.IssueId, '_blank');
 
 		} catch (e) {
 
