@@ -2581,10 +2581,10 @@ namespace Library.HumanResource.Report.Payroll
                 for (int dti = 0; dti < dtEmpInfo.Rows.Count; dti++)
                 {
                     List<DataRow> BonusList = dicBonus[dtEmpInfo.Rows[dti]["EmpSystemId"].ToString()];
-                    if (BonusList.Count == 1)
-                    {
-                        continue;
-                    }
+                    //if (BonusList.Count == 1)
+                    //{
+                    //    continue;
+                    //}
                     sheet1.Range[xlsRow, colEmpCode].RowHeight = 43;
 
                     var timeSpan = DateTime.Now - Convert.ToDateTime(dtEmpInfo.Rows[dti]["DOJ"].ToString()); ;
@@ -3004,10 +3004,10 @@ namespace Library.HumanResource.Report.Payroll
                 for (int dti = 0; dti < dtEmpInfo.Rows.Count; dti++)
                 {
                     List<DataRow> BonusList = dicBonus[dtEmpInfo.Rows[dti]["EmpSystemId"].ToString()];
-                    if (BonusList.Count == 1)
-                    {
-                        continue;
-                    }
+                    //if (BonusList.Count == 1)
+                    //{
+                    //    continue;
+                    //}
 
 
                     var timeSpan = DateTime.Now - Convert.ToDateTime(dtEmpInfo.Rows[dti]["DOJ"].ToString()); ;

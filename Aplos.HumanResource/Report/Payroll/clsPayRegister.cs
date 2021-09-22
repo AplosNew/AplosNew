@@ -3296,8 +3296,8 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                 DataSet dsEmpLoyeeInfo = new DataSet();
 
 
-                GetEmployeeInfoDetailPayRollGroup(para, para.CompanyGroupId, para.CompanyId, plantId, fdateOfMonth, ldateOfMonth, languageId, stringSalaryRegSorting, null, isActive, isSeperated, isMaternity, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
-                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetailPayRollGroup(para, para.CompanyGroupId, para.CompanyId, plantId, fdateOfMonth, ldateOfMonth, languageId, null, isActive, isSeperated, isMaternity, out dtSalaryHead);
+                GetEmployeeInfoDetailPayRollGroup(para, paymentMode, para.CompanyGroupId, para.CompanyId, plantId, fdateOfMonth, ldateOfMonth, languageId, stringSalaryRegSorting, null, isActive, isSeperated, isMaternity, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
+                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetailPayRollGroup(para, paymentMode, para.CompanyGroupId, para.CompanyId, plantId, fdateOfMonth, ldateOfMonth, languageId, null, isActive, isSeperated, isMaternity, out dtSalaryHead);
 
                 DataTable dtEmployees = dsEmpLoyeeInfo.Tables[0];
 
@@ -4405,7 +4405,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                 objSalary = new clsSalaryUtility();
                 ParaMontlyAttendance objm = new ParaMontlyAttendance();
                 #region Variable             
-          
+
 
                 var FactoryName = "";
                 var CmpName = "";
@@ -4809,7 +4809,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                                     if (isFirst == false)
                                     {
 
-                                        sheet1.Range[xlsRow + 1, ColLeaveInfo -1].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Total.ToString(), "SubTotal");
+                                        sheet1.Range[xlsRow + 1, ColLeaveInfo - 1].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Total.ToString(), "SubTotal");
                                         sheet1.Range[xlsRow + 1, colParticulars].NumberFormat = oRU.NumberFormatDecimalZero();
                                         sheet1.Range[xlsRow + 1, 1, xlsRow + 1, ColLeaveInfo].Merge();
                                         sheet1.Range[xlsRow + 1, colParticulars].BorderAround(ExcelLineStyle.Hair);
@@ -6260,7 +6260,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                         throw exe;
                     }
                 }//Loop End Last Summation in SalaryPorcess totalNetPayDisbusmentAmount
-                string OTg= "";
+                string OTg = "";
                 oRU.GetOT(dtPlantWishSetting.Rows[0]["OTConsiderOn"].ToString(), Convert.ToString(GrandTotalOT), out OTg);
                 sheet1.Range[xlsRow + 1, ColWorkDaysInfo].Text = "OT =" + OTg;
 
@@ -6952,7 +6952,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                                             }
                                         }//Loop End Last Summation in SalaryPorcess totalNetPayDisbusmentAmount
 
-                                       
+
 
                                         sheet1.Range[xlsRow + 1, colNetpayable].Number = subTotalNetPayDisbusmentAmount;
                                         sheet1.Range[xlsRow + 1, colNetpayable].NumberFormat = oRU.NumberFormatIntLocal(localLanguage);
@@ -15477,13 +15477,19 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 
         #region For Laila GetEmployeeSalaryInfoDetailPayRollGroup
 
-        public void GetEmployeeInfoDetailPayRollGroup(ParamList para, string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string languageId, string stringSalaryRegSorting, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, out DataSet dsRef)
+        public void GetEmployeeInfoDetailPayRollGroup(ParamList para, string paymentMode, string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string languageId, string stringSalaryRegSorting, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
             var _wc = string.Empty;
             try
             {
+                if (paymentMode.ToString().ToUpper() == "NULL")
+                    paymentMode = "";
+
+                if (string.IsNullOrEmpty(paymentMode) == false)
+                    paymentMode = " AND SPLD.PaymentMode='" + paymentMode + @"' ";
+
                 string wcEmpStatus = " Where (1=0 ";
 
                 if (isActive == true && isSeperated == true && isMaternity == true)
@@ -15652,7 +15658,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 												INNER JOIN (SELECT * FROM HKP.ComplianceDocument WHERE ProfileType = 'ESIC') CD ON CD.Id = ED.ComplianceDocumentId 
 												) ESIC ON E.SystemId = esic.EmpSystemID 
 										
-                                    WHERE  E.GroupID='" + companyGroupId + @"'  AND spld.PlantId='" + plantId + @"' " + _wcPayrollGroup + @"
+                                    WHERE  E.GroupID='" + companyGroupId + @"'  AND spld.PlantId='" + plantId + @"' " + _wcPayrollGroup + paymentMode + @" 
                                                ";
                 if (parameters != null)
                 {
@@ -15685,7 +15691,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
             }
         }//End Function
 
-        public Dictionary<string, List<DataRow>> GetEmployeeSalaryInfoDetailPayRollGroup(ParamList para, string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string languageId, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, out DataTable distinctSalaryHead)
+        public Dictionary<string, List<DataRow>> GetEmployeeSalaryInfoDetailPayRollGroup(ParamList para, string paymentMode, string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string languageId, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, out DataTable distinctSalaryHead)
         {
             string strSQL;
             DataSet dsRef = null;
@@ -15693,6 +15699,11 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
             distinctSalaryHead = new DataTable("Tmp");
             try
             {
+                if (paymentMode.ToString().ToUpper() == "NULL")
+                    paymentMode = "";
+
+                if (string.IsNullOrEmpty(paymentMode) == false)
+                    paymentMode = " AND SPLD.PaymentMode='" + paymentMode + @"' ";
 
                 string wcEmpStatus = " Where (1=0 ";
 
@@ -15762,6 +15773,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                                      FROM SalaryProcChild SPC
 
                                         LEFT JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+                                        LEFT JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId=SPM.SystemId AND SPLD.EmpSystemId = SPC.EmpInfoSystemID 
                                                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                                                         LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL AND LanguageId = '" + languageId + @"') AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID --BanglaSalaryHead
                                                         LEFT JOIN scs.Currency CR ON SPM.AmtDefinitionCurrencyID = CR.Id
@@ -15773,7 +15785,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                                                                                             AND SPC.PlantID = Exr.PlantID
                                                         LEFT JOIN SCS.Currency CRE ON EXR.FromCurrencyCode = CRE.Id
 
-                                                        WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(" + inSalaryProcParam + @")) EmpSlr 
+                                                        WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(" + inSalaryProcParam + @")  "+ paymentMode + @" ) EmpSlr 
 
                                             INNER JOIN EmployeeInformation EEI ON EEI.SystemId = EmpSlr.EmpInfoSystemID
 
@@ -15784,7 +15796,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                                                                        ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
 
-                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"' " + _wcPayrollGroup + @" ";
+                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"' " + _wcPayrollGroup  + @" ";
                 if (parameters != null)
                 {
                     if (parameters.Count > 0)

@@ -19,6 +19,12 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     var z = document.getElementById("TDiv");
     var u = document.getElementById("UDiv");
 
+
+    //var rpt = document.getElementById("reportBtn");
+    //var searchLoc = document.getElementById("listLoc");
+    //rpt.style.display = "none";
+    //searchLoc.style.display = "none";
+
     var a = document.getElementById("Filters");
     var b = document.getElementById("Filters2");
     x.style.display = "block";
@@ -131,7 +137,30 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
 
     }
 
-   
+    //Filling the locations list
+
+    $scope.LocList = [];
+
+    function getLocations() {
+        $http({
+            method: 'GET',
+            url: $scope.path + "getLocations"
+        }).then(function succ(resp) {
+            $scope.LocList = resp.data;
+        })
+    }
+    getLocations();
+
+    $rootScope.LocName = "All";
+    $rootScope.LocId = "All";
+    
+    $scope.LocChange = function () {
+        var obj = $('#listLoc').data("ejDropDownList");
+        $rootScope.LocName = obj.option("text");
+        $rootScope.LocId = obj.option("value");
+    }
+
+    //Getting the stock status grid
 
     $scope.getData = function () {
 
@@ -143,13 +172,13 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         //}
         //else {
 
-
             $http({
                 method: 'POST',
                 url: $scope.path + "GetList",
                 data: {
                     'ToDate': $scope.selectedValues.ToDate, 'FromDate': $scope.selectedValues.FromDate,
-                    'type': $rootScope.typeVal, 'group': $rootScope.groupVal, 'value': $scope.search, 'column': $scope.searchBy
+                    'type': $rootScope.typeVal, 'group': $rootScope.groupVal, 'value': $scope.search, 'column': $scope.searchBy,
+                    'Loc': $scope.LocId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -203,6 +232,12 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
                     var gridObj = $("#GridData").data("ejGrid");
                     gridObj.refreshContent(true);
                     gridObj.refreshTemplate();
+
+
+                    //rpt.style.display = "block";
+                    //searchLoc.style.display = "block";
+
+
                 }
             });
         
@@ -1063,7 +1098,8 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             url: $scope.path + "GetStockReport",
             data: {
                 'ToDate': $scope.selectedValues.ToDate, 'FromDate': $scope.selectedValues.FromDate,
-                'type': $rootScope.typeVal, 'group': $rootScope.groupVal, 'value': $scope.search, 'column': $scope.searchBy
+                'type': $rootScope.typeVal, 'group': $rootScope.groupVal, 'value': $scope.search, 'column': $scope.searchBy,
+                'Loc': $scope.LocId
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
