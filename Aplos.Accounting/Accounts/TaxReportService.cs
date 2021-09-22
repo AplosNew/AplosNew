@@ -334,11 +334,12 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 perStartRow = xlsRow;
                 bool isFirst = true;
 
-
+                string Particulars = "";
                 for (int i = 0; i < dtRCMPayable.Rows.Count; i++)
                 {
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
                     {
+                       
                         voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper();
                         taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "'";
                     }
@@ -363,7 +364,8 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
 
                     }
 
-                    if (voucherNo != voucherNocomp)
+
+                    if (voucherNo != voucherNocomp )
                     {
 
                         if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
