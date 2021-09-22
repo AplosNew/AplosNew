@@ -1221,7 +1221,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 LEFT JOIN HKP.PartyPlant PP ON PP.Id=IT.PartyPlantId
 				
                 LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
-                LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
 	                LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
                 --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
@@ -1262,7 +1262,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
                 LEFT JOIN HKP.PartyPlant PP ON PP.Id=IT.PartyPlantId
                 LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
-                LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
 	                LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
                 --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
@@ -1303,7 +1303,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=IT.PartyPlantId
                 LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
-                LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
 	                LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
                 LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId = V.Id
