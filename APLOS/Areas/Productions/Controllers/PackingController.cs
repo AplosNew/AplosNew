@@ -52,11 +52,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetList(string ToDate, string FromDate, string type, string group, string column, string value)
+        public ActionResult GetList(string ToDate, string FromDate, string type, string group, string column, string value , string Loc)
         {
             try
             {
-                var jj = det.GetData(ToDate, FromDate, type, group, column, value);
+                var jj = det.GetData(ToDate, FromDate, type, group, column, value,Loc);
                 var jsondata = Json(new { Error = false, DATA = jj }, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
@@ -96,6 +96,12 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [HttpGet , Authorize]
+        public ActionResult getLocations()
+        {
+            return Json(det.getLocations(), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -1098,12 +1104,12 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetStockReport(string ToDate, string FromDate, string type, string group, string column, string value)
+        public ActionResult GetStockReport(string ToDate, string FromDate, string type, string group, string column, string value, string Loc)
         {
 
             try
             {
-                var workbook = GetStockReportForm( ToDate,  FromDate,  type,  group,  column,  value);
+                var workbook = GetStockReportForm( ToDate,  FromDate,  type,  group,  column,  value,Loc);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "StockReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -1118,14 +1124,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook GetStockReportForm(string ToDate, string FromDate, string type, string group, string column, string value)
+        private IWorkbook GetStockReportForm(string ToDate, string FromDate, string type, string group, string column, string value,string Loc)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = det.GetStockData(ToDate, FromDate, type, group, column, value);
+            var data = det.GetStockData(ToDate, FromDate, type, group, column, value, Loc);
 
 
             var sheet = workbook.Worksheets[0];
