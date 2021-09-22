@@ -148,6 +148,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 
             try
             {
+                string Seq = "";
                 string sql = @"SELECT Ma.Id,null as Charactaristics, SKUId=case when Ma.SelectedDropDownValue is null then '' else Ma.SelectedDropDownValue end,'' as [Sequence],'' Rate,IsDisable= case when Ma.SelectedDropDownValue is null then Convert(bit,'False') else CONVERT(bit,'True') end,
                                     PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, sum(PD.Qty)Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
@@ -245,6 +246,16 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 								   ,E.UserName,Ma.SelectedDropDownValue,PD.MaterialMaster,PD.Article";
                 List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
 
+                string strSQL2 = @"select ProductionBookingLevel from [HKP].[EntityProcessTag] where EntityId='" + entityId + "' and ProcessId = '" + ProcessId + @"' ";
+
+                List<Dictionary<string, object>> CheckList = _sqlRepository.GetDataCollection(strSQL2, null);
+
+                if (CheckList[0]["ProductionBookingLevel"].ToString() == "UptoSKU1")
+                {
+                    Seq = @"where m.Sequence=1";
+                }
+                
+
                 string strSQL = @"select p.ProductionOrderId,c.Id Value,c.UserName Text, m.Sequence
 							from trn.ProductionOrder PR
 							join [TRN].[ProductionOrderProcessSet] p on p.ProductionOrderId=pr.Id and  p.ProcessId=(select top 1 ProcessId from hkp.EntityProcessTag where entityid='" + entityId + "' and ProcessId='" + ProcessId + @"')
@@ -252,9 +263,9 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 							left join trn.SalesOrder SO ON so.Id=pd.SalesOrderId
 							left join trn.MasterOrderItem MOI ON moi.id=so.MasterOrderItemId
 							left join MST.MaterialMasterCharacteristics m on m.MaterialMasterId=MOI.MaterialMasterId
-                            left join HKP.Characteristics c on c.Id=m.CharacteristicsId";
-                List<Dictionary<string, object>> CharList = _sqlRepository.GetDataCollection(strSQL, null);
+                            left join HKP.Characteristics c on c.Id=m.CharacteristicsId "+ Seq + "";
 
+                List<Dictionary<string, object>> CharList = _sqlRepository.GetDataCollection(strSQL, null);
                 for (int i = 0; i < data.Count; i++)
                 {
                     List<Dictionary<string, object>> TempData = CharList.Where(r => r["ProductionOrderId"].ToString() == data[i]["POId"].ToString()).ToList();
