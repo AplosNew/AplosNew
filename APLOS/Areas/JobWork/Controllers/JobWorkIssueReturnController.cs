@@ -3134,10 +3134,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             int COL = 1;
 
 
-            DataTable data = GetIIReportDataById(IssueId);
-            DataTable TransformationIssueReturnChilddata = GetIIIssueReturnChildDataById(IssueId);
-            DataTable TransformationIssueGRNdata = GetIIGRNDataById(IssueId);
-            if (data.Rows.Count > 0)
+            DataTable dataII = GetIIReportDataById(IssueId);
+            DataTable IIChilddata = GetIIIssueReturnChildDataById(IssueId);
+            DataTable IIGRNdata = GetIIGRNDataById(IssueId);
+            if (dataII.Rows.Count > 0)
             {
                 int ColValueAddedDateHeader = 1;
                 int ColValueAddedDateEnd;
@@ -3157,7 +3157,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 SetHeaderTextTop(ref sheet, ROW, ColValueAddedDateHeader, "Issue No.", 12, ExcelHAlign.HAlignLeft);
                 ColValueAddedDateHeader++;
                 ColValueAddedDateEnd = ColValueAddedDateHeader + 1;
-                sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].Text = data.Rows[0]["TransformationIssueId"].ToString();
+                sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].Text = dataII.Rows[0]["TransformationIssueId"].ToString();
                 sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].Merge();
                 sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3168,7 +3168,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColEntityHeader++;
                 ColEntityEnd = ColEntityHeader + 1;
                 ColEntityName = ColEntityHeader;
-                sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].Text = data.Rows[0]["Company"].ToString();
+                sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].Text = dataII.Rows[0]["Company"].ToString();
                 sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].Merge();
                 sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3182,7 +3182,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColIssueIdEnd++;
                 int ColVAProcessEndDate = ColIssueIdEnd;
                 int ColVAProcessEndDateEnd = ColIssueIdEnd + 1;
-                sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].Text = data.Rows[0]["Plant"].ToString();
+                sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].Text = dataII.Rows[0]["Plant"].ToString();
                 sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].Merge();
                 sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3194,7 +3194,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColVAProcessEndDateEnd++;
                 int ColIssueDate = ColVAProcessEndDateEnd;
                 int ColIssueDateEnd = ColVAProcessEndDateEnd + 1;
-                sheet.Range[ROW, ColIssueDate, ROW, ColIssueDateEnd].Text = data.Rows[0]["Entity"].ToString();
+                sheet.Range[ROW, ColIssueDate, ROW, ColIssueDateEnd].Text = dataII.Rows[0]["Entity"].ToString();
                 sheet.Range[ROW, ColIssueDate, ROW, ColIssueDateEnd].Merge();
                 sheet.Range[ROW, ColIssueDate, ROW, ColIssueDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColIssueDate, ROW, ColIssueDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3206,7 +3206,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColPStartDate++;
                 ColVAProcessStartDateEnd = ColPStartDate + 1;
                 int ColAddress = ColPStartDate;
-                sheet.Range[ROW, ColPStartDate, ROW, ColVAProcessStartDateEnd].Text = data.Rows[0]["TransformationDate"].ToString();
+                sheet.Range[ROW, ColPStartDate, ROW, ColVAProcessStartDateEnd].Text = dataII.Rows[0]["TransformationDate"].ToString();
                 sheet.Range[ROW, ColPStartDate, ROW, ColVAProcessStartDateEnd].Merge();
                 sheet.Range[ROW, ColPStartDate, ROW, ColVAProcessStartDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColPStartDate, ROW, ColVAProcessStartDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3217,7 +3217,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColVAProcessStartDateEnd++;
                 int ColProcessEndDate = ColVAProcessStartDateEnd;
                 int ColProcessEndDateEnd = ColVAProcessStartDateEnd + 1;
-                sheet.Range[ROW, ColProcessEndDate, ROW, ColProcessEndDateEnd].Text = data.Rows[0]["JobWorkLocation"].ToString();
+                sheet.Range[ROW, ColProcessEndDate, ROW, ColProcessEndDateEnd].Text = dataII.Rows[0]["JobWorkLocation"].ToString();
                 sheet.Range[ROW, ColProcessEndDate, ROW, ColProcessEndDateEnd].Merge();
                 sheet.Range[ROW, ColProcessEndDate, ROW, ColProcessEndDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColProcessEndDate, ROW, ColProcessEndDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3229,7 +3229,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColPrtyName++;
                 int ColPartyName = ColPrtyName;
                 int ColPartyNameEnd = ColPrtyName + 1;
-                sheet.Range[ROW, ColPartyName, ROW, ColPartyNameEnd].Text = data.Rows[0]["ByWhom"].ToString();
+                sheet.Range[ROW, ColPartyName, ROW, ColPartyNameEnd].Text = dataII.Rows[0]["ByWhom"].ToString();
                 sheet.Range[ROW, ColPartyName, ROW, ColPartyNameEnd].Merge();
                 sheet.Range[ROW, ColPartyName, ROW, ColPartyNameEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColPartyName, ROW, ColPartyNameEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3242,7 +3242,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColIssuebyEnd++;
                 int ColIssueby = ColIssuebyEnd;
                 int ColIssueByEnd = ColIssuebyEnd + 1;
-                sheet.Range[ROW, ColIssueby, ROW, ColIssueByEnd].Text = data.Rows[0]["IssueType"].ToString();
+                sheet.Range[ROW, ColIssueby, ROW, ColIssueByEnd].Text = dataII.Rows[0]["IssueType"].ToString();
                 sheet.Range[ROW, ColIssueby, ROW, ColIssueByEnd].Merge();
                 sheet.Range[ROW, ColIssueby, ROW, ColIssueByEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColIssueby, ROW, ColIssueByEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3254,7 +3254,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColCCDATe++;
                 int ColVAContractClosingDate = ColCCDATe;
                 int ColVAContractClosingDateEnd = ColCCDATe + 1;
-                sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].Text = data.Rows[0]["Currency"].ToString();
+                sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].Text = dataII.Rows[0]["Currency"].ToString();
                 sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].Merge();
                 sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3265,7 +3265,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColVAContractClosingDateEnd++;
                 int ColContractId = ColVAContractClosingDateEnd;
                 int ColContractIdEnd = ColVAContractClosingDateEnd + 1;
-                sheet.Range[ROW, ColContractId, ROW, ColContractIdEnd].Text = data.Rows[0]["RefferenceNo"].ToString();
+                sheet.Range[ROW, ColContractId, ROW, ColContractIdEnd].Text = dataII.Rows[0]["RefferenceNo"].ToString();
                 sheet.Range[ROW, ColContractId, ROW, ColContractIdEnd].Merge();
                 sheet.Range[ROW, ColContractId, ROW, ColContractIdEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColContractId, ROW, ColContractIdEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3278,7 +3278,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColIR++;
                 int ColIssueReturn = ColIR;
                 int ColIssueReturnEnd = ColIR + 1;
-                sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Text = data.Rows[0]["Orderspecific"].ToString();
+                sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Text = dataII.Rows[0]["Orderspecific"].ToString();
                 sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Merge();
                 sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3291,7 +3291,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColIssueReturnEnd++;
                 int ColJobWorkLocation = ColIssueReturnEnd;
                 int ColJobWorkLocationEnd = ColIssueReturnEnd + 1;
-                sheet.Range[ROW, ColJobWorkLocation, ROW, ColJobWorkLocationEnd].Text = data.Rows[0]["OrderRefNo"].ToString();
+                sheet.Range[ROW, ColJobWorkLocation, ROW, ColJobWorkLocationEnd].Text = dataII.Rows[0]["OrderRefNo"].ToString();
                 sheet.Range[ROW, ColJobWorkLocation, ROW, ColJobWorkLocationEnd].Merge();
                 sheet.Range[ROW, ColJobWorkLocation, ROW, ColJobWorkLocationEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColJobWorkLocation, ROW, ColJobWorkLocationEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3302,7 +3302,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColRemarks++;
                 int ColContractRemarks = ColRemarks;
                 int ColContractRemarksEnd = ColRemarks + 1;
-                sheet.Range[ROW, ColContractRemarks, ROW, ColContractRemarksEnd].Text = data.Rows[0]["ProductionOrderId"].ToString();
+                sheet.Range[ROW, ColContractRemarks, ROW, ColContractRemarksEnd].Text = dataII.Rows[0]["ProductionOrderId"].ToString();
                 sheet.Range[ROW, ColContractRemarks, ROW, ColContractRemarksEnd].Merge();
                 sheet.Range[ROW, ColContractRemarks, ROW, ColContractRemarksEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColContractRemarks, ROW, ColContractRemarksEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3313,7 +3313,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColContractIsseStatus++;
                 int ColIssueStatus = ColContractIsseStatus;
                 int ColIssueStatusEnd = ColContractIsseStatus + 1;
-                sheet.Range[ROW, ColIssueStatus, ROW, ColIssueStatusEnd].Text = data.Rows[0]["ContractId"].ToString();
+                sheet.Range[ROW, ColIssueStatus, ROW, ColIssueStatusEnd].Text = dataII.Rows[0]["ContractId"].ToString();
                 sheet.Range[ROW, ColIssueStatus, ROW, ColIssueStatusEnd].Merge();
                 sheet.Range[ROW, ColIssueStatus, ROW, ColIssueStatusEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColIssueStatus, ROW, ColIssueStatusEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3324,7 +3324,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColIsseStatus++;
                 int ColIIIssueStatus = ColIsseStatus;
                 int ColIIIssueStatusEnd = ColIsseStatus + 1;
-                sheet.Range[ROW, ColIIIssueStatus, ROW, ColIIIssueStatusEnd].Text = data.Rows[0]["Status"].ToString();
+                sheet.Range[ROW, ColIIIssueStatus, ROW, ColIIIssueStatusEnd].Text = dataII.Rows[0]["Status"].ToString();
                 sheet.Range[ROW, ColIIIssueStatus, ROW, ColIIIssueStatusEnd].Merge();
                 sheet.Range[ROW, ColIIIssueStatus, ROW, ColIIIssueStatusEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColIIIssueStatus, ROW, ColIIIssueStatusEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3335,7 +3335,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColIsseVoucher++;
                 int ColIIIssueVoucher = ColIsseVoucher;
                 int ColIIIssueVoucherEnd = ColIsseVoucher + 1;
-                sheet.Range[ROW, ColIIIssueVoucher, ROW, ColIIIssueVoucherEnd].Text = data.Rows[0]["VoucherId"].ToString();
+                sheet.Range[ROW, ColIIIssueVoucher, ROW, ColIIIssueVoucherEnd].Text = dataII.Rows[0]["VoucherId"].ToString();
                 sheet.Range[ROW, ColIIIssueVoucher, ROW, ColIIIssueVoucherEnd].Merge();
                 sheet.Range[ROW, ColIIIssueVoucher, ROW, ColIIIssueVoucherEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColIIIssueVoucher, ROW, ColIIIssueVoucherEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3346,7 +3346,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ColIssueRequestMasterId++;
                 int ColissueReq = ColIssueRequestMasterId;
                 int ColIssueReqEnd = ColIssueRequestMasterId + 1;
-                sheet.Range[ROW, ColissueReq, ROW, ColIssueReqEnd].Text = data.Rows[0]["IssueRequestMasterId"].ToString();
+                sheet.Range[ROW, ColissueReq, ROW, ColIssueReqEnd].Text = dataII.Rows[0]["IssueRequestMasterId"].ToString();
                 sheet.Range[ROW, ColissueReq, ROW, ColIssueReqEnd].Merge();
                 sheet.Range[ROW, ColissueReq, ROW, ColIssueReqEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColissueReq, ROW, ColIssueReqEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3423,10 +3423,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             int RowIndexNo = MPChildROW;
             StartRows = MPChildROW;
 
-            for (int i = 0; i < TransformationIssueReturnChilddata.Rows.Count; i++)
+            for (int i = 0; i < IIChilddata.Rows.Count; i++)
             {
 
-                if (InventoryIssueId != TransformationIssueReturnChilddata.Rows[i]["InventoryIssueId"].ToString())
+                if (InventoryIssueId != IIChilddata.Rows[i]["InventoryIssueId"].ToString())
                 {
 
                     if (RowIndexNo < MPChildROW)
@@ -3438,28 +3438,28 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     RowIndexNo = MPChildROW;
                 }
 
-                sheet[MPChildROW, ColJWOutputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["InventoryIssueId"].ToString();
-                sheet[MPChildROW, ColId].Text = TransformationIssueReturnChilddata.Rows[i]["Id"].ToString();
+                sheet[MPChildROW, ColJWOutputItemId].Text = IIChilddata.Rows[i]["InventoryIssueId"].ToString();
+                sheet[MPChildROW, ColId].Text = IIChilddata.Rows[i]["Id"].ToString();
                 //sheet[MPChildROW, ColJWInputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JwInputId"].ToString();
                 //sheet[MPChildROW, ColJWInputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWInputItem"].ToString();
-                sheet[MPChildROW, ColJWInputMaterial].Text = TransformationIssueReturnChilddata.Rows[i]["Material"].ToString();
-                sheet[MPChildROW, ColArticle].Text = TransformationIssueReturnChilddata.Rows[i]["Article"].ToString();
+                sheet[MPChildROW, ColJWInputMaterial].Text = IIChilddata.Rows[i]["Material"].ToString();
+                sheet[MPChildROW, ColArticle].Text = IIChilddata.Rows[i]["Article"].ToString();
          //       sheet[MPChildROW, ColBalanceToIssue].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BalanceToIssue"].ToString());
          //       sheet[MPChildROW, ColRequiredQuantity].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["RequiredQuantity"].ToString());
-                sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TotalIssuedQty"].ToString());
-                sheet[MPChildROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TransactionQty"].ToString());
+                sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(IIChilddata.Rows[i]["TotalIssuedQty"].ToString());
+                sheet[MPChildROW, ColTIRCQty].Number = clsStaticInfo.dbl(IIChilddata.Rows[i]["TransactionQty"].ToString());
 
-                sheet[MPChildROW, ColAvgRate].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AveRateeee"].ToString());
+                sheet[MPChildROW, ColAvgRate].Number = clsStaticInfo.dbl(IIChilddata.Rows[i]["AveRateeee"].ToString());
 
                 //      sheet[MPChildROW, ColBaseRateeee].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BaseRateeee"].ToString());
 
-                sheet[MPChildROW, ColAvgAmount].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AverageAmount"].ToString());
+                sheet[MPChildROW, ColAvgAmount].Number = clsStaticInfo.dbl(IIChilddata.Rows[i]["AverageAmount"].ToString());
 
-                sheet[MPChildROW, ColJWIssueUoM].Text = TransformationIssueReturnChilddata.Rows[i]["IssueUoM"].ToString();
+                sheet[MPChildROW, ColJWIssueUoM].Text = IIChilddata.Rows[i]["IssueUoM"].ToString();
 
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderAround(ExcelLineStyle.Hair);
-                InventoryIssueId = TransformationIssueReturnChilddata.Rows[i]["InventoryIssueId"].ToString();
+                InventoryIssueId = IIChilddata.Rows[i]["InventoryIssueId"].ToString();
 
                 MPChildROW++;
             }
@@ -3474,10 +3474,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             decimal p = 0;
             decimal q = 0;
             decimal r = 0;
-            for (int j = 0; j < TransformationIssueReturnChilddata.Rows.Count; j++)
+            for (int j = 0; j < IIChilddata.Rows.Count; j++)
             {
 
-                p = Convert.ToDecimal(TransformationIssueReturnChilddata.Rows[j]["TransactionQty"]);
+                p = Convert.ToDecimal(IIChilddata.Rows[j]["TransactionQty"]);
                 r = p + q;
                 q = r;
                 sheet[MPChildROW, ColTotalIssQty].Number = clsStaticInfo.dbl(q);
@@ -3489,10 +3489,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             decimal x = 0;
             decimal y = 0;
             decimal z = 0;
-            for (int j = 0; j < TransformationIssueReturnChilddata.Rows.Count; j++)
+            for (int j = 0; j < IIChilddata.Rows.Count; j++)
             {
 
-                x = Math.Round(Convert.ToDecimal(TransformationIssueReturnChilddata.Rows[j]["AverageAmount"]), 2);
+                x = Math.Round(Convert.ToDecimal(IIChilddata.Rows[j]["AverageAmount"]), 2);
                 z = Math.Round(x, 2) + Math.Round(y, 2);
                 y = Math.Round(z, 2);
                 sheet[MPChildROW, ColTotalRecQty].Number = Math.Round(clsStaticInfo.dbl(y), 2);
@@ -3575,10 +3575,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             int GRNRowIndexNo = GRNROW;
             GRNStartRows = GRNROW;
 
-            for (int i = 0; i < TransformationIssueGRNdata.Rows.Count; i++)
+            for (int i = 0; i < IIGRNdata.Rows.Count; i++)
             {
 
-                if (GRNNo != TransformationIssueGRNdata.Rows[i]["GRNNo"].ToString())
+                if (GRNNo != IIGRNdata.Rows[i]["GRNNo"].ToString())
                 {
 
                     if (GRNRowIndexNo < GRNROW)
@@ -3590,29 +3590,29 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     GRNRowIndexNo = GRNROW;
                 }
 
-                sheet[GRNROW, ColGRNId].Text = TransformationIssueGRNdata.Rows[i]["Id"].ToString();
-                sheet[GRNROW, ColGRNNo].Text = TransformationIssueGRNdata.Rows[i]["GRNNo"].ToString();
-                sheet[GRNROW, ColGRNRowId].Text = TransformationIssueGRNdata.Rows[i]["GRNRowId"].ToString();
+                sheet[GRNROW, ColGRNId].Text = IIGRNdata.Rows[i]["Id"].ToString();
+                sheet[GRNROW, ColGRNNo].Text = IIGRNdata.Rows[i]["GRNNo"].ToString();
+                sheet[GRNROW, ColGRNRowId].Text = IIGRNdata.Rows[i]["GRNRowId"].ToString();
 
-                sheet[GRNROW, ColJWInputMat].Text = TransformationIssueGRNdata.Rows[i]["JWInputMaterial"].ToString();
-                sheet[GRNROW, ColJWInputArticle].Text = TransformationIssueGRNdata.Rows[i]["JWInputArticle"].ToString();
+                sheet[GRNROW, ColJWInputMat].Text = IIGRNdata.Rows[i]["JWInputMaterial"].ToString();
+                sheet[GRNROW, ColJWInputArticle].Text = IIGRNdata.Rows[i]["JWInputArticle"].ToString();
 
-                sheet[GRNROW, ColGRNIssueQty].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["GRNIssueQty"].ToString());
-                sheet[GRNROW, ColIssueUoM].Text = TransformationIssueGRNdata.Rows[i]["IssueUoM"].ToString();
+                sheet[GRNROW, ColGRNIssueQty].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["GRNIssueQty"].ToString());
+                sheet[GRNROW, ColIssueUoM].Text = IIGRNdata.Rows[i]["IssueUoM"].ToString();
 
-                sheet[GRNROW, ColTransactionCurrency].Text = TransformationIssueGRNdata.Rows[i]["TransactionCurrency"].ToString();
-                sheet[GRNROW, ColTransactionRate].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TransactionRate"].ToString());
+                sheet[GRNROW, ColTransactionCurrency].Text = IIGRNdata.Rows[i]["TransactionCurrency"].ToString();
+                sheet[GRNROW, ColTransactionRate].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["TransactionRate"].ToString());
 
                 //    sheet[GRNROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TransactionQty"].ToString());
 
-                sheet[GRNROW, ColBaseCurrency].Text = TransformationIssueGRNdata.Rows[i]["BaseCurrency"].ToString();
-                sheet[GRNROW, ColBaseRate].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["BaseRate"].ToString());
+                sheet[GRNROW, ColBaseCurrency].Text = IIGRNdata.Rows[i]["BaseCurrency"].ToString();
+                sheet[GRNROW, ColBaseRate].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["BaseRate"].ToString());
 
-                sheet[GRNROW, ColTotalAmount].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TotalAmount"].ToString());
+                sheet[GRNROW, ColTotalAmount].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["TotalAmount"].ToString());
 
                 sheet.Range[GRNROW, 1, GRNROW, GRNendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[GRNROW, 1, GRNROW, GRNendCol].BorderAround(ExcelLineStyle.Hair);
-                GRNNo = TransformationIssueGRNdata.Rows[i]["GRNNo"].ToString();
+                GRNNo = IIGRNdata.Rows[i]["GRNNo"].ToString();
 
                 GRNROW++;
             }
@@ -3627,9 +3627,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             decimal a = 0;
             decimal b = 0;
             decimal c = 0;
-            for (int j = 0; j < TransformationIssueGRNdata.Rows.Count; j++)
+            for (int j = 0; j < IIGRNdata.Rows.Count; j++)
             {
-                a = Convert.ToDecimal(TransformationIssueGRNdata.Rows[j]["GRNIssueQty"]);
+                a = Convert.ToDecimal(IIGRNdata.Rows[j]["GRNIssueQty"]);
                 c = a + b;
                 b = c;
                 sheet[GRNROW, ColTotalGRNIssQty].Number = clsStaticInfo.dbl(b);
@@ -3641,9 +3641,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             decimal xx = 0;
             decimal yy = 0;
             decimal zz = 0;
-            for (int j = 0; j < TransformationIssueGRNdata.Rows.Count; j++)
+            for (int j = 0; j < IIGRNdata.Rows.Count; j++)
             {
-                xx = Math.Round(Convert.ToDecimal(TransformationIssueGRNdata.Rows[j]["TotalAmount"]), 2);
+                xx = Math.Round(Convert.ToDecimal(IIGRNdata.Rows[j]["TotalAmount"]), 2);
                 zz = Math.Round(xx, 2) + Math.Round(yy, 2);
                 yy = Math.Round(zz, 2);
                 sheet[GRNROW, ColTotalGRNAmount].Number = Math.Round(clsStaticInfo.dbl(yy), 2);
