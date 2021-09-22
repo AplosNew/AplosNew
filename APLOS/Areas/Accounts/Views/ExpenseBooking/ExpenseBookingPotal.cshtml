@@ -7,7 +7,7 @@
                 <div class="input-group">
                     <input type="text" name="@Library.Model.Parties.PartyType.Vendor.ToString()" ng-model="budgetTransactionMaster.PartyName" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="showPartyPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                         <button ng-click="clearPartyPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                     </span>
                 </div>
@@ -231,11 +231,11 @@
                         <td>
                             {{x.ActivityType}}
                             @*<button ng-click="showFuleExpPopUp()" ng-show="x.ActivityType=='FuleExpenses'" class="btn single-small-btn" data-placement="top">
-                <i class="glyphicon glyphicon-search"></i>
-            </button>
-            <button ng-click="showConveyancePopUp()" ng-show="x.ActivityType=='Conveyance'" class="btn single-small-btn" data-placement="top">
-                <i class="glyphicon glyphicon-search"></i>
-            </button>*@
+                                    <i class="glyphicon glyphicon-search"></i>
+                                </button>
+                                <button ng-click="showConveyancePopUp()" ng-show="x.ActivityType=='Conveyance'" class="btn single-small-btn" data-placement="top">
+                                    <i class="glyphicon glyphicon-search"></i>
+                                </button>*@
                         </td>
                         <td id="td_DocRefNo_{{$index}}">
                             <div class="show-message">
@@ -247,8 +247,8 @@
                                 <input type="text" ng-model="x.DocDate" class="form-control" datepicker="checkRowValidation(x, $index)">
                             </div>
                         </td>
-                        <td >
-                                <select class="form-control"  ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterCboList| filter:{ Value: x.CostCenterId }:true"></select>
+                        <td>
+                            <select class="form-control" ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterCboList| filter:{ Value: x.CostCenterId }:true"></select>
                         </td>
                         <td id="td_Amount_{{$index}}">
                             <div class="show-message">
@@ -545,7 +545,8 @@
 <confirm-modal></confirm-modal>
 @Html.Partial("~/Areas/Employees/Views/Shared/_ResponsiblePersonPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/ExpenseBooking/_BudgetMasterPopUp.cshtml")
-@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+@*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
 @Html.Partial("~/Areas/FixedAssets/Views/_FixedAssetRegisterExpensesBookingPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/ExpenseBooking/_ConvenyenceExpPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/ExpenseBooking/_FuelExpPopUp.cshtml")
