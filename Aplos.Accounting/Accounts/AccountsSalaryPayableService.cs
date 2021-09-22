@@ -256,7 +256,7 @@ namespace Library.Accounting.Accounts
                         left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID
+						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID and ISNULL(MPB.AccountsGroupId,'')=ISNULL(SGL.AccountsGroupId,'')
 						 LEFT JOIN HKP.GLGeneralInfo DGL ON DGL.Id=SGL.DrDirectGLId
                             LEFT JOIN MST.BudgetMaster DBM ON DBM.Id=SGL.DrDirectBudgetMasterId
                             LEFT JOIN HKP.Budget DB ON DB.Id=DBM.BudgetId
@@ -285,7 +285,7 @@ namespace Library.Accounting.Accounts
                         left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID
+						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID and ISNULL(MPB.AccountsGroupId,'')=ISNULL(SGL.AccountsGroupId,'')
 
 							LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=SGL.CrDirectGLId
                             LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=SGL.CrDirectBudgetMasterId
@@ -541,7 +541,7 @@ namespace Library.Accounting.Accounts
                         left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID
+						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID AND ISNULL(MPB.AccountsGroupId,'')=ISNULL(SGL.AccountsGroupId,'')
 						 LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=SGL.DrInDirectGLId
                             LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=SGL.DrInDirectBudgetMasterId
                             LEFT JOIN HKP.Budget IB ON IB.Id=IBM.BudgetId
@@ -570,7 +570,7 @@ namespace Library.Accounting.Accounts
                         left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID
+						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID AND ISNULL(MPB.AccountsGroupId,'')=ISNULL(SGL.AccountsGroupId,'')
 
 							LEFT JOIN HKP.GLGeneralInfo CIGL ON CIGL.Id=SGL.CrInDirectGLId
                             LEFT JOIN MST.BudgetMaster CIBM ON CIBM.Id=SGL.CrInDirectBudgetMasterId
