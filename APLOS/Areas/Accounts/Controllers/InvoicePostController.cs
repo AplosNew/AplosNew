@@ -176,6 +176,19 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
+        [HttpPost]
+        public ActionResult DeleteTDSPostServicePayable( string voucherId, string serviceAckId, string invoiceWriteOffId)
+        {
+            _inventoryPayableService.DeleteTDSPostServicePayable(invoiceWriteOffId,voucherId,  serviceAckId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteTDSServicePayable(string additionalTaxId,string voucherId)
+        {
+            _inventoryPayableService.DeleteTDSServicePayable(additionalTaxId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
 
         #endregion
 

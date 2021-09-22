@@ -69,6 +69,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		, OrderRefNo: null
 		, RefferenceNo: null
 		, OrderSpecific: null
+		, OrderSpecific1: 'No'
 		, ConsumptionBookingName: null
 		, ProductionOrderId: null
 		, ContractNo: null

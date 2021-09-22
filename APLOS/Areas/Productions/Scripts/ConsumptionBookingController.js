@@ -11,9 +11,9 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         ProductionOrderId: null,
         FromDate: null,
         ToDate: null,
-        MaterialStorageId:null,
+        MaterialStorageId: null,
         ToCurrencyRate: null,
-        CurrencyId:null
+        CurrencyId: null
     }
 
     $scope.GetFromDate = function () {
@@ -115,7 +115,6 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.calculateAmount = function (data) {
-        
         data.Amount = parseFloat(data.Qty * data.Rate).toFixed(2);
         var gridObj = $("#GridLineItems").data("ejGrid");
         gridObj.refreshContent(true);
@@ -125,20 +124,6 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.selectedLineItems = [];
     $scope.Save = function () {
         try {
-            //$scope.selectedLineItems = [];
-            //for (var i = 0; i < $scope.LineItemsList.length; i++) {
-            //    if ($scope.LineItemsList[i].Active) {
-            //        if (baseService.isUndefinedOrNull($scope.LineItemsList[i].Id)) {
-            //            $scope.LineItemsList[i].Id = null;
-            //            $scope.selectedLineItems.push($scope.LineItemsList[i]);
-            //        }
-            //        else {
-            //            $scope.selectedLineItems.push($scope.LineItemsList[i]);
-            //        }
-            //    }
-                
-            //}
-
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.modelForm.$valid) {
                 if ($scope.Action === "Save" || $scope.Action === "Update") {
@@ -147,6 +132,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                         url: "Productions/FinishGoodsBooking/Create",
                         data: {
                             "data": $scope.modelNew
+                            , "WorkDayList": $scope.WorkDayList
                             , "FinishGoodsBookingDetailList": $scope.LineItemsList
                         },
                         dataType: "JSON"
@@ -156,7 +142,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                         }
                         else {
                             ShowResult(response.data.Message, "success");
-                           // $scope.modelNew = response.data.Data;
+                            // $scope.modelNew = response.data.Data;
                             //$scope.GetItemDetailData();
                             $scope.getSavedData();
                             //$scope.LoadData();
@@ -176,7 +162,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
 
     $scope.Clear = function () {
         $scope.modelNew = {
-            Id: null, ProductionEntityId: null, ProcessId: null, ProductionOrderId: null, FromDate:null, ToDate:null
+            Id: null, ProductionEntityId: null, ProcessId: null, ProductionOrderId: null, FromDate: null, ToDate: null
         }
         $scope.ProductCodeList = [];
         $scope.SalesOrderLineItems = [];
@@ -256,25 +242,52 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
 
-
     $scope.LineItemsList = [];
+    $scope.WorkDayList = [];
     $scope.LoadData = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.modelForm.$valid) {
-            $scope.LineItemsList = [];
-            $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?entityId=" + $scope.modelNew.ProductionEntityId+'&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
-            //$http.get("Productions/FinishGoodsBooking/GetItemScanChildData?productionOrderId=" + $scope.modelNew.ProductionOrderId)
-                .then(
-                    function successCallback(response) {
-                        if (baseService.arrayLength(response.data) > 0) {
-                            $scope.LineItemsList = response.data;
-                        }
-                    },
-                    function errorCallback(response) {
-                        ShowResult(response, 'failure');
-                    });
+        try {
+            if (new Date($scope.modelNew.FromDate) > new Date($scope.modelNew.ToDate)) {
+                throw "From date must be below or equal to To Date";
+            }
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.modelForm.$valid) {
+                $scope.LineItemsList = [];
+                $scope.WorkDayList = [];
+                var ob = {};
+                $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?entityId=" + $scope.modelNew.ProductionEntityId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
+                    //$http.get("Productions/FinishGoodsBooking/GetItemScanChildData?productionOrderId=" + $scope.modelNew.ProductionOrderId)
+                    .then(
+                        function successCallback(response) {
+                            if (baseService.arrayLength(response.data) > 0) {
+                                $scope.LineItemsList = response.data;
+                                for (var i = 0; i < $scope.LineItemsList.length; i++) {
+                                    ob.WorkDate = $scope.LineItemsList[i].WorkDate;
+                                    if (checkExistList($scope.WorkDayList, ob.WorkDate) === false) {
+                                        $scope.WorkDayList.push(ob);
+                                        ob = {};
+                                    }
+                                }
+
+                            }
+                            console.log($scope.WorkDayList);
+                        },
+                        function errorCallback(response) {
+                            ShowResult(response, 'failure');
+                        });
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
+
+    function checkExistList(list, WorkDate) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].WorkDate === WorkDate) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     $scope.PCode = "";
     $scope.isAlternative = -1;
@@ -318,13 +331,6 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         showCaptionSummary: true
     }];
 
-    //$scope.SummaryRows = [{
-    //    title: "Total", summaryColumns: [
-    //        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Rate", dataMember: "Rate", format: "{0:N4}" },
-    //        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossConsumption", dataMember: "GrossConsumption", format: "{0:N4}" }
-    //    ],
-    //    showCaptionSummary: true
-    //}];
 
     // #region checkbox all
 

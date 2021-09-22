@@ -9,7 +9,7 @@ function fixedAssetDepreciationRuleController(cboService, commonMessage, $scope,
     $scope.getListUrl = 'fixedassets/fixedAssetdepreciationrule/getlist';
     $scope.getUrl = $scope.path + 'get';
     $scope.saveUrl = $scope.path + 'create';
-    $scope.updateUrl = $scope.path + 'edit';
+   // $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.searchByList = [
         {
@@ -33,6 +33,7 @@ function fixedAssetDepreciationRuleController(cboService, commonMessage, $scope,
             'value': 'LifeTime'
         }
     ];
+
     baseService.init($scope.getListUrl, null, null, null, 'Code', 'Code');
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
@@ -44,6 +45,21 @@ function fixedAssetDepreciationRuleController(cboService, commonMessage, $scope,
             });
     };
     $scope.getData();
+
+    //$scope.getData = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + "GetList",
+    //        data: { plantId: $scope.ModelNew.PlantId },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        $scope.ModelList = response.data;
+    //        //ClearFields(response.data.Sequence);
+    //        $scope.GetSequence();
+    //    });
+    //}
+
+
 
     $scope.depreciationRule = {
         Id: null,
@@ -74,7 +90,7 @@ function fixedAssetDepreciationRuleController(cboService, commonMessage, $scope,
     $scope.Get = function (id, index) {
         $scope.index = index;
         $scope.getdepreciationRule = angular.copy($scope.depreciationRules[$scope.index]);
-        $scope.depreciationRule = $scope.getdepreciationRule;
+        $scope.depreciationRule = angular.copy($scope.getdepreciationRule);
         $scope.depreciationRule.AddedDate = $filter('dateFilter')($scope.depreciationRule.AddedDate);
         $scope.depreciationRule.UpdatedDate = $filter('dateFilter')($scope.depreciationRule.UpdatedDate);
         $scope.Action = 'Update';
@@ -83,14 +99,24 @@ function fixedAssetDepreciationRuleController(cboService, commonMessage, $scope,
         }
     };
 
+    
+    //$scope.Get = function (args) {
+
+    //    $scope.ModelNew = Object.assign({}, args.data);
+    //    $scope.Action = 'Update';
+    //    if (!$rootScope.isCollapsed) {
+    //        $rootScope.toggle();
+    //    }
+    //};
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.depreciationRuleForm.$valid) {
-            if ($scope.Action === 'Save') {
+            if ($scope.Action === 'Save' || $scope.Action === 'Update' ) {
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: $scope.depreciationRule,
+                    data: { 'data': $scope.depreciationRule },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -98,41 +124,69 @@ function fixedAssetDepreciationRuleController(cboService, commonMessage, $scope,
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.depreciationRules.push(response.data.DepreciationRule);
-                        $scope.depreciationRules = $filter('orderBy')($scope.depreciationRules, 'Sequence');
-                        baseService.paginationAdd();
+                        //$scope.depreciationRules.push(response.data.DepreciationRule);
+                        //$scope.depreciationRules = $filter('orderBy')($scope.depreciationRules, 'Sequence');
+                        //baseService.paginationAdd();
                         ClearFields();
+                        $scope.getData();
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.status.Message, 'failure');
                 });
                 return true;
             }
-            else if ($scope.Action === 'Update') {
-                $http({
-                    method: 'POST',
-                    url: $scope.updateUrl,
-                    data: $scope.depreciationRule,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        if ($scope.index > -1) {
-                            $scope.depreciationRules[$scope.index] = $scope.depreciationRule;
-                            $scope.depreciationRules = $filter('orderBy')($scope.depreciationRules, 'Sequence');
-                        }
-                        ClearFields();
-                    }
-                }, function errorCallback(response) {
-                    ShowResult(response.status.Message, 'failure');
-                });
-                return true;
-            }
+            //else if ($scope.Action === 'Update') {
+            //    $http({
+            //        method: 'POST',
+            //        url: $scope.updateUrl,
+                     // url: $scope.saveUrl, // for update
+            //        data: { 'data': $scope.depreciationRule },
+            //        dataType: 'JSON'
+            //    }).then(function successCallback(response) {
+            //        if (response.data.Error === true) {
+            //            ShowResult(response.data.Message, 'failure');
+            //        }
+            //        else {
+            //            ShowResult(response.data.Message, 'success');
+            //            if ($scope.index > -1) {
+            //                $scope.depreciationRules[$scope.index] = $scope.depreciationRule;
+            //                $scope.depreciationRules = $filter('orderBy')($scope.depreciationRules, 'Sequence');
+            //            }
+            //            ClearFields();
+            //        }
+            //    }, function errorCallback(response) {
+            //        ShowResult(response.status.Message, 'failure');
+            //    });
+            //    return true;
+            //}
         }
     };
+
+    //$scope.Save = function () {
+    //    $scope.$broadcast('show-errors-check-validity');
+    //    //if ($scope.ModelNewForm.$valid) {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.saveUrl,
+    //        data: { 'data': $scope.ModelNew },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            ShowResult(response.data.Message, 'success');
+    //            ClearFields(response.data.Sequence);
+    //            $scope.getData();
+
+    //        }
+    //    }), function errorCallBack(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    }
+
+    //    //}
+    //};
+
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.depreciationRule.Id)) {
@@ -160,6 +214,29 @@ function fixedAssetDepreciationRuleController(cboService, commonMessage, $scope,
         return true;
     };
 
+    //$scope.Delete = function () {
+    //    if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.deleteUrl + $scope.ModelNew.Id,
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                ShowResult(response.data.Message, 'success');
+    //                ClearFields(response.data.Sequence);
+    //                $scope.getData();
+    //            }
+    //            function errorCallBack(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //        });
+    //    }
+    //};
+
+
     $scope.Clear = function () {
         ClearFields();
         return true;
@@ -167,7 +244,20 @@ function fixedAssetDepreciationRuleController(cboService, commonMessage, $scope,
 
     function ClearFields() {
         $scope.Action = 'Save';
-        $scope.depreciationRule = {};
-        $scope.depreciationRule.Active = true;
+        $scope.depreciationRule = {
+            Id: null,
+            Code: null,
+            Description: null,
+            Factor: null,
+            LifeTime: null,
+            SalvageValue: null,
+            DepreciationRules: null,
+            DepreciationCharge: null,
+            DepreciationPurchase: null,
+            DepreciationDisposal: null,
+            UniformAcross: true,
+            Active: true
+        };
+       
     }
 }
