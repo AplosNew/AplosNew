@@ -63,12 +63,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
-
-        public ActionResult IndependentOrder()
-        {
-            return View();
-        }
-
         #endregion
 
         #region -- Operations

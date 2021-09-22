@@ -444,13 +444,12 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
             });
     };
 
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
+    $scope.closePartyPopUp = function (x) {
+      
+            var party = x.data;
             $scope.budgetTransactionMaster.PartyId = party.Id;
             $scope.budgetTransactionMaster.PartyName = party.UserName;
             $scope.getPartyPlantList(party.Id);
-        }
         $scope.hidePartyPopUp();
     };
 
