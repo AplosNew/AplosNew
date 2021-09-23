@@ -2718,7 +2718,7 @@ UNION ALL
 		                              --group by  PDAMAP.PoId
 		                            --)pur ON pur.PoId = map.PoId
                         --where IR.Id not in (select InventoryReceiveId from trn.PurchaseReturn where InventoryReceiveId is not null)
-						where IR.Status='Posting'
+						where IR.Status='Posting' AND IR.GRNType<>'FG'
                         Order by IR.GRNDate ASC";
 				var res = _sqlRepository.GetDataCollection(Sql);
 				var jsondata = Json(res, JsonRequestBehavior.AllowGet);

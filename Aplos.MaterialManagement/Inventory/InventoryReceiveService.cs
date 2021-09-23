@@ -13085,6 +13085,7 @@ ORDER BY tg.[Sequence]";
 			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 			--AND IRT.InventoryServiceId is not null
+			AND IR.GRNType<>'FG'
 			)x
 			Order By X.GRNEntryDate ASC";
 
