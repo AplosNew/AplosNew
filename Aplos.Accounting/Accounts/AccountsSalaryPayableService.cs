@@ -66,14 +66,14 @@ namespace Library.Accounting.Accounts
                         , SUM(spc.DisbusmentAmount) DrAmount
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount,HeadHeadFilter=sh.SalaryHead
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1 " + wcEmpStatus + @"
@@ -83,14 +83,14 @@ namespace Library.Accounting.Accounts
                         , SUM(spc.DisbusmentAmount) DrAmount
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount,HeadHeadFilter=sh.SalaryHead
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=1 " + wcEmpStatus + @"
@@ -100,14 +100,14 @@ namespace Library.Accounting.Accounts
                         , SUM(spc.DisbusmentAmount) DrAmount
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount,HeadHeadFilter='NetPay'
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.SalaryHead,'')  in ('Net Pay') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' 
@@ -118,14 +118,14 @@ namespace Library.Accounting.Accounts
                         , SUM(spc.DisbusmentAmount) DrAmount
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount,HeadHeadFilter=sh.SalaryHead
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"'
                         --and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable')  
                         and spc.DisbusmentAmount!=0 and  PO.DirectManpowerCost=1 AND sh.HeadType='D' " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
@@ -179,14 +179,14 @@ namespace Library.Accounting.Accounts
                         , SUM(spc.DisbusmentAmount) DrAmount
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @"
@@ -248,15 +248,15 @@ namespace Library.Accounting.Accounts
 						,DGL.AccountCode+' - '+DGL.UserName DirectGLName
                            ,DB.UserName DirectBudgetName
                            ,DA.UserName DirectActivityName
-                        from [dbo].[SalaryLock] sl 
-                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID and ISNULL(MPB.AccountsGroupId,'')=ISNULL(SGL.AccountsGroupId,'')
 						 LEFT JOIN HKP.GLGeneralInfo DGL ON DGL.Id=SGL.DrDirectGLId
                             LEFT JOIN MST.BudgetMaster DBM ON DBM.Id=SGL.DrDirectBudgetMasterId
                             LEFT JOIN HKP.Budget DB ON DB.Id=DBM.BudgetId
@@ -277,15 +277,15 @@ namespace Library.Accounting.Accounts
 						,CDGL.AccountCode+' - '+CDGL.UserName DirectGLName
                            ,CDB.UserName DirectBudgetName
                            ,CDA.UserName DirectActivityName
-                        from [dbo].[SalaryLock] sl 
-                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID and ISNULL(MPB.AccountsGroupId,'')=ISNULL(SGL.AccountsGroupId,'')
 
 							LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=SGL.CrDirectGLId
                             LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=SGL.CrDirectBudgetMasterId
@@ -349,14 +349,14 @@ namespace Library.Accounting.Accounts
                         , SUM(spc.DisbusmentAmount) DrAmount
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount,HeadHeadFilter=sh.SalaryHead
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1 AND SPL.PlantId='" + plantId + @"'
@@ -366,14 +366,14 @@ namespace Library.Accounting.Accounts
                         , SUM(spc.DisbusmentAmount) DrAmount
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount,HeadHeadFilter=sh.SalaryHead
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"'  
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=1 AND SPL.PlantId='" + plantId + @"'
@@ -383,14 +383,14 @@ namespace Library.Accounting.Accounts
                         , SUM(spc.DisbusmentAmount) DrAmount
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount,HeadHeadFilter='NetPay'
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.SalaryHead,'')  in ('Net Pay') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' 
@@ -401,14 +401,14 @@ namespace Library.Accounting.Accounts
                         , SUM(spc.DisbusmentAmount) DrAmount
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount,HeadHeadFilter=sh.SalaryHead
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         --and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') 
                         and spc.DisbusmentAmount!=0  and  PO.DirectManpowerCost=0 AND sh.HeadType='D'
@@ -462,14 +462,14 @@ namespace Library.Accounting.Accounts
                         , SUM(spc.DisbusmentAmount) DrAmount
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
@@ -533,15 +533,15 @@ namespace Library.Accounting.Accounts
 						,IGL.AccountCode+' - '+IGL.UserName InDirectGLName
                            ,IB.UserName InDirectBudgetName
                            ,IA.UserName InDirectActivityName
-                        from [dbo].[SalaryLock] sl 
-                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID AND ISNULL(MPB.AccountsGroupId,'')=ISNULL(SGL.AccountsGroupId,'')
 						 LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=SGL.DrInDirectGLId
                             LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=SGL.DrInDirectBudgetMasterId
                             LEFT JOIN HKP.Budget IB ON IB.Id=IBM.BudgetId
@@ -562,15 +562,15 @@ namespace Library.Accounting.Accounts
 						,CIGL.AccountCode+' - '+CIGL.UserName InDirectGLName
                            ,CIB.UserName InDirectBudgetName
                            ,CIA.UserName InDirectActivityName
-                        from [dbo].[SalaryLock] sl 
-                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
 						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID AND ISNULL(MPB.AccountsGroupId,'')=ISNULL(SGL.AccountsGroupId,'')
 
 							LEFT JOIN HKP.GLGeneralInfo CIGL ON CIGL.Id=SGL.CrInDirectGLId
                             LEFT JOIN MST.BudgetMaster CIBM ON CIBM.Id=SGL.CrInDirectBudgetMasterId
@@ -633,14 +633,14 @@ namespace Library.Accounting.Accounts
                         ,sl.PayableVoucherId VoucherId
                         , 0 CrAmount,ESA.PrincipalAmount Amount,ESA.ProfitAmount,ESA.InstallmentAmount
                         ,spc.DisbusmentAmount*-1 DisbusmentAmount,HeadHeadFilter='NetPay',ESA.AdvanceId,ESA.AdvanceDetailId
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
 						LEFT JOIN (SELECT EA.EmployeeId,ARS.MonthNo,ARS.YearNo,ARS.InstallmentAmount,ARS.PrincipalAmount,ARS.ProfitAmount,A.Id AdvanceId,AD.Id AdvanceDetailId
 						FROM TRN.EmployeeSalaryAdvance EA JOIN DBO.AdvanceReqSchedule ARS ON ARS.EmployeeSalaryAdvanceId=EA.Id 
 						JOIN TRN.Advance A ON A.VoucherId=EA.VoucherId
@@ -697,14 +697,14 @@ namespace Library.Accounting.Accounts
                         ,sl.PayableVoucherId VoucherId
                         , 0 CrAmount,ESA.PrincipalAmount Amount,ESA.ProfitAmount,ESA.InstallmentAmount
                         ,spc.DisbusmentAmount*-1 DisbusmentAmount,HeadHeadFilter='NetPay',ESA.AdvanceId,ESA.AdvanceDetailId
-                        FROM [dbo].[SalaryLock] sl 
-                        LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
-                        LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
+                        from  dbo.SalaryProcMaster spm 
+						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
+						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
+                        LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=SPL.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
 						LEFT JOIN (SELECT EA.EmployeeId,ARS.MonthNo,ARS.YearNo,ARS.InstallmentAmount,ARS.PrincipalAmount,ARS.ProfitAmount,A.Id AdvanceId,AD.Id AdvanceDetailId
 						FROM TRN.EmployeeSalaryAdvance EA JOIN DBO.AdvanceReqSchedule ARS ON ARS.EmployeeSalaryAdvanceId=EA.Id 
 						JOIN TRN.Advance A ON A.VoucherId=EA.VoucherId

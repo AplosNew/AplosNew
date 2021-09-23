@@ -108,6 +108,15 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
                                     if ($scope.ProductionOrderList[i].Charactaristics[j].Value == null && $scope.ProductionOrderList[i].Charactaristics[j].Text == null) {
                                         $scope.ProductionOrderList[i].IsDisable = true;
                                     }
+
+                                    else if ($scope.ProductionOrderList[i].Charactaristics[j].Value == "Both" && $scope.ProductionOrderList[i].Charactaristics[j].Text == "Both") {
+                                        $scope.ProductionOrderList[i].IsDisable = true;
+                                        $scope.ProductionOrderList[i].SKUId = $scope.ProductionOrderList[i].Charactaristics[j].Value;
+                                    }
+                                    else {
+                                        $scope.ProductionOrderList[i].IsDisable = true;
+                                        $scope.ProductionOrderList[i].SKUId = $scope.ProductionOrderList[i].Charactaristics[j].Value;
+                                    }
                                 }
                             }
 

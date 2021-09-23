@@ -117,6 +117,13 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
                 }
+                if (sourceType == SourceType.DebitNoteSetOff.ToString() || sourceType == SourceType.CreditNoteSetOff.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].InvoiceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
                 if (sourceType == SourceType.EmployeePayable.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
@@ -180,6 +187,11 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(invoiceSql);
                 }
                 if (sourceType == SourceType.IssueJournal.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                }
+                if (sourceType == SourceType.SalaryJournal.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
