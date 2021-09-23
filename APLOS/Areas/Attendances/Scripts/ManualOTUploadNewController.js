@@ -253,33 +253,38 @@ function ManualOTUploadNewController($window,addressService, cboService, commonM
         }
     };
 
+    $scope.xyz = [];
     $scope.getEmpDetailsDataForExcel = function () {
         $scope.FilteredEmpList = [];
-        var ExcelDataList = [];
+        //    var ExcelDataList = [];
+        $scope.ExcelDataList = [];
         var ExcelDates = [];
         $scope.TempEmpSysId = [];
+        $scope.xyz = [];
        
         for (var j = 0; j < $scope.ExcelUploadData.length; j++) {
             $scope.ExcelUploadData[j].WorkingDate = $filter('dateFiltering')(new Date($scope.ExcelUploadData[j].WorkingDate), 'dd-M-yyyy');
-            ExcelDataList.push($scope.ExcelUploadData[j]);
+            $scope.ExcelDataList.push($scope.ExcelUploadData[j]);
         }
 
          $http({
             method: 'POST',
-            data: { Id: $scope.OTManual.Id, PlantId: $scope.OTManual.PlantId, ToDate: $scope.OTManual.ToDate, FromDate: $scope.OTManual.FromDate, GetValuesOfExcel: ExcelDataList },
+             data: { Id: $scope.OTManual.Id, PlantId: $scope.OTManual.PlantId, ToDate: $scope.OTManual.ToDate, FromDate: $scope.OTManual.FromDate, GetValuesOfExcel: $scope.ExcelDataList },
              url: 'Attendances/ManualOTUploadNew/LoadAllEmpDetails/'
         }).then(function successCallback(response) {
             $scope.FilteredEmpList = response.data;
             if ($scope.FilteredEmpList.length > 0) {
-                for (var a = 0; a < ExcelDataList.length; a++) {
-                    var GetEmpSystemId = $filter("filter")($scope.FilteredEmpList, { "Code": ExcelDataList[a].EmployeeCode});
+                for (var a = 0; a < $scope.ExcelDataList.length; a++) {
+
+                    var GetEmpSystemId = $filter("filter")($scope.FilteredEmpList, { "Code": $scope.ExcelDataList[a].EmployeeCode, "APDEmpWorkDate": $scope.ExcelDataList[a].WorkingDate});
                     if (GetEmpSystemId == 0) {
                         
                     }
                     else {
+                        $scope.TempEmpSysId = [];
                         $scope.TempEmpSysId = GetEmpSystemId;
-                        $scope.TempEmpSysId[0].OTHr = ExcelDataList[a].OTHour;
-                        $scope.TempEmpSysId[0].WorkingDate = ExcelDataList[a].WorkingDate;
+                        $scope.TempEmpSysId[0].OTHr = $scope.ExcelDataList[a].OTHour;
+                 //       $scope.TempEmpSysId[0].WorkingDate = $scope.ExcelDataList[a].WorkingDate;
                         if ($scope.SelectedEmpINOUTListExcel.length > 0) {
                             var count = $scope.SelectedEmpINOUTListExcel.length;
                             $scope.SelectedEmpINOUTListExcel[count] = $scope.TempEmpSysId[0];
