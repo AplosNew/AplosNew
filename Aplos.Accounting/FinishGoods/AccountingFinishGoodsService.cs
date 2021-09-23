@@ -278,13 +278,13 @@ namespace Library.Accounting.FixedAssets
 
         public IEnumerable<object> GetPostedFinishGoodsBookingData(string plantId)
         {
-            var sql = @"SELECT IR.Id,ird.Qty,ird.Amount,IR.[Description],IR.FromDate,IR.ToDate,V.VoucherNo,DC.VoucherId,V.PostingDate,V.DocDate,V.DocRefNo
-					FROM dbo.[FinishGoodsBooking] AS IR 
-					LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.FinishGoodsBookingId=IR.Id
-                     LEFT JOIN (SELECT A.DateWiseConsumptionId, SUM(A.Qty) AS Qty, SUM(ROUND(A.Qty*A.Rate,4)) AS Amount
-					 FROM dbo.[FinishGoodsBookingDetail] AS A  GROUP BY A.DateWiseConsumptionId) AS  IRD ON IRD.DateWiseConsumptionId=DC.Id
-                    LEFT JOIN TRN.Voucher V ON V.Id=DC.VoucherId
-					WHERE DC.VoucherId<>''";
+            var sql = @"SELECT IR.Id,ird.Qty,ird.Amount,FG.[Description],FG.FromDate,FG.ToDate,V.VoucherNo,IR.VoucherId,V.PostingDate,V.DocDate,V.DocRefNo
+					FROM dbo.[FinishGoodsBooking] AS FG 
+					LEFT JOIN TRN.InventoryReceive IR ON IR.FinishGoodsBookingId=FG.Id AND IR.GRNType='FG'
+                     LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS Qty, SUM(ROUND(A.TransactionQty*A.MaterialTranRate,4)) AS Amount
+					 FROM TRN.InventoryReceiveDetail AS A  GROUP BY A.InventoryReceiveId) AS  IRD ON IRD.InventoryReceiveId=IR.Id
+                    LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+					WHERE IR.VoucherId<>''";
             return _sqlRepository.GetDataCollection(sql);
         }
         //vendor invoice header data old & NEW
