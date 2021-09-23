@@ -5,7 +5,7 @@ function ProductionOrderRateReportController(commonMessage, $scope, $rootScope, 
 
     $scope.ModelList = [];
     $scope.path = 'Productions/Shade/';
-
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.FromDate = null;
     $scope.ToDate = null;
 
