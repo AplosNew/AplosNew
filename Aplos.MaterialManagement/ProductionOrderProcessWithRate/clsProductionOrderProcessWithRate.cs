@@ -148,6 +148,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 
             try
             {
+                string strSQL = string.Empty;
                 string Seq = "";
                 string sql = @"SELECT Ma.Id,null as Charactaristics, SKUId=case when Ma.SelectedDropDownValue is null then '' else Ma.SelectedDropDownValue end,'' as [Sequence],'' Rate,IsDisable= case when Ma.SelectedDropDownValue is null then Convert(bit,'False') else CONVERT(bit,'True') end,
                                     PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, sum(PD.Qty)Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
@@ -254,31 +255,39 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 {
                     Seq = @"where m.Sequence=1";
                 }
-                
 
-                string strSQL = @"select p.ProductionOrderId,c.Id Value,c.UserName Text, m.Sequence
+                if (CheckList[0]["ProductionBookingLevel"].ToString() == "UptoSKU1" || CheckList[0]["ProductionBookingLevel"].ToString() == "UptoSKU2")
+                {
+                    strSQL = @"select p.ProductionOrderId,c.Id Value,c.UserName Text, m.Sequence
 							from trn.ProductionOrder PR
 							join [TRN].[ProductionOrderProcessSet] p on p.ProductionOrderId=pr.Id and  p.ProcessId=(select top 1 ProcessId from hkp.EntityProcessTag where entityid='" + entityId + "' and ProcessId='" + ProcessId + @"')
 							left join trn.ProductionOrderDetail PD ON pd.Id=(select top 1 Id from trn.ProductionOrderDetail PDX where pdx.ProductionOrderId=pr.Id)
 							left join trn.SalesOrder SO ON so.Id=pd.SalesOrderId
 							left join trn.MasterOrderItem MOI ON moi.id=so.MasterOrderItemId
 							left join MST.MaterialMasterCharacteristics m on m.MaterialMasterId=MOI.MaterialMasterId
-                            left join HKP.Characteristics c on c.Id=m.CharacteristicsId "+ Seq + "";
+                            left join HKP.Characteristics c on c.Id=m.CharacteristicsId " + Seq + "";
 
-                List<Dictionary<string, object>> CharList = _sqlRepository.GetDataCollection(strSQL, null);
-                for (int i = 0; i < data.Count; i++)
-                {
-                    List<Dictionary<string, object>> TempData = CharList.Where(r => r["ProductionOrderId"].ToString() == data[i]["POId"].ToString()).ToList();
-                    if (TempData.Count > 1)
+
+                    List<Dictionary<string, object>> CharList = _sqlRepository.GetDataCollection(strSQL, null);
+                    for (int i = 0; i < data.Count; i++)
                     {
-                        Dictionary<string, object> DicTemp = new Dictionary<string, object>();
-                        DicTemp.Add("ProductionOrderId", data[i]["POId"].ToString());
-                        DicTemp.Add("Value", "Both");
-                        DicTemp.Add("Text", "Both");
-                        DicTemp.Add("Sequence", "Both");
-                        TempData.Add(DicTemp);
+                        List<Dictionary<string, object>> TempData = CharList.Where(r => r["ProductionOrderId"].ToString() == data[i]["POId"].ToString()).ToList();
+                        List<Dictionary<string, object>> ListData = new List<Dictionary<string, object>>();
+                        if (TempData.Count > 1)
+                        {
+                            Dictionary<string, object> DicTemp = new Dictionary<string, object>();
+                            DicTemp.Add("ProductionOrderId", data[i]["POId"].ToString());
+                            DicTemp.Add("Value", "Both");
+                            DicTemp.Add("Text", "Both");
+                            DicTemp.Add("Sequence", "Both");
+                            ListData.Add(DicTemp);
+                            data[i]["Charactaristics"] = ListData;
+                        }
+                        else
+                        {
+                            data[i]["Charactaristics"] = TempData;
+                        }
                     }
-                    data[i]["Charactaristics"] = TempData;
                 }
                 return data;
             }
@@ -296,7 +305,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 DataSet dsMaster;
                 DataSet dsChild;
                 DataRow dr = null;
-                string sID = string.Empty;
+
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 int Count = 0;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -313,7 +322,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrderProcessWithRateMaster", out _Id);
 
-                    Master["Id"] = "POPWRM_" + _Id;
+                    Master["Id"] = _Id;
                     MasterID = Master["Id"].ToString();
                     AddNewRow(dsMaster.Tables[0], Master);
                 }
@@ -328,7 +337,6 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 
                 con.OpenDataSetThroughAdapter("select * from ProductionOrderProcessWithRateDetails where ProductionOrderProcessWithRateMasterId='" + MasterID + "'", out dsChild, false, "1");
 
-                objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[ProductionOrderProcessWithRateDetails]", out sID);
                 for (int i = 0; i < ChildData.Count; i++)
                 {
 
@@ -339,7 +347,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                         {
                             dr = dsChild.Tables[0].NewRow();
                             Count++;
-                            dr["Id"] = "POPWRD_" + sID + Count;
+                            dr["Id"] = MasterID + Count;
                             dr["ProductionOrderProcessWithRateMasterId"] = MasterID;
                             if (Sequence == "1")
                             {

@@ -378,6 +378,7 @@
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\MonthlyAttendanceInformationNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataFromAppController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceDashboardController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AuditReportSummaryNewController.cs" />
@@ -807,6 +808,7 @@
     <Compile Include="Areas\Productions\Controllers\ProductionConversionParameterController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionTargetReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionTransformationBookingController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionOrderRateReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
     <Compile Include="Areas\Productions\Controllers\FebricWidthController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShrinkageGroupController.cs" />
@@ -1597,6 +1599,7 @@
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummaryNewController.js" />
+    <Content Include="Areas\Attendances\Scripts\MonthlyAttendanceInformationNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessPlantWiseController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\PayrollManagementDashboardController.js" />
@@ -2148,6 +2151,7 @@
     <Content Include="Areas\Productions\Scripts\ProductionConversionParameterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionTargetReportController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionTransformationBookingController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionOrderRateReportController.js" />
     <Content Include="Areas\Productions\Scripts\ShadeController.js" />
     <Content Include="Areas\Productions\Scripts\FebricWidthController.js" />
     <Content Include="Areas\Productions\Scripts\ShrinkageGroupController.js" />
@@ -3696,6 +3700,9 @@
     <Content Include="Areas\Accounts\Views\EntityWiseExpenseAndEarning.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttendanceProcessAuditReport\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\AuditReportSummaryNew\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionOrderRateReport\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\MonthlyInfoAll.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
