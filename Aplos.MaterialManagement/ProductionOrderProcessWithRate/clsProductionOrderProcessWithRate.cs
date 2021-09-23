@@ -254,7 +254,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 {
                     Seq = @"where m.Sequence=1";
                 }
-                
+
 
                 string strSQL = @"select p.ProductionOrderId,c.Id Value,c.UserName Text, m.Sequence
 							from trn.ProductionOrder PR
@@ -263,12 +263,13 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
 							left join trn.SalesOrder SO ON so.Id=pd.SalesOrderId
 							left join trn.MasterOrderItem MOI ON moi.id=so.MasterOrderItemId
 							left join MST.MaterialMasterCharacteristics m on m.MaterialMasterId=MOI.MaterialMasterId
-                            left join HKP.Characteristics c on c.Id=m.CharacteristicsId "+ Seq + "";
+                            left join HKP.Characteristics c on c.Id=m.CharacteristicsId " + Seq + "";
 
                 List<Dictionary<string, object>> CharList = _sqlRepository.GetDataCollection(strSQL, null);
                 for (int i = 0; i < data.Count; i++)
                 {
                     List<Dictionary<string, object>> TempData = CharList.Where(r => r["ProductionOrderId"].ToString() == data[i]["POId"].ToString()).ToList();
+                    List<Dictionary<string, object>> ListData = new List<Dictionary<string, object>>();
                     if (TempData.Count > 1)
                     {
                         Dictionary<string, object> DicTemp = new Dictionary<string, object>();
@@ -276,9 +277,13 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                         DicTemp.Add("Value", "Both");
                         DicTemp.Add("Text", "Both");
                         DicTemp.Add("Sequence", "Both");
-                        TempData.Add(DicTemp);
+                        ListData.Add(DicTemp);
+                        data[i]["Charactaristics"] = ListData;
                     }
-                    data[i]["Charactaristics"] = TempData;
+                    else
+                    {
+                        data[i]["Charactaristics"] = TempData;
+                    }
                 }
                 return data;
             }
