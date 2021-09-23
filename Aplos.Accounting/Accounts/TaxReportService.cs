@@ -160,14 +160,14 @@ namespace Library.Accounting.Accounts
 FROM [MST].[TaxCodeYear] AS TCY
 LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
 LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
-WHERE (Month(TYP.StartDate) between Month('"+ fromDate.ToDbDate() + "') and Month('"+ toDate.ToDbDate() + @"'))
-and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+ toDate.ToDbDate() + @"'))
+WHERE (Month(TYP.StartDate) between Month('" + fromDate.ToDbDate() + "') and Month('" + toDate.ToDbDate() + @"'))
+and (Year(TYP.StartDate) between Year('" + fromDate.ToDbDate() + "') and Year('" + toDate.ToDbDate() + @"'))
 --WHERE (Month(TYP.StartDate) >= Month('" + fromDate.ToDbDate() + "') AND Year(TYP.StartDate) >= Year('" + fromDate.ToDbDate() + "')) AND (Month(TYP.EndDate) <= Month('" + toDate.ToDbDate() + "') and Year(TYP.EndDate) <= Year('" + toDate.ToDbDate() + @"'))";
                 DataTable dtTax = _sqlRepository.GetDataTable(sql);
                 taxYearId = "''";
                 if (dtTax.Rows.Count > 0)
                 {
-                    
+
                     for (int i = 0; i < dtTax.Rows.Count; i++)
                     {
                         taxYearId += ",'" + dtTax.Rows[i]["TaxCodeYearId"].ToString() + "'";
@@ -341,28 +341,23 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 {
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
                     {
-                        TC= dtRCMPayable.Rows[i]["TaxCode"].ToString();
                         Particularstemp = dtRCMPayable.Rows[i]["Particular"].ToString();
-                         voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + Particularstemp ;
+                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + Particularstemp;
                         taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "'";
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL")
                     {
-                        TC = dtRCMPayable.Rows[i]["TaxCode"].ToString();
 
                         Particularstemp = dtRCMPayable.Rows[i]["Particular"].ToString();
-
-                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + Particularstemp ;
+                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + Particularstemp;
 
                         taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and InventoryReceiveDetailId = '" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + "'";
 
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SERVICE")
                     {
-                        TC = dtRCMPayable.Rows[i]["TaxCode"].ToString();
 
                         Particularstemp = dtRCMPayable.Rows[i]["Particular"].ToString();
-
                         voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + Particularstemp;
                         taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and InventoryServiceId = '" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + "'";
 
@@ -370,10 +365,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
 
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SALES")
                     {
-                        TC = dtRCMPayable.Rows[i]["TaxCode"].ToString();
-
                         Particularstemp = dtRCMPayable.Rows[i]["Particular"].ToString();
-
                         voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + Particularstemp;
                         taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and InventoryReceiveDetailId = '" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + "'";
 
@@ -387,7 +379,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                         {
                             lineItemPercentageType = "ValueOfFixed";
                         }
-                        if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL"  || dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SALES")
+                        if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL" || dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SALES")
                         {
                             lineItemPercentageType = "Percentage";
                         }
@@ -448,24 +440,24 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                         sheet1.Range[xlsRow, iVoucherRef].Text = dtRCMPayable.Rows[i]["DocRefNo"].ToString();//TaxableAmount
                         sheet1.Range[xlsRow, iTaxableAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["TaxableAmount"].ToString());//TaxableAmount
                         sheet1.Range[xlsRow, iTaxableAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                        dtRCMPayable.DefaultView.RowFilter = "VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "'";
+                        // dtRCMPayable.DefaultView.RowFilter = "VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "'";
                         if (dtTaxCode.Rows.Count > 0)
                         {
                             for (int j = 0; j < dtTaxCode.Rows.Count; j++)
                             {
-                                dtRCMPayable.DefaultView.RowFilter = "TaxCode = '" + dtTaxCode.Rows[j]["TaxCode"].ToString() + "'" + taxFitler;
+                                dtRCMPayable.DefaultView.RowFilter = "VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + @"' AND Seq=" + dtRCMPayable.Rows[i]["Seq"].ToString() + @" AND  TaxCode = '" + dtTaxCode.Rows[j]["TaxCode"].ToString() + "'" + taxFitler;
 
                                 for (int AKA = 0; AKA < dtRCMPayable.DefaultView.Count; AKA++)
                                 {
                                     sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Number = clsStaticInfo.dbl(dtRCMPayable.DefaultView[AKA]["CrAmount"].ToString());
                                     sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                                    xlsRow++;
+                                    // xlsRow++;
                                 }
                                 if (dtRCMPayable.DefaultView.Count > 0)
                                 {
                                     sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Number = clsStaticInfo.dbl(dtRCMPayable.DefaultView[0]["CrAmount"].ToString());
                                     sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                                 
+
                                 }
                                 else
                                 {
@@ -476,11 +468,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                                 }
                             }
                         }
-
-
                         Percentage = dtRCMPayable.Rows[i][lineItemPercentageType].ToString();
-
-
 
                         xlsRow++;
                     }
@@ -1042,7 +1030,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].Formula = formula;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)";
-                totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";               
+                totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
 
 
                 xlsRow++;
@@ -1212,7 +1200,8 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
         {
             string strSql = "";
             strSql = @"
-
+select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* from (
+                 
                 select SourceType= case when V.SourceType='VendorInvoice' then 'Inbound Invoice'
 						                when V.SourceType='VendorPayment' then 'Vendor Payment'
 						                when V.SourceType='InventoryPayable' then 'Purchase' else '' end
@@ -1340,7 +1329,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
                 where IR.IsTaxApplicable=1 AND V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
 				and V.PlantId = '" + plantId + @"'  and V.IsPark=0 and IRT.InventoryReceiveDetailId IS NULL and v.SourceType='InventoryPayable'
-
+) AS K
                 ORDER BY LineItemType,ValueOfFixed,Percentage";
 
             return _sqlRepository.GetDataTable(strSql);
@@ -1626,7 +1615,7 @@ select 'InventorySales' SourceType
                 int iTaxableAmount = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Taxable Amount";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                
+
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 DataTable dtTaxCode = null;
@@ -1670,37 +1659,50 @@ select 'InventorySales' SourceType
                 string voucherNocomp = "";
                 string taxFitler = "";
 
-
+                string Particularstemp = "";
                 for (int i = 0; i < dtRCMReceiviable.Rows.Count; i++)
                 {
+                    //voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
+                  
                     if (voucherNo != dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper())
                     {
-
-
                         if (dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
                         {
-                            voucherNocomp = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper();
+                            Particularstemp = dtRCMReceiviable.Rows[i]["Particular"].ToString();
+
+                            voucherNocomp = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + Particularstemp;
                             taxFitler = " and VoucherNo = '" + dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString() + "'";
                         }
                         if (dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL")
                         {
-                            voucherNocomp = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                            Particularstemp = dtRCMReceiviable.Rows[i]["Particular"].ToString();
+
+                            voucherNocomp = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + Particularstemp;
 
                             taxFitler = " and VoucherNo = '" + dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString() + "' and InventoryReceiveDetailId = '" + dtRCMReceiviable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + "'";
 
                         }
                         if (dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() == "SERVICE")
                         {
-                            voucherNocomp = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryServiceId"].ToString().ToUpper();
+                            Particularstemp = dtRCMReceiviable.Rows[i]["Particular"].ToString();
+
+                            voucherNocomp = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + Particularstemp;
                             taxFitler = " and VoucherNo = '" + dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString() + "' and InventoryServiceId = '" + dtRCMReceiviable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + "'";
                         }
                         if (dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() == "SALES")
                         {
-                            voucherNocomp = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                            Particularstemp = dtRCMReceiviable.Rows[i]["Particular"].ToString();
+
+                            voucherNocomp = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + Particularstemp;
 
                             taxFitler = " and VoucherNo = '" + dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString() + "' and InventoryReceiveDetailId = '" + dtRCMReceiviable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + "'";
 
                         }
+                     
+                    }
+
+                    if (voucherNo != voucherNocomp)
+                    {
                         if (Percentage != dtRCMReceiviable.Rows[i]["TaxPercentage"].ToString())
                         {
                             if (isFirst == false)
@@ -1710,7 +1712,7 @@ select 'InventorySales' SourceType
                                 sheet1[perStartRow, iTaxPercentage, xlsRow - 1, iTaxPercentage].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iParticulars, xlsRow - 1, iParticulars].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iPartyPlant, xlsRow - 1, iPartyPlant].BorderAround(ExcelLineStyle.Hair);
-                                
+
                                 sheet1[perStartRow, iGSTIN, xlsRow - 1, iGSTIN].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iVoucherType, xlsRow - 1, iVoucherType].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
@@ -1736,8 +1738,6 @@ select 'InventorySales' SourceType
                                 totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
 
                                 xlsRow++;
-
-
                             }
                             xlsRow++;
                             sheet1.Range[xlsRow - 1, 1].Number = clsStaticInfo.dbl(dtRCMReceiviable.Rows[i]["TaxPercentage"].ToString());
@@ -1765,7 +1765,17 @@ select 'InventorySales' SourceType
                         {
                             for (int j = 0; j < dtTaxCode.Rows.Count; j++)
                             {
-                                dtRCMReceiviable.DefaultView.RowFilter = "TaxCode = '" + dtTaxCode.Rows[j]["TaxCode"].ToString() + "'" + taxFitler ;
+                                dtRCMReceiviable.DefaultView.RowFilter = "VoucherNo = '" + dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + @"' AND Seq=" + dtRCMReceiviable.Rows[i]["Seq"].ToString() + @" AND  TaxCode = '" + dtTaxCode.Rows[j]["TaxCode"].ToString() + "'" + taxFitler;
+
+                                //dtRCMReceiviable.DefaultView.RowFilter = "TaxCode = '" + dtTaxCode.Rows[j]["TaxCode"].ToString() + "'" + taxFitler;
+
+                                for (int AKA = 0; AKA < dtRCMReceiviable.DefaultView.Count; AKA++)
+                                {
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Number = clsStaticInfo.dbl(dtRCMReceiviable.DefaultView[AKA]["CrAmount"].ToString());
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                                    // xlsRow++;
+                                }
+
                                 if (dtRCMReceiviable.DefaultView.Count > 0)
                                 {
 
@@ -1785,27 +1795,28 @@ select 'InventorySales' SourceType
                         xlsRow++;
                     }
 
-                    //voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
+
                     if (dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
                     {
-                        voucherNo = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper();
+                        voucherNo = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + Particularstemp;
 
                     }
                     if (dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL")
                     {
-                        voucherNo = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                        voucherNo = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + Particularstemp;
 
                     }
                     if (dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() == "SERVICE")
                     {
-                        voucherNo = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryServiceId"].ToString().ToUpper();
+                        voucherNo = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + Particularstemp;
 
                     }
                     if (dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() == "SALES")
                     {
-                        voucherNo = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                        voucherNo = dtRCMReceiviable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMReceiviable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMReceiviable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + Particularstemp;
 
                     }
+
 
 
                 }
@@ -2047,7 +2058,7 @@ select 'InventorySales' SourceType
                 catch (Exception)
                 {
                 }
-                
+
                 #endregion
                 objRpt = new clsReport();
 
@@ -2229,7 +2240,7 @@ select 'InventorySales' SourceType
                                 sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].Formula = formula;
                                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                                 totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
-                                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)"; 
+                                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)";
 
                                 xlsRow++;
 
@@ -2348,7 +2359,7 @@ select 'InventorySales' SourceType
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)"; 
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)";
 
 
 
@@ -2371,7 +2382,7 @@ select 'InventorySales' SourceType
 
                 sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].Formula = totalFormula.Remove(totalFormula.Length - 1);
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)"; 
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)";
 
 
 
@@ -2521,7 +2532,7 @@ select 'InventorySales' SourceType
         private DataTable GetRCMReceviable(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
         {
             string strSql = "";
-            strSql = @"SELECT * FROM 
+            strSql = @"select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* from
                        (SELECT SourceType= CASE WHEN V.SourceType='VendorInvoice' THEN 'Inbound Invoice'
 						                WHEN V.SourceType='VendorPayment' THEN 'Vendor Payment'
 						                WHEN V.SourceType='InventoryPayable' THEN 'Purchase' ELSE '' END
@@ -2554,7 +2565,7 @@ select 'InventorySales' SourceType
 				LEFT JOIN HKP.PartyPlant as PP on PP.Id=IT.PartyPlantId
 
                 LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
-                LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
 	            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ('','3')) TAXC ON TAXC.Id=IT.TaxCodeId
                 --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
@@ -2598,7 +2609,7 @@ select 'InventorySales' SourceType
                 LEFT JOIN HKP.PartyPlant  PP ON PP.Id=IT.PartyPlantId
 
                 LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
-                LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
 	                LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ('','3')) TAXC ON TAXC.Id=IT.TaxCodeId
                 --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
@@ -2642,7 +2653,7 @@ select 'InventorySales' SourceType
                 LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
                 LEFT JOIN HKP.PartyPlant PP ON PP.Id=IT.PartyPlantId
                 LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
-                LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
 	                LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ('','3')) TAXC ON TAXC.Id=IT.TaxCodeId
                 LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId = V.Id
@@ -2656,13 +2667,10 @@ select 'InventorySales' SourceType
 		                GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
                 WHERE IR.IsTaxApplicable=1 AND V.PostingDate  between '" + fromDate + "' AND '" + toDate + @"'
-				AND V.PlantId = '" + plantId + @"'  AND V.IsPark=0 AND IRT.InventoryReceiveDetailId IS NULL AND v.SourceType='InventoryPayable' AND ITD.AType='Dr'
-
-       
+				AND V.PlantId = '" + plantId + @"'  AND V.IsPark=0 AND IRT.InventoryReceiveDetailId IS NULL AND v.SourceType='InventoryPayable' AND ITD.AType='Dr'    
 				
-) DD
-                ORDER BY TaxPercentage,LineItemType
-";
+) K
+                ORDER BY TaxPercentage,LineItemType";
 
             return _sqlRepository.GetDataTable(strSql);
 
@@ -2913,12 +2921,12 @@ UNION ALL
                 sheet1.Range[xlsRow - 1, 1].RowHeight = 20;
                 sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Bold = true;
 
-                int iSourceType = xlsCol; 
+                int iSourceType = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Category";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 xlsCol++;
 
-                int iTaxPercentage = xlsCol; 
+                int iTaxPercentage = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Percentage";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 xlsCol++;
@@ -3023,7 +3031,7 @@ UNION ALL
                 string taxFitler = "";
                 for (int i = 0; i < dtRCMPayable.Rows.Count; i++)
                 {
-                  
+
 
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
                     {
@@ -3112,7 +3120,7 @@ UNION ALL
                             isFirst = false;
 
                         }
-                     
+
                         sheet1.Range[xlsRow, iPartyPlantName].Text = dtRCMPayable.Rows[i]["PartyPlantName"].ToString();
                         sheet1.Range[xlsRow, iParticulars].Text = dtRCMPayable.Rows[i]["Particular"].ToString();
                         sheet1.Range[xlsRow, iGSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
@@ -4040,7 +4048,7 @@ UNION ALL
                 int iGRNNo = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "GRN No";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                        
+
                 xlsCol++;
                 int iTaxableAmount = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Taxable Amount";
@@ -4100,45 +4108,45 @@ UNION ALL
                 for (int i = 0; i < dtGStReceivableF3.Rows.Count; i++)
                 {
                     voucherNocomp = dtGStReceivableF3.Rows[i]["VoucherNo"].ToString().ToUpper();
-                    taxFitler = " and VoucherNo = '" + dtGStReceivableF3.Rows[i]["VoucherNo"].ToString()+"'";
+                    taxFitler = " and VoucherNo = '" + dtGStReceivableF3.Rows[i]["VoucherNo"].ToString() + "'";
                     if (voucherNo != voucherNocomp)
-                    {   
-                            if (isFirst == false)
+                    {
+                        if (isFirst == false)
+                        {
+
+                            //sheet1[perStartRow, iCategory, xlsRow - 1, iCategory].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iVoucherType, xlsRow - 1, iVoucherType].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iPartyName, xlsRow - 1, iPartyName].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iGSTIN, xlsRow - 1, iGSTIN].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iEntryDate, xlsRow - 1, iEntryDate].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iDocDate, xlsRow - 1, iDocDate].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iGRNNo, xlsRow - 1, iGRNNo].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iTotalTax, xlsRow - 1, iTotalTax].BorderAround(ExcelLineStyle.Hair);
+                            sheet1[perStartRow, iGrossAmount, xlsRow - 1, iGrossAmount].BorderAround(ExcelLineStyle.Hair);
+
+                            formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
+                            formula2 = "";
+
+                            if (dtTaxCode.Rows.Count > 0)
                             {
-
-                                //sheet1[perStartRow, iCategory, xlsRow - 1, iCategory].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iVoucherType, xlsRow - 1, iVoucherType].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iPartyName, xlsRow - 1, iPartyName].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iGSTIN, xlsRow - 1, iGSTIN].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iEntryDate, xlsRow - 1, iEntryDate].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iDocDate, xlsRow - 1, iDocDate].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iGRNNo, xlsRow - 1, iGRNNo].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iTotalTax, xlsRow - 1, iTotalTax].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iGrossAmount, xlsRow - 1, iGrossAmount].BorderAround(ExcelLineStyle.Hair);
-
-                                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
-                                formula2 = "";
-
-                                if (dtTaxCode.Rows.Count > 0)
+                                totalTaxformula = "SUM(";
+                                for (int j = 0; j < dtTaxCode.Rows.Count; j++)
                                 {
-                                    totalTaxformula = "SUM(";
-                                    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
-                                    {
-                                        sheet1[perStartRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow - 1, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].BorderAround(ExcelLineStyle.Hair);
-                                        formula2 = "SUM(" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + perStartRow + ":" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + (xlsRow - 1) + ")";
-                                        sheet1[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Formula = formula2;
+                                    sheet1[perStartRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow - 1, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].BorderAround(ExcelLineStyle.Hair);
+                                    formula2 = "SUM(" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + perStartRow + ":" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + (xlsRow - 1) + ")";
+                                    sheet1[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Formula = formula2;
 
-                                        dtTaxCode.Rows[j]["ColumnFormula"] += (clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow).ToString() + " + ";
-                                        totalTaxformula += clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow + ":";
-                                    }
+                                    dtTaxCode.Rows[j]["ColumnFormula"] += (clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow).ToString() + " + ";
+                                    totalTaxformula += clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow + ":";
                                 }
-                        }                           
-                            isFirst = false;
+                            }
+                        }
+                        isFirst = false;
 
 
                         sheet1.Range[xlsRow, iVoucherType].Text = dtGStReceivableF3.Rows[i]["SourceType"].ToString();
@@ -4184,12 +4192,12 @@ UNION ALL
                             sheet1.Range[xlsRow, iTotalTax].Formula = totalTaxformula.Remove(totalTaxformula.Length - 1) + ")";
 
                         }
-                        sheet1.Range[xlsRow, iGrossAmount].Formula =  clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow + "+" + clsStaticInfo.GetxlsCol(iTotalTax) + xlsRow;
+                        sheet1.Range[xlsRow, iGrossAmount].Formula = clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow + "+" + clsStaticInfo.GetxlsCol(iTotalTax) + xlsRow;
                         sheet1.Range[xlsRow, iGrossAmount].NumberFormat = "#,##0.00;(#,##0.00)";
                         //Percentage = dtGStReceivableF3.Rows[i]["TaxPercentage"].ToString();
 
                         xlsRow++;
-                    }                 
+                    }
                     voucherNo = dtGStReceivableF3.Rows[i]["VoucherNo"].ToString().ToUpper();
 
 
@@ -4239,13 +4247,13 @@ UNION ALL
 
                 sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Grand Total";
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
-               
+
 
 
                 sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].Formula = formula;
-                sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].NumberFormat= "#,##0.00;(#,##0.00)";
+                sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].NumberFormat = "#,##0.00;(#,##0.00)";
                 sheet1[xlsRow, iGrossAmount, xlsRow, iGrossAmount].Formula = clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow + "+" + clsStaticInfo.GetxlsCol(iTotalTax) + xlsRow;
-                sheet1[xlsRow, iGrossAmount, xlsRow, iGrossAmount].NumberFormat= "#,##0.00;(#,##0.00)";
+                sheet1[xlsRow, iGrossAmount, xlsRow, iGrossAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
                 sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].Formula = totalTaxformula.Remove(totalTaxformula.Length - 1) + ")";
                 sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -4786,7 +4794,7 @@ UNION ALL
                 sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].Formula = totalTaxformula.Remove(totalTaxformula.Length - 1) + ")";
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)"; 
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)";
                 totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
 
 
@@ -4812,7 +4820,7 @@ UNION ALL
                 sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].Formula = totalTaxformula.Remove(totalTaxformula.Length - 1) + ")";
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)"; 
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)";
 
                 #region ******************Report Header******************
 
@@ -5184,7 +5192,7 @@ UNION ALL
                                 sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].Formula = totalTaxformula.Remove(totalTaxformula.Length - 1) + ")";
 
                                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-                                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)"; 
+                                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)";
                                 totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
 
                                 xlsRow++;
@@ -5309,7 +5317,7 @@ UNION ALL
                 sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].Formula = totalTaxformula.Remove(totalTaxformula.Length - 1) + ")";
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)"; 
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)";
                 totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
 
 
@@ -5478,7 +5486,7 @@ UNION ALL
                 throw ex;
             }
         }
-     
+
         public string GetTaxYearId3(string fromDate, string toDate, string companyId)
         {
             try
@@ -5517,7 +5525,7 @@ UNION ALL
         private DataTable GetGSTPayableSalesSQL3(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
         {
             string strSql = "";
-                        strSql = @"SELECT	x.SourceType,x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName,x.PartyPlantName,x.GSTIN
+            strSql = @"SELECT	x.SourceType,x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName,x.PartyPlantName,x.GSTIN
 		            ,x.TaxCategoryType,x.TaxCode--,x.TaxPercentage
 		            ,SUM(x.TaxableAmount) TaxableAmount,SUM(x.DrAmount) DrAmount,SUM(x.CrAmount) CrAmount
 		            ,x.TCSequence,x.EntryDate,x.GRNNo
@@ -6174,7 +6182,7 @@ UNION ALL
                 sheet1[xlsRow, iTotalTax, xlsRow, iTotalTax].Formula = totalTaxformula.Remove(totalTaxformula.Length - 1) + ")";
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)"; 
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].NumberFormat = "#,##0.00;(#,##0.00)";
                 totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
 
 
@@ -6387,7 +6395,7 @@ UNION ALL
                             JOIN TRN.Invoice I ON I.Id=IW.InvoiceId
                             GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                             LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
-                            where TC.TaxCategoryType='GST' AND TAXC.IsRCM=0 AND  V.IsPark=0 AND V.PlantId='"+plantId+"' and V.PostingDate between '"+fromDate+"' AND '"+toDate+ @"'
+                            where TC.TaxCategoryType='GST' AND TAXC.IsRCM=0 AND  V.IsPark=0 AND V.PlantId='" + plantId + "' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
                             AND v.SourceType IN ('VendorInvoice','VendorPayment','CustomerInvoice')
                             
                             UNION all
@@ -6720,7 +6728,7 @@ UNION ALL
                             LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
                             Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
                             where TC.TaxCategoryType='TCS' AND IR.IsTaxApplicable=0 AND V.IsPark=0
-							AND V.PlantId = '" + plantId+@"' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
+							AND V.PlantId = '" + plantId + @"' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
 
 
 
@@ -6837,7 +6845,7 @@ UNION ALL
                             
                             UNION all
 
-							SELECT SourceType= CASE  WHEN V.SourceType='InventorySales' THEN 'Sales' ELSE '' END
+							SELECT SourceType= CASE  WHEN V.SourceType='SalesInvoice' THEN 'Sales' ELSE '' END
                             , V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.UserName PartyName,PP.GSTIN
 							, IRD.InventorySalesId GRNNo,pp.UserName PartyPlantName
                             , LineItemType=case when v.SourceType='InventorySales' then 'Sales' ELSE '' END
@@ -7217,7 +7225,7 @@ UNION ALL
                     {
                         sheet1.Range[xlsRow, iSuppliersName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
                         sheet1.Range[xlsRow, iGSTINSuppliers].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
-                        
+
                         sheet1.Range[xlsRow, iVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
                         sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
                         sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
@@ -7727,7 +7735,7 @@ UNION ALL
 
         #region TDS Deduction
         public IWorkbook GetTdsDeductionReport(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string name)
-        
+
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -7764,7 +7772,7 @@ UNION ALL
 
                 DataTable dtRCMPayable = null;
                 string taxyearId = GetTaxYearId(fromDate, toDate, companyId);
-           
+
 
                 dtRCMPayable = GetTdsDedutionData(companyGroupId, companyId, plantId, plantName, fromDate, toDate, taxyearId);
                 if (dtRCMPayable.Rows.Count == 0)
@@ -7791,8 +7799,8 @@ UNION ALL
 
                 sheet1.Range[xlsRow - 1, 5].Text = "Payable";
                 sheet1.Range[xlsRow - 1, 5].CellStyle.Font.Size = 10;
-               // sheet1.Range[xlsRow - 1, 4,xlsRow-1,7].RowHeight = 30;
-                sheet1.Range[xlsRow - 1, 5].HorizontalAlignment=ExcelHAlign.HAlignCenter;
+                // sheet1.Range[xlsRow - 1, 4,xlsRow-1,7].RowHeight = 30;
+                sheet1.Range[xlsRow - 1, 5].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow - 1, 4, xlsRow - 1, 7].BorderAround(ExcelLineStyle.Thin);
 
                 sheet1.Range[xlsRow - 1, 5].CellStyle.Font.Bold = true;
@@ -7874,7 +7882,7 @@ UNION ALL
                 sheet1.Range[xlsRow, xlsCol].Text = "Invoice Amount";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
-           
+
 
 
                 xlsCol++;
@@ -8018,10 +8026,10 @@ UNION ALL
                         sheet1.Range[xlsRow, iInvoiceDocRefNo].Text = dtRCMPayable.Rows[i]["InvoieDocRefNo"].ToString();
                         sheet1.Range[xlsRow, iInvoiceDocDate].Text = dtRCMPayable.Rows[i]["InvoiceDocDate"].ToString();
                         sheet1.Range[xlsRow, GSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
-                        
+
                         sheet1.Range[xlsRow, iInvoiceAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["InvoiceAmount"].ToString());//TaxableAmount
                         sheet1.Range[xlsRow, iInvoiceAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                        
+
                         sheet1.Range[xlsRow, iDocRefNo].Text = dtRCMPayable.Rows[i]["DocRefNo"].ToString();
                         sheet1.Range[xlsRow, iVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
                         sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
@@ -8080,7 +8088,7 @@ UNION ALL
                 sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
 
 
-             
+
                 sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Total";
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
                 formula2 = "SUM(" + clsStaticInfo.GetxlsCol(CrAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(CrAmount) + (xlsRow - 1) + ")";
@@ -8297,7 +8305,7 @@ UNION ALL
 				LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId AND TC.TaxCategoryType='TDS'
                 LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
-	               LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId+@")) TAXC ON TAXC.Id=IT.TaxCodeId
+	               LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @")) TAXC ON TAXC.Id=IT.TaxCodeId
                 LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
                 LEFT JOIN TRN.InventoryReceiveTax IRT ON IRT.InventoryReceiveId=IR.Id --AND IRT.TaxCategoryId=IT.TaxCategoryId
                 LEFT JOIN MST.HSNTaxPercentage HSNP ON  IRT.HSNCodeId=HSNP.HSNCodeId AND HSNP.TaxCategoryId=IT.TaxCategoryId 
@@ -8320,7 +8328,7 @@ UNION ALL
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
 				
                 where TC.TaxCategoryType='TDS' AND ITD.AType='Cr' 
-				AND V.PostingDate between '"+fromDate+"' AND '"+toDate+"' and V.PlantId = '"+plantId+@"' and V.IsPark=0
+				AND V.PostingDate between '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
                 ORDER BY LineItemType,ValueOfFixed,Percentage
 				";
 
