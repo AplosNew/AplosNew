@@ -14371,7 +14371,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
             string empTypeFil = "1=1";
             if (empTypeId != null)
             {
-                empTypeFil = "EmpTypeId = '" + empTypeId + "'";
+                empTypeFil = "EmpTypeId in( " + empTypeId + ")";
             }
             //
 
@@ -14382,7 +14382,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
             var date = days + "-" + monthNameString + "-" + year;
             ConnectionManager.DAL.ConManager objCon;
 
-            string sqlBank = "SELECT* FROM EmployeeWiseBankCashAmount WHERE MonthNo = '" + monthName + @"' AND YearNo = '" + year + @"'";
+            string sqlBank = "SELECT* FROM EmployeeWiseBankCashAmount WHERE PlantId in (" + plantId + ") and  MonthNo = '" + monthName + @"' AND YearNo = '" + year + @"'";
             DataTable dtEmployeeWiseBankCashAmount = null;
 
             objCon = new ConnectionManager.DAL.ConManager("1");
@@ -14398,7 +14398,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
             string strSqlStruc = "";
 
             strSqlStruc = @"SELECT SystemID FROM SalaryProcMaster SPM
-                                      WHERE SPM.SystemID IN (SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                      WHERE SPM.SystemID IN (SELECT SlrProcMstSystemID FROM SalaryProcChild WHERE PlantID in(" + plantId + @")
                                                         ) AND SPM.MonthNo = '" + monthName + @"' AND SPM.YearNo='" + year + @"' ";
 
 
@@ -14487,7 +14487,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
 								WHERE --SPM.MonthNo = '" + monthName + @"' AND SPM.YearNo='" + year + @"' 
                                 --AND 
                                     SPM.SystemID IN  (" + inSalaryProcParam + @") 
-								AND EI.GroupID = '" + companyGrpId + @"' AND EI.CompanyId = '" + companyId + @"'  " + bankWC + @" --AND EBI. BankBranchId = '" + bankBranchId + @"'
+								AND EI.GroupID = '" + companyGrpId + @"' AND EI.PlantId  in (" + plantId + @") AND EI.CompanyId = '" + companyId + @"'  " + bankWC + @" --AND EBI. BankBranchId = '" + bankBranchId + @"'
                                 AND SH.HeadCategory = 'Net Payable'  AND EI.PaymentMode = '" + paymentMode + @"') dd " + empStatus + @"
                                 and " + empTypeFil + @"
                                  ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric
@@ -14498,7 +14498,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                 {
                     if (paymentMode.ToUpper() == "BANK")
                     {
-                        bankJoin = @"INNER JOIN EmployeeWiseBankCashAmount EBCA ON EI.SystemId = EBCA.EmpSystemId  AND EBCA.MonthNo =  '" + monthName + @"'  AND EBCA.YearNo = '" + year + @"' 
+                        bankJoin = @"INNER JOIN EmployeeWiseBankCashAmount EBCA ON EI.SystemId = EBCA.EmpSystemId  AND EBCA.MonthNo =  '" + monthName + @"'  AND EBCA.YearNo = '" + year + @"' and EBCA.PlantId in (" + plantId + @") 
                                 LEFT JOIN EmployeeBankInfo EBI ON EI.SystemId = EBI.EmpSystemID	
                                 LEFT JOIN HKP.Bank Bank ON Bank.Id = EBI.BankSystemID
 								LEFT JOIN HKP.BankBranch BankBr ON BankBr.Id = EBI.BankBranchId";
@@ -14534,7 +14534,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
 								WHERE --SPM.MonthNo = '" + monthName + @"' AND SPM.YearNo='" + year + @"' 
                                 --AND 
                                     SPM.SystemID IN  (" + inSalaryProcParam + @") 
-								AND EI.GroupID = '" + companyGrpId + @"' AND EI.CompanyId = '" + companyId + @"' " + bankWC + @" --AND EBI. BankBranchId = '" + bankBranchId + @"'
+								AND EI.GroupID = '" + companyGrpId + @"' AND EI.PlantId in(" + plantId + @") AND EI.CompanyId = '" + companyId + @"' " + bankWC + @" --AND EBI. BankBranchId = '" + bankBranchId + @"'
                                 AND SH.HeadCategory = 'Net Payable'  AND EI.PaymentMode = '" + paymentMode + @"') dd " + empStatus + @"
                                 and " + empTypeFil + @"
                             ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric

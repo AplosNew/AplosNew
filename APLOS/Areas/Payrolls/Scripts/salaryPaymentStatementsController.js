@@ -1,6 +1,6 @@
 ﻿'use strict';
-salaryPaymentStatementsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function salaryPaymentStatementsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+salaryPaymentStatementsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function salaryPaymentStatementsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $scope.path = 'Payrolls/SalaryPaymentStatements/';
     $scope.employeeCategoryId = null;
     $scope.dailyComplianceReport = {
@@ -129,21 +129,32 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
             var DropDownListEmpType = $("#ddlEmpTypeList").data("ejDropDownList");
 
 
+            var PlantId = "";
+            var DropDownListObj = $("#CWPlant").data("ejDropDownList");
+            if (!baseService.isUndefinedOrNull(DropDownListObj)) {
+                PlantId = DropDownListObj.getSelectedValue();
+
+                if (baseService.isUndefinedOrNull(PlantId)) {
+                    throw "Select Plant..";
+                }
+            }
+
+
             $scope.month = DropDownListMonth.getSelectedValue();
             $scope.year = DropDownListYear.getSelectedValue();
             $scope.bankId = DropDownListBank.getSelectedValue();
             $scope.empTypeId = DropDownListEmpType.getSelectedValue();
 
             if (angular.isUndefinedOrNull($scope.year)) {
-                ShowResult("Select Year", 'failure');
+                throw "Select Year";
             }
             if (angular.isUndefinedOrNull($scope.month)) {
-                ShowResult("Select Month", 'failure');
+                throw "Select Month";
             }
             if (paymentMode === "BANK") {
 
                 if (angular.isUndefinedOrNull($scope.bankId)) {
-                    ShowResult("Select Bank", 'failure');
+                    throw "Select Bank";
                 }
 
                 $http({
@@ -161,6 +172,7 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
                         'isMaternity': $scope.isMaternity,
                         'isCSV': $scope.isCSV,
                         'empTypeId': $scope.empTypeId,
+                        'PlantId': PlantId
                     }
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -190,6 +202,7 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
                         'isMaternity': $scope.isMaternity,
                         'isCSV': $scope.isCSV,
                         'empTypeId': $scope.empTypeId,
+                        'PlantId': PlantId
                     }
                 }).then(function successCallback(response) {
 
@@ -215,7 +228,7 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
     //    try {
     //        var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
     //Sayanto
-      //      var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
+    //      var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
     //     var DropDownListBank = $("#ddlBankList").data("ejDropDownList");
 
     //        $scope.month = DropDownListMonth.getSelectedValue();
@@ -267,5 +280,32 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
 
     };
 
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: "Attendances/AttendanceProcessUI/GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+
+            var index = 0;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#CWPlant').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
+
+
+        });
+    }
+    $scope.getPlant();
 
 }
