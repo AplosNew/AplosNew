@@ -927,6 +927,7 @@ var upanelApp = angular
     .controller("OutsourceBillingPostController", OutsourceBillingPostController)
     .controller("ProductionOrderProcessWithRateController", ProductionOrderProcessWithRateController)
     .controller("entityWiseExpenseAndEarningController", entityWiseExpenseAndEarningController)
+    .controller("ProductionOrderRateReportController", ProductionOrderRateReportController)
 
 
     .controller("PostInvoiceController", PostInvoiceController)
