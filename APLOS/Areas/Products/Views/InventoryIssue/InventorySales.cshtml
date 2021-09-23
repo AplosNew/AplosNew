@@ -1122,7 +1122,7 @@
 							</div>
 							<label class="col-sm-3 control-label">Total Amount<sup>*</sup></label>
 							<div class="col-sm-4 show-message" style="padding-right:0px;">
-								<input type="text" n-decimals="2" ng-model="detailModel.TotalAmount" class="form-control text-right" required ng-disabled="true">
+								<input type="text" n-decimals="2" ng-model="detailModel.TotalAmount" class="form-control text-right" required ng-disabled="false" ng-keyup="RateCalculation();">
 							</div>
 						</div>
 					</div>
