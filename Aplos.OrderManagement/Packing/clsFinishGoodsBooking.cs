@@ -28,9 +28,14 @@ namespace Library.OrderManagement.Packing
         {
             try
             {
-                string sql = @"Select E.UserName ProductionEntity, P.UserName Process,FORMAT(FGB.FromDate,'dd-MMM-yyyy') FDate,FORMAT(FGB.ToDate,'dd-MMM-yyyy') TDate,FGB.* from [dbo].[FinishGoodsBooking] FGB
+                string sql = @"Select E.UserName ProductionEntity, P.UserName Process,FORMAT(FGB.FromDate,'dd-MMM-yyyy') FDate,FORMAT(FGB.ToDate,'dd-MMM-yyyy') TDate,FGB.* 
+                                ,GRNNo= STUFF((select distinct ','+IR.Id from 
+	                            TRN.InventoryReceive IR 
+		                        JOIN [dbo].[FinishGoodsBooking] FG ON IR.FinishGoodsBookingId=FG.Id		       
+			                    where FG.Id=FGB.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                from [dbo].[FinishGoodsBooking] FGB
                                 LEFT JOIN ORG.Entity E ON E.Id=FGB.ProductionEntityId
-                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId";
+                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId ORDER BY FGB.AddedDate DESC";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

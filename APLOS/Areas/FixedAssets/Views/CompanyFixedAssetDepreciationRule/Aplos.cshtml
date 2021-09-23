@@ -8,7 +8,7 @@
             <label class="col-sm-4 control-label">Company<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="companyDepreciationRule.CompanyId" ng-change="getDataWithCoaChange()"
+                    <select class="form-control" ng-model="companyDepreciationRule.CompanyId" ng-change="GetAssetMasterData()"
                             ng-options="item.Value as item.Text for item in CompanyList" id="companyId"
                             name="Company" required tabindex="1">
                         <option></option>
@@ -20,24 +20,26 @@
 </div>
 
 @*<div class="col-xs-42 col-sm-6 col-md-6">
-    <div class="form-group" show-errors>
-        <label class="col-sm-4 control-label">Company<sup>*</sup></label>
-        <div class="col-sm-8  show-message">
-            <div class="select-style">
-                <select name="Company Name" ng-model="companyFiscalYear.CompanyId" class="col-sm-3 form-control"
-                        ng-change="getData()" ng-options="item.Value as item.Text for item in companyList" required tabindex="2">
-                    <option></option>
-                </select>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select name="Company Name" ng-model="companyFiscalYear.CompanyId" class="col-sm-3 form-control"
+                            ng-change="getData()" ng-options="item.Value as item.Text for item in companyList" required tabindex="2">
+                        <option></option>
+                    </select>
+                </div>
             </div>
         </div>
-    </div>
-</div>*@
+    </div>*@
 
 
 
 
 <div class="clearfix"></div>
 <div class="form-elements form-horizontal" ng-form name="companyDepreciationRuleForm">
+    <input type="hidden" ng-model="companyDepreciationRule.Id">
+
     @*<input type="hidden" ng-model="companyDepreciationRule.Id">
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
@@ -145,36 +147,78 @@
                 </div>
         </div>*@
 
-    <div class="table-responsive modal-table">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Asset Master</th>
-                    <th>Dep. Rules</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr dir-paginate="x in fixedAssetMasterList |itemsPerPage:fixedAssetMasterBudgetTagListParameters.pageSize" pagination-id="metaData.name + 'fixedAssetMasterList'" total-items="fixedAssetMasterBudgetTagListParameters.total_count" ng-dblclick="Get(x.Id, $index);">
-      
-                    <td>{{x.UserName}}</td>
-                    <td>
-                        <div class="select-style">
-                            <select class="form-control" ng-model="x.FixedAssetMasterId" ng-options="item.Value as item.Text for item in fixedAssetMasterCboList" id="FixedAssetMasterId" name="FixedAssetMaster" ng-change="selectChValueId(x)">
-                                <option value=""></option>
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <dir-pagination-controls max-size="10" direction-links="true" pagination-id="metaData.name + 'fixedAssetMasterList'" boundary-links="true" on-page-change="loadData(newPageNumber)"></dir-pagination-controls>
+
+
+    @*<div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Asset Master</th>
+                        <th>Dep. Rules</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr dir-paginate="x in fixedAssetMasterList |itemsPerPage:fixedAssetMasterBudgetTagListParameters.pageSize" pagination-id="metaData.name + 'fixedAssetMasterList'" total-items="fixedAssetMasterBudgetTagListParameters.total_count" ng-dblclick="Get(x.Id, $index);">
+
+                        <td>{{x.UserName}}</td>
+                        <td>
+                            <div class="select-style">
+                                <select class="form-control" ng-model="x.FixedAssetMasterId" ng-options="item.Value as item.Text for item in fixedAssetMasterCboList" id="FixedAssetMasterId" name="FixedAssetMaster" ng-change="selectChValueId(x)">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <dir-pagination-controls max-size="10" direction-links="true" pagination-id="metaData.name + 'fixedAssetMasterList'" boundary-links="true" on-page-change="loadData(newPageNumber)"></dir-pagination-controls>
+        </div>*@
+
+
+    <div class="row">
+        @*<div class="clearfix"></div>*@
+        <div class="table-responsive  aplos-grid-toggle">
+            <div class="content-container-fluid" @*style="color:black;overflow:scroll"*@>
+                <div style="color:black;" id="GridFixedAssetMaster" ej-grid e-datasource="fixedAssetMasterList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" @*e-summaryrows=""*@
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                    <div e-columns>
+                        @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkEntityAndDepartment" e-textalign="center" e-width="30"></div>*@
+                        @*<div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>*@
+
+                        @*<td class="text-right">
+                              <ul class="list-inline action-list">
+                                  <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
+                              </ul>
+                            </td>*@
+
+                        <div e-column e-field="UserName" e-headertext="Asset Master" e-width="50"></div>
+                        <div e-column e-type="text" e-field="" e-template="#depRuleId" e-headertext="Dep. Rules" e-width="50" @*style="height: 20px;"*@></div>
+                        @*<div e-column e-type="text" e-field="Department" e-template="#departmentId" e-headertext="Department" e-width="150" style="height: 20px;"></div>*@
+                        @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="FABaseAmount" e-headertext="FA Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>*@
+                    </div>
+                </div>
+
+                
+
+            </div>
+        </div>
+
     </div>
 
+    <script type="text/template" id="depRuleId">
+        <div class="select-style">
+            <select class="form-control" ng-model="data.DepreciationRuleId" name="FixedAssetDepRule">
+                <option value=""></option>
+                <option ng-repeat="option in $parent.fixedAssetDepRuleList" value="{{option.Value}}">{{option.Text}}</option>
+            </select>
+        </div>
+    </script>
 
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li> @*<button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button>*@</li>
         </ul>
     </div>
 
