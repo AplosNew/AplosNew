@@ -91,7 +91,7 @@ namespace Aplos.Areas.Attendances.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 
-            string sql = @"select distinct ot.*,FORMAT(ot.WorkDate,'dd-MMM-yyyy') as OTWorkDate,ei.SystemId,ei.EmployeeCode, ei.EmployeeName as EmpName,ei.EmployeeStatus
+            string sql = @"select distinct top 100 ot.*,FORMAT(ot.WorkDate,'dd-MMM-yyyy') as OTWorkDate,ei.SystemId,ei.EmployeeCode, ei.EmployeeName as EmpName,ei.EmployeeStatus
                                                                     from dbo.OTfromApp ot
                                                                     left join dbo.EmployeeInformation ei on ei.SystemId=ot.EmpSystemId
 																    WHERE " + strkey + " order by ot.WorkDate desc ";
@@ -189,8 +189,14 @@ namespace Aplos.Areas.Attendances.Controllers
                 string sql = "";
                 if (!string.IsNullOrEmpty(ToDate) && !string.IsNullOrEmpty(FromDate))
                 {
-                    sql = @"select SystemId AS EmployeeSystemId,EmployeeName,EmployeeCode AS Code, 0 WorkingDate, 0 OTHr from dbo.EmployeeInformation 
-                            where EmployeeCode in (" + empcodedetails + ") and GroupID='" + identity.CompanyGroupId + @"' And PlantId='" + PlantId + @"' ";
+                    //sql = @"select SystemId AS EmployeeSystemId,EmployeeName,EmployeeCode AS Code, 0 WorkingDate, 0 OTHr from dbo.EmployeeInformation 
+                    //        where EmployeeCode in (" + empcodedetails + ") and GroupID='" + identity.CompanyGroupId + @"' And PlantId='" + PlantId + @"' ";
+
+                    sql = @"select emp.SystemId AS EmployeeSystemId,emp.EmployeeName,emp.EmployeeCode AS Code, 0 OTHr, FORMAT(apd.WorkDate,'dd-MMM-yyyy') as APDEmpWorkDate
+                            from dbo.EmployeeInformation emp
+                            left join AttdnProcessData apd on apd.EmpSystemID=emp.SystemId
+                            where emp.EmployeeCode in (" + empcodedetails + ") and emp.GroupID='" + identity.CompanyGroupId + @"' And emp.PlantId='" + PlantId + @"'
+                             and apd.WorkDate IN ("+ empworkdates + ")";
 
                 }
 
@@ -348,15 +354,17 @@ namespace Aplos.Areas.Attendances.Controllers
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 var empdetails = "' '";
                 var empworkingdates = "''";
+                var empcode = "''";
                 foreach (var empitem in SaveMultipleEmpOTExcel)
                 {
                     empdetails += ",'" + empitem.EmployeeSystemId + "' ";
-                    empworkingdates += ",'" + empitem.WorkingDate + "' ";
+                    empworkingdates += ",'" + empitem.APDEmpWorkDate + "' ";
+               //     empcode += ",'" + empitem.EmployeeCode + "' ";
                 }
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmpSystemId IN ( " + empdetails + " ) and WorkDate IN ("+ empworkingdates + ")  ", out EmpExistOrNot, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmpSystemId IN ( " + empdetails + " ) and WorkDate IN (" + empworkingdates + ")  ", out EmpExistOrNot, false, "1");
                 con.OpenDataSetThroughAdapter("select * from AttdnProcessData where EmpSystemId IN ( " + empdetails + " ) and WorkDate IN (" + empworkingdates + ") ", out EmpExistInAttProData, false, "1");
 
-             //   con.OpenDataSetThroughAdapter("select apd.EmpSystemID,apd.WorkDate,apd.DayStatus, dt.Category from AttdnProcessData apd left join DayType dt on apd.DayStatus=dt.DayType where apd.EmpSystemID IN ( " + empdetails + " ) and apd.WorkDate IN (" + empworkingdates + ") ", out EmpDayStatus, false, "1");
+                //   con.OpenDataSetThroughAdapter("select apd.EmpSystemID,apd.WorkDate,apd.DayStatus, dt.Category from AttdnProcessData apd left join DayType dt on apd.DayStatus=dt.DayType where apd.EmpSystemID IN ( " + empdetails + " ) and apd.WorkDate IN (" + empworkingdates + ") ", out EmpDayStatus, false, "1");
 
                 string EmpYear = Convert.ToDateTime(data["FromDate"]).ToString("yyyy");
                 string EmpMonth = Convert.ToDateTime(data["FromDate"]).ToString("MM");
@@ -381,7 +389,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                         //    {
 
-                        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.WorkingDate + "' ";
+                        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' ";
 
                         if (EmpExistInAttProData.Tables[0].DefaultView.Count != 0)
                                 {
@@ -406,8 +414,9 @@ namespace Aplos.Areas.Attendances.Controllers
                                 }
                                 else
                                 {
-                                    EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemId ='" + item.EmployeeSystemId + "' and WorkDate='" + item.WorkingDate + "' ";
-                                    if (EmpExistOrNot.Tables[0].DefaultView.Count > 0)
+                               EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemId ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' ";
+
+                            if (EmpExistOrNot.Tables[0].DefaultView.Count > 0)
                                     {
 
                                         //edit
@@ -415,10 +424,10 @@ namespace Aplos.Areas.Attendances.Controllers
 
                                         drr.BeginEdit();
 
-                                        drr["WorkDate"] = item.WorkingDate;
+                                        drr["WorkDate"] = item.APDEmpWorkDate;
 
                                         drr["OThour"] = item.OTHr;
-                                        drr["EmpSystemId"] = item.EmployeeSystemId;
+                                       drr["EmpSystemId"] = item.EmployeeSystemId;
 
                                         drr["Remarks"] = data["Remarks"];
                                         drr["IsConfirmed"] = data["IsConfirmed"];
@@ -439,7 +448,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                         DataRow dr = EmpExistOrNot.Tables[0].NewRow();
                                         dr["Id"] = "OT" + GetOTPK();
 
-                                        dr["WorkDate"] = item.WorkingDate;
+                                        dr["WorkDate"] = item.APDEmpWorkDate;
 
                                         dr["OThour"] = item.OTHr;
                                         dr["EmpSystemId"] = item.EmployeeSystemId;
@@ -569,11 +578,13 @@ public class OTfromAppNew : BaseModel
     public string EmployeeSystemId { get; set; }
     public string EmployeeName { get; set; }
     public string Code { get; set; }
+    public string EmployeeCode { get; set; }
 
     public string APDInTime { get; set; }
     public string APDOutTime { get; set; }
 
     public string OTHr { get; set; }
+    public string OTHour { get; set; }
     public string WorkingDate { get; set; }
 
     public string APDEmpWorkDate { get; set; }
