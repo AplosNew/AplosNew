@@ -353,7 +353,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "12";
+                sheet1.Range[xlsRow, isl].Text = "9";
                 sheet1.Range[xlsRow, iReportName].Text = "Salary Structure Not Approve";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -364,18 +364,18 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "13";
+                sheet1.Range[xlsRow, isl].Text = "10";
                 sheet1.Range[xlsRow, iReportName].Text = "OT Not Confirm";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetOtNotConfirmOverstayReport(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsOtNotConfirmOverstayReport);
+                    app.GetOtNotConfirmOverstayReport(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsOtNotConfirmOverstayReport);
                     dtOtNotConfirmOverstay = dsOtNotConfirmOverstayReport.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtOtNotConfirmOverstay.Rows.Count;
                 }
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "14";
+                sheet1.Range[xlsRow, isl].Text = "11";
                 sheet1.Range[xlsRow, iReportName].Text = "Long Absenteeism";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -386,7 +386,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "15";
+                sheet1.Range[xlsRow, isl].Text = "12";
                 sheet1.Range[xlsRow, iReportName].Text = "TBS";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -397,7 +397,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "16";
+                sheet1.Range[xlsRow, isl].Text = "13";
                 sheet1.Range[xlsRow, iReportName].Text = "Maternity Leave";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -408,7 +408,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "17";
+                sheet1.Range[xlsRow, isl].Text = "14";
                 sheet1.Range[xlsRow, iReportName].Text = "Bank Remark";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -419,7 +419,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "18";
+                sheet1.Range[xlsRow, isl].Text = "15";
                 sheet1.Range[xlsRow, iReportName].Text = "Separation With Absent";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -430,28 +430,28 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "19";
-                sheet1.Range[xlsRow, iReportName].Text = "Attendance Not Lock";
-                for (int i = 0; i < dvPlant.Count; i++)
-                {
-                    string[] AttendanceNotLockPlant = obj.GetUnLockDateList(dvPlant[i]["Id"].ToString(), workDate);
+                //sheet1.Range[xlsRow, isl].Text = "16";
+                //sheet1.Range[xlsRow, iReportName].Text = "Attendance Not Lock";
+                //for (int i = 0; i < dvPlant.Count; i++)
+                //{
+                //    string[] AttendanceNotLockPlant = obj.GetUnLockDateList(dvPlant[i]["Id"].ToString(), workDate);
 
-                    int cc = 0;
-                    foreach (var item in AttendanceNotLockPlant)
-                    {
-                        if (!string.IsNullOrEmpty(item))
-                        {
-                            cc++;
-                        }
-                    }
-                    obj.GetAttendanceNotLockIndividual(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsAttendanceNotLock);
-                    dtAttendanceNotLock = dsAttendanceNotLock.Tables[0];
-                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = cc + dtAttendanceNotLock.Rows.Count;
-                }
-                sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
-                xlsRow++;
+                //    int cc = 0;
+                //    foreach (var item in AttendanceNotLockPlant)
+                //    {
+                //        if (!string.IsNullOrEmpty(item))
+                //        {
+                //            cc++;
+                //        }
+                //    }
+                //     obj.GetAttendanceNotLockIndividual(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsAttendanceNotLock);
+                //    //dtAttendanceNotLock = dsAttendanceNotLock.Tables[0];
+                //    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = cc; //+ dtAttendanceNotLock.Rows.Count;
+                //}
+                //sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
+                //xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "20";
+                sheet1.Range[xlsRow, isl].Text = "16";
                 sheet1.Range[xlsRow, iReportName].Text = "NotIn LegalDesignation Master";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -462,7 +462,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "21";
+                sheet1.Range[xlsRow, isl].Text = "17";
                 sheet1.Range[xlsRow, iReportName].Text = "Salary Not Approved";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -473,7 +473,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "22";
+                sheet1.Range[xlsRow, isl].Text = "18";
                 sheet1.Range[xlsRow, iReportName].Text = "Offday Missing Punch";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -484,7 +484,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                sheet1.Range[xlsRow, isl].Text = "23";
+                sheet1.Range[xlsRow, isl].Text = "19";
                 sheet1.Range[xlsRow, iReportName].Text = "Offday With Punch";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -495,18 +495,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
 
-                //sheet1.Range[xlsRow, isl].Text = "24";
-                //sheet1.Range[xlsRow, iReportName].Text = "Absent With Wrong Shift";
-                //for (int i = 0; i < dvPlant.Count; i++)
-                //{
-                //    obj.GetAbsentWithRawPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsAbsentWithRawPunch);
-                //    dtAbsentWithRawPunch = dsAbsentWithRawPunch.Tables[0];
-                //    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtAbsentWithRawPunch.Rows.Count;
-                //}
-                //sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
-                //xlsRow++;
-
-                sheet1.Range[xlsRow, isl].Text = "25";
+                sheet1.Range[xlsRow, isl].Text = "20";
                 sheet1.Range[xlsRow, iReportName].Text = "Shift Not Assign";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
@@ -524,20 +513,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 xlsRow += 1;
                 #endregion ------------------Column Header------------------
 
-                #region Line Setup
-                //sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderInside(ExcelLineStyle.Hair);
-                //sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderAround(ExcelLineStyle.Hair);
-                //sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].WrapText = true;
-                #endregion
-
-                #region UsedRange Alignment
-                //sheet1.UsedRange.WrapText = true;
-                //sheet1.UsedRange.CellStyle.Font.Size = 8;
-                //sheet1.Range["A1"].CellStyle.Font.Size = 14;
-                //sheet1.Range["A2"].CellStyle.Font.Size = 10;
-                //sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
-                #endregion UsedRange Alignment
-
+                
                 #region ******************Report Header******************
                 try
                 {
@@ -604,7 +580,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 26;
                 sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
 
 
 
@@ -616,10 +592,10 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
                 sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, 3].Text = "Report Process Date and Time " + System.DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss tt");
+                sheet1.Range[xlsRow, 3].Text = "Report Process Date and Time " + DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss tt");
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;

@@ -156,6 +156,18 @@ namespace Library.OrderManagement.Production
         }
 
 
+        public IEnumerable<object> getLocations()
+        {
+            try
+            {
+                var str = @"Select  distinct ToLocation as text, ToStorageLocId as value from mst.MaterialMovementMaster";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
         public IEnumerable<object> getPackingList()
         {
             try
@@ -652,7 +664,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetData(string ToDate, string FromDate, string type, string group, string column, string value)
+        public IEnumerable<object> GetData(string ToDate, string FromDate, string type, string group, string column, string value, string Loc)
         {
             try
             {
@@ -694,6 +706,16 @@ namespace Library.OrderManagement.Production
                     stocks = "1=1";
                 }
 
+                string loc = "";
+                if(Loc == "All")
+                {
+                    loc = "";
+                }
+                else
+                {
+                    loc = "where mmv.ToStorageLocId = '" + Loc + "'";
+                }
+
                 var _sql = @"Select * from 
 (Select (Case when Sos.SoQty is null or Scan.Available is null then 'Unassigned' else 'Assigned' end) as Assigned
 ,(Case when Scan.PC is null then sos.Code else scan.PC end) as ProductCode ,
@@ -701,11 +723,12 @@ namespace Library.OrderManagement.Production
 , Sos.*
 from 
 (
-Select distinct sc.ProductCode as PC , sc.POId , sc.LotNo , isnull(plann.PlanQty,0) as PlannedQty , StockQty.StockQty , isnull(desp.Despatch,0) as Despatch , isnull(bb.BookQty,0) as BookedQty,
+Select distinct sc.ProductCode as PC , sc.POId , sc.LotNo , isnull(plann.PlanQty,0) as PlannedQty , isnull(StockQty.StockQty,0) as StockQty , isnull(desp.Despatch,0) as Despatch , isnull(bb.BookQty,0) as BookedQty,
 (Case when bb.BookQty >plann.PlanQty then (StockQty.StockQty - isnull(bb.BookQty,0)) else (StockQty.StockQty - isnull(plann.PlanQty,0)) end) as Available,
 isnull(ud.ud,0) as ud , isnull(fd.fd,0) as fd , isnull(fp.fp,0) as fp
 from
 dbo.ItemScanChild sc
+left join mst.MaterialMovementMaster mmv on mmv.Id = sc.LocMasterId
 left join trn.POLotReference pol  on pol.Id = sc.PackingId
 left join(
 Select isc.ProductCode , isc.POId , isc.LotNo ,sum(isc.NetWeight) as StockQty from
@@ -753,6 +776,7 @@ left join dbo.ItemScan isch on isch.Id = isc.MasterId
 where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
 group by isc.POId, isc.ProductCode , isc.LotNo
 ) as fp on fp.ProductCode = sc.ProductCode and fp.POId = sc.POId and fp.LotNo = sc.LotNo
+"+loc+@"
 group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty , ud.ud ,fd.fd, fp.fp
 
 ) as Scan
@@ -837,10 +861,11 @@ order by  Assigned, ProductCode , PO
         {
             try
             {
-                var str = @"Select pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks , sum(sc.NetWeight) as BookQty from trn.POLotReference pol 
-left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-                            where PackingLineItemId = '" + PackingLineItemId + @"'
-							group by pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks";
+                var str = @"Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks, isnull(bk.booked,0) as BookQty from trn.POLotReference pol 
+							left join
+							(Select sum(NetWeight) as booked , PackingId from dbo.ItemScanChild where Booked = 1 
+							group by PackingId) as bk on bk.PackingId = pol.Id
+                            where PackingLineItemId = '"+PackingLineItemId+@"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -957,7 +982,7 @@ left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
             }
         }
 
-        public DataTable GetStockData(string ToDate, string FromDate, string type, string group, string column, string value)
+        public DataTable GetStockData(string ToDate, string FromDate, string type, string group, string column, string value , string Loc)
         {
             try
             {
@@ -999,6 +1024,17 @@ left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
                     stocks = "1=1";
                 }
 
+                string loc = "";
+                if (Loc == "All")
+                {
+                    loc = "";
+                }
+                else
+                {
+                    loc = "where mmv.ToStorageLocId = '" + Loc + "'";
+                }
+
+
                 var _sql = @"Select distinct * from 
                     (Select (Case when Sos.SoQty is null or Scan.Available is null then 'Unassigned' else 'Assigned' end) as Assigned
                     ,(Case when Scan.PC is null then sos.Code else scan.PC end) as ProductCode ,
@@ -1010,6 +1046,7 @@ left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
 					,isnull(ntw.NetWeight,0) as StockQty , crt.Refs as Cartons
                     from
                     dbo.ItemScanChild sc
+                    left join mst.MaterialMovementMaster mmv on mmv.Id = sc.LocMasterId
                     left join trn.POLotReference pol  on pol.Id = sc.PackingId
                     left join (
                     Select isc.ProductCode , isc.POId ,isc.LotNo, isnull(sum(isc.NetWeight),0) as BookQty from
@@ -1028,6 +1065,7 @@ left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
                     dbo.ItemScanChild isc 
                     group by ProductCode , POId , LotNo
                     ) as crt on  crt.ProductCode = sc.ProductCode and crt.LotNo = sc.LotNo and crt.POId=sc.POId
+                    " + loc + @"
                     --group by sc.ProductCode , sc.POId, sc.LotNo ,desp.Despatch,bb.BookQty
 
                     ) as Scan
