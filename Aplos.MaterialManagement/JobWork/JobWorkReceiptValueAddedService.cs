@@ -1301,9 +1301,10 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"select JobWorkTransformationContractChildMasterId,ArticleId from dbo.JobWorkTransformationContractChild3 
-                                where JobWorkTransformationContractChildMasterId='"+ JWOutputId + @"'
-                                group by ArticleId,JobWorkTransformationContractChildMasterId";
+                string sql = @"select JobWorkTransformationContractChildMasterId,ArticleId,JobWorkItemId 
+                                from dbo.JobWorkTransformationContractChild3 
+                                where JobWorkTransformationContractChildMasterId='" + JWOutputId + @"'
+                                group by ArticleId,JobWorkTransformationContractChildMasterId,JobWorkItemId ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1327,14 +1328,15 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 
                 string sql = @"select distinct IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,mi.ArticleId
                                 ,mi.GrossConsumption,AA.TotalIssuedQuantity,QtyForOutput=round((AA.TotalIssuedQuantity/mi.GrossConsumption),4)
+                                 ,IID.JWTCInputId
                                 from TRN.InventoryIssueDetail IID inner join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=IID.JWTCMID
                                 inner join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
                                 inner join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId and IM.ArticleId=mi.ArticleId
                                 left join (Select SUM(TransactionQty) as TotalIssuedQuantity,InventoryMaterialId from TRN.InventoryIssueDetail 
-                                where JWTCMID='"+ JWOutputId + @"' group by InventoryMaterialId)
+                                where JWTCMID='" + JWOutputId + @"' group by InventoryMaterialId)
                                 AA on AA.InventoryMaterialId=IM.Id
                                 where IID.JWTCMID='"+ JWOutputId + @"' and II.JWContractId='"+ JWPOId + @"' 
-                                group by IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,mi.ArticleId,mi.GrossConsumption,AA.TotalIssuedQuantity ";
+                                group by IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,mi.ArticleId,mi.GrossConsumption,AA.TotalIssuedQuantity,IID.JWTCInputId ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }

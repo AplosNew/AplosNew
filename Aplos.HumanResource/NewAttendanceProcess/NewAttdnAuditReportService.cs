@@ -8827,7 +8827,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         ";
                 strSql += tableName();
                 strSql += @"WHERE  
-
+                            AP.DAYSTATUS='A' AND
                         	AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
                            and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
                                --and ISNULL(rd.LogDownLoadNum,'')=''

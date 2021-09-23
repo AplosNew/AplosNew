@@ -145,6 +145,20 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		location.href = "Products/InventoryIssue/IssueReport?grnId=" + data.Id;
 
 	};
+
+	$scope.ConfirmIssueReportPrint = function (data) {
+		try {
+	//		$scope.PrintTabId = data.JWContractId;
+			$scope.IssueId = data.Id;
+			var reportFormat = "Excel";
+			window.open('JobWork/JobWorkIssueReturn/GetIIPrintReport?reportFormat=' + reportFormat + '&IssueId=' + $scope.IssueId, '_blank');
+
+		} catch (e) {
+
+		}
+	};
+
+
 	//$scope.SavePOPUpConfirm = function () {
 	//    $scope.message_confirmation = "Are you sure want to do Auto Issue?";
 	//    angular.element(document.querySelector('#confirmSavePopUp')).modal('show');
