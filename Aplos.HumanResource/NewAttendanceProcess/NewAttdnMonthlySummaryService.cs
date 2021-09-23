@@ -1362,7 +1362,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
                              where
 							  (E.DOS IS NULL  OR E.DOS >= '"+objm.FDate+@"') 
-									AND E.DOJ <= '"+objm.TDate+@"' and e.PlantId='"+objm.PlantId+"'";
+									AND E.DOJ <= '"+objm.TDate+"'";
 
                
                 if (objm.UnitId != "ALL")
