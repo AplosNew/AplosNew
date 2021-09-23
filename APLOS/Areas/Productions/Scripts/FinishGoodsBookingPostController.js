@@ -76,6 +76,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         , EmployeeId: null
         , EmployeeCode: null
         , EmployeeName: null
+        , InvoiceReceiveId: null
 
         , PartyId: null
         , PartyPlantId: null
@@ -159,6 +160,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         $scope.modelNew = data.data;
         $scope.modelNew.VoucherTypeId = voucherTypeId;
         $scope.modelNew.DocRefNo = data.data.Id;
+        $scope.modelNew.InvoiceReceiveId = data.data.InvoiceReceiveId;
         $scope.TotalPayableAmount = 0;
         $scope.getCboVoucherType();
 
