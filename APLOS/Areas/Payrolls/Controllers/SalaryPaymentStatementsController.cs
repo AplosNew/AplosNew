@@ -677,8 +677,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         // Edit For Getting the Salary Slips using Employee Code and Company Wise
         [HttpPost, Authorize]
-        public ActionResult GetSalaryPaymentStatementEmpType(string month, string year, string paymentMode, string bankId, string letterDate, string chequeNo, bool isActive, bool isSeperated, bool isMaternity, bool isCSV, string empTypeId)
-
+        public ActionResult GetSalaryPaymentStatementEmpType(string month, string year, string paymentMode, string bankId, string letterDate, string chequeNo, bool isActive, bool isSeperated, bool isMaternity, bool isCSV, string empTypeId,string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -707,10 +706,15 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var today = DateTime.Now.Date;
                 string fileName = "";
                 #region DataSet
+                string Plant = string.Empty;
+                string empTypeIds = string.Empty;
+
+                Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+                empTypeIds = "'" + empTypeId.Replace(",", "','") + "'";//replaced with ""
 
                 var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt32(month));//Month Name from Month No
 
-                objRpt.GetEmployeeSalaryBankAccountStatementEmpType(out dtEmpInfo, paymentMode, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, bankId, "", Convert.ToInt32(month), year, isActive, isSeperated, isMaternity, empTypeId);
+                objRpt.GetEmployeeSalaryBankAccountStatementEmpType(out dtEmpInfo, paymentMode, identity.CompanyGroupId, identity.CompanyId, Plant, bankId, "", Convert.ToInt32(month), year, isActive, isSeperated, isMaternity, empTypeIds);
 
 
 

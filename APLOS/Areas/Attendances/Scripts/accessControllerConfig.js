@@ -69,6 +69,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AttendanceProcessUI/MonthlyAttendanceInformation',
             controller: 'monthlyAttendanceInformationController'
         })
+        .when('/monthly-attendance-information-new', {
+            templateUrl: 'Attendances/MonthlyAttendanceInformationNew/Aplos',
+            controller: 'MonthlyAttendanceInformationNewController'
+        })
         .when('/monthly-attendance-information-all', {
             templateUrl: 'Attendances/AttendanceProcessUI/MonthlyAttendanceInformationALLStatus',
             controller: 'monthlyAttendanceInformationController'
