@@ -104,19 +104,26 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
                             $scope.ProductionOrderList = response.data;
 
                             for (var i = 0; i < $scope.ProductionOrderList.length; i++) {
-                                for (var j = 0; j < $scope.ProductionOrderList[i].Charactaristics.length; j++) {
-                                    if ($scope.ProductionOrderList[i].Charactaristics[j].Value == null && $scope.ProductionOrderList[i].Charactaristics[j].Text == null) {
-                                        $scope.ProductionOrderList[i].IsDisable = true;
-                                    }
+                                if (!baseService.isUndefinedOrNull($scope.ProductionOrderList[i].Charactaristics)) {
 
-                                    else if ($scope.ProductionOrderList[i].Charactaristics[j].Value == "Both" && $scope.ProductionOrderList[i].Charactaristics[j].Text == "Both") {
-                                        $scope.ProductionOrderList[i].IsDisable = true;
-                                        $scope.ProductionOrderList[i].SKUId = $scope.ProductionOrderList[i].Charactaristics[j].Value;
+                                    for (var j = 0; j < $scope.ProductionOrderList[i].Charactaristics.length; j++) {
+                                        //if ($scope.ProductionOrderList[i].Charactaristics[j].Value == null && $scope.ProductionOrderList[i].Charactaristics[j].Text == null) {
+                                        //    $scope.ProductionOrderList[i].IsDisable = true;
+                                        //}
+
+                                        //else 
+                                        if ($scope.ProductionOrderList[i].Charactaristics[j].Value == "Both" && $scope.ProductionOrderList[i].Charactaristics[j].Text == "Both") {
+                                            $scope.ProductionOrderList[i].IsDisable = true;
+                                            $scope.ProductionOrderList[i].SKUId = $scope.ProductionOrderList[i].Charactaristics[j].Value;
+                                        }
+                                        else {
+                                            $scope.ProductionOrderList[i].IsDisable = true;
+                                            $scope.ProductionOrderList[i].SKUId = $scope.ProductionOrderList[i].Charactaristics[j].Value;
+                                        }
                                     }
-                                    else {
-                                        $scope.ProductionOrderList[i].IsDisable = true;
-                                        $scope.ProductionOrderList[i].SKUId = $scope.ProductionOrderList[i].Charactaristics[j].Value;
-                                    }
+                                }
+                                else {
+                                    $scope.ProductionOrderList[i].IsDisable = true;
                                 }
                             }
 
@@ -140,9 +147,11 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
             $scope.modelNew.SelectedDropDownValue = $scope.SelectedProductionOrder.SKUId;
             $scope.modelNew.Id = $scope.SelectedProductionOrder.Id;
 
-            for (var i = 0; i < row.Charactaristics.length; i++) {
-                if ($scope.SelectedProductionOrder.SKUId == row.Charactaristics[i].Value) {
-                    $scope.SelectedProductionOrder.Sequence = row.Charactaristics[i].Sequence;
+            if (!baseService.isUndefinedOrNull(row.Charactaristics)) {
+                for (var i = 0; i < row.Charactaristics.length; i++) {
+                    if ($scope.SelectedProductionOrder.SKUId == row.Charactaristics[i].Value) {
+                        $scope.SelectedProductionOrder.Sequence = row.Charactaristics[i].Sequence;
+                    }
                 }
             }
 
