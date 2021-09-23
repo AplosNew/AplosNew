@@ -211,50 +211,6 @@ function MonthlyAttendanceInformationNewController(commonMessage, $scope, $rootS
         }
     };
 
-    $scope.GetMonthlyAttendanceSummaryReportALL = function (reportType) {
-        try {
-            empParameters = [];
-            var gridObj = $("#empInfoGrid").ejGrid("instance");
-            var filteredRecords = gridObj.getFilteredRecords();
-
-            if ($scope.isManualFilter == true) {
-                if (filteredRecords.length == 0) {
-                    filteredRecords = $scope.EmployeeListTemp;
-
-                }
-            }
-            if (angular.isUndefinedOrNull(filteredRecords) === false) {
-                if (filteredRecords.length > 0) {
-                    empParameters = [];
-                    empParameters.push({ "Key": "EmpSystemId", "Value": getString(filteredRecords, "EmpSystemId") });
-                }
-            }
-            if (empParameters.length === 0) {
-                empParameters.push({ "Key": "", "Value": "" });
-
-            }
-            $http({
-                method: 'POST',
-                url: $scope.path + '/XlsDepWiseAttnRpt',
-                data: {
-                    'Month': $scope.month, 'Year': $scope.year, 'DayStatus': 'ALLSTATUS', 'empParameters': empParameters, 'withColor': $scope.withColor, 'includeCurrentDate': $scope.includeCurrentDate, 'withSummary': $scope.withSummary
-                    , 'isActive': $scope.isActive, 'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity
-                }
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    if (reportType === 'EXCEL') {
-                        $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                    }
-                }
-            });
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
     $scope.EmployeeList = [];
     $scope.EmployeeListDefault = [];
     $scope.EmployeeListTemp = [];
