@@ -94,13 +94,17 @@
                                      e-allowselection="false" e-filtersettings-filterType="excel">
                                     <div e-columns>
                                         <div e-column e-type="string" e-field="Code" e-headertext="Employee Code" e-width="30"></div>
+                                        @*<div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="30"></div>*@
                                         <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="30"></div>
                                         @*<div e-column e-type="string" e-field="APDInTime" e-headertext="In Time" e-width="15"></div>
-                                          <div e-column e-type="string" e-field="APDOutTime" e-headertext="Out Time" e-width="15"></div>*@
+        <div e-column e-type="string" e-field="APDOutTime" e-headertext="Out Time" e-width="15"></div>*@
                                         <div e-column e-type="string" e-field="OTHr" e-headertext="OT Hour" e-width="15"></div>
-                                        <div e-column e-type="string" e-field="WorkingDate" e-headertext="Work Date" e-width="25"></div>
+                                        @*<div e-column e-type="string" e-field="OTHour" e-headertext="OT Hour" e-width="15"></div>*@
+                                        @*<div e-column e-type="string" e-field="WorkingDate" e-headertext="Work Date" e-width="25"></div>*@
+                                        <div e-column e-type="string" e-field="APDEmpWorkDate" e-headertext="Work Date" e-width="25"></div>
+
                                         @*<div e-column e-type="string" e-field="ManualOT" e-headertext="Manual OT" e-width="15"></div>
-                                          <div e-column e-type="string" e-field="APDEmpWorkDate" e-headertext="Work Date" e-width="25"></div>*@
+        <div e-column e-type="string" e-field="APDEmpWorkDate" e-headertext="Work Date" e-width="25"></div>*@
 
                                         <div e-column e-template="#RemoveEMPData" e-headertext="Remove" e-width="30"></div>
 

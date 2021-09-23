@@ -319,6 +319,8 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 
                 string voucherNo = "";
+                string TC = "";
+                string Particulars = "";
                 string voucherNocomp = "";
                 string taxFitler = "";
                 string Percentage = "";
@@ -334,38 +336,51 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                 perStartRow = xlsRow;
                 bool isFirst = true;
 
-                string Particulars = "";
+                string Particularstemp = "";
                 for (int i = 0; i < dtRCMPayable.Rows.Count; i++)
                 {
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
                     {
-                       
-                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper();
+                        TC= dtRCMPayable.Rows[i]["TaxCode"].ToString();
+                        Particularstemp = dtRCMPayable.Rows[i]["Particular"].ToString();
+                         voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + Particularstemp ;
                         taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "'";
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL")
                     {
-                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                        TC = dtRCMPayable.Rows[i]["TaxCode"].ToString();
+
+                        Particularstemp = dtRCMPayable.Rows[i]["Particular"].ToString();
+
+                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + Particularstemp ;
 
                         taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and InventoryReceiveDetailId = '" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + "'";
 
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SERVICE")
                     {
-                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper();
+                        TC = dtRCMPayable.Rows[i]["TaxCode"].ToString();
+
+                        Particularstemp = dtRCMPayable.Rows[i]["Particular"].ToString();
+
+                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + Particularstemp;
                         taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and InventoryServiceId = '" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + "'";
 
                     }
 
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SALES")
                     {
-                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper();
+                        TC = dtRCMPayable.Rows[i]["TaxCode"].ToString();
+
+                        Particularstemp = dtRCMPayable.Rows[i]["Particular"].ToString();
+
+                        voucherNocomp = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + Particularstemp;
                         taxFitler = " and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "' and LineItemType = '" + dtRCMPayable.Rows[i]["LineItemType"].ToString() + "' and InventoryReceiveDetailId = '" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + "'";
 
                     }
 
 
-                    if (voucherNo != voucherNocomp )
+                    if (voucherNo != voucherNocomp)
                     {
 
                         if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
@@ -434,18 +449,23 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
                         sheet1.Range[xlsRow, iTaxableAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["TaxableAmount"].ToString());//TaxableAmount
                         sheet1.Range[xlsRow, iTaxableAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                         dtRCMPayable.DefaultView.RowFilter = "VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "'";
-
                         if (dtTaxCode.Rows.Count > 0)
                         {
                             for (int j = 0; j < dtTaxCode.Rows.Count; j++)
                             {
                                 dtRCMPayable.DefaultView.RowFilter = "TaxCode = '" + dtTaxCode.Rows[j]["TaxCode"].ToString() + "'" + taxFitler;
 
+                                for (int AKA = 0; AKA < dtRCMPayable.DefaultView.Count; AKA++)
+                                {
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Number = clsStaticInfo.dbl(dtRCMPayable.DefaultView[AKA]["CrAmount"].ToString());
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                                    xlsRow++;
+                                }
                                 if (dtRCMPayable.DefaultView.Count > 0)
                                 {
-
                                     sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Number = clsStaticInfo.dbl(dtRCMPayable.DefaultView[0]["CrAmount"].ToString());
                                     sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                                 
                                 }
                                 else
                                 {
@@ -467,19 +487,19 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
 
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
                     {
-                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper();
+                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + Particularstemp;
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL")
                     {
-                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + Particularstemp;
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SERVICE")
                     {
-                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper();
+                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryServiceId"].ToString().ToUpper() + Particularstemp;
                     }
                     if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "SALES")
                     {
-                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper();
+                        voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "-" + dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() + "-" + dtRCMPayable.Rows[i]["InventoryReceiveDetailId"].ToString().ToUpper() + Particularstemp;
                     }
 
 
@@ -1375,7 +1395,7 @@ and (Year(TYP.StartDate) between Year('"+ fromDate.ToDbDate() + "') and Year('"+
 		                GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
                 where TAXC.IsRCM=1 AND V.PostingDate between '" + fromDate + "' AND '" + toDate + @"' and V.PlantId = '" + plantId + @"' and V.IsPark=0
-                AND v.SourceType IN ('CustomerInvoice','CustomerReceipt')
+                AND v.SourceType IN ('CustomerInvoice','CustomerReceipt') 
 
 				UNION ALL
 
