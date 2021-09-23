@@ -559,6 +559,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["UpdatedBy"] = identity.Name;
                                 dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
                                 dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
+                                dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
                             }
                             dsMaster.Tables[0].DefaultView[0]["InTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
                             dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
@@ -573,6 +575,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["UpdatedBy"] = identity.Name;
                                 dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
                                 dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
+                                dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
                             }
                             dsMaster.Tables[0].DefaultView[0]["OutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
                             dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
@@ -587,6 +591,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["UpdatedBy"] = identity.Name;
                                 dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
                                 dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
+                                dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
                             }
                             dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"] = data[i]["ShiftSystemID"].ToString();
                         }
@@ -600,6 +606,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["UpdatedBy"] = identity.Name;
                                 dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
                                 dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
+                                dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
                             }
                             dsMaster.Tables[0].DefaultView[0]["DayStatus"] = data[i]["DayStatus"].ToString();
                             dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"] = data[i]["DayStatus"].ToString();
