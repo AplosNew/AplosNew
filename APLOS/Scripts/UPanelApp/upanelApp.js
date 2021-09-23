@@ -586,6 +586,7 @@ var upanelApp = angular
     .controller('maternityBenefitController', maternityBenefitController)
     .controller('maternityLeaveReportController', maternityLeaveReportController)
     .controller('monthlyAttendanceInformationController', monthlyAttendanceInformationController)
+    .controller('MonthlyAttendanceInformationNewController', MonthlyAttendanceInformationNewController)
     .controller('multipleIdCardController', multipleIdCardController)
     .controller('MultipleLeaveEncashmentController', MultipleLeaveEncashmentController)
     .controller('nationalFestivalController', nationalFestivalController)

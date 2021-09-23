@@ -378,6 +378,7 @@
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\MonthlyAttendanceInformationNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataFromAppController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceDashboardController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AuditReportSummaryNewController.cs" />
@@ -1597,6 +1598,7 @@
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummaryNewController.js" />
+    <Content Include="Areas\Attendances\Scripts\MonthlyAttendanceInformationNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessPlantWiseController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\PayrollManagementDashboardController.js" />
@@ -3696,6 +3698,7 @@
     <Content Include="Areas\Accounts\Views\EntityWiseExpenseAndEarning.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttendanceProcessAuditReport\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\AuditReportSummaryNew\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
