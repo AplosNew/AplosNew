@@ -142,7 +142,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 Dictionary<string, List<DataRow>> dicExtraAbsent = new Dictionary<string, List<DataRow>>();
 
 
-                objRpt.GetMonthlyAttnSummaryRptForDetails(objm, empParameters, out dsMonthlyAttnSumm, isActive, isSeperated, isMaternity);
+                GetMonthlyAttnSummaryRptForDetails(objm, empParameters, out dsMonthlyAttnSumm, isActive, isSeperated, isMaternity);
                 dvMonthlyAttnSumm = new DataView();
                 dvMonthlyAttnSumm.Table = dsMonthlyAttnSumm.Tables[0];
 
@@ -234,7 +234,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     IStyle baseStyle = workbook.Styles.Add("BaseStyle");
                     baseStyle.Font.Color = ExcelKnownColors.Black;
-                    baseStyle.Color = System.Drawing.Color.White;
+                    baseStyle.Color = Color.White;
                     baseStyle.Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Hair;
                     baseStyle.Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Hair;
                     baseStyle.Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Hair;
@@ -801,11 +801,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                                             {
                                                 if (_day_status == "P")
                                                 {
-                                                    isShortLeaveStyle.Color = System.Drawing.Color.Green;
+                                                    isShortLeaveStyle.Color = Color.Green;
                                                 }
                                                 if (_day_status == "L" || _day_status == "LVL" || _day_status == "WL" || _day_status == "HL")
                                                 {
-                                                    isShortLeaveStyle.Color = System.Drawing.Color.Blue;
+                                                    isShortLeaveStyle.Color = Color.Blue;
                                                 }
                                                 if (IsManual && !_day_status.Contains("LV"))
                                                 {
@@ -852,9 +852,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.Range[xlsRow, iTtlAPD].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
-                            var DaysInaMonth = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim());
-                            var TotalAbsent = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim());
-                            var TotalLWP = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim());
+                          //  var DaysInaMonth = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim());
+                            var TotalAbsent = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim());
+                            var TotalLWP = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim());
                             //var DaysInaMonth = _ExtraAbsent;
 
                             double _pay_days = 0.00;
@@ -870,21 +870,23 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 ExtraAbsentHoliday = clsStaticInfo.dbl(dicExtraAbsentHoliday[_SystemId]);
                             }
 
-                            if (!String.IsNullOrEmpty(dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
-                            {
-                                if (dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
-                                {
-                                    _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentHoliday) + Convert.ToDouble(ExtraAbsentWeekOFF)) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString()) - (Convert.ToDouble(ExtraAbsentHoliday))) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString()) - Convert.ToDouble(ExtraAbsentWeekOFF));
-                                }
-                                if (dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
-                                {
-                                    _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentWeekOFF) + Convert.ToDouble(ExtraAbsentHoliday)) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString()) - Convert.ToDouble(ExtraAbsentWeekOFF));
-                                }
-                            }
-                            else
-                            {
-                                _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentHoliday) + Convert.ToDouble(ExtraAbsentWeekOFF));
-                            }
+                            _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalPayDay"].ToString());
+
+                            //if (!String.IsNullOrEmpty(dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
+                            //{
+                            //    if (dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
+                            //    {
+                            //        _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentHoliday) + Convert.ToDouble(ExtraAbsentWeekOFF)) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString()) - (Convert.ToDouble(ExtraAbsentHoliday))) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString()) - Convert.ToDouble(ExtraAbsentWeekOFF));
+                            //    }
+                            //    if (dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
+                            //    {
+                            //        _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentWeekOFF) + Convert.ToDouble(ExtraAbsentHoliday)) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString()) - Convert.ToDouble(ExtraAbsentWeekOFF));
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentHoliday) + Convert.ToDouble(ExtraAbsentWeekOFF));
+                            //}
 
 
 
@@ -894,32 +896,32 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.Range[xlsRow, cPayDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, cPayDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            sheet1.Range[xlsRow, iTtlHD].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlHD].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString().Trim()));
                             sheet1.Range[xlsRow, iTtlHD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlHD].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
-                            sheet1.Range[xlsRow, iTtlWO].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlWO].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString().Trim()));
                             sheet1.Range[xlsRow, iTtlWO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlWO].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            double _pre = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalPresent"].ToString().Trim()));
-                            double _Late = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
+                            double _pre = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalPresent"].ToString().Trim()));
+                            double _Late = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
 
                             double TPresentAndLate = _pre + _Late;
                             sheet1.Range[xlsRow, iTtlPst].Number = TPresentAndLate;
                             sheet1.Range[xlsRow, iTtlPst].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlPst].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            sheet1.Range[xlsRow, iTtlAbs].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlAbs].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim()));
                             sheet1.Range[xlsRow, iTtlAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            sheet1.Range[xlsRow, iTtlLte].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlLte].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
                             sheet1.Range[xlsRow, iTtlLte].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlLte].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            sheet1.Range[xlsRow, iTtlLWP].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlLWP].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim()));
                             sheet1.Range[xlsRow, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -927,11 +929,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.Range[xlsRow, iExtraAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iExtraAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            sheet1.Range[xlsRow, iTtlLv].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLv"].ToString().Trim())) - Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalMLv"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlLv].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLv"].ToString().Trim())); 
                             sheet1.Range[xlsRow, iTtlLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            sheet1.Range[xlsRow, iTtlMLv].Number = System.Math.Abs(Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalMLv"].ToString().Trim())));
+                            sheet1.Range[xlsRow, iTtlMLv].Number = Math.Abs(Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalMLv"].ToString().Trim())));
                             sheet1.Range[xlsRow, iTtlMLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlMLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -944,16 +946,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.Range[xlsRow, iEarlyOut].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iEarlyOut].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         }
-                        //var sl = dvMonthlyAttnSumm[i]["ShortLeave"].ToString().Trim();
-                        //if (sl == "0")
-                        //{
-                        //    sl = null;
-                        //}
-                        //sheet1.Range[xlsRow, iTsl].Text = sl;
-                        //sheet1.Range[xlsRow, iTsl].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        //sheet1.Range[xlsRow, iTsl].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //}
-
+                      
                         xlsRow += 1;
 
                         #endregion ----------------------Data-----------------------
@@ -1298,6 +1291,149 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
+        public void GetMonthlyAttnSummaryRptForDetails(ParaMontlyAttendance objm, Dictionary<string, string> empParameters, out DataSet dsRef, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+                string wcEmpStatus = " AND (1=0 ";
+
+                if (isActive == true && isSeperated == true && isMaternity == true)
+                {
+                    wcEmpStatus = " AND (1=1 ";
+                }
+                else
+                {
+                    if (isActive == true)
+                    {
+                        wcEmpStatus += " OR (select CASE WHEN MONTH(e.DOS) = MONTH('01-Sep-2021')  AND YEAR(e.DOS) = YEAR('01-Sep-2021') then 'Separated' else 'Regular' end)= 'Regular'";
+
+                        //wcEmpStatus += " OR CurrentMonthEmployeeStatus ='Regular'";
+                    }
+                    if (isSeperated == true)
+                    {
+                        wcEmpStatus += " OR (select CASE WHEN MONTH(e.DOS) = MONTH('01-Sep-2021')  AND YEAR(e.DOS) = YEAR('01-Sep-2021') then 'Separated' else 'Regular' end)= 'Separated'";
+                       // wcEmpStatus += " OR CurrentMonthEmployeeStatus ='Separated'";
+                    }
+                    if (isMaternity == true)
+                    {
+                        wcEmpStatus += " OR (select CASE WHEN MONTH(e.DOS) = MONTH('01-Sep-2021')  AND YEAR(e.DOS) = YEAR('01-Sep-2021') then 'Separated' else 'Regular' end)= 'MLV_PRE'";
+                    }
+                }
+                wcEmpStatus += ")";
+
+                strSql = @"select dd.*,e.EmployeeCode,e.GenderID,E.EmployeeCode,                
+                ISNULL(E.EmployeeCodeNumeric,0) EmployeeCodeNumeric
+									,ISNULL(E.EmployeeCodePreFix,0) EmployeeCodePreFix,E.EmployeeName,
+									REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ, 
+									REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOS, E.EmpType,
+									  ISNULL( Ld.UserName, '') LegalDG, Unit.UserName Unit,
+										   Division.UserName Division, Department.UserName Department,
+                                             ISNULL(EmpC.UserName,'') EmployeeCategory,											
+											 Section.UserName Section, SubSection.UserName SubSection,Line.UserName Line,
+									Month(dd.FromDate)MonthNo,YEAR(dd.FromDate)YearNo,Plant.UserName PlantName from 
+            (select p.EmpSystemID as EmployeePK,REPLACE(CONVERT(VARCHAR(11), MIN(p.WorkDate), 113), ' ', '-') FromDate,   
+               REPLACE(CONVERT(VARCHAR(11), MAX(p.WorkDate), 113), ' ', '-') ToDate,
+                COUNT(p.WorkDate) TotalProcDate,
+                isnull(SUM(P.PresentValue),'0')TotalPresent,isnull(SUM(p.LateValue),'0')TotalLate,isnull(SUM(p.AbsentValue),'0')TotalAbsent
+                ,isnull(SUM(p.LvValue),'0')TotalLv,isnull(SUM(p.MLvValue),'0')TotalMlv,isnull(SUM(p.CompAssignLvValue),'0')TotalCompAssignLv,
+                isnull(SUM(p.WeekOffValue),'0')TotalWeekOff,isnull(SUM(p.HoliDayValue),'0')TotalHoliDay,isnull(SUM(p.WeekOffHoliDayValue),'0')TotalWeekOffHoliDay
+               ,isnull(SUM(p.LWPValue),'0')TotalLWP,isnull(SUM(p.PayDayValue),'0')TotalPayDay
+			            from AttdnProcessData p
+                        where isnull(p.DayStatus,'')!='' and WorkDate between '" + objm.FDate+@"'
+						 and '"+objm.TDate+@"' group BY EmpSystemID) as dd
+						 join EmployeeInformation  e on e.SystemId=dd.EmployeePK	
+                  LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                    LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
+                                    LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                                    LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
+                                    LEFT JOIN [ORG].[Line] ON Line.Id = mpb.LineId
+						            LEFT JOIN [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
+			                        LEFT JOIN [MST].DesignationMasterLegalDesignation LDM ON LDM.LegalDesignationId=E.LegalDesignationId
+			                        LEFT JOIN [MST].DesignationMaster DesM ON DesM.Id = LDM.DesignationMasterId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                                    LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
+                             where
+							  (E.DOS IS NULL  OR E.DOS >= '"+objm.FDate+@"') 
+									AND E.DOJ <= '"+objm.TDate+@"' and e.PlantId='"+objm.PlantId+"'";
+
+               
+                if (objm.UnitId != "ALL")
+                {
+                    strSql = strSql + @" AND E.UnitID = '" + objm.UnitId + "'";
+                }
+                if (objm.DivisionId != "ALL")
+                {
+                    strSql = strSql + @" AND E.DivisionID = '" + objm.DivisionId + "'";
+                }
+                if (objm.DepartmentId != "ALL")
+                {
+                    strSql = strSql + @" AND E.DepartmentID = '" + objm.DepartmentId + "'";
+                }
+                if (objm.SectionId != "ALL")
+                {
+                    strSql = strSql + @" AND E.SectionID = '" + objm.SectionId + "'";
+                }
+                if (objm.SubsectionId != "ALL")
+                {
+                    strSql = strSql + @" AND E.SubSectionID = '" + objm.SubsectionId + "'";
+                }
+                if (objm.LineId != "ALL")
+                {
+                    strSql = strSql + @" AND E.LineID = '" + objm.LineId + "'";
+                }
+
+                if (objm.EmpCat != "ALL")
+                {
+                    strSql = strSql + @" AND E.EmployeeCategorySystemID = '" + objm.EmpCat + "'";
+                }
+                if (objm.DesignationGroupId != "ALL")
+                {
+                    strSql = strSql + @" AND E.DesignationGroupID = '" + objm.DesignationGroupId + "'";
+                }
+                if (objm.JoblocationName.ToUpper() != "ALL")
+                {
+                    strSql = strSql + @" AND E.JobLocationID = '" + objm.JoblocationName + "'";
+                }
+                if (objm.DesignationId != "ALL")
+                {
+                    strSql = strSql + @" AND E.DesignationSystemID = '" + objm.DesignationId + "'";
+                }
+                try
+                {
+                    if (empParameters.Count > 0)
+                    {
+                        if (empParameters.Keys.ElementAt(0) != "")
+                        {
+                            strSql += @" AND E.SystemId IN(" + empParameters["EmpSystemId"] + ")";
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                }
+
+                var sql = strSql + wcEmpStatus;
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
 
 
     }
