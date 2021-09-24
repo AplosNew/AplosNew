@@ -313,7 +313,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "OT Applicable And Out Missing";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetOTEntitledWithOutMissingReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsOTEntitledWithOutMissing);
+                    app.GetOTEntitledWithOutMissingReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsOTEntitledWithOutMissing);
                     dtOTEntitledWithOutMissing = dsOTEntitledWithOutMissing.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtOTEntitledWithOutMissing.Rows.Count;
                 }
@@ -321,10 +321,10 @@ namespace Aplos.Areas.Attendances.Controllers
                 xlsRow++;
 
                 sheet1.Range[xlsRow, isl].Text = "6";
-                sheet1.Range[xlsRow, iReportName].Text = "OT Not Applicable And Out Miss";
+                sheet1.Range[xlsRow, iReportName].Text = "OT Not Applicable And Out Missing";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetOTNotEntitledWithOutMissingReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsOTNotEntitledWithOutMissing);
+                    app.GetOTNotEntitledWithOutMissingReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsOTNotEntitledWithOutMissing);
                     dtOTNotEntitledWithOutMissing = dsOTNotEntitledWithOutMissing.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtOTNotEntitledWithOutMissing.Rows.Count;
                 }
