@@ -72,69 +72,80 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [Authorize, HttpGet]
         public JsonResult GetFixedAssetDepRuleList()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value, DepreciationRules AS Text FROM mst.FixedAssetDepreciationRule"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value, Description AS Text FROM mst.FixedAssetDepreciationRule"), JsonRequestBehavior.AllowGet);
         }
 
         string TableName = "mst.CompanyFixedAssetDepreciationRule";
 
         [HttpPost]
-        public JsonResult Create(List<Dictionary<string, object>> data,string CompanyId)
+        public JsonResult Create(List<Dictionary<string, object>> data, string CompanyId)
         {
 
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where  1=2 ", out dsMaster, false, "1");
+                string IdList = "";
+                foreach (var item in data)
+                {
+                    if (item["Id"] != null)
+                    {
+                        if (IdList == "")
+                        {
+                            IdList = "'" + item["Id"] + "'";
+                        }
+                        else
+                        {
+                            IdList += ",'" + item["Id"] + "'";
+                        }
+                    }
+                }
 
-                //con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[FinishGoodsBooking] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
-                // con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceive WHERE 1 = 2", out dsInventoryReceive, false, "1");
-
-
-                //con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "') AND POId IN (" + pOId + @") AND ProductCode IN (" + productCode + @") AND ISNULL(InventoryReceiveDetailId,'')=''", out dsItemScanChild, false, "1");
-
-                //con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[InventoryMaterial] where MaterialMasterId IN(" + MaterialMasterId + ") and ArticleId IN(" + ArticleId + ")  and CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'", out dsInventoryMaterial, false, "1");
-
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id in (" + IdList + ") ", out dsMaster, false, "1");
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
                 bplib.clsGenID objGenID = new bplib.clsGenID();
                 string iID = null;
                 objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "mst.CompanyFixedAssetDepreciationRule", out iID);
                 int i = 0;
                 foreach (var item in data)
                 {
-                    //dsFromDateWiseConsumption.Tables[0].DefaultView.RowFilter = "WorkDate=#" + Convert.ToDateTime(item["WorkDate"].ToString()) + "# AND POId = '" + item["ProductionOrderId"] + "' AND ProductCode = '" + item["ProductCode"] + "'";
-                    DataRow drCompanyFADepRule = dsMaster.Tables[0].NewRow();
-                    i++;
-
+                    
                     if (item["DepreciationRuleId"] != null)
                     {
-                        //if (item["FixedAssetMasterId"] == null)
-                       // {
+                        dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dsMaster.Tables[0].DefaultView.Count == 0 )
+                        {
+                            DataRow drCompanyFADepRule = dsMaster.Tables[0].NewRow();
+                            i++;
                             drCompanyFADepRule["Id"] = iID + i; ;
                             drCompanyFADepRule["CompanyId"] = CompanyId;
                             drCompanyFADepRule["DepreciationRuleId"] = item["DepreciationRuleId"];
                             drCompanyFADepRule["FixedAssetMasterId"] = item["FixedAssetMasterId"];
-                            drCompanyFADepRule["Active"] = true;
-                            //drInventoryReceive["EntityId"] = data["ProductionEntityId"].ToString();
-                            //drInventoryReceive["GRNDate"] = item["WorkDate"];
-                            //drInventoryReceive["EntryDate"] = DateTime.Now;
-                            //drInventoryReceive["PODepended"] = false;
-                            //drCompanyFADepRule["FinishGoodsBookingId"] = masterId;
+
                             drCompanyFADepRule["AddedBy"] = identity.Name;
                             drCompanyFADepRule["AddedDate"] = DateTime.Now;
                             drCompanyFADepRule["AddedFromIP"] = identity.IPAddress;
                             dsMaster.Tables[0].Rows.Add(drCompanyFADepRule);
-                        //}
-                        //else
-                        //{
-                        //    EditRow(dsMaster.Tables[0].Rows[0], item);
-                        //}
-                        
+                        }
+                        else
+                        {
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            dr["DepreciationRuleId"] = item["DepreciationRuleId"];
+                            dr["FixedAssetMasterId"] = item["FixedAssetMasterId"];
+
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+                            dr.EndEdit();
+                        }
+                       
+
                     }
-    
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
