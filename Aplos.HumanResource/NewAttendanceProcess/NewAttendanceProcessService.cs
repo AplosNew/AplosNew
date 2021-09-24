@@ -4106,7 +4106,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     // Manual Mode
                                     if (PastManualOT != "")
                                     {
-                                        if (Convert.ToDouble(PastManualOT) > 0)
+                                        if (Convert.ToDouble(PastManualOT) >= 0)
                                         {
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = PastManualOT;
@@ -4122,7 +4122,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     {
                                         if (PastManualOT != "")
                                         {
-                                            if (Convert.ToDouble(PastManualOT) > 0)
+                                            if (Convert.ToDouble(PastManualOT) >= 0)
                                             {
                                                 if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                                 {
@@ -4249,7 +4249,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     // Manual Mode
                                     if (ManualOT != "")
                                     {
-                                        if (Convert.ToDouble(ManualOT) > 0)
+                                        if (Convert.ToDouble(ManualOT) >= 0)
                                         {
                                             dr.BeginEdit();
                                             dr["ProcessedOT"] = ManualOT;
@@ -4264,7 +4264,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     // Mixed Mode
                                     if (ManualOT != "")
                                     {
-                                        if (Convert.ToDouble(ManualOT) > 0)
+                                        if (Convert.ToDouble(ManualOT) >= 0)
                                         {
                                             if (Convert.ToDouble(ManualOT) < Convert.ToDouble(AutoOT))
                                             {
@@ -5703,7 +5703,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 // Manual Mode
                                 if (PastManualOT != "")
                                 {
-                                    if (Convert.ToDouble(PastManualOT) > 0)
+                                    if (Convert.ToDouble(PastManualOT) >= 0)
                                     {
                                         dr.BeginEdit();
                                         dr["ProcessedOT"] = PastManualOT;
@@ -5721,7 +5721,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 {
                                     if (PastManualOT != "")
                                     {
-                                        if (Convert.ToDouble(PastManualOT) > 0)
+                                        if (Convert.ToDouble(PastManualOT) >= 0)
                                         {
                                             // If Manual is less than Processed
                                             if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
