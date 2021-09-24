@@ -101,10 +101,10 @@ public class clsSalaryStructureAplosNew
 
         DataSet dsLocal = null;
 
-        DataSet dsTaxGrpEmp = null;
-        DataTable dtTaxGrpEmp = null;
-        DataRow drTaxGrpEmp = null;
-        DataView dvTaxGrpEmp = null;
+        //DataSet dsTaxGrpEmp = null;
+        //DataTable dtTaxGrpEmp = null;
+        //DataRow drTaxGrpEmp = null;
+        //DataView dvTaxGrpEmp = null;
 
         DataSet dsSlrDefMst = null;
         DataTable dtSlrDefMst = null;
@@ -207,8 +207,8 @@ public class clsSalaryStructureAplosNew
 
                 if (string.IsNullOrEmpty(_para.TaxGroupId) == true)
                 {
-                    Exception ex = new Exception("Please Select Tax Group...");
-                    throw (ex);
+                    //Exception ex = new Exception("Please Select Tax Group...");
+                    //throw (ex);
                 }
                 if (_para.EffectiveDate == null)
                 {
@@ -408,10 +408,11 @@ public class clsSalaryStructureAplosNew
                 dvSlrDefEffDt = new DataView();
                 dvSlrDefEffDt.Table = dtSlrDefEffDt;
 
-                objTxGrEmp.GetTaxGrpTagWithEmp(_para.CompanyGroupId, _para.PlantId, _para.EmployeeId, out dsTaxGrpEmp);
-                dtTaxGrpEmp = dsTaxGrpEmp.Tables[0];
-                dvTaxGrpEmp = new DataView();
-                dvTaxGrpEmp.Table = dtTaxGrpEmp;
+                //comments by Mizan
+                //objTxGrEmp.GetTaxGrpTagWithEmp(_para.CompanyGroupId, _para.PlantId, _para.EmployeeId, out dsTaxGrpEmp);
+                //dtTaxGrpEmp = dsTaxGrpEmp.Tables[0];
+                //dvTaxGrpEmp = new DataView();
+                //dvTaxGrpEmp.Table = dtTaxGrpEmp;
 
                 #endregion
 
@@ -509,26 +510,26 @@ public class clsSalaryStructureAplosNew
                 }
 
                 #region Tax Geoup Tag With Employee
-                //By monir
-                if (dtTaxGrpEmp.Rows.Count > 0)
-                {
-                    _para.EmpTaxGroupPk = dtTaxGrpEmp.Rows[0]["SystemID"].ToString();
-                }
+                //By monir comments by Mizan
+                //if (dtTaxGrpEmp.Rows.Count > 0)
+                //{
+                //    _para.EmpTaxGroupPk = dtTaxGrpEmp.Rows[0]["SystemID"].ToString();
+                //}
 
-                dvTaxGrpEmp.RowFilter = "SystemID = '" + _para.EmpTaxGroupPk + "'";
-                if (dvTaxGrpEmp.Count == 0)
-                {
-                    drTaxGrpEmp = dtTaxGrpEmp.NewRow();
-                    UpdateTaxGroupTagWithEmpDataRow(_para, "ADDNEW", ref drTaxGrpEmp);
-                    dtTaxGrpEmp.Rows.Add(drTaxGrpEmp);
-                }
-                else
-                {
-                    drTaxGrpEmp = dvTaxGrpEmp[0].Row;
-                    drTaxGrpEmp.BeginEdit();
-                    UpdateTaxGroupTagWithEmpDataRow(_para, "EDIT", ref drTaxGrpEmp);
-                    drTaxGrpEmp.EndEdit();
-                }
+                //dvTaxGrpEmp.RowFilter = "SystemID = '" + _para.EmpTaxGroupPk + "'";
+                //if (dvTaxGrpEmp.Count == 0)
+                //{
+                //    drTaxGrpEmp = dtTaxGrpEmp.NewRow();
+                //    UpdateTaxGroupTagWithEmpDataRow(_para, "ADDNEW", ref drTaxGrpEmp);
+                //    dtTaxGrpEmp.Rows.Add(drTaxGrpEmp);
+                //}
+                //else
+                //{
+                //    drTaxGrpEmp = dvTaxGrpEmp[0].Row;
+                //    drTaxGrpEmp.BeginEdit();
+                //    UpdateTaxGroupTagWithEmpDataRow(_para, "EDIT", ref drTaxGrpEmp);
+                //    drTaxGrpEmp.EndEdit();
+                //}
 
                 #endregion Tax Geoup Tag With Employee
 
@@ -774,7 +775,8 @@ public class clsSalaryStructureAplosNew
                 //else
                 //{
 
-                objStatic.SaveDataSets(dsEmpBasic, dsTaxGrpEmp, dsSlrBackMst, dsSlrBack, dsSlrDefMst, dsSlrDef, dsSlrDefEffDt, dsNextDueDate);
+                //objStatic.SaveDataSets(dsEmpBasic, dsTaxGrpEmp, dsSlrBackMst, dsSlrBack, dsSlrDefMst, dsSlrDef, dsSlrDefEffDt, dsNextDueDate);
+                objStatic.SaveDataSets(dsEmpBasic, dsSlrBackMst, dsSlrBack, dsSlrDefMst, dsSlrDef, dsSlrDefEffDt, dsNextDueDate);
 
                 //PFCheckAndUnCheckDone(_para.EmployeeId, _para.IsPFEntitle, _para.PFEffectiveDate, true, _para.User);
                 //}

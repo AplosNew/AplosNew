@@ -67,14 +67,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         #region -- Operations
 
-       
-        [HttpPost, Authorize]
-        public JsonResult CreateSplitSalesOrder(string masterItemId, SalesOrderMaster salesOrderMaster)
-        {
-            _masterOrderService.InsertOrUpdateSplitSOGraph(masterItemId, salesOrderMaster);
-            return Json(new { Message = AplosMessage.Updated });
-        }
-
         [HttpPost]
         public JsonResult UpdateSODate(SalesOrderMaster salesOrderMaster)
         {
@@ -103,7 +95,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
 
-   
+   [HttpGet,Authorize]
         public JsonResult GetSOBookedQtyAndLevel(string salesOrderId)
         {
             return Json(_masterOrderService.GetSOBookedQtyAndLevel(salesOrderId), JsonRequestBehavior.AllowGet);

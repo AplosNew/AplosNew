@@ -1502,3 +1502,4 @@ namespace Aplos.Areas.Employees.Controllers
         public string IsDirect { get; set; }
     }
 }
+ 

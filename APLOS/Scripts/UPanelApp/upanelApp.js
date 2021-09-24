@@ -586,6 +586,7 @@ var upanelApp = angular
     .controller('maternityBenefitController', maternityBenefitController)
     .controller('maternityLeaveReportController', maternityLeaveReportController)
     .controller('monthlyAttendanceInformationController', monthlyAttendanceInformationController)
+    .controller('MonthlyAttendanceInformationNewController', MonthlyAttendanceInformationNewController)
     .controller('multipleIdCardController', multipleIdCardController)
     .controller('MultipleLeaveEncashmentController', MultipleLeaveEncashmentController)
     .controller('nationalFestivalController', nationalFestivalController)
@@ -833,9 +834,9 @@ var upanelApp = angular
     .controller('mixingController', mixingController)
     .controller('RequisitionRegisterController', RequisitionRegisterController)
     .controller('monthlyAttendanceInformationDateRangeController', monthlyAttendanceInformationDateRangeController)
+    .controller('MonthlyAttendanceInformationDateRangeNewController', MonthlyAttendanceInformationDateRangeNewController)
     .controller('AttendanceFromAppReportController', AttendanceFromAppReportController)
     .controller('professionalTaxReportsController', professionalTaxReportsController)
-    .controller('ProductionTargetReportController', ProductionTargetReportController)
     .controller("monthlyGoodWorkReportController", monthlyGoodWorkReportController)
     .controller("weekOffOTReportController", weekOffOTReportController)
     .controller("DispatchMasterController", DispatchMasterController)
@@ -926,6 +927,7 @@ var upanelApp = angular
     .controller("OutsourceBillingPostController", OutsourceBillingPostController)
     .controller("ProductionOrderProcessWithRateController", ProductionOrderProcessWithRateController)
     .controller("entityWiseExpenseAndEarningController", entityWiseExpenseAndEarningController)
+    .controller("ProductionOrderRateReportController", ProductionOrderRateReportController)
 
 
     .controller("PostInvoiceController", PostInvoiceController)

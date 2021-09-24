@@ -277,9 +277,9 @@ namespace Library.Service.Materials
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return from m in base.Query(m => !m.Archive && m.Active && m.CompanyGroupId == identity.CompanyGroupId).Select().OrderBy(m => m.Description)
+                return from m in base.Query(m => !m.Archive && m.Active && m.CompanyGroupId == identity.CompanyGroupId).Select().OrderBy(m => m.UserName)
                        //join c in _materialTypeNatureRepository.Query(t => t.Nature == EnumMaterialTypeNatureList.SemiFinishedGoods.ToString()).Select() on m.Id equals c.MaterialTypeId
-                       select new { Text = m.Description, Value = m.Id };
+                       select new { Text = m.UserName, Value = m.Id };
             }
             catch (Exception ex)
             {

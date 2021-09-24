@@ -199,8 +199,6 @@
                     </div>
                 </div>
 
-                
-
             </div>
         </div>
 
@@ -209,7 +207,7 @@
     <script type="text/template" id="depRuleId">
         <div class="select-style">
             <select class="form-control" ng-model="data.DepreciationRuleId" name="FixedAssetDepRule">
-                <option value=""></option>
+                <option value="">--Select--</option>
                 <option ng-repeat="option in $parent.fixedAssetDepRuleList" value="{{option.Value}}">{{option.Text}}</option>
             </select>
         </div>
