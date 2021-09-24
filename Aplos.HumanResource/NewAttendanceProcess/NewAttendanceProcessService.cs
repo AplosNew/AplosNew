@@ -4846,6 +4846,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = "";
+                empMaster = (clsWebLib.RetValidLen(empMaster).ToString());
                 if (empMaster == "")
                 {
                     sql = @"UPDATE AttdnProcessData Set DayStatusCode=(ISNULL(HolidayStatus,'')+	
@@ -4975,6 +4976,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = "";
+                empMaster = (clsWebLib.RetValidLen(empMaster).ToString());
                 if (empMaster == "")
                 {
                     sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
