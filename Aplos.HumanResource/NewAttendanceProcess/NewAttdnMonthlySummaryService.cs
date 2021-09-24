@@ -872,26 +872,6 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalPayDay"].ToString());
 
-                            //if (!String.IsNullOrEmpty(dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
-                            //{
-                            //    if (dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
-                            //    {
-                            //        _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentHoliday) + Convert.ToDouble(ExtraAbsentWeekOFF)) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString()) - (Convert.ToDouble(ExtraAbsentHoliday))) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString()) - Convert.ToDouble(ExtraAbsentWeekOFF));
-                            //    }
-                            //    if (dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
-                            //    {
-                            //        _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentWeekOFF) + Convert.ToDouble(ExtraAbsentHoliday)) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString()) - Convert.ToDouble(ExtraAbsentWeekOFF));
-                            //    }
-                            //}
-                            //else
-                            //{
-                            //    _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentHoliday) + Convert.ToDouble(ExtraAbsentWeekOFF));
-                            //}
-
-
-
-                            //_pay_days = Convert.ToDouble(DaysInaMonth) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(_ExtraAbsent));
-
                             sheet1.Range[xlsRow, cPayDays].Text = _pay_days.ToString();
                             sheet1.Range[xlsRow, cPayDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, cPayDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1629,7 +1609,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     IStyle baseStyle = workbook.Styles.Add("BaseStyle");
                     baseStyle.Font.Color = ExcelKnownColors.Black;
-                    baseStyle.Color = System.Drawing.Color.White;
+                    baseStyle.Color = Color.White;
                     baseStyle.Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Hair;
                     baseStyle.Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Hair;
                     baseStyle.Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Hair;
@@ -1643,7 +1623,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     IStyle presentStyle = workbook.Styles.Add("PresentStyle");
                     //presentStyle = baseStyle;
                     presentStyle.Font.Color = ExcelKnownColors.White;
-                    presentStyle.Color = System.Drawing.Color.Green;
+                    presentStyle.Color = Color.Green;
 
                     IStyle noOUTtimeStyle = workbook.Styles.Add("NoOUTtimeStyle");
                     //noOUTtimeStyle = baseStyle;
@@ -1653,7 +1633,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     IStyle lateStyle = workbook.Styles.Add("LateStyle");
                     //lateStyle = baseStyle;
                     lateStyle.Font.Color = ExcelKnownColors.White;
-                    lateStyle.Color = System.Drawing.Color.Blue;
+                    lateStyle.Color = Color.Blue;
 
 
                     IStyle leaveStyle = workbook.Styles.Add("LeaveStyle");
@@ -2103,10 +2083,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
                                     }
-                                    catch (Exception ex)
+                                    catch (Exception )
                                     {
-
-
 
                                     }
 
@@ -2180,15 +2158,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                                             {
                                                 if (_day_status == "P")
                                                 {
-                                                    isShortLeaveStyle.Color = System.Drawing.Color.Green;
+                                                    isShortLeaveStyle.Color = Color.Green;
                                                 }
                                                 if (_day_status == "L" || _day_status == "LVL" || _day_status == "WL" || _day_status == "HL")
                                                 {
-                                                    isShortLeaveStyle.Color = System.Drawing.Color.Blue;
+                                                    isShortLeaveStyle.Color = Color.Blue;
                                                 }
                                                 if (IsManual && !_day_status.Contains("LV"))
                                                 {
-                                                    isShortLeaveStyle.Color = System.Drawing.Color.Orange;
+                                                    isShortLeaveStyle.Color = Color.Orange;
 
                                                 }
 
@@ -2224,63 +2202,45 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 sheet1.Range[xlsRow, iTtlAPD].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
-                                var DaysInaMonth = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim());
-                                var TotalAbsent = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim());
-                                var TotalLWP = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim());
+                                var DaysInaMonth = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim());
+                                var TotalAbsent = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim());
+                                var TotalLWP = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim());
                                 //var DaysInaMonth = _ExtraAbsent;
 
                                 double _pay_days = 0.00;
 
-                                if (!String.IsNullOrEmpty(dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
-                                {
-                                    if (dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
-                                    {
-                                        _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(_ExtraAbsent)) - clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString()) - clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString());
-                                    }
-                                    if (dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
-                                    {
-                                        _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(_ExtraAbsent)) - clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString());
-                                    }
-                                }
-                                else
-                                {
-                                    _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(_ExtraAbsent));
-                                }
-
-
-
-                                //_pay_days = Convert.ToDouble(DaysInaMonth) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(_ExtraAbsent));
+                                _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalPayDay"].ToString());
 
                                 sheet1.Range[xlsRow, cPayDays].Text = _pay_days.ToString();
                                 sheet1.Range[xlsRow, cPayDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, cPayDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                sheet1.Range[xlsRow, iTtlHD].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString().Trim()));
+                                sheet1.Range[xlsRow, iTtlHD].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString().Trim()));
                                 sheet1.Range[xlsRow, iTtlHD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iTtlHD].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
-                                sheet1.Range[xlsRow, iTtlWO].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString().Trim()));
+                                sheet1.Range[xlsRow, iTtlWO].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString().Trim()));
                                 sheet1.Range[xlsRow, iTtlWO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iTtlWO].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                double _pre = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalPresent"].ToString().Trim()));
-                                double _Late = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
+                                double _pre = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalPresent"].ToString().Trim()));
+                                double _Late = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
 
                                 double TPresentAndLate = _pre + _Late;
                                 sheet1.Range[xlsRow, iTtlPst].Number = TPresentAndLate;
                                 sheet1.Range[xlsRow, iTtlPst].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iTtlPst].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                sheet1.Range[xlsRow, iTtlAbs].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim()));
+                                sheet1.Range[xlsRow, iTtlAbs].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim()));
                                 sheet1.Range[xlsRow, iTtlAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iTtlAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                sheet1.Range[xlsRow, iTtlLte].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
+                                sheet1.Range[xlsRow, iTtlLte].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
                                 sheet1.Range[xlsRow, iTtlLte].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iTtlLte].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                sheet1.Range[xlsRow, iTtlLWP].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim()));
+                                sheet1.Range[xlsRow, iTtlLWP].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim()));
                                 sheet1.Range[xlsRow, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -2288,11 +2248,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 sheet1.Range[xlsRow, iExtraAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iExtraAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                sheet1.Range[xlsRow, iTtlLv].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLv"].ToString().Trim())) - Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalMLv"].ToString().Trim()));
+                                sheet1.Range[xlsRow, iTtlLv].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLv"].ToString().Trim()));
                                 sheet1.Range[xlsRow, iTtlLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iTtlLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                sheet1.Range[xlsRow, iTtlMLv].Number = System.Math.Abs(Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalMLv"].ToString().Trim())));
+                                sheet1.Range[xlsRow, iTtlMLv].Number = Math.Abs(Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalMLv"].ToString().Trim())));
                                 sheet1.Range[xlsRow, iTtlMLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iTtlMLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -2614,92 +2574,28 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
 
-                strSql = @"SELECT A.* FROM
-                                    (SELECT E.SystemId EmployeePK,E.GenderID,E.EmployeeCode, E.EmployeeCodeNumeric,E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ, REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOS, E.EmpType
-                                           ,ISNULL( Ld.UserName, '') LegalDG, egdsg.UserName GivenDesignation, Unit.UserName Unit, Division.UserName Division, Department.UserName Department,
-                                             ISNULL(EmpC.UserName,'') EmployeeCategory,ISNULL(EmpC.WorkingDaysInAMonth,'') WorkingDaysInAMonth,Section.UserName Section, SubSection.UserName SubSection, Line.UserName Line, REPLACE(CONVERT(VARCHAR(11), ADM.FromDate, 113), ' ', '-') FromDate,
-                                            REPLACE(CONVERT(VARCHAR(11), ADM.ToDate, 113), ' ', '-') ToDate, ADM.MonthNo, ADM.YearNo,
-                                            ADM.TotalProcDate, ADM.TotalPresent, ADM.TotalLate, ADM.TotalAbsent, ADM.TotalLv, ADM.TotalLWP, ADM.TotalMLv, ADM.TotalOTHr,
-                                            ADM.TotalNormalOTHr, ADM.TotalExtraOTHr, ADM.TotalHoliDay, isnull(ADM.TotalWeekOffHoliDay,0) + isnull(ADM.TotalWeekOff,0) TotalWeekOff, ADM.TotalWeekOffHoliDay,SLeave.ShortLeave
-                                    FROM dbo.EmployeeInformation E
-                                                INNER JOIN 
-                                    
-                                    (SELECT EmpSystemID,MonthNo = MONTH('" + objm.FDate + @"') ,YearNo = YEAR('" + objm.FDate + @"'), MIN(WorkDate) FromDate, MAX(WorkDate) ToDate, 
-                                    COUNT(WorkDate) TotalProcDate, 
-		                            SUM(ISNULL(CAST(TotalPresent As decimal(18, 2)), '0.00')) TotalPresent, 
-                                    SUM(ISNULL(CAST(TotalLate As decimal(18, 2)), '0.00')) TotalLate, 
-		                            SUM(ISNULL(CAST(TotalAbsent As decimal(18, 2)), '0.00')) TotalAbsent, 
-                                    SUM(ISNULL(CAST(TotalLv As decimal(18, 2)), '0.00')) TotalLv, 
-		                            SUM(ISNULL(TotalMLv,0)) TotalMLv, 
-                                    SUM(ISNULL(TotalWeekOff,0)) TotalWeekOff, 
-                                    SUM(ISNULL(TotalCompAssignLv,0))  TotalCompAssignLv,
-		                            SUM(ISNULL(TotalHoliDay,0)) TotalHoliDay, 
-                                    SUM(ISNULL(TotalWeekOffHoliDay,0)) TotalWeekOffHoliDay,
-                                    SUM(ISNULL(CAST(OTHr As decimal(18, 2)), '0.00')) TotalOTHr, 
-                                    0.00 TotalNormalOTHr, 
-                                    0.00 TotalExtraOTHr, 
-                                    SUM(ISNULL(TotalLWP, 0)) TotalLWP   
-                            FROM (SELECT EmpSystemID, WorkDate, 
-			                              TotalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1 
-                                                       WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                                       WHEN Category = 'Half Day' and LTSystemID is not null  THEN (1-LeaveDuration)
-                                                       WHEN Category = 'Half Day' and LTSystemID is null  THEN 0.5
-                                                       ELSE 0 END,
-
-                                                        --LWP and LWOP both r considered          
-			                            TotalLate = CASE WHEN Category = 'Late' and LTSystemID is null THEN 1
-                                                        WHEN Category = 'Late' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                                        WHEN Category = 'Late' and LTSystemID is not null and LeaveDuration=1 THEN 1
-                                                        ELSE 0 END,
-
-			                            TotalAbsent = CASE WHEN Category = 'Absent' and LTSystemID is null THEN 1
-                                                        WHEN Category = 'Absent' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                                        WHEN Category = 'Absent' and LTSystemID is not null and LeaveDuration=1 THEN 1
-                                                        WHEN Category = 'Half Day' and LTSystemID is null  THEN 0.5
-                                                        ELSE 0 END,
-
-			                            TotalLv = CASE WHEN LTSystemID is not null  and Category<>'Leave' and LeaveDuration<1 and IsLWP=0 THEN LeaveDuration
-                                                          WHEN LTSystemID is not null  and Category='Leave' and IsLWP=0 THEN LeaveDuration
-                                                           ELSE 0 END,
-
-                                        TotalLWP = CASE WHEN LTSystemID is not null  and Category<>'Leave' and LeaveDuration<1 and IsLWP=1 THEN LeaveDuration
-                                                        WHEN LTSystemID is not null  and Category='Leave' and IsLWP=1 THEN LeaveDuration                                                        
-                                                        ELSE 0 END,
-
-			                            TotalMLv = CASE WHEN LTSystemID is not null  and Category='Leave' and isnull(MaternityStatus,'')='MLV' THEN 1
-                                                           ELSE 0 END,
-                                        TotalCompAssignLv = 0,
-			                            TotalWeekOff = CASE WHEN Category = 'Weekend' THEN 1
-                                                        ELSE 0 END,
-
-			                            TotalHoliDay = CASE WHEN Category = 'Holiday' THEN 1
-                                                       ELSE 0 END,
-
-                                        TotalWeekOffHoliDay = 0,
-                                        OTHr
-	                             FROM dbo.AttdnProcessData left join daytype p on AttdnProcessData.DayStatus=p.DayType
-                                WHERE WorkDate BETWEEN '" + objm.FDate + @"'
-                                    AND '" + objm.TDate + @"'  
-                                    -- and PlantId = '" + objm.PlantId + @"'
-                                    ) A
-                            GROUP BY EmpSystemID) ADM
-                        
-                                     ON E.SystemID = ADM.EmpSystemID
-                                                LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
-									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
-                                    
-
-                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
-									,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
-									FROM mst.DesignationMaster dm
-									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-		                          
-									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
-							
-
-									--AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
-                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+                strSql = @"select dd.*,e.EmployeeCode,e.GenderID,E.EmployeeCode,                
+                ISNULL(E.EmployeeCodeNumeric,0) EmployeeCodeNumeric
+									,ISNULL(E.EmployeeCodePreFix,0) EmployeeCodePreFix,E.EmployeeName,
+									REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ, 
+									REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOS, E.EmpType,
+									  ISNULL( Ld.UserName, '') LegalDG, Unit.UserName Unit,
+										   Division.UserName Division, Department.UserName Department,
+                                             ISNULL(EmpC.UserName,'') EmployeeCategory,											
+											 Section.UserName Section, SubSection.UserName SubSection,Line.UserName Line,
+									Month(dd.FromDate)MonthNo,YEAR(dd.FromDate)YearNo,Plant.UserName PlantName from 
+            (select p.EmpSystemID as EmployeePK,REPLACE(CONVERT(VARCHAR(11), MIN(p.WorkDate), 113), ' ', '-') FromDate,   
+               REPLACE(CONVERT(VARCHAR(11), MAX(p.WorkDate), 113), ' ', '-') ToDate,
+                COUNT(p.WorkDate) TotalProcDate,
+                isnull(SUM(P.PresentValue),'0')TotalPresent,isnull(SUM(p.LateValue),'0')TotalLate,isnull(SUM(p.AbsentValue),'0')TotalAbsent
+                ,isnull(SUM(p.LvValue),'0')TotalLv,isnull(SUM(p.MLvValue),'0')TotalMlv,isnull(SUM(p.CompAssignLvValue),'0')TotalCompAssignLv,
+                isnull(SUM(p.WeekOffValue),'0')TotalWeekOff,isnull(SUM(p.HoliDayValue),'0')TotalHoliDay,isnull(SUM(p.WeekOffHoliDayValue),'0')TotalWeekOffHoliDay
+               ,isnull(SUM(p.LWPValue),'0')TotalLWP,isnull(SUM(p.PayDayValue),'0')TotalPayDay
+			            from AttdnProcessData p
+                        where isnull(p.DayStatus,'')!='' and WorkDate between '" + objm.FDate + @"'
+						 and '" + objm.TDate + @"' group BY EmpSystemID) as dd
+						 join EmployeeInformation  e on e.SystemId=dd.EmployeePK	
+                  LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
                                     LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
@@ -2714,23 +2610,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 			                        LEFT JOIN [MST].DesignationMaster DesM ON DesM.Id = LDM.DesignationMasterId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
-                                    LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
-									LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
-                                    
-                                    LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
-									LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
-									LEFT JOIN [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
-                                             LEFT JOIN (
-												select EmpSystemID,sum(CountedShortLeave) ShortLeave,DATEPART(year,workdate) _year,DATEPART(month,workdate) _month
-												 from AttdnProcessData
-													--where PlantID='" + objm.PlantId + @"' 
-													group by EmpSystemID,DATEPART(year,workdate),DATEPART(month,workdate)
-													
-												) SLeave on adm.MonthNo=SLeave._month and adm.YearNo=SLeave._year and e.SystemId=SLeave.EmpSystemID
+                             where
+							  (E.DOS IS NULL  OR E.DOS >= '" + objm.FDate + @"') 
+									AND E.DOJ <= '" + objm.TDate + "'";
 
-                                    WHERE E.PlantID = '" + objm.PlantId + @"' AND ADM.MonthNo = Month( '" + objm.TDate + @"') AND ADM.YearNo = Year('" + objm.TDate + @"')
-                                    --AND (ISNULL(E.EmployeeCurrentStatus,'') != 'TBS' or (ISNULL(E.EmployeeCurrentStatus,'') = 'TBS' AND EmployeeCurrentStatusEffectiveDate >='" + objm.FDate + @"'))
-                                    AND (DOS IS NULL  OR DOS >= '" + objm.FDate + @"') AND E.DOJ <= '" + objm.TDate + @"'";
 
                 if (objm.UnitId != "ALL")
                 {
@@ -2787,13 +2670,189 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                 }
 
+                #region Commented Code
+                //       strSql = @"SELECT A.* FROM
+                //                           (SELECT E.SystemId EmployeePK,E.GenderID,E.EmployeeCode, E.EmployeeCodeNumeric,E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ, REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOS, E.EmpType
+                //                                  ,ISNULL( Ld.UserName, '') LegalDG, egdsg.UserName GivenDesignation, Unit.UserName Unit, Division.UserName Division, Department.UserName Department,
+                //                                    ISNULL(EmpC.UserName,'') EmployeeCategory,ISNULL(EmpC.WorkingDaysInAMonth,'') WorkingDaysInAMonth,Section.UserName Section, SubSection.UserName SubSection, Line.UserName Line, REPLACE(CONVERT(VARCHAR(11), ADM.FromDate, 113), ' ', '-') FromDate,
+                //                                   REPLACE(CONVERT(VARCHAR(11), ADM.ToDate, 113), ' ', '-') ToDate, ADM.MonthNo, ADM.YearNo,
+                //                                   ADM.TotalProcDate, ADM.TotalPresent, ADM.TotalLate, ADM.TotalAbsent, ADM.TotalLv, ADM.TotalLWP, ADM.TotalMLv, ADM.TotalOTHr,
+                //                                   ADM.TotalNormalOTHr, ADM.TotalExtraOTHr, ADM.TotalHoliDay, isnull(ADM.TotalWeekOffHoliDay,0) + isnull(ADM.TotalWeekOff,0) TotalWeekOff, ADM.TotalWeekOffHoliDay,SLeave.ShortLeave
+                //                           FROM dbo.EmployeeInformation E
+                //                                       INNER JOIN 
 
-                strSql = strSql + @") A
-                        GROUP BY A.EmployeeCode, A.GenderID,A.EmployeeCodeNumeric,A.EmployeeName, A.DOJ,A.DOS, A.EmpType,  A.GivenDesignation, A.LegalDG, A.Unit, A.Division, A.Department,
-		                            A.Section, A.SubSection, A.Line, A.FromDate, A.ToDate, A.MonthNo, A.YearNo,
-                                    A.TotalProcDate, A.TotalPresent, A.TotalLate, A.TotalAbsent, A.TotalLv,A.TotalLWP, A.TotalMLv, A.TotalOTHr,
-                                    A.TotalNormalOTHr, A.EmployeeCategory,A.TotalExtraOTHr, A.TotalHoliDay, A.TotalWeekOff, A.TotalWeekOffHoliDay,A.EmployeePK,A.ShortLeave,A.WorkingDaysInAMonth
-                        ORDER BY  A.EmployeeCodeNumeric";
+                //                           (SELECT EmpSystemID,MonthNo = MONTH('" + objm.FDate + @"') ,YearNo = YEAR('" + objm.FDate + @"'), MIN(WorkDate) FromDate, MAX(WorkDate) ToDate, 
+                //                           COUNT(WorkDate) TotalProcDate, 
+                //                     SUM(ISNULL(CAST(TotalPresent As decimal(18, 2)), '0.00')) TotalPresent, 
+                //                           SUM(ISNULL(CAST(TotalLate As decimal(18, 2)), '0.00')) TotalLate, 
+                //                     SUM(ISNULL(CAST(TotalAbsent As decimal(18, 2)), '0.00')) TotalAbsent, 
+                //                           SUM(ISNULL(CAST(TotalLv As decimal(18, 2)), '0.00')) TotalLv, 
+                //                     SUM(ISNULL(TotalMLv,0)) TotalMLv, 
+                //                           SUM(ISNULL(TotalWeekOff,0)) TotalWeekOff, 
+                //                           SUM(ISNULL(TotalCompAssignLv,0))  TotalCompAssignLv,
+                //                     SUM(ISNULL(TotalHoliDay,0)) TotalHoliDay, 
+                //                           SUM(ISNULL(TotalWeekOffHoliDay,0)) TotalWeekOffHoliDay,
+                //                           SUM(ISNULL(CAST(OTHr As decimal(18, 2)), '0.00')) TotalOTHr, 
+                //                           0.00 TotalNormalOTHr, 
+                //                           0.00 TotalExtraOTHr, 
+                //                           SUM(ISNULL(TotalLWP, 0)) TotalLWP   
+                //                   FROM (SELECT EmpSystemID, WorkDate, 
+                //                        TotalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1 
+                //                                              WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                //                                              WHEN Category = 'Half Day' and LTSystemID is not null  THEN (1-LeaveDuration)
+                //                                              WHEN Category = 'Half Day' and LTSystemID is null  THEN 0.5
+                //                                              ELSE 0 END,
+
+                //                                               --LWP and LWOP both r considered          
+                //                      TotalLate = CASE WHEN Category = 'Late' and LTSystemID is null THEN 1
+                //                                               WHEN Category = 'Late' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                //                                               WHEN Category = 'Late' and LTSystemID is not null and LeaveDuration=1 THEN 1
+                //                                               ELSE 0 END,
+
+                //                      TotalAbsent = CASE WHEN Category = 'Absent' and LTSystemID is null THEN 1
+                //                                               WHEN Category = 'Absent' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                //                                               WHEN Category = 'Absent' and LTSystemID is not null and LeaveDuration=1 THEN 1
+                //                                               WHEN Category = 'Half Day' and LTSystemID is null  THEN 0.5
+                //                                               ELSE 0 END,
+
+                //                      TotalLv = CASE WHEN LTSystemID is not null  and Category<>'Leave' and LeaveDuration<1 and IsLWP=0 THEN LeaveDuration
+                //                                                 WHEN LTSystemID is not null  and Category='Leave' and IsLWP=0 THEN LeaveDuration
+                //                                                  ELSE 0 END,
+
+                //                               TotalLWP = CASE WHEN LTSystemID is not null  and Category<>'Leave' and LeaveDuration<1 and IsLWP=1 THEN LeaveDuration
+                //                                               WHEN LTSystemID is not null  and Category='Leave' and IsLWP=1 THEN LeaveDuration                                                        
+                //                                               ELSE 0 END,
+
+                //                      TotalMLv = CASE WHEN LTSystemID is not null  and Category='Leave' and isnull(MaternityStatus,'')='MLV' THEN 1
+                //                                                  ELSE 0 END,
+                //                               TotalCompAssignLv = 0,
+                //                      TotalWeekOff = CASE WHEN Category = 'Weekend' THEN 1
+                //                                               ELSE 0 END,
+
+                //                      TotalHoliDay = CASE WHEN Category = 'Holiday' THEN 1
+                //                                              ELSE 0 END,
+
+                //                               TotalWeekOffHoliDay = 0,
+                //                               OTHr
+                //                     FROM dbo.AttdnProcessData left join daytype p on AttdnProcessData.DayStatus=p.DayType
+                //                       WHERE WorkDate BETWEEN '" + objm.FDate + @"'
+                //                           AND '" + objm.TDate + @"'  
+                //                           -- and PlantId = '" + objm.PlantId + @"'
+                //                           ) A
+                //                   GROUP BY EmpSystemID) ADM
+
+                //                            ON E.SystemID = ADM.EmpSystemID
+                //                                       LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
+                //                           LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+                //LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
+
+
+                //                           LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
+                //,dg.UserName GivenDesignationGroup--,srm.SalaryRuleName
+                //FROM mst.DesignationMaster dm
+                //LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
+
+                //) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
+
+
+                //--AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                //                           LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+                //LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                //                           LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                //                           LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+                //                           LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                //                           LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
+                //                           LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                //                           LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                //                           LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId
+                //                           LEFT JOIN [ORG].[Line] ON Line.Id = mpb.LineId
+                //         LEFT JOIN [HKP].[LegalDesignation] as Ld on Ld.Id=E.LegalDesignationId
+                //                  LEFT JOIN [MST].DesignationMasterLegalDesignation LDM ON LDM.LegalDesignationId=E.LegalDesignationId
+                //                  LEFT JOIN [MST].DesignationMaster DesM ON DesM.Id = LDM.DesignationMasterId
+                //                           LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+                //                           LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
+                //                           LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
+                //LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+
+                //                           LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
+                //LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
+                //LEFT JOIN [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
+                //                                    LEFT JOIN (
+                //			select EmpSystemID,sum(CountedShortLeave) ShortLeave,DATEPART(year,workdate) _year,DATEPART(month,workdate) _month
+                //			 from AttdnProcessData
+                //				--where PlantID='" + objm.PlantId + @"' 
+                //				group by EmpSystemID,DATEPART(year,workdate),DATEPART(month,workdate)
+
+                //			) SLeave on adm.MonthNo=SLeave._month and adm.YearNo=SLeave._year and e.SystemId=SLeave.EmpSystemID
+
+                //                           WHERE E.PlantID = '" + objm.PlantId + @"' AND ADM.MonthNo = Month( '" + objm.TDate + @"') AND ADM.YearNo = Year('" + objm.TDate + @"')
+                //                           --AND (ISNULL(E.EmployeeCurrentStatus,'') != 'TBS' or (ISNULL(E.EmployeeCurrentStatus,'') = 'TBS' AND EmployeeCurrentStatusEffectiveDate >='" + objm.FDate + @"'))
+                //                           AND (DOS IS NULL  OR DOS >= '" + objm.FDate + @"') AND E.DOJ <= '" + objm.TDate + @"'";
+
+                //       if (objm.UnitId != "ALL")
+                //       {
+                //           strSql = strSql + @" AND E.UnitID = '" + objm.UnitId + "'";
+                //       }
+                //       if (objm.DivisionId != "ALL")
+                //       {
+                //           strSql = strSql + @" AND E.DivisionID = '" + objm.DivisionId + "'";
+                //       }
+                //       if (objm.DepartmentId != "ALL")
+                //       {
+                //           strSql = strSql + @" AND E.DepartmentID = '" + objm.DepartmentId + "'";
+                //       }
+                //       if (objm.SectionId != "ALL")
+                //       {
+                //           strSql = strSql + @" AND E.SectionID = '" + objm.SectionId + "'";
+                //       }
+                //       if (objm.SubsectionId != "ALL")
+                //       {
+                //           strSql = strSql + @" AND E.SubSectionID = '" + objm.SubsectionId + "'";
+                //       }
+                //       if (objm.LineId != "ALL")
+                //       {
+                //           strSql = strSql + @" AND E.LineID = '" + objm.LineId + "'";
+                //       }
+
+                //       if (objm.EmpCat != "ALL")
+                //       {
+                //           strSql = strSql + @" AND E.EmployeeCategorySystemID = '" + objm.EmpCat + "'";
+                //       }
+                //       if (objm.DesignationGroupId != "ALL")
+                //       {
+                //           strSql = strSql + @" AND E.DesignationGroupID = '" + objm.DesignationGroupId + "'";
+                //       }
+                //       if (objm.JoblocationName.ToUpper() != "ALL")
+                //       {
+                //           strSql = strSql + @" AND E.JobLocationID = '" + objm.JoblocationName + "'";
+                //       }
+                //       if (objm.DesignationId != "ALL")
+                //       {
+                //           strSql = strSql + @" AND E.DesignationSystemID = '" + objm.DesignationId + "'";
+                //       }
+                //       try
+                //       {
+                //           if (empParameters.Count > 0)
+                //           {
+                //               if (empParameters.Keys.ElementAt(0) != "")
+                //               {
+                //                   strSql += @" AND E.SystemId IN(" + empParameters["EmpSystemId"] + ")";
+                //               }
+                //           }
+                //       }
+                //       catch (Exception)
+                //       {
+                //       }
+
+
+                //       strSql = strSql + @") A
+                //               GROUP BY A.EmployeeCode, A.GenderID,A.EmployeeCodeNumeric,A.EmployeeName, A.DOJ,A.DOS, A.EmpType,  A.GivenDesignation, A.LegalDG, A.Unit, A.Division, A.Department,
+                //                     A.Section, A.SubSection, A.Line, A.FromDate, A.ToDate, A.MonthNo, A.YearNo,
+                //                           A.TotalProcDate, A.TotalPresent, A.TotalLate, A.TotalAbsent, A.TotalLv,A.TotalLWP, A.TotalMLv, A.TotalOTHr,
+                //                           A.TotalNormalOTHr, A.EmployeeCategory,A.TotalExtraOTHr, A.TotalHoliDay, A.TotalWeekOff, A.TotalWeekOffHoliDay,A.EmployeePK,A.ShortLeave,A.WorkingDaysInAMonth
+                //               ORDER BY  A.EmployeeCodeNumeric";
+
+                #endregion
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
@@ -2832,7 +2891,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
 
         }
-      
+
         public Dictionary<string, string> GetExtraAbsentHoliday(string PlantId, string month, string year)
         {
             Dictionary<string, string> dicExtraAbsentHoliday = new Dictionary<string, string>();
