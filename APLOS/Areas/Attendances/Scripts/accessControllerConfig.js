@@ -85,6 +85,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AttendanceProcessUI/MonthlyAttendanceInformationDateRange',
             controller: 'monthlyAttendanceInformationDateRangeController'
         })
+       .when('/monthly-attendance-information-date-range-new', {
+            templateUrl: 'Attendances/MonthlyAttendanceInformationNew/MonthlyInfoDateRange',
+            controller: 'MonthlyAttendanceInformationDateRangeNewController'
+        })
         .when('/individual-fixed-ot', {
             templateUrl: 'Attendances/InvididualFixedOT/Aplos',
             controller: 'individualFixedOTController'
