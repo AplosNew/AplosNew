@@ -4840,17 +4840,31 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void ManualDayStatusCodeData(string Plant)
+        public void ManualDayStatusCodeData(string Plant , string empMaster)
         {
 
             try
             {
-                var sql = @"UPDATE AttdnProcessData Set DayStatusCode=(ISNULL(HolidayStatus,'')+	
+                var sql = "";
+                if (empMaster == "")
+                {
+                    sql = @"UPDATE AttdnProcessData Set DayStatusCode=(ISNULL(HolidayStatus,'')+	
 											ISNULL(WeeklyStatus,'')+ISNULL(DurationStatus,'')+
 								ISNULL(EarlyLateIn,'')+ISNULL(EarlyLateOut,'')
 								+ISNULL(LeaveStatus,'')),DateUpdated=GETDATE() 
                         WHERE PlantID='" + Plant + @"'
 								AND ManualFlag=1 and IsLock=0";
+                }
+                else
+                {
+                    sql = @"UPDATE AttdnProcessData Set DayStatusCode=(ISNULL(HolidayStatus,'')+	
+											ISNULL(WeeklyStatus,'')+ISNULL(DurationStatus,'')+
+								ISNULL(EarlyLateIn,'')+ISNULL(EarlyLateOut,'')
+								+ISNULL(LeaveStatus,'')),DateUpdated=GETDATE() 
+                        WHERE PlantID='" + Plant + @"' and RowId in("+empMaster+@")
+								AND ManualFlag=1 and IsLock=0";
+                }
+                
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -4955,15 +4969,26 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void PayrollDayStatus(string Plant)
+        public void PayrollDayStatus(string Plant , string empMaster)
         {
 
             try
             {
-                var sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
+                var sql = "";
+                if (empMaster == "")
+                {
+                    sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
 				,UpdatedBy='Schedule',DateUpdated=GETDATE()
 								WHERE PlantID='" + Plant + @"'
 								AND ManualFlag=1";
+                }
+                else
+                {
+                    sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
+				,UpdatedBy='Schedule',DateUpdated=GETDATE()
+								WHERE PlantID='" + Plant + @"' and RowId in ("+empMaster+@")
+								AND ManualFlag=1";
+                }
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -5094,12 +5119,17 @@ namespace Library.HumanResource.NewAttendanceProcess {
         #endregion
 
         #region Manual Scheduler
-        public void ManualScheduler(string PlantValue)
+        public void ManualScheduler(string PlantValue , string manualempidfromscreens=null)
         {
             try
             {
                 string ManualFlagRowId = "''", SandwichFlagRowId = "''";
 
+                string empMaster = clsWebLib.RetValidLen(manualempidfromscreens).ToString();
+                string empList = manualempidfromscreens;
+                //1(D) ,2D ,3D,4D ,5D,6D,9,10
+                //Set Manual - no 
+                // PayRoll DS , Manual DSCodeData (D)- To Do
 
                 #region Manual Day Duration  
                 DataSet ManualDurn;
@@ -5107,9 +5137,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 if (ManualDurn.Tables[0].Rows.Count > 0)
                 {
                     // Dataset Generated for Duration EarlyIn EarlyOut Calculation
-
+                    var sqlx = "";
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1";
+                    if(empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "' and ManualFlag=1 and RowId in("+ empList + ")";
+                    }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -5202,7 +5239,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 }
 
-                #endregion
+                #endregion 
 
                 #region Manual OverStay UnderStay 
                 DataSet ManualOverUnderStay;
@@ -5210,9 +5247,17 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 if (ManualOverUnderStay.Tables[0].Rows.Count > 0)
                 {
                     // OverStay underStay DataSet Generation using (Duration - ShiftHoursWithoutOT)
+                    var sqlx = "";
+                   ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    if(empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                    }
 
-                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where  IsLock=0 and ManualFlag=1 and Duration >0 and PlantID='" + PlantValue + "'";
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -5268,7 +5313,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     // Duration Staus on the Basis of Duration of Work of Employee
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    var sqlx = "";
+                    if(empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                    }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -5348,7 +5401,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #endregion
 
                 #region Manual Day Status Code              
-                ManualDayStatusCodeData(PlantValue);
+                ManualDayStatusCodeData(PlantValue, empList);
                 // DayStausCode Text Join 
                 //HolidayStatus + WeeklyStatus + DurationStatus + EarlyLateIn + EarlyLateOut + LeaveStatus
                 #endregion
@@ -5360,7 +5413,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {
                     // ProcessDayStatus Generation from DayStausCode using DaytypeWith Values
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    var sqlx = "";
+                    if(empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                    }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -5397,7 +5458,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    var sqlx = "";
+                    if(empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                    }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -5514,8 +5583,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
-
+                    var sqlx = "";
+                    if(empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                    }
+                     
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
                    
                     // DataSet for Changing Previous Days Flags and DayStatuses
@@ -5648,7 +5725,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 #endregion
 
                 #region Payroll DayStatus 
-                PayrollDayStatus(PlantValue); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
+                PayrollDayStatus(PlantValue, empList); // On the Priority Check of Sandwich and ProcessFinalDayStatus 
                 #endregion
 
                 #region OT Calculation 
@@ -5658,7 +5735,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {
                     // OverTime DataSet Using OT Per Minute Policy
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and IsOTEntitled='1' and PlantID='" + PlantValue + "'";
+                    var sqlx = "";
+                    if(empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and IsOTEntitled='1' and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and IsOTEntitled='1' and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                    }
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -5778,7 +5863,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     // Earned Leave Value from DayType With Values Plant & Emptype Category
                     string RowIdDataSet = "''";
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    var sqlx = "";
+                    if(empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
+                    }
+                    
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet RowIdSet, false, false, "", "1");
                     
                     if(RowIdSet.Tables[0].Rows.Count > 0)

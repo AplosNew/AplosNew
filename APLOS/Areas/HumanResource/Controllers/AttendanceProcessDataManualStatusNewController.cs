@@ -207,6 +207,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 bplib.clsGenID objId = new bplib.clsGenID();
 
+                string man = "''";
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+
                 clsStaticInfo objStatic = new clsStaticInfo();
 
                 for (int i = 0; i < data.Count; i++)
@@ -214,6 +217,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                     #region manual daystatus
 
                     DataSet dsManualAttendance = null;
+                   
+                    
 
                     if (data[i].DayStatus != data[i].DayStatusNew)
                     {
@@ -242,8 +247,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                             dr["ManualEntryTime"] = DateTime.Now;
                             dr["ManualFlag"] = true;
                             dr.EndEdit();
+                            ap.CheckerFunction(ref man, dsManualAttendance.Tables[0].Rows[0]["RowId"].ToString());
+
                         }
-                        
+
                     }
                     #endregion
 
@@ -252,6 +259,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
                 }
+                ap.ManualScheduler(identity.PlantId, man);
             }
             catch (Exception ex)
             {
