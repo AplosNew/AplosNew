@@ -5127,10 +5127,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 string empMaster = clsWebLib.RetValidLen(manualempidfromscreens).ToString();
                 string empList = manualempidfromscreens;
-                //1(D) ,2D ,3D,4D ,5D,6D,9,10
-                //Set Manual - no 
-                // PayRoll DS , Manual DSCodeData (D)- To Do
-
+          
                 #region Manual Day Duration  
                 DataSet ManualDurn;
                 ManualDuration(out ManualDurn, PlantValue);
