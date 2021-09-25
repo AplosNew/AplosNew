@@ -104,6 +104,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public decimal TotalOTHr { get; set; } = 0;
         public decimal TotalNormalOTHr { get; set; } = 0;
         public decimal TotalExtraOTHr { get; set; } = 0;
+        public decimal TotalPayDay { get; set; } = 0;
+        public decimal TotalWorkingDay { get; set; } = 0;
+        public decimal TotalActualWorkingDay { get; set; } = 0;
+
         //public string PlantID { get; set; } = "";
     }
 

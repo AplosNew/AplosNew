@@ -1740,6 +1740,25 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	var SelectedMaterialInputdata = [];
 	var SelectedOutputMaterialdata = [];
 	$scope.SaveSlipIssue = function () {
+
+		if ($scope.ModelNew.TabType == "Transformation") {
+			var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+			$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
+			if (sumOfmaterialStockList < $scope.selectedRowQty1) {
+				ShowResult("Please select Specific GRN", 'failure');
+				return false;
+			}
+		}
+		else {
+			var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+			$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.IssueChildList), 'TransactionQty');
+			if (sumOfmaterialStockList < $scope.selectedRowQty1) {
+				ShowResult("Please select Specific GRN", 'failure');
+				return false;
+			}
+        }
+	
+
 		//if ($scope.materialStockList.length === 0) {
 		//	ShowResult('Please select Specific GRN');
 		//	return false;
