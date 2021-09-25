@@ -2856,6 +2856,28 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
         #region DayStatus Source Data
 
+        public void DayStatusReprocessing(string PreDay, string Plant)
+        {
+
+            try
+            {
+                var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
+                earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
+                DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0 where PlantID='"+Plant+"' and WorkDate='"+PreDay+"'";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void TodayDuration(string Today, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3520,6 +3542,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 else
                 {
+
+                    #region Previous Day Status Reprocessing               
+                    DayStatusReprocessing(PreviousDay, PlantValue); //Making Localized Columns Null
+                    #endregion
 
                     #region Previous Day Duration EarlyIn Late EarlyOut OverStay
                     DataSet PrevDurn;
