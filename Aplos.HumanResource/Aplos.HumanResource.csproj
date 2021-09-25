@@ -241,6 +241,7 @@
     <Compile Include="Payroll\SalaryProcessActive\clsSalaryProc.cs" />
     <Compile Include="Payroll\SalaryProcessActive\clsSalaryProcessAplosListR.cs" />
     <Compile Include="Payroll\SalaryProcessActive\clsSalaryProcessLog.cs" />
+    <Compile Include="Payroll\SalaryProcessActive\clsSalaryProcessQuery.cs" />
     <Compile Include="Payroll\SalaryProcessActive\clsSalaryProcessQuery2.cs" />
     <Compile Include="Payroll\SalaryProcessActive\clsSalaryProcessUI.cs" />
     <Compile Include="Payroll\SalaryProcessActive\clsSalaryProcModels.cs" />
