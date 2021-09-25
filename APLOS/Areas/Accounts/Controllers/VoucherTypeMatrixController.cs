@@ -122,10 +122,10 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetCboVoucherTypeConsumptionBookList()
+        public JsonResult GetCboVoucherTypeFGInventoryList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.ConsumptionBook), JsonRequestBehavior.AllowGet);
+            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.FGInventory), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

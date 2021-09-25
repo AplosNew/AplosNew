@@ -1381,7 +1381,7 @@ public class clsSalaryProcessAplosArrear
                                                                 {
                                                                     _deductionDays += HDDay;
                                                                 }
-
+                                                                //per day salary (tarek)
                                                                 decimal SalaryPerDay = DefCur / FixMonthDay;//per day
                                                                 DisbCur = SalaryPerDay * (TotalDaysSlr - _deductionDays);//earned in the month
 
@@ -1404,6 +1404,7 @@ public class clsSalaryProcessAplosArrear
                                                         {
                                                             if (dicLocal_Sub[i].RuleType == "Gen")
                                                             {
+                                                                //per day salary (tarek)
                                                                 DisbCur = (DefCur / DaysInMonth) * TotalDaysSlr;
 
                                                                 if (IsRefAbsentism == true)
@@ -1423,6 +1424,7 @@ public class clsSalaryProcessAplosArrear
                                                         #region MonthWorkDay (excluding both H+W) Calculation Ex. If we want to calculate workingdays in a month (Feb-28 work days 22, Mar-31 work days 26, Apr-30  work days 24)
                                                         else if (Convert.ToBoolean(dicLocal_Sub[i].IsMonthWorkDay) == true)
                                                         {
+                                                            //per day salary (tarek)
                                                             if (dicLocal_Sub[i].RuleType == "Gen")
                                                             {
                                                                 //DisbCur = (DefCur / TotWorkingDay) * (TotalDaysSlr - (WkOFDay + HDDay));
@@ -1464,7 +1466,7 @@ public class clsSalaryProcessAplosArrear
                                                                 {
                                                                     DisbCur = DefCur;
                                                                     if (IsRefAbsentism == true)
-                                                                    {
+                                                                    {  //per day salary (tarek)
                                                                         DisbCur = DisbCur - ((DefCur / (TotalDaysSlr - LocalWeekOff)) * AbsDay);
                                                                         //DisbCur = DisbCur - ((DefCur / (TotalDaysSlr - WkOFDay)) * AbsDay);
                                                                         if (DisbCur < 0)
