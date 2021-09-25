@@ -568,11 +568,11 @@ namespace Library.OrderManagement.Packing
                 {
                     if (pOId == null)
                     {
-                        pOId = "'" + item["ProductionSummaryId"].ToString() + "'";
+                        pOId = "'" + item["ProductionOrderId"].ToString() + "'";
                     }
                     else
                     {
-                        pOId += ",'" + item["ProductionSummaryId"].ToString() + "'";
+                        pOId += ",'" + item["ProductionOrderId"].ToString() + "'";
                     }
 
                     if (MaterialMasterId == null)
@@ -602,7 +602,7 @@ namespace Library.OrderManagement.Packing
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceive WHERE 1 = 2", out dsInventoryReceive, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceiveDetail WHERE 1 = 2", out dsInventoryReceiveDetail, false, "1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionSummary WHERE Id IN("+ pOId + ")", out dsProductionSummary, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionSummary WHERE ProductionDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "' AND ProductionOrderId IN(" + pOId + ") AND ISNULL(FinishGoodsBookingId,'')='' AND EntityId='"+ data["ProductionEntityId"] + "' AND ProcessId='"+ data["ProcessId"] + "'", out dsProductionSummary, false, "1");
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[InventoryMaterial] where MaterialMasterId IN(" + MaterialMasterId + ") and ArticleId IN(" + ArticleId + ")  and CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'", out dsInventoryMaterial, false, "1");
 
@@ -1374,20 +1374,33 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
         {
             try
             {
+                
+                string sql = @"SELECT  PS.ProductionOrderId,MM.Id MaterialMasterId,MMA.Id ArticleId,MM.UserName MaterialMaster,MMA.StandardName Article,SUM(PS.Quantity) Qty, 0 Rate,0 Amount,U.Id UOM
+                            FROM [TRN].ProductionSummary PS
+                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
+                            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
+                            LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
+                            where PS.ProductionDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + @"' AND PS.ProcessId='" + processId + @"'
+                            GROUP BY PS.ProductionOrderId,MM.Id,MMA.Id,MM.UserName,MMA.StandardName,U.Id";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetDatewiseNonPostedProductionSummeryData(string entityId, string processId, string fromDate, string toDate)
+        {
+            try
+            {
                 string sql = @"SELECT  PS.Id ProductionSummaryId,PS.ProductionOrderId,MM.Id MaterialMasterId,MMA.Id ArticleId,MM.UserName MaterialMaster,MMA.StandardName Article,PS.Quantity Qty, 0 Rate,0 Amount,U.Id UOM,FORMAT(PS.ProductionDate ,'dd-MMM-yyyy') WorkDate,MM.IsAsset
                             FROM [TRN].ProductionSummary PS
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
                             LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
                             LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
                             where PS.ProductionDate between '" + fromDate + "' AND '" + toDate + "' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + "' AND PS.ProcessId='" + processId + "'";
-                //string sql = @"SELECT  PS.ProductionOrderId
-                //            ,MM.Id MaterialMasterId,MMA.Id ArticleId,MM.UserName MaterialMaster,MMA.StandardName Article,SUM(PS.Quantity) Qty, 0 Rate,0 Amount,U.Id UOM
-                //            FROM [TRN].ProductionSummary PS
-                //            LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
-                //            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
-                //            LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
-                //            where PS.ProductionDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='"+entityId+@"' AND PS.ProcessId='"+ processId + @"'
-                //            GROUP BY PS.ProductionOrderId,MM.Id,MMA.Id,MM.UserName,MMA.StandardName,U.Id";
+                
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
