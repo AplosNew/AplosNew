@@ -49,9 +49,15 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetList()
+        public JsonResult GetListByPacking()
         {
-            return Json(clsFinishGoodsBooking.GetList(), JsonRequestBehavior.AllowGet);
+            return Json(clsFinishGoodsBooking.GetListByPacking(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetListByProductionBooking()
+        {
+            return Json(clsFinishGoodsBooking.GetListByProductionBooking(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

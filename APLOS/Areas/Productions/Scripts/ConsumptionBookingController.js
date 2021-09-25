@@ -13,7 +13,8 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         ToDate: null,
         MaterialStorageId: null,
         ToCurrencyRate: null,
-        CurrencyId: null
+        CurrencyId: null,
+        SourceType: 'Packing'
     }
 
     $scope.GetFromDate = function () {
@@ -168,7 +169,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.masterDataList = [];
     $scope.getSavedData = function () {
         $scope.masterDataList = [];
-        $http.get("Productions/FinishGoodsBooking/GetList")
+        $http.get("Productions/FinishGoodsBooking/GetListByPacking")
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {

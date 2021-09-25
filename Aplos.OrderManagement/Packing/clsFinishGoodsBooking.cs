@@ -24,7 +24,7 @@ namespace Library.OrderManagement.Packing
         }
         #endregion Constructor
 
-        public IEnumerable<object> GetList()
+        public IEnumerable<object> GetListByPacking()
         {
             try
             {
@@ -35,7 +35,7 @@ namespace Library.OrderManagement.Packing
 			                    where FG.Id=FGB.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                 from [dbo].[FinishGoodsBooking] FGB
                                 LEFT JOIN ORG.Entity E ON E.Id=FGB.ProductionEntityId
-                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId ORDER BY FGB.AddedDate DESC";
+                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId Where FGB.SourceType='Packing' ORDER BY FGB.AddedDate DESC";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -43,6 +43,27 @@ namespace Library.OrderManagement.Packing
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetListByProductionBooking()
+        {
+            try
+            {
+                string sql = @"Select E.UserName ProductionEntity, P.UserName Process,FORMAT(FGB.FromDate,'dd-MMM-yyyy') FDate,FORMAT(FGB.ToDate,'dd-MMM-yyyy') TDate,FGB.* 
+                                ,GRNNo= STUFF((select distinct ','+IR.Id from 
+	                            TRN.InventoryReceive IR 
+		                        JOIN [dbo].[FinishGoodsBooking] FG ON IR.FinishGoodsBookingId=FG.Id		       
+			                    where FG.Id=FGB.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                from [dbo].[FinishGoodsBooking] FGB
+                                LEFT JOIN ORG.Entity E ON E.Id=FGB.ProductionEntityId
+                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId Where FGB.SourceType='ProductionBooking' ORDER BY FGB.AddedDate DESC";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         public IEnumerable<object> GetDetailList(string masterId, string entityId, string processId, string productionOrderId)
         {
