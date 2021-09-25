@@ -119,17 +119,17 @@
             <h3 class="site-heading" style="cursor:unset;"></h3>
 
             @*<div class="form-group" ng-show="IsGo===true">
-                    <label class="col-sm-4 control-label">From Production Entity</label>
-                    <div class="col-sm-8">
-                        <label class="control-label">{{FromEntity}}</label>
-                    </div>
-                </div>*@
+            <label class="col-sm-4 control-label">From Production Entity</label>
+            <div class="col-sm-8">
+                <label class="control-label">{{FromEntity}}</label>
+            </div>
+        </div>*@
             @*<div class="form-group" ng-show="IsGo===true">
-                    <label class="col-sm-4 control-label">From Process </label>
-                    <div class="col-sm-8">
-                        <label class="control-label">{{Process}}</label>
-                    </div>
-                </div>*@
+            <label class="col-sm-4 control-label">From Process </label>
+            <div class="col-sm-8">
+                <label class="control-label">{{Process}}</label>
+            </div>
+        </div>*@
             <div class="form-group" ng-show="IsGo===true">
                 <label class="col-sm-4 control-label">From Work Center <sup ng-show="Status === 'PROCESS'">*</sup></label>
                 <div class="col-sm-8">
@@ -155,13 +155,14 @@
                 </div>
             </div>
             <div class="form-group" ng-show="IsGo===true">
-                <label class="col-sm-2 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Material Master</label>
-                <div class="col-sm-5">
+                <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Material Master</label>
+                <div class="col-sm-8">
                     <label class="control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">{{productionSummaryNew.MaterialMaster}}</label>
                 </div>
-
-                <label class="col-sm-2 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Article</label>
-                <div class="col-sm-3" style="margin-left: -50px;">
+            </div>
+            <div class="form-group" ng-show="IsGo===true">
+                <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Article</label>
+                <div class="col-sm-8">
                     <label class="control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">{{productionSummaryNew.Article}}</label>
                 </div>
             </div>

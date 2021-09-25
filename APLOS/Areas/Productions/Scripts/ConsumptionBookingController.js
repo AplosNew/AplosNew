@@ -13,7 +13,8 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         ToDate: null,
         MaterialStorageId: null,
         ToCurrencyRate: null,
-        CurrencyId: null
+        CurrencyId: null,
+        SourceType: 'Packing'
     }
 
     $scope.GetFromDate = function () {
@@ -113,13 +114,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
             }
         }
     }
-
-    $scope.calculateAmount = function (data) {
-        data.Amount = parseFloat(data.Qty * data.Rate).toFixed(2);
-        var gridObj = $("#GridLineItems").data("ejGrid");
-        gridObj.refreshContent(true);
-        gridObj.refreshTemplate();
-    }
+  
 
     $scope.selectedLineItems = [];
     $scope.Save = function () {
@@ -174,7 +169,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.masterDataList = [];
     $scope.getSavedData = function () {
         $scope.masterDataList = [];
-        $http.get("Productions/FinishGoodsBooking/GetList")
+        $http.get("Productions/FinishGoodsBooking/GetListByPacking")
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -269,7 +264,6 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                                 }
 
                             }
-                            console.log($scope.WorkDayList);
                         },
                         function errorCallback(response) {
                             ShowResult(response, 'failure');

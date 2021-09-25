@@ -1599,6 +1599,7 @@
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummaryNewController.js" />
+    <Content Include="Areas\Attendances\Scripts\MonthlyAttendanceInformationDateRangeNewController.js" />
     <Content Include="Areas\Attendances\Scripts\MonthlyAttendanceInformationNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessPlantWiseController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessController.js" />
@@ -3702,6 +3703,8 @@
     <Content Include="Areas\Attendances\Views\AuditReportSummaryNew\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionOrderRateReport\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\MonthlyInfoAll.cshtml" />
+    <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\MonthlyInfoDateRange.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

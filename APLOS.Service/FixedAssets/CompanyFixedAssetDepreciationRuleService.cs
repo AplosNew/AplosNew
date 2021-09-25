@@ -57,10 +57,9 @@ namespace Library.Service.FixedAssets
 
         public List<Dictionary<string, object>> GetListAssetMaster(string companyId)
         {
-            var sql = @"select FAM.UserName,FAM.Id FixedAssetMasterId, null as DepreciationRuleId ,CFADR.CompanyId
+            var sql = @"select FAM.UserName,FAM.Id FixedAssetMasterId, CFADR.Id,CFADR.DepreciationRuleId ,CFADR.CompanyId
                     from mst.FixedAssetMaster FAM
-                    left join mst.CompanyFixedAssetDepreciationRule CFADR ON CFADR.FixedAssetMasterId = FAM.Id
-                    where CFADR.CompanyId='" + companyId+@"'";
+                    left join (select * from  mst.CompanyFixedAssetDepreciationRule where CompanyId='"+companyId+"')CFADR ON CFADR.FixedAssetMasterId = FAM.Id";
                    return _sqlRepository.GetDataCollection(sql);
 
         }
