@@ -128,7 +128,10 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 
 
-			$scope.setTab(2);
+			$scope.setTab(1);
+			$scope.ModelNew.Type = $scope.TabTypeNew;
+			$scope.setStatus = 'Selected';
+	     	$scope.setTabGRNList(1);
 		}
 		else {
 
@@ -146,18 +149,15 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				if ($scope.IssueTypeList.length > 0) {
                     $scope.GetReceiptVAChildData();
                     $scope.ShowHomeList = false;
-                    $scope.ShowReport = false;
+             //       $scope.ShowReport = false;
 				}
 
 			});
-
-
-
-			$scope.setTab(1);
+			$scope.setTab(2);
 		}
 		$scope.ModelNew.Type = $scope.TabTypeNew;
 		$scope.setStatus = 'Selected';
-		$scope.setTabGRNList(1);
+	//	$scope.setTabGRNList(1);
 
 
 		//if (!$rootScope.isCollapsed) {
@@ -240,8 +240,10 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	};
 
 	$scope.recorddoubleclickGateEntry = function (obj) {
+		
 		var data = obj.data;
-		$scope.ReceiptVA.GateEntryNoId = data.Id;
+	//	$scope.ReceiptVA.GateEntryNoId = data.Id;
+		$scope.ReceiptVA.GateEntryNo = data.Id;
 		angular.element(document.querySelector('#POPopUpGateEntry')).modal('hide');
 	};
 
@@ -337,7 +339,8 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	}
 
 	$scope.ResponsiblePersonClear = function () {
-		$scope.ReceiptVA.ByWhomId = null;
+	//	$scope.ReceiptVA.ByWhomId = null;
+		$scope.ReceiptVA.EmployeeId = null;
 		$scope.ReceiptVA.ResponsiblePerson = null;
 		$scope.ReceiptVA.EmployeeCode = null;
 		$scope.ReceiptVA.EmployeeStatus = null;
@@ -350,7 +353,8 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.setEmpData = function (obj) {
 
 		var data = obj.data;
-		$scope.ReceiptVA.ByWhomId = data.Id;
+	//	$scope.ReceiptVA.ByWhomId = data.Id;
+		$scope.ReceiptVA.EmployeeId = data.Id;
 		$scope.ReceiptVA.EmployeeCode = data.Code;
 		$scope.ReceiptVA.ResponsiblePerson = data.EmployeeName;
 		angular.element(document.querySelector('#EmployeePopUpResPerson')).modal('hide');
@@ -745,7 +749,8 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.setByWhomdata = function (obj) {
 
 		var data = obj.data;
-		$scope.ReceiptTransformation.ByWhomId = data.Id;
+		$scope.ReceiptTransformation.EmployeeId = data.Id;
+	//	$scope.ReceiptTransformation.ByWhomId = data.Id;
 		$scope.ReceiptTransformation.ByWhomEmployeeId = data.Id;
 		// $scope.ReceiptTransformation.EmpCode = data.Code;
 		$scope.ReceiptTransformation.EmpCode = data.Id;

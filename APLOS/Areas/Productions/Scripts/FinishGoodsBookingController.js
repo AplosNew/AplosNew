@@ -12,7 +12,11 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         ProcessId: null,
         ProductionOrderId: null,
         FromDate: null,
-        ToDate:null
+        ToDate: null,
+        MaterialStorageId: null,
+        ToCurrencyRate: null,
+        CurrencyId: null,
+        SourceType: 'ProductionBooking'
     }
 
 
@@ -98,7 +102,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.masterDataList = [];
     $scope.getSavedData = function () {
         $scope.masterDataList = [];
-        $http.get("Productions/FinishGoodsBooking/GetList")
+        $http.get("Productions/FinishGoodsBooking/GetListByProductionBooking")
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -120,6 +124,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
 
     $scope.LineItemsList = [];
     $scope.WorkDayList = [];
+    $scope.DatewiseList = [];
     $scope.LoadData = function () {
         try {
             if (new Date($scope.modelNew.FromDate) > new Date($scope.modelNew.ToDate)) {
@@ -129,22 +134,15 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
             if ($scope.modelForm.$valid) {
                 $scope.LineItemsList = [];
                 $scope.WorkDayList = [];
-                var ob = {};
+                $scope.DatewiseList = [];
+                
                 $http.get("Productions/FinishGoodsBooking/GetNonPostedProductionSummeryData?entityId=" + $scope.modelNew.ProductionEntityId + '&processId=' + $scope.modelNew.ProcessId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
                     .then(
                         function successCallback(response) {
                             if (baseService.arrayLength(response.data) > 0) {
                                 $scope.LineItemsList = response.data;
-                                for (var i = 0; i < $scope.LineItemsList.length; i++) {
-                                    ob.WorkDate = $scope.LineItemsList[i].WorkDate;
-                                    if (checkExistList($scope.WorkDayList, ob.WorkDate) === false) {
-                                        $scope.WorkDayList.push(ob);
-                                        ob = {};
-                                    }
-                                }
-
+                                GetDateWiseData();
                             }
-                            console.log($scope.WorkDayList);
                         },
                         function errorCallback(response) {
                             ShowResult(response, 'failure');
@@ -155,6 +153,29 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         }
     };
 
+    function GetDateWiseData() {
+        var ob = {};
+        $http.get("Productions/FinishGoodsBooking/GetDatewiseNonPostedProductionSummeryData?entityId=" + $scope.modelNew.ProductionEntityId + '&processId=' + $scope.modelNew.ProcessId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.DatewiseList = response.data;
+
+                        for (var i = 0; i < $scope.DatewiseList.length; i++) {
+                            ob.WorkDate = $scope.DatewiseList[i].WorkDate;
+                            if (checkExistList($scope.WorkDayList, ob.WorkDate) === false) {
+                                $scope.WorkDayList.push(ob);
+                                ob = {};
+                            }
+                        }
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    }
+
     function checkExistList(list, WorkDate) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].WorkDate === WorkDate) {
@@ -164,8 +185,24 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         return false;
     }
 
+    $scope.SetRate = function () {
+        for (var i = 0; i < $scope.LineItemsList.length; i++) {
+            for (var j = 0; j < $scope.DatewiseList.length; j++) {
+                if ($scope.LineItemsList[i].ProductionOrderId == $scope.DatewiseList[j].ProductionOrderId
+                    && $scope.LineItemsList[i].MaterialMasterId == $scope.DatewiseList[j].MaterialMasterId
+                    && $scope.LineItemsList[i].ArticleId == $scope.DatewiseList[j].ArticleId
+                    && $scope.LineItemsList[i].UOM == $scope.DatewiseList[j].UOM) {
+                    $scope.DatewiseList[j].Rate = $scope.LineItemsList[i].Rate;
+                    $scope.DatewiseList[j].Amount = $scope.LineItemsList[i].Amount;
+                }
+            }
+        }
+    };
+
     $scope.Save = function () {
         try {
+            $scope.SetRate();
+
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.modelForm.$valid) {
                 if ($scope.Action === "Save" || $scope.Action === "Update") {
@@ -175,7 +212,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
                         data: {
                             "data": $scope.modelNew
                             , "WorkDayList": $scope.WorkDayList
-                            , "FinishGoodsBookingDetailList": $scope.LineItemsList
+                            , "FinishGoodsBookingDetailList": $scope.DatewiseList
                         },
                         dataType: "JSON"
                     }).then(function successCallback(response) {
@@ -184,10 +221,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
                         }
                         else {
                             ShowResult(response.data.Message, "success");
-                            // $scope.modelNew = response.data.Data;
-                            //$scope.GetItemDetailData();
                             $scope.getSavedData();
-                            //$scope.LoadData();
                             $scope.Clear();
                         }
                     }, function errorCallback(response) {
@@ -204,7 +238,16 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
 
     $scope.Clear = function () {
         $scope.modelNew = {
-            Id: null, ProductionEntityId: null, ProcessId: null, ProductionOrderId: null, FromDate: null, ToDate: null
+            Id: null,
+            ProductionEntityId: null,
+            ProcessId: null,
+            ProductionOrderId: null,
+            FromDate: null,
+            ToDate: null,
+            MaterialStorageId: null,
+            ToCurrencyRate: null,
+            CurrencyId: null,
+            SourceType: 'ProductionBooking'
         }
         $scope.ProductCodeList = [];
         $scope.SalesOrderLineItems = [];

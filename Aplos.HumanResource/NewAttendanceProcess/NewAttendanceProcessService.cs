@@ -37,20 +37,21 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 }
                 else
-                {
-                    
+                {                    
                     #region AssignedShift Process           
                     DataSet UnProcessed;
                     UnProcessedEmp(Date, out UnProcessed, PlantValue); //DataSet of Employees For Row Creation
                     if (UnProcessed.Tables[0].Rows.Count > 0)
                     {
+                        int counter = 0;
                         var WkDate = UnProcessed.Tables[0].Rows[0][@"WorkDate"].ToString();
                         var GpId = UnProcessed.Tables[0].Rows[0][@"GroupID"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate='" + WkDate + "'and PlantID='" + PlantValue + "'", out DataSet dsRef, false, false, "", "1");
 
-                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'", out DataSet dsEarnedLeave, false, false, "", "1");
+                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where WorkDate='" + WkDate + "'", out DataSet dsEarnedLeave, false, false, "", "1");
+                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where 1=2", out DataSet dsEarnedNewLeave, false, false, "", "1");
 
                         for (int i = 0; i < UnProcessed.Tables[0].Rows.Count; i++)
                         {
@@ -258,11 +259,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.EndEdit();
 
                             }
-                            // Earned Leave Logic Row Creation
+                            // Earned Leave Logic Row Creation                           
                             dsEarnedLeave.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
                             if (dsEarnedLeave.Tables[0].DefaultView.Count == 0)
                             {
-                                DataRow drx = dsEarnedLeave.Tables[0].NewRow();
+                                DataRow drx = dsEarnedNewLeave.Tables[0].NewRow();
                                 drx["EmpSystemID"] = EmpId;
                                 drx["RowId"] = RowId;
                                 drx["WorkDate"] = WkDate;
@@ -273,11 +274,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 drx["PlantID"] = PlantId;
                                 drx["AddedBy"] = "Schedule";
                                 drx["DateAdded"] = Convert.ToDateTime(DateTime.Now);
-                                dsEarnedLeave.Tables[0].Rows.Add(drx);
+                                dsEarnedNewLeave.Tables[0].Rows.Add(drx);
+                                counter++;
                             }
                         }
-                        SaveDataSets(dsRef, dsEarnedLeave);
-
+                        SaveDataSets(dsRef);
+                        if (counter > 0)
+                        {
+                            SaveDataSets(dsEarnedNewLeave);
+                        }
                     }
                     #endregion
 
@@ -311,7 +316,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 EmpSet += ",'" + dsRef.Tables[0].Rows[i][@"RowId"].ToString() + "'";
 
                             }
-                            var sql = @"update AttdnProcessData set ShiftSystemID='" + ShiftId + @"',ShiftDuration='" + ShiftDurn + @"',ShiftInTime='" + ShiftIn + @"',
+                        }
+                            
+                        var sql = @"update AttdnProcessData set ShiftSystemID='" + ShiftId + @"',ShiftDuration='" + ShiftDurn + @"',ShiftInTime='" + ShiftIn + @"',
                                            ShiftOutTime='" + ShiftOut + @"',ShiftHalfDayDuration='" + HalfDayDuration + @"',ShiftShortDuration='" + ShortDuration + @"',
                                            ShiftFullDayDuration='" + FullDayDuration + @"',ShiftHoursWithoutOT='" + HoursWithoutOT + @"' where RowId 
                                            IN(" + EmpSet + ")";
@@ -325,7 +332,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             objCone.CommitTransaction();
 
 
-                        }
+                        
 
                     }
                     #endregion
@@ -2849,6 +2856,28 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
         #region DayStatus Source Data
 
+        public void DayStatusReprocessing(string PreDay, string Plant)
+        {
+
+            try
+            {
+                var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
+                earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
+                DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0 where PlantID='"+Plant+"' and WorkDate='"+PreDay+"'";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void TodayDuration(string Today, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3513,6 +3542,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 else
                 {
+
+                    #region Previous Day Status Reprocessing               
+                    DayStatusReprocessing(PreviousDay, PlantValue); //Making Localized Columns Null
+                    #endregion
 
                     #region Previous Day Duration EarlyIn Late EarlyOut OverStay
                     DataSet PrevDurn;
@@ -4753,6 +4786,28 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
         #region ManualScheduler Source Data
 
+        public void ManualInStatusCalculate(out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select distinct Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
+                Format(ap.InTime,'yyyy-MMM-dd HH:mm:ss')InTime,				
+				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime,  
+                sd.ShiftEarlyInMargin,sd.ShiftLateInMargin                
+                from Attdnprocessdata  ap
+                left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
+                where ManualFlag=1
+				and ap.PlantID='"+Plant+"'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void ManualInOut(out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -4846,8 +4901,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = "";
-                empMaster = (clsWebLib.RetValidLen(empMaster).ToString());
-                if (empMaster == "")
+                string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
+                if (empMaster1 == "")
                 {
                     sql = @"UPDATE AttdnProcessData Set DayStatusCode=(ISNULL(HolidayStatus,'')+	
 											ISNULL(WeeklyStatus,'')+ISNULL(DurationStatus,'')+
@@ -4976,8 +5031,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = "";
-                empMaster = (clsWebLib.RetValidLen(empMaster).ToString());
-                if (empMaster == "")
+                string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
+                if (empMaster1 == "")
                 {
                     sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
 				,UpdatedBy='Schedule',DateUpdated=GETDATE()
@@ -5116,8 +5171,36 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualFlagRowId += ",'" + Value + "'";
             }
         }
+        public void ManualReprocessing(string Plant, string empMaster)
+        {
 
-       
+            try
+            {               
+                string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
+                if (empMaster1 != "")
+                {                   
+                    var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
+                    earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
+                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0 where PlantID='"+Plant+@"'
+                    and ManualFlag=1 and RowId IN(" + empMaster + @")";
+                  
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                    objCone.CommitTransaction();
+                }
+               
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
         #endregion
 
         #region Manual Scheduler
@@ -5129,7 +5212,91 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 string empMaster = clsWebLib.RetValidLen(manualempidfromscreens).ToString();
                 string empList = manualempidfromscreens;
-          
+
+
+                #region Manual Day Status Nullifying Localized Values              
+                ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
+                #endregion
+
+                #region Manual In Status Logic
+                DataSet ManualInStatus;
+                ManualInStatusCalculate(out ManualInStatus, PlantValue);
+                if (ManualInStatus.Tables[0].Rows.Count > 0)
+                {
+                    // In Status on the Basis of FinalIn
+                    var WkDate = ManualInStatus.Tables[0].Rows[0][@"WorkDate"].ToString();
+                    string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
+                    var sqlx = "";
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+
+                    if (empMaster == "")
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    }
+                    else
+                    {
+                        sqlx = @"select * from AttdnProcessData where IsLock=0 and PlantID='" + PlantValue + "' and ManualFlag=1 and RowId in(" + empList + ")";
+                    }
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                    for (int i = 0; i < ManualInStatus.Tables[0].Rows.Count; i++)
+                    {
+                        // Logic on the basis of Shift Early & Late Margin
+                        string EmpId = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                        string InTime = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"InTime"]).ToString();
+                        string ShiftInTime = clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
+                        double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
+                        double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(ManualInStatus.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
+
+                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                        if (dsRef.Tables[0].DefaultView.Count > 0)
+                        {
+
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            if (InTime != "" && ShiftInTime != "")
+                            {
+                                // Intime + Margin < ShiftInTime :- EarlyIn
+                                if (Convert.ToDateTime(InTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                {
+                                    dr["InStatus"] = "EI";
+                                }
+                                // Intime - Margin > ShiftInTime :- LateIn
+                                else if (Convert.ToDateTime(InTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                {
+                                    dr["InStatus"] = "LI";
+                                }
+
+                                else
+                                {
+                                    dr["InStatus"] = "IN"; // On Time
+                                }
+                            }
+                            else
+                            {
+                                // If FinalIn Not Present
+                                if (ShiftInTime != "")
+                                {
+                                    if (DateTime.Now > Convert.ToDateTime(ShiftInTime))
+                                    {
+                                        dr["InStatus"] = "IM"; // In Missing
+                                    }
+                                    else if (DateTime.Now < Convert.ToDateTime(ShiftInTime))
+                                    {
+                                        dr["InStatus"] = "O"; //Other
+                                    }
+                                }
+                            }
+                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                            dr.EndEdit();
+                        }
+                    }
+                    SaveDataSets(dsRef);
+
+                }
+                #endregion
+
                 #region Manual Day Duration  
                 DataSet ManualDurn;
                 ManualDuration(out ManualDurn, PlantValue);
