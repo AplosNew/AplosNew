@@ -110,7 +110,7 @@ namespace Library.Accounting.FixedAssets
                 DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
                 DataSet _crvDetailCurrencyData = null;
-                DataSet _finishGoodsBookingData = null;
+                DataSet _inventoryReceiveData = null;
 
                 voucherVM.CompanyCurrencyRate = 1;
                 voucherVM.CurrencyId = companyCurrencyId;
@@ -197,17 +197,17 @@ namespace Library.Accounting.FixedAssets
                 }
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.DateWiseConsumption WHERE Id='" + voucherVM.Id+"'", out _finishGoodsBookingData, false, "1");
-                if (_finishGoodsBookingData.Tables[0].Rows.Count > 0)
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM trn.InventoryReceive WHERE Id='" + voucherVM.InventoryReceiveId+"'", out _inventoryReceiveData, false, "1");
+                if (_inventoryReceiveData.Tables[0].Rows.Count > 0)
                 {
-                    for (int j = 0; j < _finishGoodsBookingData.Tables[0].Rows.Count; j++)
+                    for (int j = 0; j < _inventoryReceiveData.Tables[0].Rows.Count; j++)
                     {
-                        _finishGoodsBookingData.Tables[0].DefaultView.RowFilter = "Id='" + voucherVM.Id + @"'";
+                        _inventoryReceiveData.Tables[0].DefaultView.RowFilter = "Id='" + voucherVM.InventoryReceiveId + @"'";
 
-                        if (_finishGoodsBookingData.Tables[0].DefaultView.Count > 0)
+                        if (_inventoryReceiveData.Tables[0].DefaultView.Count > 0)
                         {
                             //edit
-                            DataRow dr = _finishGoodsBookingData.Tables[0].DefaultView[0].Row;
+                            DataRow dr = _inventoryReceiveData.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
 
                             dr["VoucherId"] = voucher.Id;
@@ -220,7 +220,7 @@ namespace Library.Accounting.FixedAssets
                
 
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset , _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _finishGoodsBookingData/*, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData*/
+                objApp.SaveDataSets(_vdataset , _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _inventoryReceiveData/*, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData*/
                     );
                 return "";
             }
@@ -295,7 +295,7 @@ namespace Library.Accounting.FixedAssets
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
 			, V.CurrencyId, C.Code AS CurrencyCode
             FROM  [TRN].[Voucher] AS V 
-			LEFT JOIN dbo.DateWiseConsumption DC ON DC.VoucherId=V.Id
+			LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
             LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
             LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy            WHERE v.Archive=0 AND v.CompanyGroupId='" + companyGroupId + "' AND v.CompanyId='" + companyId + "' AND v.PlantId='" + plantId + "' AND V.Id='" + disposedVoucherId + "' AND v.SourceType='" + sourceType + "'";            return _sqlRepository.GetData(cmdText);        }

@@ -24,7 +24,7 @@ namespace Library.OrderManagement.Packing
         }
         #endregion Constructor
 
-        public IEnumerable<object> GetList()
+        public IEnumerable<object> GetListByPacking()
         {
             try
             {
@@ -35,7 +35,7 @@ namespace Library.OrderManagement.Packing
 			                    where FG.Id=FGB.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                 from [dbo].[FinishGoodsBooking] FGB
                                 LEFT JOIN ORG.Entity E ON E.Id=FGB.ProductionEntityId
-                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId ORDER BY FGB.AddedDate DESC";
+                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId Where FGB.SourceType='Packing' ORDER BY FGB.AddedDate DESC";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -43,6 +43,27 @@ namespace Library.OrderManagement.Packing
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetListByProductionBooking()
+        {
+            try
+            {
+                string sql = @"Select E.UserName ProductionEntity, P.UserName Process,FORMAT(FGB.FromDate,'dd-MMM-yyyy') FDate,FORMAT(FGB.ToDate,'dd-MMM-yyyy') TDate,FGB.* 
+                                ,GRNNo= STUFF((select distinct ','+IR.Id from 
+	                            TRN.InventoryReceive IR 
+		                        JOIN [dbo].[FinishGoodsBooking] FG ON IR.FinishGoodsBookingId=FG.Id		       
+			                    where FG.Id=FGB.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                from [dbo].[FinishGoodsBooking] FGB
+                                LEFT JOIN ORG.Entity E ON E.Id=FGB.ProductionEntityId
+                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId Where FGB.SourceType='ProductionBooking' ORDER BY FGB.AddedDate DESC";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         public IEnumerable<object> GetDetailList(string masterId, string entityId, string processId, string productionOrderId)
         {
@@ -1400,12 +1421,13 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
         public IEnumerable<object> GetListForFinishGoodsBookingPost(string plantId)
         {
-            var sql = @"SELECT FG.Id,IR.Id InventoryReceiveId,IR.GRNDate BookingDate,IR.GRNDate PostingDate,ird.Qty,ird.Amount,FG.ProcessId,FG.[Description],FG.ProductionEntityId EntityId,E.UserName Entity,IR.FinishGoodsBookingId,FG.FromDate,FG.ToDate
+            var sql = @"SELECT FG.Id,IR.Id InventoryReceiveId,IR.GRNDate BookingDate,IR.GRNDate PostingDate,ird.Qty,ird.Amount,FG.ProcessId,P.UserName ProcessName,FG.[Description],FG.ProductionEntityId EntityId,E.UserName Entity,IR.FinishGoodsBookingId,FG.FromDate,FG.ToDate
 					FROM  TRN.InventoryReceive IR
 					LEFT JOIN dbo.[FinishGoodsBooking] AS FG  ON IR.FinishGoodsBookingId=FG.Id
                      LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS Qty, SUM(ROUND(A.TransactionQty*A.MaterialTranRate,4)) AS Amount
 					 FROM TRN.InventoryReceiveDetail AS A  GROUP BY A.InventoryReceiveId) AS  IRD ON IRD.InventoryReceiveId=IR.Id
 					 LEFT JOIN ORG.Entity E ON E.Id=FG.ProductionEntityId
+					 LEFT JOIN HKP.Process P ON P.Id=FG.ProcessId
 					WHERE IR.VoucherId IS NULL  AND E.PlantId='" + plantId + @"'";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -1460,7 +1482,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
         }
         public IEnumerable<object> GetFGJournal(string companyId, string dateWiseConsumptionId)
         {
-            var sql = @"DECLARE @finishGoodsBookingId varchar(10)='" + dateWiseConsumptionId + @"',  @companyId varchar(10)='" + companyId + @"'
+            var sql = @"DECLARE @inventoryReceiveId varchar(10)='" + dateWiseConsumptionId + @"',  @companyId varchar(10)='" + companyId + @"'
 					
 						SELECT  'FGInventory' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId
 							,GLGeneralInfoId=MGGL.InventoryGLId
@@ -1487,7 +1509,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON MGGL.InventoryActivityId= A.Id
 						
-						WHERE IR.FinishGoodsBookingId=@finishGoodsBookingId
+						WHERE IR.Id=@inventoryReceiveId
 						GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName, MGGL.InventoryActivityId, A.Code, A.UserName
 					    ,IRD.Id
                    
@@ -1508,14 +1530,13 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						FROM TRN.InventoryReceive IR
 						LEFT JOIN TRN.InventoryReceiveDetail AS IRD ON IR.Id=IRD.InventoryReceiveId
 						LEFT JOIN dbo.[FinishGoodsBooking] AS FG ON IR.FinishGoodsBookingId=IR.Id
-						LEFT JOIN ORG.Entity E ON E.Id=FG.ProductionEntityId
-						LEFT JOIN ORG.Company CO ON CO.Id=E.CompanyId
+						LEFT JOIN ORG.Company CO ON CO.Id=IR.CompanyId
 						LEFT JOIN HKP.GeneralAccountDeterminate GAD ON GAD.COAId=CO.COAId AND GAD.Id='IssueOfRawMaterialToAnOrder'
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
 						LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
-						WHERE IR.FinishGoodsBookingId=@finishGoodsBookingId
+						WHERE IR.Id=@inventoryReceiveId
 						GROUP BY  GAD.GLGeneralInfoId, GL.AccountCode, GL.UserName, GAD.BudgetMasterId, B.Code, B.UserName, GAD.ActivityId, A.Code, A.UserName
 					     
 					ORDER BY TrnType DESC 
@@ -1527,7 +1548,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
         public GridModel GetFGMaterialDetail(GridParameter parameters, string dateWiseConsumptionId)
         {
 
-            parameters.CmdText = @"DECLARE @finishGoodsBookingId VARCHAR(10)='" + dateWiseConsumptionId + @"'
+            parameters.CmdText = @"DECLARE @inventoryReceiveId VARCHAR(10)='" + dateWiseConsumptionId + @"'
                         SELECT  FGD.Id AS FinishGoodsBookingDetailId
                             , MGM.UserName AS MaterialGroupMasterName
                             , PL.MaterialMasterId, MM.UserName
@@ -1547,7 +1568,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN ORG.Entity E ON E.Id=FG.ProductionEntityId
 						LEFT JOIN ORG.Company CO ON CO.Id=E.CompanyId
 						LEFT JOIN SCS.Currency CU ON CU.Id=CO.BaseCurrencyId
-                        WHERE IR.FinishGoodsBookingId=@finishGoodsBookingId";
+                        WHERE IR.Id=@inventoryReceiveId";
             return _sqlRepository.GetDifferentGridData(parameters);
         }
 

@@ -12,7 +12,11 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         ProcessId: null,
         ProductionOrderId: null,
         FromDate: null,
-        ToDate:null
+        ToDate: null,
+        MaterialStorageId: null,
+        ToCurrencyRate: null,
+        CurrencyId: null,
+        SourceType: 'ProductionBooking'
     }
 
 
@@ -98,7 +102,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.masterDataList = [];
     $scope.getSavedData = function () {
         $scope.masterDataList = [];
-        $http.get("Productions/FinishGoodsBooking/GetList")
+        $http.get("Productions/FinishGoodsBooking/GetListByProductionBooking")
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -142,9 +146,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
                                         ob = {};
                                     }
                                 }
-
                             }
-                            console.log($scope.WorkDayList);
                         },
                         function errorCallback(response) {
                             ShowResult(response, 'failure');
