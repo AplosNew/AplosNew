@@ -1379,7 +1379,15 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
                             LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
                             LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
-                            where ProductionDate between '" + fromDate + "' AND '"+ toDate + "' AND ISNULL(FinishGoodsBookingId,'')='' AND EntityId='"+ entityId + "' AND ProcessId='"+ processId + "'";
+                            where PS.ProductionDate between '" + fromDate + "' AND '" + toDate + "' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + "' AND PS.ProcessId='" + processId + "'";
+                //string sql = @"SELECT  PS.ProductionOrderId
+                //            ,MM.Id MaterialMasterId,MMA.Id ArticleId,MM.UserName MaterialMaster,MMA.StandardName Article,SUM(PS.Quantity) Qty, 0 Rate,0 Amount,U.Id UOM
+                //            FROM [TRN].ProductionSummary PS
+                //            LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
+                //            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
+                //            LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
+                //            where PS.ProductionDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='"+entityId+@"' AND PS.ProcessId='"+ processId + @"'
+                //            GROUP BY PS.ProductionOrderId,MM.Id,MMA.Id,MM.UserName,MMA.StandardName,U.Id";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
