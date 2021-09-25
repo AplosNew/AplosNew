@@ -28,14 +28,19 @@ namespace Library.OrderManagement.Packing
         {
             try
             {
-                string sql = @"Select E.UserName ProductionEntity, P.UserName Process,FORMAT(FGB.FromDate,'dd-MMM-yyyy') FDate,FORMAT(FGB.ToDate,'dd-MMM-yyyy') TDate,FGB.* 
+                string sql = @"Select E.UserName ProductionEntity, P.UserName Process,FORMAT(FGB.FromDate,'dd-MMM-yyyy') FDate,FORMAT(FGB.ToDate,'dd-MMM-yyyy') TDate
+                                ,MS.UserName MaterialStorage,C.Code Currency,FGB.* 
                                 ,GRNNo= STUFF((select distinct ','+IR.Id from 
-	                            TRN.InventoryReceive IR 
-		                        JOIN [dbo].[FinishGoodsBooking] FG ON IR.FinishGoodsBookingId=FG.Id		       
-			                    where FG.Id=FGB.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                TRN.InventoryReceive IR 
+                                JOIN [dbo].[FinishGoodsBooking] FG ON IR.FinishGoodsBookingId=FG.Id		       
+                                where FG.Id=FGB.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                 from [dbo].[FinishGoodsBooking] FGB
                                 LEFT JOIN ORG.Entity E ON E.Id=FGB.ProductionEntityId
-                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId Where FGB.SourceType='Packing' ORDER BY FGB.AddedDate DESC";
+                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId 
+                                LEFT JOIN HKP.MaterialStorage MS ON MS.Id=FGB.MaterialStorageId
+                                LEFT JOIN SCS.Currency C ON C.Id=FGB.CurrencyId
+                                Where FGB.SourceType='Packing' ORDER BY FGB.AddedDate DESC";
+
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -48,14 +53,18 @@ namespace Library.OrderManagement.Packing
         {
             try
             {
-                string sql = @"Select E.UserName ProductionEntity, P.UserName Process,FORMAT(FGB.FromDate,'dd-MMM-yyyy') FDate,FORMAT(FGB.ToDate,'dd-MMM-yyyy') TDate,FGB.* 
+                string sql = @"Select E.UserName ProductionEntity, P.UserName Process,FORMAT(FGB.FromDate,'dd-MMM-yyyy') FDate,FORMAT(FGB.ToDate,'dd-MMM-yyyy') TDate
+                                ,MS.UserName MaterialStorage,C.Code Currency,FGB.* 
                                 ,GRNNo= STUFF((select distinct ','+IR.Id from 
-	                            TRN.InventoryReceive IR 
-		                        JOIN [dbo].[FinishGoodsBooking] FG ON IR.FinishGoodsBookingId=FG.Id		       
-			                    where FG.Id=FGB.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                TRN.InventoryReceive IR 
+                                JOIN [dbo].[FinishGoodsBooking] FG ON IR.FinishGoodsBookingId=FG.Id		       
+                                where FG.Id=FGB.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                 from [dbo].[FinishGoodsBooking] FGB
                                 LEFT JOIN ORG.Entity E ON E.Id=FGB.ProductionEntityId
-                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId Where FGB.SourceType='ProductionBooking' ORDER BY FGB.AddedDate DESC";
+                                LEFT JOIN HKP.Process P ON P.Id=FGB.ProcessId 
+                                LEFT JOIN HKP.MaterialStorage MS ON MS.Id=FGB.MaterialStorageId
+                                LEFT JOIN SCS.Currency C ON C.Id=FGB.CurrencyId
+                                Where FGB.SourceType='ProductionBooking' ORDER BY FGB.AddedDate DESC";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -155,7 +164,7 @@ namespace Library.OrderManagement.Packing
                             FROM dbo.ItemScanChild SC 
                             LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
                             LEFT JOIN dbo.ItemScan ISN ON ISN.Id=SC.MasterId						
-                            WHERE ISN.WorkDate between '"+ fromDate + @"' AND '"+ toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
+                            WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
                             ) A Group By 
                             A.ProductCode,A.POId,A.WorkDate";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -167,7 +176,7 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-        
+
 
         public void GetConsumptionByCostingData(string costingId, out DataSet dsRef)
         {
@@ -297,9 +306,9 @@ namespace Library.OrderManagement.Packing
                     drInventoryReceive["CompanyId"] = identity.CompanyId;
                     drInventoryReceive["PlantId"] = identity.PlantId;
                     drInventoryReceive["DocRefNo"] = iID;
-                    drInventoryReceive["CurrencyId"] = data["CurrencyId"];
+                    drInventoryReceive["CurrencyId"] = data["CompanyCurrencyId"]; //companyCurrency
                     drInventoryReceive["MaterialStorageId"] = data["MaterialStorageId"];
-                    drInventoryReceive["ToCurrencyRate"] = data["ToCurrencyRate"];
+                    drInventoryReceive["ToCurrencyRate"] = 1;
                     drInventoryReceive["FixedAssetOrInventory"] = "Inventory";
                     drInventoryReceive["GRNType"] = "FG";
                     drInventoryReceive["EntityId"] = data["ProductionEntityId"].ToString();
@@ -328,7 +337,7 @@ namespace Library.OrderManagement.Packing
 
                 for (int i = 0; i < dsInventoryReceive.Tables[0].Rows.Count; i++)
                 {
-                  int detailIdCount = 0;
+                    int detailIdCount = 0;
                     var detailData = FinishGoodsBookingDetailList.Where(xx => Convert.ToDateTime(xx["WorkDate"].ToString()) == Convert.ToDateTime(dsInventoryReceive.Tables[0].Rows[i]["GRNDate"].ToString())).ToList();
                     if (detailData != null)
                     {
@@ -341,39 +350,39 @@ namespace Library.OrderManagement.Packing
                             //{
                             dsInventoryMaterial.Tables[0].DefaultView.RowFilter = "MaterialMasterId='" + item["MaterialMasterId"].ToString() + "' AND ArticleId = '" + item["ArticleId"] + "'";
 
-                                if (dsInventoryMaterial.Tables[0].DefaultView.Count > 0)
-                                {
-                                    DataRow dr = dsInventoryMaterial.Tables[0].DefaultView[0].Row;
-                                    dr.BeginEdit();
-                                    inventoryMaterialId = dr["Id"].ToString();
-                                     dr["TotalQty"] = Convert.ToDecimal(dr["TotalQty"].ToString()) + Convert.ToDecimal(item["Qty"].ToString());
+                            if (dsInventoryMaterial.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dr = dsInventoryMaterial.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                inventoryMaterialId = dr["Id"].ToString();
+                                dr["TotalQty"] = Convert.ToDecimal(dr["TotalQty"].ToString()) + Convert.ToDecimal(item["Qty"].ToString());
 
-                                    dr["UpdatedBy"] = identity.Name;
-                                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                                    dr.EndEdit();
-                                }
-                                else
-                                {
-                                    objGenID.GenerateIDAuto("InventoryMaterial", out inventoryMaterialId);
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                                dr.EndEdit();
+                            }
+                            else
+                            {
+                                objGenID.GenerateIDAuto("InventoryMaterial", out inventoryMaterialId);
 
-                                    DataRow drInventoryMaterial = dsInventoryMaterial.Tables[0].NewRow();
-                                    drInventoryMaterial["Id"] = inventoryMaterialId;
-                                    drInventoryMaterial["CompanyGroupId"] = identity.CompanyGroupId;
-                                    drInventoryMaterial["CompanyId"] = identity.CompanyId;
-                                    drInventoryMaterial["PlantId"] = identity.PlantId;
-                                    drInventoryMaterial["MaterialMasterId"] = item["MaterialMasterId"];
-                                    drInventoryMaterial["ArticleId"] = item["ArticleId"];
-                                    drInventoryMaterial["TotalQty"] = item["Qty"];
-                                    drInventoryMaterial["AvgRate"] = 0;
+                                DataRow drInventoryMaterial = dsInventoryMaterial.Tables[0].NewRow();
+                                drInventoryMaterial["Id"] = inventoryMaterialId;
+                                drInventoryMaterial["CompanyGroupId"] = identity.CompanyGroupId;
+                                drInventoryMaterial["CompanyId"] = identity.CompanyId;
+                                drInventoryMaterial["PlantId"] = identity.PlantId;
+                                drInventoryMaterial["MaterialMasterId"] = item["MaterialMasterId"];
+                                drInventoryMaterial["ArticleId"] = item["ArticleId"];
+                                drInventoryMaterial["TotalQty"] = item["Qty"];
+                                drInventoryMaterial["AvgRate"] = 0;
 
-                                    drInventoryMaterial["AddedBy"] = identity.Name;
-                                    drInventoryMaterial["AddedDate"] = DateTime.Now;
-                                    drInventoryMaterial["AddedFromIP"] = identity.IPAddress;
+                                drInventoryMaterial["AddedBy"] = identity.Name;
+                                drInventoryMaterial["AddedDate"] = DateTime.Now;
+                                drInventoryMaterial["AddedFromIP"] = identity.IPAddress;
 
-                                    dsInventoryMaterial.Tables[0].Rows.Add(drInventoryMaterial);
-                                }
+                                dsInventoryMaterial.Tables[0].Rows.Add(drInventoryMaterial);
+                            }
                             //}
-                            
+
 
                             #endregion
 
@@ -388,9 +397,9 @@ namespace Library.OrderManagement.Packing
 
                             drInventoryReceiveDetail["BaseQty"] = item["Qty"];
                             drInventoryReceiveDetail["MaterialTranRate"] = item["Rate"];
-                            drInventoryReceiveDetail["MaterialTranAmount"] = item["Amount"];
-                            drInventoryReceiveDetail["TotalMaterialTranAmount"] = item["Amount"];
-                            drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = item["Amount"];
+                            drInventoryReceiveDetail["MaterialTranAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
+                            drInventoryReceiveDetail["TotalMaterialTranAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
+                            drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
                             drInventoryReceiveDetail["BooksCurrencyBaseRate"] = item["Rate"];
                             drInventoryReceiveDetail["TrnCurrencyBaseRate"] = item["Rate"];
                             drInventoryReceiveDetail["MaterialStorageId"] = data["MaterialStorageId"];
@@ -447,7 +456,7 @@ namespace Library.OrderManagement.Packing
 
                             #region ConsumptionByCosting
 
-                            if (item["CostingMasterTemplateId"]!=null)
+                            if (item["CostingMasterTemplateId"] != null)
                             {
                                 GetConsumptionByCostingData(item["CostingMasterTemplateId"].ToString(), out dsFromConsumptionByCosting);
                                 dsFromConsumptionByCosting.Tables[0].DefaultView.RowFilter = "CostingId='" + item["CostingMasterTemplateId"].ToString() + "'";
@@ -554,7 +563,7 @@ namespace Library.OrderManagement.Packing
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceive WHERE 1 = 2", out dsInventoryReceive, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceiveDetail WHERE 1 = 2", out dsInventoryReceiveDetail, false, "1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionSummary WHERE ProductionDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "' AND ProductionOrderId IN(" + pOId + ") AND ISNULL(FinishGoodsBookingId,'')='' AND EntityId='"+ data["ProductionEntityId"] + "' AND ProcessId='"+ data["ProcessId"] + "'", out dsProductionSummary, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionSummary WHERE ProductionDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "' AND ProductionOrderId IN(" + pOId + ") AND ISNULL(FinishGoodsBookingId,'')='' AND EntityId='" + data["ProductionEntityId"] + "' AND ProcessId='" + data["ProcessId"] + "'", out dsProductionSummary, false, "1");
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[InventoryMaterial] where MaterialMasterId IN(" + MaterialMasterId + ") and ArticleId IN(" + ArticleId + ")  and CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'", out dsInventoryMaterial, false, "1");
 
@@ -589,9 +598,9 @@ namespace Library.OrderManagement.Packing
                     drInventoryReceive["CompanyId"] = identity.CompanyId;
                     drInventoryReceive["PlantId"] = identity.PlantId;
                     drInventoryReceive["DocRefNo"] = iID;
-                    drInventoryReceive["CurrencyId"] = data["CurrencyId"];
+                    drInventoryReceive["CurrencyId"] = data["CompanyCurrencyId"];//
                     drInventoryReceive["MaterialStorageId"] = data["MaterialStorageId"];
-                    drInventoryReceive["ToCurrencyRate"] = data["ToCurrencyRate"];
+                    drInventoryReceive["ToCurrencyRate"] = 1;
                     drInventoryReceive["FixedAssetOrInventory"] = "Inventory";
                     drInventoryReceive["GRNType"] = "FG";
                     drInventoryReceive["EntityId"] = data["ProductionEntityId"].ToString();
@@ -680,9 +689,9 @@ namespace Library.OrderManagement.Packing
 
                             drInventoryReceiveDetail["BaseQty"] = item["Qty"];
                             drInventoryReceiveDetail["MaterialTranRate"] = item["Rate"];
-                            drInventoryReceiveDetail["MaterialTranAmount"] = item["Amount"];
-                            drInventoryReceiveDetail["TotalMaterialTranAmount"] = item["Amount"];
-                            drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = item["Amount"];
+                            drInventoryReceiveDetail["MaterialTranAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
+                            drInventoryReceiveDetail["TotalMaterialTranAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
+                            drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
                             drInventoryReceiveDetail["BooksCurrencyBaseRate"] = item["Rate"];
                             drInventoryReceiveDetail["TrnCurrencyBaseRate"] = item["Rate"];
                             drInventoryReceiveDetail["MaterialStorageId"] = data["MaterialStorageId"];
@@ -719,7 +728,7 @@ namespace Library.OrderManagement.Packing
                             dsInventoryReceiveDetail.Tables[0].Rows.Add(drInventoryReceiveDetail);
                             #endregion
 
-                            
+
                         }
                     }
                 }
@@ -1266,7 +1275,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
 						LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
                         LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
-						WHERE ISN.WorkDate between '"+fromDate+@"' AND '"+toDate+@"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='"+entityId+@"')
+						WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
 						GROUP BY SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName,MM.IsAsset,U.Id,MM.Id,MMA.Id";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1278,7 +1287,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
         public IEnumerable<object> GetDateWiseDetailDataData(string EntityId, string fromDate, string toDate)
         {
-          
+
             try
             {
                 string sql = @"SELECT SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
@@ -1314,7 +1323,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
 						LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
                         LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
-						WHERE ISN.WorkDate between '"+fromDate+@"' AND '"+toDate+@"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='"+EntityId+@"')
+						WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + EntityId + @"')
 						GROUP BY SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName,MM.IsAsset,ISN.WorkDate,U.Id,MM.Id,MMA.Id";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1375,7 +1384,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
         {
             try
             {
-                
+
                 string sql = @"SELECT  PS.ProductionOrderId,MM.Id MaterialMasterId,MMA.Id ArticleId,MM.UserName MaterialMaster,MMA.StandardName Article,SUM(PS.Quantity) Qty, 0 Rate,0 Amount,U.Id UOM
                             FROM [TRN].ProductionSummary PS
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
@@ -1401,7 +1410,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
                             LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
                             LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
                             where PS.ProductionDate between '" + fromDate + "' AND '" + toDate + "' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + "' AND PS.ProcessId='" + processId + "' AND ISNULL(PS.MaterialMasterId,'')<>''";
-                
+
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -1432,7 +1441,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
             string sql = "";
             try
             {
-                sql = @"SELECT FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') ToDate FROM [TRN].ProductionSummary where ISNULL(FinishGoodsBookingId,'')='' AND PlantId='"+ PlantId + "'";
+                sql = @"SELECT FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') ToDate FROM [TRN].ProductionSummary where ISNULL(FinishGoodsBookingId,'')='' AND PlantId='" + PlantId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

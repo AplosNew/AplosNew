@@ -14,7 +14,8 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         MaterialStorageId: null,
         ToCurrencyRate: null,
         CurrencyId: null,
-        SourceType: 'Packing'
+        SourceType: 'Packing',
+        CompanyCurrencyId: null
     }
 
     $scope.GetFromDate = function () {
@@ -77,6 +78,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         angular.forEach(response.data, function (item, i) {
             if (item.ParallelCurrencyType === 'CompanyCurrency') {
                 $scope.companyCurrencyId = item.CurrencyId;
+                $scope.modelNew.CompanyCurrencyId = item.CurrencyId;
             }
         });
     });
@@ -185,7 +187,8 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
             MaterialStorageId: null,
             ToCurrencyRate: null,
             CurrencyId: null,
-            SourceType: 'Packing'
+            SourceType: 'Packing',
+            CompanyCurrencyId: $scope.companyCurrencyId
         }
 
         $scope.ProductCodeList = [];

@@ -16,7 +16,8 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         MaterialStorageId: null,
         ToCurrencyRate: null,
         CurrencyId: null,
-        SourceType: 'ProductionBooking'
+        SourceType: 'ProductionBooking',
+        CompanyCurrencyId:null
     }
 
 
@@ -80,6 +81,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         angular.forEach(response.data, function (item, i) {
             if (item.ParallelCurrencyType === 'CompanyCurrency') {
                 $scope.companyCurrencyId = item.CurrencyId;
+                $scope.modelNew.CompanyCurrencyId = item.CurrencyId;
             }
         });
     });
@@ -247,7 +249,8 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
             MaterialStorageId: null,
             ToCurrencyRate: null,
             CurrencyId: null,
-            SourceType: 'ProductionBooking'
+            SourceType: 'ProductionBooking',
+            CompanyCurrencyId: $scope.companyCurrencyId
         }
         $scope.ProductCodeList = [];
         $scope.SalesOrderLineItems = [];
