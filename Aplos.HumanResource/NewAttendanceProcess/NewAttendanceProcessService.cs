@@ -5171,8 +5171,36 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 ManualFlagRowId += ",'" + Value + "'";
             }
         }
+        public void ManualReprocessing(string Plant, string empMaster)
+        {
 
-       
+            try
+            {               
+                string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
+                if (empMaster1 != "")
+                {                   
+                    var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
+                    earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
+                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0 where PlantID='"+Plant+@"'
+                    and ManualFlag=1 and RowId IN(" + empMaster + @")";
+                  
+                    ConnectionManager.DAL.ConManager objCone = null;
+                    objCone = new ConnectionManager.DAL.ConManager("1");
+                    objCone.OpenConnection("1");
+                    objCone.BeginTransaction();
+
+                    objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                    objCone.CommitTransaction();
+                }
+               
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
         #endregion
 
         #region Manual Scheduler
@@ -5184,6 +5212,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 string empMaster = clsWebLib.RetValidLen(manualempidfromscreens).ToString();
                 string empList = manualempidfromscreens;
+
+
+                #region Manual Day Status Nullifying Localized Values              
+                ManualReprocessing(PlantValue, empList); // Reprocessing Manual Employees called from Screen
+                #endregion
 
                 #region Manual In Status Logic
                 DataSet ManualInStatus;
