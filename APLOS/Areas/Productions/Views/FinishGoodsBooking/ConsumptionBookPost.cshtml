@@ -33,8 +33,8 @@
         <div class="clearfix"></div>
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">DateWise Consumption No :</label>
-                <label class="col-sm-9 control-label">{{modelNew.Id}}</label>
+                <label class="col-sm-3 control-label">FG Inventory No :</label>
+                <label class="col-sm-9 control-label">{{modelNew.InventoryReceiveId}}</label>
             </div>
             <div class="form-group" style="margin-bottom: 0px;">
                 <label class="col-sm-3 control-label">Finish Goods No :</label>
@@ -51,6 +51,10 @@
             <div class="form-group" style="margin-bottom: 0px;">
                 <label class="col-sm-3 control-label">Posting Date :</label>
                 <label class="col-sm-9 control-label">{{modelNew.PostingDate}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Process  :</label>
+                <label class="col-sm-9 control-label">{{modelNew.ProcessName}}</label>
             </div>
             <div class="form-group" style="margin-bottom: 0px;">
                 <label class="col-sm-3 control-label">Process No  :</label>
@@ -287,7 +291,7 @@
 
 <style>
     .modellgModify1 {
-        width: 900px;
+        width: 1000px;
     }
 </style>
 
@@ -303,13 +307,14 @@
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
                             <div e-columns>
-                                <div e-column e-field="Id" e-headertext="DateWiseConsumption No" e-width="120"></div>
+                                <div e-column e-field="InventoryReceiveId" e-headertext="FG Inventory" e-width="120"></div>
                                 <div e-column e-field="BookingDate" e-headertext="Booking Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                 <div e-column e-field="Qty" e-headertext="Qty" e-width="80" textAlign='Right'></div>
                                 <div e-column e-field="Amount" e-headertext="Amount (TRN)" e-width="80" textAlign='Right'></div>
                                 <div e-column e-field="Description" e-headertext="Description" e-width="120" textAlign='Left'></div>
                                 <div e-column e-field="Entity" e-headertext="Entity" e-width="80" textAlign='Left'></div>
                                 <div e-column e-field="FinishGoodsBookingId" e-headertext="FinishGoodsBook No" e-width="100"></div>
+                                <div e-column e-field="ProcessName" e-headertext="Process" e-width="100"></div>
                                 <div e-column e-field="FromDate" e-headertext="From Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                 <div e-column e-field="ToDate" e-headertext="To Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             </div>
