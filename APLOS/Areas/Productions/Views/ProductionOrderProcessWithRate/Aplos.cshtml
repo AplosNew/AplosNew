@@ -38,7 +38,7 @@
 
             <div class="col-xs-12 " ng-show="ProductionOrderList.length>0">
                 <div style="color:black;" id="Grid" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true" e-allowResizing="true"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SelectPOItem"*@
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" @*e-recorddoubleclick="SelectPOItem"*@ e-querycellinfo="rowDataBound"
                      e-allowselection="true" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-type="string" e-field="POId" e-headertext="ProductionOrderNo" e-width="80"></div>
