@@ -156,6 +156,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetDateWiseDetailDataData(string entityId, string fromDate, string toDate)
+        {
+            var jsondata = Json(clsFinishGoodsBooking.GetDateWiseDetailDataData(entityId, fromDate, toDate), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetNonPostedProductionSummeryData(string entityId, string processId, string fromDate, string toDate)
         {
             var jsondata = Json(clsFinishGoodsBooking.GetNonPostedProductionSummeryData(entityId, processId, fromDate, toDate), JsonRequestBehavior.AllowGet);
