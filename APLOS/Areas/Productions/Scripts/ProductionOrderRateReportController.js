@@ -4,7 +4,7 @@ function ProductionOrderRateReportController(commonMessage, $scope, $rootScope, 
     $rootScope.title = 'ProductionOrder Rate Report';
 
     $scope.ModelList = [];
-    $scope.path = 'Productions/Shade/';
+    $scope.path = 'Productions/ProductionOrderRateReport/';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.FromDate = null;
     $scope.ToDate = null;
@@ -23,7 +23,7 @@ function ProductionOrderRateReportController(commonMessage, $scope, $rootScope, 
 
             $http({
                 method: 'POST',
-                url: 'Productions/Shade/RReport',
+                url: 'Productions/ProductionOrderRateReport/RReport',
                 data: {
                     'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate
                 }
