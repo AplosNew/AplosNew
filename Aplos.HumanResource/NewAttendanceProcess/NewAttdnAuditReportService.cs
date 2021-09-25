@@ -132,7 +132,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtAbsent = dsAbsent.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -152,7 +152,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtLeaveWithPunch = dsLeaveWithPunch.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -161,7 +161,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOTEntitledWithOutMissing = dsOTEntitledWithOutMissing.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -275,7 +275,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtTotalAbsent = dsTotalAbsent.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -285,7 +285,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtLongAtbsPlantSetting = dsLongAtbsPlantSetting.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                 }
                 try
@@ -294,7 +294,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtNotInLegalDesignationMaster = dsNotInLegalDesignationMaster.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -304,7 +304,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtSalaryNotApproved = dsSalaryNotApproved.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -314,7 +314,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtSeparatedAbsent = dsSeparatedAbsent.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -324,7 +324,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dtOffdayMissingPunch = dsOffdayMissingPunch.Tables[0];
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
 
                 }
@@ -571,7 +571,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     xlsRow++;
                     sheet20.Range[xlsRow, isl].Text = "7";
                     sheet20.Range[xlsRow, iLogic].Text = "OT Not Applicable And Out Missing";
-                    sheet20.Range[xlsRow, iReportName].Text = "7-OT Not Applicable And Out Mis";
+                    sheet20.Range[xlsRow, iReportName].Text = "7-OT Not Applicable And Out Missing";
                     sheet20.Range[xlsRow, iObjective].Text = "OT Not Applicable And Out Missing";
                     sheet20.Range[xlsRow, iCount].Number = dtOTNotEntitledWithOutMissing.Rows.Count;
 
@@ -579,7 +579,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     linkOtNotApplicableAndOutMis.Type = ExcelHyperLinkType.Workbook;
                     linkOtNotApplicableAndOutMis.TextToDisplay = sheet20.Range[xlsRow, iReportName].Text;
                     linkOtNotApplicableAndOutMis.ScreenTip = "Go To " + sheet20.Range[xlsRow, iReportName].Text;
-                    linkOtNotApplicableAndOutMis.Address = "7_OT_Not_Applicable_And_Out_Mi!A1";
+                    linkOtNotApplicableAndOutMis.Address = "7_OT_Not_Applicable_And_Out_Mis!A1";
                     xlsRow++;
 
                     sheet20.Range[xlsRow, isl].Text = "8";
@@ -3013,14 +3013,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet16.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet16.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Red;
 
-                    //xlsCol += 1;
-                    //iRawPunch = xlsCol;
-                    //sheet16.Range[xlsRow, iRawPunch].Text = "Raw Punch";
-                    //sheet16.Range[xlsRow, iRawPunch].ColumnWidth = 28;
-                    //sheet16.Range[xlsRow, iRawPunch].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //sheet16.Range[xlsRow, iRawPunch].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    //sheet16.Range[xlsRow, iRawPunch].CellStyle.Font.Color = ExcelKnownColors.Red;
-
                     sheet16.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
                     // sheet16.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
                     sheet16.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
@@ -3091,7 +3083,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 sheet16.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet16.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                if (bplib.clsWebLib.GetBoolData(dtOTNotEntitledWithOutMissing.Rows[i]["IsManualInTime"].ToString().Trim()))
+                                if (clsWebLib.GetBoolData(dtOTNotEntitledWithOutMissing.Rows[i]["IsManualInTime"].ToString().Trim()))
                                 {
                                     sheet16.Range[xlsRow, iInTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
                                 }
@@ -3207,7 +3199,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet16.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
                     sheet16.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet16.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet16.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet16.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
 
                     xlsRow += 1;
                     if (dsFactory.Tables[0].Rows.Count > 0)
@@ -3224,7 +3216,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet16.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
                     sheet16.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet16.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet16.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet16.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
 
                     xlsRow += 1;
                     if (dsFactory.Tables[0].Rows.Count > 0)
@@ -3241,7 +3233,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet16.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 22;
                     sheet16.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet16.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet16.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    sheet16.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = Color.Snow;
 
                     xlsRow += 1;
                     sheet16.Range[xlsRow, 3].Text = (SheetIndex + 1) + "-OT Not Applicable And Out Missing: " + FromDate + " To Date: " + ToDate;
@@ -3290,12 +3282,12 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     if (dtOTNotEntitledWithOutMissing.Rows.Count > 0)
                     {
-                        sheet16.Name = (SheetIndex + 1) + "_OT_Not_Applicable_And_Out_Missing";
+                        sheet16.Name = (SheetIndex + 1) + "_OT_Not_Applicable_And_Out_Mis";
                         sheet16.TabColorRGB = Color.Red;
                     }
                     else
                     {
-                        sheet16.Name = (SheetIndex + 1) + "_OT_Not_Applicable_And_Out_Missing";
+                        sheet16.Name = (SheetIndex + 1) + "_OT_Not_Applicable_And_Out_Mis";
 
                     }
 
@@ -8168,8 +8160,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                         	,AP.InTime InTime
                         	,AP.OutTime OutTime
                              ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
-                        	--,ISNULL(MA.UpdatedBy, MA.AddedBy) ManualAttdnUser
-                        	--,ISNULL(ISNULL(MA.DateUpdated, MA.DateAdded), '') ManualAttdnDate
                         	,AP.IsOTComfirm
                         	,OTF.NormalOTHr ComfirmedOT
                         	,AP.OTHr CalOT
@@ -8177,22 +8167,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                         	,AP.PunchOutTime PunchOutTime
                             ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent
                             ,EC.UserName as EmployeeCategory
-                            --,RawPunch=REPLACE(REPLACE(
-                        --STUFF((select distinct ','+ FORMAT(CAST(rd.PTime AS datetime2), N'hh:mm tt')  from
-                        --AttdnRawData rd
-                       -- WHERE rd.LogDownLoadNum =ap.EmpSystemID and rd.PDate = ap.WorkDate and isnull(rd.PType,'')='' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                       -- ,'&amp;','&'), 'amp;', '')
-
-
+                        
                         FROM AttdnProcessData AP
-                      --  LEFT JOIN AttdnManualData MA ON AP.EmpSystemID = MA.EmpSystemID
-                        --	AND AP.WorkDate = MA.WorkDate
                         LEFT join (select LogDownLoadNum,PDate,min(PTime)ptime from AttdnRawData where isnull(ptype,'')='' group by LogDownLoadNum,PDate) rd on rd.LogDownLoadNum = ap.EmpSystemID and rd.PDate = ap.WorkDate
                         LEFT JOIN FinalOT OTF ON AP.EmpSystemID = OTF.EmpSystemID
                         	AND AP.WorkDate = OTF.WorkDate
                         LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
-                        --LEFT JOIN EmpDateWiseShiftAssign es ON es.EmpSystemID = EI.SystemId
-                        	--AND AP.WorkDate = ES.WorkDate
                         Left join DayType DT ON DT.DayType = AP.DayStatus
                         LEFT JOIN (
                         	SELECT m.ShiftDefinationID
@@ -8207,10 +8187,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
                        ";
                 strSql += tableName();
-                strSql += @"WHERE 
-                            --DT.Category IN ('Present','Late')
-                            --and ISNULL(rd.LogDownLoadNum,'')<>''
-                        	AP.InTime IS NOT NULL                        	
+                strSql += @"WHERE AP.DAYSTATUS='A' AND
+                           AP.InTime IS NOT NULL                        	
                         	And AP.OutTime IS NULL  
                             AND  AP.IsOTEntitled = 1
                         	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
@@ -8262,8 +8240,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                         	,AP.InTime InTime
                         	,AP.OutTime OutTime
                              ,DateDiff(minute, AP.PunchOutTime,AP.OutTime) OutTimeDifferent 
-                        	--,ISNULL(MA.UpdatedBy, MA.AddedBy) ManualAttdnUser
-                        	--,ISNULL(ISNULL(MA.DateUpdated, MA.DateAdded), '') ManualAttdnDate
                         	,AP.IsOTComfirm
                         	,OTF.NormalOTHr ComfirmedOT
                         	,AP.OTHr CalOT
@@ -8291,7 +8267,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         LEFT JOIN [ShiftDefination] sd ON sd.SystemID = AP.ShiftSystemID
                        ";
                 strSql += tableName();
-                strSql += @"WHERE 
+                strSql += @"WHERE AP.DAYSTATUS='A' AND
                         	AP.InTime IS NOT NULL                        	
                         	And AP.OutTime IS NULL  
                             AND  AP.IsOTEntitled = 0
@@ -8966,6 +8942,73 @@ namespace Library.HumanResource.NewAttendanceProcess
                         ORDER BY AP.WorkDate
                         	,EmployeeCodePreFix,EmployeeCodeNumeric";
 
+                con.getDataSet(strSql, out dsRef);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetOTEntitledWithOutMissingReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+                        FROM AttdnProcessData AP                        
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus WHERE AP.DayStatus='A'
+                            and AP.InTime IS NOT NULL                        	
+                        	And AP.OutTime IS NULL  
+                            AND  AP.IsOTEntitled = 1
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
+                             
+                        ORDER BY 
+                                EmployeeCodePreFix,EmployeeCodeNumeric
+                                    ,AP.WorkDate";
+                con.getDataSet(strSql, out dsRef);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+
+        public void GetOTNotEntitledWithOutMissingReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
+        {
+            clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
+                        	,EI.SystemId
+                        FROM AttdnProcessData AP
+                        LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
+                        Left join DayType DT ON DT.DayType = AP.DayStatus WHERE AP.DayStatus='A'
+                         	And AP.InTime IS NOT NULL                        	
+                        	And AP.OutTime IS NULL  
+                            AND  AP.IsOTEntitled = 0
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
+                        	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	                           
+                        ORDER BY 
+                               EmployeeCodePreFix,EmployeeCodeNumeric
+                                    ,AP.WorkDate";
                 con.getDataSet(strSql, out dsRef);
 
             }

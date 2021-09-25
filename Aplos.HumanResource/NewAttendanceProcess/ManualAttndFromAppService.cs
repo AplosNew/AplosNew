@@ -10,6 +10,7 @@ using System.Threading;
 using Library.Service.Attendances;
 using SetINOUT;
 using Library.Core;
+using Library.HumanResource.NewAttendanceProcess;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -144,6 +145,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var identity = _identity;
                 bplib.clsGenID objId = new bplib.clsGenID();
 
+                string man = "''";
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+               
+                
+
+
                 DataSet shiftchange = null;
                 for (int i = 0; i < data.Count; i++)
                 {
@@ -171,6 +178,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
                             shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
                             shiftchange.Tables[0].Rows[0].EndEdit();
+                            ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
                         }
                         #endregion change shift
 
@@ -179,6 +187,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 }
 
+                ap.ManualScheduler(identity.PlantId, man);
             }
             catch (Exception ex)
             {
@@ -384,7 +393,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var identity = _identity;
                 bplib.clsGenID objId = new bplib.clsGenID();
 
-               
+                string man = "''";
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                
+
+
                 DataSet shiftchange = null ;
                 
                 for (int i = 0; i < data.Count; i++)
@@ -414,6 +427,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
                             shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
                             shiftchange.Tables[0].Rows[0].EndEdit();
+
+                            ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
                         }
                         #endregion change shift
                     }
@@ -433,7 +448,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         {
                             if (shiftchange.Tables[0].Rows.Count > 0)
                             {
-
+                                
                                 DataRow dr = shiftchange.Tables[0].Rows[0];
 
                                 dr.BeginEdit();
@@ -467,16 +482,20 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["ManualFlag"] = true;
                                 
                                 dr.EndEdit();
+
+                                ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
                             }
                             
                         }
                     }
                     #endregion                   
-                    SaveDataSets(shiftchange);
 
+                    
+                    SaveDataSets(shiftchange);
+                    
                 }
 
-
+                ap.ManualScheduler(identity.PlantId, man);
             }
             catch (Exception ex)
             {

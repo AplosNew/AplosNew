@@ -289,7 +289,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 bplib.clsGenID objId = new bplib.clsGenID();
 
                 clsStaticInfo objStatic = new clsStaticInfo();
-                               
+                string man = "''";
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+
 
                 DataSet shiftchange = null;
                 for (int i = 0; i < data.Count; i++)
@@ -320,6 +322,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                             shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
                             shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
                             shiftchange.Tables[0].Rows[0].EndEdit();
+                            ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
+
                         }
                         #endregion change shift
                     }
@@ -374,8 +378,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 dr["ManualEntryTime"] = DateTime.Now;
                                 dr["ManualFlag"] = true;
                                 dr.EndEdit();
+                                ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
+
                             }
-                           
+
                         }
                     }
                     #endregion 
@@ -384,6 +390,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
                 }
+                ap.ManualScheduler(identity.PlantId, man);
+
             }
             catch (Exception ex)
             {
