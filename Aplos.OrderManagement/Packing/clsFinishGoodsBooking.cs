@@ -167,55 +167,7 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-        public void GetDateWiseDetailDataData(string EntityId, string fromDate, string toDate, out DataSet dsRef)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                string sql = @"SELECT '' Id,''DateWiseConsumptiond,FORMAT(A.WorkDate, 'dd-MMM-yyyy') WorkDate,A.ProductCode,A.ProductionOrderId,A.Qty,A.Rate,Amount = FORMAT(CONVERT(decimal(18, 2), A.Qty) * CONVERT(decimal(18, 4), A.Rate), 'N2'),A.MaterialMaster,A.Article,A.ProductLibraryId,A.CostingMasterTemplateId,A.IsAsset,A.UOM
-							FROM(
-							SELECT SC.POId ProductionOrderId, sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate, MM.UserName MaterialMaster, MMA.StandardName Article
-								, Qty = ROUND(CAST(SUM(CASE WHEN SC.IsDespatch = 0 THEN SC.NetWeight ELSE 0 END) AS DECIMAL(18, 2)), 2), ISNULL(B.Rate, 0)Rate, ISN.WorkDate, MM.IsAsset,CT.UOM
-							FROM dbo.ItemScanChild SC
-							LEFT JOIN dbo.ProductLibrary PL ON PL.Code = SC.ProductCode
-							LEFT JOIN dbo.ItemScan ISN ON ISN.Id = SC.MasterId
-							LEFT JOIN dbo.CostingMasterTemplate AS CT ON CT.Id = PL.CostingMasterTemplateId
-							LEFT JOIN
-							(
-							SELECT DISTINCT COST.CostingMasterTemplateId, COST.Rate
-							FROM(SELECT A.CostingMasterTemplateId, FORMAT(sum(A.Rate), 'N4') AS Rate
-							FROM CostingMasterTemplate CMT
-								JOIN
-								(
-								SELECT DM.CostingItemId, DM.CostingMasterTemplateId, DM.GrossAmount Rate from[dbo].PreCostingDirectMaterial DM
-								UNION
-								SELECT DP.CostingItemId, DP.CostingMasterTemplateId, DP.Amount Rate from[dbo].PreCostingDirectProcess DP
-								UNION
-								SELECT OP.CostingItemId, OP.CostingMasterTemplateId, OP.[Value] Rate from[dbo].PreCostingOperation OP
-								UNION
-								SELECT P.CostingItemId, P.CostingMasterTemplateId, P.[Value] Rate from[dbo].PreCostingProfit P
-								UNION
-								SELECT SE.CostingItemId, SE.CostingMasterTemplateId, SE.[Value] Rate from[dbo].PreCostingSalesExpense SE
-								UNION
-								SELECT VL.CostingItemId, VL.CostingMasterTemplateId, VL.[Value] Rate from[dbo].PreCostingValueLoss VL
-								)  AS   A ON A.CostingMasterTemplateId = CMT.Id
-								LEFT JOIN[HKP].[CostingItem] CI ON CI.Id = A.CostingItemId
-								LEFT JOIN[HKP].[CostingComponent] CC ON CC.Id = CI.CostingComponentId
-							GROUP BY a.CostingMasterTemplateId) AS COST
-							) B ON B.CostingMasterTemplateId = CT.Id
-							LEFT JOIN MST.MaterialMaster MM ON MM.Id = PL.MaterialMasterId
-							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id = PL.ArticleId
-							WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId, '') = '' AND SC.POId IN(Select Id from TRN.ProductionOrder Where EntityId = '" + EntityId + @"')
-							GROUP BY ISN.WorkDate, SC.POId, SC.ProductCode, PL.Id, PL.CostingMasterTemplateId, B.Rate, CT.UserName, MM.UserName, MMA.StandardName, MM.IsAsset,CT.UOM
-							) A Group By A.WorkDate,A.ProductCode,A.ProductionOrderId,A.Qty,A.Rate,A.MaterialMaster,A.Article,A.ProductLibraryId,A.CostingMasterTemplateId,A.IsAsset,A.UOM";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        
 
         public void GetConsumptionByCostingData(string costingId, out DataSet dsRef)
         {
@@ -1280,6 +1232,55 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
         {
             try
             {
+                string sql = @"
+						SELECT SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
+							,Qty=ROUND(CAST(SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END) AS DECIMAL(18,2)), 2),ISNULL(B.Rate,0)Rate
+							,Amount=FORMAT(CONVERT(decimal(18,2),SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END))*CONVERT(decimal(18,4),B.Rate),'N2'),MM.IsAsset,U.Id UOM
+                            ,MM.Id MaterialMasterId,MMA.Id ArticleId
+						FROM dbo.ItemScanChild SC 
+						LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
+						LEFT JOIN dbo.ItemScan ISN ON ISN.Id=SC.MasterId
+						LEFT JOIN dbo.CostingMasterTemplate AS CT ON CT.Id=PL.CostingMasterTemplateId
+						LEFT JOIN 
+						(
+						SELECT DISTINCT COST.CostingMasterTemplateId,COST.Rate 
+						FROM (select A.CostingMasterTemplateId,FORMAT(sum(A.Rate),'N4') AS Rate from CostingMasterTemplate CMT 
+							JOIN
+							( 
+							SELECT DM.CostingItemId,DM.CostingMasterTemplateId,DM.GrossAmount Rate from [dbo].PreCostingDirectMaterial DM
+							UNION
+							SELECT DP.CostingItemId,DP.CostingMasterTemplateId,DP.Amount Rate from [dbo].PreCostingDirectProcess DP
+							UNION
+							SELECT OP.CostingItemId,OP.CostingMasterTemplateId,OP.[Value] Rate from [dbo].PreCostingOperation OP
+							UNION
+							SELECT P.CostingItemId,P.CostingMasterTemplateId,P.[Value] Rate from [dbo].PreCostingProfit P
+							UNION
+							SELECT SE.CostingItemId,SE.CostingMasterTemplateId,SE.[Value] Rate from [dbo].PreCostingSalesExpense SE
+							UNION
+							SELECT VL.CostingItemId,VL.CostingMasterTemplateId,VL.[Value] Rate from [dbo].PreCostingValueLoss VL
+							)  AS 	A ON A.CostingMasterTemplateId=CMT.Id
+							LEFT JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
+							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
+						GROUP BY a.CostingMasterTemplateId) AS COST
+						) B ON B.CostingMasterTemplateId=CT.Id
+						LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
+						LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
+                        LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
+						WHERE ISN.WorkDate between '"+fromDate+@"' AND '"+toDate+@"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='"+entityId+@"')
+						GROUP BY SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName,MM.IsAsset,U.Id,MM.Id,MMA.Id";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetDateWiseDetailDataData(string EntityId, string fromDate, string toDate)
+        {
+          
+            try
+            {
                 string sql = @"SELECT SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
 							,Qty=ROUND(CAST(SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END) AS DECIMAL(18,2)), 2),ISNULL(B.Rate,0)Rate
 							,Amount=FORMAT(CONVERT(decimal(18,2),SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END))*CONVERT(decimal(18,4),B.Rate),'N2'),MM.IsAsset,FORMAT(ISN.WorkDate,'dd-MMM-yyyy')WorkDate,U.Id UOM
@@ -1313,7 +1314,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
 						LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
                         LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
-						WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='" + entityId + @"')
+						WHERE ISN.WorkDate between '"+fromDate+@"' AND '"+toDate+@"' AND ISNULL(SC.InventoryReceiveDetailId,'')='' AND SC.POId IN (Select Id from TRN.ProductionOrder Where EntityId='"+EntityId+@"')
 						GROUP BY SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName,MM.IsAsset,ISN.WorkDate,U.Id,MM.Id,MMA.Id";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1380,7 +1381,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
                             LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
                             LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
-                            where PS.ProductionDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + @"' AND PS.ProcessId='" + processId + @"'
+                            where PS.ProductionDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + @"' AND PS.ProcessId='" + processId + @"' AND ISNULL(PS.MaterialMasterId,'')<>''
                             GROUP BY PS.ProductionOrderId,MM.Id,MMA.Id,MM.UserName,MMA.StandardName,U.Id";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1399,7 +1400,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
                             LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PS.ArticleId
                             LEFT JOIN SCS.UnitOfMeasurement U ON MM.BaseUoMId = U.Id
-                            where PS.ProductionDate between '" + fromDate + "' AND '" + toDate + "' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + "' AND PS.ProcessId='" + processId + "'";
+                            where PS.ProductionDate between '" + fromDate + "' AND '" + toDate + "' AND ISNULL(PS.FinishGoodsBookingId,'')='' AND PS.EntityId='" + entityId + "' AND PS.ProcessId='" + processId + "' AND ISNULL(PS.MaterialMasterId,'')<>''";
                 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1447,7 +1448,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
                         ,E.UserName Entity,IR.FinishGoodsBookingId,FG.FromDate,FG.ToDate,FG.SourceType
 					FROM  TRN.InventoryReceive IR
 					LEFT JOIN dbo.[FinishGoodsBooking] AS FG  ON IR.FinishGoodsBookingId=FG.Id
-                     LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS Qty, SUM(ROUND(A.TransactionQty*A.MaterialTranRate,4)) AS Amount
+                     LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS Qty, SUM(ROUND(A.TotalMaterialTranAmount,2)) AS Amount
 					 FROM TRN.InventoryReceiveDetail AS A  GROUP BY A.InventoryReceiveId) AS  IRD ON IRD.InventoryReceiveId=IR.Id
 					 LEFT JOIN ORG.Entity E ON E.Id=FG.ProductionEntityId
 					 LEFT JOIN HKP.Process P ON P.Id=FG.ProcessId
