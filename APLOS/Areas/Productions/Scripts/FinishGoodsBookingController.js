@@ -3,13 +3,34 @@ FinishGoodsBookingController.$inject = ['cboService', 'commonMessage', '$scope',
 function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Finish Goods Booking';
     $scope.Action = 'Save';
+    $scope.LineItemsList = [];
+    $scope.LineItemsList = [];
 
     $scope.modelNew = {
         Id: null,
         ProductionEntityId: null,
         ProcessId: null,
-        ProductionOrderId: null
+        ProductionOrderId: null,
+        FromDate: null,
+        ToDate: null,
+        MaterialStorageId: null,
+        ToCurrencyRate: null,
+        CurrencyId: null,
+        SourceType: 'ProductionBooking'
     }
+
+
+    $scope.GetProductionBookFromToDate = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/FinishGoodsBooking/GetProductionBookFromToDate'
+        }).then(function (response) {
+            $scope.modelNew.FromDate = response.data[0].FromDate;
+            $scope.modelNew.ToDate = response.data[0].ToDate;
+        });
+    };
+    $scope.GetProductionBookFromToDate();
+
 
     $scope.entityList = [];
     $scope.getAllEntities = function () {
@@ -20,7 +41,6 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
             $scope.entityList = response.data;
             if (baseService.arrayLength(response.data) === 1) {
                 $scope.modelNew.ProductionEntityId = $scope.entityList[0].Value;
-                //default
                 $scope.loadProcessList();
             }
         });
@@ -40,145 +60,159 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
 
     };
 
-    $scope.ProductionOrderList = [];
-    $scope.ProdOrderList = [];
-    $scope.getProductionOrderPopUp = function () {
-        $scope.ProductionOrderList = [];
-        $http.get("Productions/FinishGoodsBooking/GetProductionOrderDataList?entityId=" + $scope.modelNew.ProductionEntityId + '&processId=' + $scope.modelNew.ProcessId)
+    $scope.storageList = [];
+    $http({
+        method: 'GET',
+        url: 'Materials/MaterialStorage/getcbo'
+    }).then(function (response) {
+        $scope.storageList = response.data;
+    });
+
+    cboService.getCboTransactionCurrencyByCompany('', function (result) {
+        $scope.currencyList = result;
+    });
+
+    $scope.companyCurrencyId = null;
+    $http({
+        method: 'GET',
+        url: 'currencies/CompanyParallelCurrency/CurrencyParallel'
+    }).then(function successCallback(response) {
+        angular.forEach(response.data, function (item, i) {
+            if (item.ParallelCurrencyType === 'CompanyCurrency') {
+                $scope.companyCurrencyId = item.CurrencyId;
+            }
+        });
+    });
+
+    $scope.GetCurrencyExchangeRateList = function () {
+        if (!baseService.isUndefinedOrNull($scope.modelNew.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + $scope.modelNew.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.modelNew.ToCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
+    $scope.masterDataList = [];
+    $scope.getSavedData = function () {
+        $scope.masterDataList = [];
+        $http.get("Productions/FinishGoodsBooking/GetListByProductionBooking")
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
-                        $scope.ProductionOrderList = response.data;
+                        $scope.masterDataList = response.data;
                     }
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
-        angular.element(document.querySelector('#POItemPopup')).modal('show');
     };
+    $scope.getSavedData();
 
-    $scope.SalesOrderListForProductionOrderId = [];
-    $scope.getSalesOrderOfProdOrderList = function (prodOrdId) {
-        $scope.openPopup('dialogSOItemsForProductionOrder');
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + prodOrdId
-        }).then(function successCallback(response) {
-            $scope.SalesOrderListForProductionOrderId = response.data;
-
-        });
-    }
-    $scope.summaryRows = [{
-        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N0}" }],
-        showCaptionSummary: true
-
-    }];
-    $scope.closePopup = function (popupName) {
-        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
-        try {
-            $("#" + popupName).data("ejDialog").close();
-        } catch (e) {
-
-        }
-    }
-    $scope.openPopup = function (popupName) {
-
-        try {
-            $("#" + popupName).data("ejDialog").open();
-        } catch (e) {
-
-        }
-    }
-
-    $scope.SelectPOItem = function ($event) {
-        $scope.modelNew.ProductionOrderId = $event.data.POId;
-        $scope.GetLineItemData();
-        angular.element(document.querySelector('#POItemPopup')).modal('hide');
-    }
-
-    $scope.SalesOrderLineItems = [];
-    $scope.GetLineItemData = function () {
-        $http({
-            method: 'GET',
-            url: 'Productions/FinishGoodsBooking/GetLineItemData?entityId=' + $scope.modelNew.ProductionEntityId + '&processId=' + $scope.modelNew.ProcessId + '&productionOrderId=' + $scope.modelNew.ProductionOrderId + '&masterId=' + $scope.modelNew.Id
-        }).then(function successCallback(response) {
-            $scope.SalesOrderLineItems = response.data;
-            $scope.GetBookedAndBalancedData();
-            //$scope.GetSavedBookedAndBalancedData();
-        });
-    }
-
-    $scope.ProductCodeList = [];
-    $scope.BookedAndBalancedDataList = [];
-    $scope.GetBookedAndBalancedData = function () {
-        var obj = {};
-        $http({
-            method: 'GET',
-            url: 'Productions/FinishGoodsBooking/GetBookedAndBalancedData?productionOrderId=' + $scope.modelNew.ProductionOrderId
-        }).then(function successCallback(response) {
-            $scope.BookedAndBalancedDataList = response.data;
-            if (baseService.arrayLength($scope.BookedAndBalancedDataList) > 0) {
-                for (var i = 0; i < $scope.SalesOrderLineItems.length; i++) {
-                    for (var j = 0; j < $scope.BookedAndBalancedDataList.length; j++) {
-
-                        obj.ProductLibraryId = $scope.BookedAndBalancedDataList[j].ProductLibraryId;
-                        obj.ProductCode = $scope.BookedAndBalancedDataList[j].ProductCode;
-
-                        if (checkExistList($scope.ProductCodeList, obj.ProductLibraryId) === false) {
-                            $scope.ProductCodeList.push(obj);
-                            obj = {};
-                        }
-                       
-                        //if ($scope.SalesOrderLineItems[i].ProductLibraryId == $scope.BookedAndBalancedDataList[j].ProductLibraryId) {
-
-                        //    $scope.SalesOrderLineItems[i].Qty = $scope.BookedAndBalancedDataList[j].FGQty;
-                        //}
-                    }
-                }
-                var gridObj = $("#GridLineItems").data("ejGrid");
-                gridObj.refreshContent();
-                gridObj.refreshTemplate();
-            }
-        });
-    };
-
-    $scope.SetProductCodeQty = function () {
-
+    $scope.calculateAmount = function (data) {
+        data.Amount = parseFloat(data.Qty * data.Rate).toFixed(2);
         var gridObj = $("#GridLineItems").data("ejGrid");
-        $scope.data = gridObj.getSelectedRecords()[0];
-
-        for (var j = 0; j < $scope.BookedAndBalancedDataList.length; j++) {
-
-            if (data.ProductLibraryId == $scope.BookedAndBalancedDataList[j].ProductLibraryId) {
-                data.Qty = $scope.BookedAndBalancedDataList[j].FGQty;
-            }
-            else {
-                data.Qty = "";
-            }
-        }
+        gridObj.refreshContent(true);
+        gridObj.refreshTemplate();
     }
 
-    function checkExistList(list, Id) {
+    $scope.LineItemsList = [];
+    $scope.WorkDayList = [];
+    $scope.DatewiseList = [];
+    $scope.LoadData = function () {
+        try {
+            if (new Date($scope.modelNew.FromDate) > new Date($scope.modelNew.ToDate)) {
+                throw "From date must be below or equal to To Date";
+            }
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.modelForm.$valid) {
+                $scope.LineItemsList = [];
+                $scope.WorkDayList = [];
+                $scope.DatewiseList = [];
+                
+                $http.get("Productions/FinishGoodsBooking/GetNonPostedProductionSummeryData?entityId=" + $scope.modelNew.ProductionEntityId + '&processId=' + $scope.modelNew.ProcessId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
+                    .then(
+                        function successCallback(response) {
+                            if (baseService.arrayLength(response.data) > 0) {
+                                $scope.LineItemsList = response.data;
+                                GetDateWiseData();
+                            }
+                        },
+                        function errorCallback(response) {
+                            ShowResult(response, 'failure');
+                        });
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    function GetDateWiseData() {
+        var ob = {};
+        $http.get("Productions/FinishGoodsBooking/GetDatewiseNonPostedProductionSummeryData?entityId=" + $scope.modelNew.ProductionEntityId + '&processId=' + $scope.modelNew.ProcessId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.DatewiseList = response.data;
+
+                        for (var i = 0; i < $scope.DatewiseList.length; i++) {
+                            ob.WorkDate = $scope.DatewiseList[i].WorkDate;
+                            if (checkExistList($scope.WorkDayList, ob.WorkDate) === false) {
+                                $scope.WorkDayList.push(ob);
+                                ob = {};
+                            }
+                        }
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    }
+
+    function checkExistList(list, WorkDate) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].ProductLibraryId == Id) {
+            if (list[i].WorkDate === WorkDate) {
                 return true;
             }
         }
         return false;
     }
 
-    $scope.Action = "Save";
+    $scope.SetRate = function () {
+        for (var i = 0; i < $scope.LineItemsList.length; i++) {
+            for (var j = 0; j < $scope.DatewiseList.length; j++) {
+                if ($scope.LineItemsList[i].ProductionOrderId == $scope.DatewiseList[j].ProductionOrderId
+                    && $scope.LineItemsList[i].MaterialMasterId == $scope.DatewiseList[j].MaterialMasterId
+                    && $scope.LineItemsList[i].ArticleId == $scope.DatewiseList[j].ArticleId
+                    && $scope.LineItemsList[i].UOM == $scope.DatewiseList[j].UOM) {
+                    $scope.DatewiseList[j].Rate = $scope.LineItemsList[i].Rate;
+                    $scope.DatewiseList[j].Amount = $scope.LineItemsList[i].Amount;
+                }
+            }
+        }
+    };
+
     $scope.Save = function () {
         try {
+            $scope.SetRate();
+
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.modelForm.$valid) {
                 if ($scope.Action === "Save" || $scope.Action === "Update") {
                     $http({
                         method: "POST",
-                        url: "Productions/FinishGoodsBooking/Insert",
+                        url: "Productions/FinishGoodsBooking/CreateConsumtionBook",
                         data: {
                             "data": $scope.modelNew
-                            , "FinishGoodsBookingDetailList": $scope.SalesOrderLineItems
+                            , "WorkDayList": $scope.WorkDayList
+                            , "FinishGoodsBookingDetailList": $scope.DatewiseList
                         },
                         dataType: "JSON"
                     }).then(function successCallback(response) {
@@ -187,10 +221,11 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
                         }
                         else {
                             ShowResult(response.data.Message, "success");
-                            $scope.modelNew.Id = response.data.Id;
+                            // $scope.modelNew = response.data.Data;
+                            //$scope.GetItemDetailData();
                             $scope.getSavedData();
-                            $scope.getSavedDetailData();
-                            $scope.Action = "Update";
+                            //$scope.LoadData();
+                            $scope.Clear();
                         }
                     }, function errorCallback(response) {
                         ShowResult(response.status.Message, "failure");
@@ -206,84 +241,14 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
 
     $scope.Clear = function () {
         $scope.modelNew = {
-            Id: null,ProductionEntityId: null,ProcessId: null,ProductionOrderId: null
+            Id: null, ProductionEntityId: null, ProcessId: null, ProductionOrderId: null, FromDate: null, ToDate: null
         }
         $scope.ProductCodeList = [];
         $scope.SalesOrderLineItems = [];
         $scope.BookedAndBalancedDataList = [];
+        $scope.LineItemsList = [];
+        $scope.GetProductionBookFromToDate();
     }
-
-
-    $scope.masterDataList = [];
-    $scope.getSavedData = function () {
-        $scope.masterDataList = [];
-        $http.get("Productions/FinishGoodsBooking/GetList")
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.masterDataList = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-    };
-    $scope.getSavedData();
-
-    $scope.getSavedDetailData = function () {
-        $http.get("Productions/FinishGoodsBooking/GetDetailList?masterId=" + $scope.modelNew.Id + '&entityId=' + $scope.modelNew.ProductionEntityId + '&processId=' + $scope.modelNew.ProcessId + '&productionOrderId=' + $scope.modelNew.ProductionOrderId)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.SalesOrderLineItems = response.data;
-                        $scope.GetBookedAndBalancedData();
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-    };
-
-    $scope.GetSavedBookedAndBalancedData = function () {
-        var obj = {};
-        $http({
-            method: 'GET',
-            url: 'Productions/FinishGoodsBooking/GetSavedBookedAndBalancedData?productionOrderId=' + $scope.modelNew.ProductionOrderId
-        }).then(function successCallback(response) {
-            $scope.BookedAndBalancedDataList = response.data;
-            if (baseService.arrayLength($scope.BookedAndBalancedDataList) > 0) {
-                for (var i = 0; i < $scope.SalesOrderLineItems.length; i++) {
-                    for (var j = 0; j < $scope.BookedAndBalancedDataList.length; j++) {
-
-                        obj.ProductLibraryId = $scope.BookedAndBalancedDataList[j].ProductLibraryId;
-                        obj.ProductCode = $scope.BookedAndBalancedDataList[j].ProductCode;
-
-                        if (checkExistList($scope.ProductCodeList, obj.ProductLibraryId) === false) {
-                            $scope.ProductCodeList.push(obj);
-                            obj = {};
-                        }
-                    }
-                }
-                var gridObj = $("#GridLineItems").data("ejGrid");
-                gridObj.refreshContent();
-                gridObj.refreshTemplate();
-            }
-        });
-    };
-
-    $scope.Get = function (obj) {
-        $scope.modelNew = Object.assign({}, obj.data);
-        $scope.loadProcessList();
-        $scope.getSavedDetailData();
-        
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
-
-
-
 
 }
 

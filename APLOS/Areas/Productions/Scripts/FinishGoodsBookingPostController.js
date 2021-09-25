@@ -12,8 +12,8 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
     $scope.TotalPayableAmount = 0;
 
     $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
-    $scope.searchByPostedGRNList = [{ value: 'Id', name: "GRN No" }, { value: 'GRNDate', name: "GRN Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
-        , { value: 'PostingDate', name: "PostingDate" }, { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
+    $scope.searchByPostedGRNList = [{ value: 'InventoryReceiveId', name: "FG Inventory No" }, { value: 'Id', name: "FG Book No" }, { value: 'VoucherNo', name: "VoucherNo" }
+        , { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRef No" }
         , { value: 'DocDate', name: "Doc Date" }];
 
     $scope.products = [];
@@ -76,6 +76,8 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         , EmployeeId: null
         , EmployeeCode: null
         , EmployeeName: null
+        , InvoiceReceiveId: null
+        , ProcessName: null
 
         , PartyId: null
         , PartyPlantId: null
@@ -128,7 +130,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
 
 
     $scope.getCboVoucherType = function () {
-        cboService.getCboVoucherTypeConsumptionBookList(function (result) {
+        cboService.getCboVoucherTypeFGInventoryList(function (result) {
             $scope.voucherTypeList = result;
             if (baseService.arrayLength($scope.voucherTypeList) === 1)
                 $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -159,13 +161,15 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         $scope.modelNew = data.data;
         $scope.modelNew.VoucherTypeId = voucherTypeId;
         $scope.modelNew.DocRefNo = data.data.Id;
+        $scope.modelNew.InventoryReceiveId = data.data.InventoryReceiveId;
+        $scope.modelNew.ProcessName = data.data.ProcessName;
         $scope.TotalPayableAmount = 0;
         $scope.getCboVoucherType();
 
         $scope.modelNew.PostingDate = $filter("dateFiltering")(data.data.PostingDate);
         $scope.modelNew.DocDate = $filter("dateFiltering")(data.data.PostingDate);
         getRecievedList();
-        getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable, $scope.modelNew.IsFOC);
+        getInventoryMaterialList(data.data.InventoryReceiveId);
         getInventoryTaxList(data.data.Id);
        
         $scope.closeGRNPopUp();
@@ -182,8 +186,8 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
                 $scope.inventoryPayableList = response.data;
             });
     }
-    function getInventoryMaterialList(inveReveiveId, employeeId, isReversCharge, foc) {
-        $http.get('Productions/FinishGoodsBooking/GetFGJournal?dateWiseConsumptionId=' + inveReveiveId)
+    function getInventoryMaterialList(inveReveiveId) {
+        $http.get('Productions/FinishGoodsBooking/GetFGJournal?inventoryReceiveId=' + inveReveiveId)
             .then(function (response) {
                 $scope.inventoryPayableList = [];
                 $scope.inventoryReceiveDetailList = [];
@@ -314,7 +318,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
     };
 
     function getRecievedList() {
-        $http.get('Productions/FinishGoodsBooking/GetFGMaterialDetail?dateWiseConsumptionId=' + $scope.modelNew.Id)
+        $http.get('Productions/FinishGoodsBooking/GetFGMaterialDetail?inventoryReceiveId=' + $scope.modelNew.InventoryReceiveId)
             .then(function (response) {
                 $scope.inventoryReceivedList = response.data.Rows;
             });

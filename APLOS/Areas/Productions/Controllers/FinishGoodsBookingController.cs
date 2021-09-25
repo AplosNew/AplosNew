@@ -49,9 +49,15 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetList()
+        public JsonResult GetListByPacking()
         {
-            return Json(clsFinishGoodsBooking.GetList(), JsonRequestBehavior.AllowGet);
+            return Json(clsFinishGoodsBooking.GetListByPacking(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetListByProductionBooking()
+        {
+            return Json(clsFinishGoodsBooking.GetListByProductionBooking(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -75,6 +81,13 @@ namespace Aplos.Areas.Productions.Controllers
         public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
         {
             clsFinishGoodsBooking.SaveData(data, WorkDayList, FinishGoodsBookingDetailList);
+            return Json(new { Data = data, Message = AplosMessage.Insert });
+        }
+
+        [HttpPost]
+        public JsonResult CreateConsumtionBook(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
+        {
+            clsFinishGoodsBooking.ConsumtionBookData(data, WorkDayList, FinishGoodsBookingDetailList);
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 
@@ -127,12 +140,32 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(clsFinishGoodsBooking.GetFromDate(), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetProductionBookFromToDate()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(clsFinishGoodsBooking.GetProductionBookFromToDate(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetItemScanChildData(string entityId,string fromDate, string toDate)
         {
-
             var jsondata = Json(clsFinishGoodsBooking.GetItemScanChildData(entityId,fromDate, toDate), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetNonPostedProductionSummeryData(string entityId, string processId, string fromDate, string toDate)
+        {
+            var jsondata = Json(clsFinishGoodsBooking.GetNonPostedProductionSummeryData(entityId, processId, fromDate, toDate), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetDatewiseNonPostedProductionSummeryData(string entityId, string processId, string fromDate, string toDate)
+        {
+            var jsondata = Json(clsFinishGoodsBooking.GetDatewiseNonPostedProductionSummeryData(entityId, processId, fromDate, toDate), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -151,16 +184,16 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(accountingFinishGoodsService.GetPostedFinishGoodsBookingData(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public JsonResult GetFGMaterialDetail(GridParameter parameters, string dateWiseConsumptionId)
+        public JsonResult GetFGMaterialDetail(GridParameter parameters, string inventoryReceiveId)
         {
-            return Json(clsFinishGoodsBooking.GetFGMaterialDetail(parameters, dateWiseConsumptionId), JsonRequestBehavior.AllowGet);
+            return Json(clsFinishGoodsBooking.GetFGMaterialDetail(parameters, inventoryReceiveId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetFGJournal(string dateWiseConsumptionId)
+        public JsonResult GetFGJournal(string inventoryReceiveId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(clsFinishGoodsBooking.GetFGJournal(identity.CompanyId, dateWiseConsumptionId), JsonRequestBehavior.AllowGet);
+            return Json(clsFinishGoodsBooking.GetFGJournal(identity.CompanyId, inventoryReceiveId), JsonRequestBehavior.AllowGet);
 
         }
 
@@ -222,5 +255,6 @@ namespace Aplos.Areas.Productions.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+
     }
 }

@@ -522,6 +522,8 @@ namespace Library.Service.EmployeeServices
                 var sqlx = @"select * from dbo.ItemScanChild where Booked=0 AND IsDespatch=0 and RefNo IN(" + RefNo + @")";
                 con.OpenDataSetThroughAdapter(sqlx, out dsMaster, false, "1");
 
+                double BkQty = 0.0;
+                string PckId = "";
                 foreach (ItemScanChildData item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
@@ -534,7 +536,8 @@ namespace Library.Service.EmployeeServices
                         dr["PackingId"] = item.PackingId;
                         dr["Booked"] = true;
                         dr.EndEdit();
-
+                        PckId = item.PackingId;
+                        BkQty += clsStaticInfo.dbl(dr["NetWeight"].ToString());
                     }
                     else
                     {
@@ -543,7 +546,21 @@ namespace Library.Service.EmployeeServices
 
 
                 }
+
+                ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                DataSet dsPo;
+                
+                var sql = @"select * from trn.POLotReference where Id ='"+PckId+"'";
+                conn.OpenDataSetThroughAdapter(sql, out dsPo, false, "1");
+
+                double poBkQty = clsStaticInfo.dbl(dsPo.Tables[0].Rows[0]["BookQty"].ToString());
+                BkQty += poBkQty;
+                dsPo.Tables[0].Rows[0].BeginEdit();
+                dsPo.Tables[0].Rows[0]["BookQty"] = BkQty;
+                dsPo.Tables[0].Rows[0].EndEdit();
+
                 SaveDataSets(dsMaster);
+                SaveDataSets(dsPo);
                 if(ErrorList!="")
                 {
                     return "Their are issues with these Cartons:- " + ErrorList;

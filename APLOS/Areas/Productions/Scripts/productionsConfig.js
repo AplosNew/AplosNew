@@ -131,10 +131,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/Packing/Aplos',
             controller: 'PackingController'
         })
-        //.when('/finish-goods-book', {
-        //    templateUrl: 'Productions/FinishGoodsBooking/Aplos',
-        //    controller: 'FinishGoodsBookingController'
-        //})
+        .when('/finish-goods-book', {
+            templateUrl: 'Productions/FinishGoodsBooking/Aplos',
+            controller: 'FinishGoodsBookingController'
+        })
         .when('/finishgoods-book-post', {
             templateUrl: 'Productions/FinishGoodsBooking/ConsumptionBookPost',
             controller: 'FinishGoodsBookingPostController'
@@ -193,6 +193,11 @@ function ProductionsConfig($routeProvider, $locationProvider) {
         .when('/production-order-process-with-rate', {
             templateUrl: 'Productions/ProductionOrderProcessWithRate/Aplos',
             controller: 'ProductionOrderProcessWithRateController'
+        })
+
+        .when('/production-order-rate-report', {
+            templateUrl: 'Productions/ProductionOrderRateReport/Aplos',
+            controller: 'ProductionOrderRateReportController'
         })
 
         ;

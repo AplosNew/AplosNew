@@ -95,12 +95,13 @@
                 @*<div e-column e-headertext="" e-headertemplateid="#PkheaderTemplate" e-template="#PkcheckboxTemplate" e-textalign="center" e-width="30"></div>*@
                 <div e-column e-field="ProductionOrderId" e-headertext="PrO" e-width="50"></div>
                 <div e-column e-field="ProductCode" e-headertext="ProductCode" e-width="80"></div>
+                @*<div e-column e-field="WorkDate" e-headertext="Production Date" e-width="60" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>*@
                 <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
                 <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
                 <div e-column e-field="CostingMasterTemplateId" e-headertext="CostingId" e-width="80"></div>
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
                 <div e-column e-field="Rate" e-headertext="Rate" e-width="50" e-textalign="right" e-format="{0:0.0000}"></div>
-                <div e-column e-template="#Rate" e-headertext="Rate" e-width="100" style="height: 20px;"></div>
+                <div e-column e-template="#Rate" e-headertext="Rate" e-width="90" style="height: 20px;" e-textalign="right"></div>
                 <div e-column e-field="Amount" e-headertext="Amount" e-width="50" e-textalign="right" e-format="{0:0.00}"></div>
                 <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-textalign="center" e-width="50"></div>
             </div>
@@ -114,7 +115,7 @@
         <script type="text/template" id="Rate">
             <div class="col-sm-10" style="padding:0px; width:100px;">
                 @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.Rate" e-width="100" e-change="$parent.calculateAmount(data)"/>*@
-                <input type="text" class="form-control" n-decimals="4" ng-model="data.Rate" ng-change="$parent.calculateAmount(data)"/>
+                <input type="text" style="text-align:right" class="form-control" n-decimals="4" ng-model="data.Rate" ng-change="$parent.calculateAmount(data)"/>
                 
             </div>
         </script>
@@ -147,7 +148,7 @@
                 <div e-column e-field="FDate" e-headertext="From Date" e-width="60" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                 <div e-column e-field="TDate" e-headertext="To Date" e-width="60" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                 <div e-column e-field="Description" e-headertext="Description" e-width="60" e-type="string"></div>
-                <div e-column e-field="GRNNo" e-headertext="GRNNo" e-width="80" e-type="string"></div>
+                <div e-column e-field="GRNNo" e-headertext="FGInventory" e-width="80" e-type="string"></div>
             </div>
         </div>
     </div>

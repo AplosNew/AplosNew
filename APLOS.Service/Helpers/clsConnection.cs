@@ -252,7 +252,7 @@ namespace ConnectionManager
                 sqlDataAdapter.Fill(dsRef);
                 dsRef.ExtendedProperties.Add("Query", strQuery);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 idbTransaction.Rollback();
                 idbConnection.Close();
