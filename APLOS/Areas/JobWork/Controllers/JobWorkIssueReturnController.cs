@@ -1466,6 +1466,9 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                                ,mm.UserName as Material , mma.StandardName as Article
                                ,c.Code as Currency, emp.EmployeeName as ResponsiblePerson, JL.LocationName as MaterialLocation
                                ,OutputUnit=case when tc.OrderSpecific='Yes' then mmuom.UserName else uom.UserName End
+                                ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
+                                ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
+                                ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
                                from dbo.JobWorkTransformationContractChild mp left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
         					   left join SCS.UnitOfMeasurement uom on uom.Id=mp.OutputMaterialUOMId
                                left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mp.BaseUOMId
@@ -1477,6 +1480,12 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							   --left join HKP.MaterialStorage MS on MS.Id=mp.MaterialLocationId
 					   	   	   left join HKP.JobWorkLocation JL on JL.Id=mp.MaterialLocationId
 							   left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
+                               LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = mp.FirstCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = mp.FirstCharacteristicsValueId
+                            LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = mp.SecondCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = mp.SecondCharacteristicsValueId
+                            LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = mp.ThirdCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = mp.ThirdCharacteristicsValueId
         					   where tc.Id='" + PKId + "' ";
 
 
