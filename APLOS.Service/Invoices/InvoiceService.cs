@@ -43,8 +43,6 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<MultiplePayment> _multiplePaymentRepository;
         private readonly IRepositoryAsync<MultiplePaymentDetail> _multiplePaymentDetailRepository;
         private readonly IRepositoryAsync<InvoiceDetail> _invoiceDetailRepository;
-        private readonly IRepositoryAsync<CompanyParty> _companyPartyRepository;
-        private readonly IRepositoryAsync<CompanyPartyGL> _companyPartyGLRepository;
         private readonly IRepositoryAsync<InvoiceMaterial> _invoiceMaterialRepository;
         private readonly IHSNTaxPercentageService _hsnTaxPercentageService;
         private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
@@ -57,11 +55,6 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<TaxCategory> _taxCategoryRepository;
         private readonly IVoucherService _voucherService;
         private readonly IInvoiceTaxService _invoiceTaxService;
-        private readonly IRepositoryAsync<CashMaster> _cashMasterRepository;
-        private readonly IRepositoryAsync<Voucher> _voucherRepository;
-        private readonly IRepositoryAsync<VoucherDetail> _voucherDetailRepository;
-        private readonly IRepositoryAsync<VoucherDetailCurrency> _voucherDetailCurrencyRepository;
-        private readonly IRepositoryAsync<GLTransactionDetail> _gLTransactionDetailRepository;
         private readonly IRepositoryAsync<InvoiceDetailCharges> _invoiceDetailChargesRepository;
         private readonly IRepositoryAsync<InvoiceServiceMasterCharges> _invoiceServiceMasterChargesRepository;
         private readonly IRepositoryAsync<InvoiceServiceMasterChargesDetail> _invoiceServiceMasterChargesDetailRepository;
@@ -90,13 +83,6 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<TaxCategory> taxCategoryRepository
             , IVoucherService voucherService
             , IInvoiceTaxService invoiceTaxService
-            , IRepositoryAsync<CompanyParty> companyPartyRepository
-            , IRepositoryAsync<CompanyPartyGL> companyPartyGLRepository
-            , IRepositoryAsync<CashMaster> cashMasterRepository
-            , IRepositoryAsync<Voucher> voucherRepository
-            , IRepositoryAsync<VoucherDetail> voucherDetailRepository
-            , IRepositoryAsync<VoucherDetailCurrency> voucherDetailCurrencyRepository
-            , IRepositoryAsync<GLTransactionDetail> gLTransactionDetailRepository
             , IRepositoryAsync<InvoiceDetailCharges> invoiceDetailChargesRepository
             , IRepositoryAsync<InvoiceServiceMasterCharges> invoiceServiceMasterChargesRepository
             , IRepositoryAsync<InvoiceServiceMasterChargesDetail> invoiceServiceMasterChargesDetailRepository
@@ -124,13 +110,6 @@ namespace Library.Service.Invoices
             _taxCategoryRepository = taxCategoryRepository;
             _voucherService = voucherService;
             _invoiceTaxService = invoiceTaxService;
-            _companyPartyRepository = companyPartyRepository;
-            _companyPartyGLRepository = companyPartyGLRepository;
-            _cashMasterRepository = cashMasterRepository;
-            _voucherDetailRepository = voucherDetailRepository;
-            _voucherRepository = voucherRepository;
-            _voucherDetailCurrencyRepository = voucherDetailCurrencyRepository;
-            _gLTransactionDetailRepository = gLTransactionDetailRepository;
             _invoiceDetailChargesRepository = invoiceDetailChargesRepository;
             _invoiceServiceMasterChargesRepository = invoiceServiceMasterChargesRepository;
             _invoiceServiceMasterChargesDetailRepository = invoiceServiceMasterChargesDetailRepository;
@@ -1651,15 +1630,15 @@ namespace Library.Service.Invoices
                 {
                     if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                         throw new CustomException("Cash Id not found!");
-                    var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                    var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
 
                     invoice.CashMasterId = voucherVM.CashMasterId;
 
                     var voucherDetailDr = new VoucherDetail
                     {
-                        GLGeneralInfoId = cashMaster.GLGeneralInfoId,
-                        BudgetMasterId = cashMaster.BudgetMasterId,
-                        ActivityId = cashMaster.ActivityId,
+                        GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString(),
+                        BudgetMasterId = cashMaster["BudgetMasterId"].ToString(),
+                        ActivityId = cashMaster["ActivityId"].ToString(),
                         DrAmount = invoice.Amount,
                         PostingWithoutTaxAllow = invoice.IsExcludingTax,
                         PaymentSource = PaymentSource.Cash.ToString(),
@@ -1676,7 +1655,7 @@ namespace Library.Service.Invoices
                         CashMasterId = voucherVM.CashMasterId
                     };
 
-                    if (cashMaster.CurrencyId == voucherVM.CurrencyId)
+                    if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                         glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
                     else
                         glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
@@ -1849,26 +1828,17 @@ namespace Library.Service.Invoices
                 }
 
 
-
                 var partyType = PartyType.Vendor.ToString();
-                var companyParty = _companyPartyRepository.Query(r => r.CompanyId == invoice.CompanyId && r.PlantId == invoice.PlantId && r.PartyId == invoice.PartyId && r.PartyType == partyType).Select().FirstOrDefault();
-                if (null == companyParty)
-                    throw new CustomException("Plant party mapping not found!");
-                var companyPartyGLList = _companyPartyGLRepository.Query(r => r.PartyId == companyParty.PartyId && r.CompanyPartyId == companyParty.Id).Select().ToList();
-                if (null == companyPartyGLList)
-                    throw new CustomException("Party GL not found!");
-
-                var reconGL = PartyGLType.ReconciliationGL.ToString();
-                var regularGL = companyPartyGLList.FirstOrDefault(r => r.PartyGLType == reconGL);
-                if (null == regularGL)
-                    throw new CustomException("Party Reconciliation GL not found!");
-
+                var companyParty = _accountsCommonService.GetCompanyParty(invoice.CompanyId,invoice.PlantId,invoice.PartyId,partyType);
+               
+                var companyPartyGLList = _accountsCommonService.GetCompanyPartyGL(companyParty["PartyId"].ToString(),companyParty["Id"].ToString(), PartyGLType.ReconciliationGL.ToString());
+               
                 // INSERT INTO InvoiceDetail
                 var invoiceDetail = new InvoiceDetail
                 {
-                    GLGeneralInfoId = regularGL.GLGeneralInfoId,
-                    BudgetMasterId = regularGL.BudgetMasterId,
-                    ActivityId = regularGL.ActivityId,
+                    GLGeneralInfoId = companyPartyGLList["GLGeneralInfoId"].ToString(),
+                    BudgetMasterId = companyPartyGLList["BudgetMasterId"].ToString(),
+                    ActivityId = companyPartyGLList["ActivityId"].ToString(),
                     // Amount = voucherVM.Amount,
                     // Amount = voucherVM.IsExcludingTax ? voucherVM.Amount  : voucherVM.Amount + totalcreditableDrAmount,
                     Amount = voucherVM.Amount,
@@ -2240,15 +2210,15 @@ namespace Library.Service.Invoices
                     {
                         if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                             throw new CustomException("Cash Id not found!");
-                        var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                        var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
 
                         invoice.CashMasterId = voucherVM.CashMasterId;
 
                         var voucherDetailDr = new VoucherDetail
                         {
-                            GLGeneralInfoId = cashMaster.GLGeneralInfoId,
-                            BudgetMasterId = cashMaster.BudgetMasterId,
-                            ActivityId = cashMaster.ActivityId,
+                            GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString(),
+                            BudgetMasterId = cashMaster["BudgetMasterId"].ToString(),
+                            ActivityId = cashMaster["ActivityId"].ToString(),
                             DrAmount = invoice.Amount,
                             PostingWithoutTaxAllow = invoice.IsExcludingTax,
                             PaymentSource = PaymentSource.Cash.ToString(),
@@ -2265,7 +2235,7 @@ namespace Library.Service.Invoices
                             CashMasterId = voucherVM.CashMasterId
                         };
 
-                        if (cashMaster.CurrencyId == voucherVM.CurrencyId)
+                        if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                             glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
                         else
                             glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
@@ -2440,24 +2410,16 @@ namespace Library.Service.Invoices
 
 
                     var partyType = PartyType.Vendor.ToString();
-                    var companyParty = _companyPartyRepository.Query(r => r.CompanyId == invoice.CompanyId && r.PlantId == invoice.PlantId && r.PartyId == invoice.PartyId && r.PartyType == partyType).Select().FirstOrDefault();
-                    if (null == companyParty)
-                        throw new CustomException("Plant party mapping not found!");
-                    var companyPartyGLList = _companyPartyGLRepository.Query(r => r.PartyId == companyParty.PartyId && r.CompanyPartyId == companyParty.Id).Select().ToList();
-                    if (null == companyPartyGLList)
-                        throw new CustomException("Party GL not found!");
+                    var companyParty = _accountsCommonService.GetCompanyParty(invoice.CompanyId, invoice.PlantId, invoice.PartyId, partyType);
 
-                    var reconGL = PartyGLType.ReconciliationGL.ToString();
-                    var regularGL = companyPartyGLList.FirstOrDefault(r => r.PartyGLType == reconGL);
-                    if (null == regularGL)
-                        throw new CustomException("Party Reconciliation GL not found!");
+                    var companyPartyGLList = _accountsCommonService.GetCompanyPartyGL(companyParty["PartyId"].ToString(), companyParty["Id"].ToString(), PartyGLType.ReconciliationGL.ToString());
 
                     // INSERT INTO InvoiceDetail
                     var invoiceDetail = new InvoiceDetail
                     {
-                        GLGeneralInfoId = regularGL.GLGeneralInfoId,
-                        BudgetMasterId = regularGL.BudgetMasterId,
-                        ActivityId = regularGL.ActivityId,
+                        GLGeneralInfoId = companyPartyGLList["GLGeneralInfoId"].ToString(),
+                        BudgetMasterId = companyPartyGLList["BudgetMasterId"].ToString(),
+                        ActivityId = companyPartyGLList["ActivityId"].ToString(),
                         // Amount = voucherVM.Amount,
                         // Amount = voucherVM.IsExcludingTax ? voucherVM.Amount  : voucherVM.Amount + totalcreditableDrAmount,
                         Amount = voucherVM.Amount,
@@ -3204,7 +3166,7 @@ namespace Library.Service.Invoices
 
 
                                 var voucherDetail = new VoucherDetail();
-                                voucherDetail = _voucherDetailRepository.Query(r => r.InvoiceTaxDetailId == invoiceTaxDetail.Id).Select().FirstOrDefault();
+                                voucherDetail = _voucherService.QueryVoucherDetailByInvoiceTaxDetail(invoiceTaxDetail.Id).Select().FirstOrDefault();
                                 if (invoiceTaxVM.AType == "Dr")
                                 {
                                     voucherDetail.DrAmount = invoiceTaxVM.TaxAmount;
@@ -3245,28 +3207,28 @@ namespace Library.Service.Invoices
                 {
                     if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                         throw new CustomException("Cash Id not found!");
-                    var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                    var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
 
                     invoice.CashMasterId = voucherVM.CashMasterId;
 
-                    var voucherDetailDr = _voucherDetailRepository.Query(r => r.VoucherId == voucherVM.VoucherId && r.CashMasterId == voucherVM.CashMasterId).Select().FirstOrDefault();
+                    var voucherDetailDr = _voucherService.QueryVoucherDetailByCash(voucherVM.VoucherId,voucherVM.CashMasterId).Select().FirstOrDefault();
                     voucherDetailDr.DrAmount = voucherVM.Amount;
                     _voucherService.UpdateVoucherDetail(voucher, voucherDetailDr);
                     totalAmountDr += voucherDetailDr.DrAmount;
 
-                    var glTransactionDetail = _gLTransactionDetailRepository.Find(voucherDetailDr.Id);
-                    if (cashMaster.CurrencyId == voucherVM.CurrencyId)
+                    var glTransactionDetail = _voucherService.FindGLTransactionDetail(voucherDetailDr.Id);
+                    if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                         glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
                     else
                         glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
-                    _gLTransactionDetailRepository.Update(glTransactionDetail);
+                    _voucherService.UpdateGLTransactionDetail(voucherDetailDr,glTransactionDetail);
 
                     var voucherDetailCurrency = _voucherService.GetVoucherDetailCurrencyList(r => r.VoucherId == voucher.Id && r.VoucherDetailId == voucherDetailDr.Id).Select().FirstOrDefault();
                     voucherDetailCurrency.DrAmount = voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate;
                     _voucherService.UpdateVoucherDetailCompanyCurrency(voucherDetailDr, voucherDetailCurrency);
 
                 }
-                var voucherDetailCr = _voucherDetailRepository.Query(r => r.VoucherId == voucher.Id && r.PartyId == voucherVM.PartyId).Select().FirstOrDefault();
+                var voucherDetailCr = _voucherService.QueryVoucherDetailByParty(voucher.Id,voucherVM.PartyId).Select().FirstOrDefault();
                 var partyType = PartyType.Vendor.ToString();
                 // UPdate INTO InvoiceDetail
                 var invoiceDetail = new InvoiceDetail();
@@ -3945,19 +3907,19 @@ namespace Library.Service.Invoices
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var invoice = base.Find(invoiceId);
                 var invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 var invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -3982,17 +3944,17 @@ namespace Library.Service.Invoices
                 }
                 foreach (var item in voucherdetail)
                 {
-                    var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                    var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                     if (gltransaction.Count>0)
                     {
                         foreach (var item1 in gltransaction)
                         {
-                            _gLTransactionDetailRepository.Delete(item1.Id);
+                            _voucherService.DeleteGLTransactionDetail(item1.Id);
 
                         }
 
                     }
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4011,7 +3973,7 @@ namespace Library.Service.Invoices
                     _invoiceDetailRepository.Delete(item.Id);
                 }
                 base.Delete(invoiceId);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -4324,27 +4286,17 @@ namespace Library.Service.Invoices
                     });
 
                 }
-
-
                 var partyType = PartyType.Vendor.ToString();
-                var companyParty = _companyPartyRepository.Query(r => r.CompanyId == invoice.CompanyId && r.PlantId == invoice.PlantId && r.PartyId == invoice.PartyId && r.PartyType == partyType).Select().FirstOrDefault();
-                if (null == companyParty)
-                    throw new CustomException("Plant party mapping not found!");
-                var companyPartyGLList = _companyPartyGLRepository.Query(r => r.PartyId == companyParty.PartyId && r.CompanyPartyId == companyParty.Id).Select().ToList();
-                if (null == companyPartyGLList)
-                    throw new CustomException("Party GL not found!");
+                var companyParty = _accountsCommonService.GetCompanyParty(invoice.CompanyId, invoice.PlantId, invoice.PartyId, partyType);
 
-                var reconGL = PartyGLType.ReconciliationGL.ToString();
-                var regularGL = companyPartyGLList.FirstOrDefault(r => r.PartyGLType == reconGL);
-                if (null == regularGL)
-                    throw new CustomException("Party Reconciliation GL not found!");
+                var companyPartyGLList = _accountsCommonService.GetCompanyPartyGL(companyParty["PartyId"].ToString(), companyParty["Id"].ToString(), PartyGLType.ReconciliationGL.ToString());
 
                 // INSERT INTO InvoiceDetail
                 var invoiceDetail = new InvoiceDetail
                 {
-                    GLGeneralInfoId = regularGL.GLGeneralInfoId,
-                    BudgetMasterId = regularGL.BudgetMasterId,
-                    ActivityId = regularGL.ActivityId,
+                    GLGeneralInfoId = companyPartyGLList["GLGeneralInfoId"].ToString(),
+                    BudgetMasterId = companyPartyGLList["BudgetMasterId"].ToString(),
+                    ActivityId = companyPartyGLList["ActivityId"].ToString(),
                     Amount = voucherDetailVMList.Sum(r => r.TransactionAmount),
                     NetAmount = voucherDetailVMList.Sum(r => r.TransactionAmount) + taxDetailVMList.Sum(r => r.TaxAmount),
                     TaxAmount = taxDetailVMList.Sum(r => r.TaxAmount)
@@ -4418,18 +4370,18 @@ namespace Library.Service.Invoices
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var invoice = base.Find(invoiceId);
                 var invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4444,7 +4396,7 @@ namespace Library.Service.Invoices
                 foreach (var item in voucherdetail)
                 {
 
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4463,7 +4415,7 @@ namespace Library.Service.Invoices
                     _invoiceDetailRepository.Delete(item.Id);
                 }
                 base.Delete(invoiceId);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -4498,12 +4450,12 @@ namespace Library.Service.Invoices
                 flag = true;
                 if(invoiceId != null)
                 {
-                    var voucher = _voucherRepository.Find(voucherId);
+                    var voucher = _voucherService.FindVoucher(voucherId);
                     if (voucher.IsPark == false)
                         throw new CustomException("Delete is not allow after post ! ");
 
-                    var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                    var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                    var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                    var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
 
                     var invoice = base.Find(invoiceId);
                     if (invoice.WrittenOffAmount > 0)
@@ -4522,7 +4474,7 @@ namespace Library.Service.Invoices
 
                     foreach (var item in voucherdetailcurrnecy)
                     {
-                        _voucherDetailCurrencyRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetailCurrency(item.Id);
                     }
                     if (invoiceTax != null)
                     {
@@ -4547,17 +4499,17 @@ namespace Library.Service.Invoices
                     }
                     foreach (var item in voucherdetail)
                     {
-                        var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                        var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                         if (gltransaction.Count > 0)
                         {
                             foreach (var item1 in gltransaction)
                             {
-                                _gLTransactionDetailRepository.Delete(item1.Id);
+                                _voucherService.DeleteGLTransactionDetail(item1.Id);
 
                             }
 
                         }
-                        _voucherDetailRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetail(item.Id);
                     }
                     if (invoiceTax != null)
                     {
@@ -4576,16 +4528,16 @@ namespace Library.Service.Invoices
                         _invoiceDetailRepository.Delete(item.Id);
                     }
                     base.Delete(invoiceId);
-                    _voucherRepository.Delete(voucher.Id);
+                    _voucherService.DeleteVoucher(voucher.Id);
                 }
                 else
                 {
-                    var voucher = _voucherRepository.Find(voucherId);
+                    var voucher = _voucherService.FindVoucher(voucherId);
                     if (voucher.IsPark == false)
                         throw new CustomException("Delete is not allow after post ! ");
 
-                    var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                    var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                    var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                    var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
 
                     var grnBuilder = new System.Text.StringBuilder();
                     var buildergrnSql = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
@@ -4594,26 +4546,26 @@ namespace Library.Service.Invoices
 
                     foreach (var item in voucherdetailcurrnecy)
                     {
-                        _voucherDetailCurrencyRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetailCurrency(item.Id);
                     }
                     
                     
                     foreach (var item in voucherdetail)
                     {
-                        var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                        var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                         if (gltransaction.Count > 0)
                         {
                             foreach (var item1 in gltransaction)
                             {
-                                _gLTransactionDetailRepository.Delete(item1.Id);
+                                _voucherService.DeleteGLTransactionDetail(item1.Id);
 
                             }
 
                         }
-                        _voucherDetailRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetail(item.Id);
                     }
                     
-                    _voucherRepository.Delete(voucher.Id);
+                    _voucherService.DeleteVoucher(voucher.Id);
                 }
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -4647,12 +4599,12 @@ namespace Library.Service.Invoices
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var invoice = base.Find(invoiceId);
                 if (invoice.WrittenOffAmount > 0)
                     throw new CustomException("Please Delete Payment Voucher first ! ");
@@ -4670,7 +4622,7 @@ namespace Library.Service.Invoices
 
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4695,17 +4647,17 @@ namespace Library.Service.Invoices
                 }
                 foreach (var item in voucherdetail)
                 {
-                    var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                    var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                     if (gltransaction.Count > 0)
                     {
                         foreach (var item1 in gltransaction)
                         {
-                            _gLTransactionDetailRepository.Delete(item1.Id);
+                            _voucherService.DeleteGLTransactionDetail(item1.Id);
 
                         }
 
                     }
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4724,7 +4676,7 @@ namespace Library.Service.Invoices
                     _invoiceDetailRepository.Delete(item.Id);
                 }
                 base.Delete(invoiceId);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -4757,12 +4709,12 @@ namespace Library.Service.Invoices
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
 
               
 
@@ -4783,7 +4735,7 @@ namespace Library.Service.Invoices
 
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4808,17 +4760,17 @@ namespace Library.Service.Invoices
                 }
                 foreach (var item in voucherdetail)
                 {
-                    var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                    var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                     if (gltransaction.Count > 0)
                     {
                         foreach (var item1 in gltransaction)
                         {
-                            _gLTransactionDetailRepository.Delete(item1.Id);
+                            _voucherService.DeleteGLTransactionDetail(item1.Id);
 
                         }
 
                     }
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4837,25 +4789,25 @@ namespace Library.Service.Invoices
                     _invoiceDetailRepository.Delete(item.Id);
                 }
                 base.Delete(invoice.Id);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 if (InventoryVoucherId != null)
                 {
-                    var voucher2 = _voucherRepository.Find(InventoryVoucherId);
+                    var voucher2 = _voucherService.FindVoucher(InventoryVoucherId);
                     if (voucher2.IsPark == false)
                         throw new CustomException("Delete is not allow after post!. Please Bring Back to park mode Voucher No" + voucher2.VoucherNo);
 
-                    var voucherdetail2 = _voucherDetailRepository.Query(r => r.VoucherId == InventoryVoucherId).Select().ToList();
-                    var voucherdetailcurrnecy2 = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == InventoryVoucherId).Select().ToList();
+                    var voucherdetail2 = _voucherService.QueryVoucherDetail(InventoryVoucherId).Select().ToList();
+                    var voucherdetailcurrnecy2 = _voucherService.QueryVoucherDetailCurrency(InventoryVoucherId).Select().ToList();
 
                     foreach (var item in voucherdetailcurrnecy2)
                     {
-                        _voucherDetailCurrencyRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetailCurrency(item.Id);
                     }
                     foreach (var item in voucherdetail2)
                     {
-                        _voucherDetailRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetail(item.Id);
                     }
-                    _voucherRepository.Delete(voucher2.Id);
+                    _voucherService.DeleteVoucher(voucher2.Id);
 
                 }
                 _unitOfWork.SaveChanges();
