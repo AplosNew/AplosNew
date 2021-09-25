@@ -16,7 +16,8 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         MaterialStorageId: null,
         ToCurrencyRate: null,
         CurrencyId: null,
-        SourceType: 'ProductionBooking'
+        SourceType: 'ProductionBooking',
+        CompanyCurrencyId:null
     }
 
 
@@ -80,6 +81,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         angular.forEach(response.data, function (item, i) {
             if (item.ParallelCurrencyType === 'CompanyCurrency') {
                 $scope.companyCurrencyId = item.CurrencyId;
+                $scope.modelNew.CompanyCurrencyId = item.CurrencyId;
             }
         });
     });
@@ -221,10 +223,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
                         }
                         else {
                             ShowResult(response.data.Message, "success");
-                            // $scope.modelNew = response.data.Data;
-                            //$scope.GetItemDetailData();
                             $scope.getSavedData();
-                            //$scope.LoadData();
                             $scope.Clear();
                         }
                     }, function errorCallback(response) {
@@ -241,7 +240,17 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
 
     $scope.Clear = function () {
         $scope.modelNew = {
-            Id: null, ProductionEntityId: null, ProcessId: null, ProductionOrderId: null, FromDate: null, ToDate: null
+            Id: null,
+            ProductionEntityId: null,
+            ProcessId: null,
+            ProductionOrderId: null,
+            FromDate: null,
+            ToDate: null,
+            MaterialStorageId: null,
+            ToCurrencyRate: null,
+            CurrencyId: null,
+            SourceType: 'ProductionBooking',
+            CompanyCurrencyId: $scope.companyCurrencyId
         }
         $scope.ProductCodeList = [];
         $scope.SalesOrderLineItems = [];

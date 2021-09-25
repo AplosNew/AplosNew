@@ -44,18 +44,17 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var workbook = DailyDayStatus(FromDate, ToDate);
+                var workbook = RateReport(FromDate, ToDate);
                 return Json(new { FileName = workbook, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
 
         }
 
-        public string DailyDayStatus(string FromDate, string ToDate)
+        public string RateReport(string FromDate, string ToDate)
         {
             #region Variable
             ReportUtility oru = new ReportUtility();
