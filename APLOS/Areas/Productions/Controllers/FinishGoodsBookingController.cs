@@ -162,6 +162,13 @@ namespace Aplos.Areas.Productions.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+        [HttpGet, Authorize]
+        public JsonResult GetDatewiseNonPostedProductionSummeryData(string entityId, string processId, string fromDate, string toDate)
+        {
+            var jsondata = Json(clsFinishGoodsBooking.GetDatewiseNonPostedProductionSummeryData(entityId, processId, fromDate, toDate), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetListForFinishGoodsBookingPost()

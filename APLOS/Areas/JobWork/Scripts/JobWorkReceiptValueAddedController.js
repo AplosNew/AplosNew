@@ -128,7 +128,10 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 
 
-			$scope.setTab(2);
+			$scope.setTab(1);
+			$scope.ModelNew.Type = $scope.TabTypeNew;
+			$scope.setStatus = 'Selected';
+	     	$scope.setTabGRNList(1);
 		}
 		else {
 
@@ -146,18 +149,15 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				if ($scope.IssueTypeList.length > 0) {
                     $scope.GetReceiptVAChildData();
                     $scope.ShowHomeList = false;
-                    $scope.ShowReport = false;
+             //       $scope.ShowReport = false;
 				}
 
 			});
-
-
-
-			$scope.setTab(1);
+			$scope.setTab(2);
 		}
 		$scope.ModelNew.Type = $scope.TabTypeNew;
 		$scope.setStatus = 'Selected';
-		$scope.setTabGRNList(1);
+	//	$scope.setTabGRNList(1);
 
 
 		//if (!$rootScope.isCollapsed) {
