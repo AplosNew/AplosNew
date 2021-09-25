@@ -1465,186 +1465,194 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             SaveDataSets(dsRef);
 
-                        #region RawData Table Processing
-                        ProcessFlag(MainRowId); // Setting Processed Flag ->1
+                            #region RawData Table Processing
+                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
+                            #endregion
+                        }
                         #endregion
-                    }
-                    #endregion
 
                         #region Getting MissFlagless InPunch of the PrevDay
-                    DataSet MissFlaglessIn;
-                    ConfirmedPrevFlaglessMissIn(PreviousDay, out MissFlaglessIn, PlantValue);
-                    #endregion
+                        DataSet MissFlaglessIn;
+                        ConfirmedPrevFlaglessMissIn(PreviousDay, out MissFlaglessIn, PlantValue);
+                        #endregion
 
                         #region Process FlagLess InData
-                    if (MissFlaglessIn.Tables[0].Rows.Count > 0)
-                    {
-                        // Previous Day Missed In Flagless(Single Device) Punches
-                        // (Due to Some Machine Issues or RawData Late Coming)
-
-                        string MainRowId = "''";
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and isnull(PunchInTime,'')='' and PlantID='" + PlantValue + "'";
-
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-                        string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
-
-                        // Last In of Day Allowed Checking (From OutpunchConfiguration)
-
-                        #region InLimit Validation Check
-                        DataSet InlimitVal;
-                        InLimitValidation(out InlimitVal, PlantValue);
-                        string InEntryLimit = clsWebLib.RetValidLen(InlimitVal.Tables[0].Rows[0][@"InEntryLimit"]).ToString();
-                        if (InEntryLimit != "")
+                        if (MissFlaglessIn.Tables[0].Rows.Count > 0)
                         {
-                            InEntryLimit = Convert.ToDateTime(PreviousDay).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(InEntryLimit).ToString("HH:mm:ss");
-                        }
-                        #endregion
+                            // Previous Day Missed In Flagless(Single Device) Punches
+                            // (Due to Some Machine Issues or RawData Late Coming)
 
-                        for (int i = 0; i < MissFlaglessIn.Tables[0].Rows.Count; i++)
-                        {
-                            string EmpId = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"EmpId"]).ToString();
-                            string MinTimeRow = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"MinTime"]).ToString();
-                            string InPunchLimit = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"InPunchLimit"]).ToString();
-                            string OutPunchLimit = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
-                            DateTime MinTime = new DateTime();
+                            string MainRowId = "''";
 
-                            string RowId = "";
-                            if (MinTimeRow != "")
+                            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                            var sqlx = @"select * from AttdnProcessData where WorkDate='" + PreviousDay + "' and isnull(PunchInTime,'')='' and PlantID='" + PlantValue + "'";
+
+                            objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+                            string newformat = Convert.ToDateTime(PreviousDay).ToString("yyyyMMdd");
+
+                            // Last In of Day Allowed Checking (From OutpunchConfiguration)
+
+                            #region InLimit Validation Check
+                            DataSet InlimitVal;
+                            InLimitValidation(out InlimitVal, PlantValue);
+                            string InEntryLimit = clsWebLib.RetValidLen(InlimitVal.Tables[0].Rows[0][@"InEntryLimit"]).ToString();
+                            if (InEntryLimit != "")
                             {
-                                // Retrieving RowId of RawData    
-                                string formatString = "yyyyMMddHHmmss";
-                                string sample = MinTimeRow.Split('.')[0].ToString();
-                                MinTime = DateTime.ParseExact(sample, formatString, null);
-                                RowId = MinTimeRow.Split('.')[1].ToString();
+                                InEntryLimit = Convert.ToDateTime(PreviousDay).ToString("dd-MMM-yyyy") + " " + Convert.ToDateTime(InEntryLimit).ToString("HH:mm:ss");
                             }
+                            #endregion
 
-                            PunchTimeVal(ref InPunchLimit, ref OutPunchLimit, PreviousDay);
-
-                            if (MinTimeRow.ToString() != "" && RowId != ""
-                                && InPunchLimit.ToString() != "")
+                            for (int i = 0; i < MissFlaglessIn.Tables[0].Rows.Count; i++)
                             {
-                                if (MinTime <= Convert.ToDateTime(InEntryLimit))
+                                string EmpId = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"EmpId"]).ToString();
+                                string MinTimeRow = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"MinTime"]).ToString();
+                                string InPunchLimit = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"InPunchLimit"]).ToString();
+                                string OutPunchLimit = clsWebLib.RetValidLen(MissFlaglessIn.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
+                                DateTime MinTime = new DateTime();
+
+                                string RowId = "";
+                                if (MinTimeRow != "")
                                 {
-                                    dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' and PlantInPunchStartTime<='" + MinTime + "'";
-                                    if (dsRef.Tables[0].DefaultView.Count > 0)
+                                    // Retrieving RowId of RawData    
+                                    string formatString = "yyyyMMddHHmmss";
+                                    string sample = MinTimeRow.Split('.')[0].ToString();
+                                    MinTime = DateTime.ParseExact(sample, formatString, null);
+                                    RowId = MinTimeRow.Split('.')[1].ToString();
+                                }
+
+                                PunchTimeVal(ref InPunchLimit, ref OutPunchLimit, PreviousDay);
+
+                                if (MinTimeRow.ToString() != "" && RowId != ""
+                                    && InPunchLimit.ToString() != "")
+                                {
+                                    if (MinTime <= Convert.ToDateTime(InEntryLimit))
                                     {
-                                        string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
-                                        if (ExistingIn == "")
+                                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' and PlantInPunchStartTime<='" + MinTime + "'";
+                                        if (dsRef.Tables[0].DefaultView.Count > 0)
                                         {
-                                            // Once InPunch Added can't be Updated
-                                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                            dr.BeginEdit();
-                                            dr["PunchInTime"] = Convert.ToDateTime(MinTime);
-                                            dr["OutPunchLimit"] = Convert.ToDateTime(OutPunchLimit);
-                                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                            dr.EndEdit();
-                                            MainRowId += ",'" + RowId + "'";
+                                            string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
+                                            if (ExistingIn == "")
+                                            {
+                                                // Once InPunch Added can't be Updated
+                                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                                dr.BeginEdit();
+                                                dr["PunchInTime"] = Convert.ToDateTime(MinTime);
+                                                dr["OutPunchLimit"] = Convert.ToDateTime(OutPunchLimit);
+                                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                                dr.EndEdit();
+                                                MainRowId += ",'" + RowId + "'";
+                                            }
                                         }
                                     }
                                 }
                             }
+
+                            SaveDataSets(dsRef);
+
+                            #region RawData Table Processing
+                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
+                            #endregion
                         }
-
-                        SaveDataSets(dsRef);
-
-                        #region RawData Table Processing
-                        ProcessFlag(MainRowId); // Setting Processed Flag ->1
                         #endregion
-                    }
-                    #endregion
 
                         #region Getting Missing Out of PrevDay FlagData
-                    DataSet OutwithFlag;
-                    ConfirmedOutFlagPrevDay(PreviousDay, out OutwithFlag, PlantValue);
-                    #endregion
+                        DataSet OutwithFlag;
+                        ConfirmedOutFlagPrevDay(PreviousDay, out OutwithFlag, PlantValue);
+                        #endregion
 
                         #region Process OutTime of Flagged Data
-                    if (OutwithFlag.Tables[0].Rows.Count > 0)
-                    {
-                        // Previous Day In Exist but Out Missing (Flagged Punches Dealing)
-                        string MainRowId = "''";
-                        var WkDate = OutwithFlag.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' " +
-                            "and PlantID='" + PlantValue + "' and isnull(PunchInTime,'')!=''";
-
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < OutwithFlag.Tables[0].Rows.Count; i++)
+                        if (OutwithFlag.Tables[0].Rows.Count > 0)
                         {
-                            DateTime OutPunch = new DateTime();
-                            string EmpId = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
-                            string OutPunchRow = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"MaxOut"]).ToString();
-                            string OutPunchLimit = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
+                            // Previous Day In Exist but Out Missing (Flagged Punches Dealing)
+                            string MainRowId = "''";
+                            var WkDate = OutwithFlag.Tables[0].Rows[0][@"WorkDate"].ToString();
+                            string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
-                            string RowId = "";
-                            if (OutPunchRow != "")
+
+                            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                            var sqlx = @"select * from AttdnProcessData where WorkDate='" + WkDate + "' " +
+                                "and PlantID='" + PlantValue + "' and isnull(PunchInTime,'')!=''";
+
+                            objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                            //foreach (DataRow drx in dsRef.Tables[0].Rows)
+                            //{
+                            //    drx.BeginEdit();
+                            //    drx["PunchOutTime"] = DBNull.Value;
+                            //    drx.EndEdit();
+                            
+                            //}
+
+                            for (int i = 0; i < OutwithFlag.Tables[0].Rows.Count; i++)
                             {
-                                // Retrieving RowId of RawData    
-                                string formatString = "yyyyMMddHHmmss";
-                                string sample = OutPunchRow.Split('.')[0].ToString();
-                                OutPunch = DateTime.ParseExact(sample, formatString, null);
-                                RowId = OutPunchRow.Split('.')[1].ToString();
-                            }
+                                DateTime OutPunch = new DateTime();
+                                string EmpId = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                                string OutPunchRow = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"MaxOut"]).ToString();
+                                string OutPunchLimit = clsWebLib.RetValidLen(OutwithFlag.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
-                                string ExistingOut = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchOutTime"]).ToString();
-
-                                if (OutPunchLimit.ToString() != "" && RowId != ""
-                                    && OutPunchRow.ToString() != "")
+                                string RowId = "";
+                                if (OutPunchRow != "")
                                 {
+                                    // Retrieving RowId of RawData    
+                                    string formatString = "yyyyMMddHHmmss";
+                                    string sample = OutPunchRow.Split('.')[0].ToString();
+                                    OutPunch = DateTime.ParseExact(sample, formatString, null);
+                                    RowId = OutPunchRow.Split('.')[1].ToString();
+                                }
 
-                                    if (Convert.ToDateTime(OutPunch) <= Convert.ToDateTime(OutPunchLimit))
+                                dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                                if (dsRef.Tables[0].DefaultView.Count > 0)
+                                {
+                                    string ExistingIn = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchInTime"]).ToString();
+                                    string ExistingOut = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"PunchOutTime"]).ToString();
+
+                                    if (OutPunchLimit.ToString() != "" && RowId != ""
+                                        && OutPunchRow.ToString() != "")
                                     {
-                                        // Out Limit Validation Check 
-                                        // Out Should be greater than In & Less than OutPunchLimit
-                                        if (ExistingOut == "" && OutPunch > Convert.ToDateTime(ExistingIn))
-                                        {
-                                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                            dr.BeginEdit();
-                                            dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
-                                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                            dr.EndEdit();
-                                            MainRowId += ",'" + RowId + "'";
-                                        }
 
-                                        else if (ExistingOut != "" && OutPunch > Convert.ToDateTime(ExistingOut) && OutPunch > Convert.ToDateTime(ExistingIn))
+                                        if (Convert.ToDateTime(OutPunch) <= Convert.ToDateTime(OutPunchLimit))
                                         {
-                                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                            dr.BeginEdit();
-                                            dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
-                                            dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                            dr.EndEdit();
-                                            MainRowId += ",'" + RowId + "'";
-                                        }
+                                            // Out Limit Validation Check 
+                                            // Out Should be greater than In & Less than OutPunchLimit
+                                            if (ExistingOut == "" && OutPunch > Convert.ToDateTime(ExistingIn))
+                                            {
+                                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                                dr.BeginEdit();
+                                                dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
+                                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                                dr.EndEdit();
+                                                MainRowId += ",'" + RowId + "'";
+                                            }
 
+                                            else if (ExistingOut != "" && OutPunch > Convert.ToDateTime(ExistingOut) && OutPunch > Convert.ToDateTime(ExistingIn))
+                                            {
+                                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                                dr.BeginEdit();
+                                                dr["PunchOutTime"] = Convert.ToDateTime(OutPunch);
+                                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                                dr.EndEdit();
+                                                MainRowId += ",'" + RowId + "'";
+                                            }
+
+                                        }
                                     }
                                 }
                             }
-                        }
-                        SaveDataSets(dsRef);
+                            SaveDataSets(dsRef);
 
-                        #region RawData Table Processing
-                        ProcessFlag(MainRowId); // Setting Processed Flag ->1
+                            #region RawData Table Processing
+                            ProcessFlag(MainRowId); // Setting Processed Flag ->1
+                            #endregion
+                        }
                         #endregion
-                    }
-                    #endregion
 
                         #region Getting Missing Out of Prev Day FlaglessData
-                    DataSet OutFlagless;
-                    ConfirmedOutFlaglessPrevDay(PreviousDay, out OutFlagless, PlantValue);
-                    #endregion
+                        DataSet OutFlagless;
+                        ConfirmedOutFlaglessPrevDay(PreviousDay, out OutFlagless, PlantValue);
+                        #endregion
 
                         #region Process OutTime of Flagless Data
-                    if (OutFlagless.Tables[0].Rows.Count > 0)
+                        if (OutFlagless.Tables[0].Rows.Count > 0)
                         {
                             // Previous Day In Exist but Out Missing (Flagless Punches Dealing)
                             string MainRowId = "''";
@@ -1769,7 +1777,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             SaveDataSets(dsRef);
                         }
                         #endregion
-
+                      
                         #region Getting Flagged OutPunch of the Interval
                         DataSet ConfirmOutFlag;
                         FlagDataOutCalculate(PreviousDay, out ConfirmOutFlag, PlantValue);
@@ -2793,8 +2801,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
         public void FlagDataOutCalculate(string PrevDay, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
-            try
-            {
+            try  
+            {   
                 string pretime = Convert.ToDateTime(PrevDay).ToString("yyyy-MMM-dd") + " " + "6:30:00";
                 string nexttime = Convert.ToDateTime(PrevDay).AddDays(1).ToString("yyyy-MMM-dd") + " " + "6:30:00";
 
