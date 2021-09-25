@@ -1442,7 +1442,9 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
         public IEnumerable<object> GetListForFinishGoodsBookingPost(string plantId)
         {
-            var sql = @"SELECT FG.Id,IR.Id InventoryReceiveId,IR.GRNDate BookingDate,IR.GRNDate PostingDate,ird.Qty,ird.Amount,FG.ProcessId,P.UserName ProcessName,FG.[Description],FG.ProductionEntityId EntityId,E.UserName Entity,IR.FinishGoodsBookingId,FG.FromDate,FG.ToDate
+            var sql = @"SELECT FG.Id,IR.Id InventoryReceiveId,IR.GRNDate BookingDate,IR.GRNDate PostingDate,ird.Qty,ird.Amount
+                        ,FG.ProcessId,P.UserName ProcessName,FG.[Description],FG.ProductionEntityId EntityId
+                        ,E.UserName Entity,IR.FinishGoodsBookingId,FG.FromDate,FG.ToDate,FG.SourceType
 					FROM  TRN.InventoryReceive IR
 					LEFT JOIN dbo.[FinishGoodsBooking] AS FG  ON IR.FinishGoodsBookingId=FG.Id
                      LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS Qty, SUM(ROUND(A.TransactionQty*A.MaterialTranRate,4)) AS Amount
