@@ -12873,7 +12873,7 @@ ORDER BY tg.[Sequence]";
 							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
 							)PO ON PO.GRNId = IR.Id
-						 where  IR.PlantId='" + identity.PlantId + "'  AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+						 where  IR.PlantId='" + identity.PlantId + "'  AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW'
 
 							UNION ALL
 
@@ -13085,7 +13085,7 @@ ORDER BY tg.[Sequence]";
 			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 			--AND IRT.InventoryServiceId is not null
-			AND IR.GRNType<>'FG'
+			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW'
 			)x
 			Order By X.GRNEntryDate ASC";
 
