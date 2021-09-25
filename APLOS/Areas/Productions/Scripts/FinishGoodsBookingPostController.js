@@ -12,8 +12,8 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
     $scope.TotalPayableAmount = 0;
 
     $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
-    $scope.searchByPostedGRNList = [{ value: 'Id', name: "GRN No" }, { value: 'GRNDate', name: "GRN Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
-        , { value: 'PostingDate', name: "PostingDate" }, { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
+    $scope.searchByPostedGRNList = [{ value: 'InventoryReceiveId', name: "FG Inventory No" }, { value: 'Id', name: "FG Book No" }, { value: 'VoucherNo', name: "VoucherNo" }
+        , { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRef No" }
         , { value: 'DocDate', name: "Doc Date" }];
 
     $scope.products = [];
@@ -130,7 +130,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
 
 
     $scope.getCboVoucherType = function () {
-        cboService.getCboVoucherTypeConsumptionBookList(function (result) {
+        cboService.getCboVoucherTypeFGInventoryList(function (result) {
             $scope.voucherTypeList = result;
             if (baseService.arrayLength($scope.voucherTypeList) === 1)
                 $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
