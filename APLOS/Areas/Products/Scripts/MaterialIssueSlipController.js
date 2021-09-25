@@ -7,6 +7,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	///////////////////////////////////////////////Material Issue Slip///////////////////////////
 
 	$scope.Action = 'Save';
+	
 	$rootScope.title = 'Issue Slip';
 	$scope.popUpList = [];
 	$scope.valueData = '';
@@ -1586,6 +1587,9 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			.then(function (response) {
 				$scope.FilterList123 = response.data;
 				//$scope.GLBudgetActivity = $scope.FilterList123[0].GLBudgetActivity;
+				for (var i = 0; i < $scope.FilterList123.length; i++) {
+					$scope.FilterList123[i].check = true;
+				}
 			});
 
 	}
@@ -1603,6 +1607,11 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 				$scope.model.Id = $scope.ProductionOrderId;
 				GetProcessByProductionOrder();
 				$scope.SOListSelected = response.data;
+				for (var i = 0; i < $scope.SOListSelected.length; i++) {
+
+					$scope.SOListSelected[i].Active = true;
+
+				}
 			});
 
 
@@ -1627,6 +1636,9 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		$http.get($scope.path + 'GetIssueWiseSKU?IssueId=' + IssueId)
 			.then(function (response) {
 				$scope.MaterialColorList = response.data;
+				for (var i = 0; i < $scope.MaterialColorList.length; i++) {
+					$scope.MaterialColorList[i].Active = true;
+				}
 			});
 
 	}
@@ -1636,6 +1648,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		var x = $event;
 		var Id = x.data.Id;
 		$scope.productNew = x.data;
+		$scope.Action1 = 'Update';
 		$scope.CheckedBy = x.data.CheckedBy;
 		$scope.IssueSlipType = 'InventorySlip';
 		$scope.Id = $scope.productNew.Id;

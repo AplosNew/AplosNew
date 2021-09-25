@@ -1878,6 +1878,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						 --where  IR.PlantId='20181'  AND convert(Date,IR.GRNDate) BETWEEN  '01-OCT-2020' AND '31-OCT-2020' --ORDER BY IR.GRNDate ASC
 						 where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                          --and IR.Id='20211740'
+						AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW'
 
 							UNION ALL
 
@@ -2114,7 +2115,7 @@ namespace Library.MaterialManagement.InventoryManagements
 			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 			where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'  --and IR.Id='20211740'
 			--AND IRT.InventoryServiceId is not null
-			AND IR.GRNType<>'FG'
+			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW'
 			)x
 			Order By X.GRNEntryDate ASC";
 
