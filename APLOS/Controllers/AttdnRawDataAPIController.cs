@@ -54,4 +54,38 @@ namespace Aplos.Controllers
 
 
     }
+
+   
+    public class BackenedEntryAPIController : ApiController
+    {
+
+        NewProcessBackendRowCreationLogic appx = new NewProcessBackendRowCreationLogic();
+
+
+        public BackenedEntryAPIController()
+        {
+            appx = new NewProcessBackendRowCreationLogic();
+        }
+
+
+        [HttpPost]
+        public string SaveData([FromBody] List<BackenedDataModel> DataToSave)
+        {
+            try
+            {
+                string Id = appx.SaveData(DataToSave); 
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+       
+
+
+    }
+
 }
