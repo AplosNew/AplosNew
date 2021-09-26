@@ -238,22 +238,32 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             $scope.GriddataMaster = response.data;
 
             if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-                if ($scope.GriddataMaster.length > 0) {
-                    var uniqueInventoryReceiveId = removeDuplicates($scope.GriddataMaster, 'InventoryReceiveId');
-                    var wcInventoryReceiveId = "";
-                    if (uniqueInventoryReceiveId.length > 0) {
-                        wcInventoryReceiveId = "IN(";
-                        wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.InventoryReceiveId + "'"; }).join(",") + ")";
-                    }
-                    $scope.sqlInStatement = wcInventoryReceiveId;
-                }
-                $scope.GetDetailData($scope.ModelNew.Id, $scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
-                //$scope.GetGRNDetailData($scope.ModelNew.Id, $scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
+                $scope.GetSavedGRNList($scope.ModelNew.Id);
             }
-
             $scope.GRNListDetails();
         });
     };
+
+    $scope.GetSavedGRNList = function (masterId) {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkReceiveBilling/GetSavedGRNList?masterId=' + masterId
+        }).then(function successCallback(response) {
+            $scope.lst = response.data;
+
+            if ($scope.GriddataMaster.length > 0) {
+                var uniqueInventoryReceiveId = removeDuplicates($scope.GriddataMaster, 'InventoryReceiveId');
+                var wcInventoryReceiveId = "";
+                if (uniqueInventoryReceiveId.length > 0) {
+                    wcInventoryReceiveId = "IN(";
+                    wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.InventoryReceiveId + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcInventoryReceiveId;
+            }
+            $scope.GetDetailData($scope.ModelNew.Id, $scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
+        });
+    }
+
 
     $scope.lst = [];
     $scope.GRNListDetails = function () {

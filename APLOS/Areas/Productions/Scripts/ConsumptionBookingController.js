@@ -133,7 +133,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                     && $scope.LineItemsList[i].ArticleId == $scope.DatewiseList[j].ArticleId
                     && $scope.LineItemsList[i].UOM == $scope.DatewiseList[j].UOM) {
                     $scope.DatewiseList[j].Rate = $scope.LineItemsList[i].Rate;
-                    $scope.DatewiseList[j].Amount = $scope.LineItemsList[i].Amount;
+                    $scope.DatewiseList[j].Amount = parseFloat($scope.DatewiseList[j].Rate) * $scope.DatewiseList[j].Qty;
                 }
             }
         }
@@ -300,6 +300,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
 
     function GetDateWiseData() {
         var ob = {};
+        var incre = 0;
         $http.get("Productions/FinishGoodsBooking/GetDateWiseDetailDataData?entityId=" + $scope.modelNew.ProductionEntityId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
             .then(
                 function successCallback(response) {
@@ -309,6 +310,9 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                         for (var i = 0; i < $scope.DatewiseList.length; i++) {
                             ob.WorkDate = $scope.DatewiseList[i].WorkDate;
                             if (checkExistList($scope.WorkDayList, ob.WorkDate) === false) {
+                              
+                                //$scope.DatewiseList[i].Seq = incre++;
+                                //ob.
                                 $scope.WorkDayList.push(ob);
                                 ob = {};
                             }

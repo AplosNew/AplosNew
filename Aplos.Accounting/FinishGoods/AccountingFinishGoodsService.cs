@@ -208,12 +208,20 @@ namespace Library.Accounting.FixedAssets
                         {
                             //edit
                             DataRow dr = _inventoryReceiveData.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
+                            if (string.IsNullOrEmpty(dr["VoucherId"].ToString()))
+                            {
+                                dr.BeginEdit();
 
-                            dr["VoucherId"] = voucher.Id;
-                            dr["UpdatedBy"] = voucher.AddedBy;
-                            dr["UpdatedDate"] = voucher.AddedDate;
-                            dr.EndEdit();
+                                dr["Status"] = "Posted";
+                                dr["VoucherId"] = voucher.Id;
+                                dr["UpdatedBy"] = voucher.AddedBy;
+                                dr["UpdatedDate"] = voucher.AddedDate;
+                                dr.EndEdit();
+                            }
+                            else
+                            {
+                                throw new Exception("This FG Inventory already posted.");
+                            }
                         }
                     }
                 }

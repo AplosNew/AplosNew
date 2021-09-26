@@ -41,8 +41,8 @@ namespace Library.Accounting.Accounts
             companyCurrencyId = companyParallelCurrency["CurrencyId"].ToString();
             companyCurrencyCode = companyParallelCurrency["CurrencyCode"].ToString();
         }
-        private Dictionary<string, object> GetCompanyCurrencyId( string companyId)        {            var cmdText =@"select cpc.CurrencyId,C.Code CurrencyCode from SCS.CompanyParallelCurrency cpc
-                            LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '"+ ParallelCurrencyType.CompanyCurrency.ToString() + "'";            return _sqlRepository.GetData(cmdText);        }
+        private Dictionary<string, object> GetCompanyCurrencyId(string companyId)        {            var cmdText = @"select cpc.CurrencyId,C.Code CurrencyCode from SCS.CompanyParallelCurrency cpc
+                            LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '" + ParallelCurrencyType.CompanyCurrency.ToString() + "'";            return _sqlRepository.GetData(cmdText);        }
         private bool GetPlantIsShowFCInWord(string plantId)
         {
             return bplib.clsWebLib.GetBoolData(_sqlRepository.GetDataCollection(@"SELECT IsShowFCInWord FROM ORG.Plant WHERE Id='" + plantId + "'")[0]["IsShowFCInWord"].ToString());
@@ -138,7 +138,7 @@ namespace Library.Accounting.Accounts
         private Dictionary<string, object> GetfiscalYearfind(string fiscalYearId)        {            var cmdText = @"select * from scs.FiscalYear where Id= '" + fiscalYearId + "'";            return _sqlRepository.GetData(cmdText);        }
         private VoucherTypeNumber GetAuto(string voucherTypeConfigId, string registerName, string period)
         {
-          List<VoucherTypeNumber> data= _sqlRepository.GetModelCollection<VoucherTypeNumber>(@"select * from scs.VoucherTypeNumber where VoucherTypeConfigId = '" + voucherTypeConfigId + "' and RegisterName = '" + registerName + "' and [Period] ='"+ period + "'");
+            List<VoucherTypeNumber> data = _sqlRepository.GetModelCollection<VoucherTypeNumber>(@"select * from scs.VoucherTypeNumber where VoucherTypeConfigId = '" + voucherTypeConfigId + "' and RegisterName = '" + registerName + "' and [Period] ='" + period + "'");
             if (data.Count > 0)
                 return data[0];
             return null;
@@ -147,7 +147,7 @@ namespace Library.Accounting.Accounts
         public string GetNumber(string companyGroupId, string companyId, string plantId, string voucherTypeId, string registerName, string fiscalYearPrefix, DateTime date)
         {
             var voucherTypeConfig = VoucherTypeConfigFind(companyGroupId, companyId, plantId, voucherTypeId);
-               
+
             if (null == voucherTypeConfig["Id"])
                 throw new CustomException("Plant voucher type config not found!");
             var pkgenerator = GetPeriod(voucherTypeConfig["Id"].ToString(), registerName, voucherTypeConfig["Period"].ToString(), fiscalYearPrefix, out string prefix, date);
@@ -174,7 +174,7 @@ namespace Library.Accounting.Accounts
                 pkgenerator.UpdatedDate = DateTime.Now;
                 pkgenerator.ModelState = ModelState.Modified;
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.getDataSet("Select * from scs.VoucherTypeNumber where VoucherTypeConfigId='" + pkgenerator.VoucherTypeConfigId + "' AND RegisterName='"+pkgenerator.RegisterName+"' AND Period='"+pkgenerator.Period+"'", out dsVoucher);
+                con.getDataSet("Select * from scs.VoucherTypeNumber where VoucherTypeConfigId='" + pkgenerator.VoucherTypeConfigId + "' AND RegisterName='" + pkgenerator.RegisterName + "' AND Period='" + pkgenerator.Period + "'", out dsVoucher);
 
                 VoucherTypeNumberEditRow<VoucherTypeNumber>(dsVoucher.Tables[0].Rows[0], pkgenerator);
             }
@@ -220,7 +220,7 @@ namespace Library.Accounting.Accounts
             prefix = period;
             return pkgenerator;
         }
-       
+
         private DateTime? GetLastYearEndDate(Voucher voucher)
         {
             try
@@ -228,11 +228,11 @@ namespace Library.Accounting.Accounts
                 var cmdText = @"SELECT MAX(PostingDate) as PostingDate  FROM TRN.Voucher WHERE CompanyId='" + voucher.CompanyId + @"' 
                         AND PlantId='" + voucher.PlantId + "' and VoucherTypeId='" + voucher.VoucherTypeId + "' and FiscalYearId='" + voucher.FiscalYearId + "'";
                 //return _voucherRepository.SqlQuery<DateTime?>(cmdText).FirstOrDefault();
-                 List<Dictionary<string,object>> data =  _sqlRepository.GetDataCollection(cmdText);
+                List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(cmdText);
                 if (data.Count > 0)
                 {
                     if (!string.IsNullOrEmpty(data[0]["PostingDate"].ToString()))
-                    return Convert.ToDateTime(data[0]["PostingDate"].ToString());
+                        return Convert.ToDateTime(data[0]["PostingDate"].ToString());
                 }
                 return null;
             }
@@ -243,13 +243,13 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
-       
-      
+
+
         private void CheckPostingDate(Voucher voucher)
         {
             var lastPostingDate = GetLastYearEndDate(voucher);
             var voucherTypeConfig = VoucherTypeConfigFind(voucher.CompanyGroupId, voucher.CompanyId, voucher.PlantId, voucher.VoucherTypeId);
-            if (null != lastPostingDate && voucherTypeConfig["IsBackDatePostingAllow"] !=null)
+            if (null != lastPostingDate && Convert.ToBoolean(voucherTypeConfig["IsBackDatePostingAllow"]) == false)
             {
                 if (voucher.PostingDate.Date < lastPostingDate.Value.Date)
                     throw new CustomException($"Posting date cannot be less than last ({lastPostingDate.Value.Date.ToString("dd-MMM-yyyy")}) posting date!");
@@ -262,7 +262,7 @@ namespace Library.Accounting.Accounts
                 throw new CustomException("Fiscal year prefix is null.");
             return GetNumber(entity.CompanyGroupId, entity.CompanyId, entity.PlantId, entity.VoucherTypeId, nameof(Voucher), fiscalYearPrefix, entity.PostingDate);
         }
-       
+
         public string GetAutoNumber(string fieldName, PKGeneratorEnum period, string companyGroupId, DateTime date)
         {
             string prefix = null; var condition = "";
@@ -301,7 +301,7 @@ namespace Library.Accounting.Accounts
                    "ELSE    " +
                        $"INSERT INTO [ACS].[PKGenerator](FieldName, [Period], CompanyGroupId, MaxNumber, UpdatedDate) VALUES('{fieldName}', '{prefix}', {cId}, 1, GETDATE()); " +
                    "SELECT @lastNumber + 1 AS MaxNumber";
-         
+
 
             var number = _sqlRepository.GetDataCollection(sql)[0]["MaxNumber"].ToString();
             return period == PKGeneratorEnum.Auto ? number : prefix + number;
@@ -310,12 +310,12 @@ namespace Library.Accounting.Accounts
         {
             return masterId + currentId.ToString().PadLeft(padLeft, '0');
         }
-        public Voucher InsertVoucher(Voucher voucher, string fiscalYearPrefix,out DataSet dsData)
+        public Voucher InsertVoucher(Voucher voucher, string fiscalYearPrefix, out DataSet dsData)
         {
-            return InsertVoucher(voucher, fiscalYearPrefix, true,out  dsData);
+            return InsertVoucher(voucher, fiscalYearPrefix, true, out dsData);
         }
 
-        public Voucher InsertVoucher(Voucher voucher, string fiscalYearPrefix, bool flag,out DataSet dsData)
+        public Voucher InsertVoucher(Voucher voucher, string fiscalYearPrefix, bool flag, out DataSet dsData)
         {
 
             if (flag)
@@ -440,7 +440,7 @@ namespace Library.Accounting.Accounts
                 ExchangeType = voucherVM.ExchangeType,
                 IsPark = voucherVM.IsPark,
                 Archive = false
-            }, voucherVM.FiscalYearPrefix,out DataSet _voucherdataset);
+            }, voucherVM.FiscalYearPrefix, out DataSet _voucherdataset);
         }
         public VoucherDetail InsertVoucherDetail(Voucher voucher, VoucherDetail voucherDetail, int currentId, ref DataSet vDetailData)
         {
@@ -464,7 +464,7 @@ namespace Library.Accounting.Accounts
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.getDataSet("Select * from TRN.VoucherDetail where 1=2", out vDetailData);
             }
-           
+
 
             AddNewRow<VoucherDetail>(vDetailData.Tables[0], voucherDetail);
             return voucherDetail;
@@ -478,12 +478,12 @@ namespace Library.Accounting.Accounts
             voucherDetailCurrency.AddedBy = voucherDetail.AddedBy;
             voucherDetailCurrency.AddedDate = voucherDetail.AddedDate;
             voucherDetailCurrency.AddedFromIP = voucherDetail.AddedFromIP;
-            if (vDetailCurrencyData == null || vDetailCurrencyData.Tables.Count==0)
+            if (vDetailCurrencyData == null || vDetailCurrencyData.Tables.Count == 0)
             {
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.getDataSet("Select * from TRN.VoucherDetailCurrency where 1=2", out vDetailCurrencyData);
             }
-           
+
             AddNewRow<VoucherDetailCurrency>(vDetailCurrencyData.Tables[0], voucherDetailCurrency);
             return voucherDetailCurrency;
         }
@@ -663,7 +663,7 @@ namespace Library.Accounting.Accounts
 
 
                             WHERE  VD.BankMasterId IS NOT NULL
-                            AND V.CompanyGroupId='" + identity.CompanyGroupId+"' AND V.CompanyId='"+identity.CompanyId+@"'  AND V.PostingDate<>'' AND V.Archive=0 --AND V.SourceType<>'OpeningBalance'
+                            AND V.CompanyGroupId='" + identity.CompanyGroupId + "' AND V.CompanyId='" + identity.CompanyId + @"'  AND V.PostingDate<>'' AND V.Archive=0 --AND V.SourceType<>'OpeningBalance'
 							 AND VD.CrAmount>0 AND CDH.VoucherDetailId <>'' 
                                
 
@@ -722,7 +722,7 @@ namespace Library.Accounting.Accounts
         #region getVoucherDataList
         public List<Dictionary<string, object>> getVoucherDataList(string companyGroupId, string companyId, string plantId, string voucherNo)
         {
-            var sql = @"select * from trn.Voucher where VoucherNo='"+voucherNo+"' and CompanyGroupId='" + companyGroupId + "' and CompanyId='" + companyId + "' and PlantId='" + plantId + @"'";
+            var sql = @"select * from trn.Voucher where VoucherNo='" + voucherNo + "' and CompanyGroupId='" + companyGroupId + "' and CompanyId='" + companyId + "' and PlantId='" + plantId + @"'";
             return _sqlRepository.GetDataCollection(sql);
 
         }
