@@ -686,6 +686,8 @@ namespace Library.Service.FixedAssets
                     from_db.LCNumber = from_ui.LCNumber;
                     from_db.Remarks = from_ui.Remarks;
                     from_db.Quantity = from_ui.Quantity;
+                    from_db.DepreciationRuleId = from_ui.DepreciationRuleId;
+                    from_db.MultiplicationFactor = from_ui.MultiplicationFactor;
                     if (!String.IsNullOrEmpty(from_ui.RFId))
                     {
                         from_db.RFIdAddedBy = identity.UserId;
@@ -763,6 +765,8 @@ namespace Library.Service.FixedAssets
                     from_db.LCNumber = from_ui.LCNumber;
                     from_db.Remarks = from_ui.Remarks;
                     from_db.Quantity = from_ui.Quantity;
+                    from_db.DepreciationRuleId = from_ui.DepreciationRuleId;
+                    from_db.MultiplicationFactor = from_ui.MultiplicationFactor;
                     if (from_ui.RFId != null || from_ui.RFId != "")
                     {
                         from_db.RFIdUpdatedDate = DateTime.Now;

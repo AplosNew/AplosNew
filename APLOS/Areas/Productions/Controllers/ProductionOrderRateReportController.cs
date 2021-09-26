@@ -39,12 +39,12 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region --- Daily Day Status Report---
         [HttpPost, Authorize]
-        public JsonResult RReport(string FromDate, string ToDate)
+        public JsonResult RReport(string FromDate, string ToDate, string Entity, string ProcessId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var workbook = RateReport(FromDate, ToDate);
+                var workbook = RateReport(FromDate, ToDate, Entity, ProcessId);
                 return Json(new { FileName = workbook, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -54,7 +54,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        public string RateReport(string FromDate, string ToDate)
+        public string RateReport(string FromDate, string ToDate, string Entity, string ProcessId)
         {
             #region Variable
             ReportUtility oru = new ReportUtility();
@@ -82,7 +82,7 @@ namespace Aplos.Areas.Productions.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 #region DataSet
-                GetReport(FromDate, ToDate, out dslocal);
+                GetReport(FromDate, ToDate,Entity,ProcessId, out dslocal);
                 objRpt = new clsReport();
                 dvAttn = new DataView();
                 dvAttn.Table = dslocal.Tables[0];
@@ -576,7 +576,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public void GetReport(string FromDate, string ToDate, out DataSet dsRef)
+        public void GetReport(string FromDate, string ToDate, string Entity, string ProcessId, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
@@ -689,8 +689,8 @@ namespace Aplos.Areas.Productions.Controllers
 									left join HKP.CharacteristicsValue scv on scv.Id = popd.SecondCharacteristicsValueId 
 									left join TRN.ProductionSummary ss on ss.ProductionOrderId = ma.ProductionOrderId and ma.ProcessId=ss.ProcessId								  
 									WHERE	
-								   --PO.Id IN(select ProductionOrderId  from [TRN].[ProductionOrderProcessSet] Pr where Pr.EntityIdWithinCompany=Ma.ProductionEntityId and ProcessId=ma.ProcessId)
-								   --and
+								   PO.Id IN(select ProductionOrderId  from [TRN].[ProductionOrderProcessSet] Pr where Pr.EntityIdWithinCompany='" + Entity + "' and ProcessId='" + ProcessId + @"')
+								   and
 								   PS.StandardName in ('Active', 'Running') and ISNULL(ma.Id,'')<>'' and ss.ProductionDate between '" + FromDate + "' and '" + ToDate + @"'
                                    group by Ma.Id, PO.Id ,PS.UserName,PO.RequiredTimeUnit,LSD,CommitmentDate,PD.Product, PD.ProductCategory
 								   ,PD.Buyer,PD.Customer, PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId
