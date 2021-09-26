@@ -461,12 +461,12 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
             return @"select 
 WCM.EntityId,E.UserName, WCM.UserName Line ,WCM.PlanEfficiency
 ,DPT.ManPowerWithMachine,DPT.ManPowerWithHand,DPT.Manpower
-,DPT.ManpowerBulletin,dr.DaysRun DaysRunning
+,DPT.ManpowerBulletin
 								,DPT.SMV,DPT.Quantity,DPT.TotalHour,DPT.TargetDate
 								,PO.id PRNo,MM.Id MaterialMasterId
                             --,PO.PlannedQty AllocatedQty,
 							,AllocatedQty=	case when ISNULL(S.Qty,0)>0 then S.Qty else PO.Qty end,
-							PS.Quantity PreviousDayQCpass,S.PlanWorkingHoursPerDay,S.TargetPerHour,
+						S.PlanWorkingHoursPerDay,S.TargetPerHour,
 						
                                                     BuyerOrderRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
 																			trn.MasterOrder XMOI 	 
@@ -499,8 +499,10 @@ WCM.EntityId,E.UserName, WCM.UserName Line ,WCM.PlanEfficiency
 		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
 			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
+
+
                                 from SCS.WorkCenterMaster WCM 
-                                left outer join TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='" + Date + @"'
+                                left outer join TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='22-Sep-2021'
                                 left outer join TRN.ProductionOrder PO on PO.Id=DPT.ProductionOrderId  
                                 left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
                                 left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId
@@ -510,25 +512,8 @@ WCM.EntityId,E.UserName, WCM.UserName Line ,WCM.PlanEfficiency
                                 left join mst.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
 								left outer join ORG.Entity E on E.Id=WCM.EntityId
 								left outer join ProductionOrderSchedulingParametersType1 S on s.ProductionOrderID=po.Id
-								left outer join(select 
-            p.ProcessId,p.ProductionOrderId,
-			p.WorkCenterMasterId,sum(p.Quantity) Quantity
-             from  TRN.ProductionSummary as p 
-             JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
-            where p.ProductionDate<='" + Date + @"' 
-            and p.ProductionGrade='A'
-            group by p.WorkCenterMasterId,p.ProcessId,p.ProductionOrderId
-            )PS on PS.WorkCenterMasterId=WCM.id
-			LEFT JOIN (SELECT p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,COUNT(DISTINCT p.ProductionDate) AS DaysRun  
- 				   from  TRN.ProductionSummary as p 
- 				   JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
- 				   WHERE p.ProductionDate='" + Date+@"'
- 				   GROUP BY  p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId
- 
- 		) AS DR ON dr.ProcessId=ps.ProcessId
-	  AND dr.ProductionOrderId=ps.ProductionOrderId AND dr.WorkCenterMasterId=ps.WorkCenterMasterId
 
-	  where WCM.PlantId='"+ PlantId + "'";
+	  where WCM.PlantId='" + PlantId + "'";
         }
         private string ProductionInfoSql(string entityid, string Date)
         {
@@ -992,8 +977,6 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
-
-
                 #region Sheet 2
                 sheet = workbook.Worksheets[1];
 
@@ -1004,19 +987,19 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 DataTable dtDailyProduction = _sqlRepository.GetDataTable(sql);
                 if (dtProductionInfo.Rows.Count == 0)
                     throw new Exception("No data found");
-                
+
                 sheet.Name = "Production Report";
                 string Entity = "";
 
-                 ROW = 6;
-                 COL = 1;
+                ROW = 6;
+                COL = 1;
 
                 for (int i = 0; i < dtDailyProduction.Rows.Count; i++)
                 {
-                    if (dtDailyProduction.Rows[i]["EntityId"].ToString() != Entity)
+                    Entity = dtDailyProduction.Rows[i]["EntityId"].ToString();
+
+                    if (dtDailyProduction.Rows[i]["EntityId"].ToString() == Entity || Entity =="")
                     {
-
-
 
                         sheet[ROW, COL].Text = "Line No";
                         sheet[ROW, COL].ColumnWidth = 10;
@@ -1167,12 +1150,12 @@ Item=STUFF((select distinct ','+XMM.UserName from
                             sheet[ROW, colAAsstOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManPowerWithMachine"].ToString());
                             sheet[ROW, colATotal].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["Manpower"].ToString());
 
-                            sheet[ROW, colPrvsdauQCPass].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PreviousDayQCpass"].ToString());
+                            //sheet[ROW, colPrvsdauQCPass].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PreviousDayQCpass"].ToString());
                             //sheet[ROW, colTodayTGT].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i]["WithoutMachine"].ToString());
                             //sheet[ROW, colWIP].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
                             sheet[ROW, colExpcEffi].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PlanEfficiency"].ToString());
                             //sheet[ROW, colTodayWorkHour].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i]["WithoutMachine"].ToString());
-                            sheet[ROW, colRunningDayNo].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["DaysRunning"].ToString());
+                       //     sheet[ROW, colRunningDayNo].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["DaysRunning"].ToString());
                             //  sheet[ROW, colRunningDayNo].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
 
                             //sheet[ROW, colTGTEFF].Formula = "if(and(" + clsStaticInfo.GetxlsCol(colTotalMP) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + @">0),"
@@ -1198,20 +1181,23 @@ Item=STUFF((select distinct ','+XMM.UserName from
 
                         sheet.UsedRange.WrapText = true;
                         sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                        sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                        //sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
 
-                        sheet["A" + StartRow.ToString()].FreezePanes();
-                        identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                        reportUtility = new ReportUtility();
-                        reportUtility.PlantHeader(ref sheet, endCol, "Daily Production Info Report", identity.PlantId);
-                        reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        sheet.Range[6, 1, 7, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        //sheet["A" + StartRow.ToString()].FreezePanes();
+                        //identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                        //reportUtility = new ReportUtility();
+                        //reportUtility.PlantHeader(ref sheet, endCol, "Daily Production Info Report", identity.PlantId);
+                        //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                        //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        //sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        //sheet.Range[6, 1, 7, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        //sheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        //Entity = dtDailyProduction.Rows[i]["EntityId"].ToString();
                     }
-                ROW += 3;
-
+                    else
+                    {
+                        ROW += 3;
+                    }
                 }
 
 
