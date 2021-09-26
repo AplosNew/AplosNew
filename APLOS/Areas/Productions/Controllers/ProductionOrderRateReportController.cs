@@ -31,7 +31,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         #endregion Constructor
-    
+
         public ActionResult Aplos()
         {
             return View();
@@ -39,12 +39,12 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region --- Daily Day Status Report---
         [HttpPost, Authorize]
-        public JsonResult RReport(string FromDate, string ToDate)
+        public JsonResult RReport(string FromDate, string ToDate, string Entity, string ProcessId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var workbook = RateReport(FromDate, ToDate);
+                var workbook = RateReport(FromDate, ToDate, Entity, ProcessId);
                 return Json(new { FileName = workbook, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -54,7 +54,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        public string RateReport(string FromDate, string ToDate)
+        public string RateReport(string FromDate, string ToDate, string Entity, string ProcessId)
         {
             #region Variable
             ReportUtility oru = new ReportUtility();
@@ -72,8 +72,6 @@ namespace Aplos.Areas.Productions.Controllers
             int endXlsCol = 1;
             string FactoryName = "";
             string CmpName = "";
-            string sOfficeInTime = "00:00:00";
-            string sInTime = "00:00:00";
             var report = new ReportUtility();
             clsReport objRpt = null;
 
@@ -82,9 +80,9 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-               
+
                 #region DataSet
-                GetReport(FromDate,ToDate, out dslocal);
+                GetReport(FromDate, ToDate,Entity,ProcessId, out dslocal);
                 objRpt = new clsReport();
                 dvAttn = new DataView();
                 dvAttn.Table = dslocal.Tables[0];
@@ -108,8 +106,6 @@ namespace Aplos.Areas.Productions.Controllers
                     int intRow = 0;
 
                     int strCount = 0;
-                    string strLateBy = "00:00:00";
-
                     #region ------------------Column Header------------------
                     xlsCol = 1;
                     sheet1.Range[xlsRow, xlsCol].Text = "Sl No.";
@@ -117,95 +113,134 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Employee Code";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8.50;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Production Order No.";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Employee Name";
+                    sheet1.Range[xlsRow, xlsCol].Text = "Entity";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Material Master";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Article";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Production Status";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
-                    
-                    sheet1.Range[xlsRow, xlsCol].Text = "Department";
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Product";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Designation";
+                    sheet1.Range[xlsRow, xlsCol].Text = "Product Category";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Shift Name";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Buyer";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Shift InTime";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Shift OutTime";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Customer";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "InTime";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "OutTime";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Status";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Buyer Order";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     int p = xlsCol;
 
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Late By";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Own Order";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     int q = xlsCol;
 
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Yesterday Status";
+                    sheet1.Range[xlsRow, xlsCol].Text = "Buyer Item";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 9;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     int y = xlsCol;
 
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Yesterday OT";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 9;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Own Item";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     int yo = xlsCol;
 
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Emp. Signature";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 31;
-                    sheet1.Range[xlsRow, xlsCol].RowHeight = 60;
-                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].Text = "PO Number";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    int t = xlsCol;
 
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Incharge Signature";
-                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 31;
-                    sheet1.Range[xlsRow, xlsCol].RowHeight = 60;
+                    sheet1.Range[xlsRow, xlsCol].Text = "SO No";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Rate";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    int I = xlsCol;
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Qty";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Amount";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Currency";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "SKU1";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "SKU2";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                     sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.Gray;
                     sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
@@ -229,121 +264,144 @@ namespace Aplos.Areas.Productions.Controllers
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeCode"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["POId"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Entity"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["MaterialMaster"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Article"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ProductionStatus"].ToString().ToUpper();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeName"].ToString().ToUpper();
+
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Product"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         xlsCol += 1;
-                        
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Department"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ProductCategory"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Designation"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Buyer"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftName"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Customer"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftIn"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftOut"].ToString().Trim();
-                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["InTime"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["BuyerOrder"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        if (bplib.clsWebLib.GetBoolData(dvAttn[i]["IsManualInTime"].ToString().Trim()))
-                        {
-                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Color = ExcelKnownColors.Orange;
-                        }
+
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["OutTime"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["OwnOrder"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        if (bplib.clsWebLib.GetBoolData(dvAttn[i]["IsManualOutTime"].ToString().Trim()))
-                        {
-                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Color = ExcelKnownColors.Orange;
-                        }
 
 
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, p].Text = dvAttn[i]["TodayStatus"].ToString().Trim();
-                        sheet1.Range[xlsRow, p].RowHeight = 13;
-                        sheet1.Range[xlsRow, p].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, p].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["BuyerItem"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        if (dvAttn[i]["TodayStatus"].ToString() == "L")
-                        {
-                            #region Late by min
-
-                            sOfficeInTime = "00:00:00";
-                            sInTime = "00:00:00";
-                            strLateBy = "00:00:00";
-
-                            if (dvAttn[i]["iintime"].ToString().Trim() != "")
-                            {
-                                sInTime = dvAttn[i]["iintime"].ToString().Trim() + ":00";
-                            }
-                            strLateBy = "00:00";
-                            if (dvAttn[i]["iShiftIn"].ToString().Trim() != "" && sInTime != "00:00:00")
-                            {
-                                sOfficeInTime = dvAttn[i]["iShiftIn"].ToString().Trim() + ":00";
-                                strLateBy = (Convert.ToDateTime(sInTime) - Convert.ToDateTime(sOfficeInTime)).ToString();
-                            }
-
-                            //oru.SetText(ref sheet1, xlsRow, cLateBy, strLateBy);
-                            xlsCol += 1;
-                            sheet1.Range[xlsRow, q].Text = strLateBy;
-                            sheet1.Range[xlsRow, q].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet1.Range[xlsRow, q].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            #endregion Late by min
-                        }
 
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, y].Text = dvAttn[i]["PrvDayStatus"].ToString().Trim();
-                        sheet1.Range[xlsRow, y].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, y].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["OwnItem"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        if (!string.IsNullOrEmpty(dvAttn[i]["YesterdayOTHr"].ToString()))
-                        {
-                            oru.GetOT(dvAttn[i]["OTConsiderOn"].ToString(), dvAttn[i]["YesterdayOTHr"].ToString(), out yot);
-                            if (yot == "0:00")
-                            {
-                                yot = "";
-                            }
-                        }
 
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, yo].Text = yot;
-                        sheet1.Range[xlsRow, yo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, yo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["PONumber"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["SONo"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Rate"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Number = OTSBD.clsStaticInfo.dbl(dvAttn[i]["PoQty"].ToString());
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Number = OTSBD.clsStaticInfo.dbl(dvAttn[i]["Amount"].ToString());
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Currency"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["FirstCharacteristics"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["SeceondCharacteristics"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         xlsRow += 1;
 
                         #region Line Setup
                         sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                         sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].RowHeight = 60;
                         sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].WrapText = true;
                         #endregion
 
@@ -446,7 +504,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
-                    sheet1.Range[xlsRow, 3].Text = "Day Status Report";
+                    sheet1.Range[xlsRow, 3].Text = "Production Order Rate Report";
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 11;
@@ -456,7 +514,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
-                    sheet1.Range[xlsRow, 3].Text = "Attendance Date:- " + FromDate;
+                    sheet1.Range[xlsRow, 3].Text = "From Date:- " + FromDate + " To Date:- " + ToDate;
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;
@@ -476,7 +534,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                     #region Page Setup
 
-                    sheet1.Name = "DayStatus";
+                    sheet1.Name = "RateReport";
                     sheet1.PageSetup.TopMargin = 0.5;
                     sheet1.PageSetup.BottomMargin = 0.7;
                     sheet1.PageSetup.PrintTitleRows = "$1:$5";
@@ -492,8 +550,6 @@ namespace Aplos.Areas.Productions.Controllers
 
                     workbook.Version = ExcelVersion.Excel97to2003;
                     report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
-
-                    // return workbook;
 
                     var filePath = "";
                     var SheetName = "";
@@ -520,28 +576,126 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public void GetReport(string FromDate, string ToDate, out DataSet dsRef)
+        public void GetReport(string FromDate, string ToDate, string Entity, string ProcessId, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
             try
             {
 
-                strSql = @" select e.SystemId
-                                            from EmployeeInformation e
-                                            left join mst.ManpowerBudget mp on mp.id=e.BudgetCode
-											left join org.Entity en on en.id=mp.EntityId    
-											left join ORG.Position p on p.Id = mp.PositionId
-											left join org.Department dep on dep.Id = p.DepartmentId
-											left join org.Section s on s.Id = p.SectionId
-											left join org.SubSection ss on ss.Id = p.SubSectionId                                       
-                                            LEFT JOIN org.Line L ON L.Id = mp.LineId
-                                            LEFT JOIN hkp.LegalDesignation LG ON e.LegalDesignationId = LG.Id 
-											left join MST.DesignationMasterLegalDesignation dml on dml.LegalDesignationId = LG.Id
-											left join mst.DesignationMaster dm on dm.Id = dml.DesignationMasterId
-											left join HKP.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId
-                                            
-											where   e.PlantId='" + FromDate + @"' and e.DOJ <= ( '" + ToDate + @"') and (e.DOS is null or e.DOS >= '" + ToDate + @"')";
+                strSql = @"SELECT Ma.Id, SKUId=case when Ma.SelectedDropDownValue is null then '' else Ma.SelectedDropDownValue end,
+                                    PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, sum(PD.Qty)Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
+								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
+                                   ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity,PD.Article,PD.MaterialMaster
+									,SONo=STUFF((select distinct ','+XSO.Id from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
+                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,popd.Rate,isnull(ss.Quantity,0) PoQty,(popd.Rate*isnull(ss.Quantity,0)) Amount,Currency= STUFF((select distinct ','+c.Code from 
+																SCS.Currency c 
+																JOIN TRN.MasterOrder m ON m.CurrencyId=c.Id
+																JOIN TRN.MasterOrderItem mi ON mi.MasterOrderId=m.Id
+																JOIN TRN.SalesOrder s ON s.MasterOrderItemId=mi.Id
+																JOIN TRN.ProductionOrderDetail p ON p.SalesOrderId=s.Id
+																where p.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,fcv.UserName FirstCharacteristics,scv.UserName SeceondCharacteristics
+
+								   FROM TRN.ProductionOrder PO 
+								   LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
+								   LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
+								  
+								   LEFT JOIN 
+								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory,SO.Qty
+                                        ,mm.UserName MaterialMaster,mma.StandardName Article								   
+								        ,Buyer=  REPLACE(REPLACE(
+										            STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                            ,'&amp;','&'), 'amp;', '')	
+								,Customer= REPLACE(REPLACE(
+										              STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                        ,'&amp;','&'), 'amp;', '')	
+                                ,BuyerOrder = REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								                		,'&amp;','&'), 'amp;', '')
+                                ,OwnOrder =REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									                	,'&amp;','&'), 'amp;', '')
+							 ,BuyerItem=REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                ,'&amp;','&'), 'amp;', '')	                                                
+                              ,OwnItem=REPLACE(REPLACE(
+										STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	 
+                               ,PONumber=REPLACE(REPLACE(
+										 STUFF((select distinct ','+CPO.PONumber from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
+                                                                 WHERE pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	
+                            , Description=REPLACE(REPLACE(
+										 STUFF((select distinct ','+XSO.Description from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                        
+                                                                 WHERE pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	
+							
+
+								   FROM TRN.SalesOrder SO
+							       LEFT JOIN  TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+								   LEFT JOIN TRN.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                   LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                   LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=MOI.ArticleId 
+								   LEFT JOIN TRN.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                   LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+								   ) PD ON PD.ProductionOrderId=PO.Id									
+                                    left join ProductionOrderProcessWithRateMaster Ma on Ma.ProductionOrderId =PO.Id
+									left join ProductionOrderProcessWithRateDetails popd on popd.ProductionOrderProcessWithRateMasterId = ma.Id
+									left join HKP.Characteristics fc on fc.Id = popd.FirstCharacteristicsId 
+									left join HKP.Characteristics sc on sc.Id = popd.SecondCharacteristicsId
+									left join HKP.CharacteristicsValue fcv on fcv.Id = popd.FirstCharacteristicsValueId 
+									left join HKP.CharacteristicsValue scv on scv.Id = popd.SecondCharacteristicsValueId 
+									left join TRN.ProductionSummary ss on ss.ProductionOrderId = ma.ProductionOrderId and ma.ProcessId=ss.ProcessId								  
+									WHERE	
+								   PO.Id IN(select ProductionOrderId  from [TRN].[ProductionOrderProcessSet] Pr where Pr.EntityIdWithinCompany='" + Entity + "' and ProcessId='" + ProcessId + @"')
+								   and
+								   PS.StandardName in ('Active', 'Running') and ISNULL(ma.Id,'')<>'' and ss.ProductionDate between '" + FromDate + "' and '" + ToDate + @"'
+                                   group by Ma.Id, PO.Id ,PS.UserName,PO.RequiredTimeUnit,LSD,CommitmentDate,PD.Product, PD.ProductCategory
+								   ,PD.Buyer,PD.Customer, PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId
+								   ,E.UserName,Ma.SelectedDropDownValue,PD.MaterialMaster,PD.Article ,popd.Rate,ss.Quantity,fcv.UserName,scv.UserName
+                                   order by PO.Id";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
