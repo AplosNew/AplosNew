@@ -197,6 +197,8 @@
     <Compile Include="IE\OperationMasterService.cs" />
     <Compile Include="IE\SkillGroupingService.cs" />
     <Compile Include="IE\SizeGroupService.cs" />
+    <Compile Include="Invoices\IInventoryIssueJournalService.cs" />
+    <Compile Include="Invoices\InventoryIssueJournalService.cs" />
     <Compile Include="IssueTracker\IIssueCategoryService.cs" />
     <Compile Include="IssueTracker\IIssueExternalAuditService.cs" />
     <Compile Include="IssueTracker\IIssueFollowUpResponsibleService.cs" />

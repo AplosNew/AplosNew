@@ -62,9 +62,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<InventorySales> _inventorySalesRepository;
         private readonly IRepositoryAsync<InventorySalesDetail> _inventorySalesDetailRepository;
         private readonly IRepositoryAsync<InventoryReceiveDetail> _inventoryReceiveDetailRepository;
-        private readonly IRepositoryAsync<InventoryIssue> _inventoryIssueRepository;
-        private readonly IRepositoryAsync<InventoryIssueDetail> _inventoryIssueDetailRepository;
-        private readonly IRepositoryAsync<InventoryIssueHistory> _inventoryIssueHistoryRepository;
+        private readonly IInventoryIssueJournalService _inventoryIssueService;
         private readonly IRepositoryAsync<PurchaseDocAcceptance> _purchaseDocAcceptanceRepository;
         private readonly IRepositoryAsync<PurchaseDocAcceptanceCharges> _purchaseDocAcceptanceServiceRepository;
         private readonly IRepositoryAsync<PurchaseDocAcceptanceDetail> _purchaseDocAcceptanceDetailRepository;
@@ -98,15 +96,13 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<InventoryReceive> inventoryReceiveRepository
             , IRepositoryAsync<InventorySales> inventorySalesRepository
             , IRepositoryAsync<InventorySalesDetail> inventorySalesDetailRepository
-            , IRepositoryAsync<InventoryIssue> inventoryIssueRepository
+            , IInventoryIssueJournalService inventoryIssueService
             , IPKGeneratorService pkGeneratorService
             , IEmployeePayableService employeePayableService
             , IRepositoryAsync<EmployeePayableDetail> employeePayableDetailRepository
             , IRepositoryAsync<InventoryReceiveDetail> inventoryReceiveDetailRepository
             , IRepositoryAsync<ServiceAcknowledgementMaster> serviceAcknowledgementMasterRepository
             , IRepositoryAsync<ServiceAcknowledgementDetail> serviceAcknowledgementDetailRepository
-            , IRepositoryAsync<InventoryIssueDetail> inventoryIssueDetailRepository
-            , IRepositoryAsync<InventoryIssueHistory> inventoryIssueHistoryRepository
             , IRepositoryAsync<PurchaseDocAcceptance> purchaseDocAcceptanceRepository
             , IRepositoryAsync<PurchaseDocAcceptanceCharges> purchaseDocAcceptanceServiceRepository
             , IRepositoryAsync<PurchaseDocAcceptanceDetail> purchaseDocAcceptanceDetailRepository
@@ -139,12 +135,10 @@ namespace Library.Service.Invoices
             _taxCategoryRepository = taxCategoryRepository;
             _inventoryReceiveRepository = inventoryReceiveRepository;
             _inventorySalesRepository = inventorySalesRepository;
-            _inventoryIssueRepository = inventoryIssueRepository;
+            _inventoryIssueService = inventoryIssueService;
             _employeePayableService = employeePayableService;
             _employeePayableDetailRepository = employeePayableDetailRepository;
             _inventoryReceiveDetailRepository = inventoryReceiveDetailRepository;
-            _inventoryIssueDetailRepository = inventoryIssueDetailRepository;
-            _inventoryIssueHistoryRepository = inventoryIssueHistoryRepository;
             _purchaseDocAcceptanceRepository = purchaseDocAcceptanceRepository;
             _taxCategoryGLRepository = taxCategoryGLRepository;
             _purchaseDocAcceptanceServiceRepository = purchaseDocAcceptanceServiceRepository;
@@ -2529,13 +2523,14 @@ namespace Library.Service.Invoices
             }
         }
 
+        #region Issue Journal
         public void InsertIssueJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList)
+          , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList)
         {
             var flag = false;
             try
             {
-                var issueData = _inventoryIssueRepository.Find(issueId);
+                var issueData = _inventoryIssueService.FindInventoryIssue(issueId);
                 voucherVM.PostingDate = issueData.IssueDate;
                 voucherVM.EntityId = issueData.EntityId;
 
@@ -2616,7 +2611,7 @@ namespace Library.Service.Invoices
                             CurrencyId = voucher.CurrencyId,
                             DrAmount = 0,
                             CrAmount = voucherDetailVM.Amount,
-                            CostCenterId=voucherDetailVM.CostCenterId
+                            CostCenterId = voucherDetailVM.CostCenterId
                         };
                         currentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
@@ -2634,31 +2629,31 @@ namespace Library.Service.Invoices
                 }
                 foreach (var item in invIssueDetailList)
                 {
-                    var issueDetail = _inventoryIssueDetailRepository.Find(item.InventoryIssueDetailId);
+                    var issueDetail = _inventoryIssueService.FindInventoryIssueDetail(item.InventoryIssueDetailId);
                     issueDetail.PostDrGLGeneralInfoId = item.GLGeneralInfoId;
                     issueDetail.PostDrBudgetMasterId = item.BudgetMasterId;
                     issueDetail.PostDrActivityId = item.ActivityId;
                     issueDetail.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(issueDetail);
-                    _inventoryIssueDetailRepository.Update(issueDetail);
+                    _inventoryIssueService.UpdateInventoryIssueDetail(issueDetail);
                 }
 
                 foreach (var item in invIssueDetailGLList)
                 {
-                    var issueDetailGL = _inventoryIssueDetailRepository.Find(item.InventoryIssueDetailId);
+                    var issueDetailGL = _inventoryIssueService.FindInventoryIssueDetail(item.InventoryIssueDetailId); 
                     issueDetailGL.PostCrGLGeneralInfoId = item.PostDrGLGeneralInfoId;
                     issueDetailGL.PostCrBudgetMasterId = item.PostDrBudgetMasterId;
                     issueDetailGL.PostCrActivityId = item.PostDrActivityId;
                     issueDetailGL.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(issueDetailGL);
-                    _inventoryIssueDetailRepository.Update(issueDetailGL);
+                    _inventoryIssueService.UpdateInventoryIssueDetail(issueDetailGL);
                 }
                 // Update Inventory Received
                 issueData.VoucherId = voucher.Id;
                 issueData.Status = "Posting";
                 issueData.ModelState = ModelState.Modified;
                 AuditService.UpdatedLog(issueData);
-                _inventoryIssueRepository.Update(issueData);
+                _inventoryIssueService.UpdateInventoryIssue(issueData);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -2675,6 +2670,78 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+
+        public void DeleteIssueJournal(string issueId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
+                var inventoryIssue = _inventoryIssueService.FindInventoryIssue(issueId);
+                if(inventoryIssue.CapitalizeVoucherId!=null)
+                    throw new CustomException("Delete Capitalize Voucher first ! ");
+
+                var inventoryIssueDetail = _inventoryIssueService.QueryInventoryIssueDetail(issueId).Select().ToList();
+
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                }
+                foreach (var item in voucherdetail)
+                {
+                    var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
+                    if (glTransactionDetail != null)
+                    {
+                        _voucherService.DeleteGLTransactionDetail(item.Id);
+                    }
+                    _voucherService.DeleteVoucherDetail(item.Id);
+                }
+                foreach (var item in inventoryIssueDetail)
+                {
+                    item.PostCrActivityId = null;
+                    item.PostCrBudgetMasterId = null;
+                    item.PostCrGLGeneralInfoId = null;
+                    item.PostDrActivityId = null;
+                    item.PostDrBudgetMasterId = null;
+                    item.PostDrGLGeneralInfoId = null;
+                    AuditService.UpdatedLog(item);
+                    _inventoryIssueService.UpdateInventoryIssueDetail(item);
+                }
+                inventoryIssue.VoucherId = null;
+                inventoryIssue.Status = null;
+                AuditService.UpdatedLog(inventoryIssue);
+                _inventoryIssueService.UpdateInventoryIssue(inventoryIssue);
+                _voucherService.DeleteVoucher(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        #endregion
 
         public void InsertGRNFixedAssetCapitalizeJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
@@ -2873,7 +2940,7 @@ namespace Library.Service.Invoices
                 flag = true;
                 // INSERT INTO Voucher TABLE
 
-                var issue = _inventoryIssueRepository.Find(issueId);
+                var issue = _inventoryIssueService.FindInventoryIssue(issueId);
 
                 var voucher = new Voucher
                 {
@@ -2897,7 +2964,7 @@ namespace Library.Service.Invoices
 
                 issue.CapitalizeVoucherId = voucher.Id;
                 issue.VoucherId = voucher.Id;
-                _inventoryIssueRepository.Update(issue);
+                _inventoryIssueService.UpdateInventoryIssue(issue);
 
                 var currentVoucherDetaiRecord = 0;
                 foreach (var voucherDetailVM in voucherDetailVMList)
@@ -2932,19 +2999,19 @@ namespace Library.Service.Invoices
                         });
                         foreach (var item in invIssueDetailList.Where(r => r.PostDrBudgetMasterId == voucherDetailVM.BudgetMasterId && r.PostDrActivityId == voucherDetailVM.ActivityId))
                         {
-                            var inventoryIssueHistory = _inventoryIssueHistoryRepository.Find(item.InventoryIssueHistoryId);
+                            var inventoryIssueHistory = _inventoryIssueService.FindInventoryIssueHistory(item.InventoryIssueHistoryId);
                             inventoryIssueHistory.CapitalizeVoucherDetailId = voucherDr.Id;
                             inventoryIssueHistory.IsCapitalize = true;
-                            _inventoryIssueHistoryRepository.Update(inventoryIssueHistory);
+                            _inventoryIssueService.UpdateInventoryIssueHistory(inventoryIssueHistory);
 
-                            var inventoryIssueDetail = _inventoryIssueDetailRepository.Find(inventoryIssueHistory.InventoryIssueDetailId);
+                            var inventoryIssueDetail = _inventoryIssueService.FindInventoryIssueDetail(inventoryIssueHistory.InventoryIssueDetailId);
                             inventoryIssueDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
                             inventoryIssueDetail.PostDrBudgetMasterId = voucherDr.BudgetMasterId;
                             inventoryIssueDetail.PostDrActivityId = voucherDr.ActivityId;
                             inventoryIssueDetail.PostCrGLGeneralInfoId = item.PostCrGLGeneralInfoId;
                             inventoryIssueDetail.PostCrBudgetMasterId = item.PostCrBudgetMasterId;
                             inventoryIssueDetail.PostCrActivityId = item.PostCrActivityId;
-                            _inventoryIssueDetailRepository.Update(inventoryIssueDetail);
+                            _inventoryIssueService.UpdateInventoryIssueDetail(inventoryIssueDetail);
                         }
 
                     }
@@ -3109,7 +3176,7 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                var issue = _inventoryIssueRepository.Find(issueId);
+                var issue = _inventoryIssueService.FindInventoryIssue(issueId);
 
                 AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
@@ -3142,7 +3209,7 @@ namespace Library.Service.Invoices
                 _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
 
                 issue.CapitalizeVoucherId = voucher.Id;
-                _inventoryIssueRepository.Update(issue);
+                _inventoryIssueService.UpdateInventoryIssue(issue);
 
                 var currentVoucherDetaiRecord = 0;
                 foreach (var voucherDetailVM in voucherDetailVMList)
@@ -3177,10 +3244,10 @@ namespace Library.Service.Invoices
                         });
                         foreach (var item in invIssueDetailList.Where(r => r.PostDrBudgetMasterId == voucherDetailVM.BudgetMasterId && r.PostDrActivityId == voucherDetailVM.ActivityId))
                         {
-                            var inventoryIssueHistory = _inventoryIssueHistoryRepository.Find(item.InventoryIssueHistoryId);
+                            var inventoryIssueHistory = _inventoryIssueService.FindInventoryIssueHistory(item.InventoryIssueHistoryId);
                             inventoryIssueHistory.CapitalizeVoucherDetailId = voucherDr.Id;
                             inventoryIssueHistory.IsCapitalize = true;
-                            _inventoryIssueHistoryRepository.Update(inventoryIssueHistory);
+                            _inventoryIssueService.UpdateInventoryIssueHistory(inventoryIssueHistory);
 
                             //var inventoryIssueDetail = _inventoryIssueDetailRepository.Find(inventoryIssueHistory.InventoryIssueDetailId);
                             //inventoryIssueDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
