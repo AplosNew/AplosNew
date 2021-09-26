@@ -1455,12 +1455,15 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
             var sql = @"SELECT FG.Id,IR.Id InventoryReceiveId,IR.GRNDate BookingDate,IR.GRNDate PostingDate,ird.Qty,ird.Amount
                         ,FG.ProcessId,P.UserName ProcessName,FG.[Description],FG.ProductionEntityId EntityId
                         ,E.UserName Entity,IR.FinishGoodsBookingId,FG.FromDate,FG.ToDate,FG.SourceType
+						,C.Code CurrencyCode,IR.CurrencyId,IR.ToCurrencyRate CompanyCurrencyRate,MS.UserName MaterialStorageName
 					FROM  TRN.InventoryReceive IR
 					LEFT JOIN dbo.[FinishGoodsBooking] AS FG  ON IR.FinishGoodsBookingId=FG.Id
                      LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS Qty, SUM(ROUND(A.TotalMaterialTranAmount,2)) AS Amount
 					 FROM TRN.InventoryReceiveDetail AS A  GROUP BY A.InventoryReceiveId) AS  IRD ON IRD.InventoryReceiveId=IR.Id
 					 LEFT JOIN ORG.Entity E ON E.Id=FG.ProductionEntityId
 					 LEFT JOIN HKP.Process P ON P.Id=FG.ProcessId
+					 LEFT JOIN SCS.Currency C ON C.Id=IR.CurrencyId
+					 LEFT JOIN HKP.MaterialStorage MS ON MS.Id=IR.MaterialStorageId
 					WHERE IR.VoucherId IS NULL  AND E.PlantId='" + plantId + @"'";
             return _sqlRepository.GetDataCollection(sql);
         }
