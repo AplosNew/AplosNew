@@ -52,10 +52,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<AdjustmentNoteDetail> _AdjustmentNoteDetailRepository;
         private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
         private readonly IRepositoryAsync<InvoiceTaxDetail> _invoiceTaxDetailRepository;
-        private readonly IRepositoryAsync<TaxCodeGL> _taxCodeGLRepository;
         private readonly IRepositoryAsync<EmployeePayableDetail> _employeePayableDetailRepository;
-        private readonly TaxCategoryGLService _taxCategoryGlService;
-        private readonly IRepositoryAsync<TaxCategory> _taxCategoryRepository;
         private readonly IRepositoryAsync<ServiceAcknowledgementMaster> _serviceAcknowledgementMasterRepository;
         private readonly IRepositoryAsync<ServiceAcknowledgementDetail> _serviceAcknowledgementDetailRepository;
         private readonly IRepositoryAsync<InventoryReceive> _inventoryReceiveRepository;
@@ -68,7 +65,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<PurchaseDocAcceptanceDetail> _purchaseDocAcceptanceDetailRepository;
         private readonly IRepositoryAsync<PurchaseDocAcceptanceTax> _purchaseDocAcceptanceServiceTaxRepository;
         private readonly IEmployeePayableService _employeePayableService;
-        private readonly IRepositoryAsync<TaxCategoryGL> _taxCategoryGLRepository;
+       // private readonly IRepositoryAsync<TaxCategoryGL> _taxCategoryGLRepository;
         private readonly IRepositoryAsync<AdditionalTax> _additionalTaxRepository;
         private readonly IRepositoryAsync<AdditionalTaxDetail> _additionalTaxDetailRepository;
         private readonly IRepositoryAsync<GRNAcceptanceMap> _gRNAcceptanceMapRepository;
@@ -90,9 +87,6 @@ namespace Library.Service.Invoices
             , IUnitOfWork unitOfWork
             , IVoucherService voucherService
             , ISqlRepository sqlRepository
-            , IRepositoryAsync<TaxCodeGL> taxCodeGLRepository
-            , TaxCategoryGLService taxCategoryGlService
-            , IRepositoryAsync<TaxCategory> taxCategoryRepository
             , IRepositoryAsync<InventoryReceive> inventoryReceiveRepository
             , IRepositoryAsync<InventorySales> inventorySalesRepository
             , IRepositoryAsync<InventorySalesDetail> inventorySalesDetailRepository
@@ -107,7 +101,7 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<PurchaseDocAcceptanceCharges> purchaseDocAcceptanceServiceRepository
             , IRepositoryAsync<PurchaseDocAcceptanceDetail> purchaseDocAcceptanceDetailRepository
             , IRepositoryAsync<PurchaseDocAcceptanceTax> purchaseDocAcceptanceServiceTaxRepository
-            , IRepositoryAsync<TaxCategoryGL> taxCategoryGLRepository
+            //, IRepositoryAsync<TaxCategoryGL> taxCategoryGLRepository
             , IRepositoryAsync<AdditionalTax> additionalTaxRepository
             , IRepositoryAsync<AdditionalTaxDetail> additionalTaxDetailRepository
             , IRepositoryAsync<GRNAcceptanceMap> gRNAcceptanceMapRepository
@@ -130,9 +124,6 @@ namespace Library.Service.Invoices
             _invoiceTaxRepository = invoiceTaxRepository;
             _invoiceTaxDetailRepository = invoiceTaxDetailRepository;
             _voucherService = voucherService;
-            _taxCodeGLRepository = taxCodeGLRepository;
-            _taxCategoryGlService = taxCategoryGlService;
-            _taxCategoryRepository = taxCategoryRepository;
             _inventoryReceiveRepository = inventoryReceiveRepository;
             _inventorySalesRepository = inventorySalesRepository;
             _inventoryIssueService = inventoryIssueService;
@@ -140,7 +131,7 @@ namespace Library.Service.Invoices
             _employeePayableDetailRepository = employeePayableDetailRepository;
             _inventoryReceiveDetailRepository = inventoryReceiveDetailRepository;
             _purchaseDocAcceptanceRepository = purchaseDocAcceptanceRepository;
-            _taxCategoryGLRepository = taxCategoryGLRepository;
+            //_taxCategoryGLRepository = taxCategoryGLRepository;
             _purchaseDocAcceptanceServiceRepository = purchaseDocAcceptanceServiceRepository;
             _purchaseDocAcceptanceDetailRepository = purchaseDocAcceptanceDetailRepository;
             _purchaseDocAcceptanceServiceTaxRepository = purchaseDocAcceptanceServiceTaxRepository;
@@ -640,17 +631,15 @@ namespace Library.Service.Invoices
                             if (null == tdsTaxVM.TaxCodeId)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == tdsTaxVM.TaxCodeId).Select().FirstOrDefault();
-                            if (null == taxCodeGL)
-                                throw new CustomException("Tax code GL not found!");
-
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
+                           
 
                             addtionalTaxDetailId++;
                             var tdsTaxDetail = new AdditionalTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = tdsTaxVM.TaxAmount,
                                 AdditionalTaxId = tdsTax.Id,
                                 TaxCodeId = tdsTaxVM.TaxCodeId,
@@ -978,7 +967,7 @@ namespace Library.Service.Invoices
                         if (null == invoiceTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == invoiceTaxVM.TaxCodeId).Select().FirstOrDefault();
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(invoiceTaxVM.TaxCodeId);
                         if (null == taxCodeGL)
                             throw new CustomException("Tax code GL not found!");
 
@@ -986,9 +975,9 @@ namespace Library.Service.Invoices
                         addtionalTaxDetailId++;
                         var invoiceTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = invoiceTaxVM.TaxAmount,
                             AdditionalTaxId = invoiceTax.Id,
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -1410,17 +1399,15 @@ namespace Library.Service.Invoices
                         if (null == invoiceTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == invoiceTaxVM.TaxCodeId).Select().FirstOrDefault();
-                        if (null == taxCodeGL)
-                            throw new CustomException("Tax code GL not found!");
-
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(invoiceTaxVM.TaxCodeId);
+                       
 
                         addtionalTaxDetailId++;
                         var invoiceTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = invoiceTaxVM.TaxAmount,
                             AdditionalTaxId = invoiceTax.Id,
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -3477,18 +3464,16 @@ namespace Library.Service.Invoices
                         foreach (var taxCatId in taxCategoryList)
                         {
                             totalTaxAmount += acceptanceTax.Where(r => r.TaxCategoryId == taxCatId).Sum(r => r.TaxAmount);
-                            var taxCategoryGL = _taxCategoryGLRepository.Query(r => r.TaxCategoryId == taxCatId && r.InputTaxOutPutTax == "Input").Select().FirstOrDefault();
-                            if (null == taxCategoryGL)
-                                throw new CustomException("Tax Category not found!");
-
-                            if (null == taxCategoryGL.GLGeneralInfoId)
+                            var taxCategoryGL = _accountsCommonService.GetTaxCategoryInputGL(taxCatId); 
+                           
+                            if (null == taxCategoryGL["GLGeneralInfoId"].ToString())
                                 throw new CustomException("Tax Category Expenses GL not found!");
 
                             var voucherDr = new VoucherDetail
                             {
-                                GLGeneralInfoId = taxCategoryGL.GLGeneralInfoId,
-                                BudgetMasterId = taxCategoryGL.BudgetMasterId,
-                                ActivityId = taxCategoryGL.ActivityId,
+                                GLGeneralInfoId = taxCategoryGL["GLGeneralInfoId"].ToString(),
+                                BudgetMasterId = taxCategoryGL["BudgetMasterId"].ToString(),
+                                ActivityId = taxCategoryGL["ActivityId"].ToString(),
                                 DrAmount = acceptanceTax.Where(r => r.TaxCategoryId == taxCatId).Sum(r => r.TaxAmount),
                                 CurrencyId = voucherVM.CurrencyId,
                                 DocDate = voucherVM.DocDate,
@@ -3712,11 +3697,9 @@ namespace Library.Service.Invoices
                                 var invoiceTaxPk = _invoiceTaxService.GetMaxNumber();
                                 foreach (var invoiceTaxVM in invoieTaxVM)
                                 {
-                                    var taxCategoryGL = _taxCategoryGLRepository.Query(r => r.TaxCategoryId == invoiceTaxVM.TaxCategoryId && r.InputTaxOutPutTax == "Input").Select().FirstOrDefault();
-                                    if (null == taxCategoryGL)
-                                        throw new CustomException("Tax Category not found!");
-
-                                    if (null == taxCategoryGL.ExpensesGLId)
+                                    var taxCategoryGL = _accountsCommonService.GetTaxCategoryInputGL(invoiceTaxVM.TaxCategoryId);
+                                  
+                                    if (null == taxCategoryGL["ExpensesGLId"].ToString())
                                         throw new CustomException("Tax Category Expenses GL not found!");
 
                                     currentTaxRecord++;
@@ -3738,13 +3721,13 @@ namespace Library.Service.Invoices
                                     InsertInvoiceTax(voucherVM, invoiceTax, invoiceTaxPk);
                                     totalTaxAmount += invoiceTax.TaxAmount;
 
-                                    if (!string.IsNullOrEmpty(taxCategoryGL.ExpensesGLId))
+                                    if (!string.IsNullOrEmpty(taxCategoryGL["ExpensesGLId"].ToString()))
                                     {
                                         var invoiceTaxDetail = new InvoiceTaxDetail
                                         {
-                                            GLGeneralInfoId = taxCategoryGL.ExpensesGLId,
-                                            BudgetMasterId = taxCategoryGL.ExpensesBudgetMasterId,
-                                            ActivityId = taxCategoryGL.ExpensesActivityId,
+                                            GLGeneralInfoId = taxCategoryGL["ExpensesGLId"].ToString(),
+                                            BudgetMasterId = taxCategoryGL["ExpensesBudgetMasterId"].ToString(),
+                                            ActivityId = taxCategoryGL["ExpensesActivityId"].ToString(),
                                             Amount = invoiceTax.TaxAmount,
                                             AType = "Dr"
                                         };
@@ -4199,7 +4182,7 @@ namespace Library.Service.Invoices
                             if (null == tdsTaxVM.TaxCodeId)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == tdsTaxVM.TaxCodeId).Select().FirstOrDefault();
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
                             if (null == taxCodeGL)
                                 throw new CustomException("Tax code GL not found!");
 
@@ -4207,9 +4190,9 @@ namespace Library.Service.Invoices
                             addtionalTaxDetailId++;
                             var tdsTaxDetail = new AdditionalTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = tdsTaxVM.TaxAmount,
                                 AdditionalTaxId = tdsTax.Id,
                                 TaxCodeId = tdsTaxVM.TaxCodeId,
@@ -4559,7 +4542,7 @@ namespace Library.Service.Invoices
                         if (null == tdsTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == tdsTaxVM.TaxCodeId).Select().FirstOrDefault();
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
                         if (null == taxCodeGL)
                             throw new CustomException("Tax code GL not found!");
 
@@ -4567,9 +4550,9 @@ namespace Library.Service.Invoices
                         addtionalTaxDetailId++;
                         var tdsTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = tdsTaxVM.TaxAmount,
                             AdditionalTaxId = tdsTax.Id,
                             TaxCodeId = tdsTaxVM.TaxCodeId,
