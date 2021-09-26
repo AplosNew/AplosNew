@@ -396,14 +396,17 @@ namespace Library.OrderManagement.Packing
                             drInventoryReceiveDetail["TransactionQty"] = item["Qty"];
 
                             drInventoryReceiveDetail["BaseQty"] = item["Qty"];
+                            drInventoryReceiveDetail["GRNQty"] = item["Qty"];
                             drInventoryReceiveDetail["MaterialTranRate"] = item["Rate"];
-                            drInventoryReceiveDetail["MaterialTranAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
-                            drInventoryReceiveDetail["TotalMaterialTranAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
-                            drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
+                            drInventoryReceiveDetail["MaterialTranAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
+                            drInventoryReceiveDetail["TotalMaterialTranAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
+                            drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
+                            drInventoryReceiveDetail["GRNTotalAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
+                            drInventoryReceiveDetail["GrossAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
                             drInventoryReceiveDetail["BooksCurrencyBaseRate"] = item["Rate"];
                             drInventoryReceiveDetail["TrnCurrencyBaseRate"] = item["Rate"];
                             drInventoryReceiveDetail["MaterialStorageId"] = data["MaterialStorageId"];
-
+                            drInventoryReceiveDetail["DiscountAmount"] = 0;
                             drInventoryReceiveDetail["BaseUoMFactor"] = 1;
                             drInventoryReceiveDetail["TotalTaxAmount"] = 0;
                             drInventoryReceiveDetail["ChargesTranAmount"] = 0;
@@ -513,7 +516,7 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-        public void ConsumtionBookData(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
+        public void SaveFinishGoodsBookData(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -563,7 +566,7 @@ namespace Library.OrderManagement.Packing
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceive WHERE 1 = 2", out dsInventoryReceive, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM TRN.InventoryReceiveDetail WHERE 1 = 2", out dsInventoryReceiveDetail, false, "1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionSummary WHERE ProductionDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "' AND ProductionOrderId IN(" + pOId + ") AND ISNULL(FinishGoodsBookingId,'')='' AND EntityId='" + data["ProductionEntityId"] + "' AND ProcessId='" + data["ProcessId"] + "'", out dsProductionSummary, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionSummary WHERE ProductionDate between '"+ data["FromDate"] + @"' AND '"+ data["ToDate"] + @"' AND ISNULL(FinishGoodsBookingId,'')='' AND EntityId='"+ data["ProductionEntityId"] + @"' AND ProcessId='" + data["ProcessId"] + "' AND ISNULL(MaterialMasterId,'')<>''", out dsProductionSummary, false, "1");
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[InventoryMaterial] where MaterialMasterId IN(" + MaterialMasterId + ") and ArticleId IN(" + ArticleId + ")  and CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'", out dsInventoryMaterial, false, "1");
 
@@ -688,10 +691,14 @@ namespace Library.OrderManagement.Packing
                             drInventoryReceiveDetail["TransactionQty"] = item["Qty"];
 
                             drInventoryReceiveDetail["BaseQty"] = item["Qty"];
+                            drInventoryReceiveDetail["GRNQty"] = item["Qty"];
                             drInventoryReceiveDetail["MaterialTranRate"] = item["Rate"];
-                            drInventoryReceiveDetail["MaterialTranAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
-                            drInventoryReceiveDetail["TotalMaterialTranAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
-                            drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]);
+                            drInventoryReceiveDetail["MaterialTranAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]),2);
+                            drInventoryReceiveDetail["TotalMaterialTranAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
+                            drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
+                            drInventoryReceiveDetail["GRNTotalAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
+                            drInventoryReceiveDetail["GrossAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
+                            drInventoryReceiveDetail["DiscountAmount"] = 0;
                             drInventoryReceiveDetail["BooksCurrencyBaseRate"] = item["Rate"];
                             drInventoryReceiveDetail["TrnCurrencyBaseRate"] = item["Rate"];
                             drInventoryReceiveDetail["MaterialStorageId"] = data["MaterialStorageId"];
