@@ -1640,13 +1640,13 @@ namespace Library.MaterialManagement.InventoryManagements
                          --,ServiceTax=((SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=IR.Id AND InventoryServiceId<>'')/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
 						,IRD.ChargesTranAmount ServiceCharge
 						,IRD.ChargesTaxTranAmount ServiceTax
-						--,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
+						,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
 						--,ROUND(Isnull(IRD.TotalMaterialBaseAmount,0),2) TotalMaterialBaseAmount
-						,Case When IR.IsNonCreditable = 1 
-							then ROUND(Isnull(IRD.MaterialTranAmount,0),2) + (SELECT SUM(TaxAmount) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveDetailId=IRD.Id) + ((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=IR.Id)/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount +((SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=IR.Id AND InventoryServiceId<>'')/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
-						when IR.IsNonCreditable = 0
-							then ROUND(Isnull(IRD.MaterialTranAmount,0),2)  + ((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=IR.Id)/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
-						end TotalMaterialTranAmount
+						--,Case When IR.IsNonCreditable = 1 
+							--then ROUND(Isnull(IRD.MaterialTranAmount,0),2) + (SELECT SUM(TaxAmount) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveDetailId=IRD.Id) + ((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=IR.Id)/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount +((SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=IR.Id AND InventoryServiceId<>'')/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
+						--when IR.IsNonCreditable = 0
+							--then ROUND(Isnull(IRD.MaterialTranAmount,0),2)  + ((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=IR.Id)/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
+						--end TotalMaterialTranAmount
                        ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) TotalMaterialBaseAmount ,IR.AddedBy
                        ,CASE 
 					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
@@ -1703,7 +1703,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,IRD.ReductionByAdjustmentQty
 						,IRD.InventorySalesQty
 						,IRD.InventoryScrapQty						
-						,IRD.InventoryTransferQty
+						,IRD.InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -1720,7 +1720,8 @@ namespace Library.MaterialManagement.InventoryManagements
 				    --Left JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=IRT.HSNCodeId
 					left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=IRD.InventoryReceiveId
 					left JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId 
-					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id				
+					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id	
+					left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
 					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id				
 					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId 
@@ -1878,6 +1879,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						 --where  IR.PlantId='20181'  AND convert(Date,IR.GRNDate) BETWEEN  '01-OCT-2020' AND '31-OCT-2020' --ORDER BY IR.GRNDate ASC
 						 where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                          --and IR.Id='20211740'
+						AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW'
 
 							UNION ALL
 
@@ -2026,7 +2028,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 ReductionByAdjustmentQty
 					,0 InventorySalesQty
 					,0 InventoryScrapQty						
-					,0 InventoryTransferQty
+					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
@@ -2114,7 +2116,7 @@ namespace Library.MaterialManagement.InventoryManagements
 			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 			where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'  --and IR.Id='20211740'
 			--AND IRT.InventoryServiceId is not null
-			AND IR.GRNType<>'FG'
+			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW'
 			)x
 			Order By X.GRNEntryDate ASC";
 
@@ -2448,9 +2450,26 @@ namespace Library.MaterialManagement.InventoryManagements
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			colTransactionQtyTotal = sheet1headreColIndex;
 			sheet1headreColIndex++;
+
+			
+
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "UoM");
 			//sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "UoM";
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TrnUoM";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 8;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base Qty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			//colTransactionQtyTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "BaseUoM";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 8;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2519,13 +2538,21 @@ namespace Library.MaterialManagement.InventoryManagements
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Total Material Tran Amount");
 			//sheet1headreColIndex++;
 
-			//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Total Material Tran Amount";
-			//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
-			//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TotalMaterialTranAmount";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			//colTotalMaterialTranAmountTotal = sheet1headreColIndex;
-			//sheet1headreColIndex++;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TotalMaterialBooksCurrencyAmount";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			//colTotalMaterialBooksCurrencyAmountTotal = sheet1headreColIndex; 
+			sheet1headreColIndex++;
 
 
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Credtible Status");
@@ -3225,6 +3252,7 @@ namespace Library.MaterialManagement.InventoryManagements
 				//else
 				//{
 				//	list.Add(rcvid);
+				int COL = 1;
 					report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["GRNId"].ToString());
 				
 					report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["GRNEntryDate"].ToString());
@@ -3253,100 +3281,104 @@ namespace Library.MaterialManagement.InventoryManagements
 					report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
 					report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
 					report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["UOM"].ToString());
-					report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranRate"].ToString()));
-					report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["LotNo"].ToString());
-					report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["QualityStatus"].ToString());
-					report.SetText(ref sheet1, _rowL, 31, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GrossAmount"].ToString()));
-					report.SetText(ref sheet1, _rowL, 32, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["DiscountAmount"].ToString()));
-					report.SetText(ref sheet1, _rowL, 33, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranAmount"].ToString()));
-					//report.SetText(ref sheet1, _rowL, 29, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalMaterialTranAmount"].ToString()));
-					report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["CredtibleStatus"].ToString());
-					report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["RCM"].ToString());
+
+					report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseQty"].ToString()));
+					report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["BaseUoM"].ToString());
+					report.SetText(ref sheet1, _rowL, 30, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranRate"].ToString()));
+					report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["LotNo"].ToString());
+					report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["QualityStatus"].ToString());
+					report.SetText(ref sheet1, _rowL, 33, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GrossAmount"].ToString()));
+					report.SetText(ref sheet1, _rowL, 34, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["DiscountAmount"].ToString()));
+					report.SetText(ref sheet1, _rowL, 35, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranAmount"].ToString()));
+					report.SetText(ref sheet1, _rowL, 36, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalMaterialTranAmount"].ToString()));
+					report.SetText(ref sheet1, _rowL, 37, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalMaterialBaseAmount"].ToString()));
+					report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CredtibleStatus"].ToString());
+					report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["RCM"].ToString());
 					//report.SetText(ref sheet1, _rowL, 31, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TaxAmount"].ToString()));
 					//report.SetText(ref sheet1, _rowL, 27, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGSTTaxPercentage"].ToString()));
-					report.SetText(ref sheet1, _rowL, 36, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGST"].ToString()));
-					report.SetText(ref sheet1, _rowL, 37, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGSTTaxPercentage"].ToString()));
-					report.SetText(ref sheet1, _rowL, 38, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGST"].ToString()));
-					report.SetText(ref sheet1, _rowL, 39, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGSTTaxPercentage"].ToString()));
-					report.SetText(ref sheet1, _rowL, 40, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGST"].ToString()));
-					report.SetText(ref sheet1, _rowL, 41, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGSTTaxPercentage"].ToString()));
-					report.SetText(ref sheet1, _rowL, 42, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDS"].ToString()));
-					report.SetText(ref sheet1, _rowL, 43, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDSTaxPercentage"].ToString()));
+					report.SetText(ref sheet1, _rowL, 40, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGST"].ToString()));
+					report.SetText(ref sheet1, _rowL, 41, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGSTTaxPercentage"].ToString()));
+					report.SetText(ref sheet1, _rowL, 42, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGST"].ToString()));
+					report.SetText(ref sheet1, _rowL, 43, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGSTTaxPercentage"].ToString()));
+					report.SetText(ref sheet1, _rowL, 44, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGST"].ToString()));
+					report.SetText(ref sheet1, _rowL, 45, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGSTTaxPercentage"].ToString()));
+					report.SetText(ref sheet1, _rowL, 46, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDS"].ToString()));
+					report.SetText(ref sheet1, _rowL, 47, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDSTaxPercentage"].ToString()));
 					//report.SetText(ref sheet1, _rowL, 44, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TCS"].ToString()));
 					////report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["TCS"].ToString());
 					//report.SetText(ref sheet1, _rowL, 45, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TCSTaxPercentage"].ToString()));
 
-					report.SetText(ref sheet1, _rowL, 44, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTCS"].ToString()));
+					report.SetText(ref sheet1, _rowL, 48, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTCS"].ToString()));
 					//report.SetText(ref sheet1, _rowL, 44, rcvid);
 					
 					
 					//report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["TCS"].ToString());
-					report.SetText(ref sheet1, _rowL, 45, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTCSTaxPercentage"].ToString()));
+					report.SetText(ref sheet1, _rowL, 49, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTCSTaxPercentage"].ToString()));
 
-					report.SetText(ref sheet1, _rowL, 46, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNTCS"].ToString()));
+					report.SetText(ref sheet1, _rowL, 50, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNTCS"].ToString()));
 					//report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["TCS"].ToString());
-					report.SetText(ref sheet1, _rowL, 47, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNTCSTaxPercentage"].ToString()));
+					report.SetText(ref sheet1, _rowL, 51, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNTCSTaxPercentage"].ToString()));
 
-					report.SetText(ref sheet1, _rowL, 48, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MandiTax"].ToString()));
+					report.SetText(ref sheet1, _rowL, 52, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MandiTax"].ToString()));
 					//report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["TCS"].ToString());
-					report.SetText(ref sheet1, _rowL, 49, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MandiTaxPercentage"].ToString()));
+					report.SetText(ref sheet1, _rowL, 53, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MandiTaxPercentage"].ToString()));
 
-					report.SetText(ref sheet1, _rowL, 50, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["NirasritTax"].ToString()));
+					report.SetText(ref sheet1, _rowL, 54, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["NirasritTax"].ToString()));
 					//report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["TCS"].ToString());
-					report.SetText(ref sheet1, _rowL, 51, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["NirasritTaxPercentage"].ToString()));
+					report.SetText(ref sheet1, _rowL, 55, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["NirasritTaxPercentage"].ToString()));
 
-					report.SetText(ref sheet1, _rowL, 52, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TrnCurrencyBaseRate"].ToString()));
-					report.SetText(ref sheet1, _rowL, 53, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BooksCurrencyBaseRate"].ToString()));
-					report.SetText(ref sheet1, _rowL, 54, inventoryMaterialList.Rows[n]["IsAsset"].ToString());
-					report.SetText(ref sheet1, _rowL, 55, inventoryMaterialList.Rows[n]["GRNAsset"].ToString());
-					report.SetText(ref sheet1, _rowL, 56, inventoryMaterialList.Rows[n]["POId"].ToString());
-					report.SetText(ref sheet1, _rowL, 57, inventoryMaterialList.Rows[n]["StorageLocation"].ToString());
-					report.SetText(ref sheet1, _rowL, 58, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageQty"].ToString()));
-					report.SetText(ref sheet1, _rowL, 59, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageRatePercent"].ToString()));
-					report.SetText(ref sheet1, _rowL, 60, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageValue"].ToString()));
-					report.SetText(ref sheet1, _rowL, 61, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectionQty"].ToString()));
-					report.SetText(ref sheet1, _rowL, 62, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectRatePercent"].ToString()));
-					report.SetText(ref sheet1, _rowL, 63, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectValue"].ToString()));
-					report.SetText(ref sheet1, _rowL, 64, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectClamPercent"].ToString()));
-					report.SetText(ref sheet1, _rowL, 65, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ApprovedQty"].ToString()));
-					report.SetText(ref sheet1, _rowL, 66, inventoryMaterialList.Rows[n]["GrnDetailId"].ToString());
-					report.SetText(ref sheet1, _rowL, 67, inventoryMaterialList.Rows[n]["GRNId"].ToString());
-					report.SetText(ref sheet1, _rowL, 68, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
-					report.SetText(ref sheet1, _rowL, 69, inventoryMaterialList.Rows[n]["GRNCheckStatus"].ToString());
-					report.SetText(ref sheet1, _rowL, 70, inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
-					report.SetText(ref sheet1, _rowL, 71, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
-					report.SetText(ref sheet1, _rowL, 72, inventoryMaterialList.Rows[n]["Posted"].ToString());
-					report.SetText(ref sheet1, _rowL, 73, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
-					report.SetText(ref sheet1, _rowL, 74, inventoryMaterialList.Rows[n]["VoucherNo"].ToString());
+					report.SetText(ref sheet1, _rowL,56, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TrnCurrencyBaseRate"].ToString()));
+					report.SetText(ref sheet1, _rowL,57, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BooksCurrencyBaseRate"].ToString()));
+					report.SetText(ref sheet1, _rowL,58, inventoryMaterialList.Rows[n]["IsAsset"].ToString());
+					report.SetText(ref sheet1, _rowL,59, inventoryMaterialList.Rows[n]["GRNAsset"].ToString());
+					report.SetText(ref sheet1, _rowL,60, inventoryMaterialList.Rows[n]["POId"].ToString());
+					report.SetText(ref sheet1, _rowL,61, inventoryMaterialList.Rows[n]["StorageLocation"].ToString());
+					report.SetText(ref sheet1, _rowL,62, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageQty"].ToString()));
+					report.SetText(ref sheet1, _rowL,63, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageRatePercent"].ToString()));
+					report.SetText(ref sheet1, _rowL,64, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageValue"].ToString()));
+					report.SetText(ref sheet1, _rowL,65, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectionQty"].ToString()));
+					report.SetText(ref sheet1, _rowL,66, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectRatePercent"].ToString()));
+					report.SetText(ref sheet1, _rowL,67, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectValue"].ToString()));
+					report.SetText(ref sheet1, _rowL,68, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectClamPercent"].ToString()));
+					report.SetText(ref sheet1, _rowL,69, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ApprovedQty"].ToString()));
+					report.SetText(ref sheet1, _rowL,70, inventoryMaterialList.Rows[n]["GrnDetailId"].ToString());
+					report.SetText(ref sheet1, _rowL,71, inventoryMaterialList.Rows[n]["GRNId"].ToString());
+					report.SetText(ref sheet1, _rowL,72, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
+					report.SetText(ref sheet1, _rowL,73, inventoryMaterialList.Rows[n]["GRNCheckStatus"].ToString());
+					report.SetText(ref sheet1, _rowL,74, inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
+					report.SetText(ref sheet1, _rowL,75, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
+					report.SetText(ref sheet1, _rowL,76, inventoryMaterialList.Rows[n]["Posted"].ToString());
+					report.SetText(ref sheet1, _rowL,77, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
+					report.SetText(ref sheet1, _rowL,78, inventoryMaterialList.Rows[n]["VoucherNo"].ToString());
 					//report.SetText(ref sheet1, _rowL, 68, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
-					report.SetText(ref sheet1, _rowL, 75, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
-					report.SetText(ref sheet1, _rowL, 76, inventoryMaterialList.Rows[n]["GLCode"].ToString());
-					report.SetText(ref sheet1, _rowL, 77, inventoryMaterialList.Rows[n]["GL"].ToString());
-					report.SetText(ref sheet1, _rowL, 78, inventoryMaterialList.Rows[n]["BudgetrefNo"].ToString());
-					report.SetText(ref sheet1, _rowL, 79, inventoryMaterialList.Rows[n]["Budget"].ToString());
-					report.SetText(ref sheet1, _rowL, 80, inventoryMaterialList.Rows[n]["ActivityId"].ToString());
-					report.SetText(ref sheet1, _rowL, 81, inventoryMaterialList.Rows[n]["ActivityCode"].ToString());
-					report.SetText(ref sheet1, _rowL, 82, inventoryMaterialList.Rows[n]["Activity"].ToString());
-					report.SetText(ref sheet1, _rowL, 83, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
-					report.SetText(ref sheet1, _rowL, 84, inventoryMaterialList.Rows[n]["CGL"].ToString());
-					report.SetText(ref sheet1, _rowL, 85, inventoryMaterialList.Rows[n]["CBudgetrefNo"].ToString());
-					report.SetText(ref sheet1, _rowL, 86, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
-					report.SetText(ref sheet1, _rowL, 87, inventoryMaterialList.Rows[n]["CActivityId"].ToString());
-					report.SetText(ref sheet1, _rowL, 88, inventoryMaterialList.Rows[n]["CActivityCode"].ToString());
-					report.SetText(ref sheet1, _rowL, 89, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+					report.SetText(ref sheet1, _rowL,  79, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
+					report.SetText(ref sheet1, _rowL,  80, inventoryMaterialList.Rows[n]["GLCode"].ToString());
+					report.SetText(ref sheet1, _rowL,  81, inventoryMaterialList.Rows[n]["GL"].ToString());
+					report.SetText(ref sheet1, _rowL,  82, inventoryMaterialList.Rows[n]["BudgetrefNo"].ToString());
+					report.SetText(ref sheet1, _rowL,  83, inventoryMaterialList.Rows[n]["Budget"].ToString());
+					report.SetText(ref sheet1, _rowL,  84, inventoryMaterialList.Rows[n]["ActivityId"].ToString());
+					report.SetText(ref sheet1, _rowL,  85, inventoryMaterialList.Rows[n]["ActivityCode"].ToString());
+					report.SetText(ref sheet1, _rowL,  86, inventoryMaterialList.Rows[n]["Activity"].ToString());
+					report.SetText(ref sheet1, _rowL,  87, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
+					report.SetText(ref sheet1, _rowL,  88, inventoryMaterialList.Rows[n]["CGL"].ToString());
+					report.SetText(ref sheet1, _rowL,  89, inventoryMaterialList.Rows[n]["CBudgetrefNo"].ToString());
+					report.SetText(ref sheet1, _rowL,  90, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+					report.SetText(ref sheet1, _rowL,  91, inventoryMaterialList.Rows[n]["CActivityId"].ToString());
+					report.SetText(ref sheet1, _rowL,  92, inventoryMaterialList.Rows[n]["CActivityCode"].ToString());
+					report.SetText(ref sheet1, _rowL,  93, inventoryMaterialList.Rows[n]["CActivity"].ToString());
 
-					report.SetText(ref sheet1, _rowL, 90, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
-					report.SetText(ref sheet1, _rowL, 91, inventoryMaterialList.Rows[n]["LCANo"].ToString());
-					report.SetText(ref sheet1, _rowL, 92, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
+					report.SetText(ref sheet1, _rowL, 94, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
+					report.SetText(ref sheet1, _rowL, 95, inventoryMaterialList.Rows[n]["LCANo"].ToString());
+					report.SetText(ref sheet1, _rowL, 96, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
 
-				report.SetText(ref sheet1, _rowL, 93, inventoryMaterialList.Rows[n]["IssueQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 94, inventoryMaterialList.Rows[n]["BaseIssueQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 95, inventoryMaterialList.Rows[n]["PurchaseReturnQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 96, inventoryMaterialList.Rows[n]["IssueReturnQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 97, inventoryMaterialList.Rows[n]["ReductionByAdjustmentQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 98, inventoryMaterialList.Rows[n]["InventorySalesQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 99, inventoryMaterialList.Rows[n]["InventoryScrapQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 100, inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString());
+				report.SetText(ref sheet1, _rowL,97 , inventoryMaterialList.Rows[n]["IssueQty"].ToString());
+				report.SetText(ref sheet1, _rowL,98 , inventoryMaterialList.Rows[n]["BaseIssueQty"].ToString());
+				report.SetText(ref sheet1, _rowL,99 , inventoryMaterialList.Rows[n]["PurchaseReturnQty"].ToString());
+				report.SetText(ref sheet1, _rowL,100, inventoryMaterialList.Rows[n]["IssueReturnQty"].ToString());
+				report.SetText(ref sheet1, _rowL,101, inventoryMaterialList.Rows[n]["ReductionByAdjustmentQty"].ToString());
+				report.SetText(ref sheet1, _rowL,102, inventoryMaterialList.Rows[n]["InventorySalesQty"].ToString());
+				report.SetText(ref sheet1, _rowL,103, inventoryMaterialList.Rows[n]["InventoryScrapQty"].ToString());
+				report.SetText(ref sheet1, _rowL,104, inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString());
 
 				//}
 			}

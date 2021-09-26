@@ -15,7 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Web;
-
+using Library.HumanResource.Payroll.SalaryProcessActive;
 namespace Library.HumanResource.Payroll.SalaryProcessActive
 {
     public class clsSalaryProcessAplosR
@@ -631,6 +631,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 decimal HDDay = 0;
                 decimal TotProcDay = 0;
                 decimal WkOFHDDay = 0;
+                decimal TotalPayDays = 0;
+                decimal TotalWorkingDays = 0;//days after join
+                decimal TotalActualWorkingDays = 0;//days after join excluding W
+                decimal TotalWeekOffDays = 0;//days after join excluding W
+                decimal TotalHolidays = 0;//days after join excluding W
                 decimal OTHDay = 0;
                 decimal OTRate = 0;
                 bool IsOTEntitle = false;
@@ -983,9 +988,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 #region Attendance
                                 if (para.IsMaternity)
                                 {
-                                    SendNotification("Processing Materninty Attendances", TotProcComp, TotSelectEmpForProc);
+                                    SendNotification("Getting Materninty Attendances", TotProcComp, TotSelectEmpForProc);
 
-                                    clsSalaryProcessQuery obj = new clsSalaryProcessQuery();
+                                    Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery obj = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery();
                                     string _wc;
                                     ///create emp with fd and to
                                     obj.Create_EmpDateRange_For_WC(dsGrid, para.FromDate, out _wc);
@@ -995,7 +1000,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 }
                                 else if (para.IsMaternityReturn)
                                 {
-                                    SendNotification("Processing Materninty Return", TotProcComp, TotSelectEmpForProc);
+                                    SendNotification("Getting Materninty Return Attendances", TotProcComp, TotSelectEmpForProc);
                                     clsSalaryProcessQuery obj = new clsSalaryProcessQuery();
                                     string _wc;
                                     ///create emp with fd and to
@@ -1005,18 +1010,20 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 }
                                 else
                                 {
+                                    SendNotification("Getting Attendance Process Data", TotProcComp, TotSelectEmpForProc);
+                                    objSlrProc.GetAttdnDataForMonthlyProc(sEmpSysID, para.FromDate, para.ToDate, out dsMMDSSI);
 
-                                    if ((fstDT.ToString("dd-MMM-yyyy").ToUpper() == para.FromDate.ToUpper().Trim()) && (lstDT.ToString("dd-MMM-yyyy").ToUpper() == para.ToDate.ToUpper().Trim()))
-                                    {
-                                        SendNotification("Getting Monthly Attendance Summary", TotProcComp, TotSelectEmpForProc);
+                                    //if ((fstDT.ToString("dd-MMM-yyyy").ToUpper() == para.FromDate.ToUpper().Trim()) && (lstDT.ToString("dd-MMM-yyyy").ToUpper() == para.ToDate.ToUpper().Trim()))
+                                    //{
+                                    //    SendNotification("Getting Monthly Attendance Summary", TotProcComp, TotSelectEmpForProc);
 
-                                        objSlrProc.GetAttdnDataMonthlySummary(intMonthNo, intYearNo, sEmpSysID, out dsMMDSSI);
-                                    }
-                                    else
-                                    {
-                                        SendNotification("Getting Attendance Process Data", TotProcComp, TotSelectEmpForProc);
-                                        objSlrProc.GetAttdnDataForMonthlyProc(sEmpSysID, para.FromDate, para.ToDate, out dsMMDSSI);
-                                    }
+                                    //    objSlrProc.GetAttdnDataMonthlySummary(intMonthNo, intYearNo, sEmpSysID, out dsMMDSSI);
+                                    //}
+                                    //else
+                                    //{
+                                    //    SendNotification("Getting Attendance Process Data", TotProcComp, TotSelectEmpForProc);
+                                    //    objSlrProc.GetAttdnDataForMonthlyProc(sEmpSysID, para.FromDate, para.ToDate, out dsMMDSSI);
+                                    //}
                                 }
                                 #endregion
 
@@ -1573,7 +1580,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             WkOFDay = dicMMDSSI_Sub.TotalWeekOff - _xtra_absent;
                                             HDDay = dicMMDSSI_Sub.TotalHoliDay - _xtra_absent_holiday;
                                             WkOFHDDay = dicMMDSSI_Sub.TotalWeekOffHoliDay;
-
+                                            TotalPayDays = dicMMDSSI_Sub.TotalPayDay;
+                                            TotalWorkingDays = dicMMDSSI_Sub.TotalWorkingDay;
+                                            TotalActualWorkingDays = dicMMDSSI_Sub.TotalActualWorkingDay;
+                                            TotalWeekOffDays = dicMMDSSI_Sub.TotalWeekOff;
+                                            TotalHolidays = dicMMDSSI_Sub.TotalHoliDay;
                                             //OTHDay = dicMMDSSI_Sub.TotalOTHr;
                                             //NorOTHDay = dicMMDSSI_Sub.TotalNormalOTHr;
                                             //ExtOTHDay = dicMMDSSI_Sub.TotalExtraOTHr;
@@ -1929,183 +1940,101 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                             #region FixMonthDay Calculation Ex. If we want to calculate 30 days in amonth
                                                             if (FixMonthDay > 0)
                                                             {
+                                                                decimal SalaryPerDay = DefCur / FixMonthDay;//per day
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
                                                                 {
-                                                                    //if (DisbursedBtnMonth == true)
-                                                                    //{                                                                   
-                                                                    //    DisbCur = (DefCur / FixMonthDay) * TotalDaysSlr;
-                                                                    //}
-                                                                    //else
-                                                                    //{ DisbCur = DefCur; }
-
-                                                                    //if (IsRefAbsentism == true)
-                                                                    //{
-                                                                    //    DisbCur = DisbCur - ((DefCur / FixMonthDay) * AbsDay);
-                                                                    //}
-                                                                    decimal _deductionDays = 0;
-                                                                    if (_IsPayOnWeekoffForFixedMonthDay == false && _IsPayOnHolidayForFixedMonthDay == false)
+                                                                    if (IsRefAbsentism)
                                                                     {
-                                                                        _deductionDays += HDDay;
-                                                                        _deductionDays += WkOFDay;
-                                                                    }
-                                                                    else if (_IsPayOnWeekoffForFixedMonthDay == false && _IsPayOnHolidayForFixedMonthDay)
-                                                                    {
-                                                                        _deductionDays += WkOFDay;
-                                                                    }
-                                                                    else if (_IsPayOnHolidayForFixedMonthDay == false && _IsPayOnWeekoffForFixedMonthDay)
-                                                                    {
-                                                                        _deductionDays += HDDay;
-                                                                    }
-
-                                                                    decimal SalaryPerDay = DefCur / FixMonthDay;//per day
-                                                                    DisbCur = SalaryPerDay * (TotalDaysSlr - _deductionDays);//earned in the month
-
-                                                                    if (IsRefAbsentism == true)
-                                                                    {
-                                                                        DisbCur = DisbCur - (SalaryPerDay * AbsDay);
+                                                                        DisbCur = SalaryPerDay * TotalPayDays;
                                                                     }
                                                                 }
                                                                 else if (dicLocal_Sub[i].RuleType == "Abs")
                                                                 {
-                                                                    DisbCur = (DefCur / FixMonthDay) * AbsDay;
+                                                                    DisbCur = SalaryPerDay * AbsDay;
                                                                 }
 
                                                                 tempDaysInMonth = FixMonthDay;
-                                                                tempTotWorkingDay = (TotalDaysSlr - AbsDay);
+                                                                tempTotWorkingDay = TotalActualWorkingDays;//(TotalDaysSlr - AbsDay);
                                                             }
                                                             #endregion FixMonthDay Calculation Ex. If we want to calculate 30 days in amonth
                                                             #region MonthDay Calculation Ex. If we want to calculate days in a month (Feb-28, Mar-31, Apr-30)
                                                             else if (dicLocal_Sub[i].IsMonthDay == true)
                                                             {
+
+                                                                decimal SalaryPerDay = DefCur / DaysInMonth;
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
                                                                 {
-                                                                    DisbCur = (DefCur / DaysInMonth) * TotalDaysSlr;
-
                                                                     if (IsRefAbsentism == true)
                                                                     {
-                                                                        DisbCur = DisbCur - ((DefCur / DaysInMonth) * AbsDay);
+                                                                        DisbCur = SalaryPerDay * TotalPayDays;
                                                                     }
                                                                 }
                                                                 else if (dicLocal_Sub[i].RuleType == "Abs")
                                                                 {
-                                                                    DisbCur = (DefCur / DaysInMonth) * AbsDay;
+                                                                    DisbCur = SalaryPerDay * AbsDay;
                                                                 }
 
                                                                 tempDaysInMonth = DaysInMonth;
-                                                                tempTotWorkingDay = (TotalDaysSlr - AbsDay);
+                                                                tempTotWorkingDay = TotalActualWorkingDays; //(TotalDaysSlr - AbsDay);
                                                             }
                                                             #endregion MonthDay Calculation Ex. If we want to calculate days in a month (Feb-28, Mar-31, Apr-30)
                                                             #region MonthWorkDay (excluding both H+W) Calculation Ex. If we want to calculate workingdays in a month (Feb-28 work days 22, Mar-31 work days 26, Apr-30  work days 24)
                                                             else if (Convert.ToBoolean(dicLocal_Sub[i].IsMonthWorkDay) == true)
                                                             {
+                                                                if (Convert.ToInt32(TotalDaysSlr) == Convert.ToInt32(DaysInMonth))
+                                                                    DisbCur = DefCur;
+                                                                else
+                                                                    DisbCur = (DefCur / DaysInMonth) * TotalDaysSlr;
+                                                                decimal SalaryPerDay = DisbCur / TotalDaysSlr;
+
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
                                                                 {
                                                                     //DisbCur = (DefCur / TotWorkingDay) * (TotalDaysSlr - (WkOFDay + HDDay));
-                                                                    if (Convert.ToInt32(TotalDaysSlr) == Convert.ToInt32(DaysInMonth))
-                                                                    {
-                                                                        DisbCur = DefCur;
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        DisbCur = (DefCur / DaysInMonth) * TotalDaysSlr;
-                                                                    }
                                                                     if (IsRefAbsentism == true)
                                                                     {
-                                                                        //DisbCur = DisbCur - ((DefCur / TotWorkingDay) * AbsDay);
-                                                                        DisbCur = DisbCur - ((DefCur / (TotalDaysSlr - (WkOFDay + HDDay))) * AbsDay);
+                                                                        DisbCur = SalaryPerDay * TotalPayDays;
+                                                                        //DisbCur = DisbCur - ((DefCur / (TotalDaysSlr - (WkOFDay + HDDay))) * AbsDay);
                                                                     }
                                                                 }
                                                                 else if (dicLocal_Sub[i].RuleType == "Abs")
                                                                 {
-                                                                    //DisbCur = (DefCur / TotWorkingDay) * AbsDay;
-                                                                    DisbCur = (DisbCur / (TotalDaysSlr - (WkOFDay + HDDay))) * AbsDay;
+                                                                    DisbCur = SalaryPerDay * AbsDay;
+                                                                    //DisbCur = (DisbCur / (TotalDaysSlr - (WkOFDay + HDDay))) * AbsDay;
                                                                 }
 
                                                                 tempDaysInMonth = TotWorkingDay;
-                                                                tempTotWorkingDay = (TotalDaysSlr - AbsDay);
+                                                                tempTotWorkingDay = TotalActualWorkingDays;// (TotalDaysSlr - AbsDay);
                                                             }
                                                             #endregion MonthWorkDay Calculation Ex. If we want to calculate workingdays in a month (Feb-28 work days 22, Mar-31 work days 26, Apr-30  work days 24)
                                                             //by monir starts
                                                             #region working day(excluding W)
                                                             else if (Convert.ToBoolean(dicLocal_Sub[i].IsWorkDaysInAMonthIncHold) == true)
                                                             {
-                                                                int LocalWeekOff = _emp_weekoff_count;
+                                                                decimal SalaryPerDay = 0;
+                                                                if (Convert.ToInt32(TotalDaysSlr) == Convert.ToInt32(DaysInMonth))
+                                                                {
+                                                                    SalaryPerDay = DefCur / TotalActualWorkingDays;
+                                                                }
+                                                                else//DOJ DOS
+                                                                {
+                                                                    decimal ProportionateStrucrureValue = (DefCur / DaysInMonth) * TotalWorkingDays;
+
+                                                                    if (TotalActualWorkingDays > 0)
+                                                                        SalaryPerDay = ProportionateStrucrureValue / (TotalWorkingDays - TotalWeekOffDays);
+                                                                }
+
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
                                                                 {
-                                                                    int HoliPayDayCount = 0;
-                                                                    GetHolidayAsPayday(dicWHCount, dicHolidayAsPaydayPolicy, _emp, ss, out HoliPayDayCount);
-
-                                                                    if (Convert.ToInt32(TotalDaysSlr) == Convert.ToInt32(DaysInMonth))
-                                                                    {
-                                                                        DisbCur = DefCur;
-                                                                        if (IsRefAbsentism == true)
-                                                                        {
-                                                                            DisbCur = DisbCur - ((DefCur / (TotalDaysSlr - LocalWeekOff)) * AbsDay);
-                                                                            //DisbCur = DisbCur - ((DefCur / (TotalDaysSlr - WkOFDay)) * AbsDay);
-                                                                            if (DisbCur < 0)
-                                                                            {
-                                                                                DisbCur = 0;
-                                                                            }
-                                                                        }
-
-                                                                        if (HoliPayDayCount > 0)
-                                                                        {
-                                                                            DisbCur += ((DefCur / (TotalDaysSlr - LocalWeekOff)) * HoliPayDayCount);
-                                                                        }
-                                                                    }
-                                                                    else//DOJ DOS
-                                                                    {
-                                                                        ////get week off        
-                                                                        //int _Week_off_count = 0;
-                                                                        //GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _Week_off_count);
-                                                                        ////if (dicMMDSSI_Sub.TotalWeekOff > 0)
-                                                                        //decimal PerDaySalary = DefCur / (DaysInMonth - _Week_off_count);
-
-                                                                        //_Week_off_count = dicMMDSSI_Sub.TotalWeekOff;
-                                                                        //decimal DivFactor = DaysInMonth - LocalWeekOff;
-                                                                        //DisbCur = (DefCur / DivFactor) * (TotalDaysSlr - _Week_off_count);//www
-
-                                                                        ////New Calculation (Tarek)
-                                                                        //int _MonthlyTotalWeekoffCount = 0;
-                                                                        //GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _MonthlyTotalWeekoffCount);
-                                                                        //int _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
-                                                                        //decimal _PerDaySalary = DefCur / (DaysInMonth - _MonthlyTotalWeekoffCount);
-                                                                        //DisbCur = _PerDaySalary * (TotalDaysSlr - _WeekoffCountAfterJoin);
-
-
-                                                                        //New Calculation (Tarek)
-                                                                        int _MonthlyTotalWeekoffCount = 0;
-                                                                        decimal _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
-                                                                        GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim(), ref _WeekoffCountAfterJoin, out _MonthlyTotalWeekoffCount);
-
-                                                                        decimal _PerDaySalary = DefCur / (DaysInMonth - _MonthlyTotalWeekoffCount);
-                                                                        DisbCur = _PerDaySalary * (TotalDaysSlr - _WeekoffCountAfterJoin);
-
-                                                                        if (IsRefAbsentism == true)
-                                                                        {
-
-                                                                            DisbCur = DisbCur - (_PerDaySalary * AbsDay);
-                                                                            if (DisbCur < 0)
-                                                                            {
-                                                                                DisbCur = 0;
-                                                                            }
-                                                                        }
-
-                                                                        if (HoliPayDayCount > 0)
-                                                                        {
-                                                                            DisbCur += (_PerDaySalary * HoliPayDayCount);
-                                                                        }
-                                                                    }
+                                                                    DisbCur = SalaryPerDay * TotalPayDays;
                                                                 }
                                                                 else if (dicLocal_Sub[i].RuleType == "Abs")
                                                                 {
-                                                                    DisbCur = (DefCur / (TotalDaysSlr - LocalWeekOff)) * AbsDay;
-                                                                    //DisbCur = (DefCur / (TotalDaysSlr - WkOFDay)) * AbsDay;
+                                                                    DisbCur = SalaryPerDay * AbsDay;
                                                                 }
 
-                                                                tempDaysInMonth = TotWorkingDayWithHoli;
-                                                                tempTotWorkingDay = (TotalDaysSlr - AbsDay);
-                                                                TotWorkingDay = TotWorkingDayWithHoli;
+                                                                tempDaysInMonth = TotalWorkingDays;
+                                                                tempTotWorkingDay = TotalWorkingDays;
+                                                                TotWorkingDay = TotalWorkingDays;
                                                             }
                                                             #endregion working day(excluding W)
                                                             //by monir ends
@@ -2115,7 +2044,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                 DisbCur = DefCur;
 
                                                                 tempDaysInMonth = DaysInMonth;
-                                                                tempTotWorkingDay = (TotalDaysSlr - AbsDay);
+                                                                tempTotWorkingDay = TotalActualWorkingDays;
                                                             }
                                                             #endregion Fixed Disbusment
                                                             //else if(dicLocal_Sub[i].SalaryCategory == "PF")
@@ -7226,8 +7155,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"	select EmpSystemID,COUNT(WorkDate)WeekOffCounted from EmpDateWiseShiftAssign 
-                            where WorkDate between '" + sFromDate + @"' and '" + sToDate + @"' and DayType='W' 
+                strSQL = @"	select EmpSystemID,COUNT(WorkDate)WeekOffCounted from AttdnProcessData 
+                            where WorkDate between '" + sFromDate + @"' and '" + sToDate + @"' and DayStatus='W' 
                             and EmpSystemID IN (" + sEmpInfo + @")
                             group by EmpSystemID";
 
@@ -7265,7 +7194,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                         from (select * from [SCS].[OffDayMaster] where PlantId=@plant)m
                         left join scs.OffDayDetail d on d.OffDayMasterId=m.Id
                         inner join (
-                        select * from EmpDateWiseShiftAssign where DayType=@W and EmpSystemID in (" + sEmpInfo + @") and WorkDate between @fd and @td
+                        select * from AttdnProcessData where DayStatus=@W and EmpSystemID in (" + sEmpInfo + @") and WorkDate between @fd and @td
                         ) s on s.WorkDate=d.OffDayDate
                         LEFT JOIN [TRN].[HolidayAbsentismAssignment] ABH ON abh.WorkDate=s.WorkDate AND ABH.EmpSystemID=s.EmpSystemID
                         where m.PlantId=@plant and d.OffDayDate between @fd and @td and m.OffDayType=@H and s.EmpSystemID in (" + sEmpInfo + @")

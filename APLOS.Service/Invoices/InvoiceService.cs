@@ -4,7 +4,6 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Accounts;
-using Library.Model.Banks;
 using Library.Model.Commercial;
 using Library.Model.Employees;
 using Library.Model.Enums;
@@ -43,8 +42,6 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<MultiplePayment> _multiplePaymentRepository;
         private readonly IRepositoryAsync<MultiplePaymentDetail> _multiplePaymentDetailRepository;
         private readonly IRepositoryAsync<InvoiceDetail> _invoiceDetailRepository;
-        private readonly IRepositoryAsync<CompanyParty> _companyPartyRepository;
-        private readonly IRepositoryAsync<CompanyPartyGL> _companyPartyGLRepository;
         private readonly IRepositoryAsync<InvoiceMaterial> _invoiceMaterialRepository;
         private readonly IHSNTaxPercentageService _hsnTaxPercentageService;
         private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
@@ -52,16 +49,9 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<InvoiceWriteOff> _invoiceWriteOffRepository;
         private readonly IRepositoryAsync<InvoiceWriteOffDetail> _invoiceWriteOffDetailRepository;
         private readonly IRepositoryAsync<TaxCode> _taxCodeRepository;
-        private readonly IRepositoryAsync<TaxCodeGL> _taxCodeGLRepository;
-        private readonly TaxCategoryGLService _taxCategoryGlService;
         private readonly IRepositoryAsync<TaxCategory> _taxCategoryRepository;
         private readonly IVoucherService _voucherService;
         private readonly IInvoiceTaxService _invoiceTaxService;
-        private readonly IRepositoryAsync<CashMaster> _cashMasterRepository;
-        private readonly IRepositoryAsync<Voucher> _voucherRepository;
-        private readonly IRepositoryAsync<VoucherDetail> _voucherDetailRepository;
-        private readonly IRepositoryAsync<VoucherDetailCurrency> _voucherDetailCurrencyRepository;
-        private readonly IRepositoryAsync<GLTransactionDetail> _gLTransactionDetailRepository;
         private readonly IRepositoryAsync<InvoiceDetailCharges> _invoiceDetailChargesRepository;
         private readonly IRepositoryAsync<InvoiceServiceMasterCharges> _invoiceServiceMasterChargesRepository;
         private readonly IRepositoryAsync<InvoiceServiceMasterChargesDetail> _invoiceServiceMasterChargesDetailRepository;
@@ -84,19 +74,10 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<MultiplePaymentDetail> multiplePaymentDetailRepository
             , ISqlRepository sqlRepository
             , IRepositoryAsync<TaxCode> taxCodeRepository
-            , IRepositoryAsync<TaxCodeGL> taxCodeGLRepository
             , IHSNTaxPercentageService hsnTaxPercentageService
-            , TaxCategoryGLService taxCategoryGlService
             , IRepositoryAsync<TaxCategory> taxCategoryRepository
             , IVoucherService voucherService
             , IInvoiceTaxService invoiceTaxService
-            , IRepositoryAsync<CompanyParty> companyPartyRepository
-            , IRepositoryAsync<CompanyPartyGL> companyPartyGLRepository
-            , IRepositoryAsync<CashMaster> cashMasterRepository
-            , IRepositoryAsync<Voucher> voucherRepository
-            , IRepositoryAsync<VoucherDetail> voucherDetailRepository
-            , IRepositoryAsync<VoucherDetailCurrency> voucherDetailCurrencyRepository
-            , IRepositoryAsync<GLTransactionDetail> gLTransactionDetailRepository
             , IRepositoryAsync<InvoiceDetailCharges> invoiceDetailChargesRepository
             , IRepositoryAsync<InvoiceServiceMasterCharges> invoiceServiceMasterChargesRepository
             , IRepositoryAsync<InvoiceServiceMasterChargesDetail> invoiceServiceMasterChargesDetailRepository
@@ -118,19 +99,10 @@ namespace Library.Service.Invoices
             _multiplePaymentRepository = multiplePaymentRepository;
             _multiplePaymentDetailRepository = multiplePaymentDetailRepository;
             _taxCodeRepository = taxCodeRepository;
-            _taxCodeGLRepository = taxCodeGLRepository;
             _hsnTaxPercentageService = hsnTaxPercentageService;
-            _taxCategoryGlService = taxCategoryGlService;
             _taxCategoryRepository = taxCategoryRepository;
             _voucherService = voucherService;
             _invoiceTaxService = invoiceTaxService;
-            _companyPartyRepository = companyPartyRepository;
-            _companyPartyGLRepository = companyPartyGLRepository;
-            _cashMasterRepository = cashMasterRepository;
-            _voucherDetailRepository = voucherDetailRepository;
-            _voucherRepository = voucherRepository;
-            _voucherDetailCurrencyRepository = voucherDetailCurrencyRepository;
-            _gLTransactionDetailRepository = gLTransactionDetailRepository;
             _invoiceDetailChargesRepository = invoiceDetailChargesRepository;
             _invoiceServiceMasterChargesRepository = invoiceServiceMasterChargesRepository;
             _invoiceServiceMasterChargesDetailRepository = invoiceServiceMasterChargesDetailRepository;
@@ -330,10 +302,8 @@ namespace Library.Service.Invoices
                                         throw new CustomException("Tax code must be withhold !");
 
                                     merge = taxCode.IsMerge;
-                                    var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
-                                    if (null == taxCodeGL)
-                                        throw new CustomException("Tax code GL not found!");
-
+                                    var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id);
+                                    
                                     currentTaxRecord++;
                                     var cInvoiceTaxdb = new InvoiceTax
                                     {
@@ -357,15 +327,15 @@ namespace Library.Service.Invoices
                                     _invoiceTaxService.InsertInvoiceTax(invoice, cInvoiceTaxdb, invoiceTaxPk);
                                     // Insert Into Customer Invoice Tax Detail (Withhold GL)
                                     withholdgl = taxCode.IsWithhold;
-                                    if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                    if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                         throw new CustomException("Withhold GL is not found of TaxCode " + taxCode.StandardName);
-                                    if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                    if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                     {
                                         var invoiceTaxDetail = new InvoiceTaxDetail
                                         {
-                                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                             Amount = cInvoiceTaxdb.TaxAmount,
                                             AType = "Cr"
                                         };
@@ -497,7 +467,7 @@ namespace Library.Service.Invoices
                             if (null == taxCodeadd)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCodeadd.Id).Select().FirstOrDefault();
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCodeadd.Id);
                             if (null == taxCodeGL)
                                 throw new CustomException("Tax code GL not found!");
 
@@ -513,14 +483,14 @@ namespace Library.Service.Invoices
 
                             // Insert Into Customer Invoice Tax Detail (Withhold GL)
                             withholdgl = taxCodeadd.IsWithhold;
-                            if (taxCodeadd.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                            if (taxCodeadd.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                             {
                                 totalAmountCr += invoiceTaxVM.TaxAmount;
                                 var invoiceTaxDetail = new InvoiceTaxDetail
                                 {
-                                    GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                    BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                    ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                    GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                     Amount = invoiceTaxAdditional.TaxAmount,
                                     AType = "Cr"
                                 };
@@ -551,15 +521,15 @@ namespace Library.Service.Invoices
                             }
                             // Insert Into Customer Invoice Tax Detail (Creditable GL)
                             creditablegl = taxCodeadd.IsCreditable;
-                            if (taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                            if (taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                                 throw new CustomException("Creditable GL is not found of TaxCode " + taxCodeadd.StandardName);
-                            if (taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                            if (taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                             {
                                 var invoiceTaxDetail = new InvoiceTaxDetail
                                 {
-                                    GLGeneralInfoId = taxCodeGL.CreditableGLId,
-                                    BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
-                                    ActivityId = taxCodeGL.CreditableGLActivityId,
+                                    GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                     Amount = invoiceTaxAdditional.TaxAmount,
                                     AType = "Dr"
                                 };
@@ -660,7 +630,7 @@ namespace Library.Service.Invoices
                     currentVoucherDetaiRecord++;
                     voucherDr.InvoiceDetailId = invoiceDetail.Id;
                     _voucherService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord);
-
+                    
                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDr, new VoucherDetailCurrency
                     {
                         ParallelCurrencyId = companyCurrencyId,
@@ -727,7 +697,7 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-              
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 // INSERT INTO Invoice
@@ -802,7 +772,7 @@ namespace Library.Service.Invoices
                                 }
 
                                 merge = taxCode.IsMerge;
-                                var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
+                                var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id);
                                 if (null == taxCodeGL)
                                     throw new CustomException("Tax code GL not found!");
 
@@ -831,15 +801,15 @@ namespace Library.Service.Invoices
                                 _invoiceTaxService.InsertInvoiceTax(invoice, cInvoiceTaxdb, invoiceTaxPk);
                                 // Insert Into Customer Invoice Tax Detail (Withhold GL)
                                 withholdgl = taxCode.IsWithhold;
-                                if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                     throw new CustomException("Withhold GL is not found of TaxCode " + taxCode.StandardName);
-                                if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                 {
                                     var invoiceTaxDetail = new InvoiceTaxDetail
                                     {
-                                        GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                        BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                        ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                        GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                        BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                        ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                         Amount = cInvoiceTaxdb.TaxAmount,
                                         AType = "Cr"
                                     };
@@ -895,15 +865,15 @@ namespace Library.Service.Invoices
 
                                 // Insert Into Customer Invoice Tax Detail (Creditable GL)
                                 creditablegl = taxCode.IsCreditable;
-                                if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                                if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                                     throw new CustomException("Creditable GL is not found of TaxCode " + taxCode.StandardName);
-                                if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                                if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                                 {
                                     var invoiceTaxDetail = new InvoiceTaxDetail
                                     {
-                                        GLGeneralInfoId = taxCodeGL.CreditableGLId,
-                                        BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
-                                        ActivityId = taxCodeGL.CreditableGLActivityId,
+                                        GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                        BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                        ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                         Amount = cInvoiceTaxdb.TaxAmount,
                                         AType = "Dr"
                                     };
@@ -952,16 +922,16 @@ namespace Library.Service.Invoices
                                     voucherDetailCurrencybase = null;
                                 }
 
-                                if (!merge && !taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                                if (!merge && !taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                                     throw new CustomException("Expenses GL is not found of TaxCode " + taxCode.StandardName);
                                 //when expenses then tax amount will deduct from  voucher detail Dr Amount
-                                if (!merge && !taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                                if (!merge && !taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                                 {
                                     var invoiceTaxDetail = new InvoiceTaxDetail
                                     {
-                                        GLGeneralInfoId = taxCodeGL.ExpensesGLId,
-                                        BudgetMasterId = taxCodeGL.ExpensesGLBudgetMasterId,
-                                        ActivityId = taxCodeGL.ExpensesGLActivityId,
+                                        GLGeneralInfoId = taxCodeGL["ExpensesGLId"].ToString(),
+                                        BudgetMasterId = taxCodeGL["ExpensesGLBudgetMasterId"].ToString(),
+                                        ActivityId = taxCodeGL["ExpensesGLActivityId"].ToString(),
                                         Amount = cInvoiceTaxdb.TaxAmount,
                                         AType = "Dr"
                                     };
@@ -1031,10 +1001,8 @@ namespace Library.Service.Invoices
                         if (null == taxCodeadd)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCodeadd.Id).Select().FirstOrDefault();
-                        if (null == taxCodeGL)
-                            throw new CustomException("Tax code GL not found!");
-
+                        var taxCodeGL =_accountsCommonService.GetTaxCodeGL(taxCodeadd.Id);
+                        
                         var invoiceTax = new InvoiceTax
                         {
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -1046,15 +1014,15 @@ namespace Library.Service.Invoices
 
                        
                         creditablegl = taxCodeadd.IsCreditable;
-                        if (taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                        if (taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                             throw new CustomException("Creditable GL is not found of TaxCode " + taxCodeadd.StandardName);
-                        if (taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                        if (taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                         {
                             var invoiceTaxDetail = new InvoiceTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.CreditableGLId,
-                                BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
-                                ActivityId = taxCodeGL.CreditableGLActivityId,
+                                GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                 Amount = invoiceTax.TaxAmount,
                                 AType = "Dr"
                             };
@@ -1389,15 +1357,15 @@ namespace Library.Service.Invoices
                             };
                             _invoiceTaxRepository.Insert(invoiceTax);
 
-                            var taxGl = _taxCategoryGlService.Query(r => r.TaxCategoryId == item.TaxCategoryId).Select().FirstOrDefault();
+                            var taxGl = _accountsCommonService.GetTaxCategoryGL(item.TaxCategoryId);
                             invoiceTaxDetailPk.MaxNumber++;
                             var invoiceTaxDetail = new InvoiceTaxDetail
                             {
                                 AType = "Dr",
                                 Id = invoiceTaxDetailPk.MaxNumber.ToString(),
-                                ActivityId = taxGl.ActivityId,
-                                BudgetMasterId = taxGl.BudgetMasterId,
-                                GLGeneralInfoId = taxGl.GLGeneralInfoId,
+                                ActivityId = taxGl["ActivityId"].ToString(),
+                                BudgetMasterId = taxGl["BudgetMasterId"].ToString(),
+                                GLGeneralInfoId = taxGl["GLGeneralInfoId"].ToString(),
                                 AddedBy = invoiceTax.AddedBy,
                                 AddedFromIP = invoiceTax.AddedFromIP,
                                 AddedDate = invoiceTax.AddedDate,
@@ -1528,7 +1496,7 @@ namespace Library.Service.Invoices
                                 }
 
                                 merge = taxCode.IsMerge;
-                                var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
+                                var taxCodeGL =_accountsCommonService.GetTaxCodeGL(taxCode.Id);
                                 if (null == taxCodeGL)
                                     throw new CustomException("Tax code GL not found!");
 
@@ -1548,15 +1516,16 @@ namespace Library.Service.Invoices
 
                                 // Insert Into Customer Invoice Tax Detail (Withhold GL)
                                 withholdgl = taxCode.IsWithhold;
-                                if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                     throw new CustomException("Withhold GL is not found of TaxCode " + taxCode.StandardName);
-                                if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                 {
                                     var invoiceTaxDetail = new InvoiceTaxDetail
                                     {
-                                        GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                        BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                        ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            
+                                        GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                        BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                        ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                         Amount = invoiceTax.TaxAmount,
                                         AType = "Cr"
                                     };
@@ -1592,15 +1561,16 @@ namespace Library.Service.Invoices
 
                                 // Insert Into Customer Invoice Tax Detail (Creditable GL)
                                 creditablegl = taxCode.IsCreditable;
-                                if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                                if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                                     throw new CustomException("Creditable GL is not found of TaxCode " + taxCode.StandardName);
-                                if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                                if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                                 {
                                     var invoiceTaxDetail = new InvoiceTaxDetail
                                     {
-                                        GLGeneralInfoId = taxCodeGL.CreditableGLId,
-                                        BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
-                                        ActivityId = taxCodeGL.CreditableGLActivityId,
+                                      
+                                        GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                        BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                        ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                         Amount = invoiceTax.TaxAmount,
                                         AType = "Dr"
                                     };
@@ -1651,15 +1621,15 @@ namespace Library.Service.Invoices
                 {
                     if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                         throw new CustomException("Cash Id not found!");
-                    var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                    var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
 
                     invoice.CashMasterId = voucherVM.CashMasterId;
 
                     var voucherDetailDr = new VoucherDetail
                     {
-                        GLGeneralInfoId = cashMaster.GLGeneralInfoId,
-                        BudgetMasterId = cashMaster.BudgetMasterId,
-                        ActivityId = cashMaster.ActivityId,
+                        GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString(),
+                        BudgetMasterId = cashMaster["BudgetMasterId"].ToString(),
+                        ActivityId = cashMaster["ActivityId"].ToString(),
                         DrAmount = invoice.Amount,
                         PostingWithoutTaxAllow = invoice.IsExcludingTax,
                         PaymentSource = PaymentSource.Cash.ToString(),
@@ -1676,7 +1646,7 @@ namespace Library.Service.Invoices
                         CashMasterId = voucherVM.CashMasterId
                     };
 
-                    if (cashMaster.CurrencyId == voucherVM.CurrencyId)
+                    if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                         glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
                     else
                         glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
@@ -1706,10 +1676,8 @@ namespace Library.Service.Invoices
                         if (null == taxCodeadd)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCodeadd.Id).Select().FirstOrDefault();
-                        if (null == taxCodeGL)
-                            throw new CustomException("Tax code GL not found!");
-
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCodeadd.Id);
+                      
                         var invoiceTax = new InvoiceTax
                         {
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -1722,14 +1690,15 @@ namespace Library.Service.Invoices
 
                         // Insert Into Customer Invoice Tax Detail (Withhold GL)
                         withholdgl = taxCodeadd.IsWithhold;
-                        if (taxCodeadd.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                        if (taxCodeadd.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                         {
                             totalAmountCr += invoiceTaxVM.TaxAmount;
                             var invoiceTaxDetail = new InvoiceTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                               
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = invoiceTax.TaxAmount,
                                 AType = "Cr"
                             };
@@ -1760,15 +1729,15 @@ namespace Library.Service.Invoices
                         }
                         // Insert Into Customer Invoice Tax Detail (Creditable GL)
                         creditablegl = taxCodeadd.IsCreditable;
-                        if (taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                        if (taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                             throw new CustomException("Creditable GL is not found of TaxCode " + taxCodeadd.StandardName);
-                        if (taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                        if (taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                         {
                             var invoiceTaxDetail = new InvoiceTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.CreditableGLId,
-                                BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
-                                ActivityId = taxCodeGL.CreditableGLActivityId,
+                                GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                 Amount = invoiceTax.TaxAmount,
                                 AType = "Dr"
                             };
@@ -1800,15 +1769,15 @@ namespace Library.Service.Invoices
                             totalAPBaseCurrencyDrAmount += voucherDetailCurrencybase.DrAmount;
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencybase);
                         }
-                        if (!taxCodeadd.IsMerge && !taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                        if (!taxCodeadd.IsMerge && !taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                             throw new CustomException("Expenses GL is not found of TaxCode " + taxCodeadd.StandardName);
-                        if (!taxCodeadd.IsMerge && !taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                        if (!taxCodeadd.IsMerge && !taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                         {
                             var invoiceTaxDetail = new InvoiceTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.ExpensesGLId,
-                                BudgetMasterId = taxCodeGL.ExpensesGLBudgetMasterId,
-                                ActivityId = taxCodeGL.ExpensesGLActivityId,
+                                GLGeneralInfoId = taxCodeGL["ExpensesGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["ExpensesGLBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["ExpensesGLActivityId"].ToString(),
                                 Amount = invoiceTax.TaxAmount,
                                 AType = "Dr"
 
@@ -1849,26 +1818,17 @@ namespace Library.Service.Invoices
                 }
 
 
-
                 var partyType = PartyType.Vendor.ToString();
-                var companyParty = _companyPartyRepository.Query(r => r.CompanyId == invoice.CompanyId && r.PlantId == invoice.PlantId && r.PartyId == invoice.PartyId && r.PartyType == partyType).Select().FirstOrDefault();
-                if (null == companyParty)
-                    throw new CustomException("Plant party mapping not found!");
-                var companyPartyGLList = _companyPartyGLRepository.Query(r => r.PartyId == companyParty.PartyId && r.CompanyPartyId == companyParty.Id).Select().ToList();
-                if (null == companyPartyGLList)
-                    throw new CustomException("Party GL not found!");
-
-                var reconGL = PartyGLType.ReconciliationGL.ToString();
-                var regularGL = companyPartyGLList.FirstOrDefault(r => r.PartyGLType == reconGL);
-                if (null == regularGL)
-                    throw new CustomException("Party Reconciliation GL not found!");
-
+                var companyParty = _accountsCommonService.GetCompanyParty(invoice.CompanyId,invoice.PlantId,invoice.PartyId,partyType);
+               
+                var companyPartyGLList = _accountsCommonService.GetCompanyPartyGL(companyParty["PartyId"].ToString(),companyParty["Id"].ToString(), PartyGLType.ReconciliationGL.ToString());
+               
                 // INSERT INTO InvoiceDetail
                 var invoiceDetail = new InvoiceDetail
                 {
-                    GLGeneralInfoId = regularGL.GLGeneralInfoId,
-                    BudgetMasterId = regularGL.BudgetMasterId,
-                    ActivityId = regularGL.ActivityId,
+                    GLGeneralInfoId = companyPartyGLList["GLGeneralInfoId"].ToString(),
+                    BudgetMasterId = companyPartyGLList["BudgetMasterId"].ToString(),
+                    ActivityId = companyPartyGLList["ActivityId"].ToString(),
                     // Amount = voucherVM.Amount,
                     // Amount = voucherVM.IsExcludingTax ? voucherVM.Amount  : voucherVM.Amount + totalcreditableDrAmount,
                     Amount = voucherVM.Amount,
@@ -1945,17 +1905,14 @@ namespace Library.Service.Invoices
                         if (null == invoiceTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == invoiceTaxVM.TaxCodeId).Select().FirstOrDefault();
-                        if (null == taxCodeGL)
-                            throw new CustomException("Tax code GL not found!");
-
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(invoiceTaxVM.TaxCodeId);
 
                         addtionalTaxDetailId++;
                         var invoiceTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = invoiceTaxVM.TaxAmount,
                             AdditionalTaxId = invoiceTax.Id,
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -2068,7 +2025,7 @@ namespace Library.Service.Invoices
                                     }
 
                                     merge = taxCode.IsMerge;
-                                    var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
+                                    var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id);
                                     if (null == taxCodeGL)
                                         throw new CustomException("Tax code GL not found!");
 
@@ -2088,15 +2045,15 @@ namespace Library.Service.Invoices
 
                                     // Insert Into Customer Invoice Tax Detail (Withhold GL)
                                     withholdgl = taxCode.IsWithhold;
-                                    if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                    if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                         throw new CustomException("Withhold GL is not found of TaxCode " + taxCode.StandardName);
-                                    if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                    if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                     {
                                         var invoiceTaxDetail = new InvoiceTaxDetail
                                         {
-                                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                             Amount = invoiceTax.TaxAmount,
                                             AType = "Cr"
                                         };
@@ -2132,15 +2089,15 @@ namespace Library.Service.Invoices
 
                                     // Insert Into Customer Invoice Tax Detail (Creditable GL)
                                     creditablegl = taxCode.IsCreditable;
-                                    if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                                    if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                                         throw new CustomException("Creditable GL is not found of TaxCode " + taxCode.StandardName);
-                                    if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                                    if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                                     {
                                         var invoiceTaxDetail = new InvoiceTaxDetail
                                         {
-                                            GLGeneralInfoId = taxCodeGL.CreditableGLId,
-                                            BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
-                                            ActivityId = taxCodeGL.CreditableGLActivityId,
+                                            GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                            BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                            ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                             Amount = invoiceTax.TaxAmount,
                                             AType = "Dr"
                                         };
@@ -2172,15 +2129,15 @@ namespace Library.Service.Invoices
                                         totalAPBaseCurrencyDrAmount += voucherDetailCurrencybase.DrAmount;
                                         _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencybase);
                                     }
-                                    if (!merge && !taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                                    if (!merge && !taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                                         throw new CustomException("Expenses GL is not found of TaxCode " + taxCode.StandardName);
-                                    if (!merge && !taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                                    if (!merge && !taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                                     {
                                         var invoiceTaxDetail = new InvoiceTaxDetail
                                         {
-                                            GLGeneralInfoId = taxCodeGL.ExpensesGLId,
-                                            BudgetMasterId = taxCodeGL.ExpensesGLBudgetMasterId,
-                                            ActivityId = taxCodeGL.ExpensesGLActivityId,
+                                            GLGeneralInfoId = taxCodeGL["ExpensesGLId"].ToString(),
+                                            BudgetMasterId = taxCodeGL["ExpensesGLBudgetMasterId"].ToString(),
+                                            ActivityId = taxCodeGL["ExpensesGLActivityId"].ToString(),
                                             Amount = invoiceTax.TaxAmount,
                                             AType = "Dr"
 
@@ -2240,15 +2197,15 @@ namespace Library.Service.Invoices
                     {
                         if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                             throw new CustomException("Cash Id not found!");
-                        var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                        var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
 
                         invoice.CashMasterId = voucherVM.CashMasterId;
 
                         var voucherDetailDr = new VoucherDetail
                         {
-                            GLGeneralInfoId = cashMaster.GLGeneralInfoId,
-                            BudgetMasterId = cashMaster.BudgetMasterId,
-                            ActivityId = cashMaster.ActivityId,
+                            GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString(),
+                            BudgetMasterId = cashMaster["BudgetMasterId"].ToString(),
+                            ActivityId = cashMaster["ActivityId"].ToString(),
                             DrAmount = invoice.Amount,
                             PostingWithoutTaxAllow = invoice.IsExcludingTax,
                             PaymentSource = PaymentSource.Cash.ToString(),
@@ -2265,7 +2222,7 @@ namespace Library.Service.Invoices
                             CashMasterId = voucherVM.CashMasterId
                         };
 
-                        if (cashMaster.CurrencyId == voucherVM.CurrencyId)
+                        if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                             glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
                         else
                             glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
@@ -2295,10 +2252,8 @@ namespace Library.Service.Invoices
                             if (null == taxCodeadd)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCodeadd.Id).Select().FirstOrDefault();
-                            if (null == taxCodeGL)
-                                throw new CustomException("Tax code GL not found!");
-
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCodeadd.Id);
+                            
                             var invoiceTaxAdditional = new InvoiceTax
                             {
                                 TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -2311,14 +2266,14 @@ namespace Library.Service.Invoices
 
                             // Insert Into Customer Invoice Tax Detail (Withhold GL)
                             withholdgl = taxCodeadd.IsWithhold;
-                            if (taxCodeadd.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                            if (taxCodeadd.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                             {
                                 totalAmountCr += invoiceTaxVM.TaxAmount;
                                 var invoiceTaxDetail = new InvoiceTaxDetail
                                 {
-                                    GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                    BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                    ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                    GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                     Amount = invoiceTaxAdditional.TaxAmount,
                                     AType = "Cr"
                                 };
@@ -2349,15 +2304,15 @@ namespace Library.Service.Invoices
                             }
                             // Insert Into Customer Invoice Tax Detail (Creditable GL)
                             creditablegl = taxCodeadd.IsCreditable;
-                            if (taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                            if (taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                                 throw new CustomException("Creditable GL is not found of TaxCode " + taxCodeadd.StandardName);
-                            if (taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                            if (taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                             {
                                 var invoiceTaxDetail = new InvoiceTaxDetail
                                 {
-                                    GLGeneralInfoId = taxCodeGL.CreditableGLId,
-                                    BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
-                                    ActivityId = taxCodeGL.CreditableGLActivityId,
+                                    GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                     Amount = invoiceTaxAdditional.TaxAmount,
                                     AType = "Dr"
                                 };
@@ -2389,15 +2344,15 @@ namespace Library.Service.Invoices
                                 totalAPBaseCurrencyDrAmount += voucherDetailCurrencybase.DrAmount;
                                 _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencybase);
                             }
-                            if (!taxCodeadd.IsMerge && !taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                            if (!taxCodeadd.IsMerge && !taxCodeadd.IsCreditable && string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                                 throw new CustomException("Expenses GL is not found of TaxCode " + taxCodeadd.StandardName);
-                            if (!taxCodeadd.IsMerge && !taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                            if (!taxCodeadd.IsMerge && !taxCodeadd.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                             {
                                 var invoiceTaxDetail = new InvoiceTaxDetail
                                 {
-                                    GLGeneralInfoId = taxCodeGL.ExpensesGLId,
-                                    BudgetMasterId = taxCodeGL.ExpensesGLBudgetMasterId,
-                                    ActivityId = taxCodeGL.ExpensesGLActivityId,
+                                    GLGeneralInfoId = taxCodeGL["ExpensesGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["ExpensesGLBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["ExpensesGLActivityId"].ToString(),
                                     Amount = invoiceTaxAdditional.TaxAmount,
                                     AType = "Dr"
 
@@ -2440,24 +2395,16 @@ namespace Library.Service.Invoices
 
 
                     var partyType = PartyType.Vendor.ToString();
-                    var companyParty = _companyPartyRepository.Query(r => r.CompanyId == invoice.CompanyId && r.PlantId == invoice.PlantId && r.PartyId == invoice.PartyId && r.PartyType == partyType).Select().FirstOrDefault();
-                    if (null == companyParty)
-                        throw new CustomException("Plant party mapping not found!");
-                    var companyPartyGLList = _companyPartyGLRepository.Query(r => r.PartyId == companyParty.PartyId && r.CompanyPartyId == companyParty.Id).Select().ToList();
-                    if (null == companyPartyGLList)
-                        throw new CustomException("Party GL not found!");
+                    var companyParty = _accountsCommonService.GetCompanyParty(invoice.CompanyId, invoice.PlantId, invoice.PartyId, partyType);
 
-                    var reconGL = PartyGLType.ReconciliationGL.ToString();
-                    var regularGL = companyPartyGLList.FirstOrDefault(r => r.PartyGLType == reconGL);
-                    if (null == regularGL)
-                        throw new CustomException("Party Reconciliation GL not found!");
+                    var companyPartyGLList = _accountsCommonService.GetCompanyPartyGL(companyParty["PartyId"].ToString(), companyParty["Id"].ToString(), PartyGLType.ReconciliationGL.ToString());
 
                     // INSERT INTO InvoiceDetail
                     var invoiceDetail = new InvoiceDetail
                     {
-                        GLGeneralInfoId = regularGL.GLGeneralInfoId,
-                        BudgetMasterId = regularGL.BudgetMasterId,
-                        ActivityId = regularGL.ActivityId,
+                        GLGeneralInfoId = companyPartyGLList["GLGeneralInfoId"].ToString(),
+                        BudgetMasterId = companyPartyGLList["BudgetMasterId"].ToString(),
+                        ActivityId = companyPartyGLList["ActivityId"].ToString(),
                         // Amount = voucherVM.Amount,
                         // Amount = voucherVM.IsExcludingTax ? voucherVM.Amount  : voucherVM.Amount + totalcreditableDrAmount,
                         Amount = voucherVM.Amount,
@@ -2534,7 +2481,7 @@ namespace Library.Service.Invoices
                             if (null == invoiceTaxVM.TaxCodeId)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == invoiceTaxVM.TaxCodeId).Select().FirstOrDefault();
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(invoiceTaxVM.TaxCodeId);
                             if (null == taxCodeGL)
                                 throw new CustomException("Tax code GL not found!");
 
@@ -2542,9 +2489,9 @@ namespace Library.Service.Invoices
                             addtionalTaxDetailId++;
                             var invoiceTaxDetail = new AdditionalTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = invoiceTaxVM.TaxAmount,
                                 AdditionalTaxId = invoiceTax.Id,
                                 TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -2665,10 +2612,8 @@ namespace Library.Service.Invoices
                                 }
 
                                 merge = taxCode.IsMerge;
-                                var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
-                                if (null == taxCodeGL)
-                                    throw new CustomException("Tax code GL not found!");
-
+                                var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id);
+                               
                                 var invoiceTax = new InvoiceTax
                                 {
                                     VoucherDetailId = voucherDetailDr.Id,
@@ -2685,15 +2630,15 @@ namespace Library.Service.Invoices
 
                                 // Insert Into Customer Invoice Tax Detail (Withhold GL)
                                 withholdgl = taxCode.IsWithhold;
-                                if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                     throw new CustomException("Withhold GL is not found of TaxCode " + taxCode.StandardName);
-                                if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                 {
                                     var invoiceTaxDetail = new InvoiceTaxDetail
                                     {
-                                        GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                        BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                        ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                        GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                        BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                        ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                         Amount = invoiceTax.TaxAmount,
                                         AType = "Cr"
                                     };
@@ -2729,15 +2674,15 @@ namespace Library.Service.Invoices
 
                                 // Insert Into Customer Invoice Tax Detail (Creditable GL)
                                 creditablegl = taxCode.IsCreditable;
-                                if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                                if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                                     throw new CustomException("Creditable GL is not found of TaxCode " + taxCode.StandardName);
-                                if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                                if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                                 {
                                     var invoiceTaxDetail = new InvoiceTaxDetail
                                     {
-                                        GLGeneralInfoId = taxCodeGL.CreditableGLId,
-                                        BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
-                                        ActivityId = taxCodeGL.CreditableGLActivityId,
+                                        GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                        BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                        ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                         Amount = invoiceTax.TaxAmount,
                                         AType = "Dr"
                                     };
@@ -2769,15 +2714,15 @@ namespace Library.Service.Invoices
                                     totalAPBaseCurrencyDrAmount += voucherDetailCurrencybase.DrAmount;
                                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencybase);
                                 }
-                                if (!merge && !taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                                if (!merge && !taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                                     throw new CustomException("Expenses GL is not found of TaxCode " + taxCode.StandardName);
-                                if (!merge && !taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                                if (!merge && !taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                                 {
                                     var invoiceTaxDetail = new InvoiceTaxDetail
                                     {
-                                        GLGeneralInfoId = taxCodeGL.ExpensesGLId,
-                                        BudgetMasterId = taxCodeGL.ExpensesGLBudgetMasterId,
-                                        ActivityId = taxCodeGL.ExpensesGLActivityId,
+                                        GLGeneralInfoId = taxCodeGL["ExpensesGLId"].ToString(),
+                                        BudgetMasterId = taxCodeGL["ExpensesGLBudgetMasterId"].ToString(),
+                                        ActivityId = taxCodeGL["ExpensesGLActivityId"].ToString(),
                                         Amount = invoiceTax.TaxAmount,
                                         AType = "Dr"
 
@@ -2844,10 +2789,8 @@ namespace Library.Service.Invoices
                         if (null == taxCode)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
-                        if (null == taxCodeGL)
-                            throw new CustomException("Tax code GL not found!");
-
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id);
+                       
                         var invoiceTax = new InvoiceTax
                         {
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -2860,14 +2803,14 @@ namespace Library.Service.Invoices
 
                         // Insert Into Customer Invoice Tax Detail (Withhold GL)
                         withholdgl = taxCode.IsWithhold;
-                        if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                        if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                         {
                             totalAmountCr += invoiceTaxVM.TaxAmount;
                             var invoiceTaxDetail = new InvoiceTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = invoiceTax.TaxAmount,
                                 AType = "Cr"
                             };
@@ -2898,15 +2841,15 @@ namespace Library.Service.Invoices
                         }
                         // Insert Into Customer Invoice Tax Detail (Creditable GL)
                         creditablegl = taxCode.IsCreditable;
-                        if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                        if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                             throw new CustomException("Creditable GL is not found of TaxCode " + taxCode.StandardName);
-                        if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                        if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["CreditableGLId"].ToString()))
                         {
                             var invoiceTaxDetail = new InvoiceTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.CreditableGLId,
-                                BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
-                                ActivityId = taxCodeGL.CreditableGLActivityId,
+                                GLGeneralInfoId = taxCodeGL["CreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["CreditableGLBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["CreditableGLActivityId"].ToString(),
                                 Amount = invoiceTax.TaxAmount,
                                 AType = "Dr"
                             };
@@ -2938,15 +2881,15 @@ namespace Library.Service.Invoices
                             totalAPBaseCurrencyDrAmount += voucherDetailCurrencybase.DrAmount;
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencybase);
                         }
-                        if (!merge && !taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                        if (!merge && !taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                             throw new CustomException("Expenses GL is not found of TaxCode " + taxCode.StandardName);
-                        if (!merge && !taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                        if (!merge && !taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL["ExpensesGLId"].ToString()))
                         {
                             var invoiceTaxDetail = new InvoiceTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.ExpensesGLId,
-                                BudgetMasterId = taxCodeGL.ExpensesGLBudgetMasterId,
-                                ActivityId = taxCodeGL.ExpensesGLActivityId,
+                                GLGeneralInfoId = taxCodeGL["ExpensesGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["ExpensesGLBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["ExpensesGLActivityId"].ToString(),
                                 Amount = invoiceTax.TaxAmount,
                                 AType = "Dr"
 
@@ -3062,17 +3005,15 @@ namespace Library.Service.Invoices
                         if (null == invoiceTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == invoiceTaxVM.TaxCodeId).Select().FirstOrDefault();
-                        if (null == taxCodeGL)
-                            throw new CustomException("Tax code GL not found!");
-
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(invoiceTaxVM.TaxCodeId);
+                        
 
                         addtionalTaxDetailId++;
                         var invoiceTaxDetailTDS = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = invoiceTaxVM.TaxAmount,
                             AdditionalTaxId = invoiceTaxTDS.Id,
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -3204,7 +3145,7 @@ namespace Library.Service.Invoices
 
 
                                 var voucherDetail = new VoucherDetail();
-                                voucherDetail = _voucherDetailRepository.Query(r => r.InvoiceTaxDetailId == invoiceTaxDetail.Id).Select().FirstOrDefault();
+                                voucherDetail = _voucherService.QueryVoucherDetailByInvoiceTaxDetail(invoiceTaxDetail.Id).Select().FirstOrDefault();
                                 if (invoiceTaxVM.AType == "Dr")
                                 {
                                     voucherDetail.DrAmount = invoiceTaxVM.TaxAmount;
@@ -3245,28 +3186,28 @@ namespace Library.Service.Invoices
                 {
                     if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                         throw new CustomException("Cash Id not found!");
-                    var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                    var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
 
                     invoice.CashMasterId = voucherVM.CashMasterId;
 
-                    var voucherDetailDr = _voucherDetailRepository.Query(r => r.VoucherId == voucherVM.VoucherId && r.CashMasterId == voucherVM.CashMasterId).Select().FirstOrDefault();
+                    var voucherDetailDr = _voucherService.QueryVoucherDetailByCash(voucherVM.VoucherId,voucherVM.CashMasterId).Select().FirstOrDefault();
                     voucherDetailDr.DrAmount = voucherVM.Amount;
                     _voucherService.UpdateVoucherDetail(voucher, voucherDetailDr);
                     totalAmountDr += voucherDetailDr.DrAmount;
 
-                    var glTransactionDetail = _gLTransactionDetailRepository.Find(voucherDetailDr.Id);
-                    if (cashMaster.CurrencyId == voucherVM.CurrencyId)
+                    var glTransactionDetail = _voucherService.FindGLTransactionDetail(voucherDetailDr.Id);
+                    if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                         glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
                     else
                         glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
-                    _gLTransactionDetailRepository.Update(glTransactionDetail);
+                    _voucherService.UpdateGLTransactionDetail(voucherDetailDr,glTransactionDetail);
 
                     var voucherDetailCurrency = _voucherService.GetVoucherDetailCurrencyList(r => r.VoucherId == voucher.Id && r.VoucherDetailId == voucherDetailDr.Id).Select().FirstOrDefault();
                     voucherDetailCurrency.DrAmount = voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate;
                     _voucherService.UpdateVoucherDetailCompanyCurrency(voucherDetailDr, voucherDetailCurrency);
 
                 }
-                var voucherDetailCr = _voucherDetailRepository.Query(r => r.VoucherId == voucher.Id && r.PartyId == voucherVM.PartyId).Select().FirstOrDefault();
+                var voucherDetailCr = _voucherService.QueryVoucherDetailByParty(voucher.Id,voucherVM.PartyId).Select().FirstOrDefault();
                 var partyType = PartyType.Vendor.ToString();
                 // UPdate INTO InvoiceDetail
                 var invoiceDetail = new InvoiceDetail();
@@ -3945,19 +3886,19 @@ namespace Library.Service.Invoices
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var invoice = base.Find(invoiceId);
                 var invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 var invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -3982,17 +3923,17 @@ namespace Library.Service.Invoices
                 }
                 foreach (var item in voucherdetail)
                 {
-                    var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                    var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                     if (gltransaction.Count>0)
                     {
                         foreach (var item1 in gltransaction)
                         {
-                            _gLTransactionDetailRepository.Delete(item1.Id);
+                            _voucherService.DeleteGLTransactionDetail(item1.Id);
 
                         }
 
                     }
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4011,7 +3952,7 @@ namespace Library.Service.Invoices
                     _invoiceDetailRepository.Delete(item.Id);
                 }
                 base.Delete(invoiceId);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -4258,9 +4199,7 @@ namespace Library.Service.Invoices
                         {
 
 
-                            var taxCategoryGl = _taxCategoryGlService.Query(r => r.TaxCategoryId == item.TaxCategoryId && r.InputTaxOutPutTax == "Input").Select().FirstOrDefault();
-                            if (null == taxCategoryGl)
-                                throw new CustomException("Tax Category not found!");
+                            var taxCategoryGl = _accountsCommonService.GetTaxCategoryInputGL(item.TaxCategoryId); ;
 
                             var invoiceTax = new InvoiceTax
                             {
@@ -4275,13 +4214,13 @@ namespace Library.Service.Invoices
                             _invoiceTaxService.InsertInvoiceTax(invoice, invoiceTax, invoiceTaxPk);
 
 
-                            if (!string.IsNullOrEmpty(taxCategoryGl.GLGeneralInfoId))
+                            if (!string.IsNullOrEmpty(taxCategoryGl["GLGeneralInfoId"].ToString()))
                             {
                                 var invoiceTaxDetail = new InvoiceTaxDetail
                                 {
-                                    GLGeneralInfoId = taxCategoryGl.GLGeneralInfoId,
-                                    BudgetMasterId = taxCategoryGl.BudgetMasterId,
-                                    ActivityId = taxCategoryGl.ActivityId,
+                                    GLGeneralInfoId = taxCategoryGl["GLGeneralInfoId"].ToString(),
+                                    BudgetMasterId = taxCategoryGl["BudgetMasterId"].ToString(),
+                                    ActivityId = taxCategoryGl["ActivityId"].ToString(),
                                     Amount = invoiceTax.TaxAmount,
                                     AType = "Dr"
                                 };
@@ -4324,27 +4263,17 @@ namespace Library.Service.Invoices
                     });
 
                 }
-
-
                 var partyType = PartyType.Vendor.ToString();
-                var companyParty = _companyPartyRepository.Query(r => r.CompanyId == invoice.CompanyId && r.PlantId == invoice.PlantId && r.PartyId == invoice.PartyId && r.PartyType == partyType).Select().FirstOrDefault();
-                if (null == companyParty)
-                    throw new CustomException("Plant party mapping not found!");
-                var companyPartyGLList = _companyPartyGLRepository.Query(r => r.PartyId == companyParty.PartyId && r.CompanyPartyId == companyParty.Id).Select().ToList();
-                if (null == companyPartyGLList)
-                    throw new CustomException("Party GL not found!");
+                var companyParty = _accountsCommonService.GetCompanyParty(invoice.CompanyId, invoice.PlantId, invoice.PartyId, partyType);
 
-                var reconGL = PartyGLType.ReconciliationGL.ToString();
-                var regularGL = companyPartyGLList.FirstOrDefault(r => r.PartyGLType == reconGL);
-                if (null == regularGL)
-                    throw new CustomException("Party Reconciliation GL not found!");
+                var companyPartyGLList = _accountsCommonService.GetCompanyPartyGL(companyParty["PartyId"].ToString(), companyParty["Id"].ToString(), PartyGLType.ReconciliationGL.ToString());
 
                 // INSERT INTO InvoiceDetail
                 var invoiceDetail = new InvoiceDetail
                 {
-                    GLGeneralInfoId = regularGL.GLGeneralInfoId,
-                    BudgetMasterId = regularGL.BudgetMasterId,
-                    ActivityId = regularGL.ActivityId,
+                    GLGeneralInfoId = companyPartyGLList["GLGeneralInfoId"].ToString(),
+                    BudgetMasterId = companyPartyGLList["BudgetMasterId"].ToString(),
+                    ActivityId = companyPartyGLList["ActivityId"].ToString(),
                     Amount = voucherDetailVMList.Sum(r => r.TransactionAmount),
                     NetAmount = voucherDetailVMList.Sum(r => r.TransactionAmount) + taxDetailVMList.Sum(r => r.TaxAmount),
                     TaxAmount = taxDetailVMList.Sum(r => r.TaxAmount)
@@ -4418,18 +4347,18 @@ namespace Library.Service.Invoices
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var invoice = base.Find(invoiceId);
                 var invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4444,7 +4373,7 @@ namespace Library.Service.Invoices
                 foreach (var item in voucherdetail)
                 {
 
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4463,7 +4392,7 @@ namespace Library.Service.Invoices
                     _invoiceDetailRepository.Delete(item.Id);
                 }
                 base.Delete(invoiceId);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -4498,12 +4427,12 @@ namespace Library.Service.Invoices
                 flag = true;
                 if(invoiceId != null)
                 {
-                    var voucher = _voucherRepository.Find(voucherId);
+                    var voucher = _voucherService.FindVoucher(voucherId);
                     if (voucher.IsPark == false)
                         throw new CustomException("Delete is not allow after post ! ");
 
-                    var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                    var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                    var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                    var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
 
                     var invoice = base.Find(invoiceId);
                     if (invoice.WrittenOffAmount > 0)
@@ -4522,7 +4451,7 @@ namespace Library.Service.Invoices
 
                     foreach (var item in voucherdetailcurrnecy)
                     {
-                        _voucherDetailCurrencyRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetailCurrency(item.Id);
                     }
                     if (invoiceTax != null)
                     {
@@ -4547,17 +4476,17 @@ namespace Library.Service.Invoices
                     }
                     foreach (var item in voucherdetail)
                     {
-                        var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                        var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                         if (gltransaction.Count > 0)
                         {
                             foreach (var item1 in gltransaction)
                             {
-                                _gLTransactionDetailRepository.Delete(item1.Id);
+                                _voucherService.DeleteGLTransactionDetail(item1.Id);
 
                             }
 
                         }
-                        _voucherDetailRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetail(item.Id);
                     }
                     if (invoiceTax != null)
                     {
@@ -4576,16 +4505,16 @@ namespace Library.Service.Invoices
                         _invoiceDetailRepository.Delete(item.Id);
                     }
                     base.Delete(invoiceId);
-                    _voucherRepository.Delete(voucher.Id);
+                    _voucherService.DeleteVoucher(voucher.Id);
                 }
                 else
                 {
-                    var voucher = _voucherRepository.Find(voucherId);
+                    var voucher = _voucherService.FindVoucher(voucherId);
                     if (voucher.IsPark == false)
                         throw new CustomException("Delete is not allow after post ! ");
 
-                    var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                    var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                    var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                    var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
 
                     var grnBuilder = new System.Text.StringBuilder();
                     var buildergrnSql = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
@@ -4594,26 +4523,26 @@ namespace Library.Service.Invoices
 
                     foreach (var item in voucherdetailcurrnecy)
                     {
-                        _voucherDetailCurrencyRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetailCurrency(item.Id);
                     }
                     
                     
                     foreach (var item in voucherdetail)
                     {
-                        var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                        var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                         if (gltransaction.Count > 0)
                         {
                             foreach (var item1 in gltransaction)
                             {
-                                _gLTransactionDetailRepository.Delete(item1.Id);
+                                _voucherService.DeleteGLTransactionDetail(item1.Id);
 
                             }
 
                         }
-                        _voucherDetailRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetail(item.Id);
                     }
                     
-                    _voucherRepository.Delete(voucher.Id);
+                    _voucherService.DeleteVoucher(voucher.Id);
                 }
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -4647,12 +4576,12 @@ namespace Library.Service.Invoices
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var invoice = base.Find(invoiceId);
                 if (invoice.WrittenOffAmount > 0)
                     throw new CustomException("Please Delete Payment Voucher first ! ");
@@ -4670,7 +4599,7 @@ namespace Library.Service.Invoices
 
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4695,17 +4624,17 @@ namespace Library.Service.Invoices
                 }
                 foreach (var item in voucherdetail)
                 {
-                    var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                    var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                     if (gltransaction.Count > 0)
                     {
                         foreach (var item1 in gltransaction)
                         {
-                            _gLTransactionDetailRepository.Delete(item1.Id);
+                            _voucherService.DeleteGLTransactionDetail(item1.Id);
 
                         }
 
                     }
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4724,7 +4653,7 @@ namespace Library.Service.Invoices
                     _invoiceDetailRepository.Delete(item.Id);
                 }
                 base.Delete(invoiceId);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -4757,12 +4686,12 @@ namespace Library.Service.Invoices
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
 
               
 
@@ -4783,7 +4712,7 @@ namespace Library.Service.Invoices
 
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4808,17 +4737,17 @@ namespace Library.Service.Invoices
                 }
                 foreach (var item in voucherdetail)
                 {
-                    var gltransaction = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().ToList();
+                    var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
                     if (gltransaction.Count > 0)
                     {
                         foreach (var item1 in gltransaction)
                         {
-                            _gLTransactionDetailRepository.Delete(item1.Id);
+                            _voucherService.DeleteGLTransactionDetail(item1.Id);
 
                         }
 
                     }
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 if (invoiceTax != null)
                 {
@@ -4837,25 +4766,25 @@ namespace Library.Service.Invoices
                     _invoiceDetailRepository.Delete(item.Id);
                 }
                 base.Delete(invoice.Id);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 if (InventoryVoucherId != null)
                 {
-                    var voucher2 = _voucherRepository.Find(InventoryVoucherId);
+                    var voucher2 = _voucherService.FindVoucher(InventoryVoucherId);
                     if (voucher2.IsPark == false)
                         throw new CustomException("Delete is not allow after post!. Please Bring Back to park mode Voucher No" + voucher2.VoucherNo);
 
-                    var voucherdetail2 = _voucherDetailRepository.Query(r => r.VoucherId == InventoryVoucherId).Select().ToList();
-                    var voucherdetailcurrnecy2 = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == InventoryVoucherId).Select().ToList();
+                    var voucherdetail2 = _voucherService.QueryVoucherDetail(InventoryVoucherId).Select().ToList();
+                    var voucherdetailcurrnecy2 = _voucherService.QueryVoucherDetailCurrency(InventoryVoucherId).Select().ToList();
 
                     foreach (var item in voucherdetailcurrnecy2)
                     {
-                        _voucherDetailCurrencyRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetailCurrency(item.Id);
                     }
                     foreach (var item in voucherdetail2)
                     {
-                        _voucherDetailRepository.Delete(item.Id);
+                        _voucherService.DeleteVoucherDetail(item.Id);
                     }
-                    _voucherRepository.Delete(voucher2.Id);
+                    _voucherService.DeleteVoucher(voucher2.Id);
 
                 }
                 _unitOfWork.SaveChanges();

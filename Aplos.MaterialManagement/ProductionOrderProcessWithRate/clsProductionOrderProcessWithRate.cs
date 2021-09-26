@@ -150,7 +150,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
             {
                 string strSQL = string.Empty;
                 string Seq = "";
-                string sql = @"SELECT Ma.Id,null as Charactaristics, SKUId=case when Ma.SelectedDropDownValue is null then '' else Ma.SelectedDropDownValue end,'' as [Sequence],'' Rate,IsDisable= case when Ma.SelectedDropDownValue is null then Convert(bit,'False') else CONVERT(bit,'True') end,
+                string sql = @"SELECT Ma.Id,null as Charactaristics,null as Color, SKUId=case when Ma.SelectedDropDownValue is null then '' else Ma.SelectedDropDownValue end,'' as [Sequence],'' Rate,IsDisable= case when Ma.SelectedDropDownValue is null then Convert(bit,'False') else CONVERT(bit,'True') end,
                                     PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, sum(PD.Qty)Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity,PD.Article,PD.MaterialMaster
@@ -244,7 +244,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                                    and PS.StandardName in ('Active', 'Running')
                                    group by Ma.Id, PO.Id ,PS.UserName,PO.RequiredTimeUnit,LSD,CommitmentDate,PD.Product, PD.ProductCategory
 								   ,PD.Buyer,PD.Customer, PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId
-								   ,E.UserName,Ma.SelectedDropDownValue,PD.MaterialMaster,PD.Article";
+								   ,E.UserName,Ma.SelectedDropDownValue,PD.MaterialMaster,PD.Article order by PO.Id";
                 List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
 
                 string strSQL2 = @"select ProductionBookingLevel from [HKP].[EntityProcessTag] where EntityId='" + entityId + "' and ProcessId = '" + ProcessId + @"' ";

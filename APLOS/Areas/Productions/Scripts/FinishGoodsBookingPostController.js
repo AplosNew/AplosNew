@@ -12,8 +12,8 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
     $scope.TotalPayableAmount = 0;
 
     $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
-    $scope.searchByPostedGRNList = [{ value: 'Id', name: "GRN No" }, { value: 'GRNDate', name: "GRN Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
-        , { value: 'PostingDate', name: "PostingDate" }, { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
+    $scope.searchByPostedGRNList = [{ value: 'InventoryReceiveId', name: "FG Inventory No" }, { value: 'Id', name: "FG Book No" }, { value: 'VoucherNo', name: "VoucherNo" }
+        , { value: 'PostingDate', name: "PostingDate" }, { value: 'DocRefNo', name: "DocRef No" }
         , { value: 'DocDate', name: "Doc Date" }];
 
     $scope.products = [];
@@ -130,7 +130,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
 
 
     $scope.getCboVoucherType = function () {
-        cboService.getCboVoucherTypeConsumptionBookList(function (result) {
+        cboService.getCboVoucherTypeFGInventoryList(function (result) {
             $scope.voucherTypeList = result;
             if (baseService.arrayLength($scope.voucherTypeList) === 1)
                 $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -163,6 +163,8 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         $scope.modelNew.DocRefNo = data.data.Id;
         $scope.modelNew.InventoryReceiveId = data.data.InventoryReceiveId;
         $scope.modelNew.ProcessName = data.data.ProcessName;
+        $scope.modelNew.CompanyCurrencyRate = data.data.CompanyCurrencyRate;
+        $scope.modelNew.CurrencyId = data.data.CurrencyId;
         $scope.TotalPayableAmount = 0;
         $scope.getCboVoucherType();
 
@@ -328,42 +330,24 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
    
 
 
-    $scope.onClickReportDownloadWord = function (args) {
-        debugger;
-        var gridObj = $("#GridPrint").data("ejGrid");
-        //getting corresponding record 
-        var data = gridObj.getSelectedRecords()[0];
+    $scope.onClickReportDownloadWord = function (data) {
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
         $window.open($scope.path + 'FinishGoodsBookingPostReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
 
     };
 
-    $scope.commandPDF = [{
-        type: "details", buttonOptions: {
-            text: "PDF",
-            width: "50",
-            height: "20",
-            click: $scope.onClickReportDownloadWord
-        }
-    }];
+  
 
-    $scope.onClickReportDownloadExcel = function (args) {
-        debugger;
-        var gridObj = $("#GridPrint").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
+    $scope.onClickReportDownloadExcel = function (data) {
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
         $window.open($scope.path + 'FinishGoodsBookingPostReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
 
     };
-    $scope.commandExcel = [{
-        type: "details", buttonOptions: {
-            text: "Excel",
-            width: "50",
-            height: "20",
-            click: $scope.onClickReportDownloadExcel
-        }
-    }];
+  
 
+    $scope.onClickGRNID = function (data) {
+        location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.Id;
+    };
 }

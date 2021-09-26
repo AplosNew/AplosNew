@@ -112,8 +112,8 @@ namespace Library.Accounting.FixedAssets
                 DataSet _crvDetailCurrencyData = null;
                 DataSet _inventoryReceiveData = null;
 
-                voucherVM.CompanyCurrencyRate = 1;
-                voucherVM.CurrencyId = companyCurrencyId;
+               // voucherVM.CompanyCurrencyRate = 1;
+               // voucherVM.CurrencyId = companyCurrencyId;
                 voucherVM.DocDate = Convert.ToDateTime(voucherVM.DocDate);
                 voucherVM.PostingDate = Convert.ToDateTime(voucherVM.PostingDate);
                 var voucher = new Voucher
@@ -131,7 +131,7 @@ namespace Library.Accounting.FixedAssets
                     DocRefNo = voucherVM.DocRefNo,
                     Narration = "Posting",//voucherVM.Narration,
                     PostingDate = voucherVM.PostingDate,
-                    SourceType = SourceType.ConsumptionBook.ToString(),
+                    SourceType = SourceType.FGInventory.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
@@ -278,17 +278,19 @@ namespace Library.Accounting.FixedAssets
 
         public IEnumerable<object> GetPostedFinishGoodsBookingData(string plantId)
         {
-            var sql = @"SELECT IR.Id,ird.Qty,ird.Amount,FG.[Description],FG.FromDate,FG.ToDate,V.VoucherNo,IR.VoucherId,V.PostingDate,V.DocDate,V.DocRefNo
+            var sql = @"SELECT IR.Id,Ir.FinishGoodsBookingId,ird.Qty,ird.Amount,FG.[Description],FG.FromDate,FG.ToDate
+                ,V.VoucherNo,IR.VoucherId,V.PostingDate,V.DocDate,V.DocRefNo,C.Code CurrencyCode
 					FROM dbo.[FinishGoodsBooking] AS FG 
 					LEFT JOIN TRN.InventoryReceive IR ON IR.FinishGoodsBookingId=FG.Id AND IR.GRNType='FG'
-                     LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS Qty, SUM(ROUND(A.TransactionQty*A.MaterialTranRate,4)) AS Amount
+                     LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS Qty, SUM(ROUND(A.MaterialTranAmount,2)) AS Amount
 					 FROM TRN.InventoryReceiveDetail AS A  GROUP BY A.InventoryReceiveId) AS  IRD ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
-					WHERE IR.VoucherId<>''";
+                    LEFT JOIN SCS.Currency C ON C.Id=Ir.CurrencyId
+					WHERE IR.VoucherId<>'' AND IR.PlantId='"+ plantId + @"'";
             return _sqlRepository.GetDataCollection(sql);
         }
         //vendor invoice header data old & NEW
-        private Dictionary<string, object> GetFinishGoodsBookingPostHeader(string companyGroupId, string companyId, string plantId, string disposedVoucherId, SourceType sourceType)        {            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
+        private Dictionary<string, object> GetFinishGoodsBookingPostHeader(string companyGroupId, string companyId, string plantId, string disposedVoucherId, SourceType sourceType)        {            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, IR.Id,IR.FinishGoodsBookingId,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo
             ,AddedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.AddedBy END
             ,PostedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.PostedBy END
@@ -305,7 +307,7 @@ namespace Library.Accounting.FixedAssets
             //    var advanceDataList = GetVendorInvoiceChargeData(companyGroupId, companyId, plantId, voucherId, sourceType);
             //    var dtGeneralVoucher = advanceDataList;
 
-            var header = GetFinishGoodsBookingPostHeader(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.ConsumptionBook);            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];            var dsLocal = GetFinishGoodsBookingPostData(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.ConsumptionBook);            var transcationCurrency = header["CurrencyId"].ToString();
+            var header = GetFinishGoodsBookingPostHeader(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.FGInventory);            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];            var dsLocal = GetFinishGoodsBookingPostData(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.FGInventory);            var transcationCurrency = header["CurrencyId"].ToString();
             GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
 
 
@@ -317,7 +319,7 @@ namespace Library.Accounting.FixedAssets
             //sheet[row, 3].ColumnWidth = 25;
             //reportUtility.SetText(ref sheet, row, middleColumnCaption, header[""].ToString());
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());            sheet[row, 4].ColumnWidth = 15;            sheet[row, 5].ColumnWidth = 15;            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");            reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Employee");          //  reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");            //reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());            row++;
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());            sheet[row, 4].ColumnWidth = 15;            sheet[row, 5].ColumnWidth = 15;            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");            reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "FG Inventory No");            reportUtility.SetText(ref sheet, row, 2, header["Id"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());            row++;            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Finish Goods Book No");            reportUtility.SetText(ref sheet, row, 2, header["FinishGoodsBookingId"].ToString());            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());            row++;
 
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");

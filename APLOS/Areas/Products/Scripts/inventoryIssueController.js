@@ -506,7 +506,8 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				getMaterialStock();
 			$scope.CountryLoadData();
 			if ($scope.IssueType == 'Revenue') {
-				if (!ob.WithSKU) $scope.getBudgetActivityInIssueMaterial($scope.detailModel.MaterialGroupMasterId);
+				if (!ob.WithSKU)
+					$scope.getBudgetActivityInIssueMaterial($scope.detailModel.MaterialGroupMasterId);
 			}
 			angular.element(document.querySelector('#articleSearchPop')).modal('hide');
 		} catch (e) {
@@ -635,7 +636,14 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 					$scope.detailModel.BaseQty = tQty;
 				}
 			}
-
+			if ($scope.detailModel.FirstCharacteristicsValueId === undefined)
+				$scope.detailModel.FirstCharacteristicsValueId = null;
+			if ($scope.detailModel.SecondCharacteristicsValueId === undefined)
+				$scope.detailModel.SecondCharacteristicsValueId = null;
+			if ($scope.detailModel.ThirdCharacteristicsValueId === undefined)
+				$scope.detailModel.ThirdCharacteristicsValueId = null;
+			if ($scope.detailModel.CountryId === undefined)
+				$scope.detailModel.CountryId = null;
 			for (var i = 0; i < baseService.arrayLength($scope.detailList); i++) {
 				if ($scope.detailList[i].FirstCharacteristicsValueId === undefined)
 					$scope.detailList[i].FirstCharacteristicsValueId = null;
@@ -643,12 +651,15 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 					$scope.detailList[i].SecondCharacteristicsValueId = null;
 				if ($scope.detailList[i].ThirdCharacteristicsValueId === undefined)
 					$scope.detailList[i].ThirdCharacteristicsValueId = null;
+				//if ($scope.detailList[i].CountryName === undefined)
+				//	$scope.detailList[i].CountryName = null;
+
 				if ($scope.detailList[i].MaterialMasterId === $scope.detailModel.MaterialMasterId &&
 					$scope.detailList[i].ArticleId === $scope.detailModel.ArticleId &&
 					$scope.detailList[i].FirstCharacteristicsValueId === $scope.detailModel.FirstCharacteristicsValueId &&
 					$scope.detailList[i].SecondCharacteristicsValueId === $scope.detailModel.SecondCharacteristicsValueId &&
-					$scope.detailList[i].ThirdCharacteristicsValueId === $scope.detailModel.ThirdCharacteristicsValueId &&
-					$scope.detailList[i].CountryId === $scope.detailModel.CountryId)
+					$scope.detailList[i].ThirdCharacteristicsValueId === $scope.detailModel.ThirdCharacteristicsValueId 					
+				)/*&&$scope.detailList[i].CountryId === $scope.detailModel.CountryId*/
 					throw 'This material already issued.';
 			}
 			$scope.detailModel.FirstCharacteristicsId = $scope.char1.CharacteristicsId;
