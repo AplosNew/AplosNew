@@ -105,6 +105,8 @@ namespace Aplos.Areas.JobWork.Controllers
             }
         }
 
+
+
         [HttpGet, Authorize]
         public ActionResult GetJWReceiveBillingDetailData(string masterId, string contractId, string inventoryReceiveIds)
         {
@@ -223,8 +225,25 @@ namespace Aplos.Areas.JobWork.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetSavedGRNList()
+        {
+            try
+            {
+                string sql = @"SELECT * FROM TRN.InventoryReceive WHERE TransformationContractId 
+                        IN(SELECT JobWorkTransformationContractMasterId FROM JobWorkTransformationContractChild WHERE Id 
+                        IN(SELECT JWTransformationContractChildId FROM [dbo].[JWReceiveBillingDetail] WHERE JWReceiveBillingId='2111'))";
 
-       
+                var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
 
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> master, List<Dictionary<string, object>> data)
