@@ -31,18 +31,35 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	$scope.ValAddedJobWorkLocList = [];
 	$scope.SelectedValAddedMaterialStorage = function () {
-		$http({
-			method: 'GET',
-			url: 'JobWork/JobWorkIssueReturn/gejobworklocation?TId=' + $scope.ModelNew.Id,
-		}).then(function successCallback(response) {
-			$scope.ValAddedJobWorkLocList = response.data;
-			if ($scope.ValAddedJobWorkLocList.length > 0) {
-				$scope.Issue.MaterialStorageId = $scope.ValAddedJobWorkLocList[0].Value;
-				$scope.Issue.StorageLocation = $scope.ValAddedJobWorkLocList[0].StorageLocation;
-				$scope.Issue.MSIdInventory = $scope.ValAddedJobWorkLocList[0].Value;
-				$scope.GetValueAddedChildData();
-			}
-		});
+		if ($scope.ModelNew.OrderSpecific == "Yes") {
+			$http({
+				method: 'GET',
+				url: $scope.path + 'getalljobworklocation',
+			}).then(function successCallback(response) {
+				$scope.ValAddedJobWorkLocList = response.data;
+				//if ($scope.ValAddedJobWorkLocList.length > 0) {
+				//	$scope.Issue.MaterialStorageId = $scope.ValAddedJobWorkLocList[0].Value;
+				//	$scope.Issue.StorageLocation = $scope.ValAddedJobWorkLocList[0].StorageLocation;
+				//	$scope.Issue.MSIdInventory = $scope.ValAddedJobWorkLocList[0].Value;
+				//	$scope.GetValueAddedChildData();
+				//}
+			});
+		}
+		else {
+			$http({
+				method: 'GET',
+				url: 'JobWork/JobWorkIssueReturn/gejobworklocation?TId=' + $scope.ModelNew.Id,
+			}).then(function successCallback(response) {
+				$scope.ValAddedJobWorkLocList = response.data;
+				if ($scope.ValAddedJobWorkLocList.length > 0) {
+					$scope.Issue.MaterialStorageId = $scope.ValAddedJobWorkLocList[0].Value;
+					$scope.Issue.StorageLocation = $scope.ValAddedJobWorkLocList[0].StorageLocation;
+					$scope.Issue.MSIdInventory = $scope.ValAddedJobWorkLocList[0].Value;
+					$scope.GetValueAddedChildData();
+				}
+			});
+        }
+
 	}
 
 	$scope.ValEntityList = [];
@@ -485,20 +502,38 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	$scope.SelectedMaterialStorage = [];
 	$scope.GetSelectedMaterialStorage = function () {
-		$http({
-			method: 'GET',
-			url: 'JobWork/JobWorkIssueReturn/getStoragloc?JLId=' + $scope.IssueTransformation.MaterialStorageId,
-		}).then(function successCallback(response) {
-			$scope.SelectedMaterialStorage = response.data;
-			if ($scope.SelectedMaterialStorage.length > 0) {
-				//      $scope.IssueTransformation.MaterialStorageId = $scope.SelectedMaterialStorage[0].Value;
-				$scope.IssueTransformation.StorageLocation = $scope.SelectedMaterialStorage[0].StorageLocation;
-				$scope.IssueTransformation.MaterialStorageIdInventory = $scope.SelectedMaterialStorage[0].Value;
-			}
-			else {
-				$scope.IssueTransformation.StorageLocation = null;
-			}
-		});
+		if ($scope.ModelNew.TabType == "Transformation") {
+			$http({
+				method: 'GET',
+				url: 'JobWork/JobWorkIssueReturn/getStoragloc?JLId=' + $scope.IssueTransformation.MaterialStorageId,
+			}).then(function successCallback(response) {
+				$scope.SelectedMaterialStorage = response.data;
+				if ($scope.SelectedMaterialStorage.length > 0) {
+					//      $scope.IssueTransformation.MaterialStorageId = $scope.SelectedMaterialStorage[0].Value;
+					$scope.IssueTransformation.StorageLocation = $scope.SelectedMaterialStorage[0].StorageLocation;
+					$scope.IssueTransformation.MaterialStorageIdInventory = $scope.SelectedMaterialStorage[0].Value;
+				}
+				else {
+					$scope.IssueTransformation.StorageLocation = null;
+				}
+			});
+		}
+		else {
+			$http({
+				method: 'GET',
+				url: 'JobWork/JobWorkIssueReturn/getStoragloc?JLId=' + $scope.Issue.MaterialStorageId,
+			}).then(function successCallback(response) {
+				$scope.SelectedMaterialStorage = response.data;
+				if ($scope.SelectedMaterialStorage.length > 0) {
+					$scope.Issue.StorageLocation = $scope.SelectedMaterialStorage[0].StorageLocation;
+			//		$scope.Issue.MaterialStorageIdInventory = $scope.SelectedMaterialStorage[0].Value;
+				}
+				else {
+					$scope.IssueTransformation.StorageLocation = null;
+				}
+			});
+        }
+
 	}
 
 	$scope.SelectedTConEntity = function () {
