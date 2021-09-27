@@ -17668,7 +17668,7 @@ namespace Library.MaterialManagement.InventoryManagements
         {
             try
             {
-				string sql = @"SELECT Active=CAST(0 AS bit),(ROW_NUMBER() OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id InventoryReceiveId
+				string sql = @"SELECT Active=CAST(0 AS bit),(ROW_NUMBER() OVER (ORDER BY  IR.Id)) as Rows,null Id,IR.Id InventoryReceiveId
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
                                      ,IR.GRNDate
                                     , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName

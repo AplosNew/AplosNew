@@ -105,6 +105,8 @@ namespace Aplos.Areas.JobWork.Controllers
             }
         }
 
+
+
         [HttpGet, Authorize]
         public ActionResult GetJWReceiveBillingDetailData(string masterId, string contractId, string inventoryReceiveIds)
         {
@@ -223,15 +225,30 @@ namespace Aplos.Areas.JobWork.Controllers
             }
         }
 
-
-       
-
-        [HttpPost]
-        public JsonResult Create(Dictionary<string, object> master, List<Dictionary<string, object>> data)
+        [HttpGet, Authorize]
+        public ActionResult GetSavedGRNList(string masterId)
         {
             try
             {
-                SaveData(master, data);
+                string sql = @"SELECT * FROM JWReceiveBillingGRN WHERE JWReceiveBillingId='" + masterId+"'";
+
+                var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        [HttpPost]
+        public JsonResult Create(Dictionary<string, object> master, List<Dictionary<string, object>> grnList, List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                SaveData(master, grnList,data);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
@@ -245,21 +262,29 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWReceiveBilling", out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWReceiveBillingDetail", out sID);
+            return sID;
+        }
+        private string GetGRNPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWReceiveBillingGRN", out sID);
             return sID;
         }
 
-        private void SaveData(Dictionary<string, object> master, List<Dictionary<string, object>> data)
+        private void SaveData(Dictionary<string, object> master, List<Dictionary<string, object>> grnList, List<Dictionary<string, object>> data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
             objCon = new ConnectionManager.DAL.ConManager("1");
-            DataSet dsMaster, dsBills;
+            DataSet dsMaster, dsGRNBills, dsBills;
             try
             {
                 string _Id = "";
                 string masterId = "";
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.JWReceiveBilling Where Id='" + master["Id"] + "'", out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.JWReceiveBillingGRN Where JWReceiveBillingId='" + master["Id"] + "'", out dsGRNBills, false, "1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.JWReceiveBillingDetail Where JWReceiveBillingId='" + master["Id"] + "'", out dsBills, false, "1");
 
                 if (master != null)
@@ -280,6 +305,27 @@ namespace Aplos.Areas.JobWork.Controllers
                     }
 
                     masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    if (grnList != null)
+                    {
+                        foreach (var item in grnList)
+                        {
+                            DataView dv = new DataView(dsGRNBills.Tables[0]);
+                            dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                            if (dv.Count == 0)
+                            {
+                                item["Id"] = GetGRNPK();
+                                item["JWReceiveBillingId"] = masterId;
+                                AddNewRow(dsGRNBills.Tables[0], item);
+                            }
+                            else
+                            {
+                                DataRow drmo = dv[0].Row;
+                                EditRow(drmo, item);
+                            }
+                        }
+                    }
+
                     if (data != null)
                     {
                         foreach (var item in data)
@@ -303,7 +349,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 }
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsBills);
+                obj.SaveDataSets(dsMaster, dsGRNBills,dsBills);
 
 
             }

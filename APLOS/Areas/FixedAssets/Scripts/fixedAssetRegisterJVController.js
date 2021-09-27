@@ -76,7 +76,9 @@ function fixedAssetRegisterJVController(addressService, commonMessage, $scope, $
         IsFinancial: true,
         AssetActivityId: null,
         Archive: null,
-        Description: null
+        Description: null,
+        DepreciationRuleId: null,
+        MultiplicationFactor: '1.0000'
     };
 
     $scope.partySearchByList = [
@@ -1624,4 +1626,14 @@ function fixedAssetRegisterJVController(addressService, commonMessage, $scope, $
             $scope.subAssetIndex = index;
         }
     };
+
+    $http({
+        method: 'GET',
+        url: 'FixedAssets/FixedAssetRegister/getDepreciationRulelist/',
+    }).then(function successCallback(response) {
+        $scope.CompanyFADepRuleList = response.data;
+    });
+
+
+
 }
