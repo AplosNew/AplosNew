@@ -489,6 +489,7 @@
     <Compile Include="Areas\Employees\Controllers\AllowanceDailyController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeInFoReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\CompanyWiseEmployeePlantTransferController.cs" />
+    <Compile Include="Areas\Employees\Controllers\EmployeePlantTransferNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeProfileUnApprovalController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeMyAppLeaveApplicationController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeePlantTransferController.cs" />
@@ -1731,6 +1732,7 @@
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\employeeBaseMultipleController.js" />
     <Content Include="Areas\Employees\Scripts\CompanyWiseEmployeePlantTransferController.js" />
+    <Content Include="Areas\Employees\Scripts\EmployeePlantTransferNewController.js" />
     <Content Include="Areas\Employees\Scripts\hrDashboardtrController.js" />
     <Content Include="Areas\Employees\Scripts\LeaveDeleteSingleDayController.js" />
     <Content Include="Areas\Employees\Scripts\specialUnlockController.js" />
@@ -3705,6 +3707,7 @@
     <Content Include="Areas\Productions\Views\ProductionOrderRateReport\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\MonthlyInfoAll.cshtml" />
     <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\MonthlyInfoDateRange.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeePlantTransferNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

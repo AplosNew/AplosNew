@@ -79,7 +79,9 @@ function fixedAssetRegisterController(addressService, commonMessage, $scope, $ro
         AssetActivityId: null,
         Archive: null,
         Description: null,
-        IsOriginApplicable: false
+        IsOriginApplicable: false,
+        DepreciationRuleId: null,
+        MultiplicationFactor: '1.0000'
     };
 
     $scope.partySearchByList = [
@@ -514,6 +516,7 @@ function fixedAssetRegisterController(addressService, commonMessage, $scope, $ro
             if (baseService.arrayLength($scope.registerList) > 0) {
                 $scope.registerEditMode = true;
                 $scope.register = $scope.registerList[0];
+                //$scope.register.MultiplicationFactor = $scope.register[0].MultiplicationFactor;
                 combineWithFixedAssetMaster($scope.registerList[0]);
                 combineWithMaterialMaster($scope.registerList[0]);
                 $scope.getSubAssetList(registerid);
@@ -1680,5 +1683,12 @@ function fixedAssetRegisterController(addressService, commonMessage, $scope, $ro
             $scope.subAssetIndex = index;
         }
     };
+
+    $http({
+        method: 'GET',
+        url: 'FixedAssets/FixedAssetRegister/getDepreciationRulelist/',
+    }).then(function successCallback(response) {
+        $scope.CompanyFADepRuleList = response.data;
+    });
 
 }

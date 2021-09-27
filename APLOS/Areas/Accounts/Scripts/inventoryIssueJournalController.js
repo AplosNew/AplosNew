@@ -8,6 +8,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
     $scope.path = 'Accounts/InventoryPayable/';
     $scope.getListUrl = $scope.path + 'GetIssueJournalList';
     $scope.saveUrl = 'Accounts/InvoicePost/CreateIssue';
+    $scope.deleteUrl = 'Accounts/InvoicePost/DeleteIssueJournal';
 
     $scope.searchByIssueList = [
         {
@@ -852,5 +853,38 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
 
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
+    };
+
+    $scope.delete = function (issueId, voucherId) {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "issueId": issueId, "voucherId": voucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.issueId = null;
+                $scope.voucherId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.issueId = null;
+    $scope.confirmDelete = function (issueId, voucherId) {
+        $scope.issueId = issueId;
+        $scope.voucherId = voucherId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
 } 

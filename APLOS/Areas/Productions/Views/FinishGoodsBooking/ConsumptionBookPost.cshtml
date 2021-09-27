@@ -270,13 +270,30 @@
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="100" textAlign='Right'></div>
                 <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
                 <div e-column e-field="Amount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
-
-                <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
-                <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
+                <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
+                @*<div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
+                <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>*@
             </div>
 
 
         </div>
+        <script id="ReportTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                            <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                            <i class="fa fa-file-excel-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickGRNID(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="GRN">
+                            <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
 
         <script id="AdditionalTaxTemplate" type="text/template">
             <ul class="common-btn list-inline text-right">
@@ -311,11 +328,13 @@
                                 <div e-column e-field="InventoryReceiveId" e-headertext="FG Inventory" e-width="120"></div>
                                 <div e-column e-field="BookingDate" e-headertext="Booking Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                 <div e-column e-field="Qty" e-headertext="Qty" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="80" textAlign='Right'></div>
                                 <div e-column e-field="Amount" e-headertext="Amount (TRN)" e-width="80" textAlign='Right'></div>
                                 <div e-column e-field="Description" e-headertext="Description" e-width="120" textAlign='Left'></div>
                                 <div e-column e-field="Entity" e-headertext="Entity" e-width="80" textAlign='Left'></div>
                                 <div e-column e-field="FinishGoodsBookingId" e-headertext="FinishGoodsBook No" e-width="100"></div>
                                 <div e-column e-field="ProcessName" e-headertext="Process" e-width="100"></div>
+                                <div e-column e-field="MaterialStorageName" e-headertext="Material Storage" e-width="100"></div>
                                 <div e-column e-field="SourceType" e-headertext="Source" e-width="100"></div>
                                 <div e-column e-field="FromDate" e-headertext="From Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                 <div e-column e-field="ToDate" e-headertext="To Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>

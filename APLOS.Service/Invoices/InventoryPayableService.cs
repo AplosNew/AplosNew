@@ -34,7 +34,7 @@ using System.Reflection;
 
 namespace Library.Service.Invoices
 {
-    public class InventoryPayableService : Service<Invoice>, IInventoryPayableService
+    public class InventoryPayableService : IInventoryPayableService
     {
         #region Constructor
 
@@ -45,32 +45,25 @@ namespace Library.Service.Invoices
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
         private readonly IVoucherService _voucherService;
-        private readonly IRepositoryAsync<Invoice> _invoiceRepository;
+        private readonly IPKGeneratorService _pkGeneratorService;
         private readonly IRepositoryAsync<OtherInvoice> _otherInvoiceRepository;
-        private readonly IRepositoryAsync<InvoiceDetail> _invoiceDetailRepository;
         private readonly IRepositoryAsync<InvoiceWriteOffDetail> _invoiceWriteOffDetailRepository;
         private readonly IRepositoryAsync<AdjustmentNoteDetail> _AdjustmentNoteDetailRepository;
         private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
         private readonly IRepositoryAsync<InvoiceTaxDetail> _invoiceTaxDetailRepository;
-        private readonly IRepositoryAsync<TaxCodeGL> _taxCodeGLRepository;
         private readonly IRepositoryAsync<EmployeePayableDetail> _employeePayableDetailRepository;
-        private readonly TaxCategoryGLService _taxCategoryGlService;
-        private readonly IRepositoryAsync<TaxCategory> _taxCategoryRepository;
         private readonly IRepositoryAsync<ServiceAcknowledgementMaster> _serviceAcknowledgementMasterRepository;
         private readonly IRepositoryAsync<ServiceAcknowledgementDetail> _serviceAcknowledgementDetailRepository;
         private readonly IRepositoryAsync<InventoryReceive> _inventoryReceiveRepository;
         private readonly IRepositoryAsync<InventorySales> _inventorySalesRepository;
         private readonly IRepositoryAsync<InventorySalesDetail> _inventorySalesDetailRepository;
         private readonly IRepositoryAsync<InventoryReceiveDetail> _inventoryReceiveDetailRepository;
-        private readonly IRepositoryAsync<InventoryIssue> _inventoryIssueRepository;
-        private readonly IRepositoryAsync<InventoryIssueDetail> _inventoryIssueDetailRepository;
-        private readonly IRepositoryAsync<InventoryIssueHistory> _inventoryIssueHistoryRepository;
+        private readonly IInventoryIssueJournalService _inventoryIssueService;
         private readonly IRepositoryAsync<PurchaseDocAcceptance> _purchaseDocAcceptanceRepository;
         private readonly IRepositoryAsync<PurchaseDocAcceptanceCharges> _purchaseDocAcceptanceServiceRepository;
         private readonly IRepositoryAsync<PurchaseDocAcceptanceDetail> _purchaseDocAcceptanceDetailRepository;
         private readonly IRepositoryAsync<PurchaseDocAcceptanceTax> _purchaseDocAcceptanceServiceTaxRepository;
         private readonly IEmployeePayableService _employeePayableService;
-        private readonly IRepositoryAsync<TaxCategoryGL> _taxCategoryGLRepository;
         private readonly IRepositoryAsync<AdditionalTax> _additionalTaxRepository;
         private readonly IRepositoryAsync<AdditionalTaxDetail> _additionalTaxDetailRepository;
         private readonly IRepositoryAsync<GRNAcceptanceMap> _gRNAcceptanceMapRepository;
@@ -79,11 +72,9 @@ namespace Library.Service.Invoices
 
         public InventoryPayableService(
             IInvoiceService invoiceService
-            , IRepositoryAsync<Invoice> invoiceRepository
             , IInvoiceWriteOffService invoiceWriteOffService
             , IAdjustmentNoteService adjustmentNoteService
             , IInvoiceTaxService invoiceTaxService
-            , IRepositoryAsync<InvoiceDetail> invoiceDetailRepository
             , IRepositoryAsync<OtherInvoice> otherInvoiceRepository
             , IRepositoryAsync<InvoiceWriteOffDetail> invoiceWriteOffDetailRepository
             , IRepositoryAsync<AdjustmentNoteDetail> AdjustmentNoteDetailRepository
@@ -92,61 +83,48 @@ namespace Library.Service.Invoices
             , IUnitOfWork unitOfWork
             , IVoucherService voucherService
             , ISqlRepository sqlRepository
-            , IRepositoryAsync<TaxCodeGL> taxCodeGLRepository
-            , TaxCategoryGLService taxCategoryGlService
-            , IRepositoryAsync<TaxCategory> taxCategoryRepository
             , IRepositoryAsync<InventoryReceive> inventoryReceiveRepository
             , IRepositoryAsync<InventorySales> inventorySalesRepository
             , IRepositoryAsync<InventorySalesDetail> inventorySalesDetailRepository
-            , IRepositoryAsync<InventoryIssue> inventoryIssueRepository
+            , IInventoryIssueJournalService inventoryIssueService
             , IPKGeneratorService pkGeneratorService
             , IEmployeePayableService employeePayableService
             , IRepositoryAsync<EmployeePayableDetail> employeePayableDetailRepository
             , IRepositoryAsync<InventoryReceiveDetail> inventoryReceiveDetailRepository
             , IRepositoryAsync<ServiceAcknowledgementMaster> serviceAcknowledgementMasterRepository
             , IRepositoryAsync<ServiceAcknowledgementDetail> serviceAcknowledgementDetailRepository
-            , IRepositoryAsync<InventoryIssueDetail> inventoryIssueDetailRepository
-            , IRepositoryAsync<InventoryIssueHistory> inventoryIssueHistoryRepository
             , IRepositoryAsync<PurchaseDocAcceptance> purchaseDocAcceptanceRepository
             , IRepositoryAsync<PurchaseDocAcceptanceCharges> purchaseDocAcceptanceServiceRepository
             , IRepositoryAsync<PurchaseDocAcceptanceDetail> purchaseDocAcceptanceDetailRepository
             , IRepositoryAsync<PurchaseDocAcceptanceTax> purchaseDocAcceptanceServiceTaxRepository
-            , IRepositoryAsync<TaxCategoryGL> taxCategoryGLRepository
             , IRepositoryAsync<AdditionalTax> additionalTaxRepository
             , IRepositoryAsync<AdditionalTaxDetail> additionalTaxDetailRepository
             , IRepositoryAsync<GRNAcceptanceMap> gRNAcceptanceMapRepository
             , IRepositoryAsync<PurchaseReturn> purchaseReturnRepository
              , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
 
-            ) : base(invoiceRepository, unitOfWork, pkGeneratorService)
+            ) //: base( unitOfWork, pkGeneratorService)
         {
             _invoiceService = invoiceService;
-            _invoiceRepository = invoiceRepository;
-            _invoiceWriteOffService = invoiceWriteOffService;
+            _pkGeneratorService = pkGeneratorService;
+              _invoiceWriteOffService = invoiceWriteOffService;
             _adjustmentNoteService = adjustmentNoteService;
             _invoiceTaxService = invoiceTaxService;
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
-            _invoiceDetailRepository = invoiceDetailRepository;
             _otherInvoiceRepository = otherInvoiceRepository;
             _invoiceWriteOffDetailRepository = invoiceWriteOffDetailRepository;
             _AdjustmentNoteDetailRepository = AdjustmentNoteDetailRepository;
             _invoiceTaxRepository = invoiceTaxRepository;
             _invoiceTaxDetailRepository = invoiceTaxDetailRepository;
             _voucherService = voucherService;
-            _taxCodeGLRepository = taxCodeGLRepository;
-            _taxCategoryGlService = taxCategoryGlService;
-            _taxCategoryRepository = taxCategoryRepository;
             _inventoryReceiveRepository = inventoryReceiveRepository;
             _inventorySalesRepository = inventorySalesRepository;
-            _inventoryIssueRepository = inventoryIssueRepository;
+            _inventoryIssueService = inventoryIssueService;
             _employeePayableService = employeePayableService;
             _employeePayableDetailRepository = employeePayableDetailRepository;
             _inventoryReceiveDetailRepository = inventoryReceiveDetailRepository;
-            _inventoryIssueDetailRepository = inventoryIssueDetailRepository;
-            _inventoryIssueHistoryRepository = inventoryIssueHistoryRepository;
             _purchaseDocAcceptanceRepository = purchaseDocAcceptanceRepository;
-            _taxCategoryGLRepository = taxCategoryGLRepository;
             _purchaseDocAcceptanceServiceRepository = purchaseDocAcceptanceServiceRepository;
             _purchaseDocAcceptanceDetailRepository = purchaseDocAcceptanceDetailRepository;
             _purchaseDocAcceptanceServiceTaxRepository = purchaseDocAcceptanceServiceTaxRepository;
@@ -208,20 +186,8 @@ namespace Library.Service.Invoices
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public PKGenerator GetMaxNumber()
-        {
-            return base.GetMaxNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
-        }
-        public void InsertInvoiceDetail(Invoice invoice, InvoiceDetail invoiceDetail, int currentId)
-        {
-            invoiceDetail.Id = "IND" + MakePK(invoice.Id, currentId, 1);
-            invoiceDetail.InvoiceId = invoice.Id;
-            invoiceDetail.Archive = invoice.Archive;
-            invoiceDetail.AddedBy = invoice.AddedBy;
-            invoiceDetail.AddedDate = invoice.AddedDate;
-            invoiceDetail.AddedFromIP = invoice.AddedFromIP;
-            _invoiceDetailRepository.Insert(invoiceDetail);
-        }
+        
+       
         public string InsertInventoryPayable(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
             , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<InvoiceTaxViewModel> additionalTaxList)
@@ -329,7 +295,7 @@ namespace Library.Service.Invoices
 
                     var grnAccMap = new GRNAcceptanceMap
                     {
-                        Id = "I" + base.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = "I" + _pkGeneratorService.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         GRNId = receiveData.Id,
                         PurchaseDocumentAcceptanceId = null,
                         //PurchaseDocumentAcceptanceDetailId = null,
@@ -495,7 +461,7 @@ namespace Library.Service.Invoices
                             if (voucherDetailVM.OtherName == "Vendor")
                             {
                                 // _invoiceDetailRepository.Insert(invoiceDetail);
-                                InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                              _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                                 voucherCr.InvoiceDetailId = invoiceDetail.Id;
 
                             }
@@ -632,7 +598,7 @@ namespace Library.Service.Invoices
                             PartyId = invoice.PartyId,
                             PartyPlantId = invoice.PartyPlantId,
                             InvoiceId = invoice.Id,
-                            Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                            Id = _pkGeneratorService.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
@@ -646,23 +612,21 @@ namespace Library.Service.Invoices
                             if (null == tdsTaxVM.TaxCodeId)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == tdsTaxVM.TaxCodeId).Select().FirstOrDefault();
-                            if (null == taxCodeGL)
-                                throw new CustomException("Tax code GL not found!");
-
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
+                           
 
                             addtionalTaxDetailId++;
                             var tdsTaxDetail = new AdditionalTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = tdsTaxVM.TaxAmount,
                                 AdditionalTaxId = tdsTax.Id,
                                 TaxCodeId = tdsTaxVM.TaxCodeId,
                                 TaxCategoryId = tdsTaxVM.TaxCategoryId,
                                 AType = "Cr",
-                                Id = MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
+                                Id = _pkGeneratorService.MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
                                 AddedBy = voucher.AddedBy,
                                 AddedDate = voucher.AddedDate,
                                 AddedFromIP = voucher.AddedFromIP
@@ -970,7 +934,7 @@ namespace Library.Service.Invoices
                         InventoryReceiveId = receiveId,
                         PartyId = voucherVM.PartyId,
                         PartyPlantId = voucherVM.PartyPlantId,
-                        Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = _pkGeneratorService.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
                         AddedFromIP = voucher.AddedFromIP
@@ -984,7 +948,7 @@ namespace Library.Service.Invoices
                         if (null == invoiceTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == invoiceTaxVM.TaxCodeId).Select().FirstOrDefault();
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(invoiceTaxVM.TaxCodeId);
                         if (null == taxCodeGL)
                             throw new CustomException("Tax code GL not found!");
 
@@ -992,15 +956,15 @@ namespace Library.Service.Invoices
                         addtionalTaxDetailId++;
                         var invoiceTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = invoiceTaxVM.TaxAmount,
                             AdditionalTaxId = invoiceTax.Id,
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
                             TaxCategoryId = invoiceTaxVM.TaxCategoryId,
                             AType = "Cr",
-                            Id = MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
+                            Id =_pkGeneratorService.MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
@@ -1159,7 +1123,7 @@ namespace Library.Service.Invoices
                 //accountCommonExtensionService.InsertGRNAcceptanceMap(grnAccMap, out DataSet _adgrnAccMapset);
                 var grnAccMap = new GRNAcceptanceMap
                 {
-                    Id = "I" + base.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                    Id = "I" + _pkGeneratorService.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
                     GRNId = receiveData.Id,
                     PurchaseDocumentAcceptanceId = null,
                     //PurchaseDocumentAcceptanceDetailId = null,
@@ -1364,7 +1328,7 @@ namespace Library.Service.Invoices
                         }
 
                         //_invoiceDetailRepository.Insert(invoiceDetail);
-                        InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                      _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                         voucherCr.InvoiceDetailId = invoiceDetail.Id;
                         currentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
@@ -1402,7 +1366,7 @@ namespace Library.Service.Invoices
                         TaxAmount = additionalTaxList.Sum(r => r.TaxAmount),
                         TaxAutoAmount = additionalTaxList.Sum(r => r.TaxAutoAmount),
                         InventoryReceiveId = receiveId,
-                        Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = _pkGeneratorService.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
                         AddedFromIP = voucher.AddedFromIP
@@ -1416,23 +1380,21 @@ namespace Library.Service.Invoices
                         if (null == invoiceTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == invoiceTaxVM.TaxCodeId).Select().FirstOrDefault();
-                        if (null == taxCodeGL)
-                            throw new CustomException("Tax code GL not found!");
-
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(invoiceTaxVM.TaxCodeId);
+                       
 
                         addtionalTaxDetailId++;
                         var invoiceTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = invoiceTaxVM.TaxAmount,
                             AdditionalTaxId = invoiceTax.Id,
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
                             TaxCategoryId = invoiceTaxVM.TaxCategoryId,
                             AType = "Cr",
-                            Id = MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
+                            Id =_pkGeneratorService.MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
@@ -1478,7 +1440,7 @@ namespace Library.Service.Invoices
                 var additionalTax = _additionalTaxRepository.Find(additionalTaxId);
                 if (additionalTax.VoucherId != null)
                     throw new CustomException("Additional Tax already posted.");
-                var voucherDetailVMList = _invoiceDetailRepository.Query(r => r.InvoiceId == additionalTax.InvoiceId).Select().ToList();
+                var voucherDetailVMList = _invoiceService.QueryInvoiceDetail(additionalTax.InvoiceId).Select().ToList();
                 voucherVM.PartyId = additionalTax.PartyId;
                 voucherVM.PartyPlantId = additionalTax.PartyPlantId;
                 voucherVM.IsPark = false;
@@ -1508,9 +1470,9 @@ namespace Library.Service.Invoices
                 var withholdgl = false;
 
                 var invoiceIds = voucherDetailVMList.Select(r => r.InvoiceId);
-                var inviceDbList = _invoiceRepository.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
+                var inviceDbList =_invoiceService.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
                 var invoiceDetailIds = voucherDetailVMList.Select(r => r.Id);
-                var inviceDetailDbList = _invoiceDetailRepository.Query(r => invoiceDetailIds.Contains(r.Id)).Select().ToList();
+                var inviceDetailDbList = _invoiceService.QueryInvoiceDetailEnumerable(invoiceDetailIds);
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
                     var invoiceDetail = inviceDetailDbList.FirstOrDefault(r => r.Id == voucherDetailVM.Id);
@@ -1526,7 +1488,7 @@ namespace Library.Service.Invoices
                     invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
-                    _invoiceDetailRepository.Update(invoiceDetail);
+                    _invoiceService.UpdateInvoiceDetail(invoiceDetail);
 
                     // TODO: have a gap here if invoice split
                     var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
@@ -1535,7 +1497,7 @@ namespace Library.Service.Invoices
                     invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
-                    _invoiceRepository.Update(invoice);
+                    _invoiceService.Update(invoice);
 
                     // INSERT INTO InvoiceDetail
                     currentInvoiceWriteOffDetailId++;
@@ -1682,7 +1644,7 @@ namespace Library.Service.Invoices
 
         private string GetEmployeeSubsequentTransactionPK()
         {
-            return GetAutoNumber("EmployeeSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
+            return _invoiceService.GetAutoNumber("EmployeeSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
         }
 
         public string InsertEmployeePayable(string receiveId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
@@ -1897,7 +1859,7 @@ namespace Library.Service.Invoices
                             AddedDate = employeePayable.AddedDate,
                             AddedFromIP = employeePayable.AddedFromIP,
                             Archive = employeePayable.Archive,
-                            Id = MakePK(employeePayable.Id, currentInvoiceDetail, 2),
+                            Id =_pkGeneratorService.MakePK(employeePayable.Id, currentInvoiceDetail, 2),
                             EmployeePayableId = employeePayable.Id,
                         };
                         employeePayable.Amount = employeePayableDetail.Amount;
@@ -2050,7 +2012,7 @@ namespace Library.Service.Invoices
 
         private string GetInvoiceWriteOffAutoNumber()
         {
-            return base.GetAutoNumber("InvoiceWriteOff", PKGeneratorEnum.Auto, null, DateTime.Now);
+            return _invoiceService.GetAutoNumber("InvoiceWriteOff", PKGeneratorEnum.Auto, null, DateTime.Now);
         }
 
 
@@ -2095,7 +2057,7 @@ namespace Library.Service.Invoices
                     VoucherDate = DateTime.Now,
                     TaxYearPeriodId = voucherVM.TaxYearPeriodId,
                     InventoryReceiveId = voucherVM.InventoryReceiveId,
-                    Id = base.GetAutoNumber("AdjustmentNote", PKGeneratorEnum.Auto, null, DateTime.Now),
+                    Id = _invoiceService.GetAutoNumber("AdjustmentNote", PKGeneratorEnum.Auto, null, DateTime.Now),
                     NoteType = NoteType.VendorDebitNote.ToString()
                 };
 
@@ -2224,7 +2186,7 @@ namespace Library.Service.Invoices
                             AddedDate = adjustmentNote.AddedDate,
                             AddedFromIP = adjustmentNote.AddedFromIP,
                             Archive = adjustmentNote.Archive,
-                            Id = MakePK(adjustmentNote.Id, currentInvoiceDetail, 1),
+                            Id =_pkGeneratorService.MakePK(adjustmentNote.Id, currentInvoiceDetail, 1),
                             AdjustmentNoteId = adjustmentNote.Id,
                             InventoryReceiveId = voucherVM.InventoryReceiveId,
                             InventoryReceiveDetailId = voucherDetailVM.InventoryReceiveDetailId
@@ -2332,7 +2294,7 @@ namespace Library.Service.Invoices
                     VoucherDate = DateTime.Now,
                     TaxYearPeriodId = voucherVM.TaxYearPeriodId,
                     InventoryReceiveId = voucherVM.InventoryReceiveId,
-                    Id = base.GetAutoNumber("AdjustmentNote", PKGeneratorEnum.Auto, null, DateTime.Now),
+                    Id = _invoiceService.GetAutoNumber("AdjustmentNote", PKGeneratorEnum.Auto, null, DateTime.Now),
                     NoteType = NoteType.VendorDebitNote.ToString()
                 };
 
@@ -2461,7 +2423,7 @@ namespace Library.Service.Invoices
                             AddedDate = adjustmentNote.AddedDate,
                             AddedFromIP = adjustmentNote.AddedFromIP,
                             Archive = adjustmentNote.Archive,
-                            Id = MakePK(adjustmentNote.Id, currentInvoiceDetail, 1),
+                            Id =_pkGeneratorService.MakePK(adjustmentNote.Id, currentInvoiceDetail, 1),
                             AdjustmentNoteId = adjustmentNote.Id,
                             InventoryReceiveId = voucherVM.InventoryReceiveId,
                             InventoryReceiveDetailId = voucherDetailVM.InventoryReceiveDetailId
@@ -2529,13 +2491,14 @@ namespace Library.Service.Invoices
             }
         }
 
+        #region Issue Journal
         public void InsertIssueJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList)
+          , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList)
         {
             var flag = false;
             try
             {
-                var issueData = _inventoryIssueRepository.Find(issueId);
+                var issueData = _inventoryIssueService.FindInventoryIssue(issueId);
                 voucherVM.PostingDate = issueData.IssueDate;
                 voucherVM.EntityId = issueData.EntityId;
 
@@ -2616,7 +2579,7 @@ namespace Library.Service.Invoices
                             CurrencyId = voucher.CurrencyId,
                             DrAmount = 0,
                             CrAmount = voucherDetailVM.Amount,
-                            CostCenterId=voucherDetailVM.CostCenterId
+                            CostCenterId = voucherDetailVM.CostCenterId
                         };
                         currentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
@@ -2634,31 +2597,31 @@ namespace Library.Service.Invoices
                 }
                 foreach (var item in invIssueDetailList)
                 {
-                    var issueDetail = _inventoryIssueDetailRepository.Find(item.InventoryIssueDetailId);
+                    var issueDetail = _inventoryIssueService.FindInventoryIssueDetail(item.InventoryIssueDetailId);
                     issueDetail.PostDrGLGeneralInfoId = item.GLGeneralInfoId;
                     issueDetail.PostDrBudgetMasterId = item.BudgetMasterId;
                     issueDetail.PostDrActivityId = item.ActivityId;
                     issueDetail.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(issueDetail);
-                    _inventoryIssueDetailRepository.Update(issueDetail);
+                    _inventoryIssueService.UpdateInventoryIssueDetail(issueDetail);
                 }
 
                 foreach (var item in invIssueDetailGLList)
                 {
-                    var issueDetailGL = _inventoryIssueDetailRepository.Find(item.InventoryIssueDetailId);
+                    var issueDetailGL = _inventoryIssueService.FindInventoryIssueDetail(item.InventoryIssueDetailId); 
                     issueDetailGL.PostCrGLGeneralInfoId = item.PostDrGLGeneralInfoId;
                     issueDetailGL.PostCrBudgetMasterId = item.PostDrBudgetMasterId;
                     issueDetailGL.PostCrActivityId = item.PostDrActivityId;
                     issueDetailGL.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(issueDetailGL);
-                    _inventoryIssueDetailRepository.Update(issueDetailGL);
+                    _inventoryIssueService.UpdateInventoryIssueDetail(issueDetailGL);
                 }
                 // Update Inventory Received
                 issueData.VoucherId = voucher.Id;
                 issueData.Status = "Posting";
                 issueData.ModelState = ModelState.Modified;
                 AuditService.UpdatedLog(issueData);
-                _inventoryIssueRepository.Update(issueData);
+                _inventoryIssueService.UpdateInventoryIssue(issueData);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -2675,6 +2638,78 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+
+        public void DeleteIssueJournal(string issueId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
+                var inventoryIssue = _inventoryIssueService.FindInventoryIssue(issueId);
+                if(inventoryIssue.CapitalizeVoucherId!=null)
+                    throw new CustomException("Delete Capitalize Voucher first ! ");
+
+                var inventoryIssueDetail = _inventoryIssueService.QueryInventoryIssueDetail(issueId).Select().ToList();
+
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                }
+                foreach (var item in voucherdetail)
+                {
+                    var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
+                    if (glTransactionDetail != null)
+                    {
+                        _voucherService.DeleteGLTransactionDetail(item.Id);
+                    }
+                    _voucherService.DeleteVoucherDetail(item.Id);
+                }
+                foreach (var item in inventoryIssueDetail)
+                {
+                    item.PostCrActivityId = null;
+                    item.PostCrBudgetMasterId = null;
+                    item.PostCrGLGeneralInfoId = null;
+                    item.PostDrActivityId = null;
+                    item.PostDrBudgetMasterId = null;
+                    item.PostDrGLGeneralInfoId = null;
+                    AuditService.UpdatedLog(item);
+                    _inventoryIssueService.UpdateInventoryIssueDetail(item);
+                }
+                inventoryIssue.VoucherId = null;
+                inventoryIssue.Status = null;
+                AuditService.UpdatedLog(inventoryIssue);
+                _inventoryIssueService.UpdateInventoryIssue(inventoryIssue);
+                _voucherService.DeleteVoucher(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        #endregion
 
         public void InsertGRNFixedAssetCapitalizeJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
@@ -2873,7 +2908,7 @@ namespace Library.Service.Invoices
                 flag = true;
                 // INSERT INTO Voucher TABLE
 
-                var issue = _inventoryIssueRepository.Find(issueId);
+                var issue = _inventoryIssueService.FindInventoryIssue(issueId);
 
                 var voucher = new Voucher
                 {
@@ -2897,7 +2932,7 @@ namespace Library.Service.Invoices
 
                 issue.CapitalizeVoucherId = voucher.Id;
                 issue.VoucherId = voucher.Id;
-                _inventoryIssueRepository.Update(issue);
+                _inventoryIssueService.UpdateInventoryIssue(issue);
 
                 var currentVoucherDetaiRecord = 0;
                 foreach (var voucherDetailVM in voucherDetailVMList)
@@ -2932,19 +2967,19 @@ namespace Library.Service.Invoices
                         });
                         foreach (var item in invIssueDetailList.Where(r => r.PostDrBudgetMasterId == voucherDetailVM.BudgetMasterId && r.PostDrActivityId == voucherDetailVM.ActivityId))
                         {
-                            var inventoryIssueHistory = _inventoryIssueHistoryRepository.Find(item.InventoryIssueHistoryId);
+                            var inventoryIssueHistory = _inventoryIssueService.FindInventoryIssueHistory(item.InventoryIssueHistoryId);
                             inventoryIssueHistory.CapitalizeVoucherDetailId = voucherDr.Id;
                             inventoryIssueHistory.IsCapitalize = true;
-                            _inventoryIssueHistoryRepository.Update(inventoryIssueHistory);
+                            _inventoryIssueService.UpdateInventoryIssueHistory(inventoryIssueHistory);
 
-                            var inventoryIssueDetail = _inventoryIssueDetailRepository.Find(inventoryIssueHistory.InventoryIssueDetailId);
+                            var inventoryIssueDetail = _inventoryIssueService.FindInventoryIssueDetail(inventoryIssueHistory.InventoryIssueDetailId);
                             inventoryIssueDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
                             inventoryIssueDetail.PostDrBudgetMasterId = voucherDr.BudgetMasterId;
                             inventoryIssueDetail.PostDrActivityId = voucherDr.ActivityId;
                             inventoryIssueDetail.PostCrGLGeneralInfoId = item.PostCrGLGeneralInfoId;
                             inventoryIssueDetail.PostCrBudgetMasterId = item.PostCrBudgetMasterId;
                             inventoryIssueDetail.PostCrActivityId = item.PostCrActivityId;
-                            _inventoryIssueDetailRepository.Update(inventoryIssueDetail);
+                            _inventoryIssueService.UpdateInventoryIssueDetail(inventoryIssueDetail);
                         }
 
                     }
@@ -3109,7 +3144,7 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                var issue = _inventoryIssueRepository.Find(issueId);
+                var issue = _inventoryIssueService.FindInventoryIssue(issueId);
 
                 AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
@@ -3142,7 +3177,7 @@ namespace Library.Service.Invoices
                 _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
 
                 issue.CapitalizeVoucherId = voucher.Id;
-                _inventoryIssueRepository.Update(issue);
+                _inventoryIssueService.UpdateInventoryIssue(issue);
 
                 var currentVoucherDetaiRecord = 0;
                 foreach (var voucherDetailVM in voucherDetailVMList)
@@ -3177,10 +3212,10 @@ namespace Library.Service.Invoices
                         });
                         foreach (var item in invIssueDetailList.Where(r => r.PostDrBudgetMasterId == voucherDetailVM.BudgetMasterId && r.PostDrActivityId == voucherDetailVM.ActivityId))
                         {
-                            var inventoryIssueHistory = _inventoryIssueHistoryRepository.Find(item.InventoryIssueHistoryId);
+                            var inventoryIssueHistory = _inventoryIssueService.FindInventoryIssueHistory(item.InventoryIssueHistoryId);
                             inventoryIssueHistory.CapitalizeVoucherDetailId = voucherDr.Id;
                             inventoryIssueHistory.IsCapitalize = true;
-                            _inventoryIssueHistoryRepository.Update(inventoryIssueHistory);
+                            _inventoryIssueService.UpdateInventoryIssueHistory(inventoryIssueHistory);
 
                             //var inventoryIssueDetail = _inventoryIssueDetailRepository.Find(inventoryIssueHistory.InventoryIssueDetailId);
                             //inventoryIssueDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
@@ -3410,18 +3445,16 @@ namespace Library.Service.Invoices
                         foreach (var taxCatId in taxCategoryList)
                         {
                             totalTaxAmount += acceptanceTax.Where(r => r.TaxCategoryId == taxCatId).Sum(r => r.TaxAmount);
-                            var taxCategoryGL = _taxCategoryGLRepository.Query(r => r.TaxCategoryId == taxCatId && r.InputTaxOutPutTax == "Input").Select().FirstOrDefault();
-                            if (null == taxCategoryGL)
-                                throw new CustomException("Tax Category not found!");
-
-                            if (null == taxCategoryGL.GLGeneralInfoId)
+                            var taxCategoryGL = _accountsCommonService.GetTaxCategoryInputGL(taxCatId); 
+                           
+                            if (null == taxCategoryGL["GLGeneralInfoId"].ToString())
                                 throw new CustomException("Tax Category Expenses GL not found!");
 
                             var voucherDr = new VoucherDetail
                             {
-                                GLGeneralInfoId = taxCategoryGL.GLGeneralInfoId,
-                                BudgetMasterId = taxCategoryGL.BudgetMasterId,
-                                ActivityId = taxCategoryGL.ActivityId,
+                                GLGeneralInfoId = taxCategoryGL["GLGeneralInfoId"].ToString(),
+                                BudgetMasterId = taxCategoryGL["BudgetMasterId"].ToString(),
+                                ActivityId = taxCategoryGL["ActivityId"].ToString(),
                                 DrAmount = acceptanceTax.Where(r => r.TaxCategoryId == taxCatId).Sum(r => r.TaxAmount),
                                 CurrencyId = voucherVM.CurrencyId,
                                 DocDate = voucherVM.DocDate,
@@ -3452,7 +3485,7 @@ namespace Library.Service.Invoices
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                Id = MakePK(invoice.Id, currentTaxRecord, 2),
+                                Id =_pkGeneratorService.MakePK(invoice.Id, currentTaxRecord, 2),
                                 VoucherDetailId = voucherDr.Id,//voucherDetailDrId,
                                 VoucherId = voucher.Id,
                                 InvoiceId = invoice.Id,
@@ -3506,7 +3539,7 @@ namespace Library.Service.Invoices
                         InvoiceId = invoice.Id,
                     };
                     invoice.Amount = invoiceDetail.Amount;
-                    InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                   _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                     // INSERT INTO VoucherDetail
                     var voucherCr = new VoucherDetail
                     {
@@ -3645,17 +3678,15 @@ namespace Library.Service.Invoices
                                 var invoiceTaxPk = _invoiceTaxService.GetMaxNumber();
                                 foreach (var invoiceTaxVM in invoieTaxVM)
                                 {
-                                    var taxCategoryGL = _taxCategoryGLRepository.Query(r => r.TaxCategoryId == invoiceTaxVM.TaxCategoryId && r.InputTaxOutPutTax == "Input").Select().FirstOrDefault();
-                                    if (null == taxCategoryGL)
-                                        throw new CustomException("Tax Category not found!");
-
-                                    if (null == taxCategoryGL.ExpensesGLId)
+                                    var taxCategoryGL = _accountsCommonService.GetTaxCategoryInputGL(invoiceTaxVM.TaxCategoryId);
+                                  
+                                    if (null == taxCategoryGL["ExpensesGLId"].ToString())
                                         throw new CustomException("Tax Category Expenses GL not found!");
 
                                     currentTaxRecord++;
                                     var invoiceTax = new InvoiceTax
                                     {
-                                        Id = MakePK(purDocAcceptance.Id, currentTaxRecord, 2),
+                                        Id =_pkGeneratorService.MakePK(purDocAcceptance.Id, currentTaxRecord, 2),
                                         TaxCodeId = invoiceTaxVM.TaxCodeId,
                                         TaxCategoryId = invoiceTaxVM.TaxCategoryId,
                                         TaxAmount = invoiceTaxVM.TaxAmount,
@@ -3671,13 +3702,13 @@ namespace Library.Service.Invoices
                                     InsertInvoiceTax(voucherVM, invoiceTax, invoiceTaxPk);
                                     totalTaxAmount += invoiceTax.TaxAmount;
 
-                                    if (!string.IsNullOrEmpty(taxCategoryGL.ExpensesGLId))
+                                    if (!string.IsNullOrEmpty(taxCategoryGL["ExpensesGLId"].ToString()))
                                     {
                                         var invoiceTaxDetail = new InvoiceTaxDetail
                                         {
-                                            GLGeneralInfoId = taxCategoryGL.ExpensesGLId,
-                                            BudgetMasterId = taxCategoryGL.ExpensesBudgetMasterId,
-                                            ActivityId = taxCategoryGL.ExpensesActivityId,
+                                            GLGeneralInfoId = taxCategoryGL["ExpensesGLId"].ToString(),
+                                            BudgetMasterId = taxCategoryGL["ExpensesBudgetMasterId"].ToString(),
+                                            ActivityId = taxCategoryGL["ExpensesActivityId"].ToString(),
                                             Amount = invoiceTax.TaxAmount,
                                             AType = "Dr"
                                         };
@@ -4059,8 +4090,7 @@ namespace Library.Service.Invoices
                                 _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
                             }
 
-                            //_invoiceDetailRepository.Insert(invoiceDetail);
-                            InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                           _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                             voucherCr.InvoiceDetailId = invoiceDetail.Id;
                             currentVoucherDetaiRecord++;
                             _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
@@ -4118,7 +4148,7 @@ namespace Library.Service.Invoices
                             PartyId = voucherVM.PartyId,
                             PartyPlantId = voucherVM.PartyPlantId,
                             InvoiceId = invoice.Id,
-                            Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                            Id = _invoiceService.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
@@ -4132,7 +4162,7 @@ namespace Library.Service.Invoices
                             if (null == tdsTaxVM.TaxCodeId)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == tdsTaxVM.TaxCodeId).Select().FirstOrDefault();
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
                             if (null == taxCodeGL)
                                 throw new CustomException("Tax code GL not found!");
 
@@ -4140,15 +4170,15 @@ namespace Library.Service.Invoices
                             addtionalTaxDetailId++;
                             var tdsTaxDetail = new AdditionalTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = tdsTaxVM.TaxAmount,
                                 AdditionalTaxId = tdsTax.Id,
                                 TaxCodeId = tdsTaxVM.TaxCodeId,
                                 TaxCategoryId = tdsTaxVM.TaxCategoryId,
                                 AType = "Cr",
-                                Id = MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
+                                Id =_pkGeneratorService.MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
                                 AddedBy = voucher.AddedBy,
                                 AddedDate = voucher.AddedDate,
                                 AddedFromIP = voucher.AddedFromIP
@@ -4478,7 +4508,7 @@ namespace Library.Service.Invoices
                         PartyId = voucherVM.PartyId,
                         PartyPlantId = voucherVM.PartyPlantId,
                         //InvoiceId = invoice.Id,
-                        Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = _invoiceService.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
                         AddedFromIP = voucher.AddedFromIP
@@ -4492,7 +4522,7 @@ namespace Library.Service.Invoices
                         if (null == tdsTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == tdsTaxVM.TaxCodeId).Select().FirstOrDefault();
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
                         if (null == taxCodeGL)
                             throw new CustomException("Tax code GL not found!");
 
@@ -4500,15 +4530,15 @@ namespace Library.Service.Invoices
                         addtionalTaxDetailId++;
                         var tdsTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = tdsTaxVM.TaxAmount,
                             AdditionalTaxId = tdsTax.Id,
                             TaxCodeId = tdsTaxVM.TaxCodeId,
                             TaxCategoryId = tdsTaxVM.TaxCategoryId,
                             AType = "Cr",
-                            Id = MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
+                            Id =_pkGeneratorService.MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
@@ -4838,7 +4868,7 @@ namespace Library.Service.Invoices
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                Id = MakePK(invoice.Id, currentTaxRecord, 2),
+                                Id =_pkGeneratorService.MakePK(invoice.Id, currentTaxRecord, 2),
                                 VoucherDetailId = voucherCr.Id,//voucherDetailDrId,
                                 VoucherId = voucher.Id,
                                 InvoiceId = invoice.Id,
@@ -4951,7 +4981,7 @@ namespace Library.Service.Invoices
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                Id = MakePK(invoice.Id, currentTaxRecord, 2),
+                                Id =_pkGeneratorService.MakePK(invoice.Id, currentTaxRecord, 2),
                                 VoucherDetailId = voucherDr.Id,//voucherDetailCrrId,
                                 InvoiceId = invoice.Id,
                                 TaxYearId = voucher.TaxYearId,
@@ -4985,7 +5015,7 @@ namespace Library.Service.Invoices
                         }
 
                         //_invoiceDetailRepository.Insert(invoiceDetail);
-                        InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                      _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                         currentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord);
 
@@ -5033,7 +5063,7 @@ namespace Library.Service.Invoices
                         ActivityId = otherInvoiceVM.ActivityId,
                         SourceType = invoice.SourceType,
                         IsPark = true,
-                        Id = base.GetAutoNumber(nameof(OtherInvoice), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = _invoiceService.GetAutoNumber(nameof(OtherInvoice), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
                         AddedFromIP = voucher.AddedFromIP
@@ -5225,7 +5255,7 @@ namespace Library.Service.Invoices
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                Id = MakePK(invoice.Id, currentTaxRecord, 2),
+                                Id =_pkGeneratorService.MakePK(invoice.Id, currentTaxRecord, 2),
                                 VoucherDetailId = voucherCr.Id,//voucherDetailDrId,
                                 VoucherId = voucher.Id,
                                 InvoiceId = invoice.Id,
@@ -5338,7 +5368,7 @@ namespace Library.Service.Invoices
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                Id = MakePK(invoice.Id, currentTaxRecord, 2),
+                                Id =_pkGeneratorService.MakePK(invoice.Id, currentTaxRecord, 2),
                                 VoucherDetailId = voucherDr.Id,//voucherDetailCrrId,
                                 InvoiceId = invoice.Id,
                                 TaxYearId = voucher.TaxYearId,
@@ -5372,7 +5402,7 @@ namespace Library.Service.Invoices
                         }
 
                         //_invoiceDetailRepository.Insert(invoiceDetail);
-                        InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                       _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                         currentVoucherDetaiRecord++;
                         voucherDr.InvoiceDetailId = invoiceDetail.Id;
                         _voucherService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord);
@@ -5421,7 +5451,7 @@ namespace Library.Service.Invoices
                         ActivityId = otherInvoiceVM.ActivityId,
                         SourceType = invoice.SourceType,
                         IsPark = true,
-                        Id = base.GetAutoNumber(nameof(OtherInvoice), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = _invoiceService.GetAutoNumber(nameof(OtherInvoice), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
                         AddedFromIP = voucher.AddedFromIP
@@ -5908,13 +5938,13 @@ namespace Library.Service.Invoices
 
         private AdjustmentNote InsertAdjustmentNote(AdjustmentNote adjustmentNote)
         {
-            adjustmentNote.Id = base.GetAutoNumber(nameof(AdjustmentNote), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            adjustmentNote.Id = _invoiceService.GetAutoNumber(nameof(AdjustmentNote), PKGeneratorEnum.Yearly, null, DateTime.Now);
             _adjustmentNoteService.InsertGraph(adjustmentNote);
             return adjustmentNote;
         }
         private void Check(AdjustmentNote entity)
         {
-            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
+            _adjustmentNoteService.CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
         }
         private AdjustmentNote InsertAdjustmentNote(VoucherViewModel voucherVM)
         {
@@ -5968,7 +5998,7 @@ namespace Library.Service.Invoices
 
         private AdjustmentNoteDetail InsertAdjustmentNoteDetail(AdjustmentNote adjustmentNote, AdjustmentNoteDetail adjustmentNoteDetail, int currentId)
         {
-            adjustmentNoteDetail.Id = MakePK(adjustmentNote.Id, currentId, 1);
+            adjustmentNoteDetail.Id =_pkGeneratorService.MakePK(adjustmentNote.Id, currentId, 1);
             adjustmentNoteDetail.AdjustmentNoteId = adjustmentNote.Id;
             adjustmentNoteDetail.InvoiceId = adjustmentNote.InvoiceId;
             adjustmentNoteDetail.AddedBy = adjustmentNote.AddedBy;

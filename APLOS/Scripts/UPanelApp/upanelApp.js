@@ -744,7 +744,8 @@ var upanelApp = angular
     .controller('ProcessAndResourcesConstraintController', ProcessAndResourcesConstraintController)
     .controller("interCompanyPartyController", InterCompanyPartyController)
     .controller('EmployeePlantTransferController', EmployeePlantTransferController)
-    .controller('CompanyWiseEmployeePlantTransferController', CompanyWiseEmployeePlantTransferController)
+    .controller('EmployeePlantTransferNewController', EmployeePlantTransferNewController)
+   .controller('CompanyWiseEmployeePlantTransferController', CompanyWiseEmployeePlantTransferController)
     .controller("inventoryTransferJournalController", inventoryTransferJournalController)
     //.controller("jobWorkItemController", JobWorkItemController)
     .controller("checkVoidController", checkVoidController)
@@ -928,6 +929,7 @@ var upanelApp = angular
     .controller("ProductionOrderProcessWithRateController", ProductionOrderProcessWithRateController)
     .controller("entityWiseExpenseAndEarningController", entityWiseExpenseAndEarningController)
     .controller("ProductionOrderRateReportController", ProductionOrderRateReportController)
+    .controller('ProductionTargetReportController', ProductionTargetReportController)
 
 
     .controller("PostInvoiceController", PostInvoiceController)
