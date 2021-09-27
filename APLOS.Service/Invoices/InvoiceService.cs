@@ -10,6 +10,7 @@ using Library.Model.Enums;
 using Library.Model.Invoices;
 using Library.Model.Parties;
 using Library.Model.Payments;
+using Library.Model.Systems;
 using Library.Model.Taxations;
 using Library.Model.Vouchers;
 using Library.Service.Core;
@@ -178,7 +179,7 @@ namespace Library.Service.Invoices
 
             return InsertInvoice(invoice);
         }
-
+        
         public void InsertInvoiceDetail(Invoice invoice, InvoiceDetail invoiceDetail, int currentId)
         {
             invoiceDetail.Id = "IND" + MakePK(invoice.Id, currentId, 1);
@@ -207,15 +208,43 @@ namespace Library.Service.Invoices
         {
             base.Delete(id);
         }
+       
         public IQueryFluent<InvoiceDetail> QueryInvoiceDetail(string invoiceId)
         {
             return _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId);
         }
+        //public IEnumerable<InvoiceDetail> QueryInvoiceDetailList(Expression<Func<InvoiceDetail, bool>> invoiceDetails)
+        //{
+        //    return _invoiceDetailRepository.Query(r => invoiceDetails.Contains(r.Id)).Select().ToList();
+        //}
+        public IEnumerable<InvoiceDetail> QueryInvoiceDetailEnumerable(IEnumerable<string> query)
+        {
+            return _invoiceDetailRepository.Query(r => query.Contains(r.Id)).Select().ToList();
+        }
+        private string GetInvoiceWriteOffAutoNumber()
+        {
+            return base.GetAutoNumber("InvoiceWriteOff", PKGeneratorEnum.Auto, null, DateTime.Now);
+        }
+
+        private void Check(Voucher entity)
+        {
+            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.DocRefNo == entity.DocRefNo && r.Id != entity.Id && r.CompanyId == entity.CompanyId);
+        }
+
+        public IQueryFluent<InvoiceDetail> GetInvoiceDetailList(Expression<Func<InvoiceDetail, bool>> query)
+        {
+            return _invoiceDetailRepository.Query(query);
+        }
+
+
         public void DeleteInvoiceDetail(string id)
         {
             _invoiceDetailRepository.Delete(id);
         }
-
+        public PKGenerator GetAdditionalTaxMaxNumber()
+        {
+            return base.GetMaxNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
+        }
         public string InsertCustomerInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, OtherInvoice otherInvoiceVM)
         {
@@ -3818,21 +3847,7 @@ namespace Library.Service.Invoices
             }
         }
 
-        private string GetInvoiceWriteOffAutoNumber()
-        {
-            return base.GetAutoNumber("InvoiceWriteOff", PKGeneratorEnum.Auto, null, DateTime.Now);
-        }
-
-        private void Check(Voucher entity)
-        {
-            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.DocRefNo == entity.DocRefNo && r.Id != entity.Id && r.CompanyId == entity.CompanyId);
-        }
-
-        public IQueryFluent<InvoiceDetail> GetInvoiceDetailList(Expression<Func<InvoiceDetail, bool>> query)
-        {
-            return _invoiceDetailRepository.Query(query);
-        }
-
+   
         public void Post(string invoiceId)
         {
             var flag = false;

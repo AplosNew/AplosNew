@@ -309,7 +309,7 @@ namespace Library.Service.Extension.Accounts
 
         public Dictionary<string, object> GetCompanyParty(string companyId, string plantId,string partyId,string partyType)
         {
-            var sql = @"select TOP(1) * from hkp.CompanyParty where CompanyId='"+ companyId + "' PlantId='" + plantId + "' and PartyId='" + partyId + "' and PartyType='"+ partyType + @"'";
+            var sql = @"select TOP(1) * from hkp.CompanyParty where CompanyId='"+ companyId + "'  and PartyId='" + partyId + "' and PartyType='"+ partyType + @"'";
             var partyPlantTemp = _sqlRepository.GetData(sql);
 
             if (null == sql || partyPlantTemp.Count == 0)
@@ -319,7 +319,7 @@ namespace Library.Service.Extension.Accounts
 
         public Dictionary<string, object> GetCompanyPartyGL(string partyId,string companyPartyId,string partyGLType)
         {
-            var sql = @"select TOP(1) * from hkp.CompanyPartyGL where PartyId='" + partyId + "' CompanyPartyId='" + companyPartyId + "'  and PartyGLType='" + partyGLType + @"'";
+            var sql = @"select TOP(1) * from hkp.CompanyPartyGL where PartyId='" + partyId + "' and CompanyPartyId='" + companyPartyId + "'  and PartyGLType='" + partyGLType + @"'";
             var partyPlantTemp = _sqlRepository.GetData(sql);
 
             if (null == sql || partyPlantTemp.Count == 0)
