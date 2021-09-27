@@ -136,7 +136,7 @@
                                             <label class="col-sm-4 control-label">Job Work Location<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
                                                 <div class="select-style">
-                                                    <select class="form-control" ng-model="Issue.MaterialStorageId" name="Job Work Location" required
+                                                    <select class="form-control" ng-model="Issue.MaterialStorageId" name="Job Work Location" ng-change="GetValueAddedChildData();GetSelectedMaterialStorage();" required
                                                             ng-options="item.Value as item.Text for item in ValAddedJobWorkLocList" tabindex="3">
                                                         <option value="">--Select--</option>
                                                     </select>
