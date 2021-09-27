@@ -393,8 +393,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
 
     $scope.selectSOItem = function ($event) {
         try {
-            $scope.GetTotalProductionBookingQty();
-
             var soitem = $event.data;
             $scope.productionSummaryNew.SalesOrderId = soitem.SOId;
             $scope.productionSummaryNew.ProductionOrderId = soitem.POId;
@@ -439,6 +437,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU2') {
                 //$scope.getCharInfo(null, $scope.productionSummaryNew.ProductionDate,$scope.productionSummaryNew.SalesOrderId);
             }
+            $scope.GetTotalProductionBookingQty();
             $scope.getLotNumberCbo();
         } catch (ex) {
             ShowResult(ex, 'error');
