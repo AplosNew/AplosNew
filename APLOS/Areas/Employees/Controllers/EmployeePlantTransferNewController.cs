@@ -56,14 +56,10 @@ namespace Aplos.Areas.Employees.Controllers
 
         #region -- Pages
 
-        [Authorize]
         public ActionResult Aplos()
         {
             return View();
         }
-
-
-
 
         #endregion -- Pages
 
@@ -227,16 +223,13 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
 
-
-        [HttpPost]
+        [HttpPost,Authorize]
         public ActionResult SaveData(EmployeePlantTransferModel data, EmployeePlantTransferModelDetails olddata, EmployeePlantTransferModelDetails newdata, BudgetCodeModel bc)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
             clsStaticInfo obj = new clsStaticInfo();
-            clsAttendance.AttendanceProcessAplos objAttdn = new clsAttendance.AttendanceProcessAplos();
-            //DADID = string.Empty;
             try
             {
 
@@ -516,18 +509,18 @@ namespace Aplos.Areas.Employees.Controllers
                 #endregion
 
 
-
-
-
-
                 obj.SaveDataSets(dsMaster, dsEmployeePlantTransferHistory);
 
                 //update raw table
                 string u_AttdnRawData = @"update AttdnRawData set plantid='" + data.PlantId + @"'  where pDate >='" + data.EffectiveDate + "'  and LogDownLoadNum ='" + data.EmpSystemId + @"'";
                 ExecuteRawSQL(u_AttdnRawData);
 
+                //update Leave Earned Table
+                string u_LeaveEarned = @"update LeaveEarned set DateUpdated=GETDATE(),PlantID='" + data.PlantId+@"' where WorkDate>='"+data.EffectiveDate+"' and EmpSystemID='"+data.EmpSystemId+ @"'";
+                ExecuteRawSQL(u_LeaveEarned);
 
 
+                #region Salary Tables
                 //update salary information
                 string u_SalaryInfoDefineMaster = @"UPDATE SalaryInfoDefineMaster SET PlantID='" + data.PlantId + @"',SalaryRuleMasterSystemID='" + newdata.SalaryRuleMasterId + @"' WHERE EmpInfoSystemID='" + data.EmpSystemId + @"' ---and EffectiveDate>='" + data.EffectiveDate + "'";
                 //string u_SalaryInfoBackMaster = @"UPDATE SalaryInfoBackMaster SET PlantID='" + data.PlantId + @"',SalaryRuleMasterSystemID='" + newdata.SalaryRuleMasterId + @"' WHERE EmpInfoSystemID='" + data.EmpSystemId + @"' ---and EffectiveDate>='" + data.EffectiveDate + "'";
@@ -543,68 +536,30 @@ namespace Aplos.Areas.Employees.Controllers
                 ExecuteRawSQL(u_SalaryIncrementNextDueDate);
                 ExecuteRawSQL(u_EmployeeEligibleForSalaryHeadEnum);
 
-                ShiftAssignEmp ss = new ShiftAssignEmp();
-                ss.IsFix = true;
-                ss.EffectiveDate = Convert.ToDateTime(data.EffectiveDate);
-                ss.PlantId = data.PlantId;
-                ss.EmpSystemID = data.EmpSystemId;
-                ss.EmpSystemIDs = data.EmpSystemId;
-                ss.FixSystemID = data.ShiftId;
-                ss.AddedBy = identity.Name;
-                ss.UpdatedBy = identity.Name;
-
-
-
-
-
-
-
-
-
-
-                //ShiftAssignEmp 
-
-
-
-                SaveDataBulk(ss, true);
-
-
-                //////
-                ///
-                #region SetInOut
-                clsSetInOut oSetInOut = new clsSetInOut();
-                DataSet dsHRsetting = null;
-                GetHRsettinng(data.PlantId, out dsHRsetting);
-
-                if (dsHRsetting.Tables[0].Rows.Count > 0)
-                {
-                    DateTime FromDateR = Convert.ToDateTime(ss.EffectiveDate);
-                    DateTime ToDateR = DateTime.Now;
-                    string u_AttdnRawFlag = @"update AttdnRawData set PType=NULL  where pDate >='" + data.EffectiveDate + "'  and LogDownLoadNum ='" + data.EmpSystemId + @"'";
-                    ExecuteRawSQL(u_AttdnRawFlag);
-
-                    while (FromDateR <= ToDateR)
-                    {
-
-                        oSetInOut.SetRawINOUTonShiftAssignment(data.PlantId, identity.CompanyGroupId, FromDateR.ToString("dd-MMM-yyyy"), ss.EmpSystemIDs);
-                        FromDateR = FromDateR.AddDays(1);
-                    }
-                }//hr 
                 #endregion
 
-
-
-
-                DateTime FromDateAttdn = Convert.ToDateTime(ss.EffectiveDate);
-                DateTime ToDateAttdn = DateTime.Now;
-                while (FromDateAttdn <= ToDateAttdn)
+                #region Updation in APD
+                DataSet ShiftdataSource;
+                ShiftData(out ShiftdataSource, data.ShiftId); // Shift Data Columns
+                if (ShiftdataSource.Tables[0].Rows.Count > 0)
                 {
+                    string Shiftdurn = ShiftdataSource.Tables[0].Rows[0][@"ShiftDuration"].ToString();
+                    string Shifthalfdaydurn = ShiftdataSource.Tables[0].Rows[0][@"HalfDayDuration"].ToString();
+                    string FullDayDuration = ShiftdataSource.Tables[0].Rows[0][@"FullDayDuration"].ToString();
+                    string ShortDuration = ShiftdataSource.Tables[0].Rows[0][@"ShortDuration"].ToString();
+                    string HoursWithoutOT = ShiftdataSource.Tables[0].Rows[0][@"HoursWithoutOT"].ToString();
 
-                    objAttdn.SaveTotal(ss.PlantId, FromDateAttdn.ToString("dd-MMM-yyyy"), ss.EmpSystemIDs, false, true);
-                    FromDateAttdn = FromDateAttdn.AddDays(1);
+                    string u_APD = @"update AttdnProcessData set PlantID='" + data.PlantId + @"',ShiftSystemID='" + data.ShiftId + @"',
+                    ShiftFullDayDuration='" + FullDayDuration + @"',DateUpdated=GETDATE(),UpdatedBy='PlantTransfer', ShiftDuration='" + Shiftdurn + @"',ShiftShortDuration='" + ShortDuration + @"',
+                    ShiftHoursWithoutOT='" + HoursWithoutOT + @"',ShiftHalfDayDuration='" + Shifthalfdaydurn + @"' where EmpSystemID='"+data.EmpSystemId+@"'
+                    and WorkDate>='"+data.EffectiveDate+"'";
+
+
+                    ExecuteRawSQL(u_APD);
                 }
+                #endregion
 
-
+                
             }
             catch (Exception ex)
             {
@@ -614,7 +569,23 @@ namespace Aplos.Areas.Employees.Controllers
 
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
+      
+        public void ShiftData(out DataSet ds, string ShiftId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select ShiftDuration,HalfDayDuration,FullDayDuration,ShortDuration,HoursWithoutOT
+                from ShiftDefination where SystemID='" + ShiftId+"'";
 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public void ExecuteRawSQL(string sql1)
         {
             //throw new Exception("test");
@@ -650,131 +621,7 @@ namespace Aplos.Areas.Employees.Controllers
 
                 objCon = null;
             }
-        }//End Function
-
-
-        /////////////////////////////////////////////////////////////////////
-        public void SaveDataBulk(ShiftAssignEmp ss, bool CheckBox)
-        {
-            #region DataSet Declare
-
-
-            DataSet dsEmployeeInfo = null;
-
-            DataSet dsShiftAssign = null;
-            DataTable dtShiftAssign = null;
-            DataRow drShiftAssign = null;
-            DataView dvShiftAssign = null;
-
-            clsStaticInfo objApp = null;
-            clsEmployeeLoad objEmpLoad = null;
-
-            #endregion
-
-            bool DATA_OK = true;
-
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                //clsSetInOut obj = new clsSetInOut();
-                objApp = new clsStaticInfo();
-                objEmpLoad = new clsEmployeeLoad();
-                clsAttendance.AttendanceProcessAplos objAttdn = new clsAttendance.AttendanceProcessAplos();
-                TBS.ShiftProcess spr = new TBS.ShiftProcess();
-                FixedShiftProcess spf = new FixedShiftProcess();
-
-                #region DataSet
-
-                EmployeeShiftAssign_for_Save(ss.EmpSystemIDs, ss.EffectiveDate.ToString("dd-MMM-yyyy"), out dsShiftAssign);
-                dtShiftAssign = dsShiftAssign.Tables[0];
-                dvShiftAssign = new DataView();
-                dvShiftAssign.Table = dtShiftAssign;
-
-                GetEmployeeInfo(ss.EmpSystemIDs, out dsEmployeeInfo);//need to work
-
-                #endregion DataSet
-
-                if (DATA_OK == true)
-                {
-
-
-                    DeleteEmpDateWiseShiftAssign(ss.EmpSystemIDs, ss.EffectiveDate.ToString("dd-MMM-yyyy"));
-
-                    #region NEW ID GENERATE
-
-                    string _PK = "";
-                    bplib.clsGenID objGenID = new bplib.clsGenID();
-                    objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "EMP_SHIFT_ASSIGN", out _PK);
-
-                    #endregion End ID Generate
-
-                    #region Employee Shift Assign
-                    int _Count = 0;
-                    for (int i = 0; i < dsEmployeeInfo.Tables[0].Rows.Count; i++)
-                    {
-                        string _empid = dsEmployeeInfo.Tables[0].Rows[i]["SystemID"].ToString();
-                        string _systemid = "";
-                        ShiftAssignEmp s_ob = new ShiftAssignEmp();
-                        s_ob.SystemID = _systemid;
-                        s_ob.DateAdded = DateTime.Now;
-                        s_ob.DateUpdated = DateTime.Now;
-                        s_ob.EffectiveDate = ss.EffectiveDate;
-                        s_ob.EmpSystemID = _empid;
-                        s_ob.FixSystemID = ss.FixSystemID;
-                        s_ob.IsFix = ss.IsFix;
-
-                        s_ob.RosterStartShiftID = ss.RosterStartShiftID;
-                        s_ob.RosterSystemID = ss.RosterSystemID;
-                        s_ob.UpdatedBy = ss.UpdatedBy;
-                        s_ob.AddedBy = ss.AddedBy;
-                        dvShiftAssign.RowFilter = "EmpSystemID='" + _empid + "' and EffectiveDate='" + ss.EffectiveDate + "'";
-                        if (dvShiftAssign.Count > 0)
-                        {
-                            s_ob.SystemID = dvShiftAssign[0]["SystemID"].ToString();
-                        }
-                        dvShiftAssign.RowFilter = null;
-
-                        dvShiftAssign.RowFilter = "SystemId='" + s_ob.SystemID + "'";
-                        if (dvShiftAssign.Count == 0)
-                        {// Add new block
-                            _Count++;
-                            s_ob.SystemID = "SAPT" + _PK + "_" + _Count;
-                            drShiftAssign = dtShiftAssign.NewRow();
-                            UpdateEmployeeShiftAssignDataRow("ADDNEW", s_ob, ref drShiftAssign);
-                            dtShiftAssign.Rows.Add(drShiftAssign);
-                        }
-                        else
-                        {//edit block                        
-                            drShiftAssign = dvShiftAssign[0].Row;
-                            drShiftAssign.BeginEdit();
-                            UpdateEmployeeShiftAssignDataRow("EDIT", s_ob, ref drShiftAssign);
-                            drShiftAssign.EndEdit();
-                        }
-                        dvShiftAssign.RowFilter = null;
-                    }
-
-                    #endregion Employee Shift Assign
-
-                    SaveDataSets(dsShiftAssign);
-
-
-
-
-                    if (CheckBox == true)
-                    {
-                    }
-
-                }
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objApp = null;
-            }
-        }//End Function
+        }//End Function       
         public void SaveDataSets(params DataSet[] dsRef)
         {
             //throw new Exception("test");string empid,string WorkDate,
@@ -814,50 +661,6 @@ namespace Aplos.Areas.Employees.Controllers
             }
             finally
             {
-                objCon = null;
-            }
-        }//End Function
-        public void EmployeeShiftAssign_for_Save(string empids, string effectivedate, out System.Data.DataSet dsRef)
-        {
-            string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                strSQL = @"SELECT * FROM EmployeeShiftAssign
-                                    WHERE EmpSystemID in (" + empids + @") 
-                                            AND EffectiveDate = '" + effectivedate + @"'";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }//End Function
-        public void DeleteEmpDateWiseShiftAssign(string strEmpIDs, string strEffectDate)
-        {
-            ConnectionManager.DAL.ConManager objCon = null;
-            try
-            {
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                objCon.ExecuteNonQueryWrapper("DELETE FROM dbo.EmpDateWiseShiftAssign WHERE EmpSystemID in (" + strEmpIDs + @") AND WorkDate >= '" + strEffectDate + @"' ", true, "1");
-                objCon.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                objCon.RollBack();
-                throw (ex);
-            }
-            finally
-            {
-                objCon.CloseConnection();
                 objCon = null;
             }
         }//End Function
@@ -920,37 +723,7 @@ namespace Aplos.Areas.Employees.Controllers
                 objCon = null;
             }
         }//End Function---
-        public bool GetMaxDateOfShiftAssign(string strEmpIDs, string strEffectDate, out System.Data.DataSet dsRef)
-        {
-            //System.Data.DataSet dsRef = null;
-            string strSQl;
-            bool blnStatus = false;
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                strSQl = @"SELECT MAX(WorkDate) MaxWorkDate,EmpSystemID FROM dbo.EmpDateWiseShiftAssign
-                            WHERE EmpSystemID in (" + strEmpIDs + @") AND WorkDate >= '" + strEffectDate + @"'
-                                Group by EmpSystemID";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQl, out dsRef, false, "1");
-                if (dsRef.Tables[0].Rows.Count == 0)
-                {
-                    blnStatus = true;
-                }
-                else
-                {
-                    blnStatus = false;
-                }
-                return blnStatus;
-            }
-            catch (Exception ex)
-            { throw (ex); }
-            finally
-            {
-                objCon = null;
-            }
-        }//End Function
+     
         public void GetHRsettinng(string plantid, out System.Data.DataSet dsRef)
         {
             string strSQL;
@@ -971,54 +744,7 @@ namespace Aplos.Areas.Employees.Controllers
                 objCon = null;
             }
         }//End Function
-        private void UpdateEmployeeShiftAssignDataRow(string OPN_FLAG, ShiftAssignEmp s, ref DataRow drLocal)
-        {
-            try
-            {
-                if (OPN_FLAG == "ADDNEW")
-                {
-                    drLocal["SystemID"] = s.SystemID;
-                    drLocal["EmpSystemID"] = s.EmpSystemID;
-
-                    drLocal["AddedBy"] = s.AddedBy;
-                    drLocal["DateAdded"] = DateTime.Now;
-                }
-
-                drLocal["IsFix"] = s.IsFix;
-                drLocal["IsRoster"] = s.IsRoster;
-                drLocal["IsSingleDayShift"] = false;
-                if (s.IsFix)
-                {
-                    drLocal["EffectiveDate"] = s.EffectiveDate;
-                    drLocal["FixSystemID"] = s.FixSystemID;
-
-                    drLocal["RosterSystemID"] = DBNull.Value;
-                    drLocal["RosterStartShiftID"] = DBNull.Value;
-                    drLocal["StartFromDay"] = DBNull.Value;
-                }
-                if (s.IsRoster)
-                {
-                    drLocal["EffectiveDate"] = s.EffectiveDate;
-                    drLocal["RosterSystemID"] = s.RosterSystemID;
-                    drLocal["RosterStartShiftID"] = s.RosterStartShiftID;
-                    drLocal["StartFromDay"] = 0;
-
-                    drLocal["FixSystemID"] = DBNull.Value;
-                }
-
-                drLocal["UpdatedBy"] = "";
-                drLocal["DateUpdated"] = DateTime.Now;
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-            }
-        }//End Function
-         //void ShiftProcess(string OPN_FLAG, string a, string s) { }
-
+       
         [HttpGet, Authorize]
         public ActionResult GetBudgetCodeList(GridParameter parameters, string PlantId)
         {
