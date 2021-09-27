@@ -34,7 +34,7 @@ using System.Reflection;
 
 namespace Library.Service.Invoices
 {
-    public class InventoryPayableService : Service<Invoice>, IInventoryPayableService
+    public class InventoryPayableService : IInventoryPayableService
     {
         #region Constructor
 
@@ -45,9 +45,8 @@ namespace Library.Service.Invoices
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
         private readonly IVoucherService _voucherService;
-        private readonly IRepositoryAsync<Invoice> _invoiceRepository;
+        private readonly IPKGeneratorService _pkGeneratorService;
         private readonly IRepositoryAsync<OtherInvoice> _otherInvoiceRepository;
-        private readonly IRepositoryAsync<InvoiceDetail> _invoiceDetailRepository;
         private readonly IRepositoryAsync<InvoiceWriteOffDetail> _invoiceWriteOffDetailRepository;
         private readonly IRepositoryAsync<AdjustmentNoteDetail> _AdjustmentNoteDetailRepository;
         private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
@@ -65,7 +64,6 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<PurchaseDocAcceptanceDetail> _purchaseDocAcceptanceDetailRepository;
         private readonly IRepositoryAsync<PurchaseDocAcceptanceTax> _purchaseDocAcceptanceServiceTaxRepository;
         private readonly IEmployeePayableService _employeePayableService;
-       // private readonly IRepositoryAsync<TaxCategoryGL> _taxCategoryGLRepository;
         private readonly IRepositoryAsync<AdditionalTax> _additionalTaxRepository;
         private readonly IRepositoryAsync<AdditionalTaxDetail> _additionalTaxDetailRepository;
         private readonly IRepositoryAsync<GRNAcceptanceMap> _gRNAcceptanceMapRepository;
@@ -74,11 +72,9 @@ namespace Library.Service.Invoices
 
         public InventoryPayableService(
             IInvoiceService invoiceService
-            , IRepositoryAsync<Invoice> invoiceRepository
             , IInvoiceWriteOffService invoiceWriteOffService
             , IAdjustmentNoteService adjustmentNoteService
             , IInvoiceTaxService invoiceTaxService
-            , IRepositoryAsync<InvoiceDetail> invoiceDetailRepository
             , IRepositoryAsync<OtherInvoice> otherInvoiceRepository
             , IRepositoryAsync<InvoiceWriteOffDetail> invoiceWriteOffDetailRepository
             , IRepositoryAsync<AdjustmentNoteDetail> AdjustmentNoteDetailRepository
@@ -101,23 +97,21 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<PurchaseDocAcceptanceCharges> purchaseDocAcceptanceServiceRepository
             , IRepositoryAsync<PurchaseDocAcceptanceDetail> purchaseDocAcceptanceDetailRepository
             , IRepositoryAsync<PurchaseDocAcceptanceTax> purchaseDocAcceptanceServiceTaxRepository
-            //, IRepositoryAsync<TaxCategoryGL> taxCategoryGLRepository
             , IRepositoryAsync<AdditionalTax> additionalTaxRepository
             , IRepositoryAsync<AdditionalTaxDetail> additionalTaxDetailRepository
             , IRepositoryAsync<GRNAcceptanceMap> gRNAcceptanceMapRepository
             , IRepositoryAsync<PurchaseReturn> purchaseReturnRepository
              , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
 
-            ) : base(invoiceRepository, unitOfWork, pkGeneratorService)
+            ) //: base( unitOfWork, pkGeneratorService)
         {
             _invoiceService = invoiceService;
-            _invoiceRepository = invoiceRepository;
-            _invoiceWriteOffService = invoiceWriteOffService;
+            _pkGeneratorService = pkGeneratorService;
+              _invoiceWriteOffService = invoiceWriteOffService;
             _adjustmentNoteService = adjustmentNoteService;
             _invoiceTaxService = invoiceTaxService;
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
-            _invoiceDetailRepository = invoiceDetailRepository;
             _otherInvoiceRepository = otherInvoiceRepository;
             _invoiceWriteOffDetailRepository = invoiceWriteOffDetailRepository;
             _AdjustmentNoteDetailRepository = AdjustmentNoteDetailRepository;
@@ -131,7 +125,6 @@ namespace Library.Service.Invoices
             _employeePayableDetailRepository = employeePayableDetailRepository;
             _inventoryReceiveDetailRepository = inventoryReceiveDetailRepository;
             _purchaseDocAcceptanceRepository = purchaseDocAcceptanceRepository;
-            //_taxCategoryGLRepository = taxCategoryGLRepository;
             _purchaseDocAcceptanceServiceRepository = purchaseDocAcceptanceServiceRepository;
             _purchaseDocAcceptanceDetailRepository = purchaseDocAcceptanceDetailRepository;
             _purchaseDocAcceptanceServiceTaxRepository = purchaseDocAcceptanceServiceTaxRepository;
@@ -193,20 +186,8 @@ namespace Library.Service.Invoices
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public PKGenerator GetMaxNumber()
-        {
-            return base.GetMaxNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
-        }
-        public void InsertInvoiceDetail(Invoice invoice, InvoiceDetail invoiceDetail, int currentId)
-        {
-            invoiceDetail.Id = "IND" + MakePK(invoice.Id, currentId, 1);
-            invoiceDetail.InvoiceId = invoice.Id;
-            invoiceDetail.Archive = invoice.Archive;
-            invoiceDetail.AddedBy = invoice.AddedBy;
-            invoiceDetail.AddedDate = invoice.AddedDate;
-            invoiceDetail.AddedFromIP = invoice.AddedFromIP;
-            _invoiceDetailRepository.Insert(invoiceDetail);
-        }
+        
+       
         public string InsertInventoryPayable(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
             , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<InvoiceTaxViewModel> additionalTaxList)
@@ -314,7 +295,7 @@ namespace Library.Service.Invoices
 
                     var grnAccMap = new GRNAcceptanceMap
                     {
-                        Id = "I" + base.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = "I" + _pkGeneratorService.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         GRNId = receiveData.Id,
                         PurchaseDocumentAcceptanceId = null,
                         //PurchaseDocumentAcceptanceDetailId = null,
@@ -480,7 +461,7 @@ namespace Library.Service.Invoices
                             if (voucherDetailVM.OtherName == "Vendor")
                             {
                                 // _invoiceDetailRepository.Insert(invoiceDetail);
-                                InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                              _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                                 voucherCr.InvoiceDetailId = invoiceDetail.Id;
 
                             }
@@ -617,7 +598,7 @@ namespace Library.Service.Invoices
                             PartyId = invoice.PartyId,
                             PartyPlantId = invoice.PartyPlantId,
                             InvoiceId = invoice.Id,
-                            Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                            Id = _pkGeneratorService.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
@@ -645,7 +626,7 @@ namespace Library.Service.Invoices
                                 TaxCodeId = tdsTaxVM.TaxCodeId,
                                 TaxCategoryId = tdsTaxVM.TaxCategoryId,
                                 AType = "Cr",
-                                Id = MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
+                                Id = _pkGeneratorService.MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
                                 AddedBy = voucher.AddedBy,
                                 AddedDate = voucher.AddedDate,
                                 AddedFromIP = voucher.AddedFromIP
@@ -953,7 +934,7 @@ namespace Library.Service.Invoices
                         InventoryReceiveId = receiveId,
                         PartyId = voucherVM.PartyId,
                         PartyPlantId = voucherVM.PartyPlantId,
-                        Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = _pkGeneratorService.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
                         AddedFromIP = voucher.AddedFromIP
@@ -983,7 +964,7 @@ namespace Library.Service.Invoices
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
                             TaxCategoryId = invoiceTaxVM.TaxCategoryId,
                             AType = "Cr",
-                            Id = MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
+                            Id =_pkGeneratorService.MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
@@ -1142,7 +1123,7 @@ namespace Library.Service.Invoices
                 //accountCommonExtensionService.InsertGRNAcceptanceMap(grnAccMap, out DataSet _adgrnAccMapset);
                 var grnAccMap = new GRNAcceptanceMap
                 {
-                    Id = "I" + base.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                    Id = "I" + _pkGeneratorService.GetAutoNumber(nameof(GRNAcceptanceMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
                     GRNId = receiveData.Id,
                     PurchaseDocumentAcceptanceId = null,
                     //PurchaseDocumentAcceptanceDetailId = null,
@@ -1347,7 +1328,7 @@ namespace Library.Service.Invoices
                         }
 
                         //_invoiceDetailRepository.Insert(invoiceDetail);
-                        InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                      _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                         voucherCr.InvoiceDetailId = invoiceDetail.Id;
                         currentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
@@ -1385,7 +1366,7 @@ namespace Library.Service.Invoices
                         TaxAmount = additionalTaxList.Sum(r => r.TaxAmount),
                         TaxAutoAmount = additionalTaxList.Sum(r => r.TaxAutoAmount),
                         InventoryReceiveId = receiveId,
-                        Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = _pkGeneratorService.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
                         AddedFromIP = voucher.AddedFromIP
@@ -1413,7 +1394,7 @@ namespace Library.Service.Invoices
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
                             TaxCategoryId = invoiceTaxVM.TaxCategoryId,
                             AType = "Cr",
-                            Id = MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
+                            Id =_pkGeneratorService.MakePK(invoiceTax.Id, addtionalTaxDetailId, 3),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
@@ -1459,7 +1440,7 @@ namespace Library.Service.Invoices
                 var additionalTax = _additionalTaxRepository.Find(additionalTaxId);
                 if (additionalTax.VoucherId != null)
                     throw new CustomException("Additional Tax already posted.");
-                var voucherDetailVMList = _invoiceDetailRepository.Query(r => r.InvoiceId == additionalTax.InvoiceId).Select().ToList();
+                var voucherDetailVMList = _invoiceService.QueryInvoiceDetail(additionalTax.InvoiceId).Select().ToList();
                 voucherVM.PartyId = additionalTax.PartyId;
                 voucherVM.PartyPlantId = additionalTax.PartyPlantId;
                 voucherVM.IsPark = false;
@@ -1489,9 +1470,9 @@ namespace Library.Service.Invoices
                 var withholdgl = false;
 
                 var invoiceIds = voucherDetailVMList.Select(r => r.InvoiceId);
-                var inviceDbList = _invoiceRepository.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
+                var inviceDbList =_invoiceService.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
                 var invoiceDetailIds = voucherDetailVMList.Select(r => r.Id);
-                var inviceDetailDbList = _invoiceDetailRepository.Query(r => invoiceDetailIds.Contains(r.Id)).Select().ToList();
+                var inviceDetailDbList = _invoiceService.QueryInvoiceDetailEnumerable(invoiceDetailIds);
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
                     var invoiceDetail = inviceDetailDbList.FirstOrDefault(r => r.Id == voucherDetailVM.Id);
@@ -1507,7 +1488,7 @@ namespace Library.Service.Invoices
                     invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoiceDetail.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoiceDetail.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
-                    _invoiceDetailRepository.Update(invoiceDetail);
+                    _invoiceService.UpdateInvoiceDetail(invoiceDetail);
 
                     // TODO: have a gap here if invoice split
                     var invoice = inviceDbList.First(r => r.Id == invoiceDetail.InvoiceId);
@@ -1516,7 +1497,7 @@ namespace Library.Service.Invoices
                     invoice.UpdatedBy = invoiceWriteOff.AddedBy;
                     invoice.UpdatedDate = invoiceWriteOff.AddedDate;
                     invoice.UpdatedFromIP = invoiceWriteOff.AddedFromIP;
-                    _invoiceRepository.Update(invoice);
+                    _invoiceService.Update(invoice);
 
                     // INSERT INTO InvoiceDetail
                     currentInvoiceWriteOffDetailId++;
@@ -1663,7 +1644,7 @@ namespace Library.Service.Invoices
 
         private string GetEmployeeSubsequentTransactionPK()
         {
-            return GetAutoNumber("EmployeeSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
+            return _invoiceService.GetAutoNumber("EmployeeSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
         }
 
         public string InsertEmployeePayable(string receiveId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
@@ -1878,7 +1859,7 @@ namespace Library.Service.Invoices
                             AddedDate = employeePayable.AddedDate,
                             AddedFromIP = employeePayable.AddedFromIP,
                             Archive = employeePayable.Archive,
-                            Id = MakePK(employeePayable.Id, currentInvoiceDetail, 2),
+                            Id =_pkGeneratorService.MakePK(employeePayable.Id, currentInvoiceDetail, 2),
                             EmployeePayableId = employeePayable.Id,
                         };
                         employeePayable.Amount = employeePayableDetail.Amount;
@@ -2031,7 +2012,7 @@ namespace Library.Service.Invoices
 
         private string GetInvoiceWriteOffAutoNumber()
         {
-            return base.GetAutoNumber("InvoiceWriteOff", PKGeneratorEnum.Auto, null, DateTime.Now);
+            return _invoiceService.GetAutoNumber("InvoiceWriteOff", PKGeneratorEnum.Auto, null, DateTime.Now);
         }
 
 
@@ -2076,7 +2057,7 @@ namespace Library.Service.Invoices
                     VoucherDate = DateTime.Now,
                     TaxYearPeriodId = voucherVM.TaxYearPeriodId,
                     InventoryReceiveId = voucherVM.InventoryReceiveId,
-                    Id = base.GetAutoNumber("AdjustmentNote", PKGeneratorEnum.Auto, null, DateTime.Now),
+                    Id = _invoiceService.GetAutoNumber("AdjustmentNote", PKGeneratorEnum.Auto, null, DateTime.Now),
                     NoteType = NoteType.VendorDebitNote.ToString()
                 };
 
@@ -2205,7 +2186,7 @@ namespace Library.Service.Invoices
                             AddedDate = adjustmentNote.AddedDate,
                             AddedFromIP = adjustmentNote.AddedFromIP,
                             Archive = adjustmentNote.Archive,
-                            Id = MakePK(adjustmentNote.Id, currentInvoiceDetail, 1),
+                            Id =_pkGeneratorService.MakePK(adjustmentNote.Id, currentInvoiceDetail, 1),
                             AdjustmentNoteId = adjustmentNote.Id,
                             InventoryReceiveId = voucherVM.InventoryReceiveId,
                             InventoryReceiveDetailId = voucherDetailVM.InventoryReceiveDetailId
@@ -2313,7 +2294,7 @@ namespace Library.Service.Invoices
                     VoucherDate = DateTime.Now,
                     TaxYearPeriodId = voucherVM.TaxYearPeriodId,
                     InventoryReceiveId = voucherVM.InventoryReceiveId,
-                    Id = base.GetAutoNumber("AdjustmentNote", PKGeneratorEnum.Auto, null, DateTime.Now),
+                    Id = _invoiceService.GetAutoNumber("AdjustmentNote", PKGeneratorEnum.Auto, null, DateTime.Now),
                     NoteType = NoteType.VendorDebitNote.ToString()
                 };
 
@@ -2442,7 +2423,7 @@ namespace Library.Service.Invoices
                             AddedDate = adjustmentNote.AddedDate,
                             AddedFromIP = adjustmentNote.AddedFromIP,
                             Archive = adjustmentNote.Archive,
-                            Id = MakePK(adjustmentNote.Id, currentInvoiceDetail, 1),
+                            Id =_pkGeneratorService.MakePK(adjustmentNote.Id, currentInvoiceDetail, 1),
                             AdjustmentNoteId = adjustmentNote.Id,
                             InventoryReceiveId = voucherVM.InventoryReceiveId,
                             InventoryReceiveDetailId = voucherDetailVM.InventoryReceiveDetailId
@@ -3504,7 +3485,7 @@ namespace Library.Service.Invoices
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                Id = MakePK(invoice.Id, currentTaxRecord, 2),
+                                Id =_pkGeneratorService.MakePK(invoice.Id, currentTaxRecord, 2),
                                 VoucherDetailId = voucherDr.Id,//voucherDetailDrId,
                                 VoucherId = voucher.Id,
                                 InvoiceId = invoice.Id,
@@ -3558,7 +3539,7 @@ namespace Library.Service.Invoices
                         InvoiceId = invoice.Id,
                     };
                     invoice.Amount = invoiceDetail.Amount;
-                    InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                   _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                     // INSERT INTO VoucherDetail
                     var voucherCr = new VoucherDetail
                     {
@@ -3705,7 +3686,7 @@ namespace Library.Service.Invoices
                                     currentTaxRecord++;
                                     var invoiceTax = new InvoiceTax
                                     {
-                                        Id = MakePK(purDocAcceptance.Id, currentTaxRecord, 2),
+                                        Id =_pkGeneratorService.MakePK(purDocAcceptance.Id, currentTaxRecord, 2),
                                         TaxCodeId = invoiceTaxVM.TaxCodeId,
                                         TaxCategoryId = invoiceTaxVM.TaxCategoryId,
                                         TaxAmount = invoiceTaxVM.TaxAmount,
@@ -4109,8 +4090,7 @@ namespace Library.Service.Invoices
                                 _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
                             }
 
-                            //_invoiceDetailRepository.Insert(invoiceDetail);
-                            InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                           _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                             voucherCr.InvoiceDetailId = invoiceDetail.Id;
                             currentVoucherDetaiRecord++;
                             _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
@@ -4168,7 +4148,7 @@ namespace Library.Service.Invoices
                             PartyId = voucherVM.PartyId,
                             PartyPlantId = voucherVM.PartyPlantId,
                             InvoiceId = invoice.Id,
-                            Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                            Id = _invoiceService.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
@@ -4198,7 +4178,7 @@ namespace Library.Service.Invoices
                                 TaxCodeId = tdsTaxVM.TaxCodeId,
                                 TaxCategoryId = tdsTaxVM.TaxCategoryId,
                                 AType = "Cr",
-                                Id = MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
+                                Id =_pkGeneratorService.MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
                                 AddedBy = voucher.AddedBy,
                                 AddedDate = voucher.AddedDate,
                                 AddedFromIP = voucher.AddedFromIP
@@ -4528,7 +4508,7 @@ namespace Library.Service.Invoices
                         PartyId = voucherVM.PartyId,
                         PartyPlantId = voucherVM.PartyPlantId,
                         //InvoiceId = invoice.Id,
-                        Id = base.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = _invoiceService.GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
                         AddedFromIP = voucher.AddedFromIP
@@ -4558,7 +4538,7 @@ namespace Library.Service.Invoices
                             TaxCodeId = tdsTaxVM.TaxCodeId,
                             TaxCategoryId = tdsTaxVM.TaxCategoryId,
                             AType = "Cr",
-                            Id = MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
+                            Id =_pkGeneratorService.MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
@@ -4888,7 +4868,7 @@ namespace Library.Service.Invoices
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                Id = MakePK(invoice.Id, currentTaxRecord, 2),
+                                Id =_pkGeneratorService.MakePK(invoice.Id, currentTaxRecord, 2),
                                 VoucherDetailId = voucherCr.Id,//voucherDetailDrId,
                                 VoucherId = voucher.Id,
                                 InvoiceId = invoice.Id,
@@ -5001,7 +4981,7 @@ namespace Library.Service.Invoices
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                Id = MakePK(invoice.Id, currentTaxRecord, 2),
+                                Id =_pkGeneratorService.MakePK(invoice.Id, currentTaxRecord, 2),
                                 VoucherDetailId = voucherDr.Id,//voucherDetailCrrId,
                                 InvoiceId = invoice.Id,
                                 TaxYearId = voucher.TaxYearId,
@@ -5035,7 +5015,7 @@ namespace Library.Service.Invoices
                         }
 
                         //_invoiceDetailRepository.Insert(invoiceDetail);
-                        InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                      _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                         currentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord);
 
@@ -5083,7 +5063,7 @@ namespace Library.Service.Invoices
                         ActivityId = otherInvoiceVM.ActivityId,
                         SourceType = invoice.SourceType,
                         IsPark = true,
-                        Id = base.GetAutoNumber(nameof(OtherInvoice), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = _invoiceService.GetAutoNumber(nameof(OtherInvoice), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
                         AddedFromIP = voucher.AddedFromIP
@@ -5275,7 +5255,7 @@ namespace Library.Service.Invoices
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                Id = MakePK(invoice.Id, currentTaxRecord, 2),
+                                Id =_pkGeneratorService.MakePK(invoice.Id, currentTaxRecord, 2),
                                 VoucherDetailId = voucherCr.Id,//voucherDetailDrId,
                                 VoucherId = voucher.Id,
                                 InvoiceId = invoice.Id,
@@ -5388,7 +5368,7 @@ namespace Library.Service.Invoices
                             var invoiceTax = new InvoiceTax
                             {
                                 Archive = false,
-                                Id = MakePK(invoice.Id, currentTaxRecord, 2),
+                                Id =_pkGeneratorService.MakePK(invoice.Id, currentTaxRecord, 2),
                                 VoucherDetailId = voucherDr.Id,//voucherDetailCrrId,
                                 InvoiceId = invoice.Id,
                                 TaxYearId = voucher.TaxYearId,
@@ -5422,7 +5402,7 @@ namespace Library.Service.Invoices
                         }
 
                         //_invoiceDetailRepository.Insert(invoiceDetail);
-                        InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                       _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                         currentVoucherDetaiRecord++;
                         voucherDr.InvoiceDetailId = invoiceDetail.Id;
                         _voucherService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord);
@@ -5471,7 +5451,7 @@ namespace Library.Service.Invoices
                         ActivityId = otherInvoiceVM.ActivityId,
                         SourceType = invoice.SourceType,
                         IsPark = true,
-                        Id = base.GetAutoNumber(nameof(OtherInvoice), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        Id = _invoiceService.GetAutoNumber(nameof(OtherInvoice), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         AddedBy = voucher.AddedBy,
                         AddedDate = voucher.AddedDate,
                         AddedFromIP = voucher.AddedFromIP
@@ -5958,13 +5938,13 @@ namespace Library.Service.Invoices
 
         private AdjustmentNote InsertAdjustmentNote(AdjustmentNote adjustmentNote)
         {
-            adjustmentNote.Id = base.GetAutoNumber(nameof(AdjustmentNote), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            adjustmentNote.Id = _invoiceService.GetAutoNumber(nameof(AdjustmentNote), PKGeneratorEnum.Yearly, null, DateTime.Now);
             _adjustmentNoteService.InsertGraph(adjustmentNote);
             return adjustmentNote;
         }
         private void Check(AdjustmentNote entity)
         {
-            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
+            _adjustmentNoteService.CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
         }
         private AdjustmentNote InsertAdjustmentNote(VoucherViewModel voucherVM)
         {
@@ -6018,7 +5998,7 @@ namespace Library.Service.Invoices
 
         private AdjustmentNoteDetail InsertAdjustmentNoteDetail(AdjustmentNote adjustmentNote, AdjustmentNoteDetail adjustmentNoteDetail, int currentId)
         {
-            adjustmentNoteDetail.Id = MakePK(adjustmentNote.Id, currentId, 1);
+            adjustmentNoteDetail.Id =_pkGeneratorService.MakePK(adjustmentNote.Id, currentId, 1);
             adjustmentNoteDetail.AdjustmentNoteId = adjustmentNote.Id;
             adjustmentNoteDetail.InvoiceId = adjustmentNote.InvoiceId;
             adjustmentNoteDetail.AddedBy = adjustmentNote.AddedBy;
