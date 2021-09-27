@@ -3620,7 +3620,6 @@ namespace Library.Service.Invoices
                     _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                     _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                     _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                    _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                     _unitOfWork.BeginTransaction();
                     flag = true;
                     var currentVoucherDetailId = 0;
