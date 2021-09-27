@@ -426,49 +426,7 @@ namespace Aplos.Areas.Employees.Controllers
                     dsEmployeePlantTransferHistory.Tables[0].Rows.Add(dr);
                 }
                 #endregion
-
-                #region  weekoff
-
-                string sqlweekoffdelete = @"Delete from [dbo].[EmployeeWeekOffByDay] where EmpSystemID='" + data.EmpSystemId + @"' and EffectiveDate>='" + data.EffectiveDate + @"'";
-                ExecuteRawSQL(sqlweekoffdelete);
-
-
-                DataSet dsWeekOff = null;
-                string sqlweekoff = "select * from [dbo].[EmployeeWeekOffByDay] where EmpSystemID='" + data.EmpSystemId + @"' and EffectiveDate='" + data.EffectiveDate + @"'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sqlweekoff, out dsWeekOff, false, "1");
-                if (dsWeekOff.Tables[0].Rows.Count == 0)
-                {
-                    DataRow dr = dsWeekOff.Tables[0].NewRow();
-                    string sID = string.Empty;
-                    bplib.clsGenID objGenID = new bplib.clsGenID();
-                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmployeePlantTransferWeekoff", out sID);
-                    dr["SystemID"] = "EPTW" + sID;
-
-                    dr["EmpSystemID"] = data.EmpSystemId;
-                    dr["FixSystemID"] = data.ShiftId;
-
-                    dr["EffectiveDate"] = Convert.ToDateTime(data.EffectiveDate);
-                    dr["AlignWithCC"] = true;
-                    dr["IndividualWeekOff"] = false;
-                    //dr["FromPlantId"] = olddata.PlantId;
-                    //dr["FromLegalDesignationId"] = olddata.LegalDesignationId;
-                    //dr["FromBudgetCode"] = olddata.BudgetCode;
-
-
-                    //dr["ToLegalDesignationId"] = newdata.LegalDesignationId;
-
-
-                    dr["AddedBy"] = identity.Name;
-                    dr["DateAdded"] = DateTime.Now;
-
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["DateUpdated"] = DateTime.Now;
-
-                    dsWeekOff.Tables[0].Rows.Add(dr);
-                }
-                #endregion
-
+            
                 #region Leave
                 DataSet dsEmployeePlantTransferLeave = null;
                 string sqlleave = @"select * from TRN.EmployeeLeaveSummary where EmployeeId='" + data.EmpSystemId + @"'
@@ -562,13 +520,11 @@ namespace Aplos.Areas.Employees.Controllers
 
 
 
-                obj.SaveDataSets(dsMaster, dsEmployeePlantTransferHistory, dsWeekOff);
+                obj.SaveDataSets(dsMaster, dsEmployeePlantTransferHistory);
 
-                //update raw table and processed data and datewise shift
-                string d_EmpDateWise = @"delete from EmpDateWiseShiftAssign  where WorkDate >= '" + data.EffectiveDate + "' and EmpSystemID ='" + data.EmpSystemId + @"'";
-                string d_ProcessData = @"delete FROM AttdnProcessData  where WorkDate >='" + data.EffectiveDate + "'  and EmpSystemID ='" + data.EmpSystemId + @"'";
+                //update raw table
                 string u_AttdnRawData = @"update AttdnRawData set plantid='" + data.PlantId + @"'  where pDate >='" + data.EffectiveDate + "'  and LogDownLoadNum ='" + data.EmpSystemId + @"'";
-                ExecuteRawSQL(u_AttdnRawData, d_EmpDateWise, d_ProcessData);
+                ExecuteRawSQL(u_AttdnRawData);
 
 
 
@@ -659,45 +615,6 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
 
-        public void ExecuteRawSQL(string u_RawData, string d_DateWiseShift, string d_ProcessedData)
-        {
-            //throw new Exception("test");
-            bool IsTransactionStarted = false;
-            ConnectionManager.DAL.ConManager objCon = null;
-            try
-            {
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                IsTransactionStarted = true;
-                objCon.ExecuteNonQueryWrapper(d_DateWiseShift, true, "1");
-                objCon.ExecuteNonQueryWrapper(d_ProcessedData, true, "1");
-                objCon.ExecuteNonQueryWrapper(u_RawData, true, "1");
-                objCon.CommitTransaction();
-                IsTransactionStarted = false;
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    if (IsTransactionStarted)
-                    {
-                        objCon.RollBack();
-                    }
-                    objCon.CloseConnection();
-                }
-                catch (Exception exx)
-                {
-                    throw ex;
-                }
-            }
-            finally
-            {
-
-                objCon = null;
-            }
-        }//End Function
-
         public void ExecuteRawSQL(string sql1)
         {
             //throw new Exception("test");
@@ -723,9 +640,9 @@ namespace Aplos.Areas.Employees.Controllers
                     }
                     objCon.CloseConnection();
                 }
-                catch (Exception exx)
+                catch (Exception exp)
                 {
-                    throw ex;
+                    throw exp;
                 }
             }
             finally
@@ -869,7 +786,6 @@ namespace Aplos.Areas.Employees.Controllers
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
                 IsTransactionStarted = true;
-                //objCon.ExecuteNonQueryWrapper(" update EmpDateWiseShiftAssign set ToReprocess='Yes' where EmpSystemId='" + empid + @"' and WorkDate>='" + WorkDate + @"' ", true, "1");
                 int i = 0;
                 foreach (DataSet value in dsRef)
                 {
@@ -893,7 +809,7 @@ namespace Aplos.Areas.Employees.Controllers
                 }
                 catch (Exception exp)
                 {
-                    throw ex;
+                    throw exp;
                 }
             }
             finally
