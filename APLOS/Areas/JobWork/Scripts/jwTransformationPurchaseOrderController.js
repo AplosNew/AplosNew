@@ -1810,6 +1810,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                     $scope.detailModel.MaterialName = null;
                     $scope.detailModel.MaterialCode = null;
                     $scope.detailModel.AlternateUoM = null;
+                    $scope.OMatUOMList = [];
+                    $scope.OMatUOMList[0] = $scope.GetMatMstJW[0];
                     $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].Value;
                  
                 }

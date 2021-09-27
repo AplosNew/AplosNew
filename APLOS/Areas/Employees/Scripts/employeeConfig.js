@@ -455,6 +455,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/EmployeePlantTransfer/Aplos',
             controller: 'EmployeePlantTransferController'
         })
+        .when('/employee-plant-transfer-new', {
+            templateUrl: 'Employees/EmployeePlantTransferNew/Aplos',
+            controller: 'EmployeePlantTransferNewController'
+        })
         .when('/company-wise-plant-transfer', {
             templateUrl: 'Employees/CompanyWiseEmployeePlantTransfer/Aplos',
             controller: 'CompanyWiseEmployeePlantTransferController'
