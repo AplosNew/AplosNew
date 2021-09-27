@@ -79,8 +79,11 @@ function capitalizedFixedAssetRegisterController(addressService, commonMessage, 
         ArticleStandardName: null,
         VoucherDetailId: null,
         TotalPrice: null,
-        LCNumber:null
+        LCNumber: null,
+        DepreciationRuleId: null,
+        MultiplicationFactor: "1.0000"
     };
+
 
     $scope.partySearchByList = [
         {
@@ -1768,4 +1771,14 @@ function capitalizedFixedAssetRegisterController(addressService, commonMessage, 
             $scope.subAssetList = response.data;
         });
     };
+
+
+    $http({
+        method: 'GET',
+        url: 'FixedAssets/FixedAssetRegister/getDepreciationRulelist/',
+    }).then(function successCallback(response) {
+        $scope.CompanyFADepRuleList = response.data;
+    });
+
+
 }

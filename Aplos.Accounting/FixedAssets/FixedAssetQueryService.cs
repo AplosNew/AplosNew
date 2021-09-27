@@ -46,6 +46,7 @@ namespace Library.Accounting.FixedAssets
 	                        , A.BudgetMasterId AS AssetBudgetMasterId, B.UserName AssetBudgetName
 	                        , A.ActivityId AS AssetActivityId, AC.UserName AssetActivityName
 	                        , cn.UserName Country, fam.AssetType, MMA.StandardName Article,m.Remarks,m.LCNumber,m.Quantity
+	                        ,m.DepreciationRuleId,cast (m.MultiplicationFactor as varchar)MultiplicationFactor
                             FROM  TRN.[FixedAssetRegister]  m
                             LEFT JOIN MST.MaterialMaster A ON M.MaterialMasterId=A.Id
                             LEFT JOIN MST.MaterialMasterArticle MMA ON m.MaterialMasterArticleId= MMA.Id
@@ -93,6 +94,7 @@ namespace Library.Accounting.FixedAssets
 	                        , A.BudgetMasterId AS AssetBudgetMasterId, B.UserName AssetBudgetName
 	                        , A.ActivityId AS AssetActivityId, AC.UserName AssetActivityName
 	                        , cn.UserName Country, fam.AssetType, MMA.StandardName Article,m.Remarks,m.LCNumber,m.Quantity
+	                        ,m.DepreciationRuleId ,cast( m.MultiplicationFactor as varchar)MultiplicationFactor
                             FROM  TRN.[FixedAssetRegister]  m
                             LEFT JOIN MST.MaterialMaster A ON M.MaterialMasterId=A.Id
                             LEFT JOIN MST.MaterialMasterArticle MMA ON m.MaterialMasterArticleId= MMA.Id
@@ -141,6 +143,7 @@ namespace Library.Accounting.FixedAssets
 	                        , A.ActivityId AS AssetActivityId, AC.UserName AssetActivityName
 	                        , cn.UserName Country, fam.AssetType, MMA.StandardName Article,FAR.Remarks
                             , CG.Code GRNCurrencyCode,CB.Code CurrencyCode ,FAR.LCNumber,FAR.Quantity NumberOfQuantity,FAR.CapitalizeRegisterNo,V.VoucherNo
+	                        ,FAR.DepreciationRuleId,cast( FAR.MultiplicationFactor as varchar)MultiplicationFactor
                             FROM  TRN.[FixedAssetRegister]  FAR
                             LEFT JOIN MST.MaterialMaster A ON FAR.MaterialMasterId=A.Id
                             LEFT JOIN MST.MaterialMasterArticle MMA ON FAR.MaterialMasterArticleId= MMA.Id

@@ -52,25 +52,20 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<AdjustmentNoteDetail> _AdjustmentNoteDetailRepository;
         private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
         private readonly IRepositoryAsync<InvoiceTaxDetail> _invoiceTaxDetailRepository;
-        private readonly IRepositoryAsync<TaxCodeGL> _taxCodeGLRepository;
         private readonly IRepositoryAsync<EmployeePayableDetail> _employeePayableDetailRepository;
-        private readonly TaxCategoryGLService _taxCategoryGlService;
-        private readonly IRepositoryAsync<TaxCategory> _taxCategoryRepository;
         private readonly IRepositoryAsync<ServiceAcknowledgementMaster> _serviceAcknowledgementMasterRepository;
         private readonly IRepositoryAsync<ServiceAcknowledgementDetail> _serviceAcknowledgementDetailRepository;
         private readonly IRepositoryAsync<InventoryReceive> _inventoryReceiveRepository;
         private readonly IRepositoryAsync<InventorySales> _inventorySalesRepository;
         private readonly IRepositoryAsync<InventorySalesDetail> _inventorySalesDetailRepository;
         private readonly IRepositoryAsync<InventoryReceiveDetail> _inventoryReceiveDetailRepository;
-        private readonly IRepositoryAsync<InventoryIssue> _inventoryIssueRepository;
-        private readonly IRepositoryAsync<InventoryIssueDetail> _inventoryIssueDetailRepository;
-        private readonly IRepositoryAsync<InventoryIssueHistory> _inventoryIssueHistoryRepository;
+        private readonly IInventoryIssueJournalService _inventoryIssueService;
         private readonly IRepositoryAsync<PurchaseDocAcceptance> _purchaseDocAcceptanceRepository;
         private readonly IRepositoryAsync<PurchaseDocAcceptanceCharges> _purchaseDocAcceptanceServiceRepository;
         private readonly IRepositoryAsync<PurchaseDocAcceptanceDetail> _purchaseDocAcceptanceDetailRepository;
         private readonly IRepositoryAsync<PurchaseDocAcceptanceTax> _purchaseDocAcceptanceServiceTaxRepository;
         private readonly IEmployeePayableService _employeePayableService;
-        private readonly IRepositoryAsync<TaxCategoryGL> _taxCategoryGLRepository;
+       // private readonly IRepositoryAsync<TaxCategoryGL> _taxCategoryGLRepository;
         private readonly IRepositoryAsync<AdditionalTax> _additionalTaxRepository;
         private readonly IRepositoryAsync<AdditionalTaxDetail> _additionalTaxDetailRepository;
         private readonly IRepositoryAsync<GRNAcceptanceMap> _gRNAcceptanceMapRepository;
@@ -92,26 +87,21 @@ namespace Library.Service.Invoices
             , IUnitOfWork unitOfWork
             , IVoucherService voucherService
             , ISqlRepository sqlRepository
-            , IRepositoryAsync<TaxCodeGL> taxCodeGLRepository
-            , TaxCategoryGLService taxCategoryGlService
-            , IRepositoryAsync<TaxCategory> taxCategoryRepository
             , IRepositoryAsync<InventoryReceive> inventoryReceiveRepository
             , IRepositoryAsync<InventorySales> inventorySalesRepository
             , IRepositoryAsync<InventorySalesDetail> inventorySalesDetailRepository
-            , IRepositoryAsync<InventoryIssue> inventoryIssueRepository
+            , IInventoryIssueJournalService inventoryIssueService
             , IPKGeneratorService pkGeneratorService
             , IEmployeePayableService employeePayableService
             , IRepositoryAsync<EmployeePayableDetail> employeePayableDetailRepository
             , IRepositoryAsync<InventoryReceiveDetail> inventoryReceiveDetailRepository
             , IRepositoryAsync<ServiceAcknowledgementMaster> serviceAcknowledgementMasterRepository
             , IRepositoryAsync<ServiceAcknowledgementDetail> serviceAcknowledgementDetailRepository
-            , IRepositoryAsync<InventoryIssueDetail> inventoryIssueDetailRepository
-            , IRepositoryAsync<InventoryIssueHistory> inventoryIssueHistoryRepository
             , IRepositoryAsync<PurchaseDocAcceptance> purchaseDocAcceptanceRepository
             , IRepositoryAsync<PurchaseDocAcceptanceCharges> purchaseDocAcceptanceServiceRepository
             , IRepositoryAsync<PurchaseDocAcceptanceDetail> purchaseDocAcceptanceDetailRepository
             , IRepositoryAsync<PurchaseDocAcceptanceTax> purchaseDocAcceptanceServiceTaxRepository
-            , IRepositoryAsync<TaxCategoryGL> taxCategoryGLRepository
+            //, IRepositoryAsync<TaxCategoryGL> taxCategoryGLRepository
             , IRepositoryAsync<AdditionalTax> additionalTaxRepository
             , IRepositoryAsync<AdditionalTaxDetail> additionalTaxDetailRepository
             , IRepositoryAsync<GRNAcceptanceMap> gRNAcceptanceMapRepository
@@ -134,19 +124,14 @@ namespace Library.Service.Invoices
             _invoiceTaxRepository = invoiceTaxRepository;
             _invoiceTaxDetailRepository = invoiceTaxDetailRepository;
             _voucherService = voucherService;
-            _taxCodeGLRepository = taxCodeGLRepository;
-            _taxCategoryGlService = taxCategoryGlService;
-            _taxCategoryRepository = taxCategoryRepository;
             _inventoryReceiveRepository = inventoryReceiveRepository;
             _inventorySalesRepository = inventorySalesRepository;
-            _inventoryIssueRepository = inventoryIssueRepository;
+            _inventoryIssueService = inventoryIssueService;
             _employeePayableService = employeePayableService;
             _employeePayableDetailRepository = employeePayableDetailRepository;
             _inventoryReceiveDetailRepository = inventoryReceiveDetailRepository;
-            _inventoryIssueDetailRepository = inventoryIssueDetailRepository;
-            _inventoryIssueHistoryRepository = inventoryIssueHistoryRepository;
             _purchaseDocAcceptanceRepository = purchaseDocAcceptanceRepository;
-            _taxCategoryGLRepository = taxCategoryGLRepository;
+            //_taxCategoryGLRepository = taxCategoryGLRepository;
             _purchaseDocAcceptanceServiceRepository = purchaseDocAcceptanceServiceRepository;
             _purchaseDocAcceptanceDetailRepository = purchaseDocAcceptanceDetailRepository;
             _purchaseDocAcceptanceServiceTaxRepository = purchaseDocAcceptanceServiceTaxRepository;
@@ -646,17 +631,15 @@ namespace Library.Service.Invoices
                             if (null == tdsTaxVM.TaxCodeId)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == tdsTaxVM.TaxCodeId).Select().FirstOrDefault();
-                            if (null == taxCodeGL)
-                                throw new CustomException("Tax code GL not found!");
-
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
+                           
 
                             addtionalTaxDetailId++;
                             var tdsTaxDetail = new AdditionalTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = tdsTaxVM.TaxAmount,
                                 AdditionalTaxId = tdsTax.Id,
                                 TaxCodeId = tdsTaxVM.TaxCodeId,
@@ -984,7 +967,7 @@ namespace Library.Service.Invoices
                         if (null == invoiceTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == invoiceTaxVM.TaxCodeId).Select().FirstOrDefault();
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(invoiceTaxVM.TaxCodeId);
                         if (null == taxCodeGL)
                             throw new CustomException("Tax code GL not found!");
 
@@ -992,9 +975,9 @@ namespace Library.Service.Invoices
                         addtionalTaxDetailId++;
                         var invoiceTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = invoiceTaxVM.TaxAmount,
                             AdditionalTaxId = invoiceTax.Id,
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -1416,17 +1399,15 @@ namespace Library.Service.Invoices
                         if (null == invoiceTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == invoiceTaxVM.TaxCodeId).Select().FirstOrDefault();
-                        if (null == taxCodeGL)
-                            throw new CustomException("Tax code GL not found!");
-
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(invoiceTaxVM.TaxCodeId);
+                       
 
                         addtionalTaxDetailId++;
                         var invoiceTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = invoiceTaxVM.TaxAmount,
                             AdditionalTaxId = invoiceTax.Id,
                             TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -2529,13 +2510,14 @@ namespace Library.Service.Invoices
             }
         }
 
+        #region Issue Journal
         public void InsertIssueJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList)
+          , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList)
         {
             var flag = false;
             try
             {
-                var issueData = _inventoryIssueRepository.Find(issueId);
+                var issueData = _inventoryIssueService.FindInventoryIssue(issueId);
                 voucherVM.PostingDate = issueData.IssueDate;
                 voucherVM.EntityId = issueData.EntityId;
 
@@ -2616,7 +2598,7 @@ namespace Library.Service.Invoices
                             CurrencyId = voucher.CurrencyId,
                             DrAmount = 0,
                             CrAmount = voucherDetailVM.Amount,
-                            CostCenterId=voucherDetailVM.CostCenterId
+                            CostCenterId = voucherDetailVM.CostCenterId
                         };
                         currentVoucherDetaiRecord++;
                         _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
@@ -2634,31 +2616,31 @@ namespace Library.Service.Invoices
                 }
                 foreach (var item in invIssueDetailList)
                 {
-                    var issueDetail = _inventoryIssueDetailRepository.Find(item.InventoryIssueDetailId);
+                    var issueDetail = _inventoryIssueService.FindInventoryIssueDetail(item.InventoryIssueDetailId);
                     issueDetail.PostDrGLGeneralInfoId = item.GLGeneralInfoId;
                     issueDetail.PostDrBudgetMasterId = item.BudgetMasterId;
                     issueDetail.PostDrActivityId = item.ActivityId;
                     issueDetail.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(issueDetail);
-                    _inventoryIssueDetailRepository.Update(issueDetail);
+                    _inventoryIssueService.UpdateInventoryIssueDetail(issueDetail);
                 }
 
                 foreach (var item in invIssueDetailGLList)
                 {
-                    var issueDetailGL = _inventoryIssueDetailRepository.Find(item.InventoryIssueDetailId);
+                    var issueDetailGL = _inventoryIssueService.FindInventoryIssueDetail(item.InventoryIssueDetailId); 
                     issueDetailGL.PostCrGLGeneralInfoId = item.PostDrGLGeneralInfoId;
                     issueDetailGL.PostCrBudgetMasterId = item.PostDrBudgetMasterId;
                     issueDetailGL.PostCrActivityId = item.PostDrActivityId;
                     issueDetailGL.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(issueDetailGL);
-                    _inventoryIssueDetailRepository.Update(issueDetailGL);
+                    _inventoryIssueService.UpdateInventoryIssueDetail(issueDetailGL);
                 }
                 // Update Inventory Received
                 issueData.VoucherId = voucher.Id;
                 issueData.Status = "Posting";
                 issueData.ModelState = ModelState.Modified;
                 AuditService.UpdatedLog(issueData);
-                _inventoryIssueRepository.Update(issueData);
+                _inventoryIssueService.UpdateInventoryIssue(issueData);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -2675,6 +2657,78 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+
+        public void DeleteIssueJournal(string issueId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
+                var inventoryIssue = _inventoryIssueService.FindInventoryIssue(issueId);
+                if(inventoryIssue.CapitalizeVoucherId!=null)
+                    throw new CustomException("Delete Capitalize Voucher first ! ");
+
+                var inventoryIssueDetail = _inventoryIssueService.QueryInventoryIssueDetail(issueId).Select().ToList();
+
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                }
+                foreach (var item in voucherdetail)
+                {
+                    var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
+                    if (glTransactionDetail != null)
+                    {
+                        _voucherService.DeleteGLTransactionDetail(item.Id);
+                    }
+                    _voucherService.DeleteVoucherDetail(item.Id);
+                }
+                foreach (var item in inventoryIssueDetail)
+                {
+                    item.PostCrActivityId = null;
+                    item.PostCrBudgetMasterId = null;
+                    item.PostCrGLGeneralInfoId = null;
+                    item.PostDrActivityId = null;
+                    item.PostDrBudgetMasterId = null;
+                    item.PostDrGLGeneralInfoId = null;
+                    AuditService.UpdatedLog(item);
+                    _inventoryIssueService.UpdateInventoryIssueDetail(item);
+                }
+                inventoryIssue.VoucherId = null;
+                inventoryIssue.Status = null;
+                AuditService.UpdatedLog(inventoryIssue);
+                _inventoryIssueService.UpdateInventoryIssue(inventoryIssue);
+                _voucherService.DeleteVoucher(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        #endregion
 
         public void InsertGRNFixedAssetCapitalizeJournal(string issueId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
@@ -2873,7 +2927,7 @@ namespace Library.Service.Invoices
                 flag = true;
                 // INSERT INTO Voucher TABLE
 
-                var issue = _inventoryIssueRepository.Find(issueId);
+                var issue = _inventoryIssueService.FindInventoryIssue(issueId);
 
                 var voucher = new Voucher
                 {
@@ -2897,7 +2951,7 @@ namespace Library.Service.Invoices
 
                 issue.CapitalizeVoucherId = voucher.Id;
                 issue.VoucherId = voucher.Id;
-                _inventoryIssueRepository.Update(issue);
+                _inventoryIssueService.UpdateInventoryIssue(issue);
 
                 var currentVoucherDetaiRecord = 0;
                 foreach (var voucherDetailVM in voucherDetailVMList)
@@ -2932,19 +2986,19 @@ namespace Library.Service.Invoices
                         });
                         foreach (var item in invIssueDetailList.Where(r => r.PostDrBudgetMasterId == voucherDetailVM.BudgetMasterId && r.PostDrActivityId == voucherDetailVM.ActivityId))
                         {
-                            var inventoryIssueHistory = _inventoryIssueHistoryRepository.Find(item.InventoryIssueHistoryId);
+                            var inventoryIssueHistory = _inventoryIssueService.FindInventoryIssueHistory(item.InventoryIssueHistoryId);
                             inventoryIssueHistory.CapitalizeVoucherDetailId = voucherDr.Id;
                             inventoryIssueHistory.IsCapitalize = true;
-                            _inventoryIssueHistoryRepository.Update(inventoryIssueHistory);
+                            _inventoryIssueService.UpdateInventoryIssueHistory(inventoryIssueHistory);
 
-                            var inventoryIssueDetail = _inventoryIssueDetailRepository.Find(inventoryIssueHistory.InventoryIssueDetailId);
+                            var inventoryIssueDetail = _inventoryIssueService.FindInventoryIssueDetail(inventoryIssueHistory.InventoryIssueDetailId);
                             inventoryIssueDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
                             inventoryIssueDetail.PostDrBudgetMasterId = voucherDr.BudgetMasterId;
                             inventoryIssueDetail.PostDrActivityId = voucherDr.ActivityId;
                             inventoryIssueDetail.PostCrGLGeneralInfoId = item.PostCrGLGeneralInfoId;
                             inventoryIssueDetail.PostCrBudgetMasterId = item.PostCrBudgetMasterId;
                             inventoryIssueDetail.PostCrActivityId = item.PostCrActivityId;
-                            _inventoryIssueDetailRepository.Update(inventoryIssueDetail);
+                            _inventoryIssueService.UpdateInventoryIssueDetail(inventoryIssueDetail);
                         }
 
                     }
@@ -3109,7 +3163,7 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                var issue = _inventoryIssueRepository.Find(issueId);
+                var issue = _inventoryIssueService.FindInventoryIssue(issueId);
 
                 AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
@@ -3142,7 +3196,7 @@ namespace Library.Service.Invoices
                 _voucherService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix);
 
                 issue.CapitalizeVoucherId = voucher.Id;
-                _inventoryIssueRepository.Update(issue);
+                _inventoryIssueService.UpdateInventoryIssue(issue);
 
                 var currentVoucherDetaiRecord = 0;
                 foreach (var voucherDetailVM in voucherDetailVMList)
@@ -3177,10 +3231,10 @@ namespace Library.Service.Invoices
                         });
                         foreach (var item in invIssueDetailList.Where(r => r.PostDrBudgetMasterId == voucherDetailVM.BudgetMasterId && r.PostDrActivityId == voucherDetailVM.ActivityId))
                         {
-                            var inventoryIssueHistory = _inventoryIssueHistoryRepository.Find(item.InventoryIssueHistoryId);
+                            var inventoryIssueHistory = _inventoryIssueService.FindInventoryIssueHistory(item.InventoryIssueHistoryId);
                             inventoryIssueHistory.CapitalizeVoucherDetailId = voucherDr.Id;
                             inventoryIssueHistory.IsCapitalize = true;
-                            _inventoryIssueHistoryRepository.Update(inventoryIssueHistory);
+                            _inventoryIssueService.UpdateInventoryIssueHistory(inventoryIssueHistory);
 
                             //var inventoryIssueDetail = _inventoryIssueDetailRepository.Find(inventoryIssueHistory.InventoryIssueDetailId);
                             //inventoryIssueDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
@@ -3410,18 +3464,16 @@ namespace Library.Service.Invoices
                         foreach (var taxCatId in taxCategoryList)
                         {
                             totalTaxAmount += acceptanceTax.Where(r => r.TaxCategoryId == taxCatId).Sum(r => r.TaxAmount);
-                            var taxCategoryGL = _taxCategoryGLRepository.Query(r => r.TaxCategoryId == taxCatId && r.InputTaxOutPutTax == "Input").Select().FirstOrDefault();
-                            if (null == taxCategoryGL)
-                                throw new CustomException("Tax Category not found!");
-
-                            if (null == taxCategoryGL.GLGeneralInfoId)
+                            var taxCategoryGL = _accountsCommonService.GetTaxCategoryInputGL(taxCatId); 
+                           
+                            if (null == taxCategoryGL["GLGeneralInfoId"].ToString())
                                 throw new CustomException("Tax Category Expenses GL not found!");
 
                             var voucherDr = new VoucherDetail
                             {
-                                GLGeneralInfoId = taxCategoryGL.GLGeneralInfoId,
-                                BudgetMasterId = taxCategoryGL.BudgetMasterId,
-                                ActivityId = taxCategoryGL.ActivityId,
+                                GLGeneralInfoId = taxCategoryGL["GLGeneralInfoId"].ToString(),
+                                BudgetMasterId = taxCategoryGL["BudgetMasterId"].ToString(),
+                                ActivityId = taxCategoryGL["ActivityId"].ToString(),
                                 DrAmount = acceptanceTax.Where(r => r.TaxCategoryId == taxCatId).Sum(r => r.TaxAmount),
                                 CurrencyId = voucherVM.CurrencyId,
                                 DocDate = voucherVM.DocDate,
@@ -3645,11 +3697,9 @@ namespace Library.Service.Invoices
                                 var invoiceTaxPk = _invoiceTaxService.GetMaxNumber();
                                 foreach (var invoiceTaxVM in invoieTaxVM)
                                 {
-                                    var taxCategoryGL = _taxCategoryGLRepository.Query(r => r.TaxCategoryId == invoiceTaxVM.TaxCategoryId && r.InputTaxOutPutTax == "Input").Select().FirstOrDefault();
-                                    if (null == taxCategoryGL)
-                                        throw new CustomException("Tax Category not found!");
-
-                                    if (null == taxCategoryGL.ExpensesGLId)
+                                    var taxCategoryGL = _accountsCommonService.GetTaxCategoryInputGL(invoiceTaxVM.TaxCategoryId);
+                                  
+                                    if (null == taxCategoryGL["ExpensesGLId"].ToString())
                                         throw new CustomException("Tax Category Expenses GL not found!");
 
                                     currentTaxRecord++;
@@ -3671,13 +3721,13 @@ namespace Library.Service.Invoices
                                     InsertInvoiceTax(voucherVM, invoiceTax, invoiceTaxPk);
                                     totalTaxAmount += invoiceTax.TaxAmount;
 
-                                    if (!string.IsNullOrEmpty(taxCategoryGL.ExpensesGLId))
+                                    if (!string.IsNullOrEmpty(taxCategoryGL["ExpensesGLId"].ToString()))
                                     {
                                         var invoiceTaxDetail = new InvoiceTaxDetail
                                         {
-                                            GLGeneralInfoId = taxCategoryGL.ExpensesGLId,
-                                            BudgetMasterId = taxCategoryGL.ExpensesBudgetMasterId,
-                                            ActivityId = taxCategoryGL.ExpensesActivityId,
+                                            GLGeneralInfoId = taxCategoryGL["ExpensesGLId"].ToString(),
+                                            BudgetMasterId = taxCategoryGL["ExpensesBudgetMasterId"].ToString(),
+                                            ActivityId = taxCategoryGL["ExpensesActivityId"].ToString(),
                                             Amount = invoiceTax.TaxAmount,
                                             AType = "Dr"
                                         };
@@ -4132,7 +4182,7 @@ namespace Library.Service.Invoices
                             if (null == tdsTaxVM.TaxCodeId)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == tdsTaxVM.TaxCodeId).Select().FirstOrDefault();
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
                             if (null == taxCodeGL)
                                 throw new CustomException("Tax code GL not found!");
 
@@ -4140,9 +4190,9 @@ namespace Library.Service.Invoices
                             addtionalTaxDetailId++;
                             var tdsTaxDetail = new AdditionalTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = tdsTaxVM.TaxAmount,
                                 AdditionalTaxId = tdsTax.Id,
                                 TaxCodeId = tdsTaxVM.TaxCodeId,
@@ -4492,7 +4542,7 @@ namespace Library.Service.Invoices
                         if (null == tdsTaxVM.TaxCodeId)
                             throw new CustomException("Tax code not found!");
 
-                        var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == tdsTaxVM.TaxCodeId).Select().FirstOrDefault();
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
                         if (null == taxCodeGL)
                             throw new CustomException("Tax code GL not found!");
 
@@ -4500,9 +4550,9 @@ namespace Library.Service.Invoices
                         addtionalTaxDetailId++;
                         var tdsTaxDetail = new AdditionalTaxDetail
                         {
-                            GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                            BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                            ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                             Amount = tdsTaxVM.TaxAmount,
                             AdditionalTaxId = tdsTax.Id,
                             TaxCodeId = tdsTaxVM.TaxCodeId,

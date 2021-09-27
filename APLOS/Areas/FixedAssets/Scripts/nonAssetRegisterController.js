@@ -78,7 +78,9 @@ function nonAssetRegisterController(addressService, commonMessage, $scope, $root
         Description: null,
         ArticleStandardName: null,
         VoucherDetailId: null,
-        TotalPrice: null
+        TotalPrice: null,
+        DepreciationRuleId: null,
+        MultiplicationFactor: '1.0000'
     };
 
     $scope.partySearchByList = [
@@ -1969,4 +1971,13 @@ function nonAssetRegisterController(addressService, commonMessage, $scope, $root
         }
         $scope.setTab(2);
     }
+
+    $http({
+        method: 'GET',
+        url: 'FixedAssets/FixedAssetRegister/getDepreciationRulelist/',
+    }).then(function successCallback(response) {
+        $scope.CompanyFADepRuleList = response.data;
+    });
+
+
 }

@@ -3585,9 +3585,9 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 			try
 			{
 				parameters.CmdText =
-						@"SELECT  V.VoucherNo,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
+						@"SELECT  V.VoucherNo,II.VoucherId,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
 						,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
-						,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName 
+						,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName ,V.IsPark
                         FROM TRN.InventoryIssue II 
                         LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
                         LEFT JOIN (SELECT II.VoucherId,II.IssueDate,II.Id,SUM(TransactionQty) TransactionQty,SUM(PolicyAmount) PolicyAmount 

@@ -314,13 +314,13 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 con.OpenDataSetThroughAdapter("select * from ProductionOrderProcessWithRateMaster where Id='" + Master["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
+                string _DId = "";
                 string MasterID = string.Empty;
 
                 #region Master data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrderProcessWithRateMaster", out _Id);
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrderProcessWithRateMaster", out _Id);
 
                     Master["Id"] = _Id;
                     MasterID = Master["Id"].ToString();
@@ -336,10 +336,9 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 #region Child data Update
 
                 con.OpenDataSetThroughAdapter("select * from ProductionOrderProcessWithRateDetails where ProductionOrderProcessWithRateMasterId='" + MasterID + "'", out dsChild, false, "1");
-
+                objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrderProcessWithRateDetails", out _DId);
                 for (int i = 0; i < ChildData.Count; i++)
                 {
-
                     dsChild.Tables[0].DefaultView.RowFilter = "Id = '" + ChildData[i]["ChildId"] + "' ";
                     if (dsChild.Tables[0].DefaultView.Count == 0)
                     {
@@ -347,7 +346,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                         {
                             dr = dsChild.Tables[0].NewRow();
                             Count++;
-                            dr["Id"] = MasterID + Count;
+                            dr["Id"] = _DId + Count;
                             dr["ProductionOrderProcessWithRateMasterId"] = MasterID;
                             if (Sequence == "1")
                             {
