@@ -457,32 +457,30 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-
             return @"select 
-WCM.EntityId,E.UserName, WCM.UserName Line ,WCM.PlanEfficiency
-,DPT.ManPowerWithMachine,DPT.ManPowerWithHand,DPT.Manpower
-,DPT.ManpowerBulletin,dr.DaysRun DaysRunning
-								,DPT.SMV,DPT.Quantity,DPT.TotalHour,DPT.TargetDate
-								,PO.id PRNo,MM.Id MaterialMasterId
-                            --,PO.PlannedQty AllocatedQty,
-							,AllocatedQty=	case when ISNULL(S.Qty,0)>0 then S.Qty else PO.Qty end,
-							PS.Quantity PreviousDayQCpass,S.PlanWorkingHoursPerDay,S.TargetPerHour,
+							WCM.EntityId,E.UserName, WCM.UserName Line ,WCM.PlanEfficiency
+							,DPT.ManPowerWithMachine,DPT.ManPowerWithHand,DPT.Manpower
+							,DPT.ManpowerBulletin,DR.DaysRun DaysRunning
+						    ,DPT.SMV,DPT.Quantity,DPT.TotalHour,DPT.TargetDate
+						    ,PO.id PRNo,MM.Id MaterialMasterId
+							,AllocatedQty=	case when ISNULL(S.Qty,0)>0 then S.Qty else PO.Qty end
+							,PS.Quantity PreviousDayQCpass,S.PlanWorkingHoursPerDay,S.TargetPerHour,
 						
-                                                    BuyerOrderRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+                                             BuyerOrderRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
 								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
 								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
 							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 															
-												 StyleDescription =STUFF((select distinct ','+MOI.BuyerItemDescription from 
+											 StyleDescription =STUFF((select distinct ','+MOI.BuyerItemDescription from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
 								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
 								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
 							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 
-                                                    OwnOrderRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+                                             OwnOrderRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
 											                         	 trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
 								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
@@ -491,20 +489,32 @@ WCM.EntityId,E.UserName, WCM.UserName Line ,WCM.PlanEfficiency
 
 					                          
                                                  
-                                                    Buyer=STUFF((select distinct ','+XB.UserName from 
-	                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
+                                             Buyer=STUFF((select distinct ','+XB.UserName from 
+														 			  trn.SalesOrder XSO 
+														 	JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+														 	left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+														 	left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+														 	left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+														  where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+											NextBuyer=(
+														select top 1 XB.UserName AS NextBuyer from 
+														             trn.DailyProductionTarget TX 
+														join trn.ProductionOrderDetail PODX ON PODX.ProductionOrderId=TX.ProductionOrderId and podX.Id=(select TOP 1 Id from TRN.ProductionOrderDetail DX where DX.ProductionOrderId=TX.ProductionOrderId)
+														join trn.SalesOrder SOX ON SOX.Id=PODX.SalesOrderId
+														join trn.MasterOrderItem MOIX ON MOIX.Id=soX.MasterOrderItemId
+														join trn.MasterOrder XMO on Xmo.Id=MOIX.MasterOrderId
+														join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+														where tx.TargetDate>'"+Date+ @"'
+														and tx.WorkCenterMasterID=wcm.Id  
+														and XB.Id<>MO.BuyerId
+												      )
                                 from SCS.WorkCenterMaster WCM 
                                 left outer join TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='" + Date + @"'
                                 left outer join TRN.ProductionOrder PO on PO.Id=DPT.ProductionOrderId  
                                 left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
                                 left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId
                                 left join trn.MasterOrderItem MOI ON MOI.Id=so.MasterOrderItemId
+                                left join trn.MasterOrder MO ON MO.Id=MOI.MasterOrderId
 
                                 left join mst.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
                                 left join mst.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
@@ -513,9 +523,9 @@ WCM.EntityId,E.UserName, WCM.UserName Line ,WCM.PlanEfficiency
 								left outer join(select 
 										p.ProcessId,p.ProductionOrderId,
 										p.WorkCenterMasterId,sum(p.Quantity) Quantity
-										 from  TRN.ProductionSummary as p 
-										 JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
-										where p.ProductionDate<='" + Date + @"' 
+										from  TRN.ProductionSummary as p 
+										JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
+										where p.ProductionDate<'" + Date + @"' 
 										and p.ProductionGrade='A'
 										group by p.WorkCenterMasterId,p.ProcessId,p.ProductionOrderId
 										)PS on PS.WorkCenterMasterId=WCM.id and ps.ProductionOrderId=PO.Id
@@ -525,11 +535,10 @@ WCM.EntityId,E.UserName, WCM.UserName Line ,WCM.PlanEfficiency
  											   WHERE p.ProductionDate='" + Date + @"'
  											   GROUP BY  p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId
  
- 		) AS DR ON dr.ProcessId=ps.ProcessId
-	  AND dr.ProductionOrderId=ps.ProductionOrderId AND dr.WorkCenterMasterId=ps.WorkCenterMasterId
+ 										) AS DR ON dr.ProcessId=ps.ProcessId AND dr.ProductionOrderId=ps.ProductionOrderId AND dr.WorkCenterMasterId=ps.WorkCenterMasterId
 
-	  where WCM.PlantId='" + PlantId + @"' 
-	  order by e.Id";
+						  where WCM.PlantId='" + PlantId + @"' 
+						  order by E.Id";
         }
         private string ProductionInfoSql(string entityid, string Date)
         {
