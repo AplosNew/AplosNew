@@ -189,7 +189,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.Get = function (obj) {
         $scope.ModelNew = Object.assign({}, obj.data);
         $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
-        //$scope.GetDetailData($scope.ModelNew.Id);
         if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
             $scope.ShowExCurrency = false;
         }
@@ -249,18 +248,27 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             method: 'GET',
             url: 'JobWork/JobWorkReceiveBilling/GetSavedGRNList?masterId=' + masterId
         }).then(function successCallback(response) {
-            $scope.lst = response.data;
-
-            if ($scope.GriddataMaster.length > 0) {
-                var uniqueInventoryReceiveId = removeDuplicates($scope.GriddataMaster, 'InventoryReceiveId');
-                var wcInventoryReceiveId = "";
-                if (uniqueInventoryReceiveId.length > 0) {
-                    wcInventoryReceiveId = "IN(";
-                    wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.InventoryReceiveId + "'"; }).join(",") + ")";
+            if (baseService.arrayLength(response.data) > 0) {
+                for (var i = 0; i < $scope.GriddataMaster.length; i++) {
+                    for (var j = 0; j < response.data.length; j++) {
+                        if ($scope.GriddataMaster[i].InventoryReceiveId == response.data[j].InventoryReceiveId) {
+                            $scope.GriddataMaster[i].Id = response.data[j].Id;
+                            $scope.GriddataMaster[i].Active = true;
+                        }
+                    }
                 }
-                $scope.sqlInStatement = wcInventoryReceiveId;
+                $scope.LoadGRNDetail();
             }
-            $scope.GetDetailData($scope.ModelNew.Id, $scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
+            //if ($scope.GriddataMaster.length > 0) {
+            //    var uniqueInventoryReceiveId = removeDuplicates($scope.GriddataMaster, 'InventoryReceiveId');
+            //    var wcInventoryReceiveId = "";
+            //    if (uniqueInventoryReceiveId.length > 0) {
+            //        wcInventoryReceiveId = "IN(";
+            //        wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.InventoryReceiveId + "'"; }).join(",") + ")";
+            //    }
+            //    $scope.sqlInStatement = wcInventoryReceiveId;
+            //}
+            //$scope.GetDetailData($scope.ModelNew.Id, $scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
         });
     }
 
@@ -352,11 +360,11 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     }
 
     $scope.JWPOList = [];
-    $scope.GetGRNDetailData = function (masterId,contractId, InventoryReceiveIds) {
+    $scope.GetGRNDetailData = function (masterId, contractId, InventoryReceiveIds) {
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'JobWork/JobWorkReceiveBilling/GetInventoryReceiveDetailByOutSourcePO?masterId=' + masterId+'+&contractId=' + contractId + '&inventoryReceiveIds=' + InventoryReceiveIds,
+            url: 'JobWork/JobWorkReceiveBilling/GetInventoryReceiveDetailByOutSourcePO?masterId=' + masterId + '+&contractId=' + contractId + '&inventoryReceiveIds=' + InventoryReceiveIds,
         }).then(function successCallback(response) {
             $scope.JWPOList = response.data;
         });
@@ -436,7 +444,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
                     method: 'POST',
                     url: 'JobWork/JobWorkReceiveBilling/Create',
                     data: {
-                        'master': $scope.ModelNew, 'data': $scope.JWPOList
+                        'master': $scope.ModelNew, 'grnList': $scope.TempList, 'data': $scope.JWPOList
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"

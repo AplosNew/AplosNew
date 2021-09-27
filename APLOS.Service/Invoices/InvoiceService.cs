@@ -208,6 +208,7 @@ namespace Library.Service.Invoices
         {
             base.Delete(id);
         }
+       
         public IQueryFluent<InvoiceDetail> QueryInvoiceDetail(string invoiceId)
         {
             return _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId);
