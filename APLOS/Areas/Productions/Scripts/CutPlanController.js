@@ -204,11 +204,11 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                     }
                 }
             }
-            for (var m = 0; m < $scope.FGCharacteristicsValueList.length; m++) {
-                for (var n = 0; n < $scope.CalculatedSkuValueList.length; n++) {
-                    $scope.CalculatedSkuValueList[n].xx = parseFloat($scope.FGCharacteristicsValueList[m].Ratio) * parseFloat($scope.CalculatedSkuValueList[n].Qty);
-                }
-            }
+            //for (var m = 0; m < $scope.FGCharacteristicsValueList.length; m++) {
+            //    for (var n = 0; n < $scope.CalculatedSkuValueList.length; n++) {
+            //        $scope.CalculatedSkuValueList[n].xx = parseFloat($scope.FGCharacteristicsValueList[m].Ratio) * parseFloat($scope.CalculatedSkuValueList[n].Qty);
+            //    }
+            //}
             if ($scope.ErrorThrow) {
                 throw "Select Value For Calculation.. ";
             }
@@ -240,7 +240,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                 url: $scope.saveUrl,
                 data: {
                     'CalculatedValueList': $scope.CalculatedSkuValueList, 'FGCharacteristicsValueList': $scope.FGCharacteristicsValueList,
-                    'MasterData': $scope, modelNew, 'CPMarkerDetails': $scope.CutPlanMarkerDetails, 'SkuValueList': $scope.SkuValueList
+                    'MasterData': $scope.modelNew, 'CPMarkerDetails': $scope.CutPlanMarkerDetails, 'SkuValueList': $scope.SkuValueList
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -249,6 +249,8 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.GetHistory(response.data.Id);
+
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

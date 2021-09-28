@@ -744,7 +744,8 @@ var upanelApp = angular
     .controller('ProcessAndResourcesConstraintController', ProcessAndResourcesConstraintController)
     .controller("interCompanyPartyController", InterCompanyPartyController)
     .controller('EmployeePlantTransferController', EmployeePlantTransferController)
-    .controller('CompanyWiseEmployeePlantTransferController', CompanyWiseEmployeePlantTransferController)
+    .controller('EmployeePlantTransferNewController', EmployeePlantTransferNewController)
+   .controller('CompanyWiseEmployeePlantTransferController', CompanyWiseEmployeePlantTransferController)
     .controller("inventoryTransferJournalController", inventoryTransferJournalController)
     //.controller("jobWorkItemController", JobWorkItemController)
     .controller("checkVoidController", checkVoidController)
@@ -838,6 +839,7 @@ var upanelApp = angular
     .controller('AttendanceFromAppReportController', AttendanceFromAppReportController)
     .controller('professionalTaxReportsController', professionalTaxReportsController)
     .controller("monthlyGoodWorkReportController", monthlyGoodWorkReportController)
+    .controller("monthlyGoodWorkReportNewController", monthlyGoodWorkReportNewController)
     .controller("weekOffOTReportController", weekOffOTReportController)
     .controller("DispatchMasterController", DispatchMasterController)
     .controller("FinancialStatusCustomerReceivableInvoiceDetailController", FinancialStatusCustomerReceivableInvoiceDetailController)
@@ -930,6 +932,9 @@ var upanelApp = angular
     .controller("ProductionOrderRateReportController", ProductionOrderRateReportController)
     .controller("EmployeeLeaveApplicationNewController", EmployeeLeaveApplicationNewController)
     .controller('EmployeeLeaveApprovalNewController', EmployeeLeaveApprovalNewController)
+    .controller('ProductionTargetReportController', ProductionTargetReportController)
+
+
     .controller("PostInvoiceController", PostInvoiceController)
 
     .config(AccessControllerConfig)

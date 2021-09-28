@@ -114,13 +114,11 @@
                         <th></th>
                         <th>{{CharacteristicsName}}</th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
-                        @*<th>Total</th>*@
                     </tr>
                     <tr>
                         <th></th>
                         <th>Ratio</th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
-                        @*<th >{{totalRatio}}</th>*@
                     </tr>
                 </thead>
                 <tbody>
@@ -129,7 +127,7 @@
                             <div class="col-sm-12" style="margin-top: 10px;">
                                 <div class="checkbox-site">
                                     <label>
-                                        <input type="checkbox" name="WithFatherName" ng-model="x.IsSelect" tabindex="8" >
+                                        <input type="checkbox" name="WithFatherName" ng-model="x.IsSelect" tabindex="8">
                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                     </label>
                                 </div>
@@ -140,12 +138,13 @@
                     </tr>
                 </tbody>
             </table>
+            <br />
             <div class="common-btn">
-                <ul class="list-inline text-right">
+                <ul class="list-inline text-left">
                     <li> <button ng-click="CalculatePly();" class="btn single-small-btn" tabindex="6"><i class="fa fa-calculator" aria-hidden="true"></i> Calculate</button></li>
                 </ul>
             </div>
-            
+            <br />
         </div>
         <div class="table-responsive modal-table" ng-show="Clicked">
             <table class="table table-striped">
@@ -155,14 +154,12 @@
                         <th></th>
                         <th></th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
-                        @*<th>Total</th>*@
                     </tr>
                     <tr>
                         <th>Ratio</th>
                         <th>Min. Ply Value</th>
                         <th>{{CalculateOn}} Ply Value</th>
                         <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
-                        @*<th >{{totalRatio}}</th>*@
                     </tr>
                 </thead>
                 <tbody>
@@ -180,6 +177,39 @@
                 </ul>
             </div>
         </div>
+
+        <div class="table-responsive modal-table" ng-show="Clicked">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{CharacteristicsName}}</th>
+                        <th></th>
+                        <th></th>
+                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Characteristicsvalue}}</th>
+                    </tr>
+                    <tr>
+                        <th>Ratio</th>
+                        <th>Min. Ply Value</th>
+                        <th>{{CalculateOn}} Ply Value</th>
+                        <th ng-repeat="x in FGCharacteristicsValueList">{{x.Ratio}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in CalculatedSkuValueList">
+                        <td>{{x.Characteristicsvalue}}</td>
+                        <td>{{x.MinimumPlyActualValue}}</td>
+                        <td>{{x.MinimumPlyOptionValue}}</td>
+                        <td ng-repeat="y in FGCharacteristicsValueList"><input disabled type="text" value="{{x.MinimumPlyOptionValue * y.Ratio}}" class="form-control"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 </div>
 <div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">

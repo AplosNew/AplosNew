@@ -287,7 +287,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 //clsCrossModule ob = new clsCrossModule();
                 GenericAttendance.clsCrossModule ob = new GenericAttendance.clsCrossModule();
                 strSQL = @"SELECT EmpSystemID, MIN(WorkDate) FromDate, MAX(WorkDate) ToDate, 
-                                    COUNT(WorkDate) TotalProcDate, 
+                                  SUM(ISNULL(A.WorkingDayValue,0)) TotalProcDate,
+                                    SUM(ISNULL(CAST(WorkingDayValue As decimal(18, 2)), '0.00')) TotalWorkingDay,
+                                    SUM(ISNULL(CAST(ActualWorkingDayValue As decimal(18, 2)), '0.00')) TotalActualWorkingDay,
+                                    SUM(ISNULL(CAST(PayDayValue As decimal(18, 2)), '0.00')) TotalPayDay,
+                                    SUM(ISNULL(CAST(NonPayDayValue As decimal(18, 2)), '0.00')) TotalNonPayDay,
 		                            SUM(ISNULL(CAST(TotalPresent As decimal(18, 2)), '0.00')) TotalPresent, 
                                     SUM(ISNULL(CAST(TotalLate As decimal(18, 2)), '0.00')) TotalLate, 
 		                            SUM(ISNULL(CAST(TotalAbsent As decimal(18, 2)), '0.00')) TotalAbsent, 
@@ -301,8 +305,18 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     0.00 TotalNormalOTHr, 
                                     0.00 TotalExtraOTHr, 
                                     SUM(ISNULL(CAST(TotalLWP As decimal(18, 2)), '0.00')) TotalLWP   
-                            FROM (SELECT EmpSystemID, WorkDate, 
-			                             " + ob.GetAttSum() + @"
+                            FROM (SELECT EmpSystemID, WorkDate,WorkingDayValue,ActualWorkingDayValue,PayDayValue,NonPayDayValue,
+										TotalPresent = PresentValue,
+                                                        --LWP and LWOP both r considered          
+			                            TotalLate = LateValue,
+			                            TotalAbsent = AbsentValue,
+			                            TotalLv = LvValue,
+                                        TotalLWP = LWPValue,
+			                            TotalMLv = 0,
+                                        TotalCompAssignLv = 0,
+			                            TotalWeekOff = WeekOffValue,
+			                            TotalHoliDay = HoliDayValue,
+                                        TotalWeekOffHoliDay = 0,
                                         OTHr
 	                             FROM dbo.AttdnProcessData left join daytype p on AttdnProcessData.DayStatus=p.DayType
                                 WHERE WorkDate BETWEEN '" + sfrmDate + @"'

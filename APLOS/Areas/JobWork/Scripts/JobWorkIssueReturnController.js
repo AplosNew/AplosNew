@@ -31,18 +31,35 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	$scope.ValAddedJobWorkLocList = [];
 	$scope.SelectedValAddedMaterialStorage = function () {
-		$http({
-			method: 'GET',
-			url: 'JobWork/JobWorkIssueReturn/gejobworklocation?TId=' + $scope.ModelNew.Id,
-		}).then(function successCallback(response) {
-			$scope.ValAddedJobWorkLocList = response.data;
-			if ($scope.ValAddedJobWorkLocList.length > 0) {
-				$scope.Issue.MaterialStorageId = $scope.ValAddedJobWorkLocList[0].Value;
-				$scope.Issue.StorageLocation = $scope.ValAddedJobWorkLocList[0].StorageLocation;
-				$scope.Issue.MSIdInventory = $scope.ValAddedJobWorkLocList[0].Value;
-				$scope.GetValueAddedChildData();
-			}
-		});
+		if ($scope.ModelNew.OrderSpecific == "Yes") {
+			$http({
+				method: 'GET',
+				url: $scope.path + 'getalljobworklocation',
+			}).then(function successCallback(response) {
+				$scope.ValAddedJobWorkLocList = response.data;
+				//if ($scope.ValAddedJobWorkLocList.length > 0) {
+				//	$scope.Issue.MaterialStorageId = $scope.ValAddedJobWorkLocList[0].Value;
+				//	$scope.Issue.StorageLocation = $scope.ValAddedJobWorkLocList[0].StorageLocation;
+				//	$scope.Issue.MSIdInventory = $scope.ValAddedJobWorkLocList[0].Value;
+				//	$scope.GetValueAddedChildData();
+				//}
+			});
+		}
+		else {
+			$http({
+				method: 'GET',
+				url: 'JobWork/JobWorkIssueReturn/gejobworklocation?TId=' + $scope.ModelNew.Id,
+			}).then(function successCallback(response) {
+				$scope.ValAddedJobWorkLocList = response.data;
+				if ($scope.ValAddedJobWorkLocList.length > 0) {
+					$scope.Issue.MaterialStorageId = $scope.ValAddedJobWorkLocList[0].Value;
+					$scope.Issue.StorageLocation = $scope.ValAddedJobWorkLocList[0].StorageLocation;
+					$scope.Issue.MSIdInventory = $scope.ValAddedJobWorkLocList[0].Value;
+					$scope.GetValueAddedChildData();
+				}
+			});
+        }
+
 	}
 
 	$scope.ValEntityList = [];
@@ -81,7 +98,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	$scope.IssueModelTemp = {
 		Id: null,
-		Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+		IssueDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
 		EmployeeId: null,
 		Types: 'InventoryJWIssue',
 		MaterialStorageId: null,
@@ -95,7 +112,25 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		JWContractId: null,
 		ContractType: null,
 		MSIdInventory: null,
-		OrderRefNo:null,
+		OrderRefNo: null,
+
+		//Id: null,
+		//IssueDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+		//EmployeeId: null,
+		//Types: 'InventoryJWIssue',
+		//MaterialStorageId: null,
+		//Remarks: null,
+		//EmployeeStatus: null,
+		//EmployeeCode: null,
+		//ResponsiblePerson: null,
+		//IsConfirmed: false,
+		//EntityId: null,
+		//IssueType: 'Revenue',
+		//JWContractId: null,
+		//ContractType: null,
+		//MaterialStorageIdInventory: null,
+		//RefferenceNo: null,
+		//OrderRefNo: null,
 	};
 	$scope.Issue = Object.assign({}, $scope.IssueModelTemp);
 
@@ -230,7 +265,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		$scope.IssueChildList = [];
 		$http({
 			method: 'POST',
-			data: { PKId: $scope.ModelNew.Id, OrderSpecific: $scope.ModelNew.OrderSpecific, MaterialStorageIdInventory: $scope.Issue.MaterialStorageId, IssueDate: $scope.Issue.Date },
+			data: { PKId: $scope.ModelNew.Id, OrderSpecific: $scope.ModelNew.OrderSpecific, MaterialStorageIdInventory: $scope.Issue.MSIdInventory, IssueDate: $scope.Issue.IssueDate },
 			url: $scope.path + 'GetValueAddedChildData',
 
 		}).then(function successCallback(response) {
@@ -356,7 +391,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 			for (var i = 0; i < $scope.IssueChildList.length > 0; i++) {
 				if ($scope.IssueChildList[i].OrderSpecific == "Yes") {
-					if ($scope.IssueChildList[i].Id === RowData.Id && $scope.IssueChildList[i].OWRId === RowData.OWRId) {
+					if ($scope.IssueChildList[i].Id === RowData.Id && $scope.IssueChildList[i].JWOrderWiseId === RowData.JWOrderWiseId) {
 						var IssueQty = parseFloat(RowData.BalToIssue);
 						var BalQty = parseFloat($scope.IssueChildList[i].OWRQuantity) - parseFloat($scope.IssueChildList[i].IssueQuantity)
 						if (IssueQty > BalQty) {
@@ -485,20 +520,43 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	$scope.SelectedMaterialStorage = [];
 	$scope.GetSelectedMaterialStorage = function () {
-		$http({
-			method: 'GET',
-			url: 'JobWork/JobWorkIssueReturn/getStoragloc?JLId=' + $scope.IssueTransformation.MaterialStorageId,
-		}).then(function successCallback(response) {
-			$scope.SelectedMaterialStorage = response.data;
-			if ($scope.SelectedMaterialStorage.length > 0) {
-				//      $scope.IssueTransformation.MaterialStorageId = $scope.SelectedMaterialStorage[0].Value;
-				$scope.IssueTransformation.StorageLocation = $scope.SelectedMaterialStorage[0].StorageLocation;
-				$scope.IssueTransformation.MaterialStorageIdInventory = $scope.SelectedMaterialStorage[0].Value;
-			}
-			else {
-				$scope.IssueTransformation.StorageLocation = null;
-			}
-		});
+		if ($scope.ModelNew.TabType == "Transformation") {
+			$http({
+				method: 'GET',
+				url: 'JobWork/JobWorkIssueReturn/getStoragloc?JLId=' + $scope.IssueTransformation.MaterialStorageId,
+			}).then(function successCallback(response) {
+				$scope.SelectedMaterialStorage = response.data;
+				if ($scope.SelectedMaterialStorage.length > 0) {
+					//      $scope.IssueTransformation.MaterialStorageId = $scope.SelectedMaterialStorage[0].Value;
+					$scope.IssueTransformation.StorageLocation = $scope.SelectedMaterialStorage[0].StorageLocation;
+					$scope.IssueTransformation.MaterialStorageIdInventory = $scope.SelectedMaterialStorage[0].Value;
+				}
+				else {
+					$scope.IssueTransformation.StorageLocation = null;
+				}
+			});
+		}
+		else {
+			if ($scope.ModelNew.OrderSpecific == "Yes") {
+				$http({
+					method: 'GET',
+					url: 'JobWork/JobWorkIssueReturn/getStoragloc?JLId=' + $scope.Issue.MaterialStorageId,
+				}).then(function successCallback(response) {
+					$scope.SelectedMaterialStorage = response.data;
+					if ($scope.SelectedMaterialStorage.length > 0) {
+						$scope.Issue.StorageLocation = $scope.SelectedMaterialStorage[0].StorageLocation;
+					//	$scope.Issue.MaterialStorageId = $scope.SelectedMaterialStorage[0].Value;
+						$scope.Issue.MSIdInventory = $scope.SelectedMaterialStorage[0].Value;
+						$scope.GetValueAddedChildData();
+					}
+					else {
+						$scope.Issue.StorageLocation = null;
+					}
+				});
+            }
+
+        }
+
 	}
 
 	$scope.SelectedTConEntity = function () {
@@ -1308,7 +1366,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		$http({
 			method: 'POST'
 			, url: 'Products/InventoryIssue/GetSpecificMaterialStock/'
-			, data: { entity: data, issueDate: $scope.Issue.Date }
+			, data: { entity: data, issueDate: $scope.Issue.IssueDate }
 			, dataType: 'JSON'
 		}).then(function (response) {
 			$scope.materialStockList = response.data;
@@ -1740,6 +1798,48 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	var SelectedMaterialInputdata = [];
 	var SelectedOutputMaterialdata = [];
 	$scope.SaveSlipIssue = function () {
+
+		if ($scope.ModelNew.TabType == "Transformation") {
+			var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+		//	$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
+			var T2 = 0;
+			for (var i = 0; i < $scope.detailList.length; i++) {
+				if (!baseService.isUndefinedOrNull($scope.detailList[i].ArticleId)) {
+					var T1 = $scope.detailList[i].TransactionQty;
+					var T2 = T1 + T2;
+					$scope.selectedRowQty1 = parseFloat(T2);
+				}
+			}
+
+			if (sumOfmaterialStockList < $scope.selectedRowQty1) {
+				ShowResult("Please select Specific GRN", 'failure');
+				return false;
+			}
+		}
+		else {
+	
+					var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+
+					/*$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.IssueChildList), 'TransactionQty');*/
+
+			var T2 = 0;
+			for (var i = 0; i < $scope.IssueChildList.length; i++) {
+				if (!baseService.isUndefinedOrNull($scope.IssueChildList[i].ArticleId)) {
+					var T1 = $scope.IssueChildList[i].TransactionQty;
+					var T2 = T1 + T2;
+					$scope.selectedRowQty1 = parseFloat(T2);
+	
+                }
+			}
+
+			if (sumOfmaterialStockList < $scope.selectedRowQty1) {
+				ShowResult("Please select Specific GRN", 'failure');
+				return false;
+			}
+
+        }
+	
+
 		//if ($scope.materialStockList.length === 0) {
 		//	ShowResult('Please select Specific GRN');
 		//	return false;
@@ -1787,7 +1887,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			}
 		}
 		else {
-			if (baseService.isUndefinedOrNull($scope.Issue.Date)) {
+			if (baseService.isUndefinedOrNull($scope.Issue.IssueDate)) {
 				ShowResult("Select the issue date");
 				return false;
 
@@ -2039,6 +2139,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 							, specificStockList: $scope.specificStockList
 							, inventoryIssue: $scope.Issue
 							, IssueTypeStatus: 'Inventory'
+							, TabType: $scope.ModelNew.TabType
 
 						}
 						, dataType: 'JSON'
@@ -2221,24 +2322,47 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		var BaltoIssue;
 		for (var i = 0; i < $scope.IssueChildList.length; i++) {
 			if (baseService.isUndefinedOrNull($scope.IssueChildList[index].MaterialMasterId) && baseService.isUndefinedOrNull($scope.IssueChildList[index].ArticleId)) {
-				if (($scope.IssueChildList[index].JWTCMId === $scope.IssueChildList[i].JWTCMId) && ($scope.IssueChildList[index].JWInputItem === $scope.IssueChildList[i].JWInputItem)) {
+				if (!baseService.isUndefinedOrNull($scope.IssueChildList[i].JWOrderWiseId)) {
+					if ($scope.IssueChildList[index].JWOrderWiseId === $scope.IssueChildList[i].JWOrderWiseId) {
 
-					if ($scope.IssueChildList[i].TIRCTotalQty == null) {
-						$scope.IssueChildList[i].TIRCTotalQty = 0;
-					}
-					if ($scope.IssueChildList[index].TransactionQty > Math.round(($scope.IssueChildList[i].RequiredQuantity - $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100) {
-						ShowResult("Issue quantity cannot be greater than Balance quantity");
-						$scope.IssueChildList[index].TransactionQty = 0;
-						//		$scope.IssueChildList[i].BalanceToIssue = ($scope.IssueChildList[i].RequiredQuantity - (Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
-						BaltoIssue = ($scope.IssueChildList[i].RequiredQuantity - (Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
-						$scope.IssueChildList[i].BalanceToIssue = BaltoIssue.toFixed(4);
-						return false;
-					}
+						if ($scope.IssueChildList[i].TIRCTotalQty == null) {
+							$scope.IssueChildList[i].TIRCTotalQty = 0;
+						}
+						if ($scope.IssueChildList[index].TransactionQty > Math.round(($scope.IssueChildList[i].RequiredQuantity - $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100) {
+							ShowResult("Issue quantity cannot be greater than Balance quantity");
+							$scope.IssueChildList[index].TransactionQty = 0;
+							//		$scope.IssueChildList[i].BalanceToIssue = ($scope.IssueChildList[i].RequiredQuantity - (Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+							BaltoIssue = ($scope.IssueChildList[i].RequiredQuantity - (Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+							$scope.IssueChildList[i].BalanceToIssue = BaltoIssue.toFixed(4);
+							return false;
+						}
 
-					var BalanceToIssue = parseFloat($scope.IssueChildList[i].RequiredQuantity) - parseFloat($scope.IssueChildList[i].TIRCTotalQty);
-					var RemBalance = BalanceToIssue - parseFloat($scope.IssueChildList[index].TransactionQty);
-					$scope.IssueChildList[i].BalanceToIssue = RemBalance.toFixed(4);
+						var BalanceToIssue = parseFloat($scope.IssueChildList[i].RequiredQuantity) - parseFloat($scope.IssueChildList[i].TIRCTotalQty);
+						var RemBalance = BalanceToIssue - parseFloat($scope.IssueChildList[index].TransactionQty);
+						$scope.IssueChildList[i].BalanceToIssue = RemBalance.toFixed(4);
+					}
 				}
+				else {
+					if (($scope.IssueChildList[index].JWTCMId === $scope.IssueChildList[i].JWTCMId) && ($scope.IssueChildList[index].JWOutputItem === $scope.IssueChildList[i].JWOutputItem)) {
+
+						if ($scope.IssueChildList[i].TIRCTotalQty == null) {
+							$scope.IssueChildList[i].TIRCTotalQty = 0;
+						}
+						if ($scope.IssueChildList[index].TransactionQty > Math.round(($scope.IssueChildList[i].RequiredQuantity - $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100) {
+							ShowResult("Issue quantity cannot be greater than Balance quantity");
+							$scope.IssueChildList[index].TransactionQty = 0;
+							//		$scope.IssueChildList[i].BalanceToIssue = ($scope.IssueChildList[i].RequiredQuantity - (Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+							BaltoIssue = ($scope.IssueChildList[i].RequiredQuantity - (Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+							$scope.IssueChildList[i].BalanceToIssue = BaltoIssue.toFixed(4);
+							return false;
+						}
+
+						var BalanceToIssue = parseFloat($scope.IssueChildList[i].RequiredQuantity) - parseFloat($scope.IssueChildList[i].TIRCTotalQty);
+						var RemBalance = BalanceToIssue - parseFloat($scope.IssueChildList[index].TransactionQty);
+						$scope.IssueChildList[i].BalanceToIssue = RemBalance.toFixed(4);
+					}
+                }
+			
 
 			}
 			if (!baseService.isUndefinedOrNull($scope.IssueChildList[index].MaterialMasterId) && !baseService.isUndefinedOrNull($scope.IssueChildList[index].ArticleId)) {

@@ -4,6 +4,7 @@ using Library.Model.Accounts;
 using Library.Model.Commercial;
 using Library.Model.Enums;
 using Library.Model.Invoices;
+using Library.Model.Systems;
 using Library.Service.Core;
 using Library.ViewModel.Accounts;
 using Library.ViewModel.Currencies;
@@ -27,7 +28,7 @@ namespace Library.Service.Invoices
 
         void UpdateInvoiceDetail(InvoiceDetail invoiceDetail);
 
-      
+        PKGenerator GetAdditionalTaxMaxNumber();
 
 
         string InsertCustomerInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
@@ -55,6 +56,7 @@ namespace Library.Service.Invoices
         Invoice FindInvoice(string Id);
         void DeleteInvoice(string id);
         IQueryFluent<InvoiceDetail> QueryInvoiceDetail(string invoiceId);
+        IEnumerable<InvoiceDetail> QueryInvoiceDetailEnumerable(IEnumerable<string> query);
         void DeleteInvoiceDetail(string id);
 
         string InsertInvoiceOverhead(VoucherViewModel voucherVM, IEnumerable<ServiceChargesViewModel> voucherDetailVMList, IEnumerable<ServiceChargesTaxViewModel> taxDetailVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList);

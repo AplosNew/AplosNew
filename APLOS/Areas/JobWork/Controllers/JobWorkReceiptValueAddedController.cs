@@ -1265,7 +1265,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
 
                            WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.CompanyId='" + identity.CompanyId + @"' and emp.EmployeeStatus='Active' and EMP.EmpType='Local'
-                      AND isnull(Emp.SystemID,'') not in (select isnull(ByWhomId,'') from dbo.JobWorkReceiptValueAdded where Id='" + Id + @"')
+                      AND isnull(Emp.SystemID,'') not in (select isnull(EmployeeId,'') from TRN.InventoryReceive where Id='" + Id + @"')
                      order by EMP.EmployeeCode";
 
 				var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -2193,6 +2193,36 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 				return Json(R.GetIssuedMatInputList(JWPOId, JWOutputId), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		[Authorize, HttpGet]
+		public JsonResult GetIfIssuedOrNotValAdded(string JWPOId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				return Json(R.GetIfIssuedOrNotValAdded(JWPOId), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		[Authorize, HttpGet]
+		public JsonResult GetIssuedMatInputListValAdded(string JWPOId, string JWOutputId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				return Json(R.GetIssuedMatInputListValAdded(JWPOId, JWOutputId), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
 			{

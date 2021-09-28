@@ -4,10 +4,34 @@ function ProductionOrderRateReportController(commonMessage, $scope, $rootScope, 
     $rootScope.title = 'ProductionOrder Rate Report';
 
     $scope.ModelList = [];
-    $scope.path = 'Productions/Shade/';
+    $scope.path = 'Productions/ProductionOrderRateReport/';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.FromDate = null;
     $scope.ToDate = null;
+
+    $scope.ProductionEntityId = null;
+    $scope.ProcessId = null;
+
+    $scope.entityList = [];
+    $scope.processList = [];
+    $scope.getAllEntities = function () {
+        $http({
+            method: 'POST',
+            url: "Productions/ProductionOrderProcessWithRate/GetEntity"
+        }).then(function successCallback(response) {
+            $scope.entityList = response.data;            
+        });
+    }
+    $scope.getAllEntities();
+    $scope.loadProcessList = function () {
+        $http({
+            method: 'POST',
+            url: "Productions/ProductionOrderProcessWithRate/GetProcess",
+            data: { 'EntityId': $scope.ProductionEntityId },
+        }).then(function successCallback(response) {
+            $scope.processList = response.data;
+        });
+    };
 
     $scope.DonwloadReport = function () {
         try {
@@ -23,9 +47,10 @@ function ProductionOrderRateReportController(commonMessage, $scope, $rootScope, 
 
             $http({
                 method: 'POST',
-                url: 'Productions/Shade/RReport',
+                url: 'Productions/ProductionOrderRateReport/RReport',
                 data: {
-                    'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate
+                    'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate,
+                    'Entity': $scope.ProductionEntityId, 'ProcessId': $scope.ProcessId
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

@@ -910,6 +910,7 @@ namespace Aplos.App_Start
             container.RegisterType<ICheckLotDetailNewService, CheckLotDetailNewService>();
             container.RegisterType<IAutoLoanService, AutoLoanService>();
             container.RegisterType<ILeaveTransactionNewService, LeaveTransactionNewService>();
+            container.RegisterType<IInventoryIssueJournalService, InventoryIssueJournalService>();
 
         }
     }
