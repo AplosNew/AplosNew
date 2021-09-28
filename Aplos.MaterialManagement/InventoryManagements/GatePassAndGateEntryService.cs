@@ -2283,15 +2283,16 @@ namespace Library.MaterialManagement.InventoryManagements
 								    ,CheckedBy=CASE WHEN IR.CheckedByStatus='Checked' Then CheckedBy.EmployeeName else '' END
                             ,Approvedby=CASE When IR.ApprovedByStatus='Approved'then ApprvedBy.EmployeeName else '' END
 							,GateOutBy.EmployeeName SSEmployeeName
-                             ,AddedBy=CASE 
-									When IR.CheckedByStatus='ForChecked' Then CheckedBy.EmployeeName
-									When IR.CheckedByStatus='Hold' Then CheckedBy.EmployeeName
-									When IR.CheckedByStatus='Reject' Then CheckedBy.EmployeeName
-									When IR.CheckedByStatus='Checked' Then CheckedBy.EmployeeName
-									When IR.CheckedByStatus IS NULL then IR.AddedBy 
+                             --,AddedBy=CASE 
+									--When IR.CheckedByStatus='ForChecked' Then CheckedBy.EmployeeName
+									--When IR.CheckedByStatus='Hold' Then CheckedBy.EmployeeName
+									--When IR.CheckedByStatus='Reject' Then CheckedBy.EmployeeName
+									--When IR.CheckedByStatus='Checked' Then CheckedBy.EmployeeName
+									--When IR.CheckedByStatus IS NULL then IR.AddedBy 
 									
-									else ''
-									END
+									--else ''
+									--END
+                                ,AddedBy=EI.EmployeeName
 								,IR.[CheckedHoldRejectReason]
 								,IR.[ApprovedByStatus]
 								,IR.[ApprovedHoldRejectReason] 
