@@ -227,6 +227,12 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
             ShowResult("Invoice Date must be below or equal to current Date!", "failure");
             return true;
         }
+        if ($scope.approvedByList.length && baseService.isUndefinedOrNull($scope.budgetTransactionMaster.ApprovedById)) {
+
+            ShowResult("Please select To Be Approved By !", "failure");
+            return true;
+        }
+        
         return false;
     };
 
