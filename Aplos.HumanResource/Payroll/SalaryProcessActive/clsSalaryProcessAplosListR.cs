@@ -1571,7 +1571,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                             PresDay = dicMMDSSI_Sub.TotalPresent;
                                             LateDay = dicMMDSSI_Sub.TotalLate;
-                                            AbsDay = dicMMDSSI_Sub.TotalAbsent + dicMMDSSI_Sub.TotalLWP + _xtra_absent + _xtra_absent_holiday;
+                                            AbsDay = dicMMDSSI_Sub.TotalAbsent;// + dicMMDSSI_Sub.TotalLWP + _xtra_absent + _xtra_absent_holiday;
                                             LWPDays = dicMMDSSI_Sub.TotalLWP;
                                             LvDay = dicMMDSSI_Sub.TotalLv;
                                             MLvDay = dicMMDSSI_Sub.TotalMLv;
@@ -1600,12 +1600,13 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             }
 
 
-                                            if (MLvDay > 0)
-                                            {
-                                                LvDay = LvDay - MLvDay;
-                                            }
-                                            TotProcDay = PresDay + LateDay + AbsDay + LvDay + CALDay + WkOFDay + HDDay + WkOFHDDay;
-                                            EmpWorkinDayInMonthlySlr = PresDay + LateDay + AbsDay + LvDay + CALDay;
+                                            //if (MLvDay > 0)
+                                            //{
+                                            //    LvDay = LvDay - MLvDay;
+                                            //}
+
+                                            TotProcDay = dicMMDSSI_Sub.TotalWorkingDay;// PresDay + LateDay + AbsDay + LvDay + CALDay + WkOFDay + HDDay + WkOFHDDay;
+                                            EmpWorkinDayInMonthlySlr = dicMMDSSI_Sub.TotalWorkingDay;// PresDay + LateDay + AbsDay + LvDay + CALDay;
 
                                             #endregion Set Variable
                                         }
@@ -2017,10 +2018,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                 }
                                                                 else//DOJ DOS
                                                                 {
-                                                                    decimal ProportionateStrucrureValue = (DefCur / DaysInMonth) * TotalWorkingDays;
+                                                                    decimal ProportionateStructureValue = (DefCur / DaysInMonth) * TotalWorkingDays;
 
                                                                     if (TotalActualWorkingDays > 0)
-                                                                        SalaryPerDay = ProportionateStrucrureValue / (TotalWorkingDays - TotalWeekOffDays);
+                                                                        SalaryPerDay = ProportionateStructureValue / (TotalActualWorkingDays);
                                                                 }
 
                                                                 if (dicLocal_Sub[i].RuleType == "Gen")
@@ -4152,31 +4153,20 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             dvSPAttdnProc.Table = dtSPAttdnProc;
                                             dvSPAttdnProc.RowFilter = "EmpSystemID = '" + sEmployeeSysID.Trim() + "'";
 
-                                            //var _spa_ob = ListSPA.Where(r => r.EmpSystemID == sEmployeeSysID).FirstOrDefault();
-                                            //if(_spa_ob==null)
-                                            //{
-                                            //    _spa_ob = new dicSalaryProceAttdnData();
-                                            //    UpdateSlrProcAttdenDataRow("ADDNEW", para, sEmployeeSysID, sPlantID, TotProcDay, PresDay, LateDay, LWPDays, AbsDay, LvDay, MLvDay, CALDay, WkOFDay, HDDay, WkOFHDDay, OTHDay, NorOTHDay, ExtOTHDay, ref _spa_ob);
-                                            //    ListSPA.Add(_spa_ob);
-                                            //}
-                                            //else
-                                            //{                                            
-                                            //    UpdateSlrProcAttdenDataRow("EDIT", para, sEmployeeSysID, sPlantID, TotProcDay, PresDay, LateDay, LWPDays, AbsDay, LvDay, MLvDay, CALDay, WkOFDay, HDDay, WkOFHDDay, OTHDay, NorOTHDay, ExtOTHDay, ref _spa_ob);
 
-                                            //}
                                             para.IsOTEntitled = IsOTEntitle;
                                             para.OTRate = OTRate;
                                             if (dvSPAttdnProc.Count == 0)
                                             {
                                                 drSPAttdnProc = dtSPAttdnProc.NewRow();
-                                                UpdateSlrProcAttdenDataRow("ADDNEW", para, sEmployeeSysID, sPlantID, TotProcDay, PresDay, LateDay, LWPDays, AbsDay, LvDay, MLvDay, CALDay, WkOFDay, HDDay, WkOFHDDay, OTHDay, NorOTHDay, ExtOTHDay, ref drSPAttdnProc);
+                                                UpdateSlrProcAttdenDataRow("ADDNEW", para, sEmployeeSysID, sPlantID, OTHDay, NorOTHDay, ExtOTHDay, dicMMDSSI_Sub, ref drSPAttdnProc);
                                                 dtSPAttdnProc.Rows.Add(drSPAttdnProc);
                                             }
                                             else
                                             {
                                                 drSPAttdnProc = dvSPAttdnProc[0].Row;
                                                 drSPAttdnProc.BeginEdit();
-                                                UpdateSlrProcAttdenDataRow("EDIT", para, sEmployeeSysID, sPlantID, TotProcDay, PresDay, LateDay, LWPDays, AbsDay, LvDay, MLvDay, CALDay, WkOFDay, HDDay, WkOFHDDay, OTHDay, NorOTHDay, ExtOTHDay, ref drSPAttdnProc);
+                                                UpdateSlrProcAttdenDataRow("EDIT", para, sEmployeeSysID, sPlantID, OTHDay, NorOTHDay, ExtOTHDay, dicMMDSSI_Sub, ref drSPAttdnProc);
                                                 drSPAttdnProc.EndEdit();
                                             }
 
@@ -7798,7 +7788,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             }
         }
 
-        private void UpdateSlrProcAttdenDataRow(string OPN_FLAG, FunctionPara fpara, string sEmpSysID, string sPlantID, decimal TotProcDay, decimal PresDay, decimal LateDay, decimal LWP, decimal AbsDay, decimal LvDay, decimal MLvDay, decimal CALDay, decimal WkOFDay, decimal HDDay, decimal WkOFHDDay, decimal OTHDay, decimal NorOTHDay, decimal ExtOTHDay, ref DataRow drLocal)
+        private void UpdateSlrProcAttdenDataRow(string OPN_FLAG, FunctionPara fpara, string sEmpSysID, string sPlantID, decimal OTHDay, decimal NorOTHDay, decimal ExtOTHDay, SalaryProcessActive.dicMMDSSI dicMMDSSI_Sub, ref DataRow drLocal)
         {
             try
             {
@@ -7823,21 +7813,27 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 drLocal["IsOTEntitled"] = fpara.IsOTEntitled;
                 drLocal["OTRate"] = fpara.OTRate;
 
-                drLocal["TotalProcDate"] = TotProcDay;
-                drLocal["TotalPresent"] = PresDay;
+                drLocal["TotalProcDate"] = dicMMDSSI_Sub.TotalProcDate;
+                drLocal["TotalPresent"] = dicMMDSSI_Sub.TotalPresent;
 
-                drLocal["TotalLate"] = LateDay;
-                drLocal["TotalAbsent"] = AbsDay;
-                drLocal["TotalLWP"] = LWP;
+                drLocal["TotalLate"] = dicMMDSSI_Sub.TotalLate;
+                drLocal["TotalAbsent"] = dicMMDSSI_Sub.TotalAbsent;
+                drLocal["TotalLWP"] = dicMMDSSI_Sub.TotalLWP;
 
-                drLocal["TotalLv"] = LvDay;
-                drLocal["TotalMLv"] = MLvDay;
+                drLocal["TotalLv"] = dicMMDSSI_Sub.TotalLv;
+                drLocal["TotalMLv"] = dicMMDSSI_Sub.TotalMLv;
 
-                drLocal["TotalCompAssignLv"] = CALDay;
-                drLocal["TotalWeekOff"] = WkOFDay;
+                drLocal["TotalCompAssignLv"] = dicMMDSSI_Sub.TotalCompAssignLv;
+                drLocal["TotalWeekOff"] = dicMMDSSI_Sub.TotalWeekOff;
 
-                drLocal["TotalHoliDay"] = HDDay;
-                drLocal["TotalWeekOffHoliDay"] = WkOFHDDay;
+                drLocal["TotalHoliDay"] = dicMMDSSI_Sub.TotalHoliDay;
+                drLocal["TotalWeekOffHoliDay"] = dicMMDSSI_Sub.TotalWeekOffHoliDay;
+
+                drLocal["TotalPayDay"] = dicMMDSSI_Sub.TotalPayDay;
+                drLocal["TotalNonPayDay"] = dicMMDSSI_Sub.TotalNonPayDay;
+                drLocal["TotalWorkingDay"] = dicMMDSSI_Sub.TotalWorkingDay;
+                drLocal["ActualWorkingDay"] = dicMMDSSI_Sub.TotalActualWorkingDay;
+
                 drLocal["TotalOTHr"] = OTHDay;
                 drLocal["TotalNormalOTHr"] = NorOTHDay;
                 drLocal["TotalExtraOTHr"] = ExtOTHDay;
