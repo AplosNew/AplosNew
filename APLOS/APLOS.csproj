@@ -741,6 +741,7 @@
     <Compile Include="Areas\Payrolls\Controllers\NoticePeriodSettingController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\CompanyProvidentFundStatementReportController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeAdvanceDeductionController.cs" />
+    <Compile Include="Areas\Payrolls\Controllers\SalaryProcessNewController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxOBController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ProfessionalTaxOBController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxInvestmentMasterController.cs" />
