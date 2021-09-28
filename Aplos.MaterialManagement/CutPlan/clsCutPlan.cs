@@ -245,7 +245,7 @@ namespace Library.MaterialManagement.CutPlan
                 throw e;
             }
         }
-        public void Save(List<Dictionary<string, object>> CalculatedValueList, List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails, List<Dictionary<string, object>> SkuValueList)
+        public void Save(List<Dictionary<string, object>> FGCharacteristicsValueList, CutPlanMaster MasterData, CutPlanMarkerDetails CPMarkerDetails, List<Dictionary<string, object>> SkuValueList)
         {
             try
             {
