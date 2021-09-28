@@ -93,7 +93,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 							 LEFT JOIN ORG.Section s on s.id=ei.SectionId
                              LEFT JOIN ORG.SubSection sb on sb.id=ei.SubSectionId
                              LEFT JOIN SalaryDisbursementInAcc sd on sd.MonthNo=spm.MonthNo and sd.YearNo=spm.YearNo and sd.SalaryHeadId=spc.SalaryHeadID and sd.EmpSystemId=spc.EmpInfoSystemID
-                             WHERE   sl.IsLocked=1 and sh.HeadCategory IN ('Other Bonus','Ex-Gratia','Statutory Bonus')  AND spc.DisbusmentAmount>0
+                             WHERE   sl.IsLocked=1 and sh.HeadCategory IN ('Other Bonus','RetainedBonus','Monthly Bonus Retain')  AND spc.DisbusmentAmount>0 and IsRetained=1
                             and (spm.YearNo<=year('" + DisbursementDate2 + @"') or (spm.YearNo<=year('" + DisbursementDate + @"') and spm.MonthNo<=month('" + DisbursementDate + @"')))
                             and spc.PlantID='" + identity.PlantId + @"'
 	                        and ISNULL( sd.Id,'')=''
@@ -186,7 +186,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             left join SalaryLock sl on sl.YearNo=spm.YearNo and sl.MonthNo=spm.MonthNo and sl.EmpSystemId=spc.EmpInfoSystemID
                             left join SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
   LEFT JOIN SalaryDisbursementInAcc sd on sd.MonthNo=spm.MonthNo and sd.YearNo=spm.YearNo and sd.SalaryHeadId=spc.SalaryHeadID and sd.EmpSystemId=spc.EmpInfoSystemID
-                            WHERE   sl.IsLocked=1 and sh.HeadCategory IN ('Other Bonus','Ex-Gratia','Statutory Bonus') AND spc.DisbusmentAmount>0
+                             WHERE   sl.IsLocked=1 and sh.HeadCategory IN ('Other Bonus','RetainedBonus','Monthly Bonus Retain') AND spc.DisbusmentAmount>0 and IsRetained=1
                             and (spm.YearNo<=year('" + DisbursementDate2 + @"') or (spm.YearNo<=year('" + DisbursementDate + @"') and spm.MonthNo<=month('" + DisbursementDate + @"')))
                             and spc.PlantID='" + identity.PlantId + @"' AND spc.EmpInfoSystemID='" + EmployeeSystemId + @"' and ISNULL( sd.Id,'')=''
                            order by spc.EmpInfoSystemID,spm.YearNo,spm.MonthNo,spc.DisbusmentAmount";
