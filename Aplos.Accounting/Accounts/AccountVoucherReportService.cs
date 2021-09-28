@@ -414,9 +414,11 @@ namespace Library.Accounting.Accounts
 												 , STUFF((select distinct ','+xp.UserName from
 														TRN.VoucherDetail XVD JOIN MST.CashMaster AS XP ON XP.Id=XVD.CashMasterId
 													where	XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-												 ,STUFF((select distinct ','+xp.EmployeeName from
+												 ,STUFF((select distinct ','+xpA.UserName+ ' '+'('+ xp.EmployeeName+')' from
 														TRN.VoucherDetail XVD JOIN [dbo].[EmployeeInformation] AS XP ON XP.SystemId=XVD.EmployeeId
+														JOIN HKP.Activity AS XPA ON XPA.Id=XVD.ActivityId
 													where	XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' AND VD.ActivityId!=XVD.ActivityId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                
                                                 , STUFF((select distinct ','+xp.UserName from
 														TRN.VoucherDetail XVD JOIN HKP.Activity AS XP ON XP.Id=XVD.ActivityId
 													where	XVD.VoucherId=V.Id AND XVD.PartyId is null AND XVD.CashMasterId IS NULL AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL

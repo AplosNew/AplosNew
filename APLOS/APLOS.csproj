@@ -382,6 +382,7 @@
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataFromAppController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceDashboardController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AuditReportSummaryNewController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\MonthlyGoodWorkReportNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessPlantWiseController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceFromAppReportController.cs" />
@@ -1603,6 +1604,7 @@
     <Content Include="Areas\Attendances\Scripts\AuditReportSummaryNewController.js" />
     <Content Include="Areas\Attendances\Scripts\MonthlyAttendanceInformationDateRangeNewController.js" />
     <Content Include="Areas\Attendances\Scripts\MonthlyAttendanceInformationNewController.js" />
+    <Content Include="Areas\Attendances\Scripts\monthlyGoodWorkReportNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessPlantWiseController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\PayrollManagementDashboardController.js" />
@@ -3709,6 +3711,7 @@
     <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\MonthlyInfoAll.cshtml" />
     <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\MonthlyInfoDateRange.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeePlantTransferNew\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\MonthlyGoodWorkReportNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
