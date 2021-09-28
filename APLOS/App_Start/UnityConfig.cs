@@ -62,6 +62,7 @@ using Library.Service.SalaryDisbursement;
 using Library.Service.QMS;
 using Library.Service.EmployeeServices;
 using Library.MaterialManagement.Products;
+using Library.HumanResource.NewAttendanceProcess;
 
 namespace Aplos.App_Start
 {
@@ -908,6 +909,7 @@ namespace Aplos.App_Start
             container.RegisterType<ICheckLotNewService, CheckLotNewService>();
             container.RegisterType<ICheckLotDetailNewService, CheckLotDetailNewService>();
             container.RegisterType<IAutoLoanService, AutoLoanService>();
+            container.RegisterType<ILeaveTransactionNewService, LeaveTransactionNewService>();
             container.RegisterType<IInventoryIssueJournalService, InventoryIssueJournalService>();
 
         }

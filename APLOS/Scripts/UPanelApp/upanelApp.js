@@ -930,6 +930,8 @@ var upanelApp = angular
     .controller("ProductionOrderProcessWithRateController", ProductionOrderProcessWithRateController)
     .controller("entityWiseExpenseAndEarningController", entityWiseExpenseAndEarningController)
     .controller("ProductionOrderRateReportController", ProductionOrderRateReportController)
+    .controller("EmployeeLeaveApplicationNewController", EmployeeLeaveApplicationNewController)
+    .controller('EmployeeLeaveApprovalNewController', EmployeeLeaveApprovalNewController)
     .controller('ProductionTargetReportController', ProductionTargetReportController)
 
 
