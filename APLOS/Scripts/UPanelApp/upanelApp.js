@@ -928,8 +928,8 @@ var upanelApp = angular
     .controller("ProductionOrderProcessWithRateController", ProductionOrderProcessWithRateController)
     .controller("entityWiseExpenseAndEarningController", entityWiseExpenseAndEarningController)
     .controller("ProductionOrderRateReportController", ProductionOrderRateReportController)
-
-
+    .controller("EmployeeLeaveApplicationNewController", EmployeeLeaveApplicationNewController)
+    .controller('EmployeeLeaveApprovalNewController', EmployeeLeaveApprovalNewController)
     .controller("PostInvoiceController", PostInvoiceController)
 
     .config(AccessControllerConfig)
