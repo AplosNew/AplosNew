@@ -10129,9 +10129,11 @@ namespace Library.MaterialManagement.Inventory
             {
                 FlagIsAsset = true;
             }
+
+            string JWArtId = null;
             try
             {
-
+                
 
                 var GRNCalculateList = new List<InventoryIssueHistory>();
                 if (entities.IsNotNull())
@@ -10143,7 +10145,15 @@ namespace Library.MaterialManagement.Inventory
                     var currencyId = _companyRepository.Find(inventoryIssue.CompanyId).BaseCurrencyId;
                     foreach (var item in entities)// update view model (inventory material field)
                     {
-                        var im = inventoryMaterialList.FirstOrDefault(t => t.MaterialMasterId == item.MaterialMasterId && t.ArticleId == item.ArticleId
+                      //  JWArtId += ",'" + item.ArticleId + "' ";
+                        if (item.ArticleId.IsNotNull())
+                        {
+                            if (string.IsNullOrEmpty(JWArtId))
+                            {
+                                JWArtId = item.ArticleId;
+                            }
+                            
+                            var im = inventoryMaterialList.FirstOrDefault(t => t.MaterialMasterId == item.MaterialMasterId && t.ArticleId == item.ArticleId
                                 //&& t.FirstCharacteristicsId == item.FirstCharacteristicsId 
                                 //&& t.FirstCharacteristicsValueId == item.FirstCharacteristicsValueId
                                 //&& t.SecondCharacteristicsId == item.SecondCharacteristicsId 
@@ -10153,41 +10163,56 @@ namespace Library.MaterialManagement.Inventory
                                 //&& t.CountryId == item.CountryId
                                 && t.CompanyId == inventoryIssue.CompanyId && t.PlantId == inventoryIssue.PlantId // && t.CountryId == item.CountryId
                                );
-                        if (im.IsNotNull())
-                        {
 
-                            if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
-                            item.InventoryIssueId = _pk;
-                            item.InventoryMaterialId = im.Id;
-                            item.CompanyGroupId = im.CompanyGroupId;
-                            item.CompanyId = inventoryIssue.CompanyId;
-                            item.PlantId = inventoryIssue.PlantId;
-                            item.CurrencyId = currencyId;
-                            item.MaterialStorageId = null;
-                            item.MaterialMasterId = im.MaterialMasterId;
-                            item.ArticleId = im.ArticleId;
-                            item.FirstCharacteristicsId = im.FirstCharacteristicsId;
-                            item.FirstCharacteristicsValueId = im.FirstCharacteristicsValueId;
-                            item.SecondCharacteristicsId = im.SecondCharacteristicsId;
-                            item.SecondCharacteristicsValueId = im.SecondCharacteristicsValueId;
-                            item.ThirdCharacteristicsId = im.ThirdCharacteristicsId;
-                            item.ThirdCharacteristicsValueId = im.ThirdCharacteristicsValueId;
-                            item.TotalQty = im.TotalQty;
-                            item.AvgRate = im.AvgRate;
+                            if (im.IsNotNull())
+                            {
 
+                                if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
+                                item.InventoryIssueId = _pk;
+                                item.InventoryMaterialId = im.Id;
+                                item.CompanyGroupId = im.CompanyGroupId;
+                                item.CompanyId = inventoryIssue.CompanyId;
+                                item.PlantId = inventoryIssue.PlantId;
+                                item.CurrencyId = currencyId;
+                                item.MaterialStorageId = null;
+                                item.MaterialMasterId = im.MaterialMasterId;
+                                item.ArticleId = im.ArticleId;
+                                item.FirstCharacteristicsId = im.FirstCharacteristicsId;
+                                item.FirstCharacteristicsValueId = im.FirstCharacteristicsValueId;
+                                item.SecondCharacteristicsId = im.SecondCharacteristicsId;
+                                item.SecondCharacteristicsValueId = im.SecondCharacteristicsValueId;
+                                item.ThirdCharacteristicsId = im.ThirdCharacteristicsId;
+                                item.ThirdCharacteristicsValueId = im.ThirdCharacteristicsValueId;
+                                item.TotalQty = im.TotalQty;
+                                item.AvgRate = im.AvgRate;
 
-
-
-
-
-
-
+                            }
                         }
+                        
                     }// update view model (inventory material field)
                     inventoryIssue.CurrencyId = currencyId;
                     inventoryIssue.ProductionOrderId = inventoryIssue.ProductionOrderId;
                     inventoryIssue.ContractId = inventoryIssue.ContractId;
                     inventoryIssue.OrderRefNo = inventoryIssue.OrderRefNo;
+
+                    inventoryIssue.JWContractId = inventoryIssue.JWContractId;
+                    inventoryIssue.ContractType = inventoryIssue.ContractType;
+                    inventoryIssue.Types = inventoryIssue.Types;
+
+                    inventoryIssue.RefferenceNo = inventoryIssue.RefferenceNo;
+                    inventoryIssue.IssueType = inventoryIssue.IssueType;
+                    inventoryIssue.EmployeeId = inventoryIssue.EmployeeId;
+
+                    inventoryIssue.MaterialStorageId = inventoryIssue.MaterialStorageId;
+                    inventoryIssue.EmployeeId = inventoryIssue.EmployeeId;
+
+                    inventoryIssue.IssueDate = inventoryIssue.IssueDate;
+                    inventoryIssue.EntityId = inventoryIssue.EntityId;
+                    inventoryIssue.PlantId = inventoryIssue.PlantId;
+
+                    inventoryIssue.CompanyGroupId = inventoryIssue.CompanyGroupId;
+                    inventoryIssue.CompanyId = inventoryIssue.CompanyId;
+
                     inventoryIssue.Id = _pk;
                     InsertGraph(inventoryIssue);
                     var rdBuilder = new System.Text.StringBuilder();
@@ -10197,8 +10222,9 @@ namespace Library.MaterialManagement.Inventory
 
                     #region ===========IssueDetail And IssueHistory And Update GRN And Stock=======
 
-      
 
+                    if (!string.IsNullOrEmpty(JWArtId))
+                    {
                     try
                     {
 
@@ -10895,12 +10921,16 @@ namespace Library.MaterialManagement.Inventory
                     {
                         throw;
                     }
-                    #endregion
-
+                        #endregion
+                    }
 
 
                     _unitOfWork.SaveChanges();
-                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    if (!string.IsNullOrEmpty(JWArtId))
+                    {
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+                   
                     flag = false;
                     _unitOfWork.Commit();
                     if (TabType == "Transformation")
@@ -11074,16 +11104,16 @@ namespace Library.MaterialManagement.Inventory
                 {
                     if (empitem.ArticleId.IsNull())
                     {
-                        //if (empitem.JWOrderWiseId.IsNotNull())
-                        //{
-                        //    JWOrderWiseId += ",'" + empitem.JWOrderWiseId + "' ";
-                        //    OtMatId += ",'" + empitem.JWTCMId + "' ";
-                        //}
-                        //else
-                        //{
-                        //    OtMatId += ",'" + empitem.JWTCMId + "' ";
-                        //}
-                      
+                        if (empitem.JWOrderWiseId.IsNotNull())
+                        {
+                            JWOrderWiseId += ",'" + empitem.JWOrderWiseId + "' ";
+                            OtMatId += ",'" + empitem.JWTCMId + "' ";
+                        }
+                        else
+                        {
+                            OtMatId += ",'" + empitem.JWTCMId + "' ";
+                        }
+
                     }
                 }
 
@@ -11101,16 +11131,16 @@ namespace Library.MaterialManagement.Inventory
                 {
                     if (item.ArticleId.IsNull())
                     {
-                        //if (item.JWOrderWiseId.IsNotNull())
-                        //{
-                        //    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
-                        //}
-                        //else
-                        //{
-                        //    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' ";
-                        //}
+                        if (item.JWOrderWiseId.IsNotNull())
+                        {
+                            ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
+                        }
+                        else
+                        {
+                            ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' ";
+                        }
 
-                        
+
 
                         if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                         {
@@ -11123,7 +11153,7 @@ namespace Library.MaterialManagement.Inventory
                             dr["BaseUOMId"] = item.BaseUOMId;
                             dr["CostCenterId"] = item.CostCenterId;
                             dr["JWTCMID"] = item.JWTCMId;
-                   //         dr["JWOrderWiseId"] = item.JWOrderWiseId;
+                            dr["JWOrderWiseId"] = item.JWOrderWiseId;
 
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -11137,14 +11167,14 @@ namespace Library.MaterialManagement.Inventory
                         }
                         else
                         {
-                            //if (item.JWOrderWiseId.IsNotNull())
-                            //{
-                            //    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
-                            //}
-                            //else
-                            //{
-                            //    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' ";
-                            //}
+                            if (item.JWOrderWiseId.IsNotNull())
+                            {
+                                ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
+                            }
+                            else
+                            {
+                                ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' ";
+                            }
 
                             if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                             {
@@ -11157,7 +11187,7 @@ namespace Library.MaterialManagement.Inventory
                                 dr["BaseUOMId"] = item.BaseUOMId;
                                 dr["CostCenterId"] = item.CostCenterId;
                                 dr["JWTCMID"] = item.JWTCMId;
-                         //       dr["JWOrderWiseId"] = item.JWOrderWiseId;
+                                dr["JWOrderWiseId"] = item.JWOrderWiseId;
 
                                 dr["AddedBy"] = identity.Name;
                                 dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -11179,7 +11209,7 @@ namespace Library.MaterialManagement.Inventory
                                 dr["BaseUOMId"] = item.BaseUOMId;
                                 dr["CostCenterId"] = item.CostCenterId;
                                 dr["JWTCMID"] = item.JWTCMId;
-                         //       dr["JWOrderWiseId"] = item.JWOrderWiseId;
+                                dr["JWOrderWiseId"] = item.JWOrderWiseId;
 
                                 dr["UpdatedBy"] = identity.Name;
                                 dr["UpdatedDate"] = System.DateTime.Now.ToString();

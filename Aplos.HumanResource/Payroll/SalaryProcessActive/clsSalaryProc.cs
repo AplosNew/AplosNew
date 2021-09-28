@@ -291,6 +291,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     SUM(ISNULL(CAST(WorkingDayValue As decimal(18, 2)), '0.00')) TotalWorkingDay,
                                     SUM(ISNULL(CAST(ActualWorkingDayValue As decimal(18, 2)), '0.00')) TotalActualWorkingDay,
                                     SUM(ISNULL(CAST(PayDayValue As decimal(18, 2)), '0.00')) TotalPayDay,
+                                    SUM(ISNULL(CAST(NonPayDayValue As decimal(18, 2)), '0.00')) TotalNonPayDay,
 		                            SUM(ISNULL(CAST(TotalPresent As decimal(18, 2)), '0.00')) TotalPresent, 
                                     SUM(ISNULL(CAST(TotalLate As decimal(18, 2)), '0.00')) TotalLate, 
 		                            SUM(ISNULL(CAST(TotalAbsent As decimal(18, 2)), '0.00')) TotalAbsent, 
@@ -304,7 +305,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     0.00 TotalNormalOTHr, 
                                     0.00 TotalExtraOTHr, 
                                     SUM(ISNULL(CAST(TotalLWP As decimal(18, 2)), '0.00')) TotalLWP   
-                            FROM (SELECT EmpSystemID, WorkDate,WorkingDayValue,ActualWorkingDayValue,PayDayValue,
+                            FROM (SELECT EmpSystemID, WorkDate,WorkingDayValue,ActualWorkingDayValue,PayDayValue,NonPayDayValue,
 										TotalPresent = PresentValue,
                                                         --LWP and LWOP both r considered          
 			                            TotalLate = LateValue,

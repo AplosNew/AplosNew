@@ -353,11 +353,14 @@ namespace Library.OrderManagement.Sales
 							LEFT JOIN trn.PackingLineItem PLI ON PLI.SOId=SO.Id
 							LEFT JOIN 
 							(
-							Select SUM(BookQty) Qty, SUM(PlanQty) PlanQty,PackingLineItemId from trn.POLotReference 
-							GROUP BY PackingLineItemId
+							--Select SUM(BookQty) Qty, SUM(PlanQty) PlanQty,PackingLineItemId from trn.POLotReference 
+							--GROUP BY PackingLineItemId
+							Select ISNULL(SUM(sc.NetWeight),0) Qty, ISNULL(SUM(PlanQty),0) PlanQty,PackingLineItemId from trn.POLotReference po
+							left join dbo.ItemScanChild sc on sc.PackingId = po.Id
+							 GROUP BY PackingLineItemId
 							)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
 							LEFT JOIN(
-							Select SUM(SM.TransactionQty) TransactionQty,SM.SalesOrderId from TRN.SalesMaterial SM
+							Select ISNULL(SUM(SM.TransactionQty),0) TransactionQty,SM.SalesOrderId from TRN.SalesMaterial SM
 							JOIN trn.PackingLineItem PLI ON PLI.SOId=SM.SalesOrderId
 							GROUP BY  SM.SalesOrderId
 							) A ON A.SalesOrderId=SO.Id
