@@ -2660,7 +2660,11 @@ namespace Library.HumanResource.Report.Payroll
                                 earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
                                 totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
                             }
-
+                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "Monthly Bonus Retain".ToUpper())
+                            {
+                                earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
+                                totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
+                            }
                             isDecimal = bplib.clsWebLib.GetBoolData(BonusList[BNS]["IntegerInDisb"].ToString());
                             decimalNo = clsStaticInfo.dbl(BonusList[BNS]["DecimalNo"].ToString());
                             if (earningBonusAmount == 0)
@@ -3069,6 +3073,12 @@ namespace Library.HumanResource.Report.Payroll
                             }
 
                             if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "RetainedBonus".ToUpper())
+                            {
+                                earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
+                                totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
+                            }
+
+                            if (BonusList[BNS]["HeadCategory"].ToString().ToUpper() == "Monthly Bonus Retain".ToUpper())
                             {
                                 earningBonusAmount += clsStaticInfo.dbl(BonusList[BNS]["DisbusmentAmount"].ToString());
                                 totalEarningBonusAmountYearly += Convert.ToDouble(earningBonusAmount);
@@ -3910,10 +3920,13 @@ namespace Library.HumanResource.Report.Payroll
                                                     ,sh.SalaryHead,sh.HeadCategory,sh.HeadType
                                                     ,sh.IsCTCComponent,sh.IsGrossComponent
                                                     ,CRC.IntegerInDisb, CRC.DecimalNo
+													,sl.IsLocked
+													,sh.IsRetained
 											 FROM SalaryProcChild SPC
 												INNER JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
 																							AND SPM.SystemID IN(" + salaryProcessId + @")
-												INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID                                                                      
+												INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID    
+                                                LEFT JOIN SalaryLock sl on sl.YearNo=spm.YearNo and sl.MonthNo=spm.MonthNo and sl.EmpSystemId=spc.EmpInfoSystemID
                                             LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = SPC.SlrProcMstSystemID
 																	LEFT JOIN CurrencyRuleMaster CRM ON CRM.SystemID = SRM.CurrencyRuleSystemID                                                                    
 										LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
@@ -3939,10 +3952,10 @@ namespace Library.HumanResource.Report.Payroll
                                                          ,ISNULL(TotalLWP,0) TotalLWP
 				                              FROM SalaryProceAttdnData  WHERE " + getMonthYearWithoutAnd(fromDate, toDate, "YearNo", "MonthNo") + @" 
 											) MMDSA ON EmpSlr.EmpInfoSystemID = MMDSA.EmpSystemID AND EmpSlr.MonthNo =  MMDSA.MonthNo AND EMPslr.YearNo = MMDSA.YearNo												   
-													   WHERE 1=1
+													   WHERE EmpSlr.IsLocked = 1  and 1=1
 														and EmpBasic.PlantId = '" + plantId + @"' 
                                                 " + getMonthYearBonus(fromDate, toDate, "EmpSlr.YearNo", "EmpSlr.MonthNo") + @"
-													AND EmpSlr.HeadCategory In( 'Basic','Other Bonus','RetainedBonus') --AND EmpSystemId = '2010025' 
+													AND EmpSlr.HeadCategory In( 'Basic','Other Bonus','RetainedBonus','Monthly Bonus Retain') --AND EmpSystemId = '2010025' 
                                                     ORDER BY EmpSystemId,YearNo,MonthNo";
             DataTable dt = _sqlRepository.GetDataTable(strSql);
 
@@ -4061,37 +4074,39 @@ namespace Library.HumanResource.Report.Payroll
 													SPM.AmtDefinitionCurrencyRate, SPC.IsNetPayEffect
                                                     ,sh.SalaryHead,sh.HeadCategory,sh.HeadType
                                                     ,sh.IsCTCComponent,sh.IsGrossComponent
-                                                    ,CRC.IntegerInDisb, CRC.DecimalNo
+                                                    ,CRC.IntegerInDisb, CRC.DecimalNo,sl.IsLocked
+													,sh.IsRetained
 											 FROM SalaryProcChild SPC
 												INNER JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
 																							AND SPM.SystemID IN(" + salaryProcessId + @")
-												INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID                                                                      
+												INNER JOIN SalaryHead SH ON SH.SalaryHeadID=SPC.SalaryHeadID 
+                                                LEFT JOIN SalaryLock sl on sl.YearNo=spm.YearNo and sl.MonthNo=spm.MonthNo and sl.EmpSystemId=spc.EmpInfoSystemID
                                             LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = SPC.SlrProcMstSystemID
 																	LEFT JOIN CurrencyRuleMaster CRM ON CRM.SystemID = SRM.CurrencyRuleSystemID                                                                    
 										LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = SH.SalaryHeadID
-															WHERE HeadCategory IN ( 'Basic','Other Bonus','RetainedBonus') 	
+															WHERE HeadCategory IN ( 'Basic','Other Bonus','RetainedBonus','Monthly Bonus Retain') 	
 											) EmpSlr ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID --AND EmpBasic.PlantID = EmpSlr.PlantID
                                     LEFT JOIN
 		                                    (
 											 SELECT EmpSystemID
                                                   , 	SUM(ISNULL(TotalProcDate,0)) TotalProcDate
-	,SUM(ISNULL(TotalPresent,0)) TotalPresent
-	,SUM(ISNULL(TotalLate,0)) TotalLate
-	,SUM(ISNULL(TotalAbsent,0)) TotalAbsent
-	,SUM(ISNULL(TotalLv,0)) TotalLv
-	,SUM(ISNULL(TotalMLv,0)) TotalMLv
-	,SUM(ISNULL(TotalCompAssignLv,0)) TotalCompAssignLv
-	,SUM(ISNULL(TotalWeekOff,0)) TotalWeekOff
-	,SUM(ISNULL(TotalHoliDay,0)) TotalHoliDay
-	,SUM(ISNULL(TotalWeekOffHoliDay,0)) TotalWeekOffHoliDay
-	,SUM(ISNULL(TotalOTHr,0)) TotalOTHr
-	,SUM(ISNULL(TotalNormalOTHr,0)) TotalNormalOTHr
-	,SUM(ISNULL(TotalExtraOTHr,0)) TotalExtraOTHr
+	                                                ,SUM(ISNULL(TotalPresent,0)) TotalPresent
+	                                                ,SUM(ISNULL(TotalLate,0)) TotalLate
+	                                                ,SUM(ISNULL(TotalAbsent,0)) TotalAbsent
+	                                                ,SUM(ISNULL(TotalLv,0)) TotalLv
+	                                                ,SUM(ISNULL(TotalMLv,0)) TotalMLv
+	                                                ,SUM(ISNULL(TotalCompAssignLv,0)) TotalCompAssignLv
+	                                                ,SUM(ISNULL(TotalWeekOff,0)) TotalWeekOff
+	                                                ,SUM(ISNULL(TotalHoliDay,0)) TotalHoliDay
+	                                                ,SUM(ISNULL(TotalWeekOffHoliDay,0)) TotalWeekOffHoliDay
+	                                                ,SUM(ISNULL(TotalOTHr,0)) TotalOTHr
+	                                                ,SUM(ISNULL(TotalNormalOTHr,0)) TotalNormalOTHr
+	                                                ,SUM(ISNULL(TotalExtraOTHr,0)) TotalExtraOTHr
 
 				                              FROM SalaryProceAttdnData  WHERE " + getMonthYearWithoutAnd(fromDate, toDate, "YearNo", "MonthNo") + @" 
 											 GROUP BY EmpSystemID
-) MMDSA ON EmpSlr.EmpInfoSystemID = MMDSA.EmpSystemID --AND EmpSlr.MonthNo =  MMDSA.MonthNo AND EMPslr.YearNo = MMDSA.YearNo												   
-													   WHERE 1=1
+                            ) MMDSA ON EmpSlr.EmpInfoSystemID = MMDSA.EmpSystemID --AND EmpSlr.MonthNo =  MMDSA.MonthNo AND EMPslr.YearNo = MMDSA.YearNo												   
+													   WHERE EmpSlr.IsLocked = 1  and 1=1
 														and EmpBasic.PlantId = '" + plantId + @"' 
                                                 " + getMonthYearBonus(fromDate, toDate, "EmpSlr.YearNo", "EmpSlr.MonthNo") + @"
 													
