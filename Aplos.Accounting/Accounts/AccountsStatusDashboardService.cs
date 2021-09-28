@@ -10231,6 +10231,9 @@ union ALL
 									,ISNULL( FR.CompanyId,'')CompanyId
 									,ISNULL(FR.PlantId,'') PlantId
 
+		                            ,ISNULL(FADR.Description,'')Description
+									,ISNULL(FR.MultiplicationFactor,0)MultiplicationFactor
+
                                     FROM [TRN].[FixedAssetRegister] FR
 					                LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
 					                LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
@@ -10253,6 +10256,9 @@ union ALL
                                     LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
 		                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=FR.CurrencyId
 									LEFT JOIN [SCS].[Currency] AS CC ON CC.Id=FR.FABaseCurrencyId
+
+                                    left join mst.FixedAssetDepreciationRule FADR ON FADR.Id= FR.DepreciationRuleId
+
 
 								 LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
 								 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
@@ -10337,6 +10343,16 @@ union ALL
                 sheet[ROW, COL].Text = "Assets Master";
                 sheet[ROW, COL].ColumnWidth = 25;
                 int colFixedAssetMaster = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Depreciation Rules";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colDescription = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Factor";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int colMultiplicationFactor = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Vendor";
@@ -10464,6 +10480,8 @@ union ALL
 
                     sheet[ROW, colCode].Text = dtFixedAssetRegister.Rows[i]["FARCode"].ToString();
                     sheet[ROW, colMaterial].Text = dtFixedAssetRegister.Rows[i]["MaterialMasterName"].ToString();
+                    sheet[ROW, colDescription].Text = dtFixedAssetRegister.Rows[i]["Description"].ToString();
+                    sheet[ROW, colMultiplicationFactor].Text = dtFixedAssetRegister.Rows[i]["MultiplicationFactor"].ToString();
 
                     sheet[ROW, colArticleName].Text = dtFixedAssetRegister.Rows[i]["Article"].ToString();
                     sheet[ROW, colFixedAssetMaster].Text = dtFixedAssetRegister.Rows[i]["FixedAssetMasterName"].ToString();

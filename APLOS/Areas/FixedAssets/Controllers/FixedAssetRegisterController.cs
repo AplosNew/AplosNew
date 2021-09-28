@@ -368,6 +368,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 , assetItemValue, fixedAssetRegisterSkuValue, fixedAssetMasterId, assetGLId, assetBudgetId, assetActivityId);
             return Json(new { id = registerid, Message = AplosMessage.Insert });
         }
+
+
+        [Authorize, HttpGet]
+        public JsonResult getDepreciationRulelist()
+        {
+            return Json(_sqlRepository.GetDataCollection("select CFADR.DepreciationRuleId AS Value, FADR.Description as Text from mst.CompanyFixedAssetDepreciationRule CFADR left  join mst.FixedAssetDepreciationRule FADR ON CFADR.DepreciationRuleId = FADR.Id"), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
 
         #region FixedAsset Register JV 

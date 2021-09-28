@@ -9432,13 +9432,13 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 		//}
 
 		[HttpPost]
-		public JsonResult JWIssueCreate(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll)
+		public JsonResult JWIssueCreate(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll, string TabType)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.PlantId = identity.PlantId;
-			_inventoryIssueService.JWInsertGraph(entities, specificStockList, inventoryIssue, IssueTypeStatus, entitiesAll);
+			_inventoryIssueService.JWInsertGraph(entities, specificStockList, inventoryIssue, IssueTypeStatus, entitiesAll, TabType);
 			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 		#endregion

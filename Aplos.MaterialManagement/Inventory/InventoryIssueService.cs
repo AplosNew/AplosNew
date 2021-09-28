@@ -10117,7 +10117,7 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public void JWInsertGraph(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus,IEnumerable<InventoryMaterialViewModel> entitiesAll) 
+        public void JWInsertGraph(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus,IEnumerable<InventoryMaterialViewModel> entitiesAll, string TabType) 
         {
             var flag = false;
             bool FlagIsAsset = false;
@@ -10903,7 +10903,15 @@ namespace Library.MaterialManagement.Inventory
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                     flag = false;
                     _unitOfWork.Commit();
-                    SaveIssueTransformationChild(entities, _pk);
+                    if (TabType == "Transformation")
+                    {
+                        SaveIssueTransformationChild(entities, _pk);
+                    }
+                    else
+                    {
+                        SaveIssueValAddedChild(entities, _pk);
+                    }
+                    
                 }
             }
             catch (CustomException)
@@ -11038,6 +11046,152 @@ namespace Library.MaterialManagement.Inventory
 
                     }
                 }
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(ExistOrNot);
+
+                //         return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void SaveIssueValAddedChild(IEnumerable<InventoryMaterialViewModel> entities, string MasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                DataSet ExistOrNot;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var JWOrderWiseId = "' '";
+                var OtMatId = "' '";
+
+                foreach (var empitem in entities)
+                {
+                    if (empitem.ArticleId.IsNull())
+                    {
+                        //if (empitem.JWOrderWiseId.IsNotNull())
+                        //{
+                        //    JWOrderWiseId += ",'" + empitem.JWOrderWiseId + "' ";
+                        //    OtMatId += ",'" + empitem.JWTCMId + "' ";
+                        //}
+                        //else
+                        //{
+                        //    OtMatId += ",'" + empitem.JWTCMId + "' ";
+                        //}
+                      
+                    }
+                }
+
+                if (JWOrderWiseId.IsNotNull())
+                {
+                    con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTCMID IN ( " + OtMatId + ") and JWOrderWiseId IN (" + JWOrderWiseId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+                }
+                else
+                {
+                    con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTCMID IN ( " + OtMatId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+                }
+                
+
+                foreach (var item in entities)
+                {
+                    if (item.ArticleId.IsNull())
+                    {
+                        //if (item.JWOrderWiseId.IsNotNull())
+                        //{
+                        //    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
+                        //}
+                        //else
+                        //{
+                        //    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' ";
+                        //}
+
+                        
+
+                        if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow dr = ExistOrNot.Tables[0].NewRow();
+                            dr["Id"] = GetTransformationChildPK();
+
+                            dr["InventoryIssueId"] = MasterId;
+                            dr["TransactionQty"] = item.TransactionQty;
+                            dr["TransactionUoMId"] = item.TransactionUoMId;
+                            dr["BaseUOMId"] = item.BaseUOMId;
+                            dr["CostCenterId"] = item.CostCenterId;
+                            dr["JWTCMID"] = item.JWTCMId;
+                   //         dr["JWOrderWiseId"] = item.JWOrderWiseId;
+
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = System.DateTime.Now.ToString();
+                            dr["AddedFromIP"] = identity.IPAddress;
+                            //dr["UpdatedBy"] = identity.Name;
+                            //dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            //dr["UpdatedFromIP"] = identity.IPAddress;
+
+                            ExistOrNot.Tables[0].Rows.Add(dr);
+
+                        }
+                        else
+                        {
+                            //if (item.JWOrderWiseId.IsNotNull())
+                            //{
+                            //    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
+                            //}
+                            //else
+                            //{
+                            //    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' ";
+                            //}
+
+                            if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                            {
+                                DataRow dr = ExistOrNot.Tables[0].NewRow();
+                                dr["Id"] = GetTransformationChildPK();
+
+                                dr["InventoryIssueId"] = MasterId;
+                                dr["TransactionQty"] = item.TransactionQty;
+                                dr["TransactionUoMId"] = item.TransactionUoMId;
+                                dr["BaseUOMId"] = item.BaseUOMId;
+                                dr["CostCenterId"] = item.CostCenterId;
+                                dr["JWTCMID"] = item.JWTCMId;
+                         //       dr["JWOrderWiseId"] = item.JWOrderWiseId;
+
+                                dr["AddedBy"] = identity.Name;
+                                dr["AddedDate"] = System.DateTime.Now.ToString();
+                                dr["AddedFromIP"] = identity.IPAddress;
+
+                                ExistOrNot.Tables[0].Rows.Add(dr);
+
+                            }
+                            else
+                            {
+                                //edit
+                                DataRow dr = ExistOrNot.Tables[0].DefaultView[0].Row;
+
+                                dr.BeginEdit();
+
+                                dr["InventoryIssueId"] = MasterId;
+                                dr["TransactionQty"] = item.TransactionQty;
+                                dr["TransactionUoMId"] = item.TransactionUoMId;
+                                dr["BaseUOMId"] = item.BaseUOMId;
+                                dr["CostCenterId"] = item.CostCenterId;
+                                dr["JWTCMID"] = item.JWTCMId;
+                         //       dr["JWOrderWiseId"] = item.JWOrderWiseId;
+
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                                dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                                dr.EndEdit();
+                            }
+
+
+                        }
+                    }
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(ExistOrNot);

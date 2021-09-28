@@ -241,6 +241,7 @@
                     <th>LC No</th>
                     <th>Qty</th>
                     <th>Amount</th>
+                    <th>Status</th>
                     <th>Print</th>
                 </tr>
             </thead>
@@ -258,11 +259,13 @@
                     <td>{{x.LCRef}}</td>
                     <td>{{x.TransactionQty}}</td>
                     <td>{{x.PolicyAmount}}</td>
+                    <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
                             <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                             <li><a class="btn btn-action" href="Products/InventoryIssue/IssueReport?grnId={{x.IssueNo}}" target="_blank"><i class="glyphicon glyphicon-print"></i></a></li>
+                            <li ><a ng-show="x.IsPark" class="btn btn-action" ng-click="confirmDelete(x.IssueNo,x.VoucherId);" href="" ><i class="glyphicon glyphicon-trash"></i></a></li>
                         </ul>
                     </td>
                 </tr>
@@ -478,3 +481,4 @@
         </div>
     </div>
 </div>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(issueId,voucherId)"></confirm-archive-generic>

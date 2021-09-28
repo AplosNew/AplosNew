@@ -136,7 +136,7 @@
                                             <label class="col-sm-4 control-label">Job Work Location<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
                                                 <div class="select-style">
-                                                    <select class="form-control" ng-model="Issue.MaterialStorageId" name="Job Work Location" required
+                                                    <select class="form-control" ng-model="Issue.MaterialStorageId" name="Job Work Location" ng-change="GetSelectedMaterialStorage();" required
                                                             ng-options="item.Value as item.Text for item in ValAddedJobWorkLocList" tabindex="3">
                                                         <option value="">--Select--</option>
                                                     </select>
@@ -266,7 +266,7 @@
                                                 <th style="width:500px;">CostCenter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                                 @*<th>Cost Center</th>*@
                                                 @*<th>Budget</th>
-                        <th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
+        <th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
                                                 @*<th>Activity</th>*@
                                                 <th>JWTCMasterId</th>
                                                 @*<th>JWTCDetailId</th>*@
@@ -279,6 +279,14 @@
                                                 <th>SKU2</th>
                                                 <th>SKU3</th>
                                                 <th>Country</th>
+
+                                                <th>OrderWiseId</th>
+                                                <th>SalesOrderNo</th>
+                                                <th>MasterOrderNo</th>
+                                                <th>MasterOrderItem</th>
+                                                <th>Customer</th>
+                                                <th>Buyer</th>
+
                                                 <th>UOM</th>
                                                 <th>PlannedQty</th>
                                                 <th>ApprovedQty</th>
@@ -316,12 +324,12 @@
                                                 </td>
                                                 @*<td>{{x.CostCenterName}}</td>*@
                                                 @*<td>{{x.BudgetName}}</td>
-                        <td>
-                            <button ng-click="popUp($index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
-                                <i class="glyphicon glyphicon-search"></i>
-                            </button>
-                            {{x.ActivityName}}
-                        </td>*@
+        <td>
+            <button ng-click="popUp($index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
+                <i class="glyphicon glyphicon-search"></i>
+            </button>
+            {{x.ActivityName}}
+        </td>*@
                                                 @*<td>{{x.Material}}</td>*@
                                                 @*<td>{{x.ArticleName}}</td>*@
                                                 <td>{{x.JWTCMId}}</td>
@@ -362,10 +370,18 @@
                                                     </div>
 
                                                 </td>
-                                                <td>{{x.Sku1}}</td>
-                                                <td>{{x.Sku2}}</td>
-                                                <td>{{x.Sku3}}</td>
+                                                <td>{{x.FirstCharacteristicsValue}}</td>
+                                                <td>{{x.SecondCharacteristicsValue}}</td>
+                                                <td>{{x.ThirdCharacteristicsValue}}</td>
                                                 <td>{{x.CountryName}}</td>
+
+                                                <td>{{x.JWOrderWiseId}}</td>
+                                                <td>{{x.SalesOrderId}}</td>
+                                                <td>{{x.MasterOrderNo}}</td>
+                                                <td>{{x.MasterOrderItemId}}</td>
+                                                <td>{{x.Customer}}</td>
+                                                <td>{{x.Buyer}}</td>
+
                                                 <td>{{x.TransactionUoM}}</td>
                                                 <td>{{x.RequiredQuantity}}</td>
                                                 <td>{{x.ApprovedQty}}</td>
@@ -376,7 +392,7 @@
                                                 <td>{{x.RequestedQty}}</td>
                                                 <td>{{x.TIRCTotalQty}}</td>
                                                 <td>{{x.BalanceToIssue}}</td>
-                                                <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFuncValAdded(x, $index)";></td>
+                                                <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFuncValAdded(x, $index)" ;></td>
                                                 <td class="text-right" ng-hide="false"><input type="text" class="form-control text-right" width="400" ng-model="x.Comments"></td>
                                                 @*<td>{{x.char3.FreeText}}</td>*@
                                                 @*<td>{{x.TransactionQty}}  {{x.TransactionUoM}}</td>*@

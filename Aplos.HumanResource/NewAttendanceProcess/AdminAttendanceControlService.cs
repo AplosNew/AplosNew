@@ -291,6 +291,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["ManualByWhom"] = identity.Name;
                             shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
                             shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
+                            shiftchange.Tables[0].Rows[0]["LockedDate"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["LockedBy"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["IsLock"] = false;
                             shiftchange.Tables[0].Rows[0].EndEdit();
                         }
                         #endregion change shift
@@ -314,6 +317,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["ManualByWhom"] = identity.Name;
                                 dr["ManualEntryTime"] = DateTime.Now;
                                 dr["ManualFlag"] = true;
+                                dr["IsLock"] = false;
+                                dr["LockedBy"] = DBNull.Value;
+                                dr["LockedDate"] = DBNull.Value;
                             }
 
                             dr.EndEdit();
@@ -368,6 +374,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["ManualByWhom"] = identity.Name;
                                 dr["ManualEntryTime"] = DateTime.Now;
                                 dr["ManualFlag"] = true;
+                                dr["IsLock"] = false;
+                                dr["LockedBy"] = DBNull.Value;
+                                dr["LockedDate"] = DBNull.Value;
 
                                 dr.EndEdit();
 
