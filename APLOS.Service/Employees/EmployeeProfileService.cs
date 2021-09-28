@@ -4162,7 +4162,10 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                             FormatTextBox(ref sheet, "DESIG", dtEmp.Rows[0]["DesignationName"].ToString(), 12, ExcelKnownColors.Black);
                             FormatTextBox(ref sheet, "ID", cnDgt(dtEmp.Rows[0]["EmployeeCode"].ToString(), langName), 12, ExcelKnownColors.Black);
                             FormatTextBox(ref sheet, "Department", dtEmp.Rows[0]["Section"].ToString(), 12, ExcelKnownColors.Black);
-                            FormatTextBox(ref sheet, "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), 12, ExcelKnownColors.Black);
+                            if (dtEmpWorkType.Rows.Count > 0)
+                            {
+                                FormatTextBox(ref sheet, "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), 12, ExcelKnownColors.Black); 
+                            }
 
                             var doj = GetFormatedDate(dtEmp.Rows[0]["DateOfJoin"].ToString(), langName);
                             FormatTextBox(ref sheet, "DOJ", doj, 12, ExcelKnownColors.Black);
@@ -4229,7 +4232,10 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 
                             FormatTextBox(ref sheet, "ID", dtEmp.Rows[0]["EmployeeCode"].ToString(), 11, ExcelKnownColors.Black);
                             FormatTextBox(ref sheet, "Department", dtEmp.Rows[0]["Section"].ToString(), 11, ExcelKnownColors.Black);
-                            FormatTextBox(ref sheet, "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), 11, ExcelKnownColors.Black);
+                            if (dtEmpWorkType.Rows.Count > 0)
+                            {
+                                FormatTextBox(ref sheet, "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), 11, ExcelKnownColors.Black); 
+                            }
                             FormatTextBox(ref sheet, "DOJ", dtEmp.Rows[0]["DateOfJoin"].ToString(), 11, ExcelKnownColors.Black);
                             FormatTextBox(ref sheet, "IssueDate", Convert.ToDateTime(issuDate).ToString("dd-MMM-yyyy"), 11, ExcelKnownColors.Black);
 
@@ -4429,7 +4435,10 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         }
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Department", dtEmp.Rows[0]["Department"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Section", dtEmp.Rows[0]["Section"].ToString(), "Kalpurush", 8);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), "Kalpurush", 8);
+                        if (dtEmpWorkType.Rows.Count>0)
+                        {
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), "Kalpurush", 8); 
+                        }
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PLANTNAME", dtEmp.Rows[0]["PlantName"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Grade", dtEmp.Rows[0]["Grade"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Line", dtEmp.Rows[0]["Line"].ToString(), "Kalpurush", 8);
