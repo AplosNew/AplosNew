@@ -249,6 +249,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.GetHistory(response.data.Id);
 
                 }
             }), function errorCallBack(response) {
