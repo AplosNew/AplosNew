@@ -686,6 +686,8 @@ namespace Library.Service.FixedAssets
                     from_db.LCNumber = from_ui.LCNumber;
                     from_db.Remarks = from_ui.Remarks;
                     from_db.Quantity = from_ui.Quantity;
+                    from_db.DepreciationRuleId = from_ui.DepreciationRuleId;
+                    from_db.MultiplicationFactor = from_ui.MultiplicationFactor;
                     if (!String.IsNullOrEmpty(from_ui.RFId))
                     {
                         from_db.RFIdAddedBy = identity.UserId;
@@ -763,6 +765,8 @@ namespace Library.Service.FixedAssets
                     from_db.LCNumber = from_ui.LCNumber;
                     from_db.Remarks = from_ui.Remarks;
                     from_db.Quantity = from_ui.Quantity;
+                    from_db.DepreciationRuleId = from_ui.DepreciationRuleId;
+                    from_db.MultiplicationFactor = from_ui.MultiplicationFactor;
                     if (from_ui.RFId != null || from_ui.RFId != "")
                     {
                         from_db.RFIdUpdatedDate = DateTime.Now;
@@ -3674,7 +3678,7 @@ namespace Library.Service.FixedAssets
                 ,FR.[LifeTime]
                 ,C.UserName OriginName
                 ,FR.YearOfInstallation,FR.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId
-                ,IR.Id GRNNo,IR.POId PONo
+                ,IR.Id GRNNo,IR.POId PONo , FADR.Description DepreciationRules
                 FROM [TRN].[FixedAssetRegister] FR
                 LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
                 LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
@@ -3691,6 +3695,7 @@ namespace Library.Service.FixedAssets
                 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 				left join scs.Currency PC on PC.Id= FR.CurrencyId
 				left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
+				left join mst.FixedAssetDepreciationRule FADR ON FADR.Id = FR.DepreciationRuleId
 
 	
                 LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount * CapitalizationRate,0)) SubAssetAmount 
@@ -3935,6 +3940,13 @@ namespace Library.Service.FixedAssets
 
             worksheet[ROW, COL].Text = "Description";
             int colDescription = COL;
+            worksheet[ROW, COL].ColumnWidth = 40;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Depreciation Rules";
+            int colDepreciationRules = COL;
             worksheet[ROW, COL].ColumnWidth = 25;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -4087,6 +4099,7 @@ namespace Library.Service.FixedAssets
                 worksheet[ROW, colEntity].Text = dtGatenntryRegisterList.Rows[i]["Entity"].ToString();
                 worksheet[ROW, colDepartment].Text = dtGatenntryRegisterList.Rows[i]["Department"].ToString();
                 worksheet[ROW, colDescription].Text = dtGatenntryRegisterList.Rows[i]["Description"].ToString();
+                worksheet[ROW, colDepreciationRules].Text = dtGatenntryRegisterList.Rows[i]["DepreciationRules"].ToString();
                 worksheet[ROW, colPurchaseCurrency].Text = dtGatenntryRegisterList.Rows[i]["PurchaseCurrency"].ToString();
                 worksheet[ROW, colBaseCurrency].Text = dtGatenntryRegisterList.Rows[i]["BaseCurrency"].ToString();
                 

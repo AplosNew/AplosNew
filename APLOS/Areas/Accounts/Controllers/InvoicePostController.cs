@@ -233,7 +233,12 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
-
+        [HttpPost]
+        public ActionResult DeleteIssueJournal(string issueId, string voucherId)
+        {
+            _inventoryPayableService.DeleteIssueJournal(issueId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
         #endregion
         #region Shortage
 

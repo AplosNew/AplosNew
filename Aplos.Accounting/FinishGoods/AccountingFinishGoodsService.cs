@@ -112,8 +112,8 @@ namespace Library.Accounting.FixedAssets
                 DataSet _crvDetailCurrencyData = null;
                 DataSet _inventoryReceiveData = null;
 
-                voucherVM.CompanyCurrencyRate = 1;
-                voucherVM.CurrencyId = companyCurrencyId;
+               // voucherVM.CompanyCurrencyRate = 1;
+               // voucherVM.CurrencyId = companyCurrencyId;
                 voucherVM.DocDate = Convert.ToDateTime(voucherVM.DocDate);
                 voucherVM.PostingDate = Convert.ToDateTime(voucherVM.PostingDate);
                 var voucher = new Voucher
@@ -208,12 +208,20 @@ namespace Library.Accounting.FixedAssets
                         {
                             //edit
                             DataRow dr = _inventoryReceiveData.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
+                            if (string.IsNullOrEmpty(dr["VoucherId"].ToString()))
+                            {
+                                dr.BeginEdit();
 
-                            dr["VoucherId"] = voucher.Id;
-                            dr["UpdatedBy"] = voucher.AddedBy;
-                            dr["UpdatedDate"] = voucher.AddedDate;
-                            dr.EndEdit();
+                                dr["Status"] = "Posted";
+                                dr["VoucherId"] = voucher.Id;
+                                dr["UpdatedBy"] = voucher.AddedBy;
+                                dr["UpdatedDate"] = voucher.AddedDate;
+                                dr.EndEdit();
+                            }
+                            else
+                            {
+                                throw new Exception("This FG Inventory already posted.");
+                            }
                         }
                     }
                 }
@@ -282,7 +290,7 @@ namespace Library.Accounting.FixedAssets
                 ,V.VoucherNo,IR.VoucherId,V.PostingDate,V.DocDate,V.DocRefNo,C.Code CurrencyCode
 					FROM dbo.[FinishGoodsBooking] AS FG 
 					LEFT JOIN TRN.InventoryReceive IR ON IR.FinishGoodsBookingId=FG.Id AND IR.GRNType='FG'
-                     LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS Qty, SUM(ROUND(A.TransactionQty*A.MaterialTranRate,4)) AS Amount
+                     LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS Qty, SUM(ROUND(A.MaterialTranAmount,2)) AS Amount
 					 FROM TRN.InventoryReceiveDetail AS A  GROUP BY A.InventoryReceiveId) AS  IRD ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
                     LEFT JOIN SCS.Currency C ON C.Id=Ir.CurrencyId

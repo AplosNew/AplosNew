@@ -150,7 +150,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
             {
                 string strSQL = string.Empty;
                 string Seq = "";
-                string sql = @"SELECT Ma.Id,null as Charactaristics, SKUId=case when Ma.SelectedDropDownValue is null then '' else Ma.SelectedDropDownValue end,'' as [Sequence],'' Rate,IsDisable= case when Ma.SelectedDropDownValue is null then Convert(bit,'False') else CONVERT(bit,'True') end,
+                string sql = @"SELECT Ma.Id,null as Charactaristics,null as Color, SKUId=case when Ma.SelectedDropDownValue is null then '' else Ma.SelectedDropDownValue end,'' as [Sequence],'' Rate,IsDisable= case when Ma.SelectedDropDownValue is null then Convert(bit,'False') else CONVERT(bit,'True') end,
                                     PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, sum(PD.Qty)Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity,PD.Article,PD.MaterialMaster
@@ -244,7 +244,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                                    and PS.StandardName in ('Active', 'Running')
                                    group by Ma.Id, PO.Id ,PS.UserName,PO.RequiredTimeUnit,LSD,CommitmentDate,PD.Product, PD.ProductCategory
 								   ,PD.Buyer,PD.Customer, PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId
-								   ,E.UserName,Ma.SelectedDropDownValue,PD.MaterialMaster,PD.Article";
+								   ,E.UserName,Ma.SelectedDropDownValue,PD.MaterialMaster,PD.Article order by PO.Id";
                 List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
 
                 string strSQL2 = @"select ProductionBookingLevel from [HKP].[EntityProcessTag] where EntityId='" + entityId + "' and ProcessId = '" + ProcessId + @"' ";
@@ -314,13 +314,13 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 con.OpenDataSetThroughAdapter("select * from ProductionOrderProcessWithRateMaster where Id='" + Master["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
+                string _DId = "";
                 string MasterID = string.Empty;
 
                 #region Master data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrderProcessWithRateMaster", out _Id);
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrderProcessWithRateMaster", out _Id);
 
                     Master["Id"] = _Id;
                     MasterID = Master["Id"].ToString();
@@ -336,10 +336,9 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                 #region Child data Update
 
                 con.OpenDataSetThroughAdapter("select * from ProductionOrderProcessWithRateDetails where ProductionOrderProcessWithRateMasterId='" + MasterID + "'", out dsChild, false, "1");
-
+                objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrderProcessWithRateDetails", out _DId);
                 for (int i = 0; i < ChildData.Count; i++)
                 {
-
                     dsChild.Tables[0].DefaultView.RowFilter = "Id = '" + ChildData[i]["ChildId"] + "' ";
                     if (dsChild.Tables[0].DefaultView.Count == 0)
                     {
@@ -347,7 +346,7 @@ namespace Library.MaterialManagement.ProductionOrderProcessWithRate
                         {
                             dr = dsChild.Tables[0].NewRow();
                             Count++;
-                            dr["Id"] = MasterID + Count;
+                            dr["Id"] = _DId + Count;
                             dr["ProductionOrderProcessWithRateMasterId"] = MasterID;
                             if (Sequence == "1")
                             {

@@ -1264,7 +1264,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var sql = @" SELECT CEILING(SUM(ISNULL(PO.PlannedQty,0))) PlannedQty
+                var sql = @"SELECT CEILING(SUM(ISNULL(PO.PlannedQty,0))) PlannedQty
                         ,ISNULL(CEILING(SUM(PO.PlannedQty) - ISNULL(CEILING(PRS.TotalProductionQty),0)),0) RemainingQty, ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty
                          FROM trn.ProductionOrder AS PO
                          LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId

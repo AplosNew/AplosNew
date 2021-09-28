@@ -87,7 +87,7 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpPost]
         public JsonResult CreateConsumtionBook(Dictionary<string, object> data, List<Dictionary<string, object>> WorkDayList, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
         {
-            clsFinishGoodsBooking.ConsumtionBookData(data, WorkDayList, FinishGoodsBookingDetailList);
+            clsFinishGoodsBooking.SaveFinishGoodsBookData(data, WorkDayList, FinishGoodsBookingDetailList);
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 
@@ -151,6 +151,14 @@ namespace Aplos.Areas.Productions.Controllers
         public JsonResult GetItemScanChildData(string entityId,string fromDate, string toDate)
         {
             var jsondata = Json(clsFinishGoodsBooking.GetItemScanChildData(entityId,fromDate, toDate), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetDateWiseDetailDataData(string entityId, string fromDate, string toDate)
+        {
+            var jsondata = Json(clsFinishGoodsBooking.GetDateWiseDetailDataData(entityId, fromDate, toDate), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }

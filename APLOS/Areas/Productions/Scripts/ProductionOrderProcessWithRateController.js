@@ -350,4 +350,22 @@ function ProductionOrderProcessWithRateController(commonMessage, $scope, $rootSc
         eDialog.close();
     };
 
+    $scope.rowDataBound = function rowDataBound(e) {
+        try {
+            if (e.column.headerText.endsWith("SKU")) {
+                if (e.text) {
+                    if (e.data.Id != null) {
+                        e.data.Color = '#2ECC71';
+                        e.cell.bgColor = e.data.Color;
+                    }
+                    else {
+                        e.data.Color ='#E74C3C';
+                        e.cell.bgColor = e.data.Color;
+                    }
+                }
+            }
+        } catch (e) {
+
+        }
+    }
 }
