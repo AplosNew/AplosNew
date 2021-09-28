@@ -839,6 +839,7 @@ var upanelApp = angular
     .controller('AttendanceFromAppReportController', AttendanceFromAppReportController)
     .controller('professionalTaxReportsController', professionalTaxReportsController)
     .controller("monthlyGoodWorkReportController", monthlyGoodWorkReportController)
+    .controller("monthlyGoodWorkReportNewController", monthlyGoodWorkReportNewController)
     .controller("weekOffOTReportController", weekOffOTReportController)
     .controller("DispatchMasterController", DispatchMasterController)
     .controller("FinancialStatusCustomerReceivableInvoiceDetailController", FinancialStatusCustomerReceivableInvoiceDetailController)
@@ -929,6 +930,8 @@ var upanelApp = angular
     .controller("ProductionOrderProcessWithRateController", ProductionOrderProcessWithRateController)
     .controller("entityWiseExpenseAndEarningController", entityWiseExpenseAndEarningController)
     .controller("ProductionOrderRateReportController", ProductionOrderRateReportController)
+    .controller("EmployeeLeaveApplicationNewController", EmployeeLeaveApplicationNewController)
+    .controller('EmployeeLeaveApprovalNewController', EmployeeLeaveApprovalNewController)
     .controller('ProductionTargetReportController', ProductionTargetReportController)
 
 

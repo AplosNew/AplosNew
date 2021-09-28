@@ -339,7 +339,14 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
                     for (int i = 0; i < data.Count; i++)
                     {
-                        ret.Add(data[i]);
+                        string empId = bplib.clsWebLib.RetValidLen(data[i].EmpSystemID).ToString();
+                        string rowId = bplib.clsWebLib.RetValidLen(data[i].RowId).ToString();
+                        string wd = bplib.clsWebLib.RetValidLen(data[i].WorkDate).ToString();
+                        if (empId != "" && rowId != "" && wd != "")
+                        {
+                            ret.Add(data[i]);
+                        }
+                        
                     }
 
                 }

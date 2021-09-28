@@ -475,7 +475,7 @@ namespace Library.HumanResource.Report.OT
                     if (parameters.Count > 0)
                     {
                         if (parameters.Keys.ElementAt(0) != "")
-                        {                            
+                        {
                             Plant += parameters["PlantId"];
                         }
                     }
@@ -982,8 +982,8 @@ namespace Library.HumanResource.Report.OT
                 r.GetWeekOffAll(identity.PlantId, ToDate, out DataSet dsEmployeeWiseWeekoff);
                 Dictionary<string, string> dicEmployeeWiseWeekoff = new Dictionary<string, string>();
                 for (int i = 0; i < dsEmployeeWiseWeekoff.Tables[0].Rows.Count; i++)
-                    if(dicEmployeeWiseWeekoff.ContainsKey(dsEmployeeWiseWeekoff.Tables[0].Rows[i]["EmpSystemID"].ToString())==false)
-                    dicEmployeeWiseWeekoff.Add(dsEmployeeWiseWeekoff.Tables[0].Rows[i]["EmpSystemID"].ToString(), dsEmployeeWiseWeekoff.Tables[0].Rows[i]["offday"].ToString());
+                    if (dicEmployeeWiseWeekoff.ContainsKey(dsEmployeeWiseWeekoff.Tables[0].Rows[i]["EmpSystemID"].ToString()) == false)
+                        dicEmployeeWiseWeekoff.Add(dsEmployeeWiseWeekoff.Tables[0].Rows[i]["EmpSystemID"].ToString(), dsEmployeeWiseWeekoff.Tables[0].Rows[i]["offday"].ToString());
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
@@ -1310,17 +1310,19 @@ namespace Library.HumanResource.Report.OT
                         {
                             FOT = (FOT / 60) * dicW[x];
                         }
+                        double TotalOTAmount = FOT;
                         if (dicNW.ContainsKey(x))
                         {
                             if (dicHourlyOTNW.ContainsKey(x))
                             {
 
                                 ExtraOTH = clsStaticInfo.dbl(dicHourlyOTNW[x]["DurationH"].ToString());
-                                sheet1.Range[xlsRow, colGWRDailyExtraOTweekoffOT].Number = clsStaticInfo.dbl(dicNW[x]) * (clsStaticInfo.dbl(dicHourlyOTNW[x]["DurationH"].ToString())) + FOT;
+                                TotalOTAmount += clsStaticInfo.dbl(dicNW[x]) * (clsStaticInfo.dbl(dicHourlyOTNW[x]["DurationH"].ToString()));
 
-                                sheet1.Range[xlsRow, colGWRDailyExtraOTweekoffOT].NumberFormat = NumberFormatTwoDecimal;
                             }
                         }
+                        sheet1.Range[xlsRow, colGWRDailyExtraOTweekoffOT].Number = TotalOTAmount;
+                        sheet1.Range[xlsRow, colGWRDailyExtraOTweekoffOT].NumberFormat = NumberFormatTwoDecimal;
 
 
 
@@ -2882,7 +2884,7 @@ namespace Library.HumanResource.Report.OT
                 {
 
                     string _empid = item.Key;//dtemp.Rows[i]["EmpInfoSystemID"].ToString();
-                                       
+
                     GetFormula(dsPolicy, dsSalaryStruc, _currencyId, _empid, out nwRate, out wRate, out hRate);
                     dicNW.Add(_empid, nwRate);
                     dicW.Add(_empid, wRate);
@@ -3994,7 +3996,7 @@ namespace Library.HumanResource.Report.OT
 									
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
 
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND DT.Category IN ('" + DayCategory + @"')  " + wcDos + @" "+ Plant + @" " + wcEmpSystemId + @" 
+                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND DT.Category IN ('" + DayCategory + @"')  " + wcDos + @" " + Plant + @" " + wcEmpSystemId + @" 
                                         --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
 									,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
