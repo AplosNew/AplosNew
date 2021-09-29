@@ -2201,13 +2201,13 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 		}
 
 		[Authorize, HttpGet]
-		public JsonResult GetIfIssuedOrNotValAdded(string JWPOId)
+		public JsonResult GetIfIssuedOrNotValAdded(string JWPOId, string JWOutputId)
 		{
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-				return Json(R.GetIfIssuedOrNotValAdded(JWPOId), JsonRequestBehavior.AllowGet);
+				return Json(R.GetIfIssuedOrNotValAdded(JWPOId, JWOutputId), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
 			{

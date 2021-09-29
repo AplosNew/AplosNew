@@ -173,6 +173,7 @@
     <Compile Include="Leave\clsLeaveBalanceToDate.cs" />
     <Compile Include="NewAttendanceProcess\ILeaveTransactionNewService.cs" />
     <Compile Include="NewAttendanceProcess\LeaveTransactionNewService.cs" />
+    <Compile Include="NewAttendanceProcess\clsSalaryProcessLog.cs" />
     <Compile Include="NewAttendanceProcess\NewProcessBackendRowCreationLogic.cs" />
     <Compile Include="NewAttendanceProcess\NewAttdnMonthlySummaryService.cs" />
     <Compile Include="NewAttendanceProcess\NewAttdnAuditReportService.cs" />
