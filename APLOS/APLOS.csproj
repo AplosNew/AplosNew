@@ -746,6 +746,7 @@
     <Compile Include="Areas\Payrolls\Controllers\CompanyProvidentFundStatementReportController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeAdvanceDeductionController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\SalaryProcessNewController.cs" />
+    <Compile Include="Areas\Payrolls\Controllers\SalaryProcessOtherStatusNewController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxOBController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ProfessionalTaxOBController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxInvestmentMasterController.cs" />
@@ -1963,6 +1964,7 @@
     <Content Include="Areas\Payrolls\Scripts\CompanyProvidentFundStatementReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeAdvanceDeductionController.js" />
     <Content Include="Areas\Payrolls\Scripts\SalaryProcessNewController.js" />
+    <Content Include="Areas\Payrolls\Scripts\SalaryProcessOtherStatusNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxOBController.js" />
     <Content Include="Areas\Payrolls\Scripts\ProfessionalTaxOBController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxInvestmentMasterController.js" />
@@ -3723,6 +3725,7 @@
     <Content Include="Areas\Attendances\Views\MonthlyGoodWorkReportNew\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\SalaryProcessNew\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\JobCardReportNew\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\SalaryProcessOtherStatusNew\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\InventoryPayable\_GRNDetailPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

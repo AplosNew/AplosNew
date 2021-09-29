@@ -90,7 +90,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public string EmpSystemID { get; set; } = "";
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
-        public int TotalProcDate { get; set; } = 0;
+        public decimal TotalProcDate { get; set; } = 0;
         public decimal TotalPresent { get; set; } = 0;
         public decimal TotalLate { get; set; } = 0;
         public decimal TotalAbsent { get; set; } = 0;
