@@ -657,6 +657,7 @@ var upanelApp = angular
     .controller('ArrearProcessedTotalReportController', ArrearProcessedTotalReportController)
     .controller('salaryProcessedReportSummaryController', salaryProcessedReportSummaryController)
     .controller('SalaryProcessOtherStatusController', SalaryProcessOtherStatusController)
+    .controller('SalaryProcessOtherStatusNewController', SalaryProcessOtherStatusNewController)
     .controller('salaryRuleController', salaryRuleController)
     .controller('salarySlabWiseValueController', salarySlabWiseValueController)
     .controller('salaryStructureAndProcessedReportController', salaryStructureAndProcessedReportController)

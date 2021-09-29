@@ -108,6 +108,10 @@
             templateUrl: 'payrolls/SalaryProcessOtherStatus/Aplos',
             controller: 'SalaryProcessOtherStatusController'
         })
+        .when('/salary-process-other-status-new', {
+            templateUrl: 'payrolls/SalaryProcessOtherStatusNew/Aplos',
+            controller: 'SalaryProcessOtherStatusNewController'
+        })
         .when('/salary-process', {
             templateUrl: 'payrolls/SalaryProcess/Aplos',
             controller: 'SalaryProcessController'
@@ -119,11 +123,11 @@
         .when('/daily-allowance', {
             templateUrl: 'payrolls/DailyAllowance/Aplos',
             controller: 'DailyAllowanceController'
-        }) 
+        })
         .when('/daily-allowance-Confirmation', {
             templateUrl: 'payrolls/DailyAllowance/DailyAllowanceConfirmation',
             controller: 'DailyAllowanceConfirmationController'
-        }) 
+        })
         .when('/daily-allowance-rate', {
             templateUrl: 'payrolls/DailyAllowance/DailyAllowanceRateEmpWise',
             controller: 'DailyAllowanceRateEmpWiseController'
@@ -135,49 +139,49 @@
         .when('/final-settlement-entry', {
             templateUrl: 'payrolls/FinalSettlement/Aplos',
             controller: 'finalSettlementController'
-        }) 
+        })
         .when('/pay-slip', {
             templateUrl: 'payrolls/payslips/aplos',
             controller: 'paySlipsController'
-        }) 
+        })
         .when('/attdn-slip', {
             templateUrl: 'payrolls/AttendanceSlip/aplos',
             controller: 'attendanceSlipController'
-        }) 
+        })
         .when('/daily-allowance-transaction', {
             templateUrl: 'payrolls/dailyallowancetransaction/aplos',
             controller: 'dailyAllowanceTransactionController'
-        }) 
+        })
         .when('/bulk-increment', {
             templateUrl: 'payrolls/BulkIncrement/aplos',
             controller: 'BulkIncrementController'
-        }) 
+        })
         .when('/bulk-increment-upload', {
             templateUrl: 'payrolls/BulkIncrementSalaryStructureDataUpload/aplos',
             controller: 'BulkIncrementSalaryStructureDataUploadController'
-        }) 
+        })
         .when('/maternity-benefit', {
             templateUrl: 'payrolls/MaternityBenefit/aplos',
             controller: 'maternityBenefitController'
-        }) 
+        })
         .when('/maternity-benefit-after', {
             templateUrl: 'payrolls/MaternityBenefitAfter/aplos',
             controller: 'maternityBenefitAfterController'
-        }) 
+        })
 
         .when('/salary-certificate-report', {
             templateUrl: 'payrolls/SalaryPaymentStatements/SalaryCertificate',
             controller: 'salaryCertificateReportController'
-        }) 
+        })
         .when('/advance-and-tds', {
             templateUrl: 'payrolls/AdvanceAndTDS/Aplos',
             controller: 'advanceAndTDSController'
-        }) 
+        })
         .when('/esic-summary-report', {
             templateUrl: 'payrolls/ESICSummary/Aplos',
             controller: 'esicSummaryController'
         })
- 
+
         .when('/increment-type', {
             templateUrl: 'payrolls/IncrementType/Aplos',
             controller: 'incrementGroupController'
@@ -261,23 +265,23 @@
         .when('/tax-type', {
             templateUrl: 'Payrolls/TaxType/Aplos',
             controller: 'TaxTypeController'
-        })    
+        })
 
 
         .when('/employee-service-variable', {
             templateUrl: 'Payrolls/EmployeeServiceVariable/Aplos',
             controller: 'EmployeeServiceVariableController'
-        })  
+        })
 
         .when('/professional-tax-ob', {
             templateUrl: 'Payrolls/ProfessionalTaxOB/Aplos',
             controller: 'ProfessionalTaxOBController'
-        })  
+        })
 
         .when('/tax-ob', {
             templateUrl: 'Payrolls/TaxOB/Aplos',
             controller: 'TaxOBController'
-        })  
+        })
 
         .when('/late-deduction', {
             templateUrl: 'Payrolls/LateDeduction/Aplos',
@@ -296,7 +300,7 @@
             templateUrl: 'Payrolls/IncrementReportSummary',
             controller: 'IncrementReportSummaryController'
         })
-      
+
 
         .when('/gratuity-insurance-agreement', {
             templateUrl: 'Payrolls/GratuityInsuranceAgreement/Aplos',
@@ -362,6 +366,6 @@
         })
         ;
 
-      
+
 }
 PayrollsConfig.$inject = ['$routeProvider', '$locationProvider'];
