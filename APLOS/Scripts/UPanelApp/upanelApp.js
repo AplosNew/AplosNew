@@ -211,6 +211,7 @@ var upanelApp = angular
     .controller("IssueReturnRegisterController", IssueReturnRegisterController)
     .controller("IssueSlipController", IssueSlipController)
     .controller("jobCardReportController", jobCardReportController)
+    .controller("jobCardReportNewController", jobCardReportNewController)
     .controller("journalController", journalController)
     .controller("journalOpeningBalanceController", journalOpeningBalanceController)
     .controller("LayOffController", LayOffController)
