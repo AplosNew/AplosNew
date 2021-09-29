@@ -1059,7 +1059,6 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
-
         public void GetEmpJobCardInfoWithInDateTimes(string EmpIdLoop, string FromDate, string ToDate, string plantId, out DataSet dsRef)
         {
 
