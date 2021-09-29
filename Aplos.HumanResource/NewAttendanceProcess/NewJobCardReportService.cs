@@ -39,7 +39,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataSet dsFactory = null;
             DataSet dsMonthlySummary = null;
 
-            DataSet dsPayDays = null;
+            //DataSet dsPayDays = null;
             DataTable dtMonthlySummary = null;
             DataView dvPayDays = null;
 
@@ -65,20 +65,20 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 #region Validation
-                if (string.IsNullOrEmpty(fromDate) == true || bplib.clsWebLib.IsDateOK(fromDate) == false)
+                if (string.IsNullOrEmpty(fromDate) == true || clsWebLib.IsDateOK(fromDate) == false)
                 {
 
                     Exception ex = new Exception("Please define access From Date..! (allowed format is  dd-MMM-yyyy ex: '01-jan-2008')...");
                     throw (ex);
                 }
-                if (string.IsNullOrEmpty(fromDate) == true || bplib.clsWebLib.IsDateOK(fromDate) == false)
+                if (string.IsNullOrEmpty(fromDate) == true || clsWebLib.IsDateOK(fromDate) == false)
                 {
 
                     Exception ex = new Exception("Please define access To Date..! (allowed format is  dd-MMM-yyyy ex: '01-jan-2008')...");
                     throw (ex);
                 }
-                DateTime dtFrmDate = bplib.clsWebLib.DateData_DBToApp(fromDate, bplib.clsWebLib.DB_DATE_FORMAT);
-                DateTime dtToDate = bplib.clsWebLib.DateData_DBToApp(fromDate, bplib.clsWebLib.DB_DATE_FORMAT);
+                DateTime dtFrmDate = clsWebLib.DateData_DBToApp(fromDate, clsWebLib.DB_DATE_FORMAT);
+                DateTime dtToDate = clsWebLib.DateData_DBToApp(fromDate, clsWebLib.DB_DATE_FORMAT);
                 TimeSpan tsFromToDate = dtToDate - dtFrmDate;
                 int daysFromTo = tsFromToDate.Days;
                 if (daysFromTo < 0)
@@ -98,7 +98,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 GetEmpJobCardInfoWithInDateTimes(EmpIdLoop, fromDate, toDate, plantId, out dsBioDvAC);
                 dtBioDvAC = dsBioDvAC.Tables[0];
 
-                objRpt.GetEmpJobCardMonthlySummary(EmpIdLoop, fromDate, toDate, out dsMonthlySummary);
+                GetEmpJobCardMonthlySummary(EmpIdLoop, fromDate, toDate, out dsMonthlySummary);
                 dtMonthlySummary = dsMonthlySummary.Tables[0];
 
                 DataSet dsExtraAbsent = null;
@@ -108,8 +108,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                 dvExtraAbsent = new DataView(dsExtraAbsent.Tables[0]);
                 dvExtraAbsentDate = new DataView(dsExtraAbsent.Tables[0]);
 
-                objRpt.GetJobCardPayDays(EmpIdLoop, fromDate, toDate, out dsPayDays);
-                var ListPayDays = dsPayDays.Tables[0].ToList<PayDaysReport>();
                 ParaMontlyAttendance objm = new ParaMontlyAttendance();
                 dvWeeklyAbsnt = new DataView();
                 objRpt.GetWeeklyAbsentismAssignment(plantId, EmpIdLoop, fromDate, toDate, out dsWeeklyAbsnt);
@@ -561,15 +559,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 sheet1.Range[xlsRow, iDay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iDay].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                //if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
-                                //{
-                                //    sheet1.Range[xlsRow, iInTime].Text = "";
-                                //    sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                //    sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                                //}
-                                //else
-                                //{
+                         
                                 if (dvBioDvAC[i]["InTimeShow"].ToString() != "")
                                 {
                                     sheet1.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
@@ -583,17 +573,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 {
                                     sheet1.Range[xlsRow, iInTime].CellStyle.Font.Color = ExcelKnownColors.Grey_80_percent;
                                 }
-                                //}
-
-                                //if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
-                                //{
-                                //    sheet1.Range[xlsRow, iOutTime].Text = "";
-                                //    sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                //    sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                                //}
-                                //else
-                                //{
+                         
                                 if (dvBioDvAC[i]["OutTimeShow"].ToString() != "")
                                 {
                                     ///=============================
@@ -622,34 +602,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                     }
 
-                                    //sheet1.Range[xlsRow, iOutTime].NumberFormat = "hh:mm AM/PM";
-                                    //sheet1.Range[xlsRow, iOutTime].DateTime = Convert.ToDateTime(dvBioDvAC[i]["OutTimeShow"].ToString());
-                                    //sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    //sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 }
 
                                 if (bplib.clsWebLib.GetBoolData(dvBioDvAC[i]["IsManualOutTime"].ToString().Trim()))
                                 {
                                     sheet1.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Grey_80_percent;
                                 }
-                                //}
-
-                                //if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV"))
-                                //{
-                                //    sheet1.Range[xlsRow, iDayStatus].Text = "LV";
-                                //}
-                                //else
-                                //{
-                                //    if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "L")
-                                //    {
-                                //        sheet1.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Blue;
-                                //        sheet1.Range[xlsRow, iDayStatus].Text = "P";
-                                //    }
-                                //    else
-                                //    {
-                                //        sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
-                                //    }
-                                //}
+                                
+                                
                                 sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
                                 sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                 sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -796,19 +756,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         {
                                             if (!string.IsNullOrEmpty(dvBioDvAC[i]["DayCategory"].ToString()))
                                             {
-                                                //if (dvBioDvAC[i]["DayCategory"].ToString() == "Present" || dvBioDvAC[i]["DayCategory"].ToString() == "Late")
-                                                //{
-                                                //    sheet1.Range[xlsRow, iTotalOT].CellStyle.Interior.ColorIndex = ExcelKnownColors.Red;
-                                                //}
+                                               
                                             }
 
                                         }
                                         else
                                         {
-                                            //if (bplib.clsWebLib.GetBoolData(dvBioDvAC[i]["ReConfirm"].ToString()) == true)
-                                            //{
-                                            //    sheet1.Range[xlsRow, iTotalOT].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_80_percent;
-                                            //}
+                                      
                                         }
                                         if (dvBioDvAC[i]["OutTimeShow"].ToString() != "")
                                         {
@@ -1059,6 +1013,50 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
+        public void GetEmpJobCardMonthlySummary(string EmpIdLoop, string FromDate, string ToDate, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @" SELECT EmpSystemID,EmployeeCode, WorkDate ,EmployeeCode,isnull(a.PresentValue,0)TotalPresent,
+                ISNULL(a.LvValue, 0) TotalLv,ISNULL(a.HoliDayValue,0)TotalHoliDay,
+                ISNULL(a.WeekOffValue, 0)TotalWeekOff
+                                ,ISNULL(a.LWPValue, 0) TotalLWP,ISNULL(TotalMLv, 0) TotalMLv,
+								isnull(a.AbsentValue,0)TotalAbsent,ISNULL(a.LateValue,0)TotalLate
+                                , DayValue = ISNULL(a.PresentValue, 0) +
+								ISNULL(a.LateValue, 0) + ISNULL(a.LvValue, 0) +
+								ISNULL(TotalMLv, 0) + ISNULL(a.WeekOffValue, 0)
+                                + ISNULL(TotalCompAssignLv, 0) + ISNULL(a.HoliDayValue, 0) + 
+								ISNULL(TotalWeekOffHoliDay, 0)
+								,Category,DayStatus
+                                FROM(SELECT EmpSystemID, WorkDate, EmployeeCode,
+								Category,DayStatus,PresentValue,AbsentValue,LateValue,                          
+			                              
+                                TotalMLv = 0,
+								TotalCompAssignLv = 0,                             
+                                TotalWeekOffHoliDay = 0,
+                                OTHr,LvValue,WeekOffValue,HoliDayValue,LWPValue
+                                FROM dbo.AttdnProcessData a
+                                left join daytype p on a.DayStatus=p.DayType
+                                left join employeeInformation ei on ei.SystemId =a.EmpSystemID
+                                WHERE  ei.SystemId in("+EmpIdLoop+@")
+                                and WorkDate between '"+FromDate+@"' AND '"+ToDate+@"'
+                                ) A  ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
         public void GetEmpJobCardInfoWithInDateTimes(string EmpIdLoop, string FromDate, string ToDate, string plantId, out DataSet dsRef)
         {
 
@@ -1138,7 +1136,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     --, AR.InTime InTimeShow
                                    	,l.UserName as Line
                                     ,OverStay = case when hr.NoPunchOnHoliday = 1 and dt.OriginalDayType = 'H' then 0.00
-									when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then 0.00 else AR.OTHr end
+									when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then 0.00 else AR.ProcessedOT end
                                     ,DayStatus = case when hr.NoPunchOnHoliday = 1 and dt.OriginalDayType = 'H' then 'H' 
 									when hr.NoPunchOnWeekoff = 1 and dt.OriginalDayType = 'W' then 'W'
 									else AR.DayStatus end
@@ -1278,13 +1276,6 @@ namespace Library.HumanResource.NewAttendanceProcess
         }//End Function
 
     }
-    class PayDaysReport
-    {
-        public string EmployeeCode { get; set; }
-        public DateTime WorkDate { get; set; }
-        public decimal DayValue { get; set; }
-    }
-
-
+    
 }
 
