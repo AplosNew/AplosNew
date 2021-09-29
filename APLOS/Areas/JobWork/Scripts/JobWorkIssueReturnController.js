@@ -1808,7 +1808,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		//	$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
 			var T2 = 0;
 			for (var i = 0; i < $scope.detailList.length; i++) {
-				if (!baseService.isUndefinedOrNull($scope.detailList[i].ArticleId)) {
+				if (!baseService.isUndefinedOrNull($scope.detailList[i].ArticleId) && $scope.detailList[i].isSelectedMatInput == true) {
 					var T1 = $scope.detailList[i].TransactionQty;
 					var T2 = T1 + T2;
 					$scope.selectedRowQty1 = parseFloat(T2);
@@ -1828,7 +1828,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 			var T2 = 0;
 			for (var i = 0; i < $scope.IssueChildList.length; i++) {
-				if (!baseService.isUndefinedOrNull($scope.IssueChildList[i].ArticleId)) {
+				if (!baseService.isUndefinedOrNull($scope.IssueChildList[i].ArticleId) && $scope.IssueChildList[i].isSelectedOM == true) {
 					var T1 = $scope.IssueChildList[i].TransactionQty;
 					var T2 = T1 + T2;
 					$scope.selectedRowQty1 = parseFloat(T2);
@@ -2074,6 +2074,9 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		if ($scope.ModelNew.TabType == "Transformation") {
 			$scope.IssueTransformation.MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
 		}
+		else {
+			$scope.Issue.MaterialStorageId = $scope.Issue.MSIdInventory;
+        }
 		
 
 		//$scope.productNew.IssueRequestMasterId = $scope.issueId;
