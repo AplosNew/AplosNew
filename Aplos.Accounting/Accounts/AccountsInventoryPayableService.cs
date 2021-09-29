@@ -4431,7 +4431,42 @@ order by IR.GRNDate desc";
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
-
+		public IEnumerable<object> GetGRNDetailListForPostInvoice(string inventoryReceiveId)
+		{
+			try
+			{
+				var sql = @"SELECT ''Id,IRD.InventoryReceiveId ,IRD.Id InventoryReceiveDetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
+	                        ,MM.UserName MaterialMaster,IRD.MaterialStorageId,IRD.BaseUOMId,IM.ArticleId,ART.StandardName Article,IM.FirstCharacteristicsId,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,IM.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
+	                        ,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,IRD.TransactionQty,TransactionAmount=FORMAT((FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')*IRD.TransactionQty),'N2')
+						    ,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')
+							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate						
+                        FROM TRN.[InventoryReceiveDetail] AS IRD  
+						LEFT JOIN TRN.InventoryReceive AS IR ON IRD.InventoryReceiveId = IR.Id
+						LEFT JOIN TRN.InventoryMaterial AS IM ON IRD.InventoryMaterialId = IM.Id
+                        LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id                    
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+                        Where IRD.InventoryReceiveId " + inventoryReceiveId + "";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
 		public IEnumerable<object> GetPostInvoiceDetailGL(string inventoryReceiveId)
         {
             try

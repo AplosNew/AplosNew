@@ -3708,6 +3708,7 @@
     <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\MonthlyInfoAll.cshtml" />
     <Content Include="Areas\Attendances\Views\MonthlyAttendanceInformationNew\MonthlyInfoDateRange.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeePlantTransferNew\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\InventoryPayable\_GRNDetailPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
