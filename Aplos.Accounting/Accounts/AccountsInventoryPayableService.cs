@@ -3724,7 +3724,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                         LEFT JOIN [HKP].[Budget] AS GBJW ON GBMJW.BudgetId= GBJW.Id
                         LEFT JOIN [HKP].[Activity] AS GAJW ON GADJW.ActivityId= GAJW.Id
 						LEFT JOIN (select distinct  InventoryIssueDetailId ,ID.PostDrGLGeneralInfoId, GL.AccountCode GAccountCode, GL.UserName GUserName
-						, ID.PostDrBudgetMasterId, B.Code BCode, B.UserName BUserName, ID.PostDrActivityId, A.Code ACode, A.UserName AUserName,SUM(iih.Qty*iih.Rate) Amount
+						, ID.PostDrBudgetMasterId, B.Code BCode, B.UserName BUserName, ID.PostDrActivityId, A.Code ACode, A.UserName AUserName,SUM(iih.TotalAmount) Amount
 						from  [TRN].[InventoryIssueHistory] iih join TRN.InventoryReceiveDetail id on id.Id=iih.InventoryReceiveDetailId
 						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON ID.PostDrGLGeneralInfoId=GL.Id
                         LEFT JOIN [MST].[BudgetMaster] AS BM ON ID.PostDrBudgetMasterId= BM.Id
