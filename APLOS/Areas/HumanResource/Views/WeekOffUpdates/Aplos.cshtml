@@ -1,75 +1,77 @@
-﻿
-<div id="SDiv">
-    <togglable name="Week Off Employee Upload"></togglable>
-    <div class="form-elements form-horizontal" ng-form name="HeaderForm">
-        <div class="row">
-            <div class="form-elements">
-                
-                <div class="col-md-10">
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Admin Attendance Control
+</h3>
+<div class="form-horizontal form-elements" id="mainContainer">
+    <div id="Tab" ej-tab e-create="actionCompleteSingleEmployee">
+        <ul>
+            <li><a href="#TabOne">Employee Wise</a></li>
+            <li><a href="#TabTwo">Full List Wise</a></li>
+        </ul>
+        @*Convert.ToDateTime(WkDate).ToString("yyyyMMdd");*@
+        <div id="TabOne">
+            <p>In Progress ... </p>
+        </div>
+        <div id="TabTwo">
+                <div class="row">
+                    <div class="form-elements">
 
-                    <div class="inputBtnSection common-btn">
-                        <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0 ; margin-right:8px;">
-                            <input id="uploadFile" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
-                        </label>
-                        <input type="button" style="margin-right: 8px;" value="Import Data" ng-disabled="enable" class="btn btn-success" ng-click="ImportData()" />
-                        <button ng-click="GetSample();" class="btn" style="margin-right: 8px;"><i class="glyphicon glyphicon-download"></i> Get Sample Report File </button>
+                        <div class="col-md-10">
 
+                            <div class="inputBtnSection common-btn">
+                                <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0 ; margin-right:8px;">
+                                    <input id="uploadFile" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                                </label>
+                                <input type="button" style="margin-right: 8px;" value="Import Data" ng-disabled="enable" class="btn btn-success" ng-click="ImportData()" />
+                                <button ng-click="GetSample();" class="btn" style="margin-right: 8px;"><i class="glyphicon glyphicon-download"></i> Get Sample Report File </button>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="common-btn" style="margin-top:10px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="getCurrentFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-search"></i> View </button></li>
+                        <li> <button ng-click="saveFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                        <li> <button ng-click="clearFileList();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
+
+                    </ul>
+                </div>
+
+                <div id="RosterBudgetGrid" ej-grid e-datasource="ExcelUploadData" e-templaterefresh="refreshTemplate"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                    <div e-columns>
+                        <div e-column e-field="EmpSystemId" e-type="string" e-headertext="Id" e-width="80"></div>
+                        <div e-column e-field="EmployeeCode" e-type="string" e-headertext="Emp Code" e-width="80"></div>
+                        <div e-column e-field="WOHeaderId" e-type="string" e-headertext="Week Off Id" e-width="80"></div>
+                        <div e-column e-field="EffectiveDate" e-type="string" e-headertext="Effective Date" e-width="80"></div>
                     </div>
                 </div>
 
+
+            <div class="table-responsive" id="SavedTable">
+                <div id="CurrentListRoster" ej-grid e-datasource="currentList" e-templaterefresh="refreshTemplate"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                    <div e-columns>
+                        <div e-column e-field="Rows" e-headertext="Sr. No." e-width="2"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="2"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="2"></div>
+                        <div e-column e-field="WOHeaderId" e-headertext="WO Id" e-width="2"></div>
+                        <div e-column e-field="WOName" e-headertext="WO Name" e-width="2"></div>
+                        <div e-column e-field="EffectiveDate" e-headertext="Effective Date" e-width="2"></div>
+                    </div>
+                </div>
             </div>
 
-        </div>
-        <div class="common-btn" style="margin-top:10px;">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="saveFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
-                <li> <button ng-click="clearFileList();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
 
-            </ul>
-        </div>
 
-        <div id="RosterBudgetGrid" ej-grid e-datasource="ExcelUploadData" e-templaterefresh="refreshTemplate"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
-            <div e-columns>
-                <div e-column e-field="EmpSystemId" e-type="string" e-headertext="Id" e-width="80"></div>
-                <div e-column e-field="EmployeeCode" e-type="string" e-headertext="Emp Code" e-width="80"></div>
-                <div e-column e-field="WOHeaderId" e-type="string" e-headertext="Week Off Id" e-width="80"></div>
-                <div e-column e-field="EffectiveDate" e-type="string" e-headertext="Effective Date" e-width="80"></div>
-            </div>
         </div>
 
     </div>
-
-    
-
-    <div class="table-responsive aplos-grid-toggle">
-        <div class="common-btn" style="margin-top:10px;">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="getCurrentFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-search"></i> View </button></li>
-
-            </ul>
-        </div>
-        <div id="CurrentListRoster" ej-grid e-datasource="currentList" e-templaterefresh="refreshTemplate"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;"
-             >
-            <div e-columns>
-                <div e-column e-field="Rows" e-headertext="Sr. No." e-width="2"></div>
-                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="2"></div>
-                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="2"></div>
-                <div e-column e-field="WOHeaderId" e-headertext="WO Id" e-width="2"></div>
-                <div e-column e-field="WOName" e-headertext="WO Name" e-width="2"></div>
-                <div e-column e-field="EffectiveDate" e-headertext="Effective Date" e-width="2"></div>
-            </div>
-        </div>
-    </div>
-    <confirm-modal></confirm-modal>
-
-
-
 </div>
-
 
 
 
