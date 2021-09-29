@@ -19,17 +19,17 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         , { value: 'DocDate', name: "Doc Date" }];
 
     $scope.products = [];
-    $scope.getDataList = function () {
-        $http({
-            method: 'POST',
-            url: 'Accounts/InventoryPayable/GetPostingList',
-            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
-            dataType: 'JSON',
-        }).then(function successCallback(response) {
-            $scope.products = response.data;
-        });
-    };
-    $scope.getDataList();
+    //$scope.getDataList = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: 'Accounts/InventoryPayable/GetPostingList',
+    //        data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+    //        dataType: 'JSON',
+    //    }).then(function successCallback(response) {
+    //        $scope.products = response.data;
+    //    });
+    //};
+    //$scope.getDataList();
 
     $scope.model = {
         AlongwithInvoice: null
@@ -90,33 +90,33 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
-    // #region Tab
+    //// #region Tab
 
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-    };
+    //$scope.tab = 1;
+    //$scope.setTab = function (newTab) {
+    //    $scope.tab = newTab;
+    //};
 
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
+    //$scope.isSet = function (tabNum) {
+    //    return $scope.tab === tabNum;
+    //};
 
-    $scope.redirectTab = function () {
-        if ($scope.tabForm1.$invalid) {
-            $scope.setTab(1);
-        }
-        else if ($scope.tabForm2.$invalid) {
-            $scope.setTab(2);
-        }
-        else if ($scope.tabForm3.$invalid) {
-            $scope.setTab(3);
-        }
-        else if ($scope.tabForm4.$invalid) {
-            $scope.setTab(4);
-        }
-    };
+    //$scope.redirectTab = function () {
+    //    if ($scope.tabForm1.$invalid) {
+    //        $scope.setTab(1);
+    //    }
+    //    else if ($scope.tabForm2.$invalid) {
+    //        $scope.setTab(2);
+    //    }
+    //    else if ($scope.tabForm3.$invalid) {
+    //        $scope.setTab(3);
+    //    }
+    //    else if ($scope.tabForm4.$invalid) {
+    //        $scope.setTab(4);
+    //    }
+    //};
 
-    // #endregion Tab
+    //// #endregion Tab
     $scope.paymentTerm = function () {
 
         $scope.paymenttermUrl = "accounts/PaymentTerm/getvendorcbo";

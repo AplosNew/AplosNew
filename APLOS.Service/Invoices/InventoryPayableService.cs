@@ -5278,7 +5278,7 @@ namespace Library.Service.Invoices
                                 GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                 BudgetMasterId = voucherDetailVM.BudgetId,
                                 ActivityId = voucherDetailVM.ActivityId,
-                                AType = "Dr",
+                                AType = "Cr",
                                 AddedBy = invoiceTax.AddedBy,
                                 AddedDate = invoiceTax.AddedDate,
                                 AddedFromIP = invoiceTax.AddedFromIP
@@ -5390,7 +5390,7 @@ namespace Library.Service.Invoices
                                 GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                                 BudgetMasterId = voucherDetailVM.BudgetId,
                                 ActivityId = voucherDetailVM.ActivityId,
-                                AType = "Cr",
+                                AType = "Dr",
                                 Archive = false,
                                 ModelState = ModelState.Added,
                                 AddedBy = voucher.AddedBy,

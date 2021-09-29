@@ -5611,9 +5611,9 @@ UNION ALL
 							--and tac.IsRCM=0
 							) TAXC ON TAXC.Id=IT.TaxCodeId
                             --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
-                            LEFT JOIN TRN.InventorySales IR ON IR.InventoryVoucherId=V.Id
+                            LEFT JOIN TRN.InventorySales IR ON IR.VoucherId=V.Id
                             LEFT JOIN TRN.InventorySalesDetail IRD ON IRD.InventorySalesId=IR.Id
-                            LEFT JOIN TRN.InventorySalesTax IRT ON IRD.Id=IRT.inventorySalesId AND IRT.TaxCategoryId=IT.TaxCategoryId
+                            LEFT JOIN TRN.InventorySalesTax IRT ON IRD.Id=IRT.InventorySalesDetailId AND IRT.TaxCategoryId=IT.TaxCategoryId
                             --LEFT JOIN MST.HSNTaxPercentage HSNP ON IRT.HSNCodeId=HSNP.HSNCodeId AND HSNP.TaxCategoryId=IT.TaxCategoryId
                             LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
@@ -5662,7 +5662,7 @@ UNION ALL
 							) TAXC ON TAXC.Id=IT.TaxCodeId
                             LEFT JOIN TRN.InventorySales IR ON IR.VoucherId=V.Id
                             LEFT JOIN TRN.InventorySalesDetail IRD ON IRD.InventorySalesId=IR.Id
-                            LEFT JOIN TRN.InventorySalesTax IRT ON IRD.Id=IRT.InventoryReceiveDetailId AND IRT.TaxCategoryId=IT.TaxCategoryId
+                            LEFT JOIN TRN.InventorySalesTax IRT ON IRD.Id=IRT.InventorySalesServiceId AND IRT.TaxCategoryId=IT.TaxCategoryId
                             LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
                             LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
@@ -5671,7 +5671,7 @@ UNION ALL
 							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' AND CP.PlantId = '" + plantId + @"'
                             where TC.TaxCategoryType='GST' AND (CP.TaxApplicable IS NULL OR CP.TaxApplicable ='Optional') AND V.IsPark=0
 							AND IR.PlantId = '" + plantId + @"' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType='SalesInvoice' and IRT.InventoryReceiveDetailId IS NULL
+                            AND v.SourceType='SalesInvoice' and IRT.InventorySalesDetailId IS NULL
 
 							UNION All
 
@@ -5720,7 +5720,7 @@ UNION ALL
 							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' AND CP.PlantId = '" + plantId + @"'
                             where TC.TaxCategoryType='GST' AND (CP.TaxApplicable IS NULL OR CP.TaxApplicable ='Optional') AND V.IsPark=0
 							AND IR.PlantId = '" + plantId + @"' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType='SalesInvoice' and IRT.InventoryReceiveDetailId IS NULL
+                            AND v.SourceType='SalesInvoice' and isnull(IRT.InventorySalesDetailId,'') IS NULL
 							
 					
 

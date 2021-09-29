@@ -98,7 +98,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	$scope.IssueModelTemp = {
 		Id: null,
-		Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+		IssueDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
 		EmployeeId: null,
 		Types: 'InventoryJWIssue',
 		MaterialStorageId: null,
@@ -112,7 +112,25 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		JWContractId: null,
 		ContractType: null,
 		MSIdInventory: null,
-		OrderRefNo:null,
+		OrderRefNo: null,
+
+		//Id: null,
+		//IssueDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+		//EmployeeId: null,
+		//Types: 'InventoryJWIssue',
+		//MaterialStorageId: null,
+		//Remarks: null,
+		//EmployeeStatus: null,
+		//EmployeeCode: null,
+		//ResponsiblePerson: null,
+		//IsConfirmed: false,
+		//EntityId: null,
+		//IssueType: 'Revenue',
+		//JWContractId: null,
+		//ContractType: null,
+		//MaterialStorageIdInventory: null,
+		//RefferenceNo: null,
+		//OrderRefNo: null,
 	};
 	$scope.Issue = Object.assign({}, $scope.IssueModelTemp);
 
@@ -247,7 +265,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		$scope.IssueChildList = [];
 		$http({
 			method: 'POST',
-			data: { PKId: $scope.ModelNew.Id, OrderSpecific: $scope.ModelNew.OrderSpecific, MaterialStorageIdInventory: $scope.Issue.MSIdInventory, IssueDate: $scope.Issue.Date },
+			data: { PKId: $scope.ModelNew.Id, OrderSpecific: $scope.ModelNew.OrderSpecific, MaterialStorageIdInventory: $scope.Issue.MSIdInventory, IssueDate: $scope.Issue.IssueDate },
 			url: $scope.path + 'GetValueAddedChildData',
 
 		}).then(function successCallback(response) {
@@ -532,7 +550,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 						$scope.GetValueAddedChildData();
 					}
 					else {
-						$scope.IssueTransformation.StorageLocation = null;
+						$scope.Issue.StorageLocation = null;
 					}
 				});
             }
@@ -1348,7 +1366,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		$http({
 			method: 'POST'
 			, url: 'Products/InventoryIssue/GetSpecificMaterialStock/'
-			, data: { entity: data, issueDate: $scope.Issue.Date }
+			, data: { entity: data, issueDate: $scope.Issue.IssueDate }
 			, dataType: 'JSON'
 		}).then(function (response) {
 			$scope.materialStockList = response.data;
@@ -1783,23 +1801,41 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 		if ($scope.ModelNew.TabType == "Transformation") {
 			var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
-			$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
+		//	$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
+			var T2 = 0;
+			for (var i = 0; i < $scope.detailList.length; i++) {
+				if (!baseService.isUndefinedOrNull($scope.detailList[i].ArticleId)) {
+					var T1 = $scope.detailList[i].TransactionQty;
+					var T2 = T1 + T2;
+					$scope.selectedRowQty1 = parseFloat(T2);
+				}
+			}
+
 			if (sumOfmaterialStockList < $scope.selectedRowQty1) {
 				ShowResult("Please select Specific GRN", 'failure');
 				return false;
 			}
 		}
 		else {
+	
+					var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+
+					/*$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.IssueChildList), 'TransactionQty');*/
+
+			var T2 = 0;
 			for (var i = 0; i < $scope.IssueChildList.length; i++) {
 				if (!baseService.isUndefinedOrNull($scope.IssueChildList[i].ArticleId)) {
-					var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
-					$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.IssueChildList), 'TransactionQty');
-					if (sumOfmaterialStockList < $scope.selectedRowQty1) {
-						ShowResult("Please select Specific GRN", 'failure');
-						return false;
-					}
+					var T1 = $scope.IssueChildList[i].TransactionQty;
+					var T2 = T1 + T2;
+					$scope.selectedRowQty1 = parseFloat(T2);
+	
                 }
-            }
+			}
+
+			if (sumOfmaterialStockList < $scope.selectedRowQty1) {
+				ShowResult("Please select Specific GRN", 'failure');
+				return false;
+			}
 
         }
 	
@@ -1851,7 +1887,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			}
 		}
 		else {
-			if (baseService.isUndefinedOrNull($scope.Issue.Date)) {
+			if (baseService.isUndefinedOrNull($scope.Issue.IssueDate)) {
 				ShowResult("Select the issue date");
 				return false;
 

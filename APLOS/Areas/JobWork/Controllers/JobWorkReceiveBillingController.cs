@@ -80,7 +80,7 @@ namespace Aplos.Areas.JobWork.Controllers
 			            LEFT JOIN dbo.PurchaseLC LC ON LC.Id=TC.PurchaseLCId
 			            LEFT JOIN MST.PaymentTerm PT ON PT.Id=TC.PaymentTermId
 						LEFT JOIN dbo.[Contract] CN ON CN.Id=TC.ContractId
-                        WHERE tc.PlantId='" + identity .PlantId+ "'";
+                        WHERE tc.PlantId='" + identity.PlantId + "'";
 
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
@@ -112,33 +112,31 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                string sql = @"SELECT B.Id,CTC.Id JWTransformationContractChildId,CTC.MaterialMasterId,MM.UserName MaterialName,ART.Id ArticleId
-	                        ,ART.StandardName Article,CTC.FirstCharacteristicsId,FC.UserName AS SKU1,CTC.FirstCharacteristicsValueId
-	                        ,FCV.UserName AS FirstCharacteristicsValue,CTC.SecondCharacteristicsId,SC.UserName AS SKU2,CTC.SecondCharacteristicsValueId
-	                        ,SCV.UserName AS SecondCharacteristicsValue,CTC.ThirdCharacteristicsId,TC.UserName AS SKU3
-	                        ,CTC.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,IRD.MaterialFor
-	                         ,CTC.Quantity OrderQty,SUM(IRD.TransactionQty) ReceiveQty,OB.OtherBillingQty,B.BillingQty,(SUM(IRD.TransactionQty)-OB.OtherBillingQty) BalanceQty, CTC.RatePerUnit MaterialTranRate,B.Amount
-                        FROM TRN.InventoryReceiveDetail IRD
-                        JOIN [TRN].[InventoryReceive] IR ON IR.Id = IRD.InventoryReceiveId
-                        JOIN [dbo].[JWTransformationPurchaseOrder] JWPO ON IR.TransformationContractId = JWPO.Id
-                        JOIN [dbo].[JobWorkTransformationContractChild] CTC ON JWPO.Id = CTC.JobWorkTransformationContractMasterId
-                        LEFT JOIN MST.MaterialMaster AS MM ON CTC.MaterialMasterId = MM.Id
-                        LEFT JOIN MST.MaterialMasterArticle AS ART ON CTC.ArticleId = ART.Id
-                        LEFT JOIN HKP.Characteristics AS FC ON CTC.FirstCharacteristicsId = FC.Id
-                        LEFT JOIN HKP.Characteristics AS SC ON CTC.SecondCharacteristicsId = SC.Id
-                        LEFT JOIN HKP.Characteristics AS TC ON CTC.ThirdCharacteristicsId = TC.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON CTC.FirstCharacteristicsValueId = FCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON CTC.SecondCharacteristicsValueId = SCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
-                        LEFT JOIN dbo.JWReceiveBillingDetail B ON B.JWTransformationContractChildId=CTC.Id AND B.JWReceiveBillingId='" + masterId +@"'
-                        LEFT JOIN (SELECT JWTransformationContractChildId,ISNULL(SUM(BillingQty),0) OtherBillingQty FROM dbo.JWReceiveBillingDetail 
-                        WHERE JWReceiveBillingId<> '"+masterId+@"'
-                        GROUP BY JWTransformationContractChildId) OB ON OB.JWTransformationContractChildId=CTC.Id
-                        WHERE JWTCMId = '"+ contractId + @"' AND InventoryReceiveId "+ inventoryReceiveIds + @" AND IRD.MaterialFor = 'JWOUTPUTMaterial'
-                        GROUP BY B.Id,CTC.Id,CTC.MaterialMasterId,MM.UserName,ART.Id,ART.StandardName,CTC.FirstCharacteristicsId,FC.UserName,CTC.FirstCharacteristicsValueId
-                        ,FCV.UserName,CTC.SecondCharacteristicsId,SC.UserName,CTC.SecondCharacteristicsValueId,SCV.UserName,CTC.ThirdCharacteristicsId
-                        ,TC.UserName,CTC.ThirdCharacteristicsValueId,TCV.UserName,CTC.Quantity, CTC.RatePerUnit,IRD.MaterialFor,OB.OtherBillingQty,B.BillingQty,B.Amount";
-
+                string sql = @"SELECT B.Id,CTC.Id JWTransformationContractChildId,IM.MaterialMasterId,MM.UserName MaterialName,IM.ArticleId
+                            ,ART.StandardName Article,IM.FirstCharacteristicsId,FC.UserName AS SKU1,IM.FirstCharacteristicsValueId
+                            ,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SKU2,IM.SecondCharacteristicsValueId
+                            ,SCV.UserName AS SecondCharacteristicsValue,CTC.ThirdCharacteristicsId,TC.UserName AS SKU3
+                            ,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue
+                            ,CTC.Quantity OrderQty,SUM(IRD.TransactionQty) ReceiveQty,OB.OtherBillingQty,B.BillingQty,(SUM(IRD.TransactionQty)-OB.OtherBillingQty) BalanceQty, CTC.RatePerUnit MaterialTranRate,B.Amount
+                            from [dbo].[JobWorkTransformationContractChild] CTC
+                            JOIN TRN.InventoryReceiveDetail IRD ON CTC.Id=IRD.JWTCMDId AND CTC.JobWorkTransformationContractMasterId=IRD.JWTCMId
+                            JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+                            JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+                            JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                            LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                            LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                            LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                            LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                            LEFT JOIN dbo.JWReceiveBillingDetail B ON B.JWTransformationContractChildId=CTC.Id AND B.JWReceiveBillingId='" + masterId + @"'
+                            LEFT JOIN (SELECT JWTransformationContractChildId,ISNULL(SUM(BillingQty),0) OtherBillingQty FROM dbo.JWReceiveBillingDetail WHERE JWReceiveBillingId<> '" + masterId + @"'
+                            GROUP BY JWTransformationContractChildId) OB ON OB.JWTransformationContractChildId=CTC.Id
+                            WHERE CTC.JobWorkTransformationContractMasterId = '" + contractId + @"' AND IRD.InventoryReceiveId " + inventoryReceiveIds + @" AND IRD.MaterialFor = 'JWOUTPUTMaterial'
+                            GROUP BY IM.MaterialMasterId,CTC.Quantity, CTC.RatePerUnit,B.Id,CTC.Id,MM.UserName
+                            ,IM.ArticleId,ART.StandardName,IM.FirstCharacteristicsId,FC.UserName,IM.FirstCharacteristicsValueId
+                            ,FCV.UserName,IM.SecondCharacteristicsId,SC.UserName,IM.SecondCharacteristicsValueId
+                            ,SCV.UserName,CTC.ThirdCharacteristicsId,TC.UserName,IM.ThirdCharacteristicsValueId,TCV.UserName,OB.OtherBillingQty,B.BillingQty,B.Amount";
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
@@ -150,7 +148,7 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetInventoryReceiveDetailByOutSourcePO(string masterId,string contractId, string inventoryReceiveIds)
+        public ActionResult GetInventoryReceiveDetailByOutSourcePO(string masterId, string contractId, string inventoryReceiveIds)
         {
             try
             {
@@ -173,12 +171,12 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-                            LEFT JOIN dbo.JWReceiveBillingDetail B ON B.JWTransformationContractChildId = IRD.JWTCMDId AND B.JWReceiveBillingId='"+ masterId + @"'
+                            LEFT JOIN dbo.JWReceiveBillingDetail B ON B.JWTransformationContractChildId = IRD.JWTCMDId AND B.JWReceiveBillingId='" + masterId + @"'
                             LEFT JOIN (
                             SELECT JWTransformationContractChildId,Sum(BillingQty) OtherBillQty FROM dbo.JWReceiveBillingDetail 
-                            WHERE JWReceiveBillingId<>'"+ masterId + @"' GROUP BY JWTransformationContractChildId
+                            WHERE JWReceiveBillingId<>'" + masterId + @"' GROUP BY JWTransformationContractChildId
                             ) BIL ON BIL.JWTransformationContractChildId=IRD.JWTCMDId
-                            where IRD.InventoryReceiveId "+ inventoryReceiveIds + @" AND IRD.JWTCMId='"+ contractId + @"' AND IRD.MaterialFor = 'JWOUTPUTMaterial'
+                            where IRD.InventoryReceiveId " + inventoryReceiveIds + @" AND IRD.JWTCMId='" + contractId + @"' AND IRD.MaterialFor = 'JWOUTPUTMaterial'
                             GROUP BY CTC.Quantity,IRD.InventoryMaterialId,IM.MaterialMasterId,MM.UserName,ART.Id
                             ,ART.StandardName,IM.FirstCharacteristicsId,FC.UserName,IM.FirstCharacteristicsValueId
                             ,FCV.UserName,IM.SecondCharacteristicsId,SC.UserName,IM.SecondCharacteristicsValueId
@@ -230,7 +228,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                string sql = @"SELECT * FROM JWReceiveBillingGRN WHERE JWReceiveBillingId='" + masterId+"'";
+                string sql = @"SELECT * FROM JWReceiveBillingGRN WHERE JWReceiveBillingId='" + masterId + "'";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -248,7 +246,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                SaveData(master, grnList,data);
+                SaveData(master, grnList, data);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
@@ -349,7 +347,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 }
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsGRNBills,dsBills);
+                obj.SaveDataSets(dsMaster, dsGRNBills, dsBills);
 
 
             }
