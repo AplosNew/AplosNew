@@ -1960,6 +1960,7 @@
     <Content Include="Areas\Payrolls\Scripts\paySlipsContractorController.js" />
     <Content Include="Areas\Payrolls\Scripts\CompanyProvidentFundStatementReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeAdvanceDeductionController.js" />
+    <Content Include="Areas\Payrolls\Scripts\SalaryProcessNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxOBController.js" />
     <Content Include="Areas\Payrolls\Scripts\ProfessionalTaxOBController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxInvestmentMasterController.js" />
