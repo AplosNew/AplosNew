@@ -7,11 +7,15 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.masterList = [];
     $scope.path = 'Accounts/PostInvoice/';
 
-
     $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
     $scope.searchByPostedGRNList = [{ value: 'Id', name: "Id" }, { value: 'PartyName', name: "Vendor" }, { value: 'DocRefNo', name: "DocRef No" }];
 
-    $scope.products = [];
+    $scope.model = {
+        Id: null, InvoiceDate: null, DocRefNo: null, PartyId: null, PartyPlantId: null, CurrencyId: null, ToCurrencyRate: null, Narration: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+    };
+    $scope.modelNew = Object.assign({}, $scope.model);
+
+  
     $scope.getDataList = function () {
         $http({
             method: 'POST',
@@ -24,10 +28,39 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     };
     $scope.getDataList();
 
-    $scope.model = {
-        Id: null, InvoiceDate: null, DocRefNo: null, PartyId: null, PartyPlantId: null, CurrencyId: null, ToCurrencyRate: null, Narration: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+    $scope.getDetailDataList = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/PostInvoice/GetPostInvoiceDetailData?masterId=' + $scope.modelNew.Id,
+            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.InventoryReceiveDetailList = response.data;
+            $scope.GetSavedGRNListForPostInvoice();
+        });
     };
-    $scope.modelNew = Object.assign({}, $scope.model);
+    $scope.GetSavedGRNListForPostInvoice = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/PostInvoice/GetSavedGRNListForPostInvoice?masterId=' + $scope.modelNew.Id,
+            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.TempList = response.data;
+        });
+    };
+
+
+    $scope.Get = function (obj) {
+        $scope.model = obj.data;
+        $scope.modelNew = Object.assign({}, $scope.model);
+        $scope.getDetailDataList();
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    }
+
 
     // #region checkbox all
 
@@ -222,7 +255,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                         }
                         else {
                             ShowResult(response.data.Message, 'success');
-                            /// $scope.GetData();
+                            $scope.getDataList();;
                             $scope.Clear();
                         }
                     }), function errorCallBack(response) {
@@ -235,11 +268,12 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         }
     };
 
+    $scope.deleteUrl = 'Accounts/PostInvoice/delete?Id=';
     $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        if (!baseService.isUndefinedOrNull($scope.modelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                url: $scope.deleteUrl + $scope.modelNew.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -247,7 +281,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetData();
+                    $scope.getDataList();
                     $scope.Clear();
                 }
                 function errorCallBack(response) {

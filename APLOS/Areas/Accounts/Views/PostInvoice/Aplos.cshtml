@@ -204,16 +204,14 @@
         </div>
     </div>
     <div class="content-container-fluid" style="color:black;">
-        <div style="color:black;" id="GridPrint" ej-grid e-datasource="masterList" e-allowfiltering="true" e-allowpaging="true"
-             e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
-             e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+        <div style="color:black;" id="GridPrint" ej-grid e-datasource="masterList" e-allowfiltering="true" e-allowpaging="true" e-recorddoubleclick="Get"
+             e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowscrolling="true" e-showstackedheader="true">
             <div e-columns>
-                <div e-column e-field="Id" e-headertext="Id" e-width="80" textAlign='Center'></div>
-                <div e-column e-field="GRNType" e-headertext="Type" e-width="60" e-filter="false"></div>
-                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="180"></div>
-                <div e-column e-field="InvoiceDate" e-headertext="Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="150"></div>
+                <div e-column e-field="InvDate" e-headertext="Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                 <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
-                <div e-column e-field="Currency" e-headertext="Currency" e-width="60" textAlign='Right'></div>
+                <div e-column e-field="Currency" e-headertext="Currency" e-width="60"></div>
             </div>
         </div>
     </div>
@@ -221,6 +219,6 @@
 
 @Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_GRNDetailPopUp.cshtml")
 
-<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(GRNId,VoucherId,InvoiceId,Type,TDSTaxVoucherId,TDSVoucherNo)"></confirm-archive-generic>
+<confirm-modal></confirm-modal>
 
 
