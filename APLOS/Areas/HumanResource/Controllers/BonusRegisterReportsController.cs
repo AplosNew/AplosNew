@@ -200,7 +200,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     {
 
                     }
-
+                    
                     string empSystemId = dtEmpInfo.Rows[dti]["EmpSystemId"].ToString();
                     slCount++;
                     sheet1.Range[xlsRow, colSr].Text = slCount.ToString();
@@ -510,7 +510,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 if (slCount % 12 == 0)
                                 {
                                     sheet1.Range[xlsRow, 1, xlsRow, xlsCol].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Hair;
-                                    xlsRow++;
+                                    //xlsRow++;
                                     sheet1[xlsRow, 1].RowHeight = 2;
 
                                     sheet1.HPageBreaks.Add(sheet1[xlsRow, 1]);
@@ -521,7 +521,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 if (slCount % 16 == 0)
                                 {
                                     sheet1.Range[xlsRow, 1, xlsRow, xlsCol].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Hair;
-                                    xlsRow++;
+                                    //xlsRow++;
                                     sheet1[xlsRow, 1].RowHeight = 2;
 
                                     sheet1.HPageBreaks.Add(sheet1[xlsRow, 1]);

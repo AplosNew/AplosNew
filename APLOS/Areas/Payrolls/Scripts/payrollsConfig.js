@@ -112,6 +112,10 @@
             templateUrl: 'payrolls/SalaryProcess/Aplos',
             controller: 'SalaryProcessController'
         })
+        .when('/salary-process-new', {
+            templateUrl: 'payrolls/SalaryProcessNew/Aplos',
+            controller: 'SalaryProcessNewController'
+        })
         .when('/daily-allowance', {
             templateUrl: 'payrolls/DailyAllowance/Aplos',
             controller: 'DailyAllowanceController'

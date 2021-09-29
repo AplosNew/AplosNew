@@ -460,6 +460,8 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
             return @"select 
 							WCM.EntityId,E.UserName EntityName, WCM.UserName Line ,WCM.PlanEfficiency
 							,DPT.ManPowerWithMachine,DPT.ManPowerWithHand,DPT.Manpower
+							,WCM.id WorkCenterMasterId
+							,TodayTGT=(DPT.Manpower*60*WCM.PlanEfficiency*DPT.TotalHour)/DPT.SMV
 							,DPT.ManpowerBulletin,DR.DaysRun DaysRunning
 						    ,DPT.SMV,DPT.Quantity,DPT.TotalHour,DPT.TargetDate
 						    ,PO.id PRNo,MM.Id MaterialMasterId
@@ -504,7 +506,7 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 														join trn.MasterOrderItem MOIX ON MOIX.Id=soX.MasterOrderItemId
 														join trn.MasterOrder XMO on Xmo.Id=MOIX.MasterOrderId
 														join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-														where tx.TargetDate>'" + Date+ @"'
+														where tx.TargetDate>'" + Date + @"'
 														and tx.WorkCenterMasterID=wcm.Id  
 														and XB.Id<>MO.BuyerId
 												      )
@@ -1006,20 +1008,18 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet = workbook.Worksheets[1];
 
                 sql = DailyProductionInfoSql(PlantId, Date);
-
-
                 //Instantiate the Excel application object
                 DataTable dtDailyProduction = _sqlRepository.GetDataTable(sql);
                 if (dtProductionInfo.Rows.Count == 0)
                     throw new Exception("No data found");
 
                 sheet.Name = "Daily Production Report";
-              
+
                 ROW = 7;
                 COL = 1;
                 string EntityId = "";
-                List<string> Entity= new List<string>();
-                List<string> EntityName= new List<string>();
+                List<string> Entity = new List<string>();
+                List<string> EntityName = new List<string>();
                 int count = 0;
                 for (int i = 0; i < dtDailyProduction.Rows.Count; i++)
                 {
@@ -1044,9 +1044,17 @@ Item=STUFF((select distinct ','+XMM.UserName from
                         int colEntity = COL;
                         colEntity++;
                         sheet[ROW, colEntity].Text = EntityName[C].ToString();
-                        sheet.Range[ROW, colEntity, ROW, colEntity+1].Merge();
-                        sheet.Range[ROW, 1, ROW, colEntity + 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
-                        //sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                        sheet.Range[ROW, colEntity, ROW, colEntity + 1].Merge();
+                        sheet.Range[ROW, 1, ROW, colEntity + 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                        sheet.Range[ROW, 1, ROW, colEntity + 1].CellStyle.Font.Color = ExcelKnownColors.White;
+
+                        sheet[ROW, colEntity + 2].Text = "Date:";
+                        int colDate = COL;
+                        colDate = colEntity + 2;
+                        colDate++;
+                        sheet[ROW, colDate].Text = Date;
+                        sheet.Range[ROW, colDate - 1, ROW, colDate].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                        sheet.Range[ROW, colDate - 1, ROW, colDate].CellStyle.Font.Color = ExcelKnownColors.White;
 
                         ROW++;
                         sheet[ROW, COL].Text = "Line No.";
@@ -1057,23 +1065,28 @@ Item=STUFF((select distinct ','+XMM.UserName from
 
                         sheet[ROW + 1, COL].Text = "Running";
                         sheet[ROW + 1, COL].ColumnWidth = 15;
+                        sheet[ROW + 1, COL].CellStyle.Font.Bold = true;
+
                         int colRunning = COL;
                         COL++;
                         sheet[ROW + 1, COL].Text = "Next";
                         sheet[ROW + 1, COL].ColumnWidth = 15;
+                        sheet[ROW + 1, COL].CellStyle.Font.Bold = true;
+
                         int colNext = COL;
 
                         sheet[ROW, COL].Text = "Buyer";
                         sheet.Range[ROW, colRunning, ROW, colNext].Merge();
+                        sheet.Range[ROW, colRunning].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
                         COL++;
-                        sheet[ROW, COL].Text = "Style name";
+                        sheet[ROW, COL].Text = "Style Name";
                         sheet[ROW, COL].ColumnWidth = 15;
                         int colStyleName = COL;
                         sheet.Range[ROW, colStyleName, ROW + 1, colStyleName].Merge();
 
                         COL++;
-                        sheet[ROW, COL].Text = "Allocated quantity";
+                        sheet[ROW, COL].Text = "Allocated Quantity";
                         sheet[ROW, COL].ColumnWidth = 15;
                         int colAllocatedQty = COL;
                         sheet.Range[ROW, colAllocatedQty, ROW + 1, colAllocatedQty].Merge();
@@ -1085,7 +1098,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                         sheet.Range[ROW, colStyleDescription, ROW + 1, colStyleDescription].Merge();
 
                         COL++;
-                        sheet[ROW, COL].Text = "Hourly target";
+                        sheet[ROW, COL].Text = "Hourly Target";
                         sheet[ROW, COL].ColumnWidth = 13;
                         int colHourlyTarget = COL;
                         sheet.Range[ROW, colHourlyTarget, ROW + 1, colHourlyTarget].Merge();
@@ -1107,39 +1120,45 @@ Item=STUFF((select distinct ','+XMM.UserName from
 
                         sheet[ROW + 1, COL].Text = "OP";
                         sheet[ROW + 1, COL].ColumnWidth = 10;
+                        sheet[ROW + 1, COL].CellStyle.Font.Bold = true;
                         int colOP = COL;
-                        //sheet.Range[ROW, colWorkHour, ROW + 1, colWorkHour].Merge();
                         COL++;
 
                         sheet[ROW + 1, COL].Text = " Asst. Op";
                         sheet[ROW + 1, COL].ColumnWidth = 10;
+                        sheet[ROW + 1, COL].CellStyle.Font.Bold = true;
                         int colAsstOP = COL;
-                        //sheet.Range[ROW, colAsstOP, ROW + 1, colAsstOP].Merge();
                         COL++;
 
                         sheet[ROW + 1, COL].Text = "Total";
                         sheet[ROW + 1, COL].ColumnWidth = 10;
+                        sheet[ROW + 1, COL].CellStyle.Font.Bold = true;
                         int colTotal = COL;
-                        //sheet.Range[ROW, colTotal, ROW + 1, colTotal].Merge();
                         sheet[ROW, COL].Text = "Required";
                         sheet.Range[ROW, colOP, ROW, colTotal].Merge();
+                        sheet[ROW, colOP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
                         COL++;
                         sheet[ROW + 1, COL].Text = "OP";
                         sheet[ROW + 1, COL].ColumnWidth = 10;
+                        sheet[ROW + 1, COL].CellStyle.Font.Bold = true;
                         int colAOP = COL;
                         COL++;
 
                         sheet[ROW + 1, COL].Text = " Asst. Op";
                         sheet[ROW + 1, COL].ColumnWidth = 10;
+                        sheet[ROW + 1, COL].CellStyle.Font.Bold = true;
                         int colAAsstOP = COL;
                         COL++;
 
                         sheet[ROW + 1, COL].Text = "Total";
                         sheet[ROW + 1, COL].ColumnWidth = 10;
+                        sheet[ROW + 1, COL].CellStyle.Font.Bold = true;
                         int colATotal = COL;
                         sheet[ROW, COL].Text = "Allocated";
                         sheet.Range[ROW, colAOP, ROW, colATotal].Merge();
+                        sheet[ROW, colAOP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
                         COL++;
                         sheet[ROW, COL].Text = "Prvs. day Q.C Pass";
                         sheet[ROW, COL].ColumnWidth = 20;
@@ -1193,47 +1212,52 @@ Item=STUFF((select distinct ','+XMM.UserName from
                             if (dtDailyProduction.Rows[j]["EntityId"].ToString() == EntityId)
                             {
 
-                            sheet[ROW, colLineNo2].Text = dtDailyProduction.Rows[j]["Line"].ToString();
-                            sheet[ROW, colRunning].Text = dtDailyProduction.Rows[j]["Buyer"].ToString();
-                            sheet[ROW, colNext].Text = dtDailyProduction.Rows[j]["NextBuyer"].ToString();
-                            sheet[ROW, colStyleName].Text = dtDailyProduction.Rows[j]["BuyerOrderRefNo"].ToString();
-                            sheet[ROW, colAllocatedQty].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["AllocatedQty"].ToString());
-                            sheet[ROW, colStyleDescription].Text = dtDailyProduction.Rows[j]["StyleDescription"].ToString();
-                            sheet[ROW, colSPT2].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["SMV"].ToString());
-                            // sheet[ROW, colCM2].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i][""].ToString());
-                            //sheet[ROW, colOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i]["WithoutMachine"].ToString());
-                            //sheet[ROW, colAsstOP].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
-                            sheet[ROW, colTotal].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManpowerBulletin"].ToString());
-                            sheet[ROW, colAOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManPowerWithHand"].ToString());
-                            sheet[ROW, colAAsstOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManPowerWithMachine"].ToString());
-                            sheet[ROW, colATotal].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["Manpower"].ToString());
+                                sheet[ROW, colLineNo2].Text = dtDailyProduction.Rows[j]["Line"].ToString();
+                                sheet[ROW, colRunning].Text = dtDailyProduction.Rows[j]["Buyer"].ToString();
+                                sheet[ROW, colNext].Text = dtDailyProduction.Rows[j]["NextBuyer"].ToString();
+                                sheet[ROW, colStyleName].Text = dtDailyProduction.Rows[j]["BuyerOrderRefNo"].ToString();
+                                sheet[ROW, colAllocatedQty].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["AllocatedQty"].ToString());
+                                sheet[ROW, colStyleDescription].Text = dtDailyProduction.Rows[j]["StyleDescription"].ToString();
+                                sheet[ROW, colSPT2].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["SMV"].ToString());
+                                // sheet[ROW, colCM2].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i][""].ToString());
+                                //sheet[ROW, colOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i]["WithoutMachine"].ToString());
+                                //sheet[ROW, colAsstOP].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
+                                sheet[ROW, colTotal].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManpowerBulletin"].ToString());
+                                sheet[ROW, colAOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManPowerWithHand"].ToString());
+                                sheet[ROW, colAAsstOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManPowerWithMachine"].ToString());
+                                sheet[ROW, colATotal].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["Manpower"].ToString());
 
-                            sheet[ROW, colPrvsdauQCPass].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PreviousDayQCpass"].ToString());
-                            //sheet[ROW, colTodayTGT].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i]["WithoutMachine"].ToString());
-                            sheet[ROW, colTodayTGT].Formula = (clsStaticInfo.GetxlsCol(colATotal) + ROW.ToString() + "*"+ 60 +"*"+ clsStaticInfo.GetxlsCol(colExpcEffi) + ROW.ToString()+"*"+ clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString())+"/"+ clsStaticInfo.GetxlsCol(colSPT2) + ROW.ToString();
-                            sheet[ROW, colHourlyTarget].Formula = clsStaticInfo.GetxlsCol(colTodayTGT) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString();
+                                sheet[ROW, colPrvsdauQCPass].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PreviousDayQCpass"].ToString());
+                                sheet[ROW, colTodayTGT].Formula = "IF(" + clsStaticInfo.GetxlsCol(colSPT2) + ROW.ToString() + ">0," + (clsStaticInfo.GetxlsCol(colATotal) + ROW.ToString() + "*" + 60 + "*" + clsStaticInfo.GetxlsCol(colExpcEffi) + ROW.ToString() + "*" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString()) + "/" + clsStaticInfo.GetxlsCol(colSPT2) + ROW.ToString() + ",0)";
+                                sheet[ROW, colHourlyTarget].Formula = "IF(" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colTodayTGT) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString() + ",0)";
 
                                 //sheet[ROW, colWIP].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
                                 sheet[ROW, colExpcEffi].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PlanEfficiency"].ToString());
-                            sheet[ROW, colTodayWorkHour].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["TotalHour"].ToString());
-                            //     sheet[ROW, colRunningDayNo].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["DaysRunning"].ToString());
-                            //  sheet[ROW, colRunningDayNo].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
+                                sheet[ROW, colTodayWorkHour].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["TotalHour"].ToString());
+                                //sheet[ROW, colRunningDayNo].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["DaysRunning"].ToString());
+                                //  sheet[ROW, colRunningDayNo].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
 
-                            //sheet[ROW, colTGTEFF].Formula = "if(and(" + clsStaticInfo.GetxlsCol(colTotalMP) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + @">0),"
-                            //    + clsStaticInfo.GetxlsCol(colTGTDAY) + ROW.ToString() + "/(" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString()
-                            //    + "*60*" + clsStaticInfo.GetxlsCol(colTotalMP) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + ")*100,0)";
+                                //sheet[ROW, colTGTEFF].Formula = "if(and(" + clsStaticInfo.GetxlsCol(colTotalMP) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + @">0),"
+                                //    + clsStaticInfo.GetxlsCol(colTGTDAY) + ROW.ToString() + "/(" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString()
+                                //    + "*60*" + clsStaticInfo.GetxlsCol(colTotalMP) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + ")*100,0)";
 
-                            //sheet[ROW, colTGTDAY].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i]["TargetPerDay"].ToString());
+                                //sheet[ROW, colTGTDAY].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i]["TargetPerDay"].ToString());
 
-                            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
-                            ROW++;
+                                ROW++;
                             }
-                          
+
                         }
-                        sheet[ROW, colHourlyTarget - 1].Text = "Total";
-                        sheet[ROW, colHourlyTarget - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        sheet[ROW, 1].Text = "Total";
+                        sheet[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                        //sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+
 
                         sheet[ROW, colHourlyTarget].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colHourlyTarget) + StartRow + ":" + clsStaticInfo.GetxlsCol(colHourlyTarget) + (ROW - 1) + ")";
                         sheet[ROW, colHourlyTarget].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -1249,15 +1273,16 @@ Item=STUFF((select distinct ','+XMM.UserName from
                         sheet[ROW, colATotal].NumberFormat = "#,##0.00;(#,##0.00)";
                         sheet[ROW, colPrvsdauQCPass].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colPrvsdauQCPass) + StartRow + ":" + clsStaticInfo.GetxlsCol(colPrvsdauQCPass) + (ROW - 1) + ")";
                         sheet[ROW, colPrvsdauQCPass].NumberFormat = "#,##0.00;(#,##0.00)";
-                        sheet[ROW, colTodayTGT].Formula = "AVERAGE(" + clsStaticInfo.GetxlsCol(colTodayTGT) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTodayTGT) + (ROW - 1) + ")";
+                        sheet[ROW, colTodayTGT].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTodayTGT) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTodayTGT) + (ROW - 1) + ")";
                         sheet[ROW, colTodayTGT].NumberFormat = "#,##0.00;(#,##0.00)";
                         sheet[ROW, colSPT2].Formula = "AVERAGE(" + clsStaticInfo.GetxlsCol(colSPT2) + StartRow + ":" + clsStaticInfo.GetxlsCol(colSPT2) + (ROW - 1) + ")";
                         sheet[ROW, colSPT2].NumberFormat = "#,##0.00;(#,##0.00)";
                         sheet[ROW, colExpcEffi].Formula = "AVERAGE(" + clsStaticInfo.GetxlsCol(colExpcEffi) + StartRow + ":" + clsStaticInfo.GetxlsCol(colExpcEffi) + (ROW - 1) + ")";
                         sheet[ROW, colExpcEffi].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                        sheet.Range[StartRow, colAllocatedQty, ROW, colAllocatedQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-                        sheet.Range[StartRow, colHourlyTarget, ROW, colHourlyTarget].NumberFormat = clsStaticInfo.NumberFormat(2);
+                        sheet[ROW, colTodayWorkHour].Formula = "AVERAGE(" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + (ROW - 1) + ")";
+                        sheet[ROW, colTodayWorkHour].NumberFormat = "#,##0.00;(#,##0.00)";
+                        sheet.Range[StartRow, colAllocatedQty, ROW, colAllocatedQty].NumberFormat = clsStaticInfo.NumberFormat();
+                        sheet.Range[StartRow, colHourlyTarget, ROW, colHourlyTarget].NumberFormat = clsStaticInfo.NumberFormat();
                         sheet.Range[StartRow, colSPT2, ROW, colSPT2].NumberFormat = clsStaticInfo.NumberFormat(2);
                         sheet.Range[StartRow, colCM2, ROW, colCM2].NumberFormat = clsStaticInfo.NumberFormat(2);
                         sheet.Range[StartRow, colOP, ROW, colOP].NumberFormat = clsStaticInfo.NumberFormat(2);
@@ -1266,32 +1291,228 @@ Item=STUFF((select distinct ','+XMM.UserName from
                         sheet.Range[StartRow, colAOP, ROW, colAOP].NumberFormat = clsStaticInfo.NumberFormat(2);
                         sheet.Range[StartRow, colAsstOP, ROW, colAsstOP].NumberFormat = clsStaticInfo.NumberFormat(2);
                         sheet.Range[StartRow, colATotal, ROW, colATotal].NumberFormat = clsStaticInfo.NumberFormat(2);
-                        sheet.Range[StartRow, colPrvsdauQCPass, ROW, colPrvsdauQCPass].NumberFormat = clsStaticInfo.NumberFormat(2);
-                        sheet.Range[StartRow, colWIP, ROW, colWIP].NumberFormat = clsStaticInfo.NumberFormat(2);
+                        sheet.Range[StartRow, colPrvsdauQCPass, ROW, colPrvsdauQCPass].NumberFormat = clsStaticInfo.NumberFormat();
+                        sheet.Range[StartRow, colWIP, ROW, colWIP].NumberFormat = clsStaticInfo.NumberFormat();
                         sheet.Range[StartRow, colTodayWorkHour, ROW, colTodayWorkHour].NumberFormat = clsStaticInfo.NumberFormat(2);
-                        sheet.Range[StartRow, colRunningDayNo, ROW, colRunningDayNo].NumberFormat = clsStaticInfo.NumberFormat(2);
-                        sheet.Range[StartRow, colTodayTGT, ROW, colTodayTGT].NumberFormat = clsStaticInfo.NumberFormat(2);
+                        sheet.Range[StartRow, colRunningDayNo, ROW, colRunningDayNo].NumberFormat = clsStaticInfo.NumberFormat();
+                        sheet.Range[StartRow, colTodayTGT, ROW, colTodayTGT].NumberFormat = clsStaticInfo.NumberFormat();
                         sheet.Range[StartRow, colExpcEffi, ROW, colExpcEffi].NumberFormat = clsStaticInfo.NumberFormat(2);
+                        
                     }
                     ROW++;
                     ROW++;
                     ROW++;
-                }
+                }                
+               
+                DataTable dtBuyerSummary = dtDailyProduction.AsEnumerable().GroupBy(x => new
+                {
+                    Buyer = x["Buyer"]
+                })
+                                     .Select(x =>
+                                     {
+                                         DataRow row = dtDailyProduction.NewRow();
+                                         row["Buyer"] = x.Key.Buyer;
+                                         row["TodayTGT"] = x.Sum(r => clsStaticInfo.dbl(r["TodayTGT"].ToString()));
+                                         return row;                                      
+                                     }
+                ).CopyToDataTable();
 
+
+                //column
+                COL = 1;
+                int StartOfSummaryRow = ROW;
+                sheet[ROW, COL].Text = "Buyer Status";
+                int colBuyerStatus = COL;
+                sheet.Range[ROW, colBuyerStatus, ROW, colBuyerStatus + 2].Merge();
+                sheet[ROW, colBuyerStatus].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet[ROW, colBuyerStatus].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet[ROW, colBuyerStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                ROW++;
+                sheet[ROW, COL].Text = "Buyer";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colBSBuyer = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Running Lines";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colBSRunningLine = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Target";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colBSTarget = COL;
+                endCol = COL;
+            
+                sheet.Range[ROW,1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW,1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW,1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW,1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+               int BSStartRow = ROW;
+                for (int i = 0; i < dtBuyerSummary.Rows.Count; i++)
+                {
+                    dtDailyProduction.DefaultView.RowFilter = "Buyer='" + dtBuyerSummary.Rows[i]["Buyer"].ToString() + "'";
+
+                    sheet[ROW, colBSBuyer].Text = dtBuyerSummary.Rows[i]["Buyer"].ToString();
+                    sheet[ROW, colBSRunningLine].Number =  dtDailyProduction.DefaultView.ToTable(true, "WorkCenterMasterId").Rows.Count;
+                    sheet[ROW, colBSTarget].Number =OTSBD.clsStaticInfo.dbl(dtBuyerSummary.Rows[i]["TodayTGT"].ToString());
+                    sheet.Range[ROW,1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW,1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                  
+                    ROW++;
+                }
+                sheet[ROW, 1].Text = "Total";
+                sheet[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet[ROW, colBSRunningLine].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBSRunningLine) + BSStartRow + ":" + clsStaticInfo.GetxlsCol(colBSRunningLine) + (ROW - 1) + ")";
+                sheet[ROW, colBSRunningLine].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet[ROW, colBSTarget].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBSTarget) + BSStartRow + ":" + clsStaticInfo.GetxlsCol(colBSTarget) + (ROW - 1) + ")";
+                sheet[ROW, colBSTarget].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                //second summary report
+         
+                ROW = StartOfSummaryRow;
+
+                DataTable dtEntitySummary = dtDailyProduction.AsEnumerable().GroupBy(y => new
+                {
+                    EntityName = y["EntityName"]
+                })
+                      .Select(y =>
+                      {
+                          DataRow row = dtDailyProduction.NewRow();
+                          row["EntityName"] = y.Key.EntityName;
+                          row["TodayTGT"] = y.Sum(r => clsStaticInfo.dbl(r["TodayTGT"].ToString()));
+                          row["PreviousDayQCpass"] = y.Sum(r => clsStaticInfo.dbl(r["PreviousDayQCpass"].ToString()));
+                          row["PlanEfficiency"] = y.Average(r => clsStaticInfo.dbl(r["PlanEfficiency"].ToString()));
+                          row["TotalHour"] = y.Average(r => clsStaticInfo.dbl(r["TotalHour"].ToString()));
+                          row["ManPowerWithHand"] = y.Sum(r => clsStaticInfo.dbl(r["ManPowerWithHand"].ToString()));
+                          row["ManPowerWithMachine"] = y.Sum(r => clsStaticInfo.dbl(r["ManPowerWithMachine"].ToString()));
+                    
+                          return row;
+                      }
+ ).CopyToDataTable();
+
+
+                //column
+                COL = endCol+2;
+                int StartCOl= endCol + 2;
+                sheet[ROW, COL].Text = "SUMMARY";
+                int colSUMMARY = COL;
+                sheet.Range[ROW, colSUMMARY, ROW, colSUMMARY + 6].Merge();
+                sheet[ROW, colSUMMARY].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet[ROW, colSUMMARY].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet[ROW, colSUMMARY].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                ROW++;
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colSEntity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Today Target";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colSTodayTarget = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Previous Day Actual";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colSPreviousDayActual = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Target Efficiency";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colSTargetEfficiency = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Working Hour";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colSWorkingHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Operator";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colSOP = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = " Assistant Operator";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].CellStyle.Font.Bold = true;
+                int colSHP = COL;
+                endCol = COL;
+
+                sheet.Range[ROW, StartCOl, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, StartCOl, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, StartCOl, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, StartCOl, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+                int SummaryStartRow = ROW;
+
+                for (int i = 0; i < dtEntitySummary.Rows.Count; i++)
+                {
+                    dtDailyProduction.DefaultView.RowFilter = "EntityName='" + dtEntitySummary.Rows[i]["EntityName"].ToString() + "'";
+
+                    sheet[ROW, colSEntity].Text = dtEntitySummary.Rows[i]["EntityName"].ToString();
+                    //sheet[ROW, colSTodayTarget].Number = dtDailyProduction.DefaultView.ToTable(true, "WorkCenterMasterId").Rows.Count;
+                    sheet[ROW, colSTodayTarget].Number = OTSBD.clsStaticInfo.dbl(dtEntitySummary.Rows[i]["TodayTGT"].ToString());
+                    sheet[ROW, colSPreviousDayActual].Number = OTSBD.clsStaticInfo.dbl(dtEntitySummary.Rows[i]["PreviousDayQCpass"].ToString());
+                    sheet[ROW, colSTargetEfficiency].Number = OTSBD.clsStaticInfo.dbl(dtEntitySummary.Rows[i]["PlanEfficiency"].ToString());
+                    sheet[ROW, colSWorkingHour].Number = OTSBD.clsStaticInfo.dbl(dtEntitySummary.Rows[i]["TotalHour"].ToString());
+                    sheet[ROW, colSOP].Number = OTSBD.clsStaticInfo.dbl(dtEntitySummary.Rows[i]["ManPowerWithHand"].ToString());
+                    sheet[ROW, colSHP].Number = OTSBD.clsStaticInfo.dbl(dtEntitySummary.Rows[i]["ManPowerWithMachine"].ToString());
+                   
+                    sheet.Range[ROW, StartCOl, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, StartCOl, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+                }
+                sheet[ROW, StartCOl].Text = "Total";
+                sheet[ROW, StartCOl].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[ROW, StartCOl, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, StartCOl, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, StartCOl, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet[ROW, colSTodayTarget].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSTodayTarget) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSTodayTarget) + (ROW - 1) + ")";
+                sheet[ROW, colSTodayTarget].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet[ROW, colSPreviousDayActual].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSPreviousDayActual) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSPreviousDayActual) + (ROW - 1) + ")";
+                sheet[ROW, colSPreviousDayActual].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet[ROW, colSTargetEfficiency].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSTargetEfficiency) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSTargetEfficiency) + (ROW - 1) + ")";
+                sheet[ROW, colSTargetEfficiency].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet[ROW, colSWorkingHour].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSWorkingHour) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSWorkingHour) + (ROW - 1) + ")";
+                sheet[ROW, colSWorkingHour].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet[ROW, colSOP].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSOP) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSOP) + (ROW - 1) + ")";
+                sheet[ROW, colSOP].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet[ROW, colSHP].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSHP) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSHP) + (ROW - 1) + ")";
+                sheet[ROW, colSHP].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[SummaryStartRow, colSTodayTarget, ROW, colSTodayTarget].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[SummaryStartRow, colSPreviousDayActual, ROW, colSPreviousDayActual].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[SummaryStartRow, colSTargetEfficiency, ROW, colSTargetEfficiency].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[SummaryStartRow, colSWorkingHour, ROW, colSWorkingHour].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[SummaryStartRow, colSOP, ROW, colSOP].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[SummaryStartRow, colSHP, ROW, colSHP].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.IsGridLinesVisible = false;
 
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 11f;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 10f;
 
                 //sheet["A" + StartRow.ToString()].FreezePanes();
                 identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Daily Production Info Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Daily Production Info. Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //sheet.Range[6, 1, 7, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                 string strFileName = "Production Information Report.xlsx";
@@ -1302,10 +1523,10 @@ Item=STUFF((select distinct ','+XMM.UserName from
 
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                throw ex;
             }
         }
         public void GetProductionBookingPeriod(out DataSet dsRef)

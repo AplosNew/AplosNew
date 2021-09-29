@@ -306,6 +306,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/MonthlyGoodWorkReport/Aplos',
             controller: 'monthlyGoodWorkReportController'
         })
+        .when('/monthly-good-work-report-new', {
+            templateUrl: 'Attendances/MonthlyGoodWorkReportNew/Aplos',
+            controller: 'monthlyGoodWorkReportNewController'
+        })
         .when('/weekoff-extraot-report', {
             templateUrl: 'Attendances/WeekOffHolidayOTReport/Aplos',
             controller: 'weekOffOTReportController'

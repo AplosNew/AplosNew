@@ -161,6 +161,140 @@ namespace Library.MaterialManagement.JobWork
                 //  group by irc.ContractLineItemId,irc.OrderChildId,jwi.UserName,mma.StandardName, kk.RQty,mp.OrderSpecific,rc.ReceivedQty,jwa.UserName ";
 
 
+                //          string sql = @"select
+                //                  tc.Id JWTCMId
+                //                  , mp.Id JWTCMDId
+                //                   , jwi.UserName as JWOutputItem
+                //                  ,jwa.UserName as JobWorkActivity
+                //                  , MGM.UserName AS MaterialGroupMasterName
+                //                  , MM.Id MaterialMasterId
+                //                  , MM.UserName
+                //                  , mma.Id ArticleId
+                //                  , mma.StandardName as StandardName
+                //                  ,null MaterialStorageId
+                //                  ,TUoM.Id BaseUOMId
+
+                //                  ,mp.FirstCharacteristicsId,mp.FirstCharacteristicsValueId
+                //   ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
+                //   ,mp.SecondCharacteristicsId,mp.SecondCharacteristicsValueId
+                //                          ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
+                //		,mp.ThirdCharacteristicsId,mp.ThirdCharacteristicsValueId
+                //                          ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
+
+                //                  --, null FirstCharacteristicsId, null  FirstCharacteristics
+                //                  --, null FirstCharacteristicsValueId, null  FirstCharacteristicsValue
+                //                  --, null SecondCharacteristicsId, null  SecondCharacteristics
+                //                  --, null SecondCharacteristicsValueId, null SecondCharacteristicsValue
+                //                  --, null ThirdCharacteristicsId, null ThirdCharacteristics
+                //                  --, null ThirdCharacteristicsValueId, null  ThirdCharacteristicsValue
+                //                  --, SUM(mp.Quantity) as PlanQuantity
+                //                  --,TotalReceivedQty = ISNULL(kk.TotalReceivedQuantity, '0')
+                //                  --,ToReceive = Sum(mp.Quantity) - ISNULL(kk.TotalReceivedQuantity, '0')
+                //                  , mp.Quantity AS PlanQuantity
+                //                   , ISNULL(rcvqty.TransactionQty, '0') AS GRNRcvQty
+                //                   ,0 AS TransactionQty
+                //                   , ISNULL(mp.Quantity, 0)-ISNULL(rcvqty.TransactionQty, '0') As Balance
+                //                     ,null QtyStatus
+                //                   , TransactionUoMId = CASE when mp.OutputMaterialUOMId IS NULL THEN mp.TransactionUoMId ELSE mp.OutputMaterialUOMId END
+                //                    , TransactionUoM = CASE when mp.OutputMaterialUOMId IS NULL then TUoM1.UserName ELSE TUoM.UserName END
+                //                    , 0 TransactionRate
+                //                  , null  CurrencyName
+                //                  , 0 ToCurrencyRate
+                //                  ,0 TransactionAmount
+                //                  ,0 AS TrnAmount
+                //                  ,0 AS BaseTaxAmount
+                //                  ,0 AS TaxAmount
+                //                  , 0 AS ChargesAmount
+                //                  ,0 AS ServiceCharge
+                //                  , 0 AS ServiceTax
+                //                  , null CountryId
+                //                  ,'True' enableid
+                //                  ,null POMaterialTaxList
+                //                  ,0 AS TotalMaterialTranAmount
+                //                  , 0 AS ToTalMaterialBooksCurrencyAmount
+                //                  ,null InvoicingByAddress
+                //                  ,null DeliveryByAddress
+                //                  ,null RequisitionId
+                //                  ,null RequisitionDetailId
+                //                  ,0 ShortageQty
+                //                  ,0 RejectionQty
+                //                  ,null MaterialDetail
+                //                  ,null AS[check]
+                //                  ,null MaterialDetail
+                //                  ,null PurchaseDocAcceptanceDetailId
+                //                  ,0 POClosStatus
+                //                  ,null CountryName
+                //                  ,null CountryId
+                //                  ,MM.IsAsset
+                //                  ,0 TotalTaxAmount
+                //                  ,0 GrossAmount
+                //                  ,0 DiscountAmount
+                //                  ,'' QualityStatus
+                //                  ,null POUoMId
+                //                  ,0 Tolerance
+                //,vvvv.ConsumptionAmount as GrossConsumption
+                //                  from dbo.JobWorkTransformationContractChild mp
+                //                  left
+                //                  join dbo.JWTransformationPurchaseOrder tc on tc.Id = mp.JobWorkTransformationContractMasterId
+
+                //             left
+                //                  join hkp.JobWorkActivity jwa on jwa.Id = mp.JobActivityId
+
+                //             left
+                //                  join HKP.JobWorkItem jwi on jwi.Id = mp.JobWorkItemMasterId
+
+                //             left
+                //                  join MST.MaterialMasterArticle mma on mma.Id = mp.ArticleId
+
+                //             left JOIN MST.MaterialMaster AS MM ON MM.Id = mma.MaterialMasterId
+                //                  LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                //                  --LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId = ART.Id
+                //                  --LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
+                //                  --LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
+                //                  --LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
+                //                  --LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId = FCV.Id
+                //                  --LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = SCV.Id
+                //                  --LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
+
+                //                  LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON mp.OutputMaterialUOMId = TUoM.Id
+                //                      LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM1 ON mp.TransactionUoMId = TUoM1.Id
+                //                   LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = mp.FirstCharacteristicsId
+                //                      LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = mp.FirstCharacteristicsValueId
+                //                      LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = mp.SecondCharacteristicsId
+                //                      LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = mp.SecondCharacteristicsValueId
+                //                      LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = mp.ThirdCharacteristicsId
+                //                      LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = mp.ThirdCharacteristicsValueId
+
+                //                  left join(select JWTCMDId, Sum(isnull(TransactionQty,0)) TransactionQty from trn.InventoryReceiveDetail group by JWTCMDId)rcvqty ON rcvqty.JWTCMDId = mp.Id
+                //                  left join(select IID.JWTCMID, II.JWContractId
+
+                //                           , sum(IID.PolicyAmount) PolicyAmt, sum(IID.TransactionQty) TQty
+                //                           , Rate= round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)), 4)
+                //                           , ConsumptionAmount= (round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)), 4) * sum(IID.TransactionQty))
+
+                //                           FROM trn.InventoryIssueDetail IID
+
+                //                           left join trn.InventoryIssue II On II.Id= IID.InventoryIssueId
+
+                //                           left join trn.InventoryMaterial IM ON IM.Id= IID.InventoryMaterialId
+
+                //                           left JOIN MST.MaterialMaster AS MM ON MM.Id= IM.MaterialMasterId
+
+                //                           left join MST.MaterialMasterArticle mma on mma.Id= IM.ArticleId
+
+                //                           left join dbo.JWTransformationPurchaseOrder tc on tc.Id= II.JWContractId
+
+                //                           where II.JWContractId= '" + PKId + @"'
+
+                //                           group by II.JWContractId, IID.JWTCMID
+                //                           )vvvv ON vvvv.JWContractId = tc.Id and vvvv.JWTCMID = mp.Id
+                //                  where tc.Id = '"+ PKId + @"'
+                //                   group by mp.Quantity ,ISNULL(rcvqty.TransactionQty, '0'),mp.Id,jwi.UserName, mma.StandardName,jwa.UserName--,kk.TotalReceivedQuantity
+                //                  , MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id,TUoM1.Id,TUoM1.UserName,mp.TransactionUoMId
+                //, mp.OutputMaterialUOMId ,vvvv.ConsumptionAmount,FChar.UserName,FCharValue.UserName,SChar.UserName,SCharValue.UserName ,TChar.UserName,TCharValue.UserName
+                // ,mp.FirstCharacteristicsId,mp.FirstCharacteristicsValueId,mp.SecondCharacteristicsId,mp.SecondCharacteristicsValueId
+                // ,mp.ThirdCharacteristicsId,mp.ThirdCharacteristicsValueId";
+
                 string sql = @"select
                         tc.Id JWTCMId
                         , mp.Id JWTCMDId
@@ -174,26 +308,29 @@ namespace Library.MaterialManagement.JobWork
                         ,null MaterialStorageId
                         ,TUoM.Id BaseUOMId
 
+						, MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
+	                            , SO.Id AS SalesOrderId, Pr.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
+	                            --, MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
+								,PM.UserName AS ProductName
+	                            --, MOI.ArticleId, ART.StandardName AS ArticleName
+								,CN.ContractNo,MLC.LCRef MasterLCNo, owrUom.UserName as MasterOrderUoM
+                               ,owr.Id as JWOrderWiseId, owr.JobWorkTransformationContractChildMasterId, owr.OrderType,owr.Quantity as OWRQuantity--,owr.PlanQuantity
+
                         ,mp.FirstCharacteristicsId,mp.FirstCharacteristicsValueId
 						   ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
 						   ,mp.SecondCharacteristicsId,mp.SecondCharacteristicsValueId
                                 ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
 								,mp.ThirdCharacteristicsId,mp.ThirdCharacteristicsValueId
                                 ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
-
-                        --, null FirstCharacteristicsId, null  FirstCharacteristics
-                        --, null FirstCharacteristicsValueId, null  FirstCharacteristicsValue
-                        --, null SecondCharacteristicsId, null  SecondCharacteristics
-                        --, null SecondCharacteristicsValueId, null SecondCharacteristicsValue
-                        --, null ThirdCharacteristicsId, null ThirdCharacteristics
-                        --, null ThirdCharacteristicsValueId, null  ThirdCharacteristicsValue
                         --, SUM(mp.Quantity) as PlanQuantity
                         --,TotalReceivedQty = ISNULL(kk.TotalReceivedQuantity, '0')
                         --,ToReceive = Sum(mp.Quantity) - ISNULL(kk.TotalReceivedQuantity, '0')
-                        , mp.Quantity AS PlanQuantity
+                        --, mp.Quantity AS PlanQuantity
+						,PlanQuantity=case when owr.Id is not null then owr.Quantity else mp.Quantity End
                          , ISNULL(rcvqty.TransactionQty, '0') AS GRNRcvQty
                          ,0 AS TransactionQty
-                         , ISNULL(mp.Quantity, 0)-ISNULL(rcvqty.TransactionQty, '0') As Balance
+                        -- , ISNULL(mp.Quantity, 0)-ISNULL(rcvqty.TransactionQty, '0') As Balance
+						 ,Balance=case when owr.Id is not null then ISNULL(owr.Quantity, 0)-ISNULL(rcvqty.TransactionQty, '0') else ISNULL(mp.Quantity, 0)-ISNULL(rcvqty.TransactionQty, '0') End
                            ,null QtyStatus
                          , TransactionUoMId = CASE when mp.OutputMaterialUOMId IS NULL THEN mp.TransactionUoMId ELSE mp.OutputMaterialUOMId END
                           , TransactionUoM = CASE when mp.OutputMaterialUOMId IS NULL then TUoM1.UserName ELSE TUoM.UserName END
@@ -234,30 +371,39 @@ namespace Library.MaterialManagement.JobWork
                         ,0 Tolerance
 						,vvvv.ConsumptionAmount as GrossConsumption
                         from dbo.JobWorkTransformationContractChild mp
-                        left
-                        join dbo.JWTransformationPurchaseOrder tc on tc.Id = mp.JobWorkTransformationContractMasterId
+                        left join dbo.JWTransformationPurchaseOrder tc on tc.Id = mp.JobWorkTransformationContractMasterId
 
-                   left
-                        join hkp.JobWorkActivity jwa on jwa.Id = mp.JobActivityId
+                   left join hkp.JobWorkActivity jwa on jwa.Id = mp.JobActivityId
 
-                   left
-                        join HKP.JobWorkItem jwi on jwi.Id = mp.JobWorkItemMasterId
+                   left join HKP.JobWorkItem jwi on jwi.Id = mp.JobWorkItemMasterId
 
-                   left
-                        join MST.MaterialMasterArticle mma on mma.Id = mp.ArticleId
+                   left join MST.MaterialMasterArticle mma on mma.Id = mp.ArticleId
 
                    left JOIN MST.MaterialMaster AS MM ON MM.Id = mma.MaterialMasterId
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                        --LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId = ART.Id
-                        --LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
-                        --LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
-                        --LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
-                        --LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId = FCV.Id
-                        --LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = SCV.Id
-                        --LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
 
                         LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON mp.OutputMaterialUOMId = TUoM.Id
                             LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM1 ON mp.TransactionUoMId = TUoM1.Id
+
+							left join dbo.JobWorkTransformationContractChild2 owr on owr.JobWorkTransformationContractChildMasterId=mp.Id
+							   left join [TRN].[SalesOrder] AS SO on SO.Id=owr.SalesOrderId
+							   left JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+							   left JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+							   LEFT JOIN [MST].[MaterialMaster] ON MOI.MaterialMasterId = MM.Id 
+							   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+							   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+							   LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+							   LEFT JOIN [HKP].[Party] AS Pr ON MO.PartyId = Pr.Id
+							   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+							   --LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+							   --LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+							   --LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+							   --LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+							   --LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+							   LEFT JOIN dbo.[Contract] AS CN ON CN.Id=MOI.ContractId
+							   LEFT JOIN dbo.MasterLC AS MLC ON MLC.Id=CN.MasterLCId
+							   left join SCS.UnitOfMeasurement owrUom on owrUom.Id=MO.TotalQtyUOMId
+
                          LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = mp.FirstCharacteristicsId
                             LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = mp.FirstCharacteristicsValueId
                             LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = mp.SecondCharacteristicsId
@@ -288,12 +434,20 @@ namespace Library.MaterialManagement.JobWork
 
                                  group by II.JWContractId, IID.JWTCMID
                                  )vvvv ON vvvv.JWContractId = tc.Id and vvvv.JWTCMID = mp.Id
-                        where tc.Id = '"+ PKId + @"'
+                        where tc.Id = '" + PKId + @"'
                          group by mp.Quantity ,ISNULL(rcvqty.TransactionQty, '0'),mp.Id,jwi.UserName, mma.StandardName,jwa.UserName--,kk.TotalReceivedQuantity
                         , MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id,TUoM1.Id,TUoM1.UserName,mp.TransactionUoMId
 						, mp.OutputMaterialUOMId ,vvvv.ConsumptionAmount,FChar.UserName,FCharValue.UserName,SChar.UserName,SCharValue.UserName ,TChar.UserName,TCharValue.UserName
 						 ,mp.FirstCharacteristicsId,mp.FirstCharacteristicsValueId,mp.SecondCharacteristicsId,mp.SecondCharacteristicsValueId
-						 ,mp.ThirdCharacteristicsId,mp.ThirdCharacteristicsValueId";
+						 ,mp.ThirdCharacteristicsId,mp.ThirdCharacteristicsValueId
+						 , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo,mo.OwnReferenceNo
+	                            , SO.Id, Pr.UserName,B.UserName,PM.Id,MOI.ProductionGrouping
+	                            --, MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
+								,PM.UserName
+	                            --, MOI.ArticleId, ART.StandardName AS ArticleName
+								,CN.ContractNo,MLC.LCRef, owrUom.UserName,owr.Id, owr.JobWorkTransformationContractChildMasterId, owr.OrderType,owr.Quantity
+								--,owr.PlanQuantity
+                                 ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1498,16 +1652,22 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
             }
         }
 
-        public IEnumerable<object> GetIfIssuedOrNotValAdded(string JWPOId)
+        public IEnumerable<object> GetIfIssuedOrNotValAdded(string JWPOId, string JWOutputId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"select  Id, JobWorkTransformationContractMasterId,ArticleId,JobWorkItemMasterId
-                                from dbo.JobWorkTransformationContractChild
-                                where JobWorkTransformationContractMasterId='"+ JWPOId + @"'
-                                group by ArticleId,JobWorkTransformationContractMasterId,JobWorkItemMasterId,Id ";
+                //string sql = @"select  Id, JobWorkTransformationContractMasterId,ArticleId,JobWorkItemMasterId
+                //                from dbo.JobWorkTransformationContractChild
+                //                where JobWorkTransformationContractMasterId='"+ JWPOId + @"'
+                //                group by ArticleId,JobWorkTransformationContractMasterId,JobWorkItemMasterId,Id ";
+
+                string sql = @"select  mp.Id, mp.JobWorkTransformationContractMasterId,mp.ArticleId,mp.JobWorkItemMasterId,owr.Id as JWOrderWiseId
+                                from dbo.JobWorkTransformationContractChild mp left join dbo.JobWorkTransformationContractChild2 owr 
+								on owr.JobWorkTransformationContractChildMasterId=mp.Id
+                                where mp.JobWorkTransformationContractMasterId='"+ JWPOId + @"' and mp.Id='"+ JWOutputId + @"' 
+                                group by mp.Id, mp.JobWorkTransformationContractMasterId,mp.ArticleId,mp.JobWorkItemMasterId,owr.Id";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1523,20 +1683,38 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"select distinct IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,om.ArticleId
-                                --,mi.GrossConsumption
+                //        string sql = @"select distinct IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,om.ArticleId
+                //                        --,mi.GrossConsumption
+                //,AA.TotalIssuedQuantity--,QtyForOutput=round((AA.TotalIssuedQuantity/om.GrossConsumption),4)
+                //,QtyForOutput=round((AA.TotalIssuedQuantity),4)
+                //                         ,IID.JWTCInputId
+                //                        from TRN.InventoryIssueDetail IID inner join dbo.JobWorkTransformationContractChild om on om.Id=IID.JWTCMID
+                //                        inner join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+                //                        inner join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId and IM.ArticleId=om.ArticleId
+                //                        left join (Select SUM(TransactionQty) as TotalIssuedQuantity,InventoryMaterialId from TRN.InventoryIssueDetail 
+                //                        where JWTCMID='"+ JWOutputId + @"' group by InventoryMaterialId)
+                //                        AA on AA.InventoryMaterialId=IM.Id
+                //                        where IID.JWTCMID='"+ JWOutputId + @"' and II.JWContractId='"+ JWPOId + @"' 
+                //                        group by IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,om.ArticleId--,mi.GrossConsumption
+                //,AA.TotalIssuedQuantity,IID.JWTCInputId  ";
+
+                string sql = @"select distinct IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,om.ArticleId,IID.JWOrderWiseId
 								,AA.TotalIssuedQuantity--,QtyForOutput=round((AA.TotalIssuedQuantity/om.GrossConsumption),4)
-								,QtyForOutput=round((AA.TotalIssuedQuantity),4)
-                                 ,IID.JWTCInputId
-                                from TRN.InventoryIssueDetail IID inner join dbo.JobWorkTransformationContractChild om on om.Id=IID.JWTCMID
-                                inner join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
-                                inner join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId and IM.ArticleId=om.ArticleId
-                                left join (Select SUM(TransactionQty) as TotalIssuedQuantity,InventoryMaterialId from TRN.InventoryIssueDetail 
-                                where JWTCMID='"+ JWOutputId + @"' group by InventoryMaterialId)
-                                AA on AA.InventoryMaterialId=IM.Id
-                                where IID.JWTCMID='"+ JWOutputId + @"' and II.JWContractId='"+ JWPOId + @"' 
-                                group by IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,om.ArticleId--,mi.GrossConsumption
-								,AA.TotalIssuedQuantity,IID.JWTCInputId  ";
+								--,QtyForOutput=round((AA.TotalIssuedQuantity),4)
+								--,ISNULL(BB.TotalIssuedQuantity,'0') as OrderWiseIssuedQty
+                                ,QtyForOutput=case when IID.InventoryMaterialId is not null then round((AA.TotalIssuedQuantity),4) else ISNULL(BB.TotalIssuedQuantity,'0') End
+                                from TRN.InventoryIssueDetail IID left join dbo.JobWorkTransformationContractChild om on om.Id=IID.JWTCMID
+                                left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+                                left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId and IM.ArticleId=om.ArticleId
+                                left join (Select SUM(TransactionQty) as TotalIssuedQuantity,InventoryMaterialId,JWTCMID from TRN.InventoryIssueDetail 
+								group by InventoryMaterialId,JWTCMID)
+                                AA on AA.InventoryMaterialId=IM.Id and AA.JWTCMID=om.Id
+								left join (Select SUM(TransactionQty) as TotalIssuedQuantity,JWTCMID,JWOrderWiseId from TRN.InventoryIssueDetail 
+								group by JWTCMID,JWOrderWiseId) BB on BB.JWTCMID=om.Id
+                                where II.JWContractId='" + JWPOId + @"' and IID.JWTCMID='" + JWOutputId + @"'
+                                group by IID.InventoryMaterialId,IID.JWTCMID,IM.MaterialMasterId,om.ArticleId
+								,AA.TotalIssuedQuantity
+								,IID.JWOrderWiseId,BB.TotalIssuedQuantity";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }

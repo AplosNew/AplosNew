@@ -1223,8 +1223,8 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
                 ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                 ,HSNP.[Percentage],MM.HSNCodeId,MM.UserName Material,NULL InventoryReceiveDetailId, NULL InventoryServiceId
 
-                from TRN.InvoiceTax IT 
-                left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
+                FROM  TRN.InvoiceTaxDetail ITD   
+				LEFT JOIN TRN.InvoiceTax IT ON IT.Id=ITD.InvoiceTaxId
                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
                 LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
@@ -1249,8 +1249,9 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
 		                GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
                 where TAXC.IsRCM=1 AND V.PostingDate between '" + fromDate + "' AND '" + toDate + @"' and V.PlantId = '" + plantId + @"' and V.IsPark=0
+                AND ITD.AType='Cr'
                 AND v.SourceType IN ('VendorInvoice','VendorPayment')
-                union all
+                UNION ALL
 				select 'Purchase' SourceType
                 ,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,V.DocDate,P.UserName PartyName,P.TINNO GSTIN 
                 ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
@@ -1260,13 +1261,13 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
 								   ,PP.UserName as PartyPlant
                 ,TaxableAmount=case when v.SourceType='InventoryPayable' then IRD.MaterialTranAmount
 					                	else 0 end
-                ,IT.Id,0 DrAmount ,CrAmount=case when ITD.AType='Dr' then IRT.TaxAmount else 0 end
+                ,IT.Id,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IRT.TaxAmount else 0 end
                 ,TC.Code +' '+ 'RCM' TaxCode, TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
                 ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                 ,IRT.[Percentage],MM.HSNCodeId,MM.UserName Material,IRT.InventoryReceiveDetailId, IRT.InventoryServiceId
 
-                from TRN.InvoiceTax IT 
-                left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                FROM  TRN.InvoiceTaxDetail ITD   
+				LEFT JOIN TRN.InvoiceTax IT ON IT.Id=ITD.InvoiceTaxId
                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
                 LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
@@ -1290,6 +1291,7 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
 		                GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
                 where IR.IsTaxApplicable=1 AND V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
+                and ITD.AType='Cr'
 				and V.PlantId = '" + plantId + @"' and V.IsPark=0 and IRT.InventoryServiceId IS NULL and v.SourceType='InventoryPayable'
                 union all
 				select 'Purchase' SourceType
@@ -1306,8 +1308,8 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
                 ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                 ,IRT.[Percentage],IRT.HSNCodeId,SM.UserName Material,IRT.InventoryReceiveDetailId, IRT.InventoryServiceId
 
-                from TRN.InvoiceTax IT 
-                left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                FROM  TRN.InvoiceTaxDetail ITD   
+				LEFT JOIN TRN.InvoiceTax IT ON IT.Id=ITD.InvoiceTaxId
                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
                 LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
@@ -1327,8 +1329,9 @@ select DENSE_RANK() over(partition by VoucherNo,TaxCode order by Id) AS Seq,* fr
 			                JOIN TRN.Invoice I ON I.Id=IW.InvoiceId
 		                GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
-                where IR.IsTaxApplicable=1 AND V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-				and V.PlantId = '" + plantId + @"'  and V.IsPark=0 and IRT.InventoryReceiveDetailId IS NULL and v.SourceType='InventoryPayable'
+                WHERE IR.IsTaxApplicable=1 AND V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
+                AND ITD.AType='Cr'
+				AND V.PlantId = '" + plantId + @"'  AND V.IsPark=0 and IRT.InventoryReceiveDetailId IS NULL AND v.SourceType='InventoryPayable'
 ) AS K
                 ORDER BY LineItemType,ValueOfFixed,Percentage";
 
@@ -1533,8 +1536,8 @@ select 'InventorySales' SourceType
                 {
                     DataTable dtCompanyImage = _sqlRepository.GetDataTable("SELECT * FROM ORG.COMPANY WHERE ID = '" + companyId + @"'");
 
-                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dtCompanyImage.Rows[0]["Image"].ToString());  // IDCardEng.xlsx
-                    companyLogo = Image.FromFile(strPath);
+                    //strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dtCompanyImage.Rows[0]["Image"].ToString());  // IDCardEng.xlsx
+                    //companyLogo = Image.FromFile(strPath);
                 }
                 catch (Exception ex)
                 {
@@ -2556,8 +2559,8 @@ select 'InventorySales' SourceType
                 ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                 ,HSNP.[Percentage],MM.HSNCodeId,MM.UserName Material,NULL InventoryReceiveDetailId, NULL InventoryServiceId
 
-                from TRN.InvoiceTax IT 
-                left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                FROM  TRN.InvoiceTaxDetail ITD   
+				LEFT JOIN TRN.InvoiceTax IT ON IT.Id=ITD.InvoiceTaxId
                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
                 LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
@@ -2582,8 +2585,9 @@ select 'InventorySales' SourceType
 		                GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
                 where TAXC.IsRCM=1 AND V.PostingDate between '" + fromDate + "' AND '" + toDate + @"' and V.PlantId = '" + plantId + @"' and V.IsPark=0
-                and V.SourceType in ('VendorInvoice','VendorPayment') AND ITD.AType='Dr'
-                 union all
+                AND ITD.AType='Dr'
+                and V.SourceType in ('VendorInvoice','VendorPayment') 
+                 UNION ALL
 				select 'Purchase' SourceType
                 ,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,V.DocDate,P.UserName PartyName,P.TINNO GSTIN 
                 ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
@@ -2600,8 +2604,8 @@ select 'InventorySales' SourceType
                 ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                 ,IRT.[Percentage],MM.HSNCodeId,MM.UserName Material,IRT.InventoryReceiveDetailId, IRT.InventoryServiceId
 
-                from TRN.InvoiceTax IT 
-                left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                FROM  TRN.InvoiceTaxDetail ITD   
+				LEFT JOIN TRN.InvoiceTax IT ON IT.Id=ITD.InvoiceTaxId
                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
                 LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
@@ -2627,7 +2631,7 @@ select 'InventorySales' SourceType
                 LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
                 where IR.IsTaxApplicable=1 AND V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
 				and V.PlantId = '" + plantId + @"' and V.IsPark=0 and IRT.InventoryServiceId IS NULL and v.SourceType='InventoryPayable' AND ITD.AType='Dr'
-                union all
+                UNION ALL
 
 				select 'Purchase' SourceType
                 ,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,V.DocDate,P.UserName PartyName,P.TINNO GSTIN 
@@ -2645,8 +2649,8 @@ select 'InventorySales' SourceType
                 ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
                 ,IRT.[Percentage],IRT.HSNCodeId,SM.UserName Material,IRT.InventoryReceiveDetailId, IRT.InventoryServiceId
 
-                from TRN.InvoiceTax IT 
-                left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                FROM  TRN.InvoiceTaxDetail ITD   
+				LEFT JOIN TRN.InvoiceTax IT ON IT.Id=ITD.InvoiceTaxId
                 LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
                 LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
                 LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
@@ -5611,9 +5615,9 @@ UNION ALL
 							--and tac.IsRCM=0
 							) TAXC ON TAXC.Id=IT.TaxCodeId
                             --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
-                            LEFT JOIN TRN.InventorySales IR ON IR.InventoryVoucherId=V.Id
+                            LEFT JOIN TRN.InventorySales IR ON IR.VoucherId=V.Id
                             LEFT JOIN TRN.InventorySalesDetail IRD ON IRD.InventorySalesId=IR.Id
-                            LEFT JOIN TRN.InventorySalesTax IRT ON IRD.Id=IRT.inventorySalesId AND IRT.TaxCategoryId=IT.TaxCategoryId
+                            LEFT JOIN TRN.InventorySalesTax IRT ON IRD.Id=IRT.InventorySalesDetailId AND IRT.TaxCategoryId=IT.TaxCategoryId
                             --LEFT JOIN MST.HSNTaxPercentage HSNP ON IRT.HSNCodeId=HSNP.HSNCodeId AND HSNP.TaxCategoryId=IT.TaxCategoryId
                             LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
@@ -5662,7 +5666,7 @@ UNION ALL
 							) TAXC ON TAXC.Id=IT.TaxCodeId
                             LEFT JOIN TRN.InventorySales IR ON IR.VoucherId=V.Id
                             LEFT JOIN TRN.InventorySalesDetail IRD ON IRD.InventorySalesId=IR.Id
-                            LEFT JOIN TRN.InventorySalesTax IRT ON IRD.Id=IRT.InventoryReceiveDetailId AND IRT.TaxCategoryId=IT.TaxCategoryId
+                            LEFT JOIN TRN.InventorySalesTax IRT ON IRD.Id=IRT.InventorySalesServiceId AND IRT.TaxCategoryId=IT.TaxCategoryId
                             LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
                             LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
@@ -5671,7 +5675,7 @@ UNION ALL
 							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' AND CP.PlantId = '" + plantId + @"'
                             where TC.TaxCategoryType='GST' AND (CP.TaxApplicable IS NULL OR CP.TaxApplicable ='Optional') AND V.IsPark=0
 							AND IR.PlantId = '" + plantId + @"' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType='SalesInvoice' and IRT.InventoryReceiveDetailId IS NULL
+                            AND v.SourceType='SalesInvoice' and IRT.InventorySalesDetailId IS NULL
 
 							UNION All
 
@@ -5720,7 +5724,7 @@ UNION ALL
 							LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' AND CP.PlantId = '" + plantId + @"'
                             where TC.TaxCategoryType='GST' AND (CP.TaxApplicable IS NULL OR CP.TaxApplicable ='Optional') AND V.IsPark=0
 							AND IR.PlantId = '" + plantId + @"' and V.PostingDate between '" + fromDate + "' AND '" + toDate + @"'
-                            AND v.SourceType='SalesInvoice' and IRT.InventoryReceiveDetailId IS NULL
+                            AND v.SourceType='SalesInvoice' and isnull(IRT.InventorySalesDetailId,'') IS NULL
 							
 					
 

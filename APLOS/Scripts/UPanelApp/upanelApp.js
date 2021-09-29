@@ -211,6 +211,7 @@ var upanelApp = angular
     .controller("IssueReturnRegisterController", IssueReturnRegisterController)
     .controller("IssueSlipController", IssueSlipController)
     .controller("jobCardReportController", jobCardReportController)
+    .controller("jobCardReportNewController", jobCardReportNewController)
     .controller("journalController", journalController)
     .controller("journalOpeningBalanceController", journalOpeningBalanceController)
     .controller("LayOffController", LayOffController)
@@ -371,6 +372,7 @@ var upanelApp = angular
     .controller("salaryLockController", salaryLockController)
     .controller("salaryPaymentStatementsBankCSVController", salaryPaymentStatementsBankCSVController)
     .controller("SalaryProcessController", SalaryProcessController)
+    .controller("SalaryProcessNewController", SalaryProcessNewController)
     .controller("salaryProcessDeleteController", salaryProcessDeleteController)
     .controller("salaryReportController", salaryReportController)
     .controller("SalaryStructureApprovalController", SalaryStructureApprovalController)
@@ -839,6 +841,7 @@ var upanelApp = angular
     .controller('AttendanceFromAppReportController', AttendanceFromAppReportController)
     .controller('professionalTaxReportsController', professionalTaxReportsController)
     .controller("monthlyGoodWorkReportController", monthlyGoodWorkReportController)
+    .controller("monthlyGoodWorkReportNewController", monthlyGoodWorkReportNewController)
     .controller("weekOffOTReportController", weekOffOTReportController)
     .controller("DispatchMasterController", DispatchMasterController)
     .controller("FinancialStatusCustomerReceivableInvoiceDetailController", FinancialStatusCustomerReceivableInvoiceDetailController)
@@ -929,6 +932,8 @@ var upanelApp = angular
     .controller("ProductionOrderProcessWithRateController", ProductionOrderProcessWithRateController)
     .controller("entityWiseExpenseAndEarningController", entityWiseExpenseAndEarningController)
     .controller("ProductionOrderRateReportController", ProductionOrderRateReportController)
+    .controller("EmployeeLeaveApplicationNewController", EmployeeLeaveApplicationNewController)
+    .controller('EmployeeLeaveApprovalNewController', EmployeeLeaveApprovalNewController)
     .controller('ProductionTargetReportController', ProductionTargetReportController)
 
 

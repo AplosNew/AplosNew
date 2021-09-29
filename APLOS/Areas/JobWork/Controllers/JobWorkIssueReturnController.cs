@@ -1530,9 +1530,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 								 left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId
                                   ) kk on kk.JWContractId=vcc.JobWorkTransformationContractMasterId
 
-								   left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
-								 left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId, iid.JWOrderWiseId
-                                  ) OW on OW.JWContractId=vcc.JobWorkTransformationContractMasterId 
+								    --  left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
+								 --left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId, iid.JWOrderWiseId
+                                -- ) OW on OW.JWContractId=vcc.JobWorkTransformationContractMasterId 
+
+		                        left join (Select SUM(TransactionQty) as TotalQuantity,JWTCMID,JWOrderWiseId from TRN.InventoryIssueDetail 
+								group by JWTCMID,JWOrderWiseId) OW on OW.JWTCMID=vcc.Id and OW.JWOrderWiseId=owr.Id
 left join (select vcc.Id,vcc.JobWorkTransformationContractMasterId,vcc.MaterialMasterId,vcc.ArticleId,vcc.Quantity as VCCQuantity, jwi.UserName as JWOutputItem,jwa.UserName as JobWorkActivity
                                 , uom.UserName as OutputUnit,OMM.UserName as MaterialMaster, mma.StandardName as ArticleName
 							   , c.Code as Currency, emp.EmployeeName as ResponsiblePerson
@@ -1608,9 +1611,12 @@ left join (select vcc.Id,vcc.JobWorkTransformationContractMasterId,vcc.MaterialM
 								 left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
 								 left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId
                                   ) kk on kk.JWContractId=vcc.JobWorkTransformationContractMasterId
-								    left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
-								 left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId, iid.JWOrderWiseId
-                                  ) OW on OW.JWContractId=vcc.JobWorkTransformationContractMasterId 
+								    --  left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
+								 --left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId, iid.JWOrderWiseId
+                                -- ) OW on OW.JWContractId=vcc.JobWorkTransformationContractMasterId 
+
+		                        left join (Select SUM(TransactionQty) as TotalQuantity,JWTCMID,JWOrderWiseId from TRN.InventoryIssueDetail 
+								group by JWTCMID,JWOrderWiseId) OW on OW.JWTCMID=vcc.Id and OW.JWOrderWiseId=owr.Id
 
 								 left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=vcc.MaterialMasterId AND IM.ArticleId=vcc.ArticleId
         left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
@@ -1718,9 +1724,12 @@ left join (select vcc.Id,vcc.JobWorkTransformationContractMasterId,vcc.MaterialM
 								 left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId
                                   ) kk on kk.JWContractId=vcc.JobWorkTransformationContractMasterId
 
-								    left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
-								 left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId, iid.JWOrderWiseId
-                                  ) OW on OW.JWContractId=vcc.JobWorkTransformationContractMasterId 
+								    --  left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
+								 --left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId, iid.JWOrderWiseId
+                                -- ) OW on OW.JWContractId=vcc.JobWorkTransformationContractMasterId 
+
+		                        left join (Select SUM(TransactionQty) as TotalQuantity,JWTCMID,JWOrderWiseId from TRN.InventoryIssueDetail 
+								group by JWTCMID,JWOrderWiseId) OW on OW.JWTCMID=vcc.Id and OW.JWOrderWiseId=owr.Id
 
 								 left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=vcc.MaterialMasterId AND IM.ArticleId=vcc.ArticleId
         left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
@@ -1828,9 +1837,12 @@ left join (select vcc.Id,vcc.JobWorkTransformationContractMasterId,vcc.MaterialM
 								 left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId
                                   ) kk on kk.JWContractId=vcc.JobWorkTransformationContractMasterId
 
-								    left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
-								 left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId, iid.JWOrderWiseId
-                                  ) OW on OW.JWContractId=vcc.JobWorkTransformationContractMasterId 
+								    --  left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
+								 --left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId, iid.JWOrderWiseId
+                                -- ) OW on OW.JWContractId=vcc.JobWorkTransformationContractMasterId 
+
+		                        left join (Select SUM(TransactionQty) as TotalQuantity,JWTCMID,JWOrderWiseId from TRN.InventoryIssueDetail 
+								group by JWTCMID,JWOrderWiseId) OW on OW.JWTCMID=vcc.Id and OW.JWOrderWiseId=owr.Id
 
 								 left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=vcc.MaterialMasterId AND IM.ArticleId=vcc.ArticleId
         left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
@@ -1938,9 +1950,12 @@ left join (select vcc.Id,vcc.JobWorkTransformationContractMasterId,vcc.MaterialM
 								 left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId
                                   ) kk on kk.JWContractId=vcc.JobWorkTransformationContractMasterId
 
-								    left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
-								 left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId, iid.JWOrderWiseId
-                                  ) OW on OW.JWContractId=vcc.JobWorkTransformationContractMasterId 
+								    --  left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid 
+								 --left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id group by II.JWContractId, iid.JWOrderWiseId
+                                -- ) OW on OW.JWContractId=vcc.JobWorkTransformationContractMasterId 
+
+		                        left join (Select SUM(TransactionQty) as TotalQuantity,JWTCMID,JWOrderWiseId from TRN.InventoryIssueDetail 
+								group by JWTCMID,JWOrderWiseId) OW on OW.JWTCMID=vcc.Id and OW.JWOrderWiseId=owr.Id
 
 								 left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=vcc.MaterialMasterId AND IM.ArticleId=vcc.ArticleId
         left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id

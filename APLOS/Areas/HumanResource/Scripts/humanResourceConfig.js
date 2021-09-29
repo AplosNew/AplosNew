@@ -194,6 +194,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/AttendanceManagement/ComplianceJobCard',
             controller: 'compliancejobCardReportController'
         })
+        .when('/job-card-new', {
+            templateUrl: 'humanresource/JobCardReportNew/Aplos',
+            controller: 'jobCardReportNewController'
+        })
 
         .when('/ot-final', {
             templateUrl: 'humanresource/AttendanceManagement/OtFinal',
@@ -615,7 +619,16 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/audit-report-data-new', {
             templateUrl: 'humanresource/NewAttendanceProcessAuditReport/Aplos',
             controller: 'NewAttendanceProcessAuditReportController'
-        });
+        })
+        .when('/leave-app-new', {
+            templateUrl: 'humanresource/LeaveApplicationNew/Aplos',
+            controller: 'EmployeeLeaveApplicationNewController'
+        })
+        .when('/employee-leave-approval-new', {
+            templateUrl: 'humanresource/EmployeeLeaveApprovalNew/Aplos',
+            controller: 'EmployeeLeaveApprovalNewController'
+        })
+;
     
 
 }
