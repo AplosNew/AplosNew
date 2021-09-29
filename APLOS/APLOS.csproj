@@ -3718,6 +3718,7 @@
     <Content Include="Areas\HumanResource\Views\EmployeeLeaveApprovalNew\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeePlantTransferNew\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\MonthlyGoodWorkReportNew\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\SalaryProcessNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
