@@ -570,9 +570,9 @@ function SalaryProcessNewController(addressService, fileReader, cboService, comm
             //if ($scope.AllDataset.dtSND == null || $scope.AllDataset.dtSND.length > 0) {
             //    throw ("Salary Structure is not defined for some employees; see the respective tab...");
             //}
-            if ($scope.AllDataset.dtSNA == null || $scope.AllDataset.dtSNA.length > 0) {
-                throw ("Salary Structure is not approved for some employees; see the respective tab...");
-            }
+            //if ($scope.AllDataset.dtSNA == null || $scope.AllDataset.dtSNA.length > 0) {
+            //    throw ("Salary Structure is not approved for some employees; see the respective tab...");
+            //}
 
             var active_count_selected = GetSelectedCount($scope.AllDataset.dtActive);
             var NewlyJoined_count_selected = GetSelectedCount($scope.AllDataset.dtNewlyJoined);

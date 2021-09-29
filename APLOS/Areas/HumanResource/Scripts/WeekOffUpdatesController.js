@@ -1,14 +1,18 @@
 ﻿'use strict';
 WeekOffUpdatesController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function WeekOffUpdatesController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Roster Pattern Creation';
-    $rootScope.title1 = 'Roster Pattern Planning';
+    $rootScope.title = 'Week Off Updates';
+    $rootScope.title1 = 'Week Off Updates';
     $scope.Action = 'Save';
     var url = "humanresource/WeekOffUpdates/";
 
 
+    var x = document.getElementById("RosterBudgetGrid");
+    var y = document.getElementById("SavedTable");
 
-    
+    x.style.display = "none";
+    y.style.display = "none";
+
     $scope.fileData = [];
     $scope.GetSample = function () {
         var reportFormat = "Excel";
@@ -31,6 +35,8 @@ function WeekOffUpdatesController(commonMessage, $scope, $rootScope, baseService
         }).then(function success(response) {
             $scope.currentList = [];
             $scope.currentList = response.data;
+            x.style.display = "none";
+            y.style.display = "block";
         })
     }
 
@@ -84,6 +90,8 @@ $scope.ModelNew = {
                     else {
                         try {
                             $scope.ExcelUploadData = response.data;
+                            x.style.display = "block";
+                            y.style.display = "none";
                         }
 
                         catch (e) {
