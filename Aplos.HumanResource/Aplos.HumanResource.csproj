@@ -171,6 +171,7 @@
     <Compile Include="Attendance\DailyAttendanceReport.cs" />
     <Compile Include="Attendance\DownloadApi.cs" />
     <Compile Include="Leave\clsLeaveBalanceToDate.cs" />
+    <Compile Include="NewAttendanceProcess\clsSalaryProcessLog.cs" />
     <Compile Include="NewAttendanceProcess\NewProcessBackendRowCreationLogic.cs" />
     <Compile Include="NewAttendanceProcess\NewAttdnMonthlySummaryService.cs" />
     <Compile Include="NewAttendanceProcess\NewAttdnAuditReportService.cs" />

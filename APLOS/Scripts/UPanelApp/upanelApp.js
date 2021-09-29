@@ -371,6 +371,7 @@ var upanelApp = angular
     .controller("salaryLockController", salaryLockController)
     .controller("salaryPaymentStatementsBankCSVController", salaryPaymentStatementsBankCSVController)
     .controller("SalaryProcessController", SalaryProcessController)
+    .controller("SalaryProcessNewController", SalaryProcessNewController)
     .controller("salaryProcessDeleteController", salaryProcessDeleteController)
     .controller("salaryReportController", salaryReportController)
     .controller("SalaryStructureApprovalController", SalaryStructureApprovalController)
