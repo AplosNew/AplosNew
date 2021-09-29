@@ -6522,7 +6522,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 //                left join dbo.JobWorkTransformationContractChild om on om.Id=mi.JobWorkTransformationContractChildMasterId
                 //                where mi.JobWorkTransformationContractChildMasterId='" + Id + @"' ";
 
-                var _sql = @"select mm.Id as MaterialMasterId,mi.NetConsumption as NETCon,mi.Rejection as Rej, mi.ValueLoss as ValLoss, mi.GrossConsumption as GrConsump,mi.BOQRequiredQuantity
+                var _sql = @"select mm.Id as MaterialMasterId,mi.NetConsumption as NETCon,mi.Rejection as Rej, mi.ValueLoss as ValLoss--, mi.GrossConsumption as GrConsump
+                                  ,ROUND(mi.GrossConsumption,4) as GrConsump
+                                 ,mi.BOQRequiredQuantity
                                 ,mm.UserName as Material, mm.Code as MaterialCode
                                 , mma.StandardName as Article, mma.Code as ArticleCode
                                 ,uom.UserName as MatBaseUoM,mm.BaseUOMId

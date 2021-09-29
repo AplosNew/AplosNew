@@ -103,12 +103,19 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsGLService.GetAdditionalTaxOutputCbo(postingDate, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize]
+        [HttpGet,Authorize]
         public JsonResult GetTDSCbo(DateTime postingDate)
         {
             AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsGLService.GetTDSCbo(postingDate, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet,Authorize]
+        public JsonResult GetTDSOutPutCbo(DateTime postingDate)
+        {
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsGLService.GetTDSOutPutCbo(postingDate, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
