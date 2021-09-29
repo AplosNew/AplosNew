@@ -59,10 +59,8 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
-    }
+    };
 
-
-    // #region checkbox all
 
     $scope.approvedGRNList = [];
     $scope.getPopUpData = function () {
@@ -233,7 +231,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             }
         });
     });
-
+    $scope.Action = 'Save';
 
     $scope.Save = function () {
         try {
@@ -298,8 +296,9 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.modelNew = Object.assign({}, $scope.model);
         $scope.InventoryReceiveDetailList = [];
         $scope.TempList = [];
+        $scope.Action = 'Save';
     }
 
-    // #endregion checkbox all
+  
 
 }

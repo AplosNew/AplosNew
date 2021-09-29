@@ -274,12 +274,12 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetOutSourcingVoucherReport(ReportFormat reportFormat, string voucherId)
+        public ActionResult GetOutSourcingVoucherReport(ReportFormat reportFormat, string voucherId, string sourceType)
         {
             AccountsInventoryPayableReportService _accountsInventoryPayableService = new AccountsInventoryPayableReportService(_sqlRepository);
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _accountsInventoryPayableService.GetOutSourcingVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            var workbook = _accountsInventoryPayableService.GetOutSourcingVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, sourceType);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

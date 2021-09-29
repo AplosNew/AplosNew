@@ -4264,7 +4264,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
-									,[Type] ='JW WIP' 
+									,[Type] ='JW WIP'
+									,V.SourceType
 						FROM [TRN].[InventoryReceive] AS IR 
 						LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
@@ -4283,6 +4284,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
 									,[Type] ='JW ChangeInInv' 
+									,V.SourceType
 						FROM [TRN].[InventoryReceive] AS IR 
 						LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
@@ -4301,6 +4303,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 									,VoucherNo = V.VoucherNo
 									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
 									,[Type] ='JW GIRI' 
+									,V.SourceType
 						FROM [TRN].[InventoryReceive] AS IR 
 						LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
