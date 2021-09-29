@@ -538,6 +538,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\JobCardReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeLeaveApprovalNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeaveApplicationNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\NewAttendanceProcessAuditReportController.cs" />
@@ -745,6 +746,7 @@
     <Compile Include="Areas\Payrolls\Controllers\CompanyProvidentFundStatementReportController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeAdvanceDeductionController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\SalaryProcessNewController.cs" />
+    <Compile Include="Areas\Payrolls\Controllers\SalaryProcessOtherStatusNewController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxOBController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ProfessionalTaxOBController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxInvestmentMasterController.cs" />
@@ -1804,6 +1806,7 @@
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApplicationNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApprovalNewController.js" />
+    <Content Include="Areas\HumanResource\Scripts\jobCardReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\NewAttendanceProcessAuditReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\NewAttdnProcessLockController.js" />
     <Content Include="Areas\HumanResource\Scripts\ArrearProcessedTotalReportController.js" />
@@ -1960,6 +1963,8 @@
     <Content Include="Areas\Payrolls\Scripts\paySlipsContractorController.js" />
     <Content Include="Areas\Payrolls\Scripts\CompanyProvidentFundStatementReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeAdvanceDeductionController.js" />
+    <Content Include="Areas\Payrolls\Scripts\SalaryProcessNewController.js" />
+    <Content Include="Areas\Payrolls\Scripts\SalaryProcessOtherStatusNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxOBController.js" />
     <Content Include="Areas\Payrolls\Scripts\ProfessionalTaxOBController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxInvestmentMasterController.js" />
@@ -3718,6 +3723,10 @@
     <Content Include="Areas\HumanResource\Views\EmployeeLeaveApprovalNew\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeePlantTransferNew\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\MonthlyGoodWorkReportNew\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\SalaryProcessNew\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\JobCardReportNew\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\SalaryProcessOtherStatusNew\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\InventoryPayable\_GRNDetailPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

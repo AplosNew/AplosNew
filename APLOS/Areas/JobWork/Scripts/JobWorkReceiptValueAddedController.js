@@ -818,7 +818,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	}
 
 	$scope.ByWhomClear = function () {
-		$scope.ReceiptTransformation.ByWhomId = null;
+		$scope.ReceiptTransformation.ByWhomEmployeeId = null;
 		$scope.ReceiptTransformation.ByWhomName = null;
 		$scope.ReceiptTransformation.EmpCode = null;
 		$scope.ReceiptTransformation.EmpStatus = null;
@@ -831,8 +831,6 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.setByWhomdata = function (obj) {
 
 		var data = obj.data;
-		$scope.ReceiptTransformation.EmployeeId = data.Id;
-	//	$scope.ReceiptTransformation.ByWhomId = data.Id;
 		$scope.ReceiptTransformation.ByWhomEmployeeId = data.Id;
 		// $scope.ReceiptTransformation.EmpCode = data.Code;
 		$scope.ReceiptTransformation.EmpCode = data.Id;
@@ -2997,7 +2995,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 								//		var IssuedMatInputCount = $scope.GetIssuedMatInputList.length;
 
 								for (var i = 0; i < $scope.GetMaterialInputList.length; i++) {
-									if (baseService.isUndefinedOrNull($scope.GetMaterialInputList.ArticleId)) {
+									if (baseService.isUndefinedOrNull($scope.GetMaterialInputList[i].ArticleId)) {
 										var getjwiRow = $filter("filter")($scope.GetIssuedMatInputList, { "JWTCInputId": $scope.GetMaterialInputList[i].JobWorkItemId });
 										if (getjwiRow.length == 0) {
 											x.check = false;
@@ -3062,7 +3060,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				$scope.GetMaterialInputList = [];
 				$http({
 					method: 'GET',
-					url: $scope.path + 'GetIfIssuedOrNotValAdded?JWOutputId=' + $scope.JWPOId
+					url: $scope.path + 'GetIfIssuedOrNotValAdded?JWPOId=' + $scope.JWPOId + '&JWOutputId=' + $scope.JWOutputId
 				}).then(function successCallback(response) {
 					$scope.GetMaterialInputList = response.data;
 					if ($scope.GetMaterialInputList.length > 0) {
@@ -3078,8 +3076,8 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 								//		var IssuedMatInputCount = $scope.GetIssuedMatInputList.length;
 
 								for (var i = 0; i < $scope.GetMaterialInputList.length; i++) {
-									if (baseService.isUndefinedOrNull($scope.GetMaterialInputList.ArticleId)) {
-										var getjwiRow = $filter("filter")($scope.GetIssuedMatInputList, { "JWTCInputId": $scope.GetMaterialInputList[i].JobWorkItemMasterId });
+									if (baseService.isUndefinedOrNull($scope.GetMaterialInputList[i].ArticleId)) {
+										var getjwiRow = $filter("filter")($scope.GetIssuedMatInputList, { "JWOrderWiseId": $scope.GetMaterialInputList[i].JWOrderWiseId });
 										if (getjwiRow.length == 0) {
 											x.check = false;
 											ShowResult("This Output detail Id " + $scope.JWOutputId + " cannot be received ");
