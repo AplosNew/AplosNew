@@ -818,7 +818,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	}
 
 	$scope.ByWhomClear = function () {
-		$scope.ReceiptTransformation.ByWhomId = null;
+		$scope.ReceiptTransformation.ByWhomEmployeeId = null;
 		$scope.ReceiptTransformation.ByWhomName = null;
 		$scope.ReceiptTransformation.EmpCode = null;
 		$scope.ReceiptTransformation.EmpStatus = null;
@@ -831,8 +831,6 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.setByWhomdata = function (obj) {
 
 		var data = obj.data;
-		$scope.ReceiptTransformation.EmployeeId = data.Id;
-	//	$scope.ReceiptTransformation.ByWhomId = data.Id;
 		$scope.ReceiptTransformation.ByWhomEmployeeId = data.Id;
 		// $scope.ReceiptTransformation.EmpCode = data.Code;
 		$scope.ReceiptTransformation.EmpCode = data.Id;

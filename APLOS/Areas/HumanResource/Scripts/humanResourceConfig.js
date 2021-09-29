@@ -194,6 +194,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/AttendanceManagement/ComplianceJobCard',
             controller: 'compliancejobCardReportController'
         })
+        .when('/job-card-new', {
+            templateUrl: 'humanresource/JobCardReportNew/Aplos',
+            controller: 'jobCardReportNewController'
+        })
 
         .when('/ot-final', {
             templateUrl: 'humanresource/AttendanceManagement/OtFinal',
