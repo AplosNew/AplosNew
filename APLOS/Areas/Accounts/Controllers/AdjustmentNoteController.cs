@@ -285,7 +285,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpPost]
         public JsonResult InsertCreditNoteSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList)
+            , IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -312,7 +312,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCreditNoteInvoiceSetOff(voucherVM, voucherDetailVMList,voucherDetailInvoiceList)) });
             }
             else
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCreditNoteSetOff(voucherVM, voucherDetailVMList)) });
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCreditNoteSetOff(voucherVM, voucherDetailVMList, taxDetailVMList)) });
 
         }
 

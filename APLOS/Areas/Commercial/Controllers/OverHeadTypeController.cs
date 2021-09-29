@@ -49,7 +49,7 @@ namespace Aplos.Areas.Commercial.Controllers
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";

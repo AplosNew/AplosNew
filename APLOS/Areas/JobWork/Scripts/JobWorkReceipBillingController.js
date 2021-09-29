@@ -259,16 +259,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
                 }
                 $scope.LoadGRNDetail();
             }
-            //if ($scope.GriddataMaster.length > 0) {
-            //    var uniqueInventoryReceiveId = removeDuplicates($scope.GriddataMaster, 'InventoryReceiveId');
-            //    var wcInventoryReceiveId = "";
-            //    if (uniqueInventoryReceiveId.length > 0) {
-            //        wcInventoryReceiveId = "IN(";
-            //        wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.InventoryReceiveId + "'"; }).join(",") + ")";
-            //    }
-            //    $scope.sqlInStatement = wcInventoryReceiveId;
-            //}
-            //$scope.GetDetailData($scope.ModelNew.Id, $scope.ModelNew.JWTransformationPurchaseOrderId, $scope.sqlInStatement);
         });
     }
 

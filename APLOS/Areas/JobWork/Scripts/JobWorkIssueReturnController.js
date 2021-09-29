@@ -237,27 +237,30 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	$scope.GridInventoryIssuedata = [];
 	$scope.getdataInventoryIssue = function () {
-		$scope.GridInventoryIssuedata = [];
-		$http({
-			method: "GET",
-			url: $scope.path + 'GetDataByInventoryIssue?Id=' + $scope.Transformation.Id,
-		}).then(function successCallback(response) {
-			$scope.GridInventoryIssuedata = response.data;
-			if ($scope.GridInventoryIssuedata.length == 0) {
-				$scope.ShowHomeList = true;
-				$scope.ShowReport = false;
-				$scope.setTab(2);
-				if (!$rootScope.isCollapsed) {
-					$rootScope.toggle();
+		if ($scope.ModelNew.TabType == "Transformation") {
+			$scope.GridInventoryIssuedata = [];
+			$http({
+				method: "GET",
+				url: $scope.path + 'GetDataByInventoryIssue?Id=' + $scope.Transformation.Id,
+			}).then(function successCallback(response) {
+				$scope.GridInventoryIssuedata = response.data;
+				if ($scope.GridInventoryIssuedata.length == 0) {
+					$scope.ShowHomeList = true;
+					$scope.ShowReport = false;
+					$scope.setTab(2);
+					if (!$rootScope.isCollapsed) {
+						$rootScope.toggle();
+					}
 				}
-			}
-			else {
-				$scope.ShowHomeList = false;
-				$scope.ShowReport = true;
-				$scope.setTab(2);
-			}
+				else {
+					$scope.ShowHomeList = false;
+					$scope.ShowReport = true;
+					$scope.setTab(2);
+				}
 
-		});
+			});
+        }
+
 
 	};
 
@@ -1362,7 +1365,8 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		}
 
 		$scope.index = index;
-		data.MaterialStorageId = $scope.Issue.MaterialStorageId;
+	//	data.MaterialStorageId = $scope.Issue.MaterialStorageId;
+		data.MaterialStorageId = $scope.Issue.MSIdInventory;
 		$http({
 			method: 'POST'
 			, url: 'Products/InventoryIssue/GetSpecificMaterialStock/'
@@ -1804,7 +1808,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		//	$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
 			var T2 = 0;
 			for (var i = 0; i < $scope.detailList.length; i++) {
-				if (!baseService.isUndefinedOrNull($scope.detailList[i].ArticleId)) {
+				if (!baseService.isUndefinedOrNull($scope.detailList[i].ArticleId) && $scope.detailList[i].isSelectedMatInput == true) {
 					var T1 = $scope.detailList[i].TransactionQty;
 					var T2 = T1 + T2;
 					$scope.selectedRowQty1 = parseFloat(T2);
@@ -1824,7 +1828,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 			var T2 = 0;
 			for (var i = 0; i < $scope.IssueChildList.length; i++) {
-				if (!baseService.isUndefinedOrNull($scope.IssueChildList[i].ArticleId)) {
+				if (!baseService.isUndefinedOrNull($scope.IssueChildList[i].ArticleId) && $scope.IssueChildList[i].isSelectedOM == true) {
 					var T1 = $scope.IssueChildList[i].TransactionQty;
 					var T2 = T1 + T2;
 					$scope.selectedRowQty1 = parseFloat(T2);
@@ -2070,6 +2074,9 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		if ($scope.ModelNew.TabType == "Transformation") {
 			$scope.IssueTransformation.MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
 		}
+		else {
+			$scope.Issue.MaterialStorageId = $scope.Issue.MSIdInventory;
+        }
 		
 
 		//$scope.productNew.IssueRequestMasterId = $scope.issueId;
@@ -2258,7 +2265,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			angular.element(document.querySelector("#ShowLOcationWiseStock")).modal("show");
 
 			for (var i = 0; i < $scope.IssueChildList.length > 0; i++) {
-				if ($scope.IssueChildList[i].Id === RowData.Id) {
+				if ($scope.IssueChildList[i].JWTCMId === RowData.JWTCMId && $scope.IssueChildList[i].ArticleId === RowData.ArticleId) {
 					$scope.MatMstId = $scope.IssueChildList[i].MaterialMasterId;
 					// $scope.SelectedArticleId = $scope.IssueChildList[i].MaterialMasterArticleId;
 					$scope.SelectedArticleId = $scope.IssueChildList[i].ArticleId;
@@ -2268,7 +2275,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 			$http({
 				method: 'POST',
-				data: { MaterialMstId: $scope.MatMstId, ArticleId: $scope.SelectedArticleId, issueDate: $scope.Issue.Date },
+				data: { MaterialMstId: $scope.MatMstId, ArticleId: $scope.SelectedArticleId, issueDate: $scope.Issue.IssueDate },
 				url: 'Products/InventoryIssue/StorageLocationStockWise/'
 			}).then(function successCallback(response) {
 				$scope.GetShowStorageLocationList = response.data;

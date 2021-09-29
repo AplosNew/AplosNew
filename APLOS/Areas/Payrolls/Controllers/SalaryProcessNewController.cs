@@ -7,11 +7,8 @@ using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.HumanResource.Payroll.Allowance;
 using Library.HumanResource.Payroll.SalaryProcess;
-using Library.Model.Setups;
-using Library.Service.Extension.HumanResource.Payroll.SalaryProcess;
+using Library.HumanResource.Payroll.SalaryProcessActive;
 using Library.Service.Payrolls.SalaryProcess;
-using Library.Service.Payrolls.SalaryProcessActive;
-using Library.Service.Setups;
 using Library.Service.TaskScheduler;
 using Newtonsoft.Json;
 using OTSBD;
@@ -71,13 +68,13 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             string _currencyId = "";
             //string _EmpCount = "0";
-            clsSalaryProcessQuery objQ = null;
+            Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery objQ = null;
             DataSet dsGrid = null;
             clsSalaryInfo objSal = null;
             DataSet dsCurrency = null;
             try
             {
-                objQ = new clsSalaryProcessQuery();
+                objQ = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 FunctionPara para = new FunctionPara();
                 objSal = new clsSalaryInfo();
@@ -135,18 +132,18 @@ namespace Aplos.Areas.Payrolls.Controllers
                 para.lblEmpCount = eList.Length.ToString();
                 para.IsSeparated = true;
 
-                clsSalaryProcessAplosR obj = new clsSalaryProcessAplosR();
+                Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessAplosR obj = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessAplosR();
                 FunctionPara m = obj.SalaryProcess(para);
                 objQ.DeleteExceptionEmpsForSalaryProcess(_emps, para.PlantId, Convert.ToDateTime(FromDate).ToString("yyyy"), Convert.ToDateTime(FromDate).ToString("MM"));
 
                 #region Save Log TBD
-                clsSalaryProcessLog spl = new clsSalaryProcessLog();
-                ParaLog paralog = new ParaLog();
+                Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessLog spl = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessLog();
+                Library.HumanResource.Payroll.SalaryProcessActive.ParaLog paralog = new Library.HumanResource.Payroll.SalaryProcessActive.ParaLog();
                 paralog.CompanyGroupId = para.GroupId;
                 paralog.UserId = para.USER;
                 paralog.PlantId = para.PlantId;
                 paralog.SalaryProcessId = m.lblSalaryProcSystemId;
-                var kk = dsGrid.Tables[0].ToList<ActiveEmp>();//List<ActiveEmp>
+                var kk = dsGrid.Tables[0].ToList<Library.HumanResource.Payroll.SalaryProcessActive.ActiveEmp>();//List<ActiveEmp>
                 paralog.SeparatedEmp = kk;
 
                 paralog.YearNo = Convert.ToDateTime(para.FromDate).Year;
@@ -168,13 +165,13 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             string _currencyId = "";
             //string _EmpCount = "0";
-            clsSalaryProcessQuery objQ = null;
+            Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery objQ = null;
             DataSet dsGrid = null;
             clsSalaryInfo objSal = null;
             DataSet dsCurrency = null;
             try
             {
-                objQ = new clsSalaryProcessQuery();
+                objQ = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 FunctionPara para = new FunctionPara();
 
@@ -237,18 +234,18 @@ namespace Aplos.Areas.Payrolls.Controllers
                 para.lblEmpCount = eList.Length.ToString();
                 para.IsMaternity = true;
 
-                clsSalaryProcessAplosR obj = new clsSalaryProcessAplosR();
+                Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessAplosR obj = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessAplosR();
                 FunctionPara m = obj.SalaryProcess(para);
                 objQ.DeleteExceptionEmpsForSalaryProcess(_emps, para.PlantId, Convert.ToDateTime(FromDate).ToString("yyyy"), Convert.ToDateTime(FromDate).ToString("MM"));
 
                 #region Save Log TBD
-                clsSalaryProcessLog spl = new clsSalaryProcessLog();
-                ParaLog paralog = new ParaLog();
+                Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessLog spl = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessLog();
+                Library.HumanResource.Payroll.SalaryProcessActive.ParaLog paralog = new Library.HumanResource.Payroll.SalaryProcessActive.ParaLog();
                 paralog.CompanyGroupId = para.GroupId;
                 paralog.UserId = para.USER;
                 paralog.PlantId = para.PlantId;
                 paralog.SalaryProcessId = m.lblSalaryProcSystemId;
-                var kk = dsGrid.Tables[0].ToList<MaternityRetun>();//List<ActiveEmp>
+                var kk = dsGrid.Tables[0].ToList<Library.HumanResource.Payroll.SalaryProcessActive.MaternityRetun>();//List<ActiveEmp>
                 paralog.MaternityGoing = kk;
 
                 paralog.YearNo = Convert.ToDateTime(para.FromDate).Year;
@@ -290,7 +287,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                              {
                                  throw ex;
                              }
-                             
+
                          }
                      }
                  }
@@ -332,7 +329,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                   {
 
 
-                      clsSalaryProcessQuery objQ = null;
+                      Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery objQ = null;
                       DataSet dsGrid = null;
                       string _currencyId = string.Empty;
 
@@ -345,7 +342,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                           var alldataset = palldataset;
 
-                          objQ = new clsSalaryProcessQuery();
+                          objQ = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery();
 
                           #region Validation
 
@@ -839,7 +836,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 para.ParaSalaryHeadWiseFixedService = (ISalaryHeadWiseFixedService)new SalaryHeadWiseFixedService();
                 para.ParaSalaryHeadWiseDailyService = (ISalaryHeadWiseDailyService)new SalaryHeadWiseDailyService();
 
-                clsSalaryProcessAplosR obj = new clsSalaryProcessAplosR();
+                Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessAplosR obj = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessAplosR();
                 FunctionPara m = obj.SalaryProcess(para);
 
                 //clsCarryForwardSalary cfob = new clsCarryForwardSalary();
@@ -850,8 +847,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                 #endregion
 
                 #region Save Log TBD
-                clsSalaryProcessLog spl = new clsSalaryProcessLog();
-                ParaLog paralog = new ParaLog();
+                Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessLog spl = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessLog();
+                Library.HumanResource.Payroll.SalaryProcessActive.ParaLog paralog = new Library.HumanResource.Payroll.SalaryProcessActive.ParaLog();
                 paralog.CompanyGroupId = para.GroupId;
                 paralog.UserId = para.USER;
                 paralog.PlantId = para.PlantId;
@@ -932,7 +929,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 //clsSalaryProcessQuery objQ = null;
-                clsSalaryProcessQuery ui = new clsSalaryProcessQuery();
+                Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery ui = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessQuery();
                 DataSet dsactive = null;
                 string emp_pk = string.Empty;
                 GetEmpDelimitedMLVR(list, ref emp_pk);
@@ -971,8 +968,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                 #endregion
 
                 #region Save Log TBD
-                clsSalaryProcessLog spl = new clsSalaryProcessLog();
-                ParaLog paralog = new ParaLog();
+                Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessLog spl = new Library.HumanResource.Payroll.SalaryProcessActive.clsSalaryProcessLog();
+                Library.HumanResource.Payroll.SalaryProcessActive.ParaLog paralog = new Library.HumanResource.Payroll.SalaryProcessActive.ParaLog();
                 paralog.CompanyGroupId = para.GroupId;
                 paralog.UserId = para.USER;
                 paralog.PlantId = para.PlantId;

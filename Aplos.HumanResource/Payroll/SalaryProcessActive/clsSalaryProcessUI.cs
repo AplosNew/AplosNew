@@ -953,7 +953,7 @@ and isnull(locka.EmpSystemId,'')=''
                     GetMsg(dsSSNA, out msg);
                     if (msg.Length > 0)
                     {
-                        throw new Exception("Salary Structure is not approved for the following employees " + msg + "");
+                        //throw new Exception("Salary Structure is not approved for the following employees " + msg + "");
                     }
                 }
             }

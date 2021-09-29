@@ -187,24 +187,41 @@ namespace Aplos.Areas.Payrolls.Controllers
 
             var FinalSettlementEarning = _sqlRepository.GetDataCollection(sqle);
             //var FinalSettlementDeduction = ob.GetFinalSettlementDeduction();
-            string sqlRetained = @"SELECT spc.EmpInfoSystemID ,sh.SalaryHead,spc.SalaryHeadID
-                         
-                            ,SUM(spc.DisbusmentAmount) DisbusmentAmount
-                          
-                              
-                             FROM  SalaryProcChild spc
+            string sqlRetained = @" SELECT    spc.EmpInfoSystemID ,sh.SalaryHead,spc.SalaryHeadID                         
+                            ,SUM(spc.DisbusmentAmount) DisbusmentAmount,'PreviousYear' as status
+                           FROM  SalaryProcChild spc
                              LEFT JOIN SalaryProcMaster spm on spm.SystemID=spc.SlrProcMstSystemID
                              LEFT JOIN SalaryLock sl on sl.YearNo=spm.YearNo and sl.MonthNo=spm.MonthNo and sl.EmpSystemId=spc.EmpInfoSystemID
                              LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID							 
                              LEFT JOIN SalaryDisbursementInAcc sd on sd.MonthNo=spm.MonthNo and sd.YearNo=spm.YearNo and sd.SalaryHeadId=spc.SalaryHeadID and sd.EmpSystemId=spc.EmpInfoSystemID
-                             WHERE   sl.IsLocked=1 and sh.IsRetained=1 
-							 AND spc.DisbusmentAmount>0 AND spc.EmpInfoSystemID='" + EmpSystemId + @"'
-                            and (spm.YearNo<=year('" + DOS + @"') or (spm.YearNo<=year('" + DOS + @"') and spm.MonthNo<=month('" + DOS + @"')))
-                            and spc.PlantID='" + identity.PlantId + @"'
-	                        and ISNULL( sd.Id,'')=''
- 
-                            group by spc.EmpInfoSystemID ,sh.SalaryHead,spc.SalaryHeadID
-                            order by spc.EmpInfoSystemID";
+						     left join  SCS.TaxYear TC on '" + DOS + @"' between TC.startdate and TC.enddate
+
+                             join scs.TaxYear TP on TP.EndDate < tc.StartDate and datefromparts(spm.YearNo, spm.MonthNo, 1) between TP.startdate and TP.enddate
+                             WHERE  sl.IsLocked = 1 and sh.IsRetained = 1  AND
+
+                           spc.DisbusmentAmount > 0 AND spc.EmpInfoSystemID = '" + EmpSystemId + @"'
+                            and spc.PlantID = '" + identity.PlantId + @"'
+                            and ISNULL(sd.Id,'')= ''
+                            group by  spc.EmpInfoSystemID ,sh.SalaryHead,spc.SalaryHeadID
+                            union all
+                            SELECT    spc.EmpInfoSystemID ,sh.SalaryHead,spc.SalaryHeadID
+                            ,SUM(spc.DisbusmentAmount) DisbusmentAmount,'CurrentYear' as status
+                             FROM SalaryProcChild spc
+                            LEFT JOIN SalaryProcMaster spm on spm.SystemID = spc.SlrProcMstSystemID
+                             LEFT JOIN SalaryLock sl on sl.YearNo = spm.YearNo and sl.MonthNo = spm.MonthNo and sl.EmpSystemId = spc.EmpInfoSystemID
+                             LEFT JOIN SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
+                             LEFT JOIN SalaryDisbursementInAcc sd on sd.MonthNo = spm.MonthNo and sd.YearNo = spm.YearNo and sd.SalaryHeadId = spc.SalaryHeadID and sd.EmpSystemId = spc.EmpInfoSystemID
+
+                             join SCS.TaxYear TC on datefromparts(spm.YearNo, spm.MonthNo, 1) between TC.startdate and TC.enddate
+                          WHERE  sl.IsLocked = 1 and sh.IsRetained = 1  AND
+
+                           spc.DisbusmentAmount > 0 AND spc.EmpInfoSystemID = '" + EmpSystemId + @"'
+
+                           and '" + DOS + @"'  between TC.startdate and TC.enddate
+                            and spc.PlantID = '" + identity.PlantId + @"'
+
+                            and ISNULL(sd.Id,'')= ''
+                            group by TC.Id,tc.StartDate,tc.EndDate,spc.EmpInfoSystemID ,sh.SalaryHead,spc.SalaryHeadID";
 
             var FinalSettlementRetainedHead = _sqlRepository.GetDataCollection(sqlRetained);
 
@@ -286,6 +303,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 o.SalaryHeadID = item.SalaryHeadID;
                                 o.SalaryHead = item.SalaryHead;
                                 o.DisbusmentAmount = item.DisbusmentAmount;
+                                o.status = item.status;
                                 FinalSettlementRetainedHeadDetailsData.Add(o);
 
                             }
@@ -740,7 +758,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 {
                     foreach (var item in FinalSettlementRetainedHeadDetailsData)
                     {
-                        dvFinalSettlementRetainedDetails.RowFilter = "EmployeeFinalSettlementId='" + FinalSettlementId + @"' and SalaryHeadId='" + item.SalaryHeadID + @"'";
+                        dvFinalSettlementRetainedDetails.RowFilter = "EmployeeFinalSettlementId='" + FinalSettlementId + @"' and SalaryHeadId='" + item.SalaryHeadID + @"' and Amount = '" + item.DisbusmentAmount + "'";
 
                         if (dvFinalSettlementRetainedDetails.Count == 0)
                         {
@@ -753,6 +771,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             dr["SalaryHeadId"] = item.SalaryHeadID.ToString();
                             dr["EmployeeFinalSettlementId"] = FinalSettlementId;
                             dr["Amount"] = item.DisbusmentAmount;
+                            dr["YearStatus"] = item.status;
 
 
 
@@ -773,7 +792,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             dr["SalaryHeadId"] = item.SalaryHeadID;
                             dr["EmployeeFinalSettlementId"] = FinalSettlementId;
                             dr["Amount"] = item.DisbusmentAmount;
-
+                            dr["YearStatus"] = item.status;
 
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"] = System.DateTime.Now.ToString();

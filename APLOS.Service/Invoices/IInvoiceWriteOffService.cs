@@ -52,7 +52,7 @@ namespace Library.Service.Invoices
         string InsertDebitNoteSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
         string InsertDebitNoteInvoiceSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList);
-        string InsertCreditNoteSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
+        string InsertCreditNoteSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList);
         string InsertCreditNoteInvoiceSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList);
         void DeleteWriteOff(string invoiceWriteOffId, string voucherId);
         void DeleteCustomerBanksReceipt(string invoiceWriteOffGroupNo, SourceType sourceType);
