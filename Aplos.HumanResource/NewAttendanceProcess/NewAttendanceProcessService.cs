@@ -50,7 +50,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate='" + WkDate + "'and PlantID='" + PlantValue + "'", out DataSet dsRef, false, false, "", "1");
 
-                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where WorkDate='" + WkDate + "'", out DataSet dsEarnedLeave, false, false, "", "1");
+                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'", out DataSet dsEarnedLeave, false, false, "", "1");
                         objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where 1=2", out DataSet dsEarnedNewLeave, false, false, "", "1");
 
                         for (int i = 0; i < UnProcessed.Tables[0].Rows.Count; i++)

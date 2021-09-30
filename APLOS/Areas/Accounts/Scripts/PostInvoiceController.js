@@ -231,6 +231,14 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             }
         });
     });
+
+    $scope.calculateAmount = function (data) {
+        data.TransactionAmount = parseFloat(data.TransactionQty * data.TransactionRate).toFixed(2);
+        var gridObj = $("#GRNDetail").data("ejGrid");
+        gridObj.refreshContent(true);
+        gridObj.refreshTemplate();
+    };
+
     $scope.Action = 'Save';
 
     $scope.Save = function () {

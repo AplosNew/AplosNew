@@ -54,7 +54,7 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 SaveData(master, dataList);
-                return Json(new { Error = false, Data = master, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = master, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
