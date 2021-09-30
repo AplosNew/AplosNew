@@ -4447,6 +4447,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet[MPChildROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TransactionQty"].ToString());
 
                 sheet[MPChildROW, ColAvgRate].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AveRateeee"].ToString());
+              //  sheet[MPChildROW, ColAvgRate].Text = TransformationIssueReturnChilddata.Rows[i]["AveRateeee"].ToString();
 
                 //      sheet[MPChildROW, ColBaseRateeee].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BaseRateeee"].ToString());
 
@@ -4775,8 +4776,10 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                          ,isnull(IID.TransactionQty,'0') as TransactionQty
 						-- ,uom.UserName as IssueUoM
 						 ,IssueUoM=case when IID.TransactionUoMId is not null then uom.UserName else uomm.UserName End
-						 ,isnull(BB.TotalAmt,'0') as AverageAmount
-						 ,AveRateeee=isnull((BB.TotalAmt/IID.TransactionQty),'0')
+						 --,isnull(BB.TotalAmt,'0') as AverageAmount
+						 --,AveRateeee=isnull((BB.TotalAmt/IID.TransactionQty),'0')
+						 ,isnull(round(IID.PolicyAmount,2),'0') as AverageAmount
+						 ,isnull(round(IID.PolicyRate,4),'0') as AveRateeee
                         from TRN.InventoryIssueDetail IID left
                         join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
                         left
@@ -4795,22 +4798,22 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
                                         group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName,IID.JWTCMID)
 										kk on kk.InventoryMaterialId = IM.Id and kk.JWTCMID=mp.Id
-										left join (select Sum(x.TotalAmount) as TotalAmt,x.MaterialId,x.JWInputMaterial,x.ArticleId,x.JWInputArticle,x.Id,x.InventoryMaterialId 
-										from (
-                        select om.Id,IIH.Qty as GRNIssueQty,IID.InventoryMaterialId,mm.Id as MaterialId,mm.UserName as JWInputMaterial,mma.Id as ArticleId, mma.StandardName as JWInputArticle
-                           ,TotalAmount=round(((IIH.Rate/86) * IR.ToCurrencyRate * IIH.Qty),2)
-                        from dbo.JobWorkTransformationContractChild om left join TRN.InventoryIssueDetail IID on om.Id=IID.JWTCMID
-                        left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
-                        left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
-                        left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
-                        left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
-                        left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
-                        left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
-                        where IID.InventoryIssueId='" + IssueId + @"' 
-						) x
-						group by x.JWInputMaterial,x.ArticleId,x.Id,x.MaterialId,x.JWInputArticle,x.InventoryMaterialId
-						)
-						BB on BB.Id=mp.Id and BB.InventoryMaterialId=IM.Id
+						--				left join (select Sum(x.TotalAmount) as TotalAmt,x.MaterialId,x.JWInputMaterial,x.ArticleId,x.JWInputArticle,x.Id,x.InventoryMaterialId 
+						--				from (
+      --                  select om.Id,IIH.Qty as GRNIssueQty,IID.InventoryMaterialId,mm.Id as MaterialId,mm.UserName as JWInputMaterial,mma.Id as ArticleId, mma.StandardName as JWInputArticle
+      --                     ,TotalAmount=round(((IIH.Rate/86) * IR.ToCurrencyRate * IIH.Qty),2)
+      --                  from dbo.JobWorkTransformationContractChild om left join TRN.InventoryIssueDetail IID on om.Id=IID.JWTCMID
+      --                  left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+      --                  left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
+      --                  left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+      --                  left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
+      --                  left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
+      --                  left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
+      --                  where IID.InventoryIssueId='" + IssueId + @"' 
+						--) x
+						--group by x.JWInputMaterial,x.ArticleId,x.Id,x.MaterialId,x.JWInputArticle,x.InventoryMaterialId
+						--)
+						--BB on BB.Id=mp.Id and BB.InventoryMaterialId=IM.Id
 
                                         left join SCS.UnitOfMeasurement uom on uom.Id=IID.TransactionUoMId
 										left join SCS.UnitOfMeasurement uomm on uomm.Id=mp.TransactionUoMId
@@ -4822,7 +4825,9 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 										,mp.Quantity
 										,IID.TransactionQty
                                         ,uom.UserName
-										,BB.TotalAmt,uomm.UserName,IID.TransactionUoMId
+										--,BB.TotalAmt
+										,uomm.UserName,IID.TransactionUoMId
+										,IID.PolicyAmount,IID.PolicyRate
                                         order by mp.Id";
 
             return _sqlRepository.GetDataTable(sql);
@@ -4833,10 +4838,13 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             var sql = @"select om.Id, IRD.InventoryReceiveId as GRNNo,IRD.Id as GRNRowId,uom.UserName as IssueUoM,isnull(IIH.Qty,'0') as GRNIssueQty
                           ,mm.UserName as JWInputMaterial
                         , mma.StandardName as JWInputArticle, C.Code as TransactionCurrency
-                        ,round((IIH.Rate/86),4) as TransactionRate
-                           ,round(((IIH.Rate/86) * IR.ToCurrencyRate),4) as BaseRate
+                        --,round((IIH.Rate/86),4) as TransactionRate
+                        --   ,round(((IIH.Rate/86) * IR.ToCurrencyRate),4) as BaseRate
                          , CC.Code as BaseCurrency
-                         ,isnull(round(((IIH.Rate/86) * IR.ToCurrencyRate * IIH.Qty),2),'0') as TotalAmount
+                       --  ,isnull(round(((IIH.Rate/86) * IR.ToCurrencyRate * IIH.Qty),2),'0') as TotalAmount
+					   ,isnull(round(IIH.Rate,4),'0') as TransactionRate
+						,isnull(round(IIH.BooksCurrencyBaseRate,4),'0') as BaseRate
+						,isnull(ROUND(IIH.TotalMaterialBooksCurrencyAmount,2),'0') as TotalAmount
                         from dbo.JobWorkTransformationContractChild om left join TRN.InventoryIssueDetail IID on om.Id=IID.JWTCMID
                         left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
                         left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
