@@ -1617,6 +1617,20 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #endregion
 
         #region Copy SO
+        [HttpPost]
+        public JsonResult CopySalesOrder(string MasterId, string masterItemId)
+        {
+            try
+            {
+                CopySalesOrderData(MasterId, masterItemId);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         public void GetSalesOrderId(string masterItemId, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager Obj;
@@ -1632,7 +1646,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 throw ex;
             }
         }
-        public void CopySalesOrder(string MasterId, string masterItemId)
+        public void CopySalesOrderData(string MasterId, string masterItemId)
         {
             DataSet dsToSalesOrder;
             DataSet dsToFirstCharacteristics;
@@ -1677,6 +1691,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         DataRow drSecondCharacteristics = dsToSecondCharacteristics.Tables[0].NewRow();
                         CopyRow(dtFromSecondCharacteristics.DefaultView[K].Row, ref drSecondCharacteristics);
                         drSecondCharacteristics["Id"] = NewId + (i + 1) + (K + 1);
+                        drSecondCharacteristics["SalesOrderId"] = NewId;
                         drSecondCharacteristics["FirstCharacteristicsId"] = NewId + (i + 1);
                         dsToSecondCharacteristics.Tables[0].Rows.Add(drSecondCharacteristics);
 
@@ -1686,7 +1701,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             DataRow drThirdCharacteristics = dsToThirdCharacteristics.Tables[0].NewRow();
                             CopyRow(dtFromThirdCharacteristics.DefaultView[j].Row, ref drThirdCharacteristics);
                             drThirdCharacteristics["Id"] = NewId + (i + 1) + (j + 1);
-                            drThirdCharacteristics["SecondCharacteristicsId"] = NewId + (i + 1);
+                            drThirdCharacteristics["SalesOrderId"] = NewId;
+                            drThirdCharacteristics["SecondCharacteristicsId"] = NewId + (i + 1) + (K + 1);
                             dsToThirdCharacteristics.Tables[0].Rows.Add(drThirdCharacteristics);
                         }
                     }
