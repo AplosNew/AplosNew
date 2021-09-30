@@ -2234,11 +2234,19 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	// PRINT JOB WORK TRANSFORMATION REPORT
 
 	$scope.PrintIssueTemplateReport = function (data) {
-		//debugger;
-		//var x = "#" + z;
-		//var gridObj = $(x).data("ejGrid");
-		//var data = gridObj.getSelectedRecords()[0];
-		location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+		if ($scope.ModelNew.TabType == "Transformation") {
+			//debugger;
+			//var x = "#" + z;
+			//var gridObj = $(x).data("ejGrid");
+			//var data = gridObj.getSelectedRecords()[0];
+			location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+		}
+		else {
+
+			location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+        }
+	
+	
 
 	};
 
