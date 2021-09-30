@@ -848,6 +848,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.BeginEdit();
 
                                 dr["IsOD"] = 1;
+                                dr["IsManualDayStatus"] = true;
                                 dr["ManualDayStatus"] = "OD";
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
