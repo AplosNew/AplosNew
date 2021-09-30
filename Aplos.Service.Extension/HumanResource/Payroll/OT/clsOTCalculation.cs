@@ -217,9 +217,7 @@ LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.Fro
 LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId and LGD.PlantId='" + sPlantID + @"'
 
 where OLD.OLDRANK=1 AND h.HeadCategory='" + HeadCategory+@"' 
-ORDER BY old.EmpInfoSystemID
-
- ";
+ORDER BY old.EmpInfoSystemID";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");

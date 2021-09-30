@@ -457,17 +457,17 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return @"select 
-							WCM.EntityId,E.UserName EntityName, WCM.UserName Line ,WCM.PlanEfficiency
+            return @"select WCM.EntityId,E.UserName EntityName, WCM.UserName Line ,WCM.PlanEfficiency
 							,DPT.ManPowerWithMachine,DPT.ManPowerWithHand,DPT.Manpower
 							,WCM.id WorkCenterMasterId
 							,TodayTGT=(DPT.Manpower*60*WCM.PlanEfficiency*DPT.TotalHour)/DPT.SMV
-							,DPT.ManpowerBulletin,DR.DaysRun DaysRunning
+							,DPT.ManpowerBulletin
 						    ,DPT.SMV,DPT.Quantity,DPT.TotalHour,DPT.TargetDate
 						    ,PO.id PRNo,MM.Id MaterialMasterId
 							,AllocatedQty=	case when ISNULL(S.Qty,0)>0 then S.Qty else PO.Qty end
 							,PS.Quantity PreviousDayQCpass,S.PlanWorkingHoursPerDay,S.TargetPerHour,
-						
+						     case when isnull(PRO.IsFirst,0)=0 THEN prsum.InQuantity- prsum.OutQuantity- prsum.KillQuantity ELSE NULL END AS WIP,
+                             SO.CM,
                                              BuyerOrderRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -506,16 +506,20 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 														join trn.MasterOrderItem MOIX ON MOIX.Id=soX.MasterOrderItemId
 														join trn.MasterOrder XMO on Xmo.Id=MOIX.MasterOrderId
 														join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-														where tx.TargetDate>'" + Date + @"'
+														where tx.TargetDate>'"+Date+ @"'
 														and tx.WorkCenterMasterID=wcm.Id  
 														and XB.Id<>MO.BuyerId
 												      )
+
                                 from SCS.WorkCenterMaster WCM 
+								left join hkp.Process PRO on PRO.Id=WCM.ProcessId
                                 left outer join TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='" + Date + @"'
                                 left outer join TRN.ProductionOrder PO on PO.Id=DPT.ProductionOrderId  
                                 left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
-                                left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId
-                                left join trn.MasterOrderItem MOI ON MOI.Id=so.MasterOrderItemId
+                                left join(select id,MasterOrderItemId, sum(Qty*Rate)/sum(Qty) as CM  from  trn.SalesOrder  
+								group by id,MasterOrderItemId								
+								) SO on SO.Id=POD.SalesOrderId
+                                left join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
                                 left join trn.MasterOrder MO ON MO.Id=MOI.MasterOrderId
 
                                 left join mst.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
@@ -531,13 +535,31 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 										and p.ProductionGrade='A'
 										group by p.WorkCenterMasterId,p.ProcessId,p.ProductionOrderId
 										)PS on PS.WorkCenterMasterId=WCM.id and ps.ProductionOrderId=PO.Id
-										LEFT JOIN (SELECT p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,COUNT(DISTINCT p.ProductionDate) AS DaysRun  
- 											   from  TRN.ProductionSummary as p 
- 											   JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
- 											   WHERE p.ProductionDate='" + Date + @"'
- 											   GROUP BY  p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId
- 
- 										) AS DR ON dr.ProcessId=ps.ProcessId AND dr.ProductionOrderId=ps.ProductionOrderId AND dr.WorkCenterMasterId=ps.WorkCenterMasterId
+								left outer join								                            (	
+                                select ProductionOrderId,WorkCenterMasterId,SUM(InQuantity) AS InQuantity,SUM(OutQuantity) AS OutQuantity,SUM(KillQuantity) AS KillQuantity   from 
+			                        (SELECT ps.ProductionOrderId,PS.ToWorkCenterMasterId AS WorkCenterMasterId,case when ps.ProductionGrade='A' THEN Quantity else 0 END AS InQuantity,0 AS OutQuantity,0 AS KillQuantity 
+				                        FROM trn.ProductionSummary AS ps
+			                         WHERE convert(date,ps.ProductionDate)<=convert(date,'" + Date + @"') 
+
+			                         union all 
+			 
+			                         SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,0 AS InQuantity,case when ps.ProductionGrade='A' THEN Quantity else 0 END AS OutQuantity,0 AS KillQuantity 
+				                        FROM trn.ProductionSummary AS ps
+			                         WHERE convert(date,ps.ProductionDate)<=convert(date,'" + Date + @"') 
+
+			                          union all 
+			 
+			                         SELECT ps.ProductionOrderId,PS.WorkCenterMasterId,0 AS InQuantity,0 AS OutQuantity,case when ps.ProductionGrade<>'A' THEN Quantity else 0 END  AS KillQuantity 
+				                        FROM trn.ProductionSummary AS ps
+			                         WHERE convert(date,ps.ProductionDate)<=convert(date,'" + Date + @"') 
+                                    
+                                    union all 
+			 
+			                         SELECT q.ProductionOrderId,q.WorkCenterMasterID,0 AS InQuantity,0 AS OutQuantity,isnull(q.DefectiveQty,0) AS  KillQuantity
+                                      FROM trn.Quality AS q
+                                      JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=q.WorkCenterMasterID
+			                         WHERE  convert(date,Q.ProductionDate)<=convert(date,'" + Date + @"') 
+			                ) AS K group by ProductionOrderId,WorkCenterMasterId) prSum ON WCM.Id = prSum.WorkCenterMasterId And PO.Id=prSum.ProductionOrderId
 
 						  where WCM.PlantId='" + PlantId + @"' 
 						  order by E.Id,WCM.Sequence";
@@ -1219,7 +1241,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                                 sheet[ROW, colAllocatedQty].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["AllocatedQty"].ToString());
                                 sheet[ROW, colStyleDescription].Text = dtDailyProduction.Rows[j]["StyleDescription"].ToString();
                                 sheet[ROW, colSPT2].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["SMV"].ToString());
-                                // sheet[ROW, colCM2].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i][""].ToString());
+                                sheet[ROW, colCM2].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["CM"].ToString());
                                 //sheet[ROW, colOP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[i]["WithoutMachine"].ToString());
                                 //sheet[ROW, colAsstOP].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
                                 sheet[ROW, colTotal].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["ManpowerBulletin"].ToString());
@@ -1230,8 +1252,8 @@ Item=STUFF((select distinct ','+XMM.UserName from
                                 sheet[ROW, colPrvsdauQCPass].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PreviousDayQCpass"].ToString());
                                 sheet[ROW, colTodayTGT].Formula = "IF(" + clsStaticInfo.GetxlsCol(colSPT2) + ROW.ToString() + ">0," + (clsStaticInfo.GetxlsCol(colATotal) + ROW.ToString() + "*" + 60 + "*" + clsStaticInfo.GetxlsCol(colExpcEffi) + ROW.ToString() + "*" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString()) + "/" + clsStaticInfo.GetxlsCol(colSPT2) + ROW.ToString() + ",0)";
                                 sheet[ROW, colHourlyTarget].Formula = "IF(" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colTodayTGT) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString() + ",0)";
-
-                                //sheet[ROW, colWIP].Formula = clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString() + "+" + clsStaticInfo.GetxlsCol(colHel) + ROW.ToString();
+                                
+                                sheet[ROW, colWIP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["WIP"].ToString());
                                 sheet[ROW, colExpcEffi].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PlanEfficiency"].ToString());
                                 sheet[ROW, colTodayWorkHour].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["TotalHour"].ToString());
                                 //sheet[ROW, colRunningDayNo].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["DaysRunning"].ToString());
@@ -1352,7 +1374,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet.Range[ROW,1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
                 ROW++;
-               int BSStartRow = ROW;
+                int BSStartRow = ROW;
                 for (int i = 0; i < dtBuyerSummary.Rows.Count; i++)
                 {
                     dtDailyProduction.DefaultView.RowFilter = "Buyer='" + dtBuyerSummary.Rows[i]["Buyer"].ToString() + "'";
@@ -1374,9 +1396,11 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet[ROW, colBSRunningLine].NumberFormat = "#,##0.00;(#,##0.00)";
                 sheet[ROW, colBSTarget].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBSTarget) + BSStartRow + ":" + clsStaticInfo.GetxlsCol(colBSTarget) + (ROW - 1) + ")";
                 sheet[ROW, colBSTarget].NumberFormat = "#,##0.00;(#,##0.00)";
-
+                sheet.Range[BSStartRow, colBSRunningLine, BSStartRow, colBSRunningLine].NumberFormat = clsStaticInfo.NumberFormat();
+                sheet.Range[BSStartRow, colBSTarget, BSStartRow, colBSTarget].NumberFormat = clsStaticInfo.NumberFormat();
+             
                 //second summary report
-         
+
                 ROW = StartOfSummaryRow;
 
                 DataTable dtEntitySummary = dtDailyProduction.AsEnumerable().GroupBy(y => new
