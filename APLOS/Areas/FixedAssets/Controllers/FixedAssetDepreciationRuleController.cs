@@ -21,6 +21,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         private readonly ISqlRepository _sqlRepository;
 
+        #region Constructor
         public FixedAssetDepreciationRuleController(
             IFixedAssetDepreciationRuleService fixedAssetDepreciationRuleService
             , ICompanyFixedAssetDepreciationRuleService companyFixedAssetDepreciationRuleService
@@ -31,7 +32,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             _sqlRepository = R;
         }
 
-        #region Constructor
+        
         #endregion Constructor
 
 
@@ -46,6 +47,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return Json(_fixedAssetDepreciationRuleService.Query(parameters), JsonRequestBehavior.AllowGet);
         }
+
+        //[Authorize, HttpPost]
+        //public ActionResult GetList(string plantId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    string sql = @"SELECT * FROM " + TableName + " where PlantId='" + plantId + "' order by sequence";
+        //    return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        //}
 
         [HttpGet]
         public ActionResult Aplos()

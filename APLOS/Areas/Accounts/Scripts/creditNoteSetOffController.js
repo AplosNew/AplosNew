@@ -159,9 +159,9 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
 
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
-            cboService.getCboEntityByPlant(null, null, "", function (result) {
-                $scope.entityList = result;
-            });
+        cboService.getCboEntityByPlant(null, null, "", function (result) {
+            $scope.entityList = result;
+        });
     });
 
     $scope.getBudgetCboByGL = function (glgeneralInfoId) {
@@ -190,9 +190,9 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         .then(function successCallback(response) {
             $scope.exchangeGainLossList = response.data;
         },
-        function errorCallback(response) {
-            ShowResult(response, "failure");
-        });
+            function errorCallback(response) {
+                ShowResult(response, "failure");
+            });
 
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
@@ -309,25 +309,25 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
 
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
-        if ($scope.partyType=='Customer' && baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
-                ShowResult($scope.partyType + " GL not found!", "failure", "partyPopUp");
-                return;
-            }
+        if ($scope.partyType == 'Customer' && baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
+            ShowResult($scope.partyType + " GL not found!", "failure", "partyPopUp");
+            return;
+        }
         else if ($scope.partyType == 'Customer' && $scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.ReconciliationBudgetId)) {
-                ShowResult($scope.partyType + " Budget not found!", "failure", "partyPopUp");
-                return;
-            }
-            else {
-                $scope.voucher.PartyName = party.Code + " - " + party.UserName;
-                $scope.voucher.PartyId = party.Id;
-                $scope.voucher.PartyType = $scope.partyType;
-                $scope.voucher.CurrencyId = party.CurrencyId;
-                $scope.partyPlantList = [];
-                $scope.getPartyPlantList(party.Id);
-                $scope.GetCurrencyExchangeRateList();
-                $scope.getPartyWiseOutstandingAdvance($scope.voucher.PartyId);
-                $scope.voucherDetailList = [];
-            }
+            ShowResult($scope.partyType + " Budget not found!", "failure", "partyPopUp");
+            return;
+        }
+        else {
+            $scope.voucher.PartyName = party.Code + " - " + party.UserName;
+            $scope.voucher.PartyId = party.Id;
+            $scope.voucher.PartyType = $scope.partyType;
+            $scope.voucher.CurrencyId = party.CurrencyId;
+            $scope.partyPlantList = [];
+            $scope.getPartyPlantList(party.Id);
+            $scope.GetCurrencyExchangeRateList();
+            $scope.getPartyWiseOutstandingAdvance($scope.voucher.PartyId);
+            $scope.voucherDetailList = [];
+        }
         $scope.hidePartyPopUp();
     };
 
@@ -357,12 +357,12 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
 
     $http.get(glUrl)
         .then(
-        function successCallback(response) {
-            $scope.invoiceGLList = response.data;
-        },
-        function errorCallback(response) {
-            ShowResult(response, "failure");
-        });
+            function successCallback(response) {
+                $scope.invoiceGLList = response.data;
+            },
+            function errorCallback(response) {
+                ShowResult(response, "failure");
+            });
     $scope.selectedInvoiceGLId = null;
     $scope.selectedInvoiceGLName = null;
     $scope.selectedInvoiceGL = function (selected) {
@@ -504,7 +504,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
                 }
             }
         });
-        
+
     };
 
     $scope.exchangeGainLossAmount = function (data) {
@@ -769,8 +769,8 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         $scope.voucher.ActivityCode = null;
         $scope.voucher.ActivityName = null;
     };
-   
-   
+
+
 
     $scope.clearTaxPopUp = function () {
         $scope.clearBankCashTaxPopUp();
@@ -859,7 +859,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         $scope.checkDocDate();
         $scope.checkPostingDate();
         $scope.passBankCashAmount();
-            $scope.entityValidation();
+        $scope.entityValidation();
         if ($scope.form1.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
             if ($scope.Action === "Save") {
                 $http({
@@ -868,7 +868,8 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.voucherDetailList,
-                        "voucherDetailInvoiceList": $scope.voucherInvoiceDetailList
+                        "voucherDetailInvoiceList": $scope.voucherInvoiceDetailList,
+                        "taxDetailVMList": $scope.TDSList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -1041,10 +1042,14 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         $scope.voucher.PartyCode = null;
         $scope.voucher.PartyName = null;
         $scope.voucher.CurrencyId = null;
-        if (party === "CustomerCreditNote")
+        if (party === "CustomerCreditNote") {
             $scope.partyType = "Vendor";
-        if (party === "VendorCreditNote")
+            $scope.getTDS($filter("dateFiltering")(Date.now()));
+        }
+        if (party === "VendorCreditNote") {
             $scope.partyType = "Customer";
+            $scope.getTDS($filter("dateFiltering")(Date.now()));
+        }
         $scope.changeSearchByParty();
 
     };
@@ -1130,7 +1135,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
             angular.element(document.querySelector("#customerInvoicePopUp")).modal("show");
             $scope.customerreceivableGLData();
         }
-        
+
     };
 
     $scope.closePopUpselected = function () {
@@ -1194,7 +1199,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
     };
     //*********************** Customer Invoice PopUp End ***************************************
 
-    $scope.removeInvoiceRow = function (index,data) {
+    $scope.removeInvoiceRow = function (index, data) {
         $scope.voucherInvoiceDetailList.splice(index, 1);
     };
 
@@ -1229,5 +1234,77 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         $scope.voucherId = voucherId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
+
+    $scope.TDSCboList = [];
+    $scope.TDSlistMessage = "";
+    $scope.getTDS = function (date) {
+        if ($scope.voucher.NoteType == 'VendorCreditNote') {
+            $scope.getTDSuRL = "accounts/TaxCode/GetTDSCbo?postingDate=" + $filter("dateFiltering")(date)
+        }
+        else if ($scope.voucher.NoteType == 'CustomerCreditNote') {
+            $scope.getTDSuRL = "accounts/TaxCode/GetTDSOutPutCbo?postingDate=" + $filter("dateFiltering")(date)
+        }
+
+        $http({
+            method: "get",
+            url: $scope.getTDSuRL
+        }).then(
+            function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.TDSlistMessage = response.data.Message;
+                }
+                else {
+                    $scope.TDSCboList = response.data;;
+                }
+            },
+            function errorCallback(response) {
+            });
+    };
+
+    $scope.getTDS($filter("dateFiltering")(Date.now()));
+
+    $scope.TDS = {
+        TaxCodeId: null,
+        Text: null,
+        TaxAmount: null,
+        ValueOfFixed: null,
+        CompanyCurrencyAmount: null,
+        Type: null
+    };
+    $scope.selectTDS = function () {
+        $scope.TDS.ValueOfFixed = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].ValueOfFixed;
+        $scope.TDS.Type = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].Type;
+        //if ($scope.TDS.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.TDS.ValueOfFixed)) {
+        //    $scope.TDS.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * $scope.TDS.ValueOfFixed / 100).toFixed(4);
+        //}
+    }
+    $scope.TDSList = [];
+    $scope.addTDS = function () {
+        if (manualValidation("td_TDS_TaxCode", baseService.isUndefinedOrNull($scope.TDS.TaxCodeId), "Tax Code is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TDS_TaxCodeAmount", baseService.isUndefinedOrNull($scope.TDS.TaxAmount), "Amount is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TDS_TaxCodeCompanyCurrencyAmount", baseService.isUndefinedOrNull($scope.TDS.CompanyCurrencyAmount), $scope.companyCurrencyCode + " is required.")) {
+            $scope.invalidRow = true;
+        }
+        else {
+            $scope.TDS.TaxName = $.grep($scope.TDSCboList, function (item) {
+                return item.Id === $scope.TDS.TaxCodeId;
+            })[0].UserName;
+
+            $scope.TDSList.push($scope.TDS);
+            $scope.TDS = {};
+        }
+        $scope.calBaseAmount();
+    };
+    $scope.removeTDSRow = function (index) {
+        $scope.TDSList.splice(index, 1);
     };
 }

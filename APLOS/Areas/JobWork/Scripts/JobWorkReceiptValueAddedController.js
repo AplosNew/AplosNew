@@ -216,19 +216,21 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 				if ($scope.IssueTypeList.length > 0) {
                     $scope.GetReceiptVAChildData();
-                    $scope.ShowHomeList = false;
-             //       $scope.ShowReport = false;
+                    //$scope.ShowHomeList = false;
+                    //$scope.ShowReport = false;
+					$scope.GetIndividualReportData();
 				}
 
 			});
 			$scope.setTab(1);
-		//	$scope.ModelNew.Type = TabType;
+			$scope.TabTypeNew = "ValueAdded";
+			$scope.ModelNew.Type = $scope.TabTypeNew;
 			//$scope.setStatus = 'Selected';
    //   		$scope.setTabGRNList(1);
 
-				if (!$rootScope.isCollapsed) {
-		         $rootScope.toggle();
-	       	}
+				//if (!$rootScope.isCollapsed) {
+		  //       $rootScope.toggle();
+	   //    	}
 		}
 		//$scope.ModelNew.Type = TabType;
 		//$scope.setStatus = 'Selected';
@@ -256,13 +258,38 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	}
 
 	$scope.GetIndividualReportData = function () {
-		$scope.IndividualReportList = [];
-		$http({
-			method: 'GET',
-			url: $scope.path + 'GetIndividualReportData?Id=' + $scope.Transformation.Id,
-		}).then(function successCallback(response) {
-			$scope.IndividualReportList = response.data;
-		});
+		if ($scope.ModelNew.TabType == "Transformation") {
+			//$scope.IndividualReportList = [];
+			//$http({
+			//	method: 'GET',
+			//	url: $scope.path + 'GetIndividualReportData?Id=' + $scope.Transformation.Id,
+			//}).then(function successCallback(response) {
+			//	$scope.IndividualReportList = response.data;
+			//});
+		}
+		else {
+			$scope.IndividualReportList = [];
+			$http({
+				method: 'GET',
+				url: $scope.path + 'GetIndividualValAddedReportData?Id=' + $scope.ModelNew.Id + '&ReceivedId' + $scope.ModelNew.ReceiveId,
+			}).then(function successCallback(response) {
+				$scope.IndividualReportList = response.data;
+				if ($scope.IndividualReportList.length == 0) {
+					$scope.ShowHomeList = true;
+					$scope.ShowReport = false;
+					$scope.setTab(1);
+					if (!$rootScope.isCollapsed) {
+						$rootScope.toggle();
+					}
+				}
+				else {
+					$scope.ShowHomeList = false;
+					$scope.ShowReport = true;
+					$scope.setTab(1);
+				}
+			});
+        }
+	
 	}
 
 	$scope.GetReceiptVAChildData = function () {
@@ -818,7 +845,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	}
 
 	$scope.ByWhomClear = function () {
-		$scope.ReceiptTransformation.ByWhomId = null;
+		$scope.ReceiptTransformation.ByWhomEmployeeId = null;
 		$scope.ReceiptTransformation.ByWhomName = null;
 		$scope.ReceiptTransformation.EmpCode = null;
 		$scope.ReceiptTransformation.EmpStatus = null;
@@ -831,8 +858,6 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.setByWhomdata = function (obj) {
 
 		var data = obj.data;
-		$scope.ReceiptTransformation.EmployeeId = data.Id;
-	//	$scope.ReceiptTransformation.ByWhomId = data.Id;
 		$scope.ReceiptTransformation.ByWhomEmployeeId = data.Id;
 		// $scope.ReceiptTransformation.EmpCode = data.Code;
 		$scope.ReceiptTransformation.EmpCode = data.Id;
@@ -1159,28 +1184,42 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	// INDIVIDUAL RECEIPT REPORT
 
 	$scope.PrintReceiptReport = function (data) {
-		try {
-		//	$scope.PrintTabId = data.ContractId;
-			//	$scope.PrintTabId = data.TransformationContractId;
-			$scope.PrintTabId = $scope.Transformation.Id;
-			$scope.IssueId = data.Id;
-			var reportFormat = "Excel";
-			window.open('JobWork/JobWorkReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
-			//   $scope.getData();
+		if ($scope.ModelNew.TabType == "Transformation") {
+			try {
+				//	$scope.PrintTabId = data.ContractId;
+				//	$scope.PrintTabId = data.TransformationContractId;
+				$scope.PrintTabId = $scope.Transformation.Id;
+				$scope.IssueId = data.Id;
+				var reportFormat = "Excel";
+				window.open('JobWork/JobWorkReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+				//   $scope.getData();
 
-		} catch (e) {
+			} catch (e) {
 
+			}
 		}
+		else {
+			try {
+				$scope.PrintTabId = data.Id;
+				$scope.IssueId = data.ReceiveId;
+				var reportFormat = "Excel";
+				window.open('JobWork/JobWorkReceiptValueAdded/GetValueAddedPrintReceiptReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+
+			} catch (e) {
+
+			}
+        }
+
 	};
 
 	$scope.AllTabPrintTemplate = function (data) {
-		//debugger;
-		//var x = "#" + z;
-		//var gridObj = $(x).data("ejGrid");
-		//var data = gridObj.getSelectedRecords()[0];
-		location.href = "JobWork/JobWorkReceiptValueAdded/GRNReport?grnId=" + data.Id;
-
-
+		if ($scope.ModelNew.TabType == "Transformation") {
+			//debugger;
+			//var x = "#" + z;
+			//var gridObj = $(x).data("ejGrid");
+			//var data = gridObj.getSelectedRecords()[0];
+			location.href = "JobWork/JobWorkReceiptValueAdded/GRNReport?grnId=" + data.Id;
+        }
 	};
 
 
@@ -2668,18 +2707,35 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.GRNbyPOCheckStatus = "ForChecked";
 	$scope.GriddataMaster = [];
 	$scope.GetJWGRNDataChecking = function () {
-		if ($scope.GRNbyPOCheckStatus === "ForChecked") {
-			$scope.GRNbyPOCheckStatus = "ForChecked";
+		if ($scope.ModelNew.TabType == "Transformation") {
+			if ($scope.GRNbyPOCheckStatus === "ForChecked") {
+				$scope.GRNbyPOCheckStatus = "ForChecked";
+			}
+			$http({
+				method: "GET",
+				dataType: 'JSON',
+				//url: $scope.getSearchListUrl,
+				url: 'Products/GoodsReceiveNote/GetJWGRNDataChecking?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus + '&POId=' + $scope.Transformation.Id,
+			}).then(function successCallback(response) {
+				$scope.GriddataMaster = response.data;
+				//entrydata = copy(searchdata);
+			});
 		}
-		$http({
-			method: "GET",
-			dataType: 'JSON',
-			//url: $scope.getSearchListUrl,
-			url: 'Products/GoodsReceiveNote/GetJWGRNDataChecking?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus + '&POId=' + $scope.Transformation.Id,
-		}).then(function successCallback(response) {
-			$scope.GriddataMaster = response.data;
-			//entrydata = copy(searchdata);
-		});
+		else {
+			if ($scope.GRNbyPOCheckStatus === "ForChecked") {
+				$scope.GRNbyPOCheckStatus = "ForChecked";
+			}
+			$http({
+				method: "GET",
+				dataType: 'JSON',
+				//url: $scope.getSearchListUrl,
+				url: 'Products/GoodsReceiveNote/GetJWGRNDataChecking?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus + '&POId=' + $scope.ModelNew.Id,
+			}).then(function successCallback(response) {
+				$scope.GriddataMaster = response.data;
+				//entrydata = copy(searchdata);
+			});
+        }
+
 	};
 	$scope.lst = [];
 	$scope.GRNListDetails = function () {

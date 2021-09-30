@@ -342,7 +342,7 @@ namespace Library.Service.Extension.Accounts
         public Dictionary<string, object> GetTaxCodeGL(string id)
         {
             var sql = @"SELECT TOP(1) TCGL.* FROM [MST].[TaxCodeGL] AS TCGL
-                        WHERE TCGL.Id='" + id + "' ";
+                        WHERE TCGL.TaxCodeId='" + id + "' ";
             var glTemp = _sqlRepository.GetData(sql);
 
             if (null == sql || glTemp.Count == 0)
