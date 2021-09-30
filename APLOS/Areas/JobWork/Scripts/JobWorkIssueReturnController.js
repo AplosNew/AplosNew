@@ -2179,6 +2179,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 							ShowResult(response.data.Message, 'failure');
 						else {
 							ShowResult(response.data.Message, 'success');
+							$scope.ClearIssueChildTab();
 					//		$scope.getdataInventoryIssue();
 							//$scope.Clear();
 							// $scope.getData();
@@ -2243,7 +2244,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		}
 		else {
 
-			location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+			location.href = "Products/InventoryIssue/JWValAddedIssueReport?grnId=" + data.Id;
         }
 	
 	
