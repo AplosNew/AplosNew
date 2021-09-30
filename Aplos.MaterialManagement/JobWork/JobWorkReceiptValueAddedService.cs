@@ -342,7 +342,8 @@ namespace Library.MaterialManagement.JobWork
                         , mma.Id ArticleId
                         , mma.StandardName as StandardName
                         ,null MaterialStorageId
-                        ,TUoM.Id BaseUOMId
+                        --,TUoM.Id BaseUOMId
+						,BaseUOMId=case when mp.BaseUOMId is not null then TUoM.Id else TUoMM.Id End
 
 						, MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
 	                            , SO.Id AS SalesOrderId, Pr.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
@@ -418,7 +419,9 @@ namespace Library.MaterialManagement.JobWork
                    left JOIN MST.MaterialMaster AS MM ON MM.Id = mma.MaterialMasterId
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
 
-                        LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON mp.OutputMaterialUOMId = TUoM.Id
+                        LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoMM ON mp.OutputMaterialUOMId = TUoMM.Id
+						LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON mp.BaseUOMId = TUoM.Id
+
                             LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM1 ON mp.TransactionUoMId = TUoM1.Id
 
 							left join dbo.JobWorkTransformationContractChild2 owr on owr.JobWorkTransformationContractChildMasterId=mp.Id
@@ -483,6 +486,7 @@ namespace Library.MaterialManagement.JobWork
 	                            --, MOI.ArticleId, ART.StandardName AS ArticleName
 								,CN.ContractNo,MLC.LCRef, owrUom.UserName,owr.Id, owr.JobWorkTransformationContractChildMasterId, owr.OrderType,owr.Quantity
 								--,owr.PlanQuantity
+                                ,mp.BaseUOMId,TUoMM.Id
                                  ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -2477,7 +2481,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
-
+            
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SL");
             range.ApplyCharacterFormat(FontBold);
             int colRo = COL; COL++;
@@ -2572,7 +2576,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("DiscountAmount");
             range.ApplyCharacterFormat(FontBold);
             int colDiscountAmount = COL;
-
+          
             int colTotalTaxableAmount = COL;
             if (dv.Count > 0)
             {
@@ -2611,6 +2615,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 
             if (dv.Count > 0)
             {
+              
                 wTable.Rows.Add(TemplateRow);
                 ROW++;
                 WTableRow TROW = wTable.LastRow;
@@ -2666,9 +2671,10 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 
             double totalValue = 0;
             int sl = 0;
-            //ROW++;
+            ROW++;
+            
             //wTable.AddRow();
-            int startRow = 0;
+            int startRow = 1;
             for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
             {
                 sl++;
@@ -2676,7 +2682,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                 wTable.AddRow();
                 //wTable.AddRow();
                 WTableRow TROW = wTable.LastRow;
-
+                
                 // WTableRow TROW = wTable.Rows[1].Clone();
                 for (int CE = 0; CE < TROW.Cells.Count; CE++)
                 {
@@ -2849,11 +2855,11 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
             //primary cells merging (veritcal)
             ROW++;
             WTableRow TROWe = wTable.LastRow;
-            for (int i = 0; i <= colTotalTaxableAmount; i++)
-            {
-                TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
-                wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
-            }
+            //for (int i = 0; i <= colTotalTaxableAmount; i++)
+            //{
+            //    TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
+            //    wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+            //}
             //wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
 
 
