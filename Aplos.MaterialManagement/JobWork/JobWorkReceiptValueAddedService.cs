@@ -2477,7 +2477,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
-
+            
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SL");
             range.ApplyCharacterFormat(FontBold);
             int colRo = COL; COL++;
@@ -2572,7 +2572,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("DiscountAmount");
             range.ApplyCharacterFormat(FontBold);
             int colDiscountAmount = COL;
-
+          
             int colTotalTaxableAmount = COL;
             if (dv.Count > 0)
             {
@@ -2611,6 +2611,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 
             if (dv.Count > 0)
             {
+              
                 wTable.Rows.Add(TemplateRow);
                 ROW++;
                 WTableRow TROW = wTable.LastRow;
@@ -2666,9 +2667,10 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 
             double totalValue = 0;
             int sl = 0;
-            //ROW++;
+            ROW++;
+            
             //wTable.AddRow();
-            int startRow = 0;
+            int startRow = 1;
             for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
             {
                 sl++;
@@ -2676,7 +2678,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                 wTable.AddRow();
                 //wTable.AddRow();
                 WTableRow TROW = wTable.LastRow;
-
+                
                 // WTableRow TROW = wTable.Rows[1].Clone();
                 for (int CE = 0; CE < TROW.Cells.Count; CE++)
                 {
@@ -2849,11 +2851,11 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
             //primary cells merging (veritcal)
             ROW++;
             WTableRow TROWe = wTable.LastRow;
-            for (int i = 0; i <= colTotalTaxableAmount; i++)
-            {
-                TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
-                wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
-            }
+            //for (int i = 0; i <= colTotalTaxableAmount; i++)
+            //{
+            //    TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
+            //    wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+            //}
             //wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
 
 
