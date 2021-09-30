@@ -172,7 +172,7 @@
             </div>
             <script type="text/template" id="Qty">
                 <div class="col-sm-10" style="padding:0px; width:100px;">
-                    <input type="text" style="text-align:right" class="form-control" n-decimals="4" ng-model="data.TransactionQty" ng-change="$parent.calculateAmount(data)" />
+                    <input type="text" style="text-align:right" class="form-control" n-decimals="4" ng-model="data.TransactionQty" ng-blur="$parent.calculateAmount(data)" />
                 </div>
             </script>
         </div>
