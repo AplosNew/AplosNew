@@ -3127,9 +3127,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						left join DayStatusHeader dh on dh.Id=dc.headerId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where WorkDate='"+PreDay+@"' 
-						and dt.DayType=ISNULL(p.ManualDayStatus,p.ProcessDayStatus)
-						and ei.PlantId='"+Plant+"'";
+						where WorkDate='"+PreDay+ @"' 
+						and dt.DayType=ISNULL(ISNULL(p.SandwichStatus,p.ManualDayStatus),p.ProcessDayStatus)
+						and ei.PlantId='" + Plant+"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
