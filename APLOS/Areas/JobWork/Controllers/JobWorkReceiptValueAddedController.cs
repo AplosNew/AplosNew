@@ -71,6 +71,22 @@ namespace Aplos.Areas.JobWork.Controllers
 
 		}
 
+		[Authorize, HttpGet]
+		public JsonResult GetIndividualValAddedReportData(string Id, string ReceivedId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				return Json(R.GetIndividualValAddedReportData(Id, ReceivedId), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+
+		}
+
 
 		[Authorize, HttpGet]
 		public JsonResult GetReceiptVAChildData(string PKId)
@@ -2167,6 +2183,570 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 		}
 
 		#endregion end Reports for Transformation Contract
+
+		// JW Value Added Receipt Report
+
+		#region Reports for Value Added
+
+		[HttpGet, Authorize]
+		public ActionResult GetValueAddedPrintReceiptReport(ReportFormat reportFormat, string PrintTabId, string IssueId)
+		{
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			var reportFileName = " ValueAdded Job Work Material Receipt Chalaan " + PrintTabId + "";
+			var workbook = GetValueAddedContractReportWorkSheet(PrintTabId, IssueId);
+			switch (reportFormat)
+			{
+				case ReportFormat.Pdf:
+					return RenderReportAsPdf(workbook, reportFileName);
+
+				case ReportFormat.Excel:
+					return RenderReportAsExcel(workbook, reportFileName);
+
+				default:
+					return RenderReportAsExcel(workbook, reportFileName);
+			}
+		}
+
+		private IWorkbook GetValueAddedContractReportWorkSheet(string PrintTabId, string IssueId)
+		{
+
+			var excelEngine = new ExcelEngine();
+			var report = new ReportUtility();
+			var workbook = report.GetWorkbook(ref excelEngine, 3);
+			workbook.Version = ExcelVersion.Excel2016;
+
+			var sheet = workbook.Worksheets[0];
+
+			sheet.Name = "ValueAddedContractReceiptChalaan";
+
+
+			int ROW = 6;
+			int endCol = 1;
+			int COL = 1;
+
+
+			DataTable data = R.GetValueAddedContractReportDataById(PrintTabId, IssueId);
+			DataTable TransformationIssueReturnChilddata = R.GetValueAddedIssueReturnChildDataById(PrintTabId, IssueId);
+			//DataTable TransformationByProductData = R.GetValueAddedByProductDataById(PrintTabId, IssueId);
+			//DataTable TransformationWIPData = R.GetValueAddedWIPData(PrintTabId, IssueId);
+			if (data.Rows.Count > 0)
+			{
+				int ColValueAddedDateHeader = 1;
+				int ColValueAddedDateEnd;
+				int ColVACTimeHeader;
+				int ColVACTimeEnd;
+				int ColVACTimeName;
+				int ColEntityHeader;
+				int ColEntityEnd;
+				int ColEntityName;
+				int ColPartyNameHeader;
+				//    int ColPartyNameEnd;
+				int ColPartyNameName;
+				int ColVAProcessStartDateHeader = 1;
+				int ColVAProcessStartDateEnd;
+
+
+				SetHeaderTextTop(ref sheet, ROW, ColValueAddedDateHeader, "Date", 12, ExcelHAlign.HAlignLeft);
+				ColValueAddedDateHeader++;
+				ColValueAddedDateEnd = ColValueAddedDateHeader + 1;
+				sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].Text = data.Rows[0]["ValueAddedDate"].ToString();
+				sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].Merge();
+				sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				ColValueAddedDateEnd++;
+
+				ColEntityHeader = ColValueAddedDateEnd;
+				SetHeaderTextTop(ref sheet, ROW, ColEntityHeader, "Entity", 20, ExcelHAlign.HAlignLeft);
+				ColEntityHeader++;
+				ColEntityEnd = ColEntityHeader + 1;
+				ColEntityName = ColEntityHeader;
+				sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].Text = data.Rows[0]["Entity"].ToString();
+				sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].Merge();
+				sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				//           ROW++;
+				ColEntityEnd++;
+
+
+
+				int ColIssueIdEnd = ColEntityEnd + 1;
+				SetHeaderTextTop(ref sheet, ROW, ColIssueIdEnd, "Receipt Id", 20, ExcelHAlign.HAlignLeft);
+				ColIssueIdEnd++;
+				int ColVAProcessEndDate = ColIssueIdEnd;
+				int ColVAProcessEndDateEnd = ColIssueIdEnd + 1;
+				sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].Text = data.Rows[0]["ReceiptId"].ToString();
+				sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].Merge();
+				sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				//  ROW++;
+				ColVAProcessEndDateEnd++;
+
+
+				SetHeaderTextTop(ref sheet, ROW, ColVAProcessEndDateEnd, "GRN Date", 20, ExcelHAlign.HAlignLeft);
+				ColVAProcessEndDateEnd++;
+				int ColIssueDate = ColVAProcessEndDateEnd;
+				int ColIssueDateEnd = ColVAProcessEndDateEnd + 1;
+				sheet.Range[ROW, ColIssueDate, ROW, ColIssueDateEnd].Text = data.Rows[0]["JWGRNDate"].ToString();
+				sheet.Range[ROW, ColIssueDate, ROW, ColIssueDateEnd].Merge();
+				sheet.Range[ROW, ColIssueDate, ROW, ColIssueDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColIssueDate, ROW, ColIssueDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				ROW++;
+				//    ColIssueDateEnd++;
+
+				int ColPStartDate = 1;
+				SetHeaderTextTop(ref sheet, ROW, ColPStartDate, "Process Start Date", 12, ExcelHAlign.HAlignLeft);
+				ColPStartDate++;
+				ColVAProcessStartDateEnd = ColPStartDate + 1;
+				int ColAddress = ColPStartDate;
+				sheet.Range[ROW, ColPStartDate, ROW, ColVAProcessStartDateEnd].Text = data.Rows[0]["VAProcessStartDate"].ToString();
+				sheet.Range[ROW, ColPStartDate, ROW, ColVAProcessStartDateEnd].Merge();
+				sheet.Range[ROW, ColPStartDate, ROW, ColVAProcessStartDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColPStartDate, ROW, ColVAProcessStartDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				ColVAProcessStartDateEnd++;
+
+				//     int ColPEndDate = 1;
+				SetHeaderTextTop(ref sheet, ROW, ColVAProcessStartDateEnd, "Process End Date", 20, ExcelHAlign.HAlignLeft);
+				ColVAProcessStartDateEnd++;
+				int ColProcessEndDate = ColVAProcessStartDateEnd;
+				int ColProcessEndDateEnd = ColVAProcessStartDateEnd + 1;
+				sheet.Range[ROW, ColProcessEndDate, ROW, ColProcessEndDateEnd].Text = data.Rows[0]["VAProcessEndDate"].ToString();
+				sheet.Range[ROW, ColProcessEndDate, ROW, ColProcessEndDateEnd].Merge();
+				sheet.Range[ROW, ColProcessEndDate, ROW, ColProcessEndDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColProcessEndDate, ROW, ColProcessEndDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				//  ROW++;
+				ColProcessEndDateEnd++;
+
+				int ColPrtyName = ColProcessEndDateEnd + 1;
+				SetHeaderTextTop(ref sheet, ROW, ColPrtyName, "Party Name", 20, ExcelHAlign.HAlignLeft);
+				ColPrtyName++;
+				int ColPartyName = ColPrtyName;
+				int ColPartyNameEnd = ColPrtyName + 1;
+				sheet.Range[ROW, ColPartyName, ROW, ColPartyNameEnd].Text = data.Rows[0]["PartyName"].ToString();
+				sheet.Range[ROW, ColPartyName, ROW, ColPartyNameEnd].Merge();
+				sheet.Range[ROW, ColPartyName, ROW, ColPartyNameEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColPartyName, ROW, ColPartyNameEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				//     ROW++;
+				ColPartyNameEnd++;
+
+
+				int ColIssuebyEnd = ColPartyNameEnd;
+				SetHeaderTextTop(ref sheet, ROW, ColIssuebyEnd, "Receipt By", 20, ExcelHAlign.HAlignLeft);
+				ColIssuebyEnd++;
+				int ColIssueby = ColIssuebyEnd;
+				int ColIssueByEnd = ColIssuebyEnd + 1;
+				sheet.Range[ROW, ColIssueby, ROW, ColIssueByEnd].Text = data.Rows[0]["EmployeeName"].ToString();
+				sheet.Range[ROW, ColIssueby, ROW, ColIssueByEnd].Merge();
+				sheet.Range[ROW, ColIssueby, ROW, ColIssueByEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColIssueby, ROW, ColIssueByEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				ROW++;
+				//  ColIssueByEnd++;
+
+				int ColCCDATe = 1;
+				SetHeaderTextTop(ref sheet, ROW, ColCCDATe, "Contract Closing Date", 20, ExcelHAlign.HAlignLeft);
+				ColCCDATe++;
+				int ColVAContractClosingDate = ColCCDATe;
+				int ColVAContractClosingDateEnd = ColCCDATe + 1;
+				sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].Text = data.Rows[0]["VAContractClosingDate"].ToString();
+				sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].Merge();
+				sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				//   ROW++;
+				ColVAContractClosingDateEnd++;
+
+				SetHeaderTextTop(ref sheet, ROW, ColVAContractClosingDateEnd, "PO Number", 20, ExcelHAlign.HAlignLeft);
+				ColVAContractClosingDateEnd++;
+				int ColContractId = ColVAContractClosingDateEnd;
+				int ColContractIdEnd = ColVAContractClosingDateEnd + 1;
+				sheet.Range[ROW, ColContractId, ROW, ColContractIdEnd].Text = data.Rows[0]["Id"].ToString();
+				sheet.Range[ROW, ColContractId, ROW, ColContractIdEnd].Merge();
+				sheet.Range[ROW, ColContractId, ROW, ColContractIdEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColContractId, ROW, ColContractIdEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				//  ROW++;
+				ColContractIdEnd++;
+
+				int ColIR = ColContractIdEnd + 1;
+				SetHeaderTextTop(ref sheet, ROW, ColIR, "Document Reference No", 15, ExcelHAlign.HAlignLeft);
+				ColIR++;
+				int ColIssueReturn = ColIR;
+				int ColIssueReturnEnd = ColIR + 1;
+				sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Text = data.Rows[0]["DocRefNo"].ToString();
+				sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Merge();
+				sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				//  ROW++;
+				ColIssueReturnEnd++;
+
+
+
+				SetHeaderTextTop(ref sheet, ROW, ColIssueReturnEnd, "Document Date", 20, ExcelHAlign.HAlignLeft);
+				ColIssueReturnEnd++;
+				int ColJobWorkLocation = ColIssueReturnEnd;
+				int ColJobWorkLocationEnd = ColIssueReturnEnd + 1;
+				sheet.Range[ROW, ColJobWorkLocation, ROW, ColJobWorkLocationEnd].Text = data.Rows[0]["ReceiveDocumentDate"].ToString();
+				sheet.Range[ROW, ColJobWorkLocation, ROW, ColJobWorkLocationEnd].Merge();
+				sheet.Range[ROW, ColJobWorkLocation, ROW, ColJobWorkLocationEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColJobWorkLocation, ROW, ColJobWorkLocationEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				ROW++;
+
+				int ColRemarks = 1;
+				SetHeaderTextTop(ref sheet, ROW, ColRemarks, "Remarks", 20, ExcelHAlign.HAlignLeft);
+				ColRemarks++;
+				int ColContractRemarks = ColRemarks;
+				int ColContractRemarksEnd = ColRemarks + 1;
+				sheet.Range[ROW, ColContractRemarks, ROW, ColContractRemarksEnd].Text = data.Rows[0]["InvoiceNo"].ToString();
+				sheet.Range[ROW, ColContractRemarks, ROW, ColContractRemarksEnd].Merge();
+				sheet.Range[ROW, ColContractRemarks, ROW, ColContractRemarksEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColContractRemarks, ROW, ColContractRemarksEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				ColContractRemarksEnd++;
+
+				int ColContractIsseStatus = ColContractRemarksEnd + 4;
+				SetHeaderTextTop(ref sheet, ROW, ColContractIsseStatus, "Invoice No", 20, ExcelHAlign.HAlignLeft);
+				ColContractIsseStatus++;
+				int ColIssueStatus = ColContractIsseStatus;
+				int ColIssueStatusEnd = ColContractIsseStatus + 1;
+				sheet.Range[ROW, ColIssueStatus, ROW, ColIssueStatusEnd].Text = data.Rows[0]["InvoiceNo"].ToString();
+				sheet.Range[ROW, ColIssueStatus, ROW, ColIssueStatusEnd].Merge();
+				sheet.Range[ROW, ColIssueStatus, ROW, ColIssueStatusEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColIssueStatus, ROW, ColIssueStatusEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				ColIssueStatusEnd++;
+
+				int ColInvoiceNo = ColIssueStatusEnd;
+				SetHeaderTextTop(ref sheet, ROW, ColInvoiceNo, "Invoice Date", 20, ExcelHAlign.HAlignLeft);
+				ColInvoiceNo++;
+				int ColColInvoice = ColInvoiceNo;
+				int ColColInvoiceEnd = ColInvoiceNo + 1;
+				sheet.Range[ROW, ColColInvoice, ROW, ColColInvoiceEnd].Text = data.Rows[0]["ReceiveInvoiceDate"].ToString();
+				sheet.Range[ROW, ColColInvoice, ROW, ColColInvoiceEnd].Merge();
+				sheet.Range[ROW, ColColInvoice, ROW, ColColInvoiceEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColColInvoice, ROW, ColColInvoiceEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				ROW++;
+
+				int ColGateEntryNoId = 8;
+				SetHeaderTextTop(ref sheet, ROW, ColGateEntryNoId, "Gate Entry No", 20, ExcelHAlign.HAlignLeft);
+				ColGateEntryNoId++;
+				int ColGateEntryNo = ColGateEntryNoId;
+				int ColGateEntryNoEnd = ColGateEntryNoId + 1;
+				sheet.Range[ROW, ColGateEntryNo, ROW, ColGateEntryNoEnd].Text = data.Rows[0]["GateEntryNo"].ToString();
+				sheet.Range[ROW, ColGateEntryNo, ROW, ColGateEntryNoEnd].Merge();
+				sheet.Range[ROW, ColGateEntryNo, ROW, ColGateEntryNoEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[ROW, ColGateEntryNo, ROW, ColGateEntryNoEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				ROW++;
+
+			}
+
+			//       Issue/ Return Child data
+
+			int MPChildROW = ROW + 1;
+			int MPChildendCol = 1;
+			int MPChildCOL = 1;
+
+			#region Material Planning Child Headers
+
+			report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Received Quantity", 12, ExcelHAlign.HAlignLeft);
+			MPChildROW++;
+
+			report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Item Id", 12, ExcelHAlign.HAlignLeft);
+			int ColJWId = MPChildCOL;
+			MPChildCOL++;
+
+			report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Output Item", 12, ExcelHAlign.HAlignLeft);
+			int ColJWOutputItem = MPChildCOL;
+			MPChildCOL++;
+
+			report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "JW Activity", 12, ExcelHAlign.HAlignLeft);
+			int ColJWInputItem = MPChildCOL;
+			MPChildCOL++;
+
+			report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Material", 12, ExcelHAlign.HAlignLeft);
+			int ColJWOMMaterial = MPChildCOL;
+			MPChildCOL++;
+
+			report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Article", 12, ExcelHAlign.HAlignLeft);
+			int ColJWArticle = MPChildCOL;
+			MPChildCOL++;
+
+			report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Plan Quantity", 12, ExcelHAlign.HAlignLeft);
+			int ColRequiredQuantity = MPChildCOL;
+			MPChildCOL++;
+
+			report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Total Received Quantity", 15, ExcelHAlign.HAlignLeft);
+			int ColBalanceToIssue = MPChildCOL;
+			MPChildCOL++;
+
+			report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "To Receive", 12, ExcelHAlign.HAlignLeft);
+			int ColTIRCTotalQty = MPChildCOL;
+			MPChildCOL++;
+
+			report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Received Quantity", 10, ExcelHAlign.HAlignLeft);
+			int ColTIRCQty = MPChildCOL;
+			MPChildROW++;
+			MPChildendCol = MPChildCOL;
+			#endregion Headers
+
+			string JWOutputItem = "";
+			var StartRows = 0;
+			var EndRows = 0;
+			int RowIndexNo = MPChildROW;
+			StartRows = MPChildROW;
+
+			for (int i = 0; i < TransformationIssueReturnChilddata.Rows.Count; i++)
+			{
+
+				if (JWOutputItem != TransformationIssueReturnChilddata.Rows[i]["JWOutputItem"].ToString())
+				{
+
+					if (RowIndexNo < MPChildROW)
+					{
+						//sheet.Range[RowIndexNo, ColJobWorkItem, MPChildROW - 1, ColJobWorkItem].Merge();
+						sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].VerticalAlignment = ExcelVAlign.VAlignCenter;
+						sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					}
+					RowIndexNo = MPChildROW;
+				}
+
+				sheet[MPChildROW, ColJWId].Text = TransformationIssueReturnChilddata.Rows[i]["Id"].ToString();
+				sheet[MPChildROW, ColJWOutputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputItem"].ToString();
+				sheet[MPChildROW, ColJWInputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JobWorkActivity"].ToString();
+				sheet[MPChildROW, ColJWOMMaterial].Text = TransformationIssueReturnChilddata.Rows[i]["Material"].ToString();
+				sheet[MPChildROW, ColJWArticle].Text = TransformationIssueReturnChilddata.Rows[i]["Article"].ToString();
+				sheet[MPChildROW, ColBalanceToIssue].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TotalReceivedQty"].ToString());
+				sheet[MPChildROW, ColRequiredQuantity].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["PlanQuantity"].ToString());
+				sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["ToReceive"].ToString());
+				sheet[MPChildROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TransactionQty"].ToString());
+
+				sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderInside(ExcelLineStyle.Hair);
+				sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderAround(ExcelLineStyle.Hair);
+				JWOutputItem = TransformationIssueReturnChilddata.Rows[i]["JWOutputItem"].ToString();
+
+				MPChildROW++;
+			}
+
+			EndRows = MPChildROW - 1;
+
+			if (RowIndexNo < MPChildROW - 1)
+			{
+				//sheet.Range[RowIndexNo, ColJobWorkItem, MPChildROW - 1, ColJobWorkItem].Merge();
+				sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].VerticalAlignment = ExcelVAlign.VAlignCenter;
+				sheet.Range[RowIndexNo, ColJWOutputItem, MPChildROW - 1, ColJWOutputItem].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+			}
+
+			//  WIP QUANTITY
+
+			//int WIPROW = MPChildROW + 1;
+			//int WIPendCol = 1;
+			//int WIPCOL = 1;
+
+			//#region By Product Headers
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "WIP Quantity", 12, ExcelHAlign.HAlignLeft);
+			//WIPROW++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "JW Output Item Id", 12, ExcelHAlign.HAlignLeft);
+			//int ColJobWorkTransformationContractChildMasterId = WIPCOL;
+			//WIPCOL++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "JW Output Item", 12, ExcelHAlign.HAlignLeft);
+			//int ColWIPJWOutputItem = WIPCOL;
+			//WIPCOL++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "JW Input Item Id", 12, ExcelHAlign.HAlignLeft);
+			//int ColWIPId = WIPCOL;
+			//WIPCOL++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "JW Input Item", 12, ExcelHAlign.HAlignLeft);
+			//int ColWIPJWInputItem = WIPCOL;
+			//WIPCOL++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "JW Input Material", 12, ExcelHAlign.HAlignLeft);
+			//int ColWIPJWJWInputMaterial = WIPCOL;
+			//WIPCOL++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "JW Input Article", 12, ExcelHAlign.HAlignLeft);
+			//int ColWIPJWInputArticle = WIPCOL;
+			//WIPCOL++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "Total Planned Quantity", 12, ExcelHAlign.HAlignLeft);
+			//int ColWIPRequiredQuantity = WIPCOL;
+			//WIPCOL++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "Total Issue/ Return Qty", 15, ExcelHAlign.HAlignLeft);
+			//int ColWIPTIRCTotalQty = WIPCOL;
+			//WIPCOL++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "Quantity Used", 12, ExcelHAlign.HAlignLeft);
+			//int ColWIPQuantityUsed = WIPCOL;
+			//WIPCOL++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "Total Quantity Used", 12, ExcelHAlign.HAlignLeft);
+			//int ColWIPTotalQuantityUsed = WIPCOL;
+			//WIPCOL++;
+
+			//report.SetHeaderText(ref sheet, WIPROW, WIPCOL, "WIP Quantity", 10, ExcelHAlign.HAlignLeft);
+			//int ColWIPQuantity = WIPCOL;
+			//WIPROW++;
+			//WIPendCol = WIPCOL;
+			//#endregion Headers
+
+			//string WIPJWOutputId = "";
+			//var WIPStartRows = 0;
+			//var WIPEndRows = 0;
+			//int WIPRowIndexNo = WIPROW;
+			//WIPStartRows = WIPROW;
+
+			//for (int i = 0; i < TransformationWIPData.Rows.Count; i++)
+			//{
+
+			//	if (WIPJWOutputId != TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString())
+			//	{
+
+			//		if (WIPRowIndexNo < WIPROW)
+			//		{
+			//			//sheet.Range[WIPRowIndexNo, ColJobWorkItem, WIPROW - 1, ColJobWorkItem].Merge();
+			//			sheet.Range[WIPRowIndexNo, ColJobWorkTransformationContractChildMasterId, WIPROW - 1, ColJobWorkTransformationContractChildMasterId].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//			sheet.Range[WIPRowIndexNo, ColJobWorkTransformationContractChildMasterId, WIPROW - 1, ColJobWorkTransformationContractChildMasterId].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+			//		}
+			//		WIPRowIndexNo = WIPROW;
+			//	}
+
+			//	sheet[WIPROW, ColJobWorkTransformationContractChildMasterId].Text = TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString();
+			//	sheet[WIPROW, ColWIPJWOutputItem].Text = TransformationWIPData.Rows[i]["JWOutputItem"].ToString();
+			//	sheet[WIPROW, ColWIPId].Text = TransformationWIPData.Rows[i]["Id"].ToString();
+			//	sheet[WIPROW, ColWIPJWInputItem].Text = TransformationWIPData.Rows[i]["JWInputItem"].ToString();
+			//	sheet[WIPROW, ColWIPJWJWInputMaterial].Text = TransformationWIPData.Rows[i]["JWInputMaterial"].ToString();
+			//	sheet[WIPROW, ColWIPJWInputArticle].Text = TransformationWIPData.Rows[i]["JWInputArticle"].ToString();
+			//	sheet[WIPROW, ColWIPRequiredQuantity].Number = clsStaticInfo.dbl(TransformationWIPData.Rows[i]["RequiredQuantity"].ToString());
+			//	sheet[WIPROW, ColWIPTIRCTotalQty].Number = clsStaticInfo.dbl(TransformationWIPData.Rows[i]["TIRCTotalQty"].ToString());
+			//	sheet[WIPROW, ColWIPQuantityUsed].Number = clsStaticInfo.dbl(TransformationWIPData.Rows[i]["QuantityUsed"].ToString());
+			//	sheet[WIPROW, ColWIPTotalQuantityUsed].Number = clsStaticInfo.dbl(TransformationWIPData.Rows[i]["TotalQuantityUsed"].ToString());
+			//	sheet[WIPROW, ColWIPQuantity].Number = clsStaticInfo.dbl(TransformationWIPData.Rows[i]["WIPQuantity"].ToString());
+
+			//	sheet.Range[WIPROW, 1, WIPROW, WIPendCol].BorderInside(ExcelLineStyle.Hair);
+			//	sheet.Range[WIPROW, 1, WIPROW, WIPendCol].BorderAround(ExcelLineStyle.Hair);
+			//	WIPJWOutputId = TransformationWIPData.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString();
+
+			//	WIPROW++;
+			//}
+
+			//WIPEndRows = WIPROW - 1;
+
+			//if (WIPRowIndexNo < WIPROW - 1)
+			//{
+			//	//sheet.Range[WIPRowIndexNo, ColJobWorkItem, WIPROW - 1, ColJobWorkItem].Merge();
+			//	sheet.Range[WIPRowIndexNo, ColJobWorkTransformationContractChildMasterId, WIPROW - 1, ColJobWorkTransformationContractChildMasterId].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//	sheet.Range[WIPRowIndexNo, ColJobWorkTransformationContractChildMasterId, WIPROW - 1, ColJobWorkTransformationContractChildMasterId].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+			//}
+
+
+
+			//// By Product
+
+			//// By Product data
+
+			//int MPBPChildROW = WIPROW + 1;
+			//int MPBPChildendCol = 1;
+			//int BPChildCOL = 1;
+
+			//#region By Product Headers
+
+			//report.SetHeaderText(ref sheet, MPBPChildROW, BPChildCOL, "By Product Quantity", 12, ExcelHAlign.HAlignLeft);
+			//MPBPChildROW++;
+
+			//report.SetHeaderText(ref sheet, MPBPChildROW, BPChildCOL, "JW By Product Id", 12, ExcelHAlign.HAlignLeft);
+			//int ColJWBPId = BPChildCOL;
+			//BPChildCOL++;
+
+			//report.SetHeaderText(ref sheet, MPBPChildROW, BPChildCOL, "JW Output Item", 12, ExcelHAlign.HAlignLeft);
+			//int ColJWBpOutItem = BPChildCOL;
+			//BPChildCOL++;
+
+			//report.SetHeaderText(ref sheet, MPBPChildROW, BPChildCOL, "By Product Item", 12, ExcelHAlign.HAlignLeft);
+			//int ColJWBPByProductItem = BPChildCOL;
+			//BPChildCOL++;
+
+			//report.SetHeaderText(ref sheet, MPBPChildROW, BPChildCOL, "By Product Material", 12, ExcelHAlign.HAlignLeft);
+			//int ColJWByProductMaterial = BPChildCOL;
+			//BPChildCOL++;
+
+			//report.SetHeaderText(ref sheet, MPBPChildROW, BPChildCOL, "By Product Article", 12, ExcelHAlign.HAlignLeft);
+			//int ColJWByProductArticle = BPChildCOL;
+			//BPChildCOL++;
+
+			//report.SetHeaderText(ref sheet, MPBPChildROW, BPChildCOL, "Total Required Quantity", 12, ExcelHAlign.HAlignLeft);
+			//int ColTotalReqQty = BPChildCOL;
+			//BPChildCOL++;
+
+			//report.SetHeaderText(ref sheet, MPBPChildROW, BPChildCOL, "Total Received Quantity", 15, ExcelHAlign.HAlignLeft);
+			//int ColTotalReceivedQty = BPChildCOL;
+			//BPChildCOL++;
+
+			//report.SetHeaderText(ref sheet, MPBPChildROW, BPChildCOL, "To Receive", 12, ExcelHAlign.HAlignLeft);
+			//int ColToReceive = BPChildCOL;
+			//BPChildCOL++;
+
+			//report.SetHeaderText(ref sheet, MPBPChildROW, BPChildCOL, "Received Quantity", 10, ExcelHAlign.HAlignLeft);
+			//int ColReceivedQuantity = BPChildCOL;
+			//MPBPChildROW++;
+			//MPBPChildendCol = BPChildCOL;
+			//#endregion Headers
+
+			//string JWBPOutputItem = "";
+			//var BPStartRows = 0;
+			//var BPEndRows = 0;
+			//int BPRowIndexNo = MPBPChildROW;
+			//BPStartRows = MPBPChildROW;
+
+			//for (int i = 0; i < TransformationByProductData.Rows.Count; i++)
+			//{
+
+			//	if (JWBPOutputItem != TransformationByProductData.Rows[i]["JWOutputItem"].ToString())
+			//	{
+
+			//		if (BPRowIndexNo < MPBPChildROW)
+			//		{
+			//			//sheet.Range[BPRowIndexNo, ColJobWorkItem, MPBPChildROW - 1, ColJobWorkItem].Merge();
+			//			sheet.Range[BPRowIndexNo, ColJWOutputItem, MPBPChildROW - 1, ColJWOutputItem].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//			sheet.Range[BPRowIndexNo, ColJWOutputItem, MPBPChildROW - 1, ColJWOutputItem].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+			//		}
+			//		BPRowIndexNo = MPBPChildROW;
+			//	}
+
+			//	sheet[MPBPChildROW, ColJWBPId].Text = TransformationByProductData.Rows[i]["Id"].ToString();
+			//	sheet[MPBPChildROW, ColJWBpOutItem].Text = TransformationByProductData.Rows[i]["JWOutputItem"].ToString();
+			//	sheet[MPBPChildROW, ColJWBPByProductItem].Text = TransformationByProductData.Rows[i]["ByProductItem"].ToString();
+			//	sheet[MPBPChildROW, ColJWByProductMaterial].Text = TransformationByProductData.Rows[i]["ByProductMaterial"].ToString();
+			//	sheet[MPBPChildROW, ColJWByProductArticle].Text = TransformationByProductData.Rows[i]["ByProductArticle"].ToString();
+			//	sheet[MPBPChildROW, ColTotalReqQty].Number = clsStaticInfo.dbl(TransformationByProductData.Rows[i]["TotalReqQty"].ToString());
+			//	sheet[MPBPChildROW, ColTotalReceivedQty].Number = clsStaticInfo.dbl(TransformationByProductData.Rows[i]["TotalReceivedQty"].ToString());
+			//	sheet[MPBPChildROW, ColToReceive].Number = clsStaticInfo.dbl(TransformationByProductData.Rows[i]["ToReceive"].ToString());
+			//	sheet[MPBPChildROW, ColReceivedQuantity].Number = clsStaticInfo.dbl(TransformationByProductData.Rows[i]["TransactionQty"].ToString());
+
+			//	sheet.Range[MPBPChildROW, 1, MPBPChildROW, MPBPChildendCol].BorderInside(ExcelLineStyle.Hair);
+			//	sheet.Range[MPBPChildROW, 1, MPBPChildROW, MPBPChildendCol].BorderAround(ExcelLineStyle.Hair);
+			//	JWBPOutputItem = TransformationByProductData.Rows[i]["JWOutputItem"].ToString();
+
+			//	MPBPChildROW++;
+			//}
+
+			//BPEndRows = MPBPChildROW - 1;
+
+			//if (BPRowIndexNo < MPBPChildROW - 1)
+			//{
+			//	//sheet.Range[BPRowIndexNo, ColJobWorkItem, MPBPChildROW - 1, ColJobWorkItem].Merge();
+			//	sheet.Range[BPRowIndexNo, ColJWOutputItem, MPBPChildROW - 1, ColJWOutputItem].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//	sheet.Range[BPRowIndexNo, ColJWOutputItem, MPBPChildROW - 1, ColJWOutputItem].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+			//}
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			sheet.UsedRange.NumberFormat = "#,##0.000";
+			sheet.UsedRange.WrapText = true;
+			sheet.UsedRange.CellStyle.Font.Size = 8;
+			report.CompanyPlantHeader(ref sheet, MPChildendCol + 6, "Value Added Job Work Material Receipt Chalaan", identity.CompanyId, identity.PlantName, null);
+			report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+			return workbook;
+		}
+
+		#endregion end Reports for Value Added Contract
 
 		// GET Issued Material data
 

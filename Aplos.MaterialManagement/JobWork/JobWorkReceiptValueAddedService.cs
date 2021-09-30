@@ -138,6 +138,42 @@ namespace Library.MaterialManagement.JobWork
 
         }
 
+        public IEnumerable<object> GetIndividualValAddedReportData(string Id, string ReceivedId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select distinct rt.Id,rtc.Id as ReceiveId,rtc.TransformationContractId as ContractId, rt.PODate, FORMAT(rtc.GRNDate,'dd-MMM-yyyy') as ReceiveDate,rtc.ByWhomEmployeeId
+                    , rtc.DocRefNo,rtc.InvoiceNo, rtc.GateEntryNo 
+                   ,rt.Remarks, FORMAT(rtc.DocDate,'dd-MMM-yyyy') as ReceiveDocumentDate, FORMAT(rtc.InvoiceDate,'dd-MMM-yyyy') as ReceiveInvoiceDate
+                   ,emp.EmployeeName, emp.EmployeeCode, ISNULL(kk.TotalIssuedQty,'0') as TotalReceivedQty
+                    from dbo.JWTransformationPurchaseOrder rt left join TRN.InventoryReceive rtc on rt.Id=rtc.TransformationContractId
+                    left join dbo.EmployeeInformation emp on emp.SystemId=rtc.ByWhomEmployeeId
+					left join TRN.GateEntry ge on ge.Id=rtc.GateEntryNo
+					left join TRN.InventoryReceiveDetail ird on ird.InventoryReceiveId=rtc.Id
+                    left join dbo.JobWorkTransformationContractChild mp on mp.Id=ird.JWTCMDId
+            --        left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+			  left join(select Sum(IRD.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article
+                                    , IM.ArticleId,IRD.InventoryMaterialId,IRD.JWTCMDId                                       
+                                    from TRN.InventoryReceive IR inner join TRN.InventoryReceiveDetail IRD on IR.Id = IRD.InventoryReceiveId
+                                        left join TRN.InventoryMaterial IM on IM.Id = IRD.InventoryMaterialId
+                                        left join MST.MaterialMaster mm on mm.Id = IM.MaterialMasterId
+                                        left join MST.MaterialMasterArticle mma on mma.Id = IM.ArticleId
+                                        where IR.TransformationContractId = '"+ Id + @"'
+                                        group by IM.MaterialMasterId,IM.ArticleId,IRD.InventoryMaterialId,mm.UserName,mma.StandardName,IRD.JWTCMDId)
+										kk on kk.InventoryMaterialId = ird.InventoryMaterialId and kk.JWTCMDId=mp.Id
+                    where rtc.TransformationContractId='"+ Id + @"' --and rtc.Id='"+ ReceivedId + @"' 
+                    order by rt.PODate desc  ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
         public IEnumerable<object> GetReceiptVAChildData(string PKId)
         {
             try
@@ -1598,6 +1634,140 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                 throw;
             }
         }
+
+        // Value Added Receipt Report
+
+        public DataTable GetValueAddedContractReportDataById(string PrintTabId, string IssueId)
+        {
+            try
+            {
+
+                string _sql = @"select tc.Id,TabType='ValueAdded', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
+                                    ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+                                    FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
+                                    e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
+									,rt.Id as ReceiptId, rt.GRNDate, FORMAT(rt.GRNDate,'dd-MMM-yyyy') as JWGRNDate, rt.ByWhomEmployeeId, rt.DocRefNo,rt.InvoiceNo
+									, rt.GateEntryNo 
+                                   --,rt.Remarks as ReceiptRemarks
+								   , FORMAT(rt.DocDate,'dd-MMM-yyyy') as ReceiveDocumentDate, FORMAT(rt.InvoiceDate,'dd-MMM-yyyy') as ReceiveInvoiceDate
+                                    ,emp.EmployeeName, emp.EmployeeCode
+                                    from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
+									left join HKP.Party p on p.Id=tc.PartyId
+									left join dbo.JobWorkTransformationContractChild mp on tc.Id=mp.JobWorkTransformationContractMasterId
+									left join trn.inventoryreceive rt on rt.TransformationContractId=tc.Id
+					     			left join dbo.EmployeeInformation emp on emp.SystemId=rt.ByWhomEmployeeId
+                                    WHERE tc.Id='" + PrintTabId + @"' and rt.Id='" + IssueId + @"' ";
+
+                return _sqlRepository.GetDataTable(_sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetValueAddedIssueReturnChildDataById(string PrintTabId, string IssueId)
+        {
+            try
+            {
+
+                string _sql = @"select mp.Id, SUM(mp.Quantity) as PlanQuantity,jwi.UserName as JWOutputItem,jwa.UserName as JobWorkActivity,mm.Code as MaterialCode,mm.UserName as Material
+                                ,mma.Code as ArticleCode, mma.StandardName as Article
+                               ,TotalReceivedQty=ISNULL( kk.TotalReceivedQuantity,'0')
+                               ,ToReceive= Sum(mp.Quantity)- ISNULL( kk.TotalReceivedQuantity,'0'), rtc.TransactionQty
+                               from dbo.JobWorkTransformationContractChild mp left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
+                               left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
+                               left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
+                               left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
+							   left join MST.MaterialMaster mm on mm.Id=mp.MaterialMasterId
+                               left join (select Sum(TransactionQty) as TotalReceivedQuantity,JWTCMDId from TRN.InventoryReceiveDetail where JWTCMDId is not null group by JWTCMDId)
+                               kk on kk.JWTCMDId=mp.Id
+                               left join TRN.InventoryReceiveDetail rtc on rtc.JWTCMDId=mp.Id
+                               where tc.Id='" + PrintTabId + @"' and rtc.InventoryReceiveId='" + IssueId + @"'
+                               group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity,rtc.TransactionQty,mm.Code,mm.UserName,mma.Code ";
+
+                return _sqlRepository.GetDataTable(_sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        //public DataTable GetTransformationByProductDataById(string PrintTabId, string IssueId)
+        //{
+        //    try
+        //    {
+
+        //        string _sql = @"select tbp.Id,jwit.UserName as JWOutputItem,jwi.UserName as ByProductItem,mma.StandardName as ByProductArticle, mm.UserName as ByProductMaterial           
+							 // ,TQty=(mi.NetConsumption * mp.Quantity)
+        //                      ,TotalReqQty=((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100)
+        //                      ,ISNULL(rvbp.TotalReceivedQuantity,'0') as TotalReceivedQty
+        //                      , ToReceive=((tbp.PercentageOfInput * (mi.NetConsumption * mp.Quantity))/100) - ISNULL(rvbp.TotalReceivedQuantity,'0')
+							 // ,rtbp.TransactionQty
+        //                      from dbo.JobWorkTransformationContractChild4 tbp 
+        //                      left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
+        //                      left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
+        //                      left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+        //                      left join HKP.JobWorkItem jwit on jwit.Id=mp.JobWorkItemMasterId
+        //                      left join MST.MaterialMasterArticle mma on mma.Id=tbp.ArticleId
+							 // left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
+        //                      left join (Select SUM(TransactionQty) as TotalReceivedQuantity,JWTCMDByProductId from TRN.InventoryReceiveDetail where JWTCMDByProductId is not null group by JWTCMDByProductId)
+        //                      rvbp on rvbp.JWTCMDByProductId=tbp.Id
+        //                      left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
+							 // left join TRN.InventoryReceiveDetail rtbp on rtbp.JWTCMDByProductId=tbp.Id
+        //                      where tc.Id='" + PrintTabId + @"' and rtbp.InventoryReceiveId='" + IssueId + @"' ";
+
+        //        return _sqlRepository.GetDataTable(_sql);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
+
+       // public DataTable GetValueAddedWIPData(string PrintTabId, string IssueId)
+       // {
+       //     try
+       //     {
+       //         string _sql = @"select distinct mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem ,mm.Id as JWInputMaterialMasterId
+       //                     , mm.UserName as JWInputMaterial ,mma.Id as JWInputMaterialArticleId, mma.StandardName as JWInputArticle
+       //                     ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
+       //                     ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalIssuedQty,'0'))
+       //                     ,kk.TotalIssuedQty as TIRCTotalQty, ISNULL(R.TotalReceivedQuantity,'0')  as TotalReceiptQuantity, ISNULL(rtc.TransactionQty,'0') as ReceiptQuantity
+							//,QuantityUsed=ISNULL(rtc.TransactionQty * mi.GrossConsumption,'0'), TotalQuantityUsed=ISNULL(R.TotalReceivedQuantity * mi.GrossConsumption,'0')
+							//,WIPQuantity= isnull((kk.TotalIssuedQty - (R.TotalReceivedQuantity * mi.GrossConsumption)),'0')
+							// from TRN.InventoryIssueDetail tirc left join dbo.JobWorkTransformationContractChild mp on mp.Id=tirc.JWTCMID
+							// left join dbo.JobWorkTransformationContractChild3 mi on mp.Id=mi.JobWorkTransformationContractChildMasterId
+							// left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
+							// left join TRN.InventoryMaterial IM on IM.Id=tirc.InventoryMaterialId
+							// left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
+							// left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId and mm.Id=IM.MaterialMasterId
+							// left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
+       //                      left join(
+							//            select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article, IM.ArticleId,IID.InventoryMaterialId
+							//            from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+       //                                 left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+       //                                 left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
+       //                                 left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
+							//			where II.JWContractId='" + PrintTabId + @"'
+							//			group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName) 
+							// kk on kk.InventoryMaterialId=IM.Id
+							// left join (select Sum(TransactionQty) as TotalReceivedQuantity,JWTCMDId from TRN.InventoryReceiveDetail where JWTCMDId is not null group by JWTCMDId)
+							// R on  R.JWTCMDId=mp.Id
+							//-- left join TRN.InventoryReceiveDetail rtc on rtc.JWTCMId=mp.Id
+       //                      left join TRN.InventoryReceiveDetail rtc on rtc.JWTCMDId=mp.Id
+						 //  	where rtc.InventoryReceiveId='" + IssueId + @"'
+							// group by mi.Id, mm.Id, mm.UserName,mma.Id, mma.StandardName,mp.Quantity,mi.GrossConsumption,kk.TotalIssuedQty
+							// ,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,R.TotalReceivedQuantity,rtc.TransactionQty ";
+
+       //         return _sqlRepository.GetDataTable(_sql);
+       //     }
+       //     catch (Exception)
+       //     {
+       //         throw;
+       //     }
+       // }
 
         // GET Issued Material data
 
