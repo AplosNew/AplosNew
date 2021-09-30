@@ -111,6 +111,8 @@ namespace Library.MaterialManagement.Inventory
         // Job Work Transformation Issue
         void JWIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
 
+        void JWValAddedIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
+
         void InventorySalesReportPrint(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
 
         void InventoryScrapReportPrint(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);

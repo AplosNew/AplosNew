@@ -305,7 +305,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
 
-        
+
 
         [HttpPost, Authorize]
         public JsonResult CreateSalesOrderTax(string salesOrderId, IEnumerable<SalesOrderTax> taxCategoryList)
@@ -1616,6 +1616,125 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         #endregion
 
+        #region Copy SO
+        public void GetSalesOrderId(string masterItemId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager Obj;
 
+            try
+            {
+                string sql = @"SELECT ISNULL((MAX(Id)+1),0) Id FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='" + masterItemId + "'";
+                Obj = new ConnectionManager.DAL.ConManager("1");
+                Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void CopySalesOrder(string MasterId, string masterItemId)
+        {
+            DataSet dsToSalesOrder;
+            DataSet dsToFirstCharacteristics;
+            DataSet dsToSecondCharacteristics;
+            DataSet dsToThirdCharacteristics;
+            try
+            {
+
+                DataSet dsSOId;
+                GetSalesOrderId(masterItemId, out dsSOId);
+                string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[SalesOrder] WHERE 1=2", out dsToSalesOrder, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[FirstCharacteristics] WHERE 1=2", out dsToFirstCharacteristics, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[SecondCharacteristics] WHERE 1=2", out dsToSecondCharacteristics, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[ThirdCharacteristics] WHERE 1=2", out dsToThirdCharacteristics, false, "1");
+
+                DataTable dtFromMaster = _sqlRepository.GetDataTable("SELECT * FROM [TRN].[SalesOrder] WHERE Id='" + MasterId + "'");
+                DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.FirstCharacteristics WHERE SalesOrderId='" + MasterId + "'");
+                DataTable dtFromSecondCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.SecondCharacteristics WHERE SalesOrderId='" + MasterId + "'");
+                DataTable dtFromThirdCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.ThirdCharacteristics WHERE SalesOrderId='" + MasterId + "'");
+
+                DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
+                CopyRow(dtFromMaster.Rows[0], ref drSalesOrder);
+                drSalesOrder["Id"] = NewId;
+                drSalesOrder["ParentId"] = MasterId;
+                dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
+
+                for (int i = 0; i < dtFromFirstCharacteristics.Rows.Count; i++)
+                {
+                    DataRow drFirstCharacteristics = dsToFirstCharacteristics.Tables[0].NewRow();
+                    CopyRow(dtFromFirstCharacteristics.Rows[i], ref drFirstCharacteristics);
+                    drFirstCharacteristics["Id"] = NewId + (i + 1);
+                    drFirstCharacteristics["SalesOrderId"] = NewId;
+                    dsToFirstCharacteristics.Tables[0].Rows.Add(drFirstCharacteristics);
+
+                    dtFromSecondCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + MasterId + "' AND FirstCharacteristicsId='" + dtFromFirstCharacteristics.Rows[i]["Id"] + "'";
+                    for (int K = 0; K < dtFromSecondCharacteristics.DefaultView.Count; K++)
+                    {
+                        DataRow drSecondCharacteristics = dsToSecondCharacteristics.Tables[0].NewRow();
+                        CopyRow(dtFromSecondCharacteristics.DefaultView[K].Row, ref drSecondCharacteristics);
+                        drSecondCharacteristics["Id"] = NewId + (i + 1) + (K + 1);
+                        drSecondCharacteristics["FirstCharacteristicsId"] = NewId + (i + 1);
+                        dsToSecondCharacteristics.Tables[0].Rows.Add(drSecondCharacteristics);
+
+                        dtFromThirdCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + MasterId + "' AND SecondCharacteristicsId='" + dtFromSecondCharacteristics.Rows[K]["Id"] + "'";
+                        for (int j = 0; j < dtFromThirdCharacteristics.DefaultView.Count; j++)
+                        {
+                            DataRow drThirdCharacteristics = dsToThirdCharacteristics.Tables[0].NewRow();
+                            CopyRow(dtFromThirdCharacteristics.DefaultView[j].Row, ref drThirdCharacteristics);
+                            drThirdCharacteristics["Id"] = NewId + (i + 1) + (j + 1);
+                            drThirdCharacteristics["SecondCharacteristicsId"] = NewId + (i + 1);
+                            dsToThirdCharacteristics.Tables[0].Rows.Add(drThirdCharacteristics);
+                        }
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsToSalesOrder, dsToFirstCharacteristics, dsToSecondCharacteristics, dsToThirdCharacteristics);
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+
+        }
+
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+            {
+                try
+                {
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+
+                }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                    drDestination["AddedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedBy"] = identity.Name;
+                    drDestination["UpdatedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedDate"] = DateTime.Now;
+
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+        }
+        #endregion
     }
 }

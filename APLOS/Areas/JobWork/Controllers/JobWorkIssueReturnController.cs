@@ -2028,7 +2028,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue                               
                                 from dbo.JobWorkTransformationContractChild vcc left join HKP.JobWorkItem jwi on jwi.Id=vcc.JobWorkItemMasterId
 							   left join hkp.JobWorkActivity jwa on jwa.Id=vcc.JobActivityId
-        					   left join SCS.UnitOfMeasurement uom on uom.Id=vcc.OutputMaterialUOMId
+        					   --left join SCS.UnitOfMeasurement uom on uom.Id=vcc.OutputMaterialUOMId
+							   left join SCS.UnitOfMeasurement uom on uom.Id=vcc.TransactionUoMId
         					   left join MST.MaterialMasterArticle mma on mma.Id=vcc.ArticleId
 							   left join MST.MaterialMaster OMM on OMM.Id=vcc.MaterialMasterId
         					   left join scs.Currency c on c.Id=vcc.CurrencyId
