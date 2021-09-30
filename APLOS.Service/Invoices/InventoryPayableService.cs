@@ -6250,6 +6250,7 @@ namespace Library.Service.Invoices
         }
 
         public string InventoryJobWorkReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
+            , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
         , IEnumerable<VoucherDetailViewModel> changeInInventoryList
         , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList)
         {
@@ -6329,6 +6330,22 @@ namespace Library.Service.Invoices
                             };
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDr, voucherDetailCurrencydb);
                             voucherDetailCurrencydb = null;
+                            foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == voucherDr.GLGeneralInfoId
+                          && r.BudgetMasterId == voucherDr.BudgetMasterId && r.ActivityId == voucherDr.ActivityId))
+                            {
+                                var inventoryReceiveDetail = _inventoryReceiveDetailRepository.Find(item.InventoryReceiveDetailId);
+                                var CrGLBAct = inventoryPayableVMList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
+                                inventoryReceiveDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
+                                inventoryReceiveDetail.PostDrBudgetMasterId = voucherDr.BudgetMasterId;
+                                inventoryReceiveDetail.PostDrActivityId = voucherDr.ActivityId;
+                                inventoryReceiveDetail.PostCrGLGeneralInfoId = CrGLBAct.GLGeneralInfoId;
+                                inventoryReceiveDetail.PostCrBudgetMasterId = CrGLBAct.BudgetMasterId;
+                                inventoryReceiveDetail.PostCrActivityId = CrGLBAct.ActivityId;
+                                inventoryReceiveDetail.ModelState = ModelState.Modified;
+                                AuditService.UpdatedLog(inventoryReceiveDetail);
+                                _inventoryReceiveDetailRepository.Update(inventoryReceiveDetail);
+                            }
+
                         }
                         else if (voucherDetailVMWIP.TrnType == "Cr")
                         {

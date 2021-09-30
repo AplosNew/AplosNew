@@ -773,6 +773,8 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
             data: {
                  'voucherVM': $scope.modelNew
                 , 'inventoryJobWorkWIPList': $scope.inventoryJobWorkWIPList/*$scope.inventoryMaterialList*/
+                , 'inventoryReceiveDetailVMList': $scope.inventoryReceiveDetailList
+                , 'inventoryPayableVMList': $scope.inventoryPayableList
                 , 'changeInInventoryList': $scope.newList
                 , 'inventoryJobWorkGIRIList': $scope.inventoryJobWorkGIRIList
             },
