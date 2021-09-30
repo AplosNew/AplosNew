@@ -342,7 +342,8 @@ namespace Library.MaterialManagement.JobWork
                         , mma.Id ArticleId
                         , mma.StandardName as StandardName
                         ,null MaterialStorageId
-                        ,TUoM.Id BaseUOMId
+                        --,TUoM.Id BaseUOMId
+						,BaseUOMId=case when mp.BaseUOMId is not null then TUoM.Id else TUoMM.Id End
 
 						, MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
 	                            , SO.Id AS SalesOrderId, Pr.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
@@ -418,7 +419,9 @@ namespace Library.MaterialManagement.JobWork
                    left JOIN MST.MaterialMaster AS MM ON MM.Id = mma.MaterialMasterId
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
 
-                        LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON mp.OutputMaterialUOMId = TUoM.Id
+                        LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoMM ON mp.OutputMaterialUOMId = TUoMM.Id
+						LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON mp.BaseUOMId = TUoM.Id
+
                             LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM1 ON mp.TransactionUoMId = TUoM1.Id
 
 							left join dbo.JobWorkTransformationContractChild2 owr on owr.JobWorkTransformationContractChildMasterId=mp.Id
@@ -483,6 +486,7 @@ namespace Library.MaterialManagement.JobWork
 	                            --, MOI.ArticleId, ART.StandardName AS ArticleName
 								,CN.ContractNo,MLC.LCRef, owrUom.UserName,owr.Id, owr.JobWorkTransformationContractChildMasterId, owr.OrderType,owr.Quantity
 								--,owr.PlanQuantity
+                                ,mp.BaseUOMId,TUoMM.Id
                                  ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
