@@ -6330,21 +6330,7 @@ namespace Library.Service.Invoices
                             };
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDr, voucherDetailCurrencydb);
                             voucherDetailCurrencydb = null;
-                            foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == voucherDr.GLGeneralInfoId
-                          && r.BudgetMasterId == voucherDr.BudgetMasterId && r.ActivityId == voucherDr.ActivityId))
-                            {
-                                var inventoryReceiveDetail = _inventoryReceiveDetailRepository.Find(item.InventoryReceiveDetailId);
-                                var CrGLBAct = inventoryPayableVMList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
-                                inventoryReceiveDetail.PostDrGLGeneralInfoId = voucherDr.GLGeneralInfoId;
-                                inventoryReceiveDetail.PostDrBudgetMasterId = voucherDr.BudgetMasterId;
-                                inventoryReceiveDetail.PostDrActivityId = voucherDr.ActivityId;
-                                inventoryReceiveDetail.PostCrGLGeneralInfoId = CrGLBAct.GLGeneralInfoId;
-                                inventoryReceiveDetail.PostCrBudgetMasterId = CrGLBAct.BudgetMasterId;
-                                inventoryReceiveDetail.PostCrActivityId = CrGLBAct.ActivityId;
-                                inventoryReceiveDetail.ModelState = ModelState.Modified;
-                                AuditService.UpdatedLog(inventoryReceiveDetail);
-                                _inventoryReceiveDetailRepository.Update(inventoryReceiveDetail);
-                            }
+                           
 
                         }
                         else if (voucherDetailVMWIP.TrnType == "Cr")
@@ -6375,6 +6361,7 @@ namespace Library.Service.Invoices
                             };
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherCr, voucherDetailCurrencydb);
                             voucherDetailCurrencydb = null;
+                            
                         }
                     }
                     TempvoucherNo += "'', " + voucherWiP.VoucherNo + "";
@@ -6413,7 +6400,7 @@ namespace Library.Service.Invoices
                     {
                         if (voucherDetailVMCIInv.TrnType == "Dr")
                         {
-                            var voucherDr = new VoucherDetail
+                            var voucherCIInvDr = new VoucherDetail
                             {
                                 GLGeneralInfoId = voucherDetailVMCIInv.GLGeneralInfoId,
                                 BudgetMasterId = voucherDetailVMCIInv.BudgetMasterId,
@@ -6424,24 +6411,39 @@ namespace Library.Service.Invoices
                                 DocRefNo = voucherVM.DocRefNo,
                                 Narration = voucherDetailVMCIInv.Narration,
                             };
-                            voucherDetailVMCIInv.Id = voucherDr.Id;
+                            voucherDetailVMCIInv.Id = voucherCIInvDr.Id;
                             currentVoucherDetaiRecord++;
-                            _voucherService.InsertVoucherDetail(voucherCIInv, voucherDr, currentVoucherDetaiRecord);
+                            _voucherService.InsertVoucherDetail(voucherCIInv, voucherCIInvDr, currentVoucherDetaiRecord);
                             var voucherDetailCurrencydb = new VoucherDetailCurrency
                             {
                                 ToCurrencyRate = voucherVM.ToCurrencyRate,
                                 ToCurrencyId = companyCurrencyId,
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = voucherVM.CurrencyId,
-                                DrAmount = voucherVM.ToCurrencyRate * voucherDr.DrAmount,
+                                DrAmount = voucherVM.ToCurrencyRate * voucherCIInvDr.DrAmount,
                                 ToCurrencyConversion = 1 / voucherVM.ToCurrencyRate
                             };
-                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherDr, voucherDetailCurrencydb);
+                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherCIInvDr, voucherDetailCurrencydb);
                             voucherDetailCurrencydb = null;
+                            foreach (var item in inventoryReceiveDetailVMList.Where(r => r.GLGeneralInfoId == voucherCIInvDr.GLGeneralInfoId
+                         && r.BudgetMasterId == voucherCIInvDr.BudgetMasterId && r.ActivityId == voucherCIInvDr.ActivityId))
+                            {
+                                var inventoryReceiveDetail = _inventoryReceiveDetailRepository.Find(item.InventoryReceiveDetailId);
+                                var CrGLBAct = inventoryPayableVMList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
+                                inventoryReceiveDetail.PostDrGLGeneralInfoId = voucherCIInvDr.GLGeneralInfoId;
+                                inventoryReceiveDetail.PostDrBudgetMasterId = voucherCIInvDr.BudgetMasterId;
+                                inventoryReceiveDetail.PostDrActivityId = voucherCIInvDr.ActivityId;
+                                inventoryReceiveDetail.PostCrGLGeneralInfoId = CrGLBAct.GLGeneralInfoId;
+                                inventoryReceiveDetail.PostCrBudgetMasterId = CrGLBAct.BudgetMasterId;
+                                inventoryReceiveDetail.PostCrActivityId = CrGLBAct.ActivityId;
+                                inventoryReceiveDetail.ModelState = ModelState.Modified;
+                                AuditService.UpdatedLog(inventoryReceiveDetail);
+                                _inventoryReceiveDetailRepository.Update(inventoryReceiveDetail);
+                            }
                         }
                         else if (voucherDetailVMCIInv.TrnType == "Cr")
                         {
-                            var voucherCr = new VoucherDetail
+                            var voucherCIInvCr = new VoucherDetail
                             {
                                 GLGeneralInfoId = voucherDetailVMCIInv.GLGeneralInfoId,
                                 BudgetMasterId = voucherDetailVMCIInv.BudgetMasterId,
@@ -6453,19 +6455,19 @@ namespace Library.Service.Invoices
                                 DocRefNo = voucherCIInv.DocRefNo,
                                 Narration = voucherCIInv.Narration,
                             };
-                            voucherDetailVMCIInv.Id = voucherCr.Id;
+                            voucherDetailVMCIInv.Id = voucherCIInvCr.Id;
                             currentVoucherDetaiRecord++;
-                            _voucherService.InsertVoucherDetail(voucherCIInv, voucherCr, currentVoucherDetaiRecord);
+                            _voucherService.InsertVoucherDetail(voucherCIInv, voucherCIInvCr, currentVoucherDetaiRecord);
                             var voucherDetailCurrencydb = new VoucherDetailCurrency
                             {
                                 ToCurrencyRate = voucherVM.ToCurrencyRate,
                                 ToCurrencyId = companyCurrencyId,
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = voucherVM.CurrencyId,
-                                CrAmount = voucherVM.ToCurrencyRate * voucherCr.CrAmount,
+                                CrAmount = voucherVM.ToCurrencyRate * voucherCIInvCr.CrAmount,
                                 ToCurrencyConversion = 1 / voucherVM.ToCurrencyRate
                             };
-                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherCr, voucherDetailCurrencydb);
+                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherCIInvCr, voucherDetailCurrencydb);
                             voucherDetailCurrencydb = null;
                         }
                     }
