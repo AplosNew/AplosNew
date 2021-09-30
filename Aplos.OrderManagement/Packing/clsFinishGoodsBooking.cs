@@ -348,7 +348,7 @@ namespace Library.OrderManagement.Packing
 
                             //if (dsInventoryMaterial.Tables[0].Rows.Count > 0)
                             //{
-                            dsInventoryMaterial.Tables[0].DefaultView.RowFilter = "MaterialMasterId='" + item["MaterialMasterId"].ToString() + "' AND ArticleId = '" + item["ArticleId"] + "'";
+                            dsInventoryMaterial.Tables[0].DefaultView.RowFilter = "MaterialMasterId='" + item["MaterialMasterId"].ToString() + "' AND ArticleId = '" + item["ArticleId"].ToString() + "'";
 
                             if (dsInventoryMaterial.Tables[0].DefaultView.Count > 0)
                             {
@@ -448,6 +448,8 @@ namespace Library.OrderManagement.Packing
                             drProductionSummary["EntityId"] = data["ProductionEntityId"].ToString();
                             drProductionSummary["ProcessId"] = data["ProcessId"].ToString();
                             drProductionSummary["ProductionDate"] = Convert.ToDateTime(dsInventoryReceive.Tables[0].Rows[i]["GRNDate"].ToString()).ToString("dd-MMM-yyyy");
+                            drProductionSummary["MaterialMasterId"] = item["MaterialMasterId"].ToString();
+                            drProductionSummary["ArticleId"] = item["ArticleId"].ToString();
                             drProductionSummary["Quantity"] = item["Qty"];
                             drProductionSummary["ProductionOrderId"] = item["ProductionOrderId"];
                             drProductionSummary["FinishGoodsBookingId"] = masterId;
