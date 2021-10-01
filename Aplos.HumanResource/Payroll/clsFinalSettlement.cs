@@ -1621,6 +1621,7 @@ namespace OTSBD
         public string EmpInfoSystemID { get; set; }
         public string SalaryHeadID { get; set; }
         public string SalaryHead { get; set; }
+        public string status { get; set; }
         public decimal DisbusmentAmount { get; set; }
        
     }

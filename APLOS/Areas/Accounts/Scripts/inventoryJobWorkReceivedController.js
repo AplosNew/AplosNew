@@ -119,6 +119,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
 
     cboService.getCboEntityByPlant(null, null, "", function (result) {
         $scope.entityList = result;
+        console.log('entity',$scope.entityList);
     });
 
     $scope.changePaymentTerm = function (id) {
@@ -318,7 +319,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                 $scope.inventoryMaterialList = [];
                 $scope.newList = [];
                 $scope.inventoryMaterialList = response.data;
-
+                console.log('inventoryMaterialList', $scope.inventoryMaterialList);
                 if (!$scope.modelNew.IsNonCreditable)
                     reArrangeCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
                 else if ($scope.modelNew.IsNonCreditable)
@@ -773,6 +774,8 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
             data: {
                  'voucherVM': $scope.modelNew
                 , 'inventoryJobWorkWIPList': $scope.inventoryJobWorkWIPList/*$scope.inventoryMaterialList*/
+                , 'inventoryReceiveDetailVMList': $scope.inventoryReceiveDetailList
+                , 'inventoryPayableVMList': $scope.inventoryPayableList
                 , 'changeInInventoryList': $scope.newList
                 , 'inventoryJobWorkGIRIList': $scope.inventoryJobWorkGIRIList
             },
@@ -836,7 +839,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
 
 
 
-    $scope.onClickReportDownloadWord = function (args) {        debugger;        var gridObj = $("#GridPrint").data("ejGrid");        //getting corresponding record         var data = gridObj.getSelectedRecords()[0];        var reportFormat = "Pdf";        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open($scope.path + 'GetOutSourcingVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId , '_blank');
+    $scope.onClickReportDownloadWord = function (args) {        debugger;        var gridObj = $("#GridPrint").data("ejGrid");        //getting corresponding record         var data = gridObj.getSelectedRecords()[0];        var reportFormat = "Pdf";        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open($scope.path + 'GetOutSourcingVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId + '&sourceType=' + data.SourceType,  '_blank');
     };    $scope.commandPDF = [{        type: "details", buttonOptions: {            text: "PDF",            width: "50",            height: "20",            click: $scope.onClickReportDownloadWord        }    }];
 
     $scope.onClickReportDownloadExcel = function (args) {        debugger;        var gridObj = $("#GridPrint").data("ejGrid");        //getting corresponding record         var data = gridObj.getSelectedRecords()[0];        var reportFormat = "Excel";        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open($scope.path + 'GetOutSourcingVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');

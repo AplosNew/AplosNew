@@ -1222,7 +1222,7 @@ namespace Library.Accounting.Accounts
 
         #region Inventory JobWork Received
 
-        public Dictionary<string, object> GetOutSourcingHeader(string companyGroupId, string companyId, string plantId, string voucherId)
+        public Dictionary<string, object> GetOutSourcingHeader(string companyGroupId, string companyId, string plantId, string voucherId, string sourceType)
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo
                             , REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
@@ -1269,8 +1269,9 @@ namespace Library.Accounting.Accounts
 					  LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
 
                     WHERE V.Archive=0 AND V.CompanyGroupId='"+companyGroupId+"' AND V.CompanyId='"+companyId+"' AND V.PlantId='"+plantId+@"' 
-						AND V.Id='"+voucherId+@"' 
-					AND V.SourceType='InventoryJWReceipt'";
+						AND V.Id='"+voucherId+ @"' 
+					--AND V.SourceType='InventoryJWReceipt' 
+                    and v.SourceType ='"+sourceType+@"'";
             return _sqlRepository.GetData(cmdText);
         }
 
@@ -1311,7 +1312,7 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataTable(cmdText);
         }
 
-        public IWorkbook GetOutSourcingVoucherReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId)
+        public IWorkbook GetOutSourcingVoucherReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, string sourceType)
         {
             var reportUtility = new ReportUtility();
             var excelEngine = new ExcelEngine();
@@ -1320,7 +1321,7 @@ namespace Library.Accounting.Accounts
             var sheet = workbook.Worksheets[0];
             sheet.Name = "Voucher";
 
-            var header = GetOutSourcingHeader(companyGroupId, companyId, plantId, voucherId);
+            var header = GetOutSourcingHeader(companyGroupId, companyId, plantId, voucherId, sourceType);
 
             reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
 

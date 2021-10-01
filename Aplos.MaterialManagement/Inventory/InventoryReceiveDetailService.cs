@@ -4555,6 +4555,7 @@ namespace Library.MaterialManagement.Inventory
 						dr["InventoryReceiveId"] = MasterId;
 						dr["TransactionQty"] = item.TransactionQty;
 						dr["TransactionUoMId"] = item.TransactionUoMId;
+						dr["BaseUOMId"] = item.TransactionUoMId;
 						dr["BaseQty"] = item.TransactionQty;
 						dr["QualityStatus"] = item.QualityStatus;
 						dr["JWTCMId"] = item.JWTCMId;
@@ -4583,6 +4584,7 @@ namespace Library.MaterialManagement.Inventory
 							dr["InventoryReceiveId"] = MasterId;
 							dr["TransactionQty"] = item.TransactionQty;
 							dr["TransactionUoMId"] = item.TransactionUoMId;
+							dr["BaseUOMId"] = item.TransactionUoMId;
 							dr["BaseQty"] = item.TransactionQty;
 							dr["QualityStatus"] = item.QualityStatus;
 							dr["JWTCMId"] = item.JWTCMId;
@@ -4606,6 +4608,7 @@ namespace Library.MaterialManagement.Inventory
 							dr["InventoryReceiveId"] = MasterId;
 							dr["TransactionQty"] = item.TransactionQty;
 							dr["TransactionUoMId"] = item.TransactionUoMId;
+							dr["BaseUOMId"] = item.TransactionUoMId;
 							dr["BaseQty"] = item.TransactionQty;
 							dr["QualityStatus"] = item.QualityStatus;
 							dr["JWTCMId"] = item.JWTCMId;
@@ -4681,6 +4684,7 @@ namespace Library.MaterialManagement.Inventory
 							dr["InventoryReceiveId"] = MasterId;
 							dr["TransactionQty"] = item.TransactionQty;
 							dr["TransactionUoMId"] = item.TransactionUoMId;
+							dr["BaseUOMId"] = item.TransactionUoMId;
 							dr["BaseQty"] = item.TransactionQty;
 							dr["QualityStatus"] = item.QualityStatus;
 							dr["JWTCMByProductId"] = item.JWTCMByProductId;
@@ -4709,6 +4713,7 @@ namespace Library.MaterialManagement.Inventory
 								dr["InventoryReceiveId"] = MasterId;
 								dr["TransactionQty"] = item.TransactionQty;
 								dr["TransactionUoMId"] = item.TransactionUoMId;
+								dr["BaseUOMId"] = item.TransactionUoMId;
 								dr["BaseQty"] = item.TransactionQty;
 								dr["QualityStatus"] = item.QualityStatus;
 								dr["JWTCMByProductId"] = item.JWTCMByProductId;
@@ -4732,6 +4737,7 @@ namespace Library.MaterialManagement.Inventory
 								dr["InventoryReceiveId"] = MasterId;
 								dr["TransactionQty"] = item.TransactionQty;
 								dr["TransactionUoMId"] = item.TransactionUoMId;
+								dr["BaseUOMId"] = item.TransactionUoMId;
 								dr["BaseQty"] = item.TransactionQty;
 								dr["QualityStatus"] = item.QualityStatus;
 								dr["JWTCMByProductId"] = item.JWTCMByProductId;

@@ -54,7 +54,7 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 SaveData(master, dataList);
-                return Json(new { Error = false, Data = master, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = master, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -193,8 +193,8 @@ namespace Aplos.Areas.Accounts.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strCSQL = "DELETE FROM [dbo].[JWReceiveBillingDetail] WHERE JWReceiveBillingId='" + Id + "'";
-                strSQL = "DELETE FROM [dbo].[JWReceiveBilling] WHERE Id = '" + Id + "'";
+                strCSQL = "DELETE FROM [dbo].[PostGRNInvoiceDetail] WHERE PostGRNInvoiceId='" + Id + "'";
+                strSQL = "DELETE FROM [dbo].[PostGRNInvoice] WHERE Id = '" + Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -225,16 +225,29 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            string sql = @"select top 100 * from (SELECT PGI.*,P.UserName PartyName,C.Code Currency FROM [dbo].[PostGRNInvoice] PGI
-                            LEFT JOIN HKP.Party P ON P.Id=PGI.PartyId
-                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId) AS TEMP WHERE " + strkey + "";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetPostInvoiceList(column, value), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetDetailList(string column, string value)
+        {
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetPostInvoiceList(column, value), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetPostInvoiceDetailData(string masterId)
+        {
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetPostInvoiceDetailData(masterId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetSavedGRNListForPostInvoice(string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetSavedGRNListForPostInvoice(identity.PlantId,masterId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
     }

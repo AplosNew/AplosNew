@@ -148,8 +148,6 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             try
             {
-
-
                 var settings = new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
