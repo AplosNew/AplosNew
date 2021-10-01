@@ -3317,46 +3317,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void PastDOJ(out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
-                     CONVERT(date,e.DateAdded) as Today,m.ShiftDefinationId as ShiftId,s.ShiftDuration,
-                     s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
-                     CASE WHEN s.InTime>s.OutTime THEN DATEADD(DAY,1,s.OutTime) ELSE s.OutTime END as ShiftOut,
-				     e.DateAdded
-                     FROM EmployeeInformation E
-                     left join mst.ManpowerBudget m on m.Id=e.BudgetCode
-                     left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
-                     WHERE CONVERT(DATE,'2021-06-01'--Here getdate() will come
-                     )=CONVERT(date,E.DateAdded) 
-				     and DOJ<= CONVERT(DATE,'2021-06-01')
-				     and e.PlantId='202016'";
-
-                var sqlz = @"SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
-                     m.ShiftDefinationId as ShiftId,s.ShiftDuration,
-                     s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
-                     CASE WHEN s.InTime>s.OutTime THEN DATEADD(DAY,1,s.OutTime) ELSE s.OutTime END as ShiftOut,
-				     Op.InPunchStartTime as PlantInPunchStartTime, e.DateAdded as EntryTime
-                     FROM EmployeeInformation E
-                     left join mst.ManpowerBudget m on m.Id=e.BudgetCode
-                     left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
-					 left join org.Plant pl on pl.Id=e.PlantId
-                     left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id                
-                     WHERE CONVERT(DATE,'2021-9-29'--Here getdate() will come
-                     )=CONVERT(date,E.DateAdded) 
-				     and DOJ<= CONVERT(DATE,'2021-09-29')
-				     and e.PlantId='202016'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
 
         #endregion
 
@@ -6403,6 +6363,121 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw e;
             }
         }
+        #endregion
+
+        #region PastDOJ Source Data
+
+        public void PastDOJ(out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
+                     CONVERT(date,e.DateAdded) as Today,m.ShiftDefinationId as ShiftId,s.ShiftDuration,
+                     s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
+                     CASE WHEN s.InTime>s.OutTime THEN DATEADD(DAY,1,s.OutTime) ELSE s.OutTime END as ShiftOut,
+				     e.DateAdded
+                     FROM EmployeeInformation E
+                     left join mst.ManpowerBudget m on m.Id=e.BudgetCode
+                     left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
+                     WHERE CONVERT(DATE,'2021-06-01'--Here getdate() will come
+                     )=CONVERT(date,E.DateAdded) 
+				     and DOJ<= CONVERT(DATE,'2021-06-01')
+				     and e.PlantId='202016'";
+
+                var sqlz = @"SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
+                     m.ShiftDefinationId as ShiftId,s.ShiftDuration,
+                     s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
+                     CASE WHEN s.InTime>s.OutTime THEN DATEADD(DAY,1,s.OutTime) ELSE s.OutTime END as ShiftOut,
+				     Op.InPunchStartTime as PlantInPunchStartTime, e.DateAdded as EntryTime
+                     FROM EmployeeInformation E
+                     left join mst.ManpowerBudget m on m.Id=e.BudgetCode
+                     left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
+					 left join org.Plant pl on pl.Id=e.PlantId
+                     left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id                
+                     WHERE CONVERT(DATE,'2021-9-29'--Here getdate() will come
+                     )=CONVERT(date,E.DateAdded) 
+				     and DOJ<= CONVERT(DATE,'2021-09-29')
+				     and e.PlantId='202016'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public void MissingRowsDOJ(out DataSet ds, string Plant,string Date)
+        {
+            // This DataSet to find all the Entries that are done Today 
+            // Whose DOJ is less than Today
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"SELECT e.SystemId as EmpId,FORMAT(e.DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
+                     FORMAT(e.DateAdded,'yyyy-MM-dd') as ToDate,
+				     e.DateAdded as EntryTime
+                     FROM EmployeeInformation E
+                     WHERE CONVERT(DATE,'"+Date+@"'
+                     )=CONVERT(date,E.DateAdded) 
+				     and DOJ<= CONVERT(DATE,'"+Date+"') and e.PlantId='"+Plant+@"'
+					 order by doj asc";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        #endregion
+
+        #region PastDOJ Row Creation Process
+        public void PastDOJProcess(string Date, string PlantValue)
+        {
+            try
+            {
+
+                DataSet PlantLock;
+                PlantLockCheck(Date, out PlantLock, PlantValue);
+                if (PlantLock.Tables[0].Rows.Count > 0)
+                {
+
+                }
+                else
+                {
+                    string EmpMaster = "''";
+                    #region Previous Day Duration EarlyIn Late EarlyOut OverStay
+                    DataSet MissingDOJ;
+                    MissingRowsDOJ(out MissingDOJ, PlantValue,Date);
+                    if (MissingDOJ.Tables[0].Rows.Count > 0)
+                    {
+                        // Dataset Generated for Duration EarlyIn EarlyOut Calculation
+                        string StartDate = MissingDOJ.Tables[0].Rows[0][@"DOJ"].ToString();
+                        string ToDate = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
+
+                        for (int i = 0; i < MissingDOJ.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = MissingDOJ.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            CheckerFunction(ref EmpMaster, EmpId);
+                        }
+                    }
+
+                    #endregion
+
+
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
         #endregion
 
         #region Save Function
