@@ -557,7 +557,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                 clsCrossModule ob = new clsCrossModule();
 
                 strSQL = @"SELECT EmpSystemID, MIN(WorkDate) FromDate, MAX(WorkDate) ToDate,
-                                COUNT(WorkDate) TotalProcDate,
+                               CAST(COUNT(WorkDate) As int) TotalProcDate,
                                 SUM(ISNULL(CAST(TotalPresent As decimal(18, 2)), '0.00')) TotalPresent,
                                 SUM(ISNULL(CAST(TotalLate As decimal(18, 2)), '0.00')) TotalLate,
                                 SUM(ISNULL(CAST(TotalAbsent As decimal(18, 2)), '0.00')) TotalAbsent,
@@ -625,7 +625,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                 //            GROUP BY EmpSystemID, PlantID";
 
                 strSQL = @"SELECT EmpSystemID, MIN(WorkDate) FromDate, MAX(WorkDate) ToDate, 
-                                    COUNT(WorkDate) TotalProcDate, 
+                                  CAST(COUNT(WorkDate) As decimal(18, 2)) TotalProcDate,
 		                            SUM(ISNULL(CAST(TotalPresent As decimal(18, 2)), '0.00')) TotalPresent, 
                                     SUM(ISNULL(CAST(TotalLate As decimal(18, 2)), '0.00')) TotalLate, 
 		                            SUM(ISNULL(CAST(TotalAbsent As decimal(18, 2)), '0.00')) TotalAbsent, 
