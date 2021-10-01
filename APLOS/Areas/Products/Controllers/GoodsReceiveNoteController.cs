@@ -188,6 +188,13 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			return View();
 		}
+
+		[Authorize]
+		public ActionResult GRNRequitionSOAllocation() 
+		{
+			return View();
+		}
+		
 		#endregion Aplos
 
 		#region GRN-By-PO
