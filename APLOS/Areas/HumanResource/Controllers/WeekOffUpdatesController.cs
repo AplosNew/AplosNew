@@ -386,5 +386,39 @@ namespace Aplos.Areas.HumanResource.Controllers
             
         }
 
+
+        // The First Tab Controllers
+        [HttpGet, Authorize]
+        public ActionResult getWeekOff()
+        {
+            return Json(rs.getWeekOff(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getEmployees()
+        {
+            return Json(rs.getEmployees(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult getEmpWeekOff(string EmpId)
+        {
+            return Json(rs.getEmpWeekOff(EmpId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult saveSingle(string EmpId , string EffectiveDate , string WeekId)
+        {
+            try
+            {
+                rs.saveSingle(EmpId, EffectiveDate , WeekId);
+                return Json(new { Error = false, Data = EmpId, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
     }
 }
