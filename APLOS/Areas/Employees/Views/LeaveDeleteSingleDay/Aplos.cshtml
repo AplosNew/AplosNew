@@ -99,41 +99,49 @@
             <div class="tab-content" id="tabpaneldiv">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="form-elements form-horizontal" ng-form id="OTSlapFormId" name="OTSlapForm">
-                        <div class="table-responsive modal-table ">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Work Date</th>
-                                        <th>Leave Type Name</th>
-                                        @*<th>From Date</th>
-                                            <th>To Date</th>*@
-                                        <th>Day Status</th>
-                                        <th>Shift (In - Out)</th>
-                                        <th>Punch (In-Out)</th>
-                                        <th>Manual Time</th>
-                                        <th>Delete</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr dir-paginate="x in LeaveList |itemsPerPage:leaveParameters.pageSize" total-items="leaveParameters.total_count">
-                                        <td>{{x.WorkDate}}</td>
-                                        <td>{{x.LeaveTypeName}}</td>
-                                        @*<td>{{x.FromDate}}</td>
-                                            <td>{{x.ToDate}}</td>*@
-                                        <td>{{x.DayStatus}}</td>
-                                        <td>{{x.shiftTime}}</td>
-                                        <td>{{x.punchTime}}</td>
-                                        <td>{{x.ManualTime}}</td>
-                                        <td><button ng-disabled="DisableActionButtons" ng-click="ConfirmRebate(x);" class="btn"><i class="glyphicon glyphicon-trash" tabindex="9"></i></button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <dir-pagination-controls max-size="10"
-                                                     direction-links="true"
-                                                     boundary-links="true"
-                                                     on-page-change="getData(newPageNumber)">
-                            </dir-pagination-controls>
+                        @*<div class="table-responsive modal-table ">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Work Date</th>
+                        <th>Leave Type Name</th>
+                        <th>Day Status</th>
+                        <th>Shift (In - Out)</th>
+                        <th>Punch (In-Out)</th>
+                        <th>Manual Time</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in LeaveList">
+                        <td>{{x.WorkDate}}</td>
+                        <td>{{x.LeaveTypeName}}</td>
+                        <td>{{x.DayStatus}}</td>
+                        <td>{{x.shiftTime}}</td>
+                        <td>{{x.punchTime}}</td>
+                        <td>{{x.ManualTime}}</td>
+                        <td><button ng-disabled="DisableActionButtons" ng-click="ConfirmRebate(x);" class="btn"><i class="glyphicon glyphicon-trash" tabindex="9"></i></button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>*@
+                        <div style="color:black;" ej-grid e-datasource="LeaveList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="5" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="LeaveTypeName" e-headertext="LeaveTypeName" e-width="5"></div>
+                                <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="5"></div>
+                                <div e-column e-field="shiftTime" e-headertext="shift Time" e-width="5"></div>
+                                <div e-column e-field="punchTime" e-headertext="punch Time" e-width="5"></div>
+                                <div e-column e-field="ManualTime" e-headertext="Manual Time" e-width="5"></div>
+                                <div e-column e-headertext="Actions" e-template="#ActionButton" e-width="2"></div>
+                            </div>
                         </div>
+                        <script type="text/template" id="ActionButton">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.ConfirmRebate(this);" style="margin: -6px;"></i></button>
+                        </script>
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
@@ -191,7 +199,7 @@
 
 <div class="aplos-grid-toggle">
     <div class="table-responsive aplos-grid-toggle">
-        <div style="color:black;"  ej-grid e-datasource="LeaveTransactionList" e-recorddoubleclick="Get"
+        <div style="color:black;" ej-grid e-datasource="LeaveTransactionList" e-recorddoubleclick="Get"
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
@@ -202,11 +210,12 @@
                 <div e-column e-field="Designation" e-headertext="Designation" e-width="5"></div>
                 <div e-column e-field="leaveTypeName" e-headertext="Leave Name" e-width="5"></div>
                 <div e-column e-field="LeaveDayType" e-headertext="Leave Day" e-width="5"></div>
-                <div e-column e-field="Fdate" e-headertext="From Date" e-width="5"></div>
-                <div e-column e-field="Tdate" e-headertext="To Date" e-width="5"></div>
+                <div e-column e-field="Fdate" e-headertext="From Date" e-width="5" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="Tdate" e-headertext="To Date" e-width="5" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
             </div>
         </div>
     </div>
+    <p style="color:blue;font-size:11px">Leave duration more than 1 day</p>
 </div>
 
 <ej-dialog id="rebate" title="Confirm Delete?" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDivId" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
@@ -215,8 +224,8 @@
     </p>
     <p class="text-right">
         <ul class="list-inline text-right">
-            <li><button ng-click="DeleteLeave();ConfirmrebateClose()" class="btn"><i class="glyphicon glyphicon-trash"></i> Yes</button></li>
-            <li><button ng-click="ConfirmrebateClose();" class="btn"><i class="glyphicon glyphicon-step-backward"></i> No</button></li>
+            <li><button ng-click="DeleteLeave();ConfirmrebateClose()" class="btn">Yes</button></li>
+            <li><button ng-click="ConfirmrebateClose();" class="btn"> No</button></li>
         </ul>
     </p>
 </ej-dialog>
