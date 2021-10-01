@@ -99,33 +99,6 @@
             <div class="tab-content" id="tabpaneldiv">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="form-elements form-horizontal" ng-form id="OTSlapFormId" name="OTSlapForm">
-                        @*<div class="table-responsive modal-table ">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Work Date</th>
-                        <th>Leave Type Name</th>
-                        <th>Day Status</th>
-                        <th>Shift (In - Out)</th>
-                        <th>Punch (In-Out)</th>
-                        <th>Manual Time</th>
-                        <th>Delete</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="x in LeaveList">
-                        <td>{{x.WorkDate}}</td>
-                        <td>{{x.LeaveTypeName}}</td>
-                        <td>{{x.DayStatus}}</td>
-                        <td>{{x.shiftTime}}</td>
-                        <td>{{x.punchTime}}</td>
-                        <td>{{x.ManualTime}}</td>
-                        <td><button ng-disabled="DisableActionButtons" ng-click="ConfirmRebate(x);" class="btn"><i class="glyphicon glyphicon-trash" tabindex="9"></i></button></td>
-                    </tr>
-                </tbody>
-            </table>
-
-        </div>*@
                         <div style="color:black;" ej-grid e-datasource="LeaveList"
                              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -146,50 +119,17 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                     <div class="form-elements form-horizontal">
-                        @*<div class="aplos-grid-toggle">
-                            <div class="table-responsive aplos-grid-toggle">*@
-                                <div style="color:black;" ej-grid e-datasource="AllLeaveList" 
-                                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
-                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                                    <div e-columns>
-                                        @*<div e-column e-field="ID" e-headertext="ID" e-width="2" e-isprimarykey="true" e-visible="false"></div>*@
-                                        <div e-column e-field="leaveTypeName" e-headertext="Leave Type" e-width="5"></div>
-                                        <div e-column e-field="LFromDate" e-headertext="From Date" e-width="5"></div>
-                                        <div e-column e-field="LToDate" e-headertext="To Date" e-width="5"></div>
-                                        <div e-column e-field="Approved" e-headertext="Approved" e-width="5"></div>
-                                        @*<div e-column e-field="leaveTypeName" e-headertext="Leave Name" e-width="5"></div>
-                                        <div e-column e-field="LeaveDayType" e-headertext="Leave Day" e-width="5"></div>
-                                        <div e-column e-field="Fdate" e-headertext="From Date" e-width="5"></div>
-                                        <div e-column e-field="Tdate" e-headertext="To Date" e-width="5"></div>*@
-                                    </div>
-                                </div>
-                            @*</div>
-                        </div>*@
-                        @*<div class="table-responsive modal-table ">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Leave Type</th>
-                                        <th>From Date</th>
-                                        <th>To Date</th>
-                                        <th>Approved</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr dir-paginate="x in AllLeaveList |itemsPerPage:leaveParameters.pageSize" total-items="leaveParameters.total_count">
-                                        <td>{{x.leaveTypeName}}</td>
-                                        <td>{{x.LFromDate}}</td>
-                                        <td>{{x.LToDate}}</td>
-                                        <td>{{x.Approved}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <dir-pagination-controls max-size="10"
-                                                     direction-links="true"
-                                                     boundary-links="true"
-                                                     on-page-change="getData(newPageNumber)">
-                            </dir-pagination-controls>
-                        </div>*@
+                        <div style="color:black;" ej-grid e-datasource="AllLeaveList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-field="leaveTypeName" e-headertext="Leave Type" e-width="5"></div>
+                                <div e-column e-field="LFromDate" e-headertext="From Date" e-width="5"e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="LToDate" e-headertext="To Date" e-width="5"e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="Approved" e-headertext="Approved" e-width="5"></div>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
