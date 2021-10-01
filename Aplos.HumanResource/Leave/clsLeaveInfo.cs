@@ -44,7 +44,7 @@ namespace Library.HumanResource.Leave
                             left join ShiftDefination sd on sd.SystemID = a.ShiftSystemID
 							left join [dbo].[LeaveTransaction] AS LT on LT.SystemID = d.LvTrnsSystemID
 							LEFT JOIN [dbo].[LeaveType] AS L ON L.Id=LT.LTSystemID
-                            where LvTrnsSystemID= '" + id + "' ";
+                            where LvTrnsSystemID= '" + id + "' order by d.WorkDate";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)
@@ -161,7 +161,7 @@ namespace Library.HumanResource.Leave
                             LEFT JOIN ORG.Department dpt on dpt.Id = e.DepartmentId
                             LEFT JOIN HKP.Designation ds on ds.Id = e.DesignationSystemID
                             WHERE  LT.EmpSystemID=e.SystemId and lt.PlantID = '" + plantId + @"'
-                            and e.SystemId = '" + EmpSystemid + @"' order by MONTH(ToDate)";
+                            and e.SystemId = '" + EmpSystemid + @"' order by LT.FromDate,MONTH(ToDate)";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)

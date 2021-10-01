@@ -205,7 +205,7 @@ function LeaveDeleteSingleDayController(commonMessage, $scope, $rootScope, baseS
     $scope.ConfirmRebate = function (obj) {
         var eDialog = $("#rebate").data("ejDialog");
         eDialog.open(obj);
-        $scope.data = obj;
+        $scope.data = obj.data;
         $("#rebate_wrapper").css({ 'position': 'fixed' }).css({ 'top': '200px' });
     };
     $scope.ConfirmrebateClose = function () {
