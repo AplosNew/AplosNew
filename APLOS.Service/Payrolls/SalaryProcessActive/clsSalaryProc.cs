@@ -287,7 +287,7 @@ namespace OTSBD
                 //clsCrossModule ob = new clsCrossModule();
                 GenericAttendance.clsCrossModule ob = new GenericAttendance.clsCrossModule();
                 strSQL = @"SELECT EmpSystemID, MIN(WorkDate) FromDate, MAX(WorkDate) ToDate, 
-                                    COUNT(WorkDate) TotalProcDate, 
+                                   CAST(COUNT(WorkDate) As int) TotalProcDate,
 		                            SUM(ISNULL(CAST(TotalPresent As decimal(18, 2)), '0.00')) TotalPresent, 
                                     SUM(ISNULL(CAST(TotalLate As decimal(18, 2)), '0.00')) TotalLate, 
 		                            SUM(ISNULL(CAST(TotalAbsent As decimal(18, 2)), '0.00')) TotalAbsent, 
