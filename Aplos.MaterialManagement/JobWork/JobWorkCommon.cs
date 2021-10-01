@@ -3551,6 +3551,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             data[i]["Id"] = "JWPD" + _Id;
                             JWPODId = data[i]["Id"].ToString();
                             //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                            data[i]["TransactionUoMId"] = data[i]["OutputMaterialUOMId"];
+                            data[i]["BaseUOMId"] = data[i]["OutputMaterialUOMId"];
+
                             data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["TaxAmount"] = SumTax;
@@ -3584,6 +3587,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         {
 
                             //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                            data[i]["TransactionUoMId"] = data[i]["OutputMaterialUOMId"];
+                            data[i]["BaseUOMId"] = data[i]["OutputMaterialUOMId"];
+
                             data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["TaxAmount"] = SumTax;
