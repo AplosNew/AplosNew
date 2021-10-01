@@ -1573,35 +1573,40 @@
 </div>
 
 <div class="table-responsive aplos-grid-toggle">
-	@*<div class="content-container-fluid" style="color:black;overflow:scroll">
+	<div class="content-container-fluid" style="color:black;">
 			<div style="color:black;" id="GridIndividualReport" ej-grid e-datasource="IndividualReportList"
-				 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" ng-show="ShowReport"
+				 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" ng-show="ShowReport" e-allowscrolling="true"
 				 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-				<div e-columns>
-					<div e-column e-field="ContractId" e-headertext="Contract Id" e-width="20"></div>
-					<div e-column e-field="Id" e-headertext="Receipt Id" e-width="20"></div>
-					<div e-column e-field="ReceiveDate" e-headertext="Received Date" e-width="30"></div>
-					<div e-column e-field="EmployeeCode" e-headertext="By Whom Code" e-width="30"></div>
-					<div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="30"></div>
-					<div e-column e-field="DocumentReferenceNo" e-headertext="Document Reference No" e-width="30"></div>
-					<div e-column e-field="ReceiveDocumentDate" e-headertext="Document Date" e-width="30"></div>
-					<div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="30"></div>
-					<div e-column e-field="ReceiveInvoiceDate" e-headertext="Invoice Date" e-width="30"></div>
-					<div e-column e-field="GateEntryNoId" e-headertext="Gate Entry No" e-width="30"></div>
-					<div e-column e-field="Remarks" e-headertext="Remarks" e-width="30"></div>
+                <div e-columns>
+                    <div e-column e-field="ContractId" e-headertext="PO No" e-width="50"></div>
+                    <div e-column e-field="ReceiveId" e-headertext="Receipt Id" e-width="50"></div>
+                    <div e-column e-field="ReceiveDate" e-headertext="Received Date" e-width="50"></div>
+                    <div e-column e-field="EmployeeCode" e-headertext="By Whom Code" e-width="50"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="50"></div>
+                    <div e-column e-field="DocRefNo" e-headertext="Document Reference No" e-width="50"></div>
+                    <div e-column e-field="ReceiveDocumentDate" e-headertext="Document Date" e-width="50"></div>
+                    <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="50"></div>
+                    <div e-column e-field="ReceiveInvoiceDate" e-headertext="Invoice Date" e-width="50"></div>
+                    <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="50"></div>
+                    <div e-column e-field="TotalReceivedQty" e-headertext="Received Qty" e-width="50"></div>
+                    <div e-column e-headertext="Actions" e-width="100">
+                        @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>*@
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
+                    </div>
 
-					<div e-column e-template="#PrintFileTab" e-headertext="Print" e-width="20"></div>
+                    @*<div e-column e-template="#PrintFileTab" e-headertext="Print" e-width="20"></div>*@
 
-				</div>
+                </div>
 			</div>
-			<script type="text/template" id="PrintFileTab">
+			@*<script type="text/template" id="PrintFileTab">
 				<div class="common-btn">
 					<ul class="list-inline text-left">
 						<li><button ng-click="$parent.ConfirmPrintTab(data);" class="btn" tabindex="9"><i class="fa fa-file-excel-o" style="top: 1px;"></i></button></li>
 					</ul>
 				</div>
-			</script>
-		</div>*@
+			</script>*@
+		</div>
 	<div>
 		<div class="tab-design" id="tab_show1" ng-show="setStatus === 'Selected'">
 			<div class="site-tab">
@@ -1800,9 +1805,11 @@
 									 e-detailstemplate="detailTemp"
 									 e-detailsdatabound="detailgrid">
 									<div e-columns>
-										<div e-column e-headertext="Actions" e-width="50">
-											<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataCheckedHR');" style="margin: -6px;"></i></button>
-										</div>
+                                        <div e-column e-headertext="Actions" e-width="50">
+                                            @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>*@
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
+                                        </div>
 										@*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
 										<div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
 										<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
@@ -1951,9 +1958,11 @@
 									 e-detailstemplate="detailTemp"
 									 e-detailsdatabound="detailgrid">
 									<div e-columns>
-										<div e-column e-headertext="Actions" e-width="50">
-											<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataApprovedChecked');" style="margin: -6px;"></i></button>
-										</div>
+                                        <div e-column e-headertext="Actions" e-width="50">
+                                            @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>*@
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
+                                        </div>
 										<div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
 										<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
 										<div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -2105,9 +2114,11 @@
 									 e-detailstemplate="detailTemp"
 									 e-detailsdatabound="detailgrid">
 									<div e-columns>
-										<div e-column e-headertext="Actions" e-width="50">
-											<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataApprovedHR');" style="margin: -6px;"></i></button>
-										</div>
+                                        <div e-column e-headertext="Actions" e-width="50">
+                                            @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>*@
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
+                                        </div>
 										<div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
 										<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
 										<div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -2271,9 +2282,11 @@
 									 e-detailstemplate="detailTemp"
 									 e-detailsdatabound="detailgrid">
 									<div e-columns>
-										<div e-column e-headertext="Actions" e-width="50">
-											<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMaster2');" style="margin: -6px;"></i></button>
-										</div>
+                                        <div e-column e-headertext="Actions" e-width="50">
+                                            @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>*@
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
+                                        </div>
 										@*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
 										<div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
 										<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
@@ -2439,9 +2452,11 @@
 									 e-detailstemplate="detailTemp"
 									 e-detailsdatabound="detailgrid">
 									<div e-columns>
-										<div e-column e-headertext="Actions" e-width="50">
-											<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataPosted');" style="margin: -6px;"></i></button>
-										</div>
+                                        <div e-column e-headertext="Actions" e-width="50">
+                                            @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>*@
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
+                                        </div>
 										@*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
 										<div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
 										<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>

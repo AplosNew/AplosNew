@@ -403,8 +403,17 @@ namespace Aplos.Areas.Products.Controllers
             return null;
         }
 
+		// Job Work Transformation Issue
+		[Authorize, HttpGet]
+		public ActionResult JWValAddedIssueReport(string grnId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			_inventoryReveiveService.JWValAddedIssueReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+			return null;
+		}
 
-        [Authorize, HttpGet]
+
+		[Authorize, HttpGet]
 		public ActionResult AssetIssueReport(string grnId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

@@ -50,7 +50,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate='" + WkDate + "'and PlantID='" + PlantValue + "'", out DataSet dsRef, false, false, "", "1");
 
-                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where WorkDate='" + WkDate + "'", out DataSet dsEarnedLeave, false, false, "", "1");
+                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'", out DataSet dsEarnedLeave, false, false, "", "1");
                         objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where 1=2", out DataSet dsEarnedNewLeave, false, false, "", "1");
 
                         for (int i = 0; i < UnProcessed.Tables[0].Rows.Count; i++)
@@ -848,6 +848,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.BeginEdit();
 
                                 dr["IsOD"] = 1;
+                                dr["IsManualDayStatus"] = true;
                                 dr["ManualDayStatus"] = "OD";
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
@@ -3126,9 +3127,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						left join DayStatusHeader dh on dh.Id=dc.headerId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where WorkDate='"+PreDay+@"' 
-						and dt.DayType=ISNULL(p.ManualDayStatus,p.ProcessDayStatus)
-						and ei.PlantId='"+Plant+"'";
+						where WorkDate='"+PreDay+ @"' 
+						and dt.DayType=ISNULL(ISNULL(p.SandwichStatus,p.ManualDayStatus),p.ProcessDayStatus)
+						and ei.PlantId='" + Plant+"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");

@@ -526,6 +526,8 @@ namespace Aplos.Areas.Accounts.Controllers
         #region InventoryJobWorkReceived
         [HttpPost]
         public JsonResult InventoryJobWorkReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
+        , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList
+        , IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
         , IEnumerable<VoucherDetailViewModel> changeInInventoryList
         , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList
         )
@@ -595,7 +597,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 return Json(new
                 {
-                    Message = string.Format(AplosMessage.VoucherSave, _inventoryPayableService.InventoryJobWorkReceivedPost(voucherVM, inventoryJobWorkWIPList, changeInInventoryList
+                    Message = string.Format(AplosMessage.VoucherSave, _inventoryPayableService.InventoryJobWorkReceivedPost(voucherVM, inventoryJobWorkWIPList, inventoryReceiveDetailVMList, inventoryPayableVMList, changeInInventoryList
                         , inventoryJobWorkGIRIList))
                 });
 
