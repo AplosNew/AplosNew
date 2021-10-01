@@ -4843,9 +4843,11 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                         --   ,round(((IIH.Rate/86) * IR.ToCurrencyRate),4) as BaseRate
                          , CC.Code as BaseCurrency
                        --  ,isnull(round(((IIH.Rate/86) * IR.ToCurrencyRate * IIH.Qty),2),'0') as TotalAmount
-					   ,isnull(round(IIH.Rate,4),'0') as TransactionRate
+					   --,isnull(round(IIH.Rate,4),'0') as TransactionRate
+					   ,isnull(round((IIH.BooksCurrencyBaseRate/86),4),'0') as TransactionRate
 						,isnull(round(IIH.BooksCurrencyBaseRate,4),'0') as BaseRate
-						,isnull(ROUND(IIH.TotalMaterialBooksCurrencyAmount,2),'0') as TotalAmount
+						--,isnull(ROUND(IIH.TotalMaterialBooksCurrencyAmount,2),'0') as TotalAmount
+						,isnull(ROUND(IIH.TotalAmount,2),'0') as TotalAmount
                         from dbo.JobWorkTransformationContractChild om left join TRN.InventoryIssueDetail IID on om.Id=IID.JWTCMID
                         left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
                         left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
