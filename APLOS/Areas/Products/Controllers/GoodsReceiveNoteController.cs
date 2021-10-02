@@ -4037,6 +4037,17 @@ UNION ALL
 			return Json(new { Message = AplosMessage.Deleted });
 		}
 
+		[Authorize, HttpGet]
+		public JsonResult GetJWReceiptDataForAllocation()
+		{
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+			return Json(obj.GetJWReceiptDataForAllocation(), JsonRequestBehavior.AllowGet);
+
+			
+		}
+
 	}//
 
 }
