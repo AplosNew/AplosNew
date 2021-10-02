@@ -37,5 +37,8 @@ namespace Library.Service.SalesManagements
            , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList
             , IEnumerable<SalesServiceViewModel> salesServiceDetailGLList
             , SalesPacking packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList, string packingVoucherTypeId);
+
+
+        void DeleteSale(string invoiceId, string voucherId);
     }
 }
