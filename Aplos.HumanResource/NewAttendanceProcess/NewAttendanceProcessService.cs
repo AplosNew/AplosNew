@@ -37,7 +37,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 }
                 else
-                {                    
+                {
                     #region AssignedShift Process           
                     DataSet UnProcessed;
                     UnProcessedEmp(Date, out UnProcessed, PlantValue); //DataSet of Employees For Row Creation
@@ -317,22 +317,22 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             }
                         }
-                            
+
                         var sql = @"update AttdnProcessData set ShiftSystemID='" + ShiftId + @"',ShiftDuration='" + ShiftDurn + @"',ShiftInTime='" + ShiftIn + @"',
                                            ShiftOutTime='" + ShiftOut + @"',ShiftHalfDayDuration='" + HalfDayDuration + @"',ShiftShortDuration='" + ShortDuration + @"',
                                            ShiftFullDayDuration='" + FullDayDuration + @"',ShiftHoursWithoutOT='" + HoursWithoutOT + @"' where RowId 
                                            IN(" + EmpSet + ")";
 
-                            ConnectionManager.DAL.ConManager objCone = null;
-                            objCone = new ConnectionManager.DAL.ConManager("1");
-                            objCone.OpenConnection("1");
-                            objCone.BeginTransaction();
+                        ConnectionManager.DAL.ConManager objCone = null;
+                        objCone = new ConnectionManager.DAL.ConManager("1");
+                        objCone.OpenConnection("1");
+                        objCone.BeginTransaction();
 
-                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                            objCone.CommitTransaction();
+                        objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                        objCone.CommitTransaction();
 
 
-                        
+
 
                     }
                     #endregion
@@ -421,8 +421,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     if (Leavedata.Tables[0].Rows.Count > 0)
                     {
                         string WorkDate = Leavedata.Tables[0].Rows[0][@"WorkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
-
+                        
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and PlantID ='" + PlantValue + "' ";
 
@@ -430,12 +429,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < Leavedata.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = Leavedata.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            string RowId= Leavedata.Tables[0].Rows[i][@"RowId"].ToString();
                             string LTSystemID = Leavedata.Tables[0].Rows[i][@"LTSystemID"].ToString();
                             decimal LeaveDuration = Convert.ToDecimal(Leavedata.Tables[0].Rows[i][@"LeaveDuration"].ToString());
                             string LeaveStatus = Leavedata.Tables[0].Rows[i][@"Code"].ToString();
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
 
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
@@ -848,6 +847,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.BeginEdit();
 
                                 dr["IsOD"] = 1;
+                                dr["IsManualDayStatus"] = true;
                                 dr["ManualDayStatus"] = "OD";
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
@@ -1084,6 +1084,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             {
                 var sql = @"select distinct FORMAT(D.WorkDate,'yyyy-MMM-dd')WorkDate,
                     LT.PlantID,LT.EmpSystemID,
+                    Format(D.WorkDate,'yyyyMMdd')+LT.EmpSystemID AS RowId, 
                     D.LeaveDuration,lt.LTSystemID,LTP.Code
                     from LeaveTransactionDetails D 
                     LEFT JOIN LeaveTransaction LT ON LT.SystemID=D.LvTrnsSystemID
@@ -2870,8 +2871,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
-                earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
-                DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0 where PlantID='"+Plant+"' and WorkDate='"+PreDay+"'";
+                earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,DayTypeOtApplicable=null,
+                DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0 where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -3126,9 +3127,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						left join DayStatusHeader dh on dh.Id=dc.headerId
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where WorkDate='"+PreDay+@"' 
-						and dt.DayType=ISNULL(p.ManualDayStatus,p.ProcessDayStatus)
-						and ei.PlantId='"+Plant+"'";
+						where WorkDate='"+PreDay+ @"' 
+						and dt.DayType=ISNULL(ISNULL(p.SandwichStatus,p.ManualDayStatus),p.ProcessDayStatus)
+						and ei.PlantId='" + Plant+"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -3308,31 +3309,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         MONTH(WorkDate) = MONTH('" + Date + @"') AND 
 						YEAR(WorkDate) = YEAR('" + Date + @"')                       					
                         GROUP BY EmpSystemID) as dd";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public void PastDOJ(out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
-                     CONVERT(date,e.DateAdded) as Today,m.ShiftDefinationId as ShiftId,s.ShiftDuration,
-                     s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
-                     CASE WHEN s.InTime>s.OutTime THEN DATEADD(DAY,1,s.OutTime) ELSE s.OutTime END as ShiftOut,
-				     e.DateAdded
-                     FROM EmployeeInformation E
-                     left join mst.ManpowerBudget m on m.Id=e.BudgetCode
-                     left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
-                     WHERE CONVERT(DATE,'2021-06-01'--Here getdate() will come
-                     )=CONVERT(date,E.DateAdded) 
-				     and DOJ<= CONVERT(DATE,'2021-06-01')
-				     and e.PlantId='202016'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -4076,6 +4052,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dry["DayStatus"] = DayType;
                                     dry["Sandwichstatus"] = DayType;
                                     dry["ManualFlag"] = 1;
+                                    dry["IsLock"] = 0;
+                                    dry["LockedBy"] = DBNull.Value;
+                                    dry["LockedDate"] = DBNull.Value;
                                     dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                     dry["UpdatedBy"] = "Sandwich";
                                     dry.EndEdit();
@@ -6387,6 +6366,121 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw e;
             }
         }
+        #endregion
+
+        #region PastDOJ Source Data
+
+        public void PastDOJ(out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
+                     CONVERT(date,e.DateAdded) as Today,m.ShiftDefinationId as ShiftId,s.ShiftDuration,
+                     s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
+                     CASE WHEN s.InTime>s.OutTime THEN DATEADD(DAY,1,s.OutTime) ELSE s.OutTime END as ShiftOut,
+				     e.DateAdded
+                     FROM EmployeeInformation E
+                     left join mst.ManpowerBudget m on m.Id=e.BudgetCode
+                     left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
+                     WHERE CONVERT(DATE,'2021-06-01'--Here getdate() will come
+                     )=CONVERT(date,E.DateAdded) 
+				     and DOJ<= CONVERT(DATE,'2021-06-01')
+				     and e.PlantId='202016'";
+
+                var sqlz = @"SELECT e.SystemId as EmpId,FORMAT(DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
+                     m.ShiftDefinationId as ShiftId,s.ShiftDuration,
+                     s.FullDayDuration,s.ShortDuration,s.HalfDayDuration,s.HoursWithoutOT,S.InTime as ShiftIn ,
+                     CASE WHEN s.InTime>s.OutTime THEN DATEADD(DAY,1,s.OutTime) ELSE s.OutTime END as ShiftOut,
+				     Op.InPunchStartTime as PlantInPunchStartTime, e.DateAdded as EntryTime
+                     FROM EmployeeInformation E
+                     left join mst.ManpowerBudget m on m.Id=e.BudgetCode
+                     left join ShiftDefination s on s.SystemID=m.ShiftDefinationId
+					 left join org.Plant pl on pl.Id=e.PlantId
+                     left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id                
+                     WHERE CONVERT(DATE,'2021-9-29'--Here getdate() will come
+                     )=CONVERT(date,E.DateAdded) 
+				     and DOJ<= CONVERT(DATE,'2021-09-29')
+				     and e.PlantId='202016'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public void MissingRowsDOJ(out DataSet ds, string Plant,string Date)
+        {
+            // This DataSet to find all the Entries that are done Today 
+            // Whose DOJ is less than Today
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"SELECT e.SystemId as EmpId,FORMAT(e.DOJ,'yyyy-MM-dd') as DOJ,e.GroupID, e.PlantId,
+                     FORMAT(e.DateAdded,'yyyy-MM-dd') as ToDate,
+				     e.DateAdded as EntryTime
+                     FROM EmployeeInformation E
+                     WHERE CONVERT(DATE,'"+Date+@"'
+                     )=CONVERT(date,E.DateAdded) 
+				     and DOJ<= CONVERT(DATE,'"+Date+"') and e.PlantId='"+Plant+@"'
+					 order by doj asc";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        #endregion
+
+        #region PastDOJ Row Creation Process
+        public void PastDOJProcess(string Date, string PlantValue)
+        {
+            try
+            {
+
+                DataSet PlantLock;
+                PlantLockCheck(Date, out PlantLock, PlantValue);
+                if (PlantLock.Tables[0].Rows.Count > 0)
+                {
+
+                }
+                else
+                {
+                    string EmpMaster = "''";
+                    #region Previous Day Duration EarlyIn Late EarlyOut OverStay
+                    DataSet MissingDOJ;
+                    MissingRowsDOJ(out MissingDOJ, PlantValue,Date);
+                    if (MissingDOJ.Tables[0].Rows.Count > 0)
+                    {
+                        // Dataset Generated for Duration EarlyIn EarlyOut Calculation
+                        string StartDate = MissingDOJ.Tables[0].Rows[0][@"DOJ"].ToString();
+                        string ToDate = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
+
+                        for (int i = 0; i < MissingDOJ.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = MissingDOJ.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            CheckerFunction(ref EmpMaster, EmpId);
+                        }
+                    }
+
+                    #endregion
+
+
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
         #endregion
 
         #region Save Function

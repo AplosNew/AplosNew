@@ -940,6 +940,10 @@ var upanelApp = angular
 
     .controller("PostInvoiceController", PostInvoiceController)
 
+    .controller('GRNRequisitionSOAllocationController', GRNRequisitionSOAllocationController)
+    .controller('salaryProcessedReportControllerNew', salaryProcessedReportControllerNew)
+    .controller('salaryStructureAndProcessedReportNewController', salaryStructureAndProcessedReportNewController)
+
     .config(AccessControllerConfig)
     .config(accountConfig)
     .config(bankConfig)

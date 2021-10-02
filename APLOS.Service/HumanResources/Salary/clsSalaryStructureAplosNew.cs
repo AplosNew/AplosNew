@@ -297,10 +297,12 @@ public class clsSalaryStructureAplosNew
                     if (string.IsNullOrEmpty(incrementHistory.ToGivenDesignationId))
                     {
                         incrementHistory.ToGivenDesignationId = drEmpBasic["GivenDesignationId"].ToString();
+                        incrementHistory.FromGivenDesignationId = drEmpBasic["GivenDesignationId"].ToString();
                     }
                     if (string.IsNullOrEmpty(incrementHistory.FromLegalDesignationId))
                     {
                         incrementHistory.ToLegalDesignationId = drEmpBasic["LegalDesignationId"].ToString();
+                        incrementHistory.FromLegalDesignationId = drEmpBasic["LegalDesignationId"].ToString();
                     }
 
                     #endregion

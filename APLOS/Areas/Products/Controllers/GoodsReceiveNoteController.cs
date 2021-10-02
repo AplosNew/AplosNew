@@ -188,6 +188,13 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			return View();
 		}
+
+		[Authorize]
+		public ActionResult GRNRequitionSOAllocation() 
+		{
+			return View();
+		}
+		
 		#endregion Aplos
 
 		#region GRN-By-PO
@@ -4028,6 +4035,17 @@ UNION ALL
 		{
 			_inventoryDetailService.IssueSlipDeleteFn(issueslipDetailId);
 			return Json(new { Message = AplosMessage.Deleted });
+		}
+
+		[Authorize, HttpGet]
+		public JsonResult GetJWReceiptDataForAllocation()
+		{
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+			return Json(obj.GetJWReceiptDataForAllocation(), JsonRequestBehavior.AllowGet);
+
+			
 		}
 
 	}//

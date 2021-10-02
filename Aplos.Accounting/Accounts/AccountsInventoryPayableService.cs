@@ -4435,17 +4435,18 @@ order by IR.GRNDate desc";
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
-		public IEnumerable<object> GetGRNDetailListForPostInvoice(string inventoryReceiveId)
+		public IEnumerable<object> GetGRNDetailListForPostInvoice(string inventoryReceiveId, string masterId)
 		{
 			try
 			{
-				var sql = @"SELECT ''Id,IRD.InventoryReceiveId ,IRD.Id InventoryReceiveDetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
+				var sql = @"SELECT PID.Id,IRD.InventoryReceiveId ,IRD.Id InventoryReceiveDetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
 	                        ,MM.UserName MaterialMaster,IRD.MaterialStorageId,IRD.BaseUOMId,IM.ArticleId,ART.StandardName Article,IM.FirstCharacteristicsId,FC.UserName AS FirstCharacteristics
 	                        ,IM.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
 	                        ,IM.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,IM.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
 	                        ,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
-	                        ,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,IRD.TransactionQty,TransactionAmount=FORMAT((FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')*IRD.TransactionQty),'N2')
-						    ,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')
+	                         ,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,ISNULL(PIND.OtherQty,0) OtherQty,IRD.TransactionQty,IRD.TransactionQty TQty
+							,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')
+							,TransactionAmount=FORMAT((FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')*IRD.TransactionQty),'N2')						    
 							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate						
                         FROM TRN.[InventoryReceiveDetail] AS IRD  
 						LEFT JOIN TRN.InventoryReceive AS IR ON IRD.InventoryReceiveId = IR.Id
@@ -4461,6 +4462,9 @@ order by IR.GRNDate desc";
                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id                    
                         LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+						LEFT JOIN dbo.PostGRNInvoiceDetail PID ON PID.InventoryReceiveId=IRD.InventoryReceiveId AND PID.InventoryReceiveDetailId=IRD.Id AND PID.PostGRNInvoiceId='" + masterId + @"'
+						LEFT JOIN (SELECT InventoryReceiveId,InventoryReceiveDetailId,ISNULL(SUM(TransactionQty),0) OtherQty FROM dbo.PostGRNInvoiceDetail WHERE PostGRNInvoiceId<>'"+ masterId + @"'
+                            GROUP BY InventoryReceiveId,InventoryReceiveDetailId) PIND ON PIND.InventoryReceiveId=IRD.InventoryReceiveId AND PIND.InventoryReceiveDetailId=IRD.Id
                         Where IRD.InventoryReceiveId " + inventoryReceiveId + "";
 				return _sqlRepository.GetDataCollection(sql);
 			}

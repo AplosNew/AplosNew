@@ -14,7 +14,6 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         Id: null, InvoiceDate: null, DocRefNo: null, PartyId: null, PartyPlantId: null, CurrencyId: null, ToCurrencyRate: null, Narration: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
-
   
     $scope.getDataList = function () {
         $http({
@@ -39,6 +38,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.GetSavedGRNListForPostInvoice();
         });
     };
+
     $scope.GetSavedGRNListForPostInvoice = function () {
         $http({
             method: 'GET',
@@ -47,20 +47,29 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.TempList = response.data;
+            if ($scope.TempList.length > 0) {
+                var uniqueInventoryReceiveId = removeDuplicates($scope.TempList, 'Id');
+                var wcInventoryReceiveId = "";
+                if (uniqueInventoryReceiveId.length > 0) {
+                    wcInventoryReceiveId = "IN(";
+                    wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcInventoryReceiveId;
+            }
+            $scope.GetDetailData($scope.sqlInStatement);
         });
     };
-
 
     $scope.Get = function (obj) {
         $scope.model = obj.data;
         $scope.modelNew = Object.assign({}, $scope.model);
-        $scope.getDetailDataList();
+        //$scope.getDetailDataList();
+        $scope.GetSavedGRNListForPostInvoice();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
-
 
     $scope.approvedGRNList = [];
     $scope.getPopUpData = function () {
@@ -200,7 +209,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.GetDetailData = function (inventoryReceiveIds) {
         $http({
             method: 'GET',
-            url: 'Accounts/PostInvoice/GetGRNDetailListForPostInvoice?inventoryReceiveId=' + inventoryReceiveIds
+            url: 'Accounts/PostInvoice/GetGRNDetailListForPostInvoice?inventoryReceiveId=' + inventoryReceiveIds + '&masterId=' + $scope.modelNew.Id
         }).then(function successCallback(response) {
             $scope.InventoryReceiveDetailList = response.data;
         });
@@ -240,7 +249,6 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     };
 
     $scope.Action = 'Save';
-
     $scope.Save = function () {
         try {
             angular.copy($scope.modelNew, $scope.model);

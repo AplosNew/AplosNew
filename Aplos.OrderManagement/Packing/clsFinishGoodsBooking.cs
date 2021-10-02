@@ -397,14 +397,14 @@ namespace Library.OrderManagement.Packing
 
                             drInventoryReceiveDetail["BaseQty"] = item["Qty"];
                             drInventoryReceiveDetail["GRNQty"] = item["Qty"];
-                            drInventoryReceiveDetail["MaterialTranRate"] = item["Rate"];
+                            drInventoryReceiveDetail["MaterialTranRate"] = Math.Round(Convert.ToDecimal(item["Rate"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 4);
                             drInventoryReceiveDetail["MaterialTranAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
                             drInventoryReceiveDetail["TotalMaterialTranAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
                             drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
                             drInventoryReceiveDetail["GRNTotalAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
                             drInventoryReceiveDetail["GrossAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
-                            drInventoryReceiveDetail["BooksCurrencyBaseRate"] = item["Rate"];
-                            drInventoryReceiveDetail["TrnCurrencyBaseRate"] = item["Rate"];
+                            drInventoryReceiveDetail["BooksCurrencyBaseRate"] = Math.Round(Convert.ToDecimal(item["Rate"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 4);
+                            drInventoryReceiveDetail["TrnCurrencyBaseRate"] = Math.Round(Convert.ToDecimal(item["Rate"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 4);
                             drInventoryReceiveDetail["MaterialStorageId"] = data["MaterialStorageId"];
                             drInventoryReceiveDetail["DiscountAmount"] = 0;
                             drInventoryReceiveDetail["BaseUoMFactor"] = 1;
@@ -694,15 +694,15 @@ namespace Library.OrderManagement.Packing
 
                             drInventoryReceiveDetail["BaseQty"] = item["Qty"];
                             drInventoryReceiveDetail["GRNQty"] = item["Qty"];
-                            drInventoryReceiveDetail["MaterialTranRate"] = item["Rate"];
+                            drInventoryReceiveDetail["MaterialTranRate"] = Math.Round(Convert.ToDecimal(item["Rate"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 4); 
                             drInventoryReceiveDetail["MaterialTranAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]),2);
                             drInventoryReceiveDetail["TotalMaterialTranAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
                             drInventoryReceiveDetail["TotalMaterialBooksCurrencyAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
                             drInventoryReceiveDetail["GRNTotalAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
                             drInventoryReceiveDetail["GrossAmount"] = Math.Round(Convert.ToDecimal(item["Amount"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 2);
                             drInventoryReceiveDetail["DiscountAmount"] = 0;
-                            drInventoryReceiveDetail["BooksCurrencyBaseRate"] = item["Rate"];
-                            drInventoryReceiveDetail["TrnCurrencyBaseRate"] = item["Rate"];
+                            drInventoryReceiveDetail["BooksCurrencyBaseRate"] = Math.Round(Convert.ToDecimal(item["Rate"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 4);
+                            drInventoryReceiveDetail["TrnCurrencyBaseRate"] = Math.Round(Convert.ToDecimal(item["Rate"]) * Convert.ToDecimal(data["ToCurrencyRate"]), 4);
                             drInventoryReceiveDetail["MaterialStorageId"] = data["MaterialStorageId"];
 
                             drInventoryReceiveDetail["BaseUoMFactor"] = 1;
@@ -1476,18 +1476,18 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 					WHERE IR.VoucherId IS NULL  AND E.PlantId='" + plantId + @"'";
             return _sqlRepository.GetDataCollection(sql);
         }
-        public IEnumerable<object> GetVendorPayableGLBudgetActivity(string receiveId, string companyId, string plantId, string companypartyAccountGroupId)
+        public IEnumerable<object> GetFGInventoryGLBudgetActivity(string receiveId, string companyId, string plantId)
         {
-            var sql = @"DECLARE @receiveId varchar(10)='" + receiveId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companypartyAccountGroupId + @"',@countryId varchar(10)
+            var sql = @"DECLARE @receiveId varchar(10)='" + receiveId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 
-                            SELECT distinct IR.Id,IRD.Id AS InventoryReceiveDetailId, 'Vendor' AS OtherName, 'Cr' AS TrnType ,MM.MaterialGroupMasterId, NULL AS TaxCategoryId
-                            ,GLGeneralInfoId =case WHEN MM.IsAsset=0 THEN MGPGL.GLGeneralInfoId  ELSE FAG.VendorReconGLId END
+                            SELECT distinct IR.Id,IRD.Id AS InventoryReceiveDetailId, 'FGInventory' AS OtherName, 'Dr' AS TrnType ,MM.MaterialGroupMasterId, NULL AS TaxCategoryId
+                            ,GLGeneralInfoId =case WHEN MM.IsAsset=0 THEN MGGL.InventoryGLId  ELSE FAG.AssetUnderConstructionGLId END
 							,GLGeneralInfoCode =case WHEN MM.IsAsset=0 THEN GL.AccountCode  ELSE GLF.AccountCode END
 							,GLGeneralInfoName =case WHEN MM.IsAsset=0 THEN GL.UserName  ELSE GLF.UserName END
-							,BudgetMasterId =case WHEN MM.IsAsset=0 THEN MGPGL.BudgetMasterId  ELSE FAG.VendorReconBudgetMasterId END
+							,BudgetMasterId =case WHEN MM.IsAsset=0 THEN MGGL.InventoryBudgetMasterId  ELSE FAG.AssetUnderConstructionBudgetMasterId END
 							,BudgetCode =case WHEN MM.IsAsset=0 THEN B.Code  ELSE BF.Code END
 							,BudgetName =case WHEN MM.IsAsset=0 THEN B.UserName  ELSE BF.UserName END
-							,ActivityId =case WHEN MM.IsAsset=0 THEN MGPGL.ActivityId  ELSE FAG.VendorReconActivityId END
+							,ActivityId =case WHEN MM.IsAsset=0 THEN MGGL.InventoryActivityId  ELSE FAG.AssetUnderConstructionActivityId END
 							,ActivityCode =case WHEN MM.IsAsset=0 THEN A.Code  ELSE AF.Code END
 							,ActivityName =case WHEN MM.IsAsset=0 THEN A.UserName  ELSE AF.UserName END
 							
@@ -1498,24 +1498,19 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
 						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
 								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
-						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Vendor')AS CP ON IR.PartyId = CP.PartyId
-						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
-						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id
-						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
-						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGGL.InventoryGLId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGGL.InventoryBudgetMasterId= BM2.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGGL.InventoryActivityId= A.Id
 
-                        LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAVGL.VendorReconGLId ,FAVGL.VendorReconBudgetMasterId,FAVGL.VendorReconActivityId 
-						FROM HKP.FixedAssetMasterBudgetTag FAMBT 
-						LEFT JOIN HKP.FixedAssetMasterVendorReconGL FAVGL ON 
-						FAMBT.FixedAssetMasterId=FAVGL.FixedAssetMasterId  AND FAVGL.PartyAccountGroupId=@partyAccountGruopId) AS FAG 
+                        LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAMG.AssetUnderConstructionGLId ,FAMG.AssetUnderConstructionBudgetMasterId,FAMG.AssetUnderConstructionActivityId 
+						FROM HKP.FixedAssetMasterBudgetTag FAMBT LEFT JOIN HKP.FixedAssetMasterGL FAMG ON FAMBT.FixedAssetMasterId=FAMG.FixedAssetMasterId) AS FAG 
 						ON FAG.BudgetMasterId=MM.BudgetMasterId
-
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON FAG.VendorReconGLId=GLF.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.VendorReconBudgetMasterId= BMF.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON FAG.AssetUnderConstructionGLId=GLF.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.AssetUnderConstructionBudgetMasterId= BMF.Id
 						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
-						LEFT JOIN [HKP].[Activity] AS AF ON FAG.VendorReconActivityId= AF.Id
+						LEFT JOIN [HKP].[Activity] AS AF ON FAG.AssetUnderConstructionActivityId= AF.Id
 
 						WHERE IRD.InventoryReceiveId=@receiveId";
             return _sqlRepository.GetDataCollection(sql);
