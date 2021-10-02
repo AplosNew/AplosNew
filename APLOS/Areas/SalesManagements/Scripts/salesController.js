@@ -2701,7 +2701,40 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     $scope.CommercialInvoiceReport = function (data) {
         location.href = "Sales/CommercialInvoice?salesId=" + data.Id;
     };
-
-
     //#endregion
+
+    $scope.invoiceId = null;
+    $scope.confirmDelete = function (invoiceId, voucherId) {
+        $scope.invoiceId = invoiceId;
+        $scope.voucherId = voucherId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
+
+    $scope.deleteSales = function (invoiceId, voucherId) {
+        $http({
+            method: "POST",
+            url: 'SalesManagements/Sales/DeleteSales/',
+            data: {
+                "invoiceId": invoiceId, "voucherId": voucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.invoiceId = null;
+                $scope.voucherId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+
 }

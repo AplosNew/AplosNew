@@ -807,4 +807,44 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         $scope.seletedLST = [];
         $scope.GridListPO = [];
     }
+
+    $scope.onClickDeletePopUp = function (x) {
+        var data = x;
+        $scope.purDocAcceptanceId = data.Id;
+        $scope.voucherId = data.VoucherId;
+  
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+    };
+
+
+
+    $scope.delete = function (PDocAccId, vId) {
+        $http({
+            method: "POST",
+            url: 'Products/PurchaseDocumentsAcceptance/DeletePurchaseDocAcceptance',
+            data: {
+                "pdocAccpId": PDocAccId, "voucherId": vId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.purDocAcceptanceId = null;
+                $scope.voucherId = null;
+        
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+
+
 }

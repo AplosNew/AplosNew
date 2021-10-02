@@ -509,6 +509,26 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost]
+        public ActionResult DeleteMasterOrderSalePost(string salesId, string voucherId)
+        {
+            AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
+            //if (tDSTaxVoucherId != null)
+            //    throw new CustomException("TDS voucher no  " + tDSVoucherNo + "need to delete first!");
+
+            _accountsSalesService.DeleteMasterOrderSalePost(salesId, voucherId);
+
+            //if (type == NewBeneficiaryType.Vendor.ToString())
+            //    _invoiceService.DeleteInventoryPayable(grnId, invoiceId, voucherId);
+            //if (type == NewBeneficiaryType.Employee.ToString())
+            //    _employeePayableService.DeleteGRNBeneficiaryEmployee(grnId, invoiceId, voucherId);
+
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+
+
+        [HttpPost]
         public JsonResult PostMasterOrderSales(VoucherViewModel sales, IEnumerable<SalesMaterialViewModel> salesDetailVMList
             , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList)
         {
@@ -701,5 +721,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return Json(new { Message = AplosMessage.Posted });
         }
         #endregion
+
+
+
+
+        [HttpPost]
+        public ActionResult DeleteSales(string invoiceId, string voucherId)
+        {
+            _salesService.DeleteSale(invoiceId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
     }
 }
