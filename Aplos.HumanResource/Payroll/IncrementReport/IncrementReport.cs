@@ -82,8 +82,7 @@ namespace Library.HumanResource.Payroll.IncrementReport
 								 --                   UNION 
 								 --                   SELECT  sidm.EmpInfoSystemID FROM SalaryInfoBackMaster AS sidm WHERE sidm.IsApproved=1 AND sidm.PlantID='20181'  AND sidm.EffectiveDate < '01-Sep-2021'
 									--				)
-                                                   -- AND DATEDIFF(day, FORMAT(E.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy'))>365
-";
+                                                   -- AND DATEDIFF(day, FORMAT(E.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy'))>365";
 
                 ExcelEngine excelEngine = new ExcelEngine();
                 //Instantiate the Excel application object

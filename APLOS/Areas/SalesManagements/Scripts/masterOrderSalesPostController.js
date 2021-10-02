@@ -622,4 +622,47 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
                 $scope.packingDetailList = response.data;
             });
     }
+
+
+    $scope.onClickDeletePopUp = function (x) {
+        var data = x;
+        $scope.salesId = data.Id;
+        $scope.voucherId = data.VoucherId;
+
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+    };
+
+
+    $scope.delete = function (salesId, voucherId) {
+        $http({
+            method: "POST",
+            url: 'SalesManagements/Sales/DeleteMasterOrderSalePost',
+            data: {
+                "salesId": salesId, "voucherId": voucherId 
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.salesId = null;
+                $scope.voucherId = null;
+               
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+
+
+
+
+
 }

@@ -74,10 +74,10 @@
             </div>
         </div>
         <div class="col-xs-12 col">
-            <div style="color:black;overflow:scroll" id="AppGRN" ej-grid e-datasource="TempList" e-allowpaging="true" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
+            <div style="color:black;" id="AppGRN" ej-grid e-datasource="TempList" e-allowpaging="true" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
                 <div e-columns>
                     <div e-column e-field="Type" e-headertext="Type" e-width="70" e-filter="false"></div>
-                    <div e-column e-field="Particular" e-headertext="Particular" e-width="180"></div>
+                    <div e-column e-field="Particular" e-headertext="Vendor" e-width="180"></div>
                     <div e-column e-field="Id" e-headertext="GRN No" e-width="80"></div>
                     <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="70" e-format="{0:dd-MMM-yyyy}" type="date"></div>
                     <div e-column e-field="DocRefNo" e-headertext="GRN Ref No" e-width="80"></div>
@@ -155,7 +155,7 @@
     <fieldset class="scheduler-border">
         <legend class="scheduler-border">GRN Detail</legend>
         <div ng-show="InventoryReceiveDetailList.length>0">
-            <div style="color:black;overflow:scroll" id="GRNDetail" ej-grid e-datasource="InventoryReceiveDetailList" e-allowpaging="true" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true" e-allowResizing="true">
+            <div style="color:black;" id="GRNDetail" ej-grid e-datasource="InventoryReceiveDetailList" e-allowpaging="true" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true" e-allowResizing="true">
                 <div e-columns>
                     <div e-column e-field="InventoryReceiveId" e-headertext="GRN No" e-width="50" e-filter="false"></div>
                     <div e-column e-field="InventoryReceiveDetailId" e-headertext="Detail No" e-width="50"></div>
@@ -165,6 +165,8 @@
                     <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="50"></div>
                     <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="50"></div>
                     <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="50"></div>
+                    <div e-column e-field="GRNQty" e-headertext="GRN Qty" e-width="50" textAlign='Right'></div>
+                    <div e-column e-field="TotalMaterialTranAmount" e-headertext="GRN Value" e-width="50" textAlign='Right'></div>
                     <div e-column e-field="OtherQty" e-headertext="Other Qty" e-width="50" textAlign='Right'></div>
                     <div e-column e-template="#Qty" e-headertext="Qty" e-width="70" style="height: 20px;" e-textalign="right"></div>
                     <div e-column e-field="TransactionRate" e-headertext="Rate" e-width="50" textAlign='Right'></div>
