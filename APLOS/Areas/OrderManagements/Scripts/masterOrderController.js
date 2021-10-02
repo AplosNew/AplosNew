@@ -4374,6 +4374,28 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
 
     //#endregion Contract
+
+    //#region   SO Copy    
+    $scope.CopySO = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CopySalesOrder?MasterId=' + data.Id + '&masterItemId=' + data.MasterOrderItemId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                getSalesOrderList();
+                $scope.getMasterItemList();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    }
+    //#endregion
 }
 
 

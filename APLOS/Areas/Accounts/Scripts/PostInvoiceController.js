@@ -39,6 +39,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.GetSavedGRNListForPostInvoice();
         });
     };
+
     $scope.GetSavedGRNListForPostInvoice = function () {
         $http({
             method: 'GET',
@@ -47,6 +48,16 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.TempList = response.data;
+            if ($scope.TempList.length > 0) {
+                var uniqueInventoryReceiveId = removeDuplicates($scope.TempList, 'Id');
+                var wcInventoryReceiveId = "";
+                if (uniqueInventoryReceiveId.length > 0) {
+                    wcInventoryReceiveId = "IN(";
+                    wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcInventoryReceiveId;
+            }
+            $scope.GetDetailData($scope.sqlInStatement);
         });
     };
 
@@ -54,7 +65,8 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.Get = function (obj) {
         $scope.model = obj.data;
         $scope.modelNew = Object.assign({}, $scope.model);
-        $scope.getDetailDataList();
+        //$scope.getDetailDataList();
+        $scope.GetSavedGRNListForPostInvoice();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -200,7 +212,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.GetDetailData = function (inventoryReceiveIds) {
         $http({
             method: 'GET',
-            url: 'Accounts/PostInvoice/GetGRNDetailListForPostInvoice?inventoryReceiveId=' + inventoryReceiveIds
+            url: 'Accounts/PostInvoice/GetGRNDetailListForPostInvoice?inventoryReceiveId=' + inventoryReceiveIds + '&masterId=' + $scope.modelNew.Id
         }).then(function successCallback(response) {
             $scope.InventoryReceiveDetailList = response.data;
         });
@@ -231,6 +243,14 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             }
         });
     });
+
+    $scope.calculateAmount = function (data) {
+        data.TransactionAmount = parseFloat(data.TransactionQty * data.TransactionRate).toFixed(2);
+        var gridObj = $("#GRNDetail").data("ejGrid");
+        gridObj.refreshContent(true);
+        gridObj.refreshTemplate();
+    };
+
     $scope.Action = 'Save';
 
     $scope.Save = function () {

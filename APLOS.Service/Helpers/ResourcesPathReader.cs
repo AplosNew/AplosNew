@@ -695,8 +695,33 @@ namespace Library.Service.Helpers
 			}
 		}
 
+		public static string GetValAddedConfirmationLetterPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "\\Templates\\");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
 		// JW Receipt Template
 		public static string GetReceiptTemplateLetterPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "\\Templates\\");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
+		// JW Value Added Receipt Template
+		public static string GetValAddedReceiptTemplateLetterPath()
 		{
 			try
 			{

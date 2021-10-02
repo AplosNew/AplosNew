@@ -43,7 +43,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
-        public ActionResult ConsumptionBookPost()
+        public ActionResult FGInventoryPost()
         {
             return View();
         }
@@ -206,13 +206,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetVendorPayableGLBudgetActivity(string inveReveiveId, string companypartyAccountGroupId)
+        public JsonResult GetFGInventoryGLBudgetActivity(string inveReveiveId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(clsFinishGoodsBooking.GetVendorPayableGLBudgetActivity(inveReveiveId, identity.CompanyId, identity.PlantId, companypartyAccountGroupId), JsonRequestBehavior.AllowGet);
+            return Json(clsFinishGoodsBooking.GetFGInventoryGLBudgetActivity(inveReveiveId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult FinishGoodsBookingPost( VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList )
+        public JsonResult FinishGoodsBookingPost( VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+            , IEnumerable<VoucherDetailViewModel> fGInventoryGLBudgetActivityVMList)
         {
             AccountingFinishGoodsService accountingFinishGoodsService = new AccountingFinishGoodsService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -239,7 +240,7 @@ namespace Aplos.Areas.Productions.Controllers
 
             return Json(new
             {
-                Message = string.Format(AplosMessage.VoucherSave, accountingFinishGoodsService.InsertFinishGoodsBookingPosting(voucherVM, voucherDetailVMList))
+                Message = string.Format(AplosMessage.VoucherSave, accountingFinishGoodsService.InsertFinishGoodsBookingPosting(voucherVM, voucherDetailVMList, fGInventoryGLBudgetActivityVMList))
             });
 
         }

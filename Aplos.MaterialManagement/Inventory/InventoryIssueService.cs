@@ -10154,12 +10154,12 @@ namespace Library.MaterialManagement.Inventory
                             }
                             
                             var im = inventoryMaterialList.FirstOrDefault(t => t.MaterialMasterId == item.MaterialMasterId && t.ArticleId == item.ArticleId
-                                //&& t.FirstCharacteristicsId == item.FirstCharacteristicsId 
-                                //&& t.FirstCharacteristicsValueId == item.FirstCharacteristicsValueId
-                                //&& t.SecondCharacteristicsId == item.SecondCharacteristicsId 
-                                //&& t.SecondCharacteristicsValueId == item.SecondCharacteristicsValueId
-                                //&& t.ThirdCharacteristicsId == item.ThirdCharacteristicsId 
-                                //&& t.ThirdCharacteristicsValueId == item.ThirdCharacteristicsValueId
+                                && t.FirstCharacteristicsId == item.FirstCharacteristicsId
+                                && t.FirstCharacteristicsValueId == item.FirstCharacteristicsValueId
+                                && t.SecondCharacteristicsId == item.SecondCharacteristicsId
+                                && t.SecondCharacteristicsValueId == item.SecondCharacteristicsValueId
+                                && t.ThirdCharacteristicsId == item.ThirdCharacteristicsId
+                                && t.ThirdCharacteristicsValueId == item.ThirdCharacteristicsValueId
                                 //&& t.CountryId == item.CountryId
                                 && t.CompanyId == inventoryIssue.CompanyId && t.PlantId == inventoryIssue.PlantId // && t.CountryId == item.CountryId
                                );
@@ -10227,12 +10227,14 @@ namespace Library.MaterialManagement.Inventory
                     {
                     try
                     {
+                        //    var inventoryMaterialIds = new string[] { };
 
-                        var uiList = entities.ToList();
-                        var currentId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueDetail] WHERE InventoryIssueId='{inventoryIssue.Id}'").First();
-                        var inventoryMaterialIds = entities.Select(t => t.InventoryMaterialId).ToArray();
+                            var uiList = entities.ToList();
+                            var currentId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueDetail] WHERE InventoryIssueId='{inventoryIssue.Id}'").First();
+                            var inventoryMaterialIds = entities.Select(t => t.InventoryMaterialId).ToArray();
+                        //    inventoryMaterialIds = entities.Select(t => t.InventoryMaterialId).Distinct().ToArray();
 
-                        var specificInvaterialIds = new string[] { };
+                            var specificInvaterialIds = new string[] { };
                         var maIds = new string[] { };
                         if (specificStockList.IsNotNull())
                         {

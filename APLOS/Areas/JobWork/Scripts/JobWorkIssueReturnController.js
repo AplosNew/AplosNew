@@ -483,6 +483,8 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		ClearFieldsIssueChild();
 		$scope.IssueChildList = [];
 		$scope.IssueTypeList = [];
+		$scope.materialStockList = [];
+		$scope.specificStockList = [];
 		$scope.getData();
 
 	}
@@ -1369,6 +1371,9 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		};
 	};
 
+
+	$scope.materialStockList = [];
+	$scope.specificStockList = [];
 	$scope.getSpecificMaterialStockForSlipIssueVA = function (data, index) {
 
 		for (var i = 0; i < $scope.IssueChildList.length; i++) {
@@ -1825,6 +1830,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	var SelectedMaterialInputdata = [];
 	var SelectedOutputMaterialdata = [];
+	$scope.IssueChildList = [];
 	$scope.SaveSlipIssue = function () {
 
 		if ($scope.ModelNew.TabType == "Transformation") {
@@ -2078,6 +2084,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			}
 		}
 		else {
+			 SelectedOutputMaterialdata = [];
 			for (var j = 0; j < $scope.IssueChildList.length; j++) {
 				if ($scope.IssueChildList[j].isSelectedOM == true) {
 					SelectedOutputMaterialdata.push($scope.IssueChildList[j]);
@@ -2179,6 +2186,8 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 							ShowResult(response.data.Message, 'failure');
 						else {
 							ShowResult(response.data.Message, 'success');
+							$scope.ClearIssueChildTab();
+							$scope.IssueChildList = [];
 					//		$scope.getdataInventoryIssue();
 							//$scope.Clear();
 							// $scope.getData();
@@ -2234,11 +2243,19 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	// PRINT JOB WORK TRANSFORMATION REPORT
 
 	$scope.PrintIssueTemplateReport = function (data) {
-		//debugger;
-		//var x = "#" + z;
-		//var gridObj = $(x).data("ejGrid");
-		//var data = gridObj.getSelectedRecords()[0];
-		location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+		if ($scope.ModelNew.TabType == "Transformation") {
+			//debugger;
+			//var x = "#" + z;
+			//var gridObj = $(x).data("ejGrid");
+			//var data = gridObj.getSelectedRecords()[0];
+			location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+		}
+		else {
+
+			location.href = "Products/InventoryIssue/JWValAddedIssueReport?grnId=" + data.Id;
+        }
+	
+	
 
 	};
 
