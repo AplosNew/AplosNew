@@ -2829,6 +2829,23 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 			}
 		}
 
+		[Authorize, HttpGet]
+		public ActionResult ValAddedGRNReport(string grnId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				R.ValAddedGRNReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+				return null;
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
 		[HttpPost]
 		public JsonResult SaveTransformationWOMaterial(Dictionary<string, object> data, string ContractId, string PartyId, IEnumerable<JobWorkTransformationReceiptWOMaterial> SelectedQtyDataWOMat, IEnumerable<JWTransformationReceiptWOMaterialByProduct> SelectedByProductQtyDataWOMat)
 		{

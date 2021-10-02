@@ -155,6 +155,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
 
             $scope.GetPackingSOData($scope.sqlInStatement);
+            angular.element(document.querySelector('#PackingListPopUp')).modal('hide');
             //angular.element(document.querySelector('#PackingListPopUp')).modal('hide');
         } catch (e) {
             ShowResult(e, 'failure');
