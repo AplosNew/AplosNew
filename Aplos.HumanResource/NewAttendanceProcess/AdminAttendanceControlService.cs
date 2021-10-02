@@ -621,6 +621,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             }
                             dsMaster.Tables[0].DefaultView[0]["DayStatus"] = data[i]["DayStatus"].ToString();
                             dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"] = data[i]["DayStatus"].ToString();
+                            dsMaster.Tables[0].DefaultView[0]["isManualDayStatus"] = true;
                         }
 
                        
