@@ -1,113 +1,4 @@
-﻿@*<style>
-
-		.loaderr {
-			width: 300px;
-			height: 200px;
-			background-color: #0780BA;
-			color: #fff;
-			padding: 100px;
-			font-size: 25px;
-		}
-
-		.e-grid .e-headercelldiv {
-			font-weight: bold;
-			font-size: 10px;
-			display: block;
-			border: 0 none;
-			height: 29px;
-			line-height: 29px;
-			margin: -7px;
-			padding: 0 .7em;
-			text-align: left;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			font-family: "Arial Narrow";
-		}
-
-		.e-grid .e-rowcell {
-			border-width: 1px 0 0 1px;
-			padding: .7em;
-			line-height: 10px;
-			white-space: nowrap;
-			width: auto;
-			vertical-align: middle;
-		}
-		/*.e-gridheader .e-headercell {
-			background-color: #1c1f32;
-			color: White;
-			min-height: 100%;
-			border-bottom-color: #8B4513;
-		}*/
-		.e-grid.e-wrap .e-columnheader .e-headercelldiv {
-			margin-bottom: 2px;
-			margin-top: 0;
-			font-size: 9px;
-		}
-		/*.e-filterset:before {
-			color: Green;
-		}*/
-
-
-
-
-		e-grid .e-columnheader .wrap .e-headercelldiv {
-			height: Auto;
-		}
-
-		.e-grid .e-excelfilter .e-btncontainer input {
-			padding: .2em .4em .3em;
-		}
-
-		.e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
-			padding: 3px;
-		}
-
-		.e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
-			padding: 3px;
-		}
-
-		::-ms-clear {
-			display: none;
-		}
-
-		.e-grid.filtered .e-filteredicon {
-			color: red;
-		}
-	</style>*@
-
-@*<script>
-		function chkChange(Id, UserName) {
-			debugger;
-			$("#message").text(Id);
-			$("#PartyCode").text(Id);
-			$("#Vendor").val(UserName);
-			$('#partyPopUp').modal('hide');
-			PartyId = $("#PartyCode").text();
-		}
-		function getMasterId(Id) {
-			debugger;
-			$("#masterId").text(Id);
-
-		}
-	</script>*@
-@*<style>
-		.e-filterset:before {
-			color: white;
-		}
-
-		.e-gridheader .e-headercell {
-
-			background-color: #1c1f32;
-			color: White;
-			min-height: 100%;
-			border-bottom-color: #8B4513;
-		}
-
-		element.style {
-			height: 20px;
-			width: 50px;
-		}
-	</style>*@
+﻿
 
 <togglable name="{{FormTitle}}"></togglable>
 
@@ -131,14 +22,13 @@
 				<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
 				<div id="GRNUncheck">
 					<div class="content-container-fluid" style="color:black;overflow:scroll">
-						<div style="color:black;" id="GridPO" ej-grid e-datasource="GriddataGRNCk" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+						<div style="color:black;" id="GridPO" ej-grid e-datasource="JWGRNData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
 							 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
 							 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
 							 e-detailstemplate="detailTemp"
 							 e-detailsdatabound="detailgrid">
 
 							<div e-columns>
-								@*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
 								<div e-column e-headertext="Actions" e-width="80">
 									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/Hold/Reject" ng-click="$parent.onClickSave('GridPO');" style="margin: -6px;"></i></button>
 									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO');" style="margin: -6px;"></i></button>
@@ -151,29 +41,22 @@
 								<div e-column e-field="GateName" e-headertext="POBOQMAPId" e-width="120"></div>
 								<div e-column e-field="GateEntryNo" e-headertext="PO Requisition DetailId" e-width="120"></div>
 								<div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-								<div e-column e-field="EmployeeName" e-headertext="Employee" e-width="180"></div>
-								@*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>*@
-								<div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="TransactionAmount" e-headertext="Amount(TRN)" textAlign='Right' e-width="120"></div>
-								<div e-column e-field="TotalMaterialTranAmount" e-headertext="Total Material Tran Amount" textAlign='Right' e-width="120"></div>
-								<div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Total Material Books Currency Amount" textAlign='Right' e-width="120"></div>
-								<div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
-								<div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
-								<div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
-								<div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" textAlign='Right' e-width="150"></div>
+								<div e-column e-field="TransactionQty" e-headertext="TransactionQty" e-width="180"></div>
+								<div e-column e-field="TransactionUoM" e-headertext="TransactionUoM" textAlign='Right' e-width="150"></div>
+								<div e-column e-field="BaseQty" e-headertext="BaseQty" textAlign='Right' e-width="150"></div>
+								<div e-column e-field="BaseUOMId" e-headertext="BaseUOMId" textAlign='Right' e-width="150"></div>
+								<div e-column e-field="BaseUoM" e-headertext="BaseUoM" textAlign='Right' e-width="150"></div>
+								<div e-column e-field="POBOQQty" e-headertext="POBOQQty" textAlign='Right' e-width="150"></div>
+								<div e-column e-field="POUoM" e-headertext="POUoM" textAlign='Right' e-width="150"></div>
+								<div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" textAlign='Right' e-width="150"></div>
+								<div e-column e-field="POId" e-headertext="POId" textAlign='Right' e-width="150"></div>
+								<div e-column e-field="PODetailsId" e-headertext="PODetailsId" textAlign='Right' e-width="150"></div>
+								
 
 							</div>
 						</div>
 					</div>
-					<script id="tabGridContents" type="text/x-jsrender">
+					@*<script id="tabGridContents" type="text/x-jsrender">
 						<div class="tabcontrol" id="Test">
 							<ul>
 								<li><a href="#gridTab{{:Id}}">GRN Details</a></li>
@@ -207,7 +90,7 @@
 								<div id="detailGrid1" style="width:800px;"></div>
 							</div>
 						</div>
-					</script>
+					</script>*@
 				</div>
 			</fieldset>
 		</div>
@@ -215,7 +98,6 @@
 			<div class="">
 				<div id="control">
 					<input ej-dropdownlist e-datasource="$parent.checkedByList" e-value="data.AuthorizedBy" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
-					@*<input id="combo-default1" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.checkedByList" e-value="data.SystemId" e-width="100%" />*@
 
 				</div>
 
@@ -234,9 +116,7 @@
 
 		</script>
 		<script type="text/template" id="RejectCheckedReason">
-			@*<div class="col-sm-10" style="width:300px;height:20px; ">*@
 			<input type="text" ng-model="data.CheckedRejectReason" style="color:black;" class="form-control" />
-			@*</div>*@
 		</script>
 
 		<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNRejectHoldList(3), active: isSetGRNRejectHoldList(3) }">
@@ -244,7 +124,7 @@
 				<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
 				<div id="GRNUncheck1">
 					<div class="content-container-fluid" style="color:black;overflow:scroll">
-						<div style="color:black;" id="GridRejHold" ej-grid e-datasource="GriddataGRNRejectHoldList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+						<div style="color:black;" id="GridRejHold" ej-grid e-datasource="JWGRNData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
 							 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
 							 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
 							 e-detailstemplate="detailTemp"
@@ -348,7 +228,7 @@
 				<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
 				<div id="GRNCheck">
 					<div class="content-container-fluid" style="color:black;overflow:scroll">
-						<div style="color:black;" id="GridPO1" ej-grid e-datasource="GriddataGRNChecked" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+						<div style="color:black;" id="GridPO1" ej-grid e-datasource="JWGRNData" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
 							 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
 							 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
 							 e-detailstemplate="detailTemp"

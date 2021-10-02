@@ -11,14 +11,15 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class ManpowerBudgetDashboardController : BaseController
     {
-       // private readonly IManpowerBudgetDashboardService _hrDashboardService;
+        // private readonly IManpowerBudgetDashboardService _hrDashboardService;
 
-
+        private readonly Library.HumanResource.Dashboard.HRDashboardService _HRDashboard;
         private readonly Library.HumanResource.Dashboard.ManPowerBudgetDashboardService _hrDashboardService;
 
         public ManpowerBudgetDashboardController()
         {
             _hrDashboardService = new Library.HumanResource.Dashboard.ManPowerBudgetDashboardService();
+            _HRDashboard = new Library.HumanResource.Dashboard.HRDashboardService();
         }
 
         //public ManpowerBudgetDashboardController(IManpowerBudgetDashboardService hrDashboardService)
@@ -44,7 +45,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetDrillDownListJSON(string CompanyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_hrDashboardService.DrillDownList(identity.CompanyGroupId,CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(_HRDashboard.OrgStructureListColList(identity.CompanyGroupId,CompanyId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
