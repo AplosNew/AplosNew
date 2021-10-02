@@ -3673,7 +3673,7 @@
     <Content Include="Areas\Attendances\Views\ManualOTUploadNew\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\ManualOTReportNew\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\CutPlan\Aplos.cshtml" />
-    <Content Include="Areas\Productions\Views\FinishGoodsBooking\ConsumptionBookPost.cshtml" />
+    <Content Include="Areas\Productions\Views\FinishGoodsBooking\FGInventoryPost.cshtml" />
     <Content Include="Areas\Productions\Views\PackingInvoice\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\CompanyWiseExternalDataUploadFromExcel\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\CompanyWiseBankSheet\Aplos.cshtml" />
