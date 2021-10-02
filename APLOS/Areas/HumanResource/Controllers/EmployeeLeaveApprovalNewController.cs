@@ -309,6 +309,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             dr["LeaveStatus"] = LeaveCode;
+                            dr["LTSytemID"] = item.LTSystemID;
                             dr["UpdatedBy"] = "Schedule";
                             dr["ManualEntryTime"] = Convert.ToDateTime(DateTime.Now);
                             dr["LockedDate"] = DBNull.Value;

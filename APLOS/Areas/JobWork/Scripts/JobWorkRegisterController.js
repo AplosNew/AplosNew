@@ -38,7 +38,8 @@ function JobWorkRegisterController($window, addressService, cboService, commonMe
         PartyVendorCode: null,
         PartyVendorName: null,
         ContractId: null,
-        ContractDate: null
+        ContractDate: null,
+        POType:null,
     };
     $scope.Register = Object.assign({}, $scope.RegisterModelTemp);
 
@@ -54,27 +55,12 @@ function JobWorkRegisterController($window, addressService, cboService, commonMe
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.Generate = function () {
-        //if ($scope.MatReconcilation.Type == "ValueAdded") {
-        //    $http({
-        //        method: 'POST',
-        //        url: $scope.path + 'GetMatReconcilationReport',
-        //        data: {
-        //            ContractId: $scope.MatReconcilation.ContractNo
-        //        },
-        //        dataType: 'JSON'
-        //    }).then(function successCallback(response) {
-        //        if (response.data.Error == true) {
-        //            ShowResult(response.data.Message, 'failure');
-        //        }
-        //        else {
-        //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-        //        }
-        //    }, function errorCallback(response) {
-        //        ShowResult(response.data.Message, 'failure');
-        //    });
-        //}
+        if (baseService.isUndefinedOrNull($scope.Register.POType)) {
+            ShowResult("Please Select PO Type");
+            return false;
+        }
 
-  //      if ($scope.MatReconcilation.Type == "Transformation") {
+        if ($scope.Register.POType == "Transformation") {
             $http({
                 method: 'POST',
                 url: $scope.path + 'GetTransformationRegisterReport',
@@ -95,7 +81,29 @@ function JobWorkRegisterController($window, addressService, cboService, commonMe
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
             });
-//        }
+        }
+        else {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'GetValueAddedRegisterReport',
+                data: {
+                    FromDate: $scope.Register.FromDate,
+                    ToDate: $scope.Register.ToDate,
+                    PartyVendorId: $scope.Register.PartyVendorId,
+                    ContractId: $scope.Register.ContractId
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        }
       
     }
 
@@ -149,7 +157,7 @@ function JobWorkRegisterController($window, addressService, cboService, commonMe
         $scope.ContractList = [];
         $http({
             method: 'GET',
-            url: $scope.path + 'LoadAllPOForSelection?JWPOPartyId=' + $scope.Register.PartyVendorId
+            url: $scope.path + 'LoadAllPOForSelection?JWPOPartyId=' + $scope.Register.PartyVendorId + '&POType=' + $scope.Register.POType
         }).then(function successCallback(response) {
             $scope.ContractList = response.data;
         });

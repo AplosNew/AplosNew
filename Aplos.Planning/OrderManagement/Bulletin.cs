@@ -1393,11 +1393,11 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet[ROW, colBSRunningLine].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBSRunningLine) + BSStartRow + ":" + clsStaticInfo.GetxlsCol(colBSRunningLine) + (ROW - 1) + ")";
-                sheet[ROW, colBSRunningLine].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet[ROW, colBSRunningLine].NumberFormat = "#,##0.00;(#,##0.)";
                 sheet[ROW, colBSTarget].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBSTarget) + BSStartRow + ":" + clsStaticInfo.GetxlsCol(colBSTarget) + (ROW - 1) + ")";
-                sheet[ROW, colBSTarget].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet.Range[BSStartRow, colBSRunningLine, BSStartRow, colBSRunningLine].NumberFormat = clsStaticInfo.NumberFormat();
-                sheet.Range[BSStartRow, colBSTarget, BSStartRow, colBSTarget].NumberFormat = clsStaticInfo.NumberFormat();
+                sheet[ROW, colBSTarget].NumberFormat = "#,##0.00;(#,##0.)";
+                sheet.Range[BSStartRow, colBSRunningLine, ROW, colBSRunningLine].NumberFormat = clsStaticInfo.NumberFormat();
+                sheet.Range[BSStartRow, colBSTarget, ROW, colBSTarget].NumberFormat = clsStaticInfo.NumberFormat();
              
                 //second summary report
 

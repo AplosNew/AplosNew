@@ -1818,9 +1818,9 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             $scope.IncrementHistory.FromGivenDesignationId = $scope.budgetCodeChangeOld.GivenDesignationId;
             $scope.IncrementHistory.FromBudgetCode = $scope.budgetCodeChangeOld.BudgetCode;
             $scope.IncrementHistory.FromLegalDesignationId = $scope.budgetCodeChangeOld.LegalDesignationId;
-            $scope.IncrementHistory.ToGivenDesignationId = $scope.NewbudgetCodeChange.GivenDesignationId;
-            $scope.IncrementHistory.ToBudgetCode = $scope.NewbudgetCodeChange.BudgetCode;
-            $scope.IncrementHistory.ToLegalDesignationId = $scope.NewbudgetCodeChange.LegalDesignationId;
+            $scope.IncrementHistory.ToGivenDesignationId = $scope.budgetCodeChangeNew.GivenDesignationId;
+            $scope.IncrementHistory.ToBudgetCode = $scope.budgetCodeChangeNew.BudgetCode;
+            $scope.IncrementHistory.ToLegalDesignationId = $scope.budgetCodeChangeNew.LegalDesignationId;
             $scope.IncrementHistory.ToEffectiveDate = $scope.EmpSalaryInfo.EffectiveDate;
 
 

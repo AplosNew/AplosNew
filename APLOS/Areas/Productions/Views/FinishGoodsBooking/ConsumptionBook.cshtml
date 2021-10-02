@@ -115,7 +115,7 @@
         <script type="text/template" id="Rate">
             <div class="col-sm-10" style="padding:0px; width:100px;">
                 @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.Rate" e-width="100" e-change="$parent.calculateAmount(data)"/>*@
-                <input type="text" style="text-align:right" class="form-control" n-decimals="4" ng-model="data.Rate" ng-change="$parent.calculateAmount(data)"/>
+                <input type="text" style="text-align:right" class="form-control" n-decimals="4" ng-model="data.Rate" ng-blur="$parent.calculateAmount(data)"/>
                 
             </div>
         </script>

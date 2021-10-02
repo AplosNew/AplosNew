@@ -2199,6 +2199,7 @@
     <Content Include="Areas\Productions\Scripts\recipeMaterialController.js" />
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
     <Content Include="Areas\Products\Scripts\GatePassRegisterController.js" />
+    <Content Include="Areas\Products\Scripts\GRNRequisitionSOAllocationController.js" />
     <Content Include="Areas\Products\Scripts\InGatePassEntryController.js" />
     <Content Include="Areas\Products\Scripts\InGatePassController.js" />
     <Content Include="Areas\Products\Scripts\inventorySalesRegisterController.js" />
@@ -3727,6 +3728,7 @@
     <Content Include="Areas\HumanResource\Views\JobCardReportNew\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\SalaryProcessOtherStatusNew\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\InventoryPayable\_GRNDetailPopUp.cshtml" />
+    <Content Include="Areas\Products\Views\GoodsReceiveNote\GRNRequitionSOAllocation.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3809,6 +3811,7 @@
     <Content Include="POPResources\Templates\JWIssue20202.docx" />
     <Content Include="POPResources\Templates\JWGRNReceiptReport20202.docx" />
     <Content Include="POPResources\Templates\JWValAddedIssue20202.docx" />
+    <Content Include="POPResources\Templates\JWValAddedGRNReceiptReport20202.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
