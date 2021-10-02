@@ -2871,7 +2871,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
-                earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,DayTypeOtApplicable=null,
+                earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
+                SandwichFlag=NULL,DayTypeOtApplicable=null,
                 DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0 where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
@@ -3958,7 +3959,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.BeginEdit();
                                 if (PrevDaySandwich == "0" && ToDaySandwich == "2")
                                 {
-                                    dr["SandwichFlag"] = "0"; //Today
+                                    dr["SandwichFlag"] = "0"; //Today 
                                 }
 
                                 else if (PrevDaySandwich == "1" && ToDaySandwich == "2")
