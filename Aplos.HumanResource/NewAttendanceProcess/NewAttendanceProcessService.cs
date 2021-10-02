@@ -2871,8 +2871,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             try
             {
                 var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
-                earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
-                DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0 where PlantID='"+Plant+"' and WorkDate='"+PreDay+"'";
+                earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,DayTypeOtApplicable=null,
+                DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0 where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -4052,6 +4052,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dry["DayStatus"] = DayType;
                                     dry["Sandwichstatus"] = DayType;
                                     dry["ManualFlag"] = 1;
+                                    dry["IsLock"] = 0;
+                                    dry["LockedBy"] = DBNull.Value;
+                                    dry["LockedDate"] = DBNull.Value;
                                     dry["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                     dry["UpdatedBy"] = "Sandwich";
                                     dry.EndEdit();

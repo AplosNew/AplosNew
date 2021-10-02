@@ -14,7 +14,6 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         Id: null, InvoiceDate: null, DocRefNo: null, PartyId: null, PartyPlantId: null, CurrencyId: null, ToCurrencyRate: null, Narration: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
-
   
     $scope.getDataList = function () {
         $http({
@@ -61,7 +60,6 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         });
     };
 
-
     $scope.Get = function (obj) {
         $scope.model = obj.data;
         $scope.modelNew = Object.assign({}, $scope.model);
@@ -72,7 +70,6 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             $rootScope.toggle();
         }
     };
-
 
     $scope.approvedGRNList = [];
     $scope.getPopUpData = function () {
@@ -252,7 +249,6 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     };
 
     $scope.Action = 'Save';
-
     $scope.Save = function () {
         try {
             angular.copy($scope.modelNew, $scope.model);
