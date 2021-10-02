@@ -18017,5 +18017,48 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='
 		}
 
 
+		public IEnumerable<object> GetJWReceiptDataForAllocation()
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			
+			try
+			{
+				var sql = "";
+				sql = @"select IR.Id
+				, IR.GRNType
+				, IRD.Id InventoryReceiveId
+				, ISNULL(POBOQMAP.Id,'') POBOQMapId
+				,'' POReqDetailsId
+				,ISNULL(IRD.TransactionQty,0) TransactionQty
+				,Isnull(IRD.TransactionUoMId,'') TransactionUoMId
+				,ISNULL(TUoM.UserName,'') TransactionUoM
+				,ISNULL(IRD.BaseQty,0) BaseQty
+				,ISNULL(IRD.BaseUOMId,'') BaseUOMId
+				,ISNULL(BUoM.UserName,'') BaseUoM
+				,Isnull(POBOQMAP.POBOQQty,0) POBOQQty
+				,ISNULL(PUoM.Id,'') POUoMId
+				,ISNULL(PUoM.UserName,'') POUoM
+				,ISNULL(Boq.SalesOrderId,'') SalesOrderId
+				,ISNULL(IRD.JWTCMId,'') POId
+				,ISNULL(IRD.JWTCMDId,'') PODetailsId 
+				FROM trn.InventoryReceive IR
+				Left JOIN TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
+				left join [dbo].[JWPOBOQMAP] POBOQMAP ON POBOQMAP.JWPODetailId =IRD.JWTCMDId
+				left join BOQ Boq on Boq.Id=POBOQMAP.BOQDetailId
+				LEFT JOIN SCS.UnitOfMeasurement TUoM ON TUoM.Id=IRD.TransactionUoMId
+				LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=IRD.BaseUOMId
+				LEFT JOIN SCS.UnitOfMeasurement PUoM ON PUoM.Id=POBOQMAP.POUoMId
+				WHERE IR.GRNType='GRNBYJW' and Boq.SalesOrderId IS NOT NULL";// ,MMAU.BaseUOMFactor
+				return _sqlRepository.GetDataCollection(sql);
+				
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+			}
+		}
+
 	}
 }
