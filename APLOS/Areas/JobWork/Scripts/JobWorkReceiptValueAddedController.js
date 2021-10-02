@@ -184,7 +184,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 					$scope.GetReceiptTransChildData();
 					$scope.GetByProductApplicableList();
 					$scope.ShowHomeList = false;
-					$scope.ShowReport = true;
+				//	$scope.ShowReport = true;
 					//$scope.GetIndividualReportData();
 					$scope.GetJWGRNDataChecking();
 					$scope.GRNListDetails();
@@ -1219,6 +1219,9 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			//var gridObj = $(x).data("ejGrid");
 			//var data = gridObj.getSelectedRecords()[0];
 			location.href = "JobWork/JobWorkReceiptValueAdded/GRNReport?grnId=" + data.Id;
+		}
+		else {
+			location.href = "JobWork/JobWorkReceiptValueAdded/ValAddedGRNReport?grnId=" + data.ReceiveId;
         }
 	};
 

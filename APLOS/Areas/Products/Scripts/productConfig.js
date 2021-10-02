@@ -375,5 +375,10 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/POParameterChange/Aplos',
             controller: 'POParameterChangeController'
         })
+        .when('/grn-so-allocation', {
+            templateUrl: 'Products/GoodsReceiveNote/GRNRequitionSOAllocation',
+            controller: 'GRNRequisitionSOAllocationController'
+        })
+
         ;
 }

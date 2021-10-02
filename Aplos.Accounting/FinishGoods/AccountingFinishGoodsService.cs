@@ -95,11 +95,12 @@ namespace Library.Accounting.FixedAssets
         
 
 
-        public string InsertFinishGoodsBookingPosting(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+        public string InsertFinishGoodsBookingPosting(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> fGInventoryGLBudgetActivityVMList
             )
         {
             try
             {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
@@ -111,6 +112,7 @@ namespace Library.Accounting.FixedAssets
                 DataSet _crvDetailData = null;
                 DataSet _crvDetailCurrencyData = null;
                 DataSet _inventoryReceiveData = null;
+                DataSet _inventoryReceiveDetailData = null;
 
                // voucherVM.CompanyCurrencyRate = 1;
                // voucherVM.CurrencyId = companyCurrencyId;
@@ -166,6 +168,9 @@ namespace Library.Accounting.FixedAssets
                             ToCurrencyConversion = _accountsCommonService.GetCompanyCurrencyExchange(voucher.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                             DrAmount = voucherDr.DrAmount * voucherVM.CompanyCurrencyRate
                         }, ref _drvDetailCurrencyData);
+
+                        
+                       
                     }
                     else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.Amount > 0)
                     {
@@ -196,8 +201,10 @@ namespace Library.Accounting.FixedAssets
                     }
                 }
 
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
                 con.OpenDataSetThroughAdapter(@"SELECT * FROM trn.InventoryReceive WHERE Id='" + voucherVM.InventoryReceiveId+"'", out _inventoryReceiveData, false, "1");
+                    con.OpenDataSetThroughAdapter(@"SELECT * FROM trn.InventoryReceiveDetail WHERE InventoryReceiveId='" + voucherVM.InventoryReceiveId + "'", out _inventoryReceiveDetailData, false, "1");
+
                 if (_inventoryReceiveData.Tables[0].Rows.Count > 0)
                 {
                     for (int j = 0; j < _inventoryReceiveData.Tables[0].Rows.Count; j++)
@@ -225,10 +232,39 @@ namespace Library.Accounting.FixedAssets
                         }
                     }
                 }
-               
+                foreach (var item in fGInventoryGLBudgetActivityVMList.Where(r => r.TrnType == "Dr"))
+                {
+                    if (_inventoryReceiveDetailData.Tables[0].Rows.Count > 0)
+                    {
+                        for (int j = 0; j < _inventoryReceiveDetailData.Tables[0].Rows.Count; j++)
+                        {
+                            _inventoryReceiveDetailData.Tables[0].DefaultView.RowFilter = "Id='" + item.InventoryReceiveDetailId + @"'";
+
+                            if (_inventoryReceiveDetailData.Tables[0].DefaultView.Count > 0)
+                            {
+                                //edit
+                                DataRow drDetail = _inventoryReceiveDetailData.Tables[0].DefaultView[0].Row;
+                                if (string.IsNullOrEmpty(drDetail["PostDrGLGeneralInfoId"].ToString()))
+                                {
+                                    drDetail.BeginEdit();
+
+                                    drDetail["PostDrGLGeneralInfoId"] = item.GLGeneralInfoId;
+                                    drDetail["PostDrBudgetMasterId"] = item.BudgetMasterId;
+                                    drDetail["PostDrActivityId"] = item.ActivityId;
+                                    drDetail["UpdatedDate"] = voucher.AddedDate;
+                                    drDetail.EndEdit();
+                                }
+                                else
+                                {
+                                    throw new Exception("This FG Inventory already posted.");
+                                }
+                            }
+                        }
+                    }
+                }
 
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset , _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _inventoryReceiveData/*, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData*/
+                objApp.SaveDataSets(_vdataset , _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _inventoryReceiveData, _inventoryReceiveDetailData
                     );
                 return "";
             }
