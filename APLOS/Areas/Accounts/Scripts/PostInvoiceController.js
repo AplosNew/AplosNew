@@ -137,7 +137,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                         }
                     }
                     else {
-                        throw 'Select same Customer.';
+                        throw 'Select same Vendor.';
                     }
                 }
 
@@ -242,10 +242,20 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     });
 
     $scope.calculateAmount = function (data) {
-        data.TransactionAmount = parseFloat(data.TransactionQty * data.TransactionRate).toFixed(2);
-        var gridObj = $("#GRNDetail").data("ejGrid");
-        gridObj.refreshContent(true);
-        gridObj.refreshTemplate();
+        try {
+            if (data.GRNQty >= data.OtherQty + data.TransactionQty) {
+                data.TransactionAmount = parseFloat(data.TransactionQty * data.TransactionRate).toFixed(2);
+                var gridObj = $("#GRNDetail").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+            }
+            else {
+                throw "Invoice Qty can't greater than GRN Qty.";
+            }
+            
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     $scope.Action = 'Save';
@@ -253,6 +263,15 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         try {
             angular.copy($scope.modelNew, $scope.model);
             $scope.$broadcast('show-errors-check-validity');
+
+            if (baseService.arrayLength($scope.InventoryReceiveDetailList)>0) {
+                for (var i = 0; i < $scope.InventoryReceiveDetailList.length; i++) {
+                    if ($scope.InventoryReceiveDetailList[i].GRNQty < $scope.InventoryReceiveDetailList[i].OtherQty + $scope.InventoryReceiveDetailList[i].TransactionQty) {
+                        throw "Invoice Qty can't greater than GRN Qty.";
+                    }
+                }
+            }
+
             if ($scope.modelNewForm.$valid) {
                 if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                     $http({
