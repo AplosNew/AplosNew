@@ -1278,13 +1278,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                 clsSalaryProcessQuery spq = new clsSalaryProcessQuery();
                                 DataSet dsEOLILU = null;
-                                DataSet dsLWP = null;
                                 DataSet dsLeaveSpecific = null;
                                 DataSet dsRouteEmp = null;
                                 SendNotification("Fetching LateIN,EarlyOUT,LunchOUT", TotProcComp, TotSelectEmpForProc);
                                 spq.LoadLateINEarlyOUTLunchOUT(sEmpSysIDColl, para.FromDate, para.ToDate, out dsEOLILU);
-                                SendNotification("Fetching Leave without pay", TotProcComp, TotSelectEmpForProc);
-                                spq.LoadLWP(sEmpSysIDColl, para.FromDate, para.ToDate, out dsLWP);
                                 SendNotification("Fetching Specific Leave", TotProcComp, TotSelectEmpForProc);
                                 spq.LoadSpecificLeave(sEmpSysIDColl, para.PlantId, para.FromDate, para.ToDate, out dsLeaveSpecific);
                                 SendNotification("Fetching Route Employee List", TotProcComp, TotSelectEmpForProc);
@@ -2326,18 +2323,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                     //EARLYOUT
                                                     DataView dvEARLYOUT = new DataView(dsEOLILU.Tables[0]);
                                                     dvEARLYOUT.RowFilter = "EmpSystemId='" + _emp_pk + "' and InfoType='EARLYOUT'";
-                                                    //LWP
-                                                    DataView dvLWP = new DataView(dsLWP.Tables[0]);
-                                                    dvLWP.RowFilter = "EmpSystemId='" + _emp_pk + "'";
 
-                                                    ////lunchOut
-                                                    //DataView dvLUNCHOUT = new DataView(dsEOLILU.Tables[0]);
-                                                    //dvLUNCHOUT.RowFilter = "EmpSystemId='" + _emp_pk + "' and InfoType='LUNCHOUT'";
-                                                    //if (dvLUNCHOUT.Count > 0)
-                                                    //{
-                                                    //    IsRouteAvailed = true;
-                                                    //}
-                                                    //LateIn
 
 
                                                     for (int i = 0; i < dicAttdnBns_Sub.Count; i++)
@@ -2410,13 +2396,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                     sApprovalType = "";
                                                                     IsLvPostApproved = false;
 
-                                                                    //LateDay
-                                                                    //AbsDay
-                                                                    //LvDay
                                                                     ABDayType abdtype = new ABDayType();
                                                                     abdtype.AbsDay = AbsDay;
                                                                     abdtype.LateDay = LateDay;
                                                                     abdtype.LvDay = LvDay;
+                                                                    abdtype.LvwpDay = LWPDays;
                                                                     abdtype.IsRouteAvailed = IsRouteAvailed;
                                                                     //abdtype.LateInDay = dvLATEIN.Count;
                                                                     if (dvLATEIN.Count > 0)
@@ -2433,11 +2417,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                     {
                                                                         abdtype.LunchOutDay = Convert.ToDecimal(dvLUNCHOUT[0]["c"].ToString());
                                                                     }
-                                                                    abdtype.LvwpDay = dvLWP.Count;
-                                                                    if (dvLWP.Count > 0)
-                                                                    {
-                                                                        abdtype.LvwpDay = Convert.ToDecimal(dvLWP[0]["LeaveDays"].ToString());
-                                                                    }
+
                                                                     var kk = dicAttdnBnsDT_Sub[dt].AttdnBonusPmtPolicyDetailsID;
                                                                     DataView dvSpecificLeaveNo = new DataView(dsLeaveSpecific.Tables[0]);
                                                                     dvSpecificLeaveNo.RowFilter = "EmpSystemId='" + _emp_pk + "' and Iseligible='NO' and AttdnBonusPmtPolicyDetailsId='" + dicAttdnBnsDT_Sub[dt].AttdnBonusPmtPolicyDetailsID + "'";
