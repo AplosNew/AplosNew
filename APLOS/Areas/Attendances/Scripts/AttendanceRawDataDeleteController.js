@@ -16,7 +16,7 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
         procdate: $filter('dateFiltering')(Date.now()),
         fromdate: null,
         todate: null
-       
+
     };
     $scope.onrowdatabound = function (e) {
         if (e.data.InTimeRowID === 'YES')
@@ -34,13 +34,13 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
         try {
             //var previousDay = null;
             if (baseService.isUndefinedOrNull($scope.customPara.procdate)) {
-               //
+                //
             }
-            
+
             $scope.day = $filter('dateFiltering')($scope.customPara.procdate, 'dd-M-yyyy');
             $http({
                 method: 'GET',
-                url: $scope.AttendanceRawDataDateWiseUrl + "?WDate=" + $scope.day  ,
+                url: $scope.AttendanceRawDataDateWiseUrl + "?WDate=" + $scope.day,
                 //data: JSON.stringify(data),
                 headers: {
                     'Content-Type': 'application/json'
@@ -52,10 +52,10 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
                     $scope.AttendanceRawDataDateWise = response.data.data;
                     $scope.ShowSaveButton = true;
                     for (var i = 0; i < $scope.AttendanceRawDataDateWise.length; i++) {
-                        $scope.AttendanceRawDataDateWise[i].DOJ = new Date($scope.AttendanceRawDataDateWise[i].DOJ);                       
+                        $scope.AttendanceRawDataDateWise[i].DOJ = new Date($scope.AttendanceRawDataDateWise[i].DOJ);
                     }
                 }
-             
+
             }), function errorCallBack(response) {
                 ShowResult(response.Message, 'failure');
             };
@@ -97,13 +97,13 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
         gridObj.refreshContent();
     };
 
-    
+
     // #region Tab
 
 
 
 
-   
+
 
 
 
@@ -130,12 +130,12 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
 
     // #endregion
 
-   
+
     $window.onresize = function (event) {
 
         $scope.actionCompleteSelected();
         $scope.actionCompleteSelected1();
-        
+
 
     };
     $scope.actionCompleteSelected = function (args) {
@@ -171,7 +171,7 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
             // $scope.ShowResult(e, 'failure');
         }
     };
-   
+
 
 
 
@@ -179,7 +179,7 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
 
     $scope.SaveData = function () {
 
-        
+
         try {
             $scope.employees = [];
 
@@ -208,8 +208,9 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
 
 
             $scope.day = $filter('dateFiltering')($scope.customPara.procdate, 'dd-M-yyyy');
-            $.ajax({
-                type: "POST",
+
+            $http({
+                method: 'POST',
                 url: $scope.SaveAttendanceRawDataDateWiseUrl,
                 data:
                 {
@@ -217,21 +218,47 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
                     'WDate': $scope.day
 
                 },
-                dataType: "json",
-                success: function (response) { 
-                    if (response.Error === true) {
-                        ShowResult(response.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.Message, 'success');
-                        $scope.GetAttendanceRawDataDateWise();
-                    }
-                },
-                error: function (response) {
-                    ShowResult(response.Message, "failure");                  
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetAttendanceRawDataDateWise();
                 }
 
-            });
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+
+            //$.ajax({
+            //    type: "POST",
+            //    url: $scope.SaveAttendanceRawDataDateWiseUrl,
+            //    data:
+            //    {
+            //        'AttendanceRawData': $scope.employees,
+            //        'WDate': $scope.day
+
+            //    },
+            //    dataType: "json",
+            //    success: function (response) {
+            //        if (response.Error === true) {
+            //            ShowResult(response.Message, 'failure');
+            //        }
+            //        else {
+            //            ShowResult(response.Message, 'success');
+            //            $scope.GetAttendanceRawDataDateWise();
+            //        }
+            //    },
+            //    error: function (response) {
+            //        ShowResult(response.Message, "failure");
+            //    }
+
+            //});
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -252,10 +279,10 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
             if (baseService.isUndefinedOrNull($scope.customPara.todate)) {
                 throw "Enter to Date";
             }
-            
+
             $http({
                 method: 'GET',
-                url: $scope.GetAllEmploteeListUrl ,
+                url: $scope.GetAllEmploteeListUrl,
                 //data: JSON.stringify(data),
                 headers: {
                     'Content-Type': 'application/json'
@@ -299,7 +326,7 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
     $scope.GetAttendanceRawDataEmployeeWise = function () {
         try {
 
-           
+
 
             var FromDate = $filter('dateFiltering')($scope.customPara.fromdate, 'dd-M-yyyy');
             var ToDate = $filter('dateFiltering')($scope.customPara.todate, 'dd-M-yyyy');
@@ -380,7 +407,7 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
                 }
             }
 
-            if ($scope.employees.length==0) {
+            if ($scope.employees.length == 0) {
                 throw "Please select data";
             }
 
@@ -388,36 +415,32 @@ function AttendanceRawDataDeleteController(cboService, commonMessage, $scope, $r
 
             var FromDate = $filter('dateFiltering')($scope.customPara.fromdate, 'dd-M-yyyy');
             var Todate = $filter('dateFiltering')($scope.customPara.todate, 'dd-M-yyyy');
-            $.ajax({
-                type: "POST",
-                url: $scope.SaveAttendanceRawDataEmployeeWiseUrl,
+
+            $http({
+                method: "POST",
+                dataType: 'JSON',
                 data:
                 {
                     'AttendanceRawData': $scope.employees,
                     'pFromDate': FromDate,
                     'pToDate': Todate
                 },
-                dataType: "json",
-                success: function (response) {
+                url: $scope.SaveAttendanceRawDataEmployeeWiseUrl,
 
-                    if (response.Error === true) {
-                        ShowResult(response.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.Message, 'success');
-                        $scope.GetAttendanceRawDataEmployeeWise();
-                    }
+            }).then(function successCallback(response) {
 
-
-                   
-
-                },
-                error: function (response) {
-                    ShowResult(response.Message, "failure");                
-
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
                 }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.GetAttendanceRawDataEmployeeWise();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, 'failure');
+            });//http
 
-            });
+            
         } catch (e) {
             ShowResult(e, "failure");
         }
