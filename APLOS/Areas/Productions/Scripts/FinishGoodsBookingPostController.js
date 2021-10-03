@@ -317,6 +317,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         $scope.fGInventoryGLBudgetActivityList = [];
         $scope.inventoryReceiveDetailList = [];
         $scope.advanceTaxesList = [];
+        $scope.IsPostButtonDisable = false;
         $scope.newList = [];
         if (baseService.arrayLength($scope.voucherTypeList) === 1)
             $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;

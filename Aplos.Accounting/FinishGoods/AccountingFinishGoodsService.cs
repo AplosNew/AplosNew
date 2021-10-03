@@ -219,7 +219,7 @@ namespace Library.Accounting.FixedAssets
                             {
                                 dr.BeginEdit();
 
-                                dr["Status"] = "Posted";
+                                dr["Status"] = "Posting";
                                 dr["VoucherId"] = voucher.Id;
                                 dr["UpdatedBy"] = voucher.AddedBy;
                                 dr["UpdatedDate"] = voucher.AddedDate;
@@ -232,16 +232,14 @@ namespace Library.Accounting.FixedAssets
                         }
                     }
                 }
+
                 foreach (var item in fGInventoryGLBudgetActivityVMList.Where(r => r.TrnType == "Dr"))
                 {
-                    if (_inventoryReceiveDetailData.Tables[0].Rows.Count > 0)
-                    {
-                        for (int j = 0; j < _inventoryReceiveDetailData.Tables[0].Rows.Count; j++)
-                        {
                             _inventoryReceiveDetailData.Tables[0].DefaultView.RowFilter = "Id='" + item.InventoryReceiveDetailId + @"'";
+                       
+                    for (int j = 0; j < _inventoryReceiveDetailData.Tables[0].DefaultView.Count; j++)
+                        {
 
-                            if (_inventoryReceiveDetailData.Tables[0].DefaultView.Count > 0)
-                            {
                                 //edit
                                 DataRow drDetail = _inventoryReceiveDetailData.Tables[0].DefaultView[0].Row;
                                 if (string.IsNullOrEmpty(drDetail["PostDrGLGeneralInfoId"].ToString()))
@@ -258,9 +256,8 @@ namespace Library.Accounting.FixedAssets
                                 {
                                     throw new Exception("This FG Inventory already posted.");
                                 }
-                            }
                         }
-                    }
+                   
                 }
 
                 clsStaticInfo objApp = new clsStaticInfo();

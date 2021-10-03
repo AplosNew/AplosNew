@@ -24,6 +24,8 @@ using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
 using Library.MaterialManagement.Products;
+using System.Data;
+using Library.Security.Core;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -4048,6 +4050,122 @@ UNION ALL
 			
 		}
 
+
+		[HttpPost]
+		public JsonResult CreateJWSOAllocation(IList<Dictionary<string, object>> Data)
+		{
+			try
+			{
+				
+				ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+				DataSet dsRack=null;
+				foreach (var item in Data)
+				{
+					//conRack.OpenDataSetThroughAdapter("select * from trn.GRNPORequisitionAllocation where Id<>'" + item["Id"] + "'", out DataSet dsRackValidation, false, "1");
+
+					//if (dsRackValidation.Tables[0].Rows.Count > 0)
+					//{
+					//	throw new Exception("Id Already Exist.");
+					//}
+
+					
+
+					conRack = new ConnectionManager.DAL.ConManager("1");
+					conRack.OpenDataSetThroughAdapter("select * from trn.GRNPORequisitionAllocation where Id='" + item["Id"] + "'", out dsRack, false, "1");
+
+					//if (RackData["StorageLocationId"] == null)
+					//{
+					//	throw new Exception("Please Select Storage Location");
+					//}
+
+					string _Id = "";
+
+					#region data update
+					//if (dsRack.Tables[0].Rows.Count == 0)
+					DataView dv = new DataView(dsRack.Tables[0]);
+					dv.RowFilter = "Id='" + item["Id"] + "'";
+					if (dv.Count == 0)
+					{
+						bplib.clsGenID genid = new bplib.clsGenID();
+						genid.GenID("trn.GRNPORequisitionAllocation", out _Id);
+						_Id = "JW" + _Id;
+						item["Id"] = _Id;
+
+						//Data["InventoryReceiveDetailId"] = _Id;
+						//Data["POBOQMapId"] = _Id;
+						//Data["POReqDetailsID"] = _Id;
+						//Data["TransactionQty"] = _Id;
+						//Data["TransactionUoMId"] = _Id;
+						//Data["BaseQty"] = _Id;
+						//Data["BaseUoMId"] = _Id;
+						//Data["POBOQQty"] = _Id;
+						//Data["POUoMId"] = _Id;
+						//Data["SalesOrderId"] = _Id;
+						//Data["RejectQty"] = _Id;
+						//Data["RejectBaseQty"] = _Id;
+
+						AddNewRow(dsRack.Tables[0], item);
+					}
+					else
+					{
+						_Id = item["Id"].ToString();
+						EditRow(dsRack.Tables[0].Rows[0], item);
+					}
+					#endregion data update 
+				}
+
+				clsStaticInfo _info = new clsStaticInfo();
+				_info.SaveDataSets(dsRack);
+
+				return Json(new { Error = false, Data = Data/*, Sequence = GetSequence()*/, Message = AplosMessage.Insert });
+
+			}
+			catch (Exception ex)
+			{
+
+				return Json(new { Error = true, Message = ex.Message });
+
+			}
+		}
+
+		private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			DataRow dr = dt.NewRow();
+			foreach (var item in sourceData.Keys)
+			{
+				try
+				{
+					dr[item] = sourceData[item];
+				}
+				catch (Exception)
+				{
+				}
+			}
+			dr["AddedBy"] = identity.Name;
+			dr["AddedDate"] = System.DateTime.Now.ToString();
+			dr["AddedFromIP"] = identity.IPAddress;
+			dt.Rows.Add(dr);
+		}
+		private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			dr.BeginEdit();
+			foreach (var item in sourceData.Keys)
+			{
+				try
+				{
+					dr[item] = sourceData[item];
+				}
+				catch (Exception)
+				{
+				}
+			}
+			dr["UpdatedBy"] = identity.Name;
+			dr["UpdatedDate"] = System.DateTime.Now.ToString();
+			dr["UpdatedFromIP"] = identity.IPAddress;
+			dr.EndEdit();
+		}
 	}//
 
 }
