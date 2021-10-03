@@ -245,6 +245,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         try {
             if (data.GRNQty >= data.OtherQty + data.TransactionQty) {
                 data.TransactionAmount = parseFloat(data.TransactionQty * data.TransactionRate).toFixed(2);
+                data.Balance = data.GRNQty - (data.OtherQty + data.TransactionQty)	
                 var gridObj = $("#GRNDetail").data("ejGrid");
                 gridObj.refreshContent(true);
                 gridObj.refreshTemplate();
