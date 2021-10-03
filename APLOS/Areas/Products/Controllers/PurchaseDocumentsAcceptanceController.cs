@@ -1531,6 +1531,23 @@ namespace Aplos.Areas.Products.Controllers
 
         #endregion
 
+        [HttpPost]
+        public ActionResult DeletePurchaseDocAcceptance(string pdocAccpId, string voucherId)
+        {
+            //if (tDSTaxVoucherId != null)
+            //    throw new CustomException("TDS voucher no  " + tDSVoucherNo + "need to delete first!");
+
+            //if (type == NewBeneficiaryType.Vendor.ToString())
+            //    _invoiceService.DeleteInventoryPayable(grnId, invoiceId, voucherId);
+            //if (type == NewBeneficiaryType.Employee.ToString())
+            //    _employeePayableService.DeleteGRNBeneficiaryEmployee(grnId, invoiceId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+
+
+
     }
 
 

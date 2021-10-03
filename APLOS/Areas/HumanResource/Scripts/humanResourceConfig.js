@@ -628,6 +628,18 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/EmployeeLeaveApprovalNew/Aplos',
             controller: 'EmployeeLeaveApprovalNewController'
         })
+        .when('/salary-Processed-report-new',
+            {
+                templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportNew',
+                controller: 'salaryProcessedReportControllerNew'
+            })
+        .when('/salary-structure-and-Processed-report-new',
+            {
+                templateUrl: 'humanresource/PayrollReports/SalaryStructureAndProcessedReportNew',
+                controller: 'salaryStructureAndProcessedReportNewController'
+            })
+
+
 ;
     
 

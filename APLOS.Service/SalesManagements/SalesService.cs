@@ -59,6 +59,8 @@ namespace Library.Service.SalesManagements
         private readonly IRepositoryAsync<SecondCharacteristics> _secondCharacteristicsRepository;
         private readonly IRepositoryAsync<ThirdCharacteristics> _thirdCharacteristicsRepository;
         private readonly IInvoiceTaxService _invoiceTaxService;
+        private readonly IRepositoryAsync<Library.Model.Inventory.InventoryIssue> _issueRepository;
+        private readonly Library.Model.Inventory.InventoryIssueDetail _issueDetailService;
         public SalesService(
              IInvoiceService invoiceService
             , IVoucherService voucherService
@@ -88,6 +90,8 @@ namespace Library.Service.SalesManagements
             , IRepositoryAsync<SecondCharacteristics> secondCharacteristicsRepository
             , IRepositoryAsync<ThirdCharacteristics> thirdCharacteristicsRepository
             , IInvoiceTaxService invoiceTaxService
+            ,IRepositoryAsync<Library.Model.Inventory.InventoryIssue> issueRepository
+            , Library.Model.Inventory.InventoryIssueDetail issueDetailService
             )
         {
             _unitOfWork = unitOfWork;
@@ -119,6 +123,9 @@ namespace Library.Service.SalesManagements
             _secondCharacteristicsRepository = secondCharacteristicsRepository;
             _thirdCharacteristicsRepository = thirdCharacteristicsRepository;
             _invoiceTaxService = invoiceTaxService;
+            _issueRepository = issueRepository;
+            _issueDetailService = issueDetailService;
+
         }
 
         #region Sales
@@ -211,7 +218,7 @@ namespace Library.Service.SalesManagements
                             BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * sales.ToCurrencyRate, 2),
                             //BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
                             BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * sales.ToCurrencyRate, 4),
-                            NetAmount = salesMaterialVM.TaxAmount+ salesMaterialVM.TransactionAmount,
+                            NetAmount = salesMaterialVM.TaxAmount + salesMaterialVM.TransactionAmount,
                             ModelState = ModelState.Added,
                             AddedBy = sales.AddedBy,
                             AddedDate = sales.AddedDate,
@@ -1013,10 +1020,10 @@ namespace Library.Service.SalesManagements
                 sales.BaseOnDueDate = voucherVM.BaseOnDueDate;
                 sales.MatureDate = voucherVM.MatureDate;
                 sales.RowState = "Posted";
-                
+
                 var invoice = new Invoice
                 {
-                    Amount = salesJVDetail.Where(r=>r.OtherName=="Customer" && r.TrnType=="Dr").Sum(r=>r.Amount),
+                    Amount = salesJVDetail.Where(r => r.OtherName == "Customer" && r.TrnType == "Dr").Sum(r => r.Amount),
                     BaseNoOfDays = voucherVM.BaseNoOfDays,
                     BaseOnDueDate = voucherVM.BaseOnDueDate,
                     CompanyGroupId = voucherVM.CompanyGroupId,
@@ -2341,7 +2348,7 @@ namespace Library.Service.SalesManagements
                 //if (null == companyParty)
                 //    throw new CustomException("Plant party mapping not found!");
                 voucherVM.IsPark = false;
-                
+
                 var invoice = new Invoice
                 {
                     Amount = salesMaterialVMList.Where(r => r.OtherName == "Customer" && r.TrnType == "Dr").Sum(r => r.Amount),
@@ -2462,7 +2469,7 @@ namespace Library.Service.SalesManagements
                                 DocDate = voucherVM.DocDate,
                                 DocRefNo = voucherVM.DocRefNo,
                                 Narration = sales.Narration,
-                                
+
                                 PostingWithoutTaxAllow = invoice.IsExcludingTax,
                                 AddedBy = voucher.AddedBy,
                                 AddedDate = voucher.AddedDate,
@@ -2942,11 +2949,27 @@ namespace Library.Service.SalesManagements
                     SourceType = "Packing",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
+                
+               
                 sales.DocRefNo = sales.Id;
                 sales.InvoiceNo = sales.Id;
                 voucherVM.Id = sales.Id;
                 AuditService.AddedLog(sales);
                 _salesRepository.Insert(sales);
+
+                var InventoryIssue = new Library.Model.Inventory.InventoryIssue
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    EntityId = voucherVM.EntityId,
+                    CurrencyId = voucherVM.CurrencyId,
+
+
+                    Id = _pkGeneratorService.GetAutoNumber(nameof(Library.Model.Inventory.InventoryIssue), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                };
+                AuditService.AddedLog(InventoryIssue);
+                _issueRepository.Insert(InventoryIssue);
 
                 var currentSalesMaterialId = 0;
                 var currentSalesOrderItemId = 0;
@@ -3061,9 +3084,27 @@ namespace Library.Service.SalesManagements
                             }
                         }
                     }
+
+                    foreach (var salesMaterialVM in salesMaterialVMList)
+                    {
+                        currentSalesMaterialId++;
+                        var InventoryIssueDetail = new Library.Model.Inventory.InventoryIssueDetail
+                        {
+                            Id = _pkGeneratorService.MakePK(InventoryIssue.Id, currentSalesMaterialId, 2),
+                            InventoryIssueId = InventoryIssue.Id,
+
+                            AddedBy = sales.AddedBy,
+                            AddedDate = sales.AddedDate,
+                            AddedFromIP = sales.AddedFromIP,
+                            UpdatedBy = null,
+                            UpdatedDate = null,
+                            UpdatedFromIP = null
+                        };                        
+                    }
+
                 }
 
-                
+
                 if (selectedPackingList != null)
                 {
                     foreach (var item in selectedPackingList)
@@ -3176,7 +3217,7 @@ namespace Library.Service.SalesManagements
             {
                 AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-             
+
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
@@ -3676,7 +3717,7 @@ namespace Library.Service.SalesManagements
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
-           
+
                 #endregion Get Company Parallerl Currency Id
 
                 _unitOfWork.BeginTransaction();
@@ -3750,7 +3791,7 @@ namespace Library.Service.SalesManagements
 
                 invoice.VoucherId = voucher.Id;
                 sales.VoucherId = voucher.Id;
-               
+
                 _salesRepository.Update(sales);
 
                 var currentInvoiceDetail = 0;
@@ -3991,7 +4032,7 @@ namespace Library.Service.SalesManagements
                 //flag = true;
                 //voucherVM.IsPark = false;
 
-             
+
 
                 // INSERT INTO Voucher TABLE
                 var packingvoucher = new Voucher
@@ -4087,7 +4128,7 @@ namespace Library.Service.SalesManagements
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = voucherPackingCr.CurrencyId,
                                 ToCurrencyId = companyCurrencyId,
-                                ToCurrencyRate =1,// sales.ToCurrencyRate,
+                                ToCurrencyRate = 1,// sales.ToCurrencyRate,
                                 ToCurrencyConversion = 1, /// sales.ToCurrencyRate,
                                 CrAmount = voucherPackingCr.CrAmount// * sales.ToCurrencyRate
                             });
@@ -4118,12 +4159,12 @@ namespace Library.Service.SalesManagements
                     drmo.EndEdit();
                 }
 
-                
 
-                
+
+
                 clsStaticInfo objApp = new clsStaticInfo();
                 objApp.SaveDataSets(dsBillMaster);
-                
+
             }
             catch (Exception ex)
             {
@@ -4140,5 +4181,104 @@ namespace Library.Service.SalesManagements
 
         #endregion
 
+
+
+        public void DeleteSale(string invoiceId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
+               // var invoice = base.Find(invoiceId);
+                var invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
+                var invoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
+               // var invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+                }
+
+                //if (invoiceTDS.Count > 0)
+                //{
+                //    foreach (var item in invoiceTDS)
+                //    {
+                //        var rdBuilder = new System.Text.StringBuilder();
+                //        var builderSql = @"DELETE [TRN].AdditionalTaxDetail  WHERE AdditionalTaxId='" + item.Id + "'";
+                //        rdBuilder.Append(builderSql);
+                //        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                //        _additionalTaxRepository.Delete(item.Id);
+                //    }
+                //}
+
+                foreach (var item in voucherdetail)
+                {
+                    var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
+                    if (gltransaction.Count > 0)
+                    {
+                        foreach (var item1 in gltransaction)
+                        {
+                            _voucherService.DeleteGLTransactionDetail(item1.Id);
+
+                        }
+
+                    }
+                    _voucherService.DeleteVoucherDetail(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var invoicetaxDdetail = _invoiceTaxDetailRepository.Query(r => r.InvoiceTaxId == item.Id).Select().ToList();
+                        foreach (var item1 in invoicetaxDdetail)
+                        {
+                            _invoiceTaxDetailRepository.Delete(item1.Id);
+                        }
+                        _invoiceTaxRepository.Delete(item.Id);
+                    }
+                }
+                foreach (var item in invoiceDetail)
+                {
+                    _invoiceDetailRepository.Delete(item.Id);
+                }
+                //base.Delete(invoiceId);
+                _voucherService.DeleteVoucher(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
     }
 }

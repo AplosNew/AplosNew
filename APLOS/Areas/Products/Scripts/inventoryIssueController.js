@@ -66,15 +66,16 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		, IssueType: 'Revenue'
 		, IssueRequestMasterId: null
 		, SlipAssetIssueTypeStatus: 'Asset'
-		, OrderRefNo: null
+		, OrderRefNo:null
 		, RefferenceNo: null
-		, OrderSpecific: null
+		, OrderSpecific: 'No'
 		, OrderSpecific1: 'No'
 		, ConsumptionBookingName: null
 		, ProductionOrderId: null
 		, ContractNo: null
 		, ContractId: null
-		,ProcessName:null
+		, ProcessName: null
+		
 	};
 	$scope.IssueType = 'Revenue';
 	$scope.productNew = Object.assign({}, $scope.product);
@@ -2317,4 +2318,6 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		});
 
 	}
+
+	
 }
