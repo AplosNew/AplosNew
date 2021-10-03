@@ -781,45 +781,37 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
 
 
 
-    $scope.onClickReportDownloadWord = function (args) {
-        debugger;
-        var gridObj = $("#GridPrint").data("ejGrid");
-        //getting corresponding record 
-        var data = gridObj.getSelectedRecords()[0];
+    $scope.onClickReportDownloadWord = function (data) {
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
         $window.open('Products/InventoryIssue/ReportSalesPosting?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
 
     };
 
-    $scope.commandPDF = [{
-        type: "details", buttonOptions: {
-            text: "PDF",
-            width: "50",
-            height: "20",
+    //$scope.commandPDF = [{
+    //    type: "details", buttonOptions: {
+    //        text: "PDF",
+    //        width: "50",
+    //        height: "20",
        
-            click: $scope.onClickReportDownloadWord
-        }
-    }];
+    //        click: $scope.onClickReportDownloadWord
+    //    }
+    //}];
 
-    $scope.onClickReportDownloadExcel = function (args) {
-        debugger;
-        var gridObj = $("#GridPrint").data("ejGrid");
-        //getting corresponding record 
-        var data = gridObj.getSelectedRecords()[0];
+    $scope.onClickReportDownloadExcel = function (data) {
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
         $window.open('Products/InventoryIssue/ReportSalesPosting?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId , '_blank');
 
     };
-    $scope.commandExcel = [{
-        type: "details", buttonOptions: {
-            text: "Excel",
-            width: "50",
-            height: "20",
-            click: $scope.onClickReportDownloadExcel
-        }
-    }];
+    //$scope.commandExcel = [{
+    //    type: "details", buttonOptions: {
+    //        text: "Excel",
+    //        width: "50",
+    //        height: "20",
+    //        click: $scope.onClickReportDownloadExcel
+    //    }
+    //}];
 
 
     $scope.onClickGRNID = function (args) {
@@ -845,88 +837,66 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
     }];
 
 // Sales Button
-    $scope.downloadSalesReport = function (args) {
-        debugger;
-
-        var gridObj = $("#GridPrint").data("ejGrid");
-        //getting corresponding record             
-        var data = gridObj.getSelectedRecords()[0];
-        //alert('jj' + data.Id);
-        // $scope.valuePassInDelModal(data); 
+    $scope.downloadSalesReport = function (data) {
         location.href = "Products/InventoryIssue/inventorySalesReportPrint?grnId=" + data.Id;
 
     };
 
-    $scope.commandSales = [{
+    //$scope.commandSales = [{
 
-        type: "details", buttonOptions: {
-            text: "Sales",
-            width: "50",
-            height: "20",
-            click: $scope.downloadSalesReport
-        }
-    }];
+    //    type: "details", buttonOptions: {
+    //        text: "Sales",
+    //        width: "50",
+    //        height: "20",
+    //        click: $scope.downloadSalesReport
+    //    }
+    //}];
 
-    $scope.downloadInventorySales = function (args) {
-        debugger;
-
-     var gridObj = $("#GridInventory").data("ejGrid");
-        //getting corresponding record             
-        var data = gridObj.getSelectedRecords()[0];
-        //alert('jj' + data.Id);
-        // $scope.valuePassInDelModal(data); 
+    $scope.downloadInventorySales = function (data) {
         location.href = "Products/InventoryIssue/inventorySalesReportPrint?grnId=" + data.Id;
 
     };
 
-    $scope.commandInventorySales = [{
+    //$scope.commandInventorySales = [{
 
-        type: "details", buttonOptions: {
-            text: "Sales",
-            width: "50",
-            height: "20",
-         click: $scope.downloadInventorySales
-        }
-    }];
+    //    type: "details", buttonOptions: {
+    //        text: "Sales",
+    //        width: "50",
+    //        height: "20",
+    //     click: $scope.downloadInventorySales
+    //    }
+    //}];
 
 
-    $scope.downloadInventorySalePDF = function (args) {
-        debugger;
-        var gridObj = $("#GridInventory").data("ejGrid");
-        //getting corresponding record 
-        var data = gridObj.getSelectedRecords()[0];
+    $scope.downloadInventorySalePDF = function (data) {
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
         $window.open('Products/InventoryIssue/ReportInventorySalesPosting?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
     };
 
-    $scope.commandInventoryPDF = [{
-        type: "details", buttonOptions: {
-            text: "PDF",
-            width: "50",
-            height: "20",
-            click: $scope.downloadInventorySalePDF
-        }
-    }];
+    //$scope.commandInventoryPDF = [{
+    //    type: "details", buttonOptions: {
+    //        text: "PDF",
+    //        width: "50",
+    //        height: "20",
+    //        click: $scope.downloadInventorySalePDF
+    //    }
+    //}];
 
-    $scope.downloadInventorySaleExcel = function (args) {
-        debugger;
-        var gridObj = $("#GridInventory").data("ejGrid");
-        //getting corresponding record 
-        var data = gridObj.getSelectedRecords()[0];
+    $scope.downloadInventorySaleExcel = function (data) {
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
         $window.open('Products/InventoryIssue/ReportInventorySalesPosting?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
 
     };
-    $scope.commandInventoryExcel = [{
-        type: "details", buttonOptions: {
-            text: "Excel",
-            width: "50",
-            height: "20",
-            click: $scope.downloadInventorySaleExcel
-        }
-    }];
+    //$scope.commandInventoryExcel = [{
+    //    type: "details", buttonOptions: {
+    //        text: "Excel",
+    //        width: "50",
+    //        height: "20",
+    //        click: $scope.downloadInventorySaleExcel
+    //    }
+    //}];
 
 
     $scope.tab = 1;
