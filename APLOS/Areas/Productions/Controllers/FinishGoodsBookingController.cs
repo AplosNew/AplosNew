@@ -59,6 +59,11 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(clsFinishGoodsBooking.GetListByProductionBooking(), JsonRequestBehavior.AllowGet);
         }
+        public ActionResult FinishGoodsInventoryRegister()
+        {
+            //return View("~/Areas/Accounts/Views/");
+            return View("~/Areas/Productions/Views/FinishGoodsInventoryRegister.cshtml");
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetDetailList(string masterId, string entityId, string processId, string productionOrderId)
@@ -265,5 +270,76 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
+
+        #region FG Inventory Register Report
+        [Authorize, HttpPost]
+        public JsonResult GetPurchaseRegister(string fromDate, string toDate, string Type)
+        {
+
+            DateTime fDate = DateTime.Parse(fromDate);
+            DateTime tDate = DateTime.Parse(toDate);
+            if (fromDate == null || fromDate == "")
+            {
+                throw new CustomException("Select From Date");
+            }
+            else if (toDate == null || toDate == "")
+            {
+                throw new CustomException("Select To Date");
+            }
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(clsFinishGoodsBooking.GetPurchaseRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+
+
+
+        [Authorize, HttpGet]
+        public ActionResult PurchaseRegisterReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            plantId = identity.PlantId;
+            var reportFileName = "FG Inventory Register Report" + fromDate + "To" + toDate + "";
+            
+            var workbook = clsFinishGoodsBooking.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+                default:
+                    return View();
+            }
+        }
+
+
+
+        [Authorize, HttpGet]
+        public ActionResult PurchaseRegisterReportExcel(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            plantId = identity.PlantId;
+            var reportFileName = "FG Inventory Register Report" + fromDate + "To" + toDate + "";
+           // Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+            // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            var workbook = clsFinishGoodsBooking.CreatePurchaseRegisterReportSheetExcel(identity.CompanyId, plantId, fromDate, toDate, Type);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+                default:
+                    return View();
+            }
+        }
+
+
+        #endregion
     }
 }
