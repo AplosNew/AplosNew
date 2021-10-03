@@ -3,20 +3,17 @@ using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
-using Library.Model.Advances;
-using Library.Model.Banks;
 using Library.Model.Employees;
 using Library.Model.Enums;
 using Library.Model.Expenses;
-using Library.Model.Invoices;
 using Library.Model.Parties;
 using Library.Model.Payments;
 using Library.Model.Vouchers;
-using Library.Service.Advances;
 using Library.Service.Calendars;
 using Library.Service.Core;
 using Library.Service.Currencies;
 using Library.Service.Enums;
+using Library.Service.Extension.Accounts;
 using Library.Service.Finances;
 using Library.Service.Invoices;
 using Library.Service.Logs;
@@ -40,9 +37,6 @@ namespace Library.Service.Employees
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
         private readonly IVoucherService _voucherService;
-        private readonly ICompanyTaxYearService _companyTaxYearService;
-        private readonly ICompanyFiscalYearService _companyFiscalYearService;
-        private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
         private readonly IEmployeePayableService _employeePayableService;
         private readonly IRepositoryAsync<EmployeePayableWriteOff> _employeePayableWriteOffRepository;
         private readonly IRepositoryAsync<EmployeePayableWriteOffDetail> _employeePayableWriteOffDetailRepository;
@@ -51,9 +45,7 @@ namespace Library.Service.Employees
         private readonly IRepositoryAsync<ExpenseBooking> _expenseBookingRepository;
         private readonly IRepositoryAsync<ExpenseBookingDetail> _expenseBookingDetailRepository;
         private readonly IRepositoryAsync<ExpenseBookingApprovalHistory> _expenseBookingApprovalHistoryRepository;
-        private readonly IRepositoryAsync<Voucher> _voucherRepository;
-        private readonly IRepositoryAsync<VoucherDetail> _voucherDetailRepository;
-        private readonly IRepositoryAsync<VoucherDetailCurrency> _voucherDetailCurrencyRepository;
+        //private readonly IRepositoryAsync<Voucher> _voucherRepository;
         private readonly IRepositoryAsync<GLTransactionDetail> _gLTransactionDetailRepository;
         private readonly IPKGeneratorService _pKGeneratorService;
         private readonly IFinancingTypeGLService _financingTypeGLService;
@@ -67,16 +59,11 @@ namespace Library.Service.Employees
             , ISqlRepository sqlRepository
             , IVoucherService voucherService
             , IPKGeneratorService pkGeneratorService
-            , ICompanyTaxYearService companyTaxYearService
             , IEmployeePayableService employeePayableService
-            , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IRepositoryAsync<EmployeePayableWriteOffDetail> employeePayableWriteOffDetailRepository
             , IRepositoryAsync<EmployeePayableDetail> employeePayableDetailRepository
-            , IRepositoryAsync<Voucher> voucherRepository
-            , IRepositoryAsync<VoucherDetail> voucherDetailRepository
-            , IRepositoryAsync<VoucherDetailCurrency> voucherDetailCurrencyRepository
+            //, IRepositoryAsync<Voucher> voucherRepository
             , IRepositoryAsync<GLTransactionDetail> gLTransactionDetailRepository
-            , ICompanyFiscalYearService companyFiscalYearService
             , IFinancingTypeGLService financingTypeGLService
             , IRepositoryAsync<ExpenseBooking> expenseBookingRepository
             , IRepositoryAsync<ExpenseBookingDetail> expenseBookingDetailRepository
@@ -87,20 +74,15 @@ namespace Library.Service.Employees
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
             _voucherService = voucherService;
-            _companyTaxYearService = companyTaxYearService;
             _employeePayableService = employeePayableService;
-            _companyParallelCurrencyService = companyParallelCurrencyService;
             _employeePayableWriteOffRepository = employeePayableWriteOffRepository;
             _employeePayableWriteOffDetailRepository = employeePayableWriteOffDetailRepository;
             _employeePayableDetailRepository = employeePayableDetailRepository;
             _employeePayableRepository = employeePayableRepository;
-            _companyFiscalYearService = companyFiscalYearService;
             _pKGeneratorService = pkGeneratorService;
             _financingTypeGLService = financingTypeGLService;
             _invoiceTaxService = invoiceTaxService;
-            _voucherRepository = voucherRepository;
-            _voucherDetailRepository = voucherDetailRepository;
-            _voucherDetailCurrencyRepository = voucherDetailCurrencyRepository;
+           // _voucherRepository = voucherRepository;
             _gLTransactionDetailRepository = gLTransactionDetailRepository;
             _expenseBookingRepository = expenseBookingRepository;
             _expenseBookingDetailRepository = expenseBookingDetailRepository;
@@ -162,9 +144,11 @@ namespace Library.Service.Employees
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode, out string companyGroupCurrencyId, out string companyGroupCurrencyCode, out string hardCurrencyId, out string hardCurrencyCode);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -568,19 +552,19 @@ namespace Library.Service.Employees
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var empSubsequent = _employeeSubsequentTransactionRepository.Query(r=>r.VoucherId== voucherId).Select().ToList();
                 var invoiceWriteOff = _employeePayableWriteOffRepository.Find(employeePayableWriteOffId);
                 var invoiceWriteOffDetail = _employeePayableWriteOffDetailRepository.Query(r => r.EmployeePayableWriteOffId == employeePayableWriteOffId).Select().ToList();
                 //var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
                 foreach (var item in empSubsequent)
                 {
@@ -597,7 +581,7 @@ namespace Library.Service.Employees
                     var builderSql = @"UPDATE [TRN].VoucherDetail SET EmployeePayableWriteOffDetailId=NULL WHERE Id='" + item.Id + "'";
                     rdBuilder.Append(builderSql);
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 //if (invoiceTax != null)
                 //{
@@ -631,7 +615,7 @@ namespace Library.Service.Employees
                     _employeePayableWriteOffDetailRepository.Delete(item.Id);
                 }
                 _employeePayableWriteOffRepository.Delete(employeePayableWriteOffId);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -661,12 +645,12 @@ namespace Library.Service.Employees
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var employeePayable = _employeePayableRepository.Query(r=>r.VoucherId == voucherId).Select().FirstOrDefault();
                 var employeePayableDetail = _employeePayableDetailRepository.Query(r => r.EmployeePayableId == employeePayable.Id).Select().ToList();
                 var expensesBooking = _expenseBookingRepository.Query(r => r.Id == employeeBookingId).Select().FirstOrDefault();
@@ -674,8 +658,12 @@ namespace Library.Service.Employees
                 var expenseBookingApprovalHistoryRepository = _expenseBookingApprovalHistoryRepository.Query(r => r.ExpenseBookingId == employeeBookingId).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
+                var rdBuilder = new System.Text.StringBuilder();
+                var builderSql = @"DELETE FROM [TRN].EmployeeSubsequentTransaction  WHERE VoucherId='" + voucherId + "'";
+                rdBuilder.Append(builderSql);
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
 
                 foreach (var item in voucherdetail)
                 {
@@ -684,7 +672,7 @@ namespace Library.Service.Employees
                     {
                         _gLTransactionDetailRepository.Delete(item.Id);
                     }
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
 
                 foreach (var item in expenseBookingApprovalHistoryRepository)
@@ -701,7 +689,7 @@ namespace Library.Service.Employees
                 }
                 _employeePayableRepository.Delete(employeePayable.Id);
                 _expenseBookingRepository.Delete(expensesBooking.Id);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
