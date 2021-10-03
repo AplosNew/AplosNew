@@ -536,6 +536,7 @@ namespace Library.Service.Materials
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.FixedAsset.ToString()));
             }
         }
+
         public GridModel GetGRNDetailList(GridParameter parameters, string inventoryReceiveId,string fabricRoll)
         {
             try
