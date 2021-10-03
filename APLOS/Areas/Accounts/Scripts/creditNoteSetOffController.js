@@ -1239,10 +1239,10 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
     $scope.TDSCboList = [];
     $scope.TDSlistMessage = "";
     $scope.getTDS = function (date) {
-        if ($scope.voucher.NoteType == 'VendorCreditNote') {
+        if ($scope.partyType == 'Vendor') {
             $scope.getTDSuRL = "accounts/TaxCode/GetTDSCbo?postingDate=" + $filter("dateFiltering")(date)
         }
-        else if ($scope.voucher.NoteType == 'CustomerCreditNote') {
+        else if ($scope.partyType == 'Customer') {
             $scope.getTDSuRL = "accounts/TaxCode/GetTDSOutPutCbo?postingDate=" + $filter("dateFiltering")(date)
         }
 
