@@ -5,6 +5,7 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 
 
 	// #region All Tab Control
+	$scope.Action = "Update";
 	$scope.GRN = "";
 	$scope.tab = 1;
 	$scope.setTabpou = function (newTab) {
@@ -104,7 +105,41 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 		}).then(function successCallback(response) {
 			$scope.JWGRNData = response.data;
 		});
-	};
-	
+	};	
 	$scope.GetJWGRData();
+
+
+
+	$scope.UpdateJWSOAllocation = function () {
+
+		$scope.detailListNew = [];
+		for (var i = 0; i < $scope.JWGRNData.length; i++) {
+			if ($scope.JWGRNData[i].Active === true) {
+				$scope.detailListNew.push($scope.JWGRNData[i]);
+			}
+		}
+		
+		if ($scope.Action === "Update") {
+			$http({
+				method: 'POST'
+				, url: 'Products/GoodsReceiveNote/CreateJWSOAllocation'
+				, data: {'Data': $scope.detailListNew }
+				, dataType: 'JSON'
+			}).then(function (response) {
+				if (response.data.Error === true)
+					ShowResult(response.data.Message, 'failure');
+				else {
+					ShowResult(response.data.Message, 'success');
+					//$scope.Clear();
+					//$scope.getdataInventoryIssue();
+					//$scope.productNew.Id = response.data.inventoryIssue.Id;
+					//$scope.getData();
+					//$scope.GetDataList();
+				}
+			}), function (response) {
+				ShowResult(response.data.Message, 'failure');
+			};
+		}
+		else ShowResult('Please issue material', 'failure');
+	};
 }
