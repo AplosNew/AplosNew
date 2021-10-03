@@ -2964,6 +2964,7 @@ namespace Library.Service.SalesManagements
                     PlantId = voucherVM.PlantId,
                     EntityId = voucherVM.EntityId,
                     CurrencyId = voucherVM.CurrencyId,
+                    IssueDate = (DateTime)voucherVM.InvoiceDate,
 
 
                     Id = _pkGeneratorService.GetAutoNumber(nameof(Library.Model.Inventory.InventoryIssue), PKGeneratorEnum.Yearly, null, DateTime.Now),
