@@ -206,7 +206,6 @@ namespace Library.Service.Invoices
                     _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                     _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                     _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                    _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                     //var receiveData = _sqlRepository.GetDataTable(@"Select * from TRN.InventoryReceive where Id = '" + receiveId + @"'").Rows[0];
                    
                     if (receiveData.Status == "Posting")
@@ -681,7 +680,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 var receiveData = _inventoryReceiveRepository.Find(receiveId);
                 voucherVM.PostingDate = receiveData.GRNDate;
                 if (receiveData.Status == "Posting")
@@ -1005,7 +1003,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 var receiveData = _inventoryReceiveRepository.Find(receiveId);
                 voucherVM.PostingDate = receiveData.GRNDate; //invReceive["GRNDate"].ToString();
@@ -1433,7 +1430,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1660,7 +1656,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 var receiveData = _inventoryReceiveRepository.Find(receiveId);
                 if (receiveData.Status == "Posting")
                     throw new CustomException("The GRN no '" + receiveData.Id + "' already Posted!");
@@ -2027,7 +2022,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 var receiveData = _inventoryReceiveRepository.Find(receiveId);
                 #endregion Get Company Parallerl Currency Id
 
@@ -2265,7 +2259,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 #endregion Get Company Parallerl Currency Id
 
                 _unitOfWork.BeginTransaction();
@@ -2506,7 +2499,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -2720,7 +2712,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -2903,7 +2894,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 // INSERT INTO Voucher TABLE
@@ -3035,7 +3025,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 // INSERT INTO Voucher TABLE
@@ -3150,7 +3139,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 // INSERT INTO Voucher TABLE
@@ -3306,7 +3294,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
 
                 #endregion Get Company Parallerl Currency Id
@@ -3806,7 +3793,6 @@ namespace Library.Service.Invoices
                     _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                     _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                     _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                    _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                    
                     if (serviceAcknowedgeData.Status == "Posting")
                         throw new CustomException("The GRN no '" + serviceAcknowedgeData.Id + "' already Posted!");
@@ -4226,7 +4212,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 if (serviceAcknowedgeData.Status == "Posting")
                     throw new CustomException("The GRN no '" + serviceAcknowedgeData.Id + "' already Posted!");
 
@@ -4716,7 +4701,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 if (receiveData.Status == "Posting")
                     throw new CustomException("The Sales no '" + receiveData.Id + "' already Posted!");
 
@@ -5103,7 +5087,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                
                 if (receiveData.Status == "Posting")
                     throw new CustomException("The Sales no '" + receiveData.Id + "' already Posted!");
@@ -5641,7 +5624,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 if (receiveData.Status == "Posting")
                     throw new CustomException("The GRN no '" + receiveData.Id + "' already Posted!");
 
@@ -6016,7 +5998,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 voucherVM.PartyType = PartyType.Vendor.ToString();
@@ -6264,7 +6245,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
 
                 _unitOfWork.BeginTransaction();
