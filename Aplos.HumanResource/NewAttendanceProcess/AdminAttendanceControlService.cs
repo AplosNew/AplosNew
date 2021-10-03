@@ -559,43 +559,62 @@ namespace Library.HumanResource.NewAttendanceProcess
                         int j = dsMaster.Tables[0].DefaultView.Count;
 
                         dsMaster.Tables[0].DefaultView[0].BeginEdit();
-                       
 
-                        if(data[i]["InTime"] != null)
+                        if (clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["InTime"]).ToString() != clsWebLib.RetValidLen(data[i]["InTime"]).ToString())
                         {
-                            if(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString() != data[i]["InTime"].ToString())
+                            if (clsWebLib.RetValidLen(data[i]["InTime"]).ToString() != "")
                             {
+                            //if(Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString()) != Convert.ToDateTime(data[i]["InTime"].ToString()))
+                            //{
                                 dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
                                 dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
                                 dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
                                 dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
                                 dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
-                            }
-                            dsMaster.Tables[0].DefaultView[0]["InTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
-                            dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
-                            dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
+                                dsMaster.Tables[0].DefaultView[0]["InTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
+                                dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
+                                dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
+                            //}
                             
-                        }
-                        if (data[i]["OutTime"] != null)
-                        {
-                            if (dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString() != data[i]["OutTime"].ToString())
-                            {
-                                dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
-                                dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
-                                dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
-                                dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
-                                dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
-                                dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
                             }
-                            dsMaster.Tables[0].DefaultView[0]["OutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
-                            dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
-                            dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
+                            else
+                            {
+                                dsMaster.Tables[0].DefaultView[0]["InTime"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
+                            }
                         }
 
-                        if (data[i]["ShiftSystemID"].ToString() != dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"].ToString())
+                        if (clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["OutTime"]).ToString() != clsWebLib.RetValidLen(data[i]["OutTime"]).ToString())
                         {
-                            if (dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"].ToString() != data[i]["ShiftSystemID"].ToString())
+                            if (clsWebLib.RetValidLen( data[i]["OutTime"]).ToString() != "")
+                            {
+                                //if (Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()) != Convert.ToDateTime(data[i]["OutTime"].ToString()))
+                                //{
+                                    dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
+                                    dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
+                                    dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
+                                    dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
+                                    dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["OutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
+                                    dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
+                                    dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
+                                //}
+                            }
+                            else
+                            {
+                                dsMaster.Tables[0].DefaultView[0]["OutTime"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
+                            }
+                        }
+
+
+                        if (clsWebLib.RetValidLen(data[i]["ShiftSystemID"]).ToString() != "")
+                        {
+                            if (data[i]["ShiftSystemID"].ToString() != dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"].ToString())
                             {
                                 dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
                                 dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
@@ -603,12 +622,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
                                 dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
+
+                                dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"] = data[i]["ShiftSystemID"].ToString();
+
                             }
-                            dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"] = data[i]["ShiftSystemID"].ToString();
                         }
                             
 
-                        if (data[i]["DayStatus"]!=null)
+                        if (clsWebLib.RetValidLen(data[i]["DayStatus"]).ToString()!="")
                         {
                             if (dsMaster.Tables[0].DefaultView[0]["DayStatus"].ToString() != data[i]["DayStatus"].ToString())
                             {
@@ -618,20 +639,20 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
                                 dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["DayStatus"] = data[i]["DayStatus"].ToString();
+                                dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"] = data[i]["DayStatus"].ToString();
+                                dsMaster.Tables[0].DefaultView[0]["isManualDayStatus"] = true;
                             }
-                            dsMaster.Tables[0].DefaultView[0]["DayStatus"] = data[i]["DayStatus"].ToString();
-                            dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"] = data[i]["DayStatus"].ToString();
-                            dsMaster.Tables[0].DefaultView[0]["isManualDayStatus"] = true;
+                            
                         }
 
                        
                         dsMaster.Tables[0].DefaultView[0].EndEdit();
-                        kk++;
                     }
 
 
                 }
-                
+
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);

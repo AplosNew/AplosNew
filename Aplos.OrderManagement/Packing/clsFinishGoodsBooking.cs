@@ -426,6 +426,7 @@ namespace Library.OrderManagement.Packing
                             drInventoryReceiveDetail["ShortageRatePercent"] = 0;
                             drInventoryReceiveDetail["ShortageValue"] = 0;
                             drInventoryReceiveDetail["RejectRatePercent"] = 0;
+                            drInventoryReceiveDetail["RejectValue"] = 0;
                             drInventoryReceiveDetail["RejectClamPercent"] = 0;
                             drInventoryReceiveDetail["ShortRejFlag"] = 0;
 
@@ -724,6 +725,7 @@ namespace Library.OrderManagement.Packing
                             drInventoryReceiveDetail["ShortageRatePercent"] = 0;
                             drInventoryReceiveDetail["ShortageValue"] = 0;
                             drInventoryReceiveDetail["RejectRatePercent"] = 0;
+                            drInventoryReceiveDetail["RejectValue"] = 0;
                             drInventoryReceiveDetail["RejectClamPercent"] = 0;
                             drInventoryReceiveDetail["ShortRejFlag"] = 0;
 

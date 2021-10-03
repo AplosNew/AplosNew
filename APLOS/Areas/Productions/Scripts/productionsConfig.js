@@ -135,7 +135,7 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/FinishGoodsBooking/Aplos',
             controller: 'FinishGoodsBookingController'
         })
-        .when('/fginventory-post', {
+        .when('/fg-inventory-post', {
             templateUrl: 'Productions/FinishGoodsBooking/FGInventoryPost',
             controller: 'FinishGoodsBookingPostController'
         })

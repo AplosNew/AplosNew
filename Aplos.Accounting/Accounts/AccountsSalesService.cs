@@ -1377,7 +1377,7 @@ namespace Library.Accounting.Accounts
 						FROM [TRN].[InventorySalesTax] AS ISD
 						LEFT JOIN [TRN].[InventorySales] AS IR ON ISD.InventorySalesId=IR.Id
 						LEFT JOIN MST.TaxCategory TC ON TC.Id=ISD.TaxCategoryId
-						LEFT JOIN MST.TaxCategoryGL TCL ON TCL.TaxCategoryId=TC.Id AND InputTaxOutPutTax='Output'
+						LEFT JOIN MST.TaxCategoryGL TCL ON TCL.TaxCategoryId=TC.Id AND InputTaxOutPutTax='Output' AND TCL.TaxType is null
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON TCL.GLGeneralInfoId=GL.Id
 						LEFT JOIN[MST].[BudgetMaster] AS BMF ON TCL.BudgetMasterId= BMF.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BMF.BudgetId= B.Id

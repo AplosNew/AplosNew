@@ -17,73 +17,89 @@
         <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl">
         </div>
         <div class="clearfix"></div>*@
-    <div class="row form-elements">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="row text-right">
-                <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                    <div class="search-form">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-3 col-md-3">
-                                <div class="select-style">
-                                    <select ng-model="grnParameters.searchBy">
-                                        <option ng-repeat="option in searchGRNByList" value="{{option.value}}">{{option.name}}</option>
-                                    </select>
+    <div class="row">
+        <div class="row form-elements">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="GRNsearchBy">
+                                            <option ng-repeat="option in searchGRNByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-7 col-md-7">
-                                <input type="text" class="form-control" placeholder="Search" ng-model="grnParameters.search" ng-enter="getGRNData()">
-                            </div>
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <button type="button" ng-click="getGRNData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="GRNsearch" ng-enter="LoadGRNSearchList()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="LoadGRNSearchList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="table-responsive modal-table">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>GRNNo</th>
-                            <th>GRN Date</th>
-                            <th>PO No</th>
-                            <th>PO Date</th>
-                            <th>Party</th>
-                            <th>Qty</th>
-                            <th>Amount</th>
-                            <th>Currency</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr dir-paginate="x in grnList|itemsPerPage:grnParameters.pageSize" total-items="grnParameters.total_count" pagination-id="metaData.name + 'grnList'" ng-dblclick="closeGRNPopUp(x);">
-                            <td>{{x.GRNNo}}</td>
-                            <td>{{x.GRNDate}}</td>
-                            <td>{{x.POID}}</td>
-                            <td>{{x.PODate}}</td>
-                            <td>{{x.PartyName}}</td>
-                            <td>{{x.TotalDetailQty}}</td>
-                            <td>{{x.TotalDetailAmount}}</td>
-                            <td>{{x.Currency}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <dir-pagination-controls max-size="10"
-                                         pagination-id="metaData.name + 'grnList'"
-                                         direction-links="true"
-                                         boundary-links="true"
-                                         on-page-change="getGRNData(newPageNumber)">
-                </dir-pagination-controls>
-            </div>
+                @*<div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>GRNNo</th>
+                                    <th>GRN Date</th>
+                                    <th>PO No</th>
+                                    <th>PO Date</th>
+                                    <th>Party</th>
+                                    <th>Qty</th>
+                                    <th>Amount</th>
+                                    <th>Currency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in GRNList|itemsPerPage:grnParameters.pageSize" total-items="grnParameters.total_count" pagination-id="metaData.name + 'grnList'" ng-dblclick="closeGRNPopUp(x);">
+                                    <td>{{x.GRNNo}}</td>
+                                    <td>{{x.GRNDate}}</td>
+                                    <td>{{x.POID}}</td>
+                                    <td>{{x.PODate}}</td>
+                                    <td>{{x.PartyName}}</td>
+                                    <td>{{x.TotalDetailQty}}</td>
+                                    <td>{{x.TotalDetailAmount}}</td>
+                                    <td>{{x.Currency}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10"
+                                                 pagination-id="metaData.name + 'grnList'"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="getGRNData(newPageNumber)">
+                        </dir-pagination-controls>
+                    </div>*@
 
 
+            </div>
         </div>
-        @*<div class="col-sm-12">
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                    </ul>
+
+        <div class="col-md-12">
+            <label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated. </span></label>
+            <div class="form-elements form-horizontal" ng-form id="FabricRoll">
+                <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNList"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="false"
+                     e-allowselection="false">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="150"></div>
+                        <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="80"></div>
+                        <div e-column e-type="string" e-field="POID" e-headertext="PO ID" e-width="120"></div>
+                        <div e-column e-type="string" e-field="PartyName" e-headertext="Party" e-width="120"></div>
+                        <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="80"></div>
+                        <div e-column e-type="number" e-field="TotalDetailQty" e-textalign="right" e-format="{0:N2}" e-headertext="Qty" e-width="100"></div>
+                        <div e-column e-type="number" e-field="TotalDetailAmount" e-textalign="right" e-headertext="Amount" e-width="50"></div>
+                        <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                    </div>
                 </div>
-            </div>*@
+            </div>
+        </div>
     </div>
 </div>
 
@@ -136,7 +152,7 @@
                             <label class="col-sm-10 control-label mark"><span style="font-weight:bold">Party :</span>{{fabricRollMaster.PartyName}}</label>
                             <label class="col-sm-2 control-label mark">&nbsp;</label>
                         </div>
-                       
+
 
                     </div>
                 </div>
@@ -254,11 +270,11 @@
                             </div>
                         </div>
                         @*<div class="form-group">
-                            <label class="col-sm-4 control-label"><span style="font-weight:bold;">Distribute Qty</span></label>
-                            <div class="col-sm-8">
-                                {{fabDistributeQty}}
-                            </div>
-                        </div>*@
+                                <label class="col-sm-4 control-label"><span style="font-weight:bold;">Distribute Qty</span></label>
+                                <div class="col-sm-8">
+                                    {{fabDistributeQty}}
+                                </div>
+                            </div>*@
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group">
@@ -274,11 +290,11 @@
                             </div>
                         </div>
                         @*<div class="input-group" style="margin-top:-2px;">
-                <input type="text" n-decimals="2" ng-model="fabricRollMasterNew.GRNSplitQty" class="form-control">
-                <span class="input-group-btn">
-                    <button ng-click="splitGrnRow()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                </span>
-            </div>*@
+                                <input type="text" n-decimals="2" ng-model="fabricRollMasterNew.GRNSplitQty" class="form-control">
+                                <span class="input-group-btn">
+                                    <button ng-click="splitGrnRow()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>*@
                     </div>
                 </div>
                 <div class="row form-element-ctrl form-horizontal">
@@ -319,7 +335,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                      
+
                                         <td colspan="6" class="text-right"><span style="font-weight:bold;">Total:</span><strong>{{fabricRollMasterList | sumByKey : 'VendorQty' }}</strong></td>
                                         <td></td>
                                     </tr>

@@ -216,6 +216,7 @@ namespace Aplos.Areas.Productions.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(clsFinishGoodsBooking.GetFGInventoryGLBudgetActivity(inveReveiveId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+
         [HttpPost]
         public JsonResult FinishGoodsBookingPost( VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<VoucherDetailViewModel> fGInventoryGLBudgetActivityVMList)
@@ -249,6 +250,7 @@ namespace Aplos.Areas.Productions.Controllers
             });
 
         }
+
         [HttpGet, Authorize]
         public ActionResult FinishGoodsBookingPostReport(ReportFormat reportFormat, string voucherId)
         {

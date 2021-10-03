@@ -4424,7 +4424,7 @@ LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 WHERE IR.PlantId='"+ plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND ISNULL(IR.VoucherId,'')<>'' AND IR.IsPaymentHold=0 AND IR.PlantId='"+ plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
 AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.GRNType!='MaterialTransfer' AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].[Invoice] where ISNULL(InventoryReceiveId,'')<>'')
 AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].EmployeePayable where ISNULL(InventoryReceiveId,'')<>'')
-AND IR.Id NOT IN(Select distinct InventoryReceiveId from [dbo].[PostGRNInvoiceDetail])
+--AND IR.Id NOT IN(Select distinct InventoryReceiveId from [dbo].[PostGRNInvoiceDetail])
 order by IR.GRNDate desc";
 				return _sqlRepository.GetDataCollection(sql);
 			}
@@ -4444,10 +4444,9 @@ order by IR.GRNDate desc";
 	                        ,IM.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
 	                        ,IM.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,IM.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
 	                        ,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
-	                         ,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,ISNULL(PIND.OtherQty,0) OtherQty,IRD.TransactionQty,IRD.TransactionQty TQty
-							,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')
-							,TransactionAmount=FORMAT((FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')*IRD.TransactionQty),'N2')						    
-							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate						
+	                         ,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,IRD.TotalMaterialTranAmount,IRD.TransactionQty GRNQty,ISNULL(PIND.OtherQty,0) OtherQty,PID.TransactionQty
+							,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4'),TransactionAmount
+							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate,Balance=IRD.TransactionQty-(ISNULL(PIND.OtherQty,0)+PID.TransactionQty)				
                         FROM TRN.[InventoryReceiveDetail] AS IRD  
 						LEFT JOIN TRN.InventoryReceive AS IR ON IRD.InventoryReceiveId = IR.Id
 						LEFT JOIN TRN.InventoryMaterial AS IM ON IRD.InventoryMaterialId = IM.Id

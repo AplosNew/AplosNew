@@ -1215,6 +1215,10 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.SaveMaster = function () {
         try {
 
+            if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
+                throw "Future Date not allowed for Production Booking.";
+            }
+
             if ($scope.Status === 'INVENTORY') {
                 $scope.productionSummaryNew.FromSFGInventoryId = $scope.productionSummaryNew.ProcessId;
                 $scope.productionSummaryNew.ProcessId = null;
