@@ -4446,7 +4446,7 @@ order by IR.GRNDate desc";
 	                        ,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
 	                         ,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,IRD.TotalMaterialTranAmount,IRD.TransactionQty GRNQty,ISNULL(PIND.OtherQty,0) OtherQty,PID.TransactionQty
 							,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4'),TransactionAmount
-							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate				
+							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate,Balance=IRD.TransactionQty-(ISNULL(PIND.OtherQty,0)+PID.TransactionQty)				
                         FROM TRN.[InventoryReceiveDetail] AS IRD  
 						LEFT JOIN TRN.InventoryReceive AS IR ON IRD.InventoryReceiveId = IR.Id
 						LEFT JOIN TRN.InventoryMaterial AS IM ON IRD.InventoryMaterialId = IM.Id

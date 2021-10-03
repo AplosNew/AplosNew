@@ -7737,7 +7737,7 @@ namespace Library.MaterialManagement.Inventory
                     flag = true;
                     var _pk = GetPK3();
                     var inventoryMaterialList = _inventoryMaterialService.GetInventoryMaterialListByUpToSkuSales(entities, inventoryIssue.CompanyId, inventoryIssue.PlantId);
-                    var currencyId = _companyRepository.Find(inventoryIssue.CompanyId).BaseCurrencyId;
+                    //var currencyId = _companyRepository.Find(inventoryIssue.CompanyId).BaseCurrencyId;
                     foreach (var item in entities)// update view model (inventory material field)
                     {
                         if (!string.IsNullOrEmpty(productNewId))
@@ -7763,7 +7763,7 @@ namespace Library.MaterialManagement.Inventory
                             item.CompanyGroupId = im.CompanyGroupId;
                             item.CompanyId = inventoryIssue.CompanyId;
                             item.PlantId = inventoryIssue.PlantId;
-                            item.CurrencyId = currencyId;
+                            item.CurrencyId = inventoryIssue.CurrencyId;
                             item.MaterialStorageId = null;
                             item.MaterialMasterId = im.MaterialMasterId;
                             item.ArticleId = im.ArticleId;
@@ -7799,7 +7799,7 @@ namespace Library.MaterialManagement.Inventory
 
                     if (string.IsNullOrEmpty(productNewId))
                     {
-                        inventoryIssue.CurrencyId = currencyId;
+                        inventoryIssue.CurrencyId = inventoryIssue.CurrencyId;
                         inventoryIssue.Id = _pk;
                         AuditService.AddedLog(inventoryIssue);
                         _InventorySalesRepository.Insert(inventoryIssue);
