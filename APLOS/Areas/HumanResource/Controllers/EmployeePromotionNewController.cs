@@ -133,28 +133,28 @@ namespace Aplos.Areas.HumanResource.Controllers
             GetEmployeeInfo(employeeInformation.SystemId, out dsEmp);
             clsSalaryStructureAplos ob = new clsSalaryStructureAplos();
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if (incrementHistory.IsPromotion == true)
+            //if (incrementHistory.IsPromotion == true)
+            //{
+            incrementHistory.AddedBy = identity.Name;
+            incrementHistory.UpdatedBy = identity.Name;
+            incrementHistory.AddedFromIP = identity.IPAddress;
+            incrementHistory.UpdatedFromIP = identity.IPAddress;
+
+            incrementHistory.ToGivenDesignationId = employeeInformation.GivenDesignationId;
+            incrementHistory.ToLegalDesignationId = employeeInformation.LegalDesignationId;
+            incrementHistory.ToBudgetCode = employeeInformation.BudgetCode;
+
+            if (dsEmp.Tables[0].Rows.Count > 0)
             {
-                incrementHistory.AddedBy = identity.Name;
-                incrementHistory.UpdatedBy = identity.Name;
-                incrementHistory.AddedFromIP = identity.IPAddress;
-                incrementHistory.UpdatedFromIP = identity.IPAddress;
-
-                incrementHistory.ToGivenDesignationId = employeeInformation.GivenDesignationId;
-                incrementHistory.ToLegalDesignationId = employeeInformation.LegalDesignationId;
-                incrementHistory.ToBudgetCode = employeeInformation.BudgetCode;
-
-                if (dsEmp.Tables[0].Rows.Count>0)
-                {
-                    incrementHistory.FromGivenDesignationId = dsEmp.Tables[0].Rows[0]["GivenDesignationId"].ToString();
-                    incrementHistory.FromLegalDesignationId = dsEmp.Tables[0].Rows[0]["LegalDesignationId"].ToString();
-                    incrementHistory.FromBudgetCode = dsEmp.Tables[0].Rows[0]["BudgetCode"].ToString();
-                }
-               
+                incrementHistory.FromGivenDesignationId = dsEmp.Tables[0].Rows[0]["GivenDesignationId"].ToString();
+                incrementHistory.FromLegalDesignationId = dsEmp.Tables[0].Rows[0]["LegalDesignationId"].ToString();
+                incrementHistory.FromBudgetCode = dsEmp.Tables[0].Rows[0]["BudgetCode"].ToString();
+            }
+        //}
 
 
                 ob.SaveIncrementHistoryData(incrementHistory);
-            }
+            
 
             _employeeProfileService.UpdateBudgetCode(employeeInformation);
 

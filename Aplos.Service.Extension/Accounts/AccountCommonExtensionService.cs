@@ -270,11 +270,14 @@ namespace Library.Service.Extension.Accounts
             return cashTemp;
         }
 
-        public Dictionary<string, object> GetMaterialHSNCodeId(string materialMasterId)
+        public IList<Dictionary<string, object>> GetMaterialHSNCodeId(string materialMasterId)
         {
-            var cmdText = @"select HSNCodeId from mst.MaterialMaster where Id = '" + materialMasterId + "'";
-            return _sqlRepository.GetData(cmdText);
+            var cmdText = @"select HSN.* from mst.HSNTaxPercentage HSN left join mst.MaterialMaster mm on mm.HSNCodeId=HSN.Id
+						where mm.Id='' = '" + materialMasterId + "'";
+            return _sqlRepository.GetDataCollection(cmdText);
         }
+
+
         public Dictionary<string, object> GetCompanyAddressStateId(string companyId)
         {
             var cmdText = @"select AM.StateId from MST.AddressMaster AM left join ORG.Company C ON C.AddressMasterId=AM.Id
@@ -339,6 +342,26 @@ namespace Library.Service.Extension.Accounts
             return glTemp;
         }
 
+        public Dictionary<string, object> GetTaxCode(string id)
+        {
+            var sql = @"SELECT TOP(1) TCGL.* FROM [MST].[TaxCodeGL] AS TCGL
+                        WHERE TCGL.TaxCodeId='" + id + "' ";
+            var glTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || glTemp.Count == 0)
+                throw new CustomException("Tax code  not found!.");
+            return glTemp;
+        }
+        public Dictionary<string, object> GetTaxCategoryByCircle( string circle)
+        {
+            var sql = @"SELECT TOP(1) TCGL.* FROM [MST].[TaxCategory] AS TCGL
+                        WHERE TCGL.Active=1 and TCGL.TaxCircle='"+ circle + "'";
+            var glTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || glTemp.Count == 0)
+                throw new CustomException("Tax code  not found!.");
+            return glTemp;
+        }
         public Dictionary<string, object> GetTaxCodeGL(string id)
         {
             var sql = @"SELECT TOP(1) TCGL.* FROM [MST].[TaxCodeGL] AS TCGL

@@ -1170,10 +1170,9 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
             try
             {
                 strSQL = @"select 
-                                sum(leaveDuration) LeaveDays,EmpSystemID
+                                sum(LWPValue) LeaveDays,EmpSystemID
                                  from AttdnProcessData 
                                   where    EmpSystemID in (" + sEmpSysIDColl + @") and WorkDate between '" + sFromDate + @"' and '" + sToDate + @"' 
-                                  and LTSystemID is not null and isnull(IsLWP,0)=1 and isnull(maternityStatus,'')='' 
                                   group by EmpSystemID
                                   order by EmpSystemID";//eee
 

@@ -5469,7 +5469,7 @@ namespace Library.Service.Invoices
                     CompanyGroupId = invoice.CompanyGroupId,
                     CompanyId = invoice.CompanyId,
                     PlantId = invoice.PlantId,
-                    CurrencyId = invoice.CurrencyId,
+                    CurrencyId = companyCurrencyId,
                     FiscalYearId = invoice.FiscalYearId,
                     FiscalYearPeriodId = invoice.FiscalYearPeriodId,
                     TaxYearId = invoice.TaxYearId,
@@ -5515,7 +5515,7 @@ namespace Library.Service.Invoices
                             BudgetMasterId = invvoucherDetailVM.BudgetMasterId,
                             ActivityId = invvoucherDetailVM.ActivityId,
                             CrAmount = invvoucherDetailVM.Amount,
-                            CurrencyId = voucherVM.CurrencyId,
+                            CurrencyId = companyCurrencyId,
                             DocDate = voucherVM.DocDate,
                             DocRefNo = voucherVM.DocRefNo,
                             Narration = invvoucherDetailVM.Narration,
@@ -5544,9 +5544,9 @@ namespace Library.Service.Invoices
                             ToCurrencyRate = voucherVM.ToCurrencyRate,
                             ToCurrencyId = companyCurrencyId,
                             ParallelCurrencyId = companyCurrencyId,
-                            FromCurrencyId = voucher.CurrencyId,
-                            CrAmount = voucherVM.ToCurrencyRate * invvoucherCr.CrAmount,
-                            ToCurrencyConversion = 1 / voucherVM.ToCurrencyRate
+                            FromCurrencyId = companyCurrencyId,
+                            CrAmount =  invvoucherCr.CrAmount,
+                            ToCurrencyConversion = 1 
                         };
                         _voucherService.InsertVoucherDetailCompanyCurrency(invvoucherCr, invvoucherDetailCurrencydb);
                         invvoucherDetailCurrencydb = null;
@@ -5559,7 +5559,7 @@ namespace Library.Service.Invoices
                             GLGeneralInfoId = invvoucherDetailVM.GLGeneralInfoId,
                             BudgetMasterId = invvoucherDetailVM.BudgetMasterId,
                             ActivityId = invvoucherDetailVM.ActivityId,
-                            CurrencyId = voucher.CurrencyId,
+                            CurrencyId = companyCurrencyId,
                             CrAmount = 0,
                             DrAmount = invvoucherDetailVM.Amount,
                             DocDate = voucher.DocDate,
@@ -5588,9 +5588,9 @@ namespace Library.Service.Invoices
                             ToCurrencyRate = voucherVM.ToCurrencyRate,
                             ToCurrencyId = companyCurrencyId,
                             ParallelCurrencyId = companyCurrencyId,
-                            FromCurrencyId = voucher.CurrencyId,
-                            DrAmount = voucherVM.ToCurrencyRate * invvoucherDr.DrAmount,
-                            ToCurrencyConversion = 1 / voucherVM.ToCurrencyRate
+                            FromCurrencyId = companyCurrencyId,
+                            DrAmount = invvoucherDr.DrAmount,
+                            ToCurrencyConversion = 1
                         };
                         _voucherService.InsertVoucherDetailCompanyCurrency(invvoucherDr, invvoucherDetailCurrencydb);
                         invvoucherDetailCurrencydb = null;
