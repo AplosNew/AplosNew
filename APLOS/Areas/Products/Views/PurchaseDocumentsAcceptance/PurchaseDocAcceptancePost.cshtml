@@ -620,8 +620,8 @@
                                     <div e-column e-field="IsChargePark" e-headertext="Charges Park/Post" e-width="120"></div>
                                     <div e-column e-type="string" e-field="AcceptanceFirst" e-headertext="AcceptanceFirst" e-width="50"></div>
                                     @*<div e-column e-headertext="Actions" e-width="50">
-            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
-        </div>*@
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
+                                </div>*@
                                 </div>
                             </div>
                         </div>
@@ -660,6 +660,7 @@
                                     <div e-column e-headertext="Actions" e-width="50">
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList1');" style="margin: -6px;"></i></button>
                                     </div>
+                                    <div e-column e-headertext="Action" e-template="#DeleteTemplate" e-width="50"></div>
                                 </div>
                             </div>
                         </div>
@@ -668,6 +669,24 @@
                     </div>
                 </fieldset>
             </div>
+
+
+            <script id="DeleteTemplate" type="text/template">
+                <div class="common-btn">
+                    <ul class="common-btn list-inline text-center">
+                        <li>
+                     
+                            <button ng-disabled="data.IsPark==false" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                            </button>
+                       
+                        </li>
+                    </ul>
+                </div>
+            </script>
+
+
+
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetAcceptenceList(3), active: isSetAcceptenceList(3) }">
                 <fieldset class="scheduler-border">
                     <div>
@@ -1324,6 +1343,8 @@
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="RemoveAcceptancePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveAcceptance()"></confirm-archive-generic>
+
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(purDocAcceptanceId,voucherId)"></confirm-archive-generic>
 <div class="modal fade site-modal in" id="ListOfRequisition" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">

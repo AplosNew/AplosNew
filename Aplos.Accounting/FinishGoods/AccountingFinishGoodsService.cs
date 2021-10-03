@@ -219,7 +219,7 @@ namespace Library.Accounting.FixedAssets
                             {
                                 dr.BeginEdit();
 
-                                dr["Status"] = "Posted";
+                                dr["Status"] = "Posting";
                                 dr["VoucherId"] = voucher.Id;
                                 dr["UpdatedBy"] = voucher.AddedBy;
                                 dr["UpdatedDate"] = voucher.AddedDate;

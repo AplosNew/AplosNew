@@ -74,6 +74,10 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             return View();
         }
 
+        public ActionResult SalaryStructureAndProcessedReportNew()
+        {
+            return View();
+        }
 
         public ActionResult SeparatedEmployeeSalaryStructure()
         {
@@ -115,7 +119,10 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             return View();
         }
 
-
+        public ActionResult SalaryProcessedReportNew()
+        {
+            return View();
+        }
         #endregion -- Pages
 
         #region -- Operations
@@ -248,7 +255,28 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeSalaryStructureWithProceesdNew(string month, string year, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+                var fileName = "EmployeeSalaryStructure" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+                var workbook = _payrollReportsService.GetEmployeeSalaryStructureWithProcessedNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, payRollGroup, parameters, isActive, isSeperated, isMaternity);
+                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
         [HttpPost, Authorize]
         public ActionResult GetEmployeeSalaryProcessedReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
         {
@@ -286,6 +314,30 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
                 var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReportSalaryLogWise(out int xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false);
+                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeSalaryProcessedReportSalLogWiseNew(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var fileName = month + "-" + year + "SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+
+                var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReportSalaryLogWiseNew(out int xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false);
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
 

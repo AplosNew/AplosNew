@@ -4181,5 +4181,104 @@ namespace Library.Service.SalesManagements
 
         #endregion
 
+
+
+        public void DeleteSale(string invoiceId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
+               // var invoice = base.Find(invoiceId);
+                var invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
+                var invoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
+               // var invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+                }
+
+                //if (invoiceTDS.Count > 0)
+                //{
+                //    foreach (var item in invoiceTDS)
+                //    {
+                //        var rdBuilder = new System.Text.StringBuilder();
+                //        var builderSql = @"DELETE [TRN].AdditionalTaxDetail  WHERE AdditionalTaxId='" + item.Id + "'";
+                //        rdBuilder.Append(builderSql);
+                //        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                //        _additionalTaxRepository.Delete(item.Id);
+                //    }
+                //}
+
+                foreach (var item in voucherdetail)
+                {
+                    var gltransaction = _voucherService.QueryGLTransactionDetail(item.Id).Select().ToList();
+                    if (gltransaction.Count > 0)
+                    {
+                        foreach (var item1 in gltransaction)
+                        {
+                            _voucherService.DeleteGLTransactionDetail(item1.Id);
+
+                        }
+
+                    }
+                    _voucherService.DeleteVoucherDetail(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var invoicetaxDdetail = _invoiceTaxDetailRepository.Query(r => r.InvoiceTaxId == item.Id).Select().ToList();
+                        foreach (var item1 in invoicetaxDdetail)
+                        {
+                            _invoiceTaxDetailRepository.Delete(item1.Id);
+                        }
+                        _invoiceTaxRepository.Delete(item.Id);
+                    }
+                }
+                foreach (var item in invoiceDetail)
+                {
+                    _invoiceDetailRepository.Delete(item.Id);
+                }
+                //base.Delete(invoiceId);
+                _voucherService.DeleteVoucher(voucher.Id);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
     }
 }

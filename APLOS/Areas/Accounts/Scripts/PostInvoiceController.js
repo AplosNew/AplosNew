@@ -14,7 +14,6 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         Id: null, InvoiceDate: null, DocRefNo: null, PartyId: null, PartyPlantId: null, CurrencyId: null, ToCurrencyRate: null, Narration: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
-
   
     $scope.getDataList = function () {
         $http({
@@ -61,7 +60,6 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         });
     };
 
-
     $scope.Get = function (obj) {
         $scope.model = obj.data;
         $scope.modelNew = Object.assign({}, $scope.model);
@@ -72,7 +70,6 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             $rootScope.toggle();
         }
     };
-
 
     $scope.approvedGRNList = [];
     $scope.getPopUpData = function () {
@@ -140,7 +137,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                         }
                     }
                     else {
-                        throw 'Select same Customer.';
+                        throw 'Select same Vendor.';
                     }
                 }
 
@@ -245,18 +242,36 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     });
 
     $scope.calculateAmount = function (data) {
-        data.TransactionAmount = parseFloat(data.TransactionQty * data.TransactionRate).toFixed(2);
-        var gridObj = $("#GRNDetail").data("ejGrid");
-        gridObj.refreshContent(true);
-        gridObj.refreshTemplate();
+        try {
+            if (data.GRNQty >= data.OtherQty + data.TransactionQty) {
+                data.TransactionAmount = parseFloat(data.TransactionQty * data.TransactionRate).toFixed(2);
+                var gridObj = $("#GRNDetail").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+            }
+            else {
+                throw "Invoice Qty can't greater than GRN Qty.";
+            }
+            
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     $scope.Action = 'Save';
-
     $scope.Save = function () {
         try {
             angular.copy($scope.modelNew, $scope.model);
             $scope.$broadcast('show-errors-check-validity');
+
+            if (baseService.arrayLength($scope.InventoryReceiveDetailList)>0) {
+                for (var i = 0; i < $scope.InventoryReceiveDetailList.length; i++) {
+                    if ($scope.InventoryReceiveDetailList[i].GRNQty < $scope.InventoryReceiveDetailList[i].OtherQty + $scope.InventoryReceiveDetailList[i].TransactionQty) {
+                        throw "Invoice Qty can't greater than GRN Qty.";
+                    }
+                }
+            }
+
             if ($scope.modelNewForm.$valid) {
                 if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                     $http({
