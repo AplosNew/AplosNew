@@ -231,8 +231,6 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                clsLeaveApproval objLvTrsEmpWise;
-                objLvTrsEmpWise = new clsLeaveApproval(_sqlRepository);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 foreach (LeaveVM item in LeaveData)
@@ -257,24 +255,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                     }
                 }
 
-                foreach (LeaveVM item in LeaveData)
-                {
-                    LeaveCustomPara obj = new LeaveCustomPara();
-                    obj.EmpSystemId = item.EmployeeID;
-                    obj.FromDate = Convert.ToDateTime(item.FromDate);
-                    obj.ToDate = Convert.ToDateTime(item.ToDate);
-                    obj.LvTransSystemID = item.LvTransSystemID;
-                    obj.LTSystemID = item.LTSystemID;
-                    obj.CalanderYearID = item.CalanderYearID;
-
-                    obj.PlantId = identity.PlantId;
-                    obj.CompanyId = identity.CompanyId;
-                    obj.GroupId = identity.CompanyGroupId;
-                    obj.UserId = identity.Name;
-                    obj.EmpSystemId = item.EmployeeID;
-
-                    objLvTrsEmpWise.SaveData(obj);
-                }
 
                 //************New Leave Work Code
 
@@ -284,12 +264,30 @@ namespace Aplos.Areas.HumanResource.Controllers
                 //Getting the Employees Data from the APD Table
                 foreach (LeaveVM item in LeaveData)
                 {
+
+                    DateTime Ftd = Convert.ToDateTime(item.FromDate);
+                    DateTime Tld = Convert.ToDateTime(item.ToDate);
+
+                    DataSet PlantLock;
+                    PlantLockCheck(Ftd.ToString(), Tld.ToString(), out PlantLock, identity.PlantId);
+                    string pl = "";
+                    if (PlantLock.Tables[0].Rows.Count > 0)
+                    {
+                        for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                        {
+                            pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                        }
+
+                        throw new Exception("The Plant is Locked for - " + pl);
+                    }
+
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where WorkDate between '" + Convert.ToDateTime(item.FromDate) + "' and '" + Convert.ToDateTime(item.ToDate) + @"' 
                             and EmpSystemID ='" + item.EmployeeID + "' ";
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
+                    
 
                     //Getting the Leave Code
                     var strCode = "Select Code from dbo.LeaveType where Id = '" + item.LTSystemID + "'";
@@ -297,8 +295,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                     string LeaveCode = ddt.Rows[0]["Code"].ToString();
 
 
-                    DateTime Ftd = Convert.ToDateTime(item.FromDate);
-                    DateTime Tld = Convert.ToDateTime(item.ToDate);
+                   
+
                     while (Ftd <= Tld)
                     {
                         string newformat = Convert.ToDateTime(Ftd).ToString("yyyyMMdd");
@@ -309,7 +307,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             dr["LeaveStatus"] = LeaveCode;
-                            dr["LTSytemID"] = item.LTSystemID;
+                            dr["LTSystemID"] = item.LTSystemID;
                             dr["UpdatedBy"] = "Schedule";
                             dr["ManualEntryTime"] = Convert.ToDateTime(DateTime.Now);
                             dr["LockedDate"] = DBNull.Value;
@@ -326,7 +324,22 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(dsRef);
+
+                    var sqls = @"UPDATE LeaveTransactionDetails SET IsAvailed = 1,LeaveStatus = '"+LeaveCode+@"',UpdatedBy = '"+identity.Name+@"',DateUpdated = '"+DateTime.Now+@"'
+                                    where LvTrnsSystemID = '"+item.LvTransSystemID+"'";
+
+                    var sqlss = @"UPDATE LeaveTransaction SET IsApproved = 1,UpdatedBy = '" + identity.Name + @"',DateUpdated = '" + DateTime.Now + @"'
+                                    where SystemID = '" + item.LvTransSystemID + "'";
+
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenConnection("1");
+                    objCon.BeginTransaction();
+                    objCon.ExecuteNonQueryWrapper(sqls, true, "1");
+                    objCon.ExecuteNonQueryWrapper(sqlss, true, "1");
+                    objCon.CommitTransaction();
                 }
+
+                
 
                 NewAttendanceProcessService ap = new NewAttendanceProcessService();
                 ap.ManualScheduler(identity.PlantId, RowsEdited);
@@ -408,24 +421,29 @@ namespace Aplos.Areas.HumanResource.Controllers
                 objLvTrsEmpWise.Reject(obj);
             }
 
-
-
-
-
             //MasterId = obj.SaveMasterAndDetailForLeavePolicy(LeaveData);
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
 
+        public void PlantLockCheck(string FDate, string TDate, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string From = Convert.ToDateTime(FDate).ToString("dd-MMM-yyyy");
+                string To = Convert.ToDateTime(TDate).ToString("dd-MMM-yyyy");
 
+                var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
+                and LockedDate between '" + From + "' and '" + To + "' and IsActive='1'";
 
-
-
-
-
-
-
-
-
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         #endregion
 

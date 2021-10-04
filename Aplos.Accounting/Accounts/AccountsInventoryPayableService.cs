@@ -4514,6 +4514,20 @@ order by IR.GRNDate desc";
 				throw ex;
 			}
 		}
+		public IEnumerable<object> GetPostableList()
+		{
+			try
+			{
+				string sql = @"SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate FROM [dbo].[PostGRNInvoice] PGI
+                            LEFT JOIN HKP.Party P ON P.Id=PGI.PartyId
+                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
 
 		public IEnumerable<object> GetPostInvoiceDetailData(string masterId)
 		{
