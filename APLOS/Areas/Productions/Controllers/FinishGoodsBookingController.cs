@@ -342,6 +342,27 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
 
+        //[HttpGet, Authorize]
+        //public ActionResult PabyableJournal(ReportFormat reportFormat, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    var reportFileName = "GRN";
+        //    //AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
+        //    var workbook = clsFinishGoodsBooking.PabyableJournal(identity.CompanyId, identity.PlantId, inventoryReceiveId, employeeId, isReversCharge, isFoc, reportFileName);
+        //    switch (reportFormat)
+        //    {
+        //        case ReportFormat.Pdf:
+        //            return RenderReportAsPdf(workbook, reportFileName);
+
+        //        case ReportFormat.Excel:
+        //            return RenderReportAsExcel(workbook, reportFileName);
+
+        //        default:
+        //            return View();
+        //    }
+        //}
+
+
         #endregion
     }
 }

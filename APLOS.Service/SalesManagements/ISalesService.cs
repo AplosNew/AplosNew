@@ -4,6 +4,7 @@ using Library.ViewModel.SalesManagements;
 using Library.ViewModel.Vouchers;
 using Syncfusion.XlsIO;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Library.Service.SalesManagements
 {
@@ -31,7 +32,7 @@ namespace Library.Service.SalesManagements
         void MasterOrderSalesPost(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList);
         void MasterOrderSalesUpdate(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesOrderItem> selectedMasterOrderList, IEnumerable<SalesServiceViewModel> salesServiceVMList);
 
-        void PackingInvoiceInsert(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedMasterOrderList, IEnumerable<SalesServiceViewModel> salesServiceVMList);
+        void PackingInvoiceInsert(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedMasterOrderList, IEnumerable<SalesServiceViewModel> salesServiceVMList, DataSet dsDetail, DataSet dsHistory);
         void PackingInvoiceUpdate(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedMasterOrderList, IEnumerable<SalesServiceViewModel> salesServiceVMList);
         void PackingSalesPost(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList
            , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList
