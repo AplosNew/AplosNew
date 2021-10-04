@@ -45,7 +45,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
-       
+        public ActionResult LeaveDelete()
+        {
+            return View();
+        }
         #endregion -- Pages
 
         #region -- Operations

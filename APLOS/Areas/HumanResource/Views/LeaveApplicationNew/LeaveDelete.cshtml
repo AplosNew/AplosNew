@@ -1,0 +1,146 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Leave Delete
+</h3>
+<div class="form-elements form-horizontal" ng-form name="leaveApplicationNewForm">
+    <div class="clearfix"></div>
+    <input type="hidden" ng-model="leaveApplicationNew.Id">
+    <input type="text" ng-model="leaveApplicationNew.Id" hidden />
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Calender Year</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="ID" class="form-control" ng-model="YearNo" name="YearNo" ng-change="getLeaveBalance();getData()">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in leaveYearlist" value="{{option.Id}}">{{option.YearNo}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee Select<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{leaveApplicationNew.EmployeeCode}}</span>
+                        <input type="text" name="EmployeeName" ng-model="leaveApplicationNew.EmployeeName" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="popUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <div class="col-sm-8">
+                    <div>
+                        <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 325px; border: 1px solid; height: 200px; width: 200px;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Leave Name</th>
+                            <th>Current Year Allocation</th>
+                            <th>Carry Forward</th>
+                            <th>Leave Days Allowed</th>
+                            <th>Applied</th>
+                            <th>Availed</th>
+                            <th>Encashed</th>
+                            <th>Balance</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in LeaveBalanceList">
+                            <td>{{x.LeaveName}}</td>
+                            <td>{{x.CurrentAllocation}}</td>
+                            <td>{{x.BroughtForward}}</td>
+                            <td>{{x.LeaveDays}}</td>
+                            <td>{{x.Applied}}</td>
+                            <td>{{x.Availed}}</td>
+                            <td>{{x.EncashedInbetween}}</td>
+                            <td>{{x.Balance}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="table-responsive modal-table  aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Leave Name</th>
+                <th>Leave Day Type</th>
+                <th>From Date</th>
+                <th>To Date</th>
+                <th>Leave Reason</th>
+                <th>Approved</th>
+                <th>Reject</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in LeaveTransactionList |itemsPerPage:leaveParameters.pageSize" total-items="leaveParameters.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.leaveTypeName}}</td>
+                <td>{{x.LeaveDayType}}</td>
+                <td>{{x.FromDate|dateFiltering}}</td>
+                <td>{{x.ToDate|dateFiltering}}</td>
+                <td>{{x.LvReason}}</td>
+                <td>{{x.IsApproved?'Yes':'No'}}</td>
+                <td>{{x.IsCancel?'Yes':'No'}}</td>
+                <td><button data-toggle="modal" data-target="#confirmPopUp" ng-click="Get(x.Id, $index);" class="btn"><i class="glyphicon glyphicon-trash"></i></button></td>
+
+
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

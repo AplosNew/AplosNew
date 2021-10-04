@@ -1507,10 +1507,10 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet.Range[ROW, StartCOl, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, StartCOl, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet[ROW, colSTodayTarget].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSTodayTarget) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSTodayTarget) + (ROW - 1) + ")";
-                sheet[ROW, colSTodayTarget].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet[ROW, colSTodayTarget].NumberFormat = "#,##0.00;(#,##0)";
                 sheet[ROW, colSPreviousDayActual].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSPreviousDayActual) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSPreviousDayActual) + (ROW - 1) + ")";
-                sheet[ROW, colSPreviousDayActual].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet[ROW, colSTargetEfficiency].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSTargetEfficiency) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSTargetEfficiency) + (ROW - 1) + ")";
+                sheet[ROW, colSPreviousDayActual].NumberFormat = "#,##0.00;(#,##0)";
+                sheet[ROW, colSTargetEfficiency].Formula = "AVERAGE(" + clsStaticInfo.GetxlsCol(colSTargetEfficiency) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSTargetEfficiency) + (ROW - 1) + ")";
                 sheet[ROW, colSTargetEfficiency].NumberFormat = "#,##0.00;(#,##0.00)";
                 sheet[ROW, colSWorkingHour].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSWorkingHour) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSWorkingHour) + (ROW - 1) + ")";
                 sheet[ROW, colSWorkingHour].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -1518,8 +1518,8 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet[ROW, colSOP].NumberFormat = "#,##0.00;(#,##0.00)";
                 sheet[ROW, colSHP].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSHP) + SummaryStartRow + ":" + clsStaticInfo.GetxlsCol(colSHP) + (ROW - 1) + ")";
                 sheet[ROW, colSHP].NumberFormat = "#,##0.00;(#,##0.00)";
-                sheet.Range[SummaryStartRow, colSTodayTarget, ROW, colSTodayTarget].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.Range[SummaryStartRow, colSPreviousDayActual, ROW, colSPreviousDayActual].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[SummaryStartRow, colSTodayTarget, ROW, colSTodayTarget].NumberFormat = clsStaticInfo.NumberFormat();
+                sheet.Range[SummaryStartRow, colSPreviousDayActual, ROW, colSPreviousDayActual].NumberFormat = clsStaticInfo.NumberFormat();
                 sheet.Range[SummaryStartRow, colSTargetEfficiency, ROW, colSTargetEfficiency].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[SummaryStartRow, colSWorkingHour, ROW, colSWorkingHour].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[SummaryStartRow, colSOP, ROW, colSOP].NumberFormat = clsStaticInfo.NumberFormat(2);
@@ -1538,7 +1538,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[6, 1, 7, endCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
+                sheet.Range[ROW, colSHP, ROW, endCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 string strFileName = "Production Information Report.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();

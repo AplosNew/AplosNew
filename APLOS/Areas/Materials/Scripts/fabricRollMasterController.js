@@ -151,6 +151,38 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
     $scope.getGRNDataList();
     //#endregion GRN Load
 
+
+    $scope.GRNsearchBy = "GRN No";
+    $scope.GRNsearch = "";
+    $scope.GRNList = [];
+    $scope.LoadGRNSearchList = function () {             
+                $scope.GRNList = [];
+                try {
+                    if ($scope.GRNsearch == '')
+                        throw "Please insert search value.";
+                    $http({
+                        method: 'POST',
+                        url: $scope.path + "GetGRNList",
+                        data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
+                        dataType: 'JSON'
+
+                    }).then(function successCallback(response) {
+                        $scope.GRNList = [];
+                        $scope.GRNList = response.data;
+                    });
+                }
+                catch (e) {
+                    ShowResult(e, 'failure');
+                }
+
+          
+        
+    }
+
+
+
+
+
     //#region Display Material by GRN ID
     $scope.closeGRNPopUp = function (data) {
         debugger;
