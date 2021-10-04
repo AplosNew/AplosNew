@@ -2275,7 +2275,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
 
 
-            clsAttendance.AttendanceProcessAplos obj = new AttendanceProcessAplos();
+            //clsAttendance.AttendanceProcessAplos obj = new AttendanceProcessAplos();
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var from_db = Find(id);
 
@@ -2313,7 +2313,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 //    FromDateV = FromDateV.AddDays(1);
                 //}
             
-                obj.LockValidation(identity.PlantId, FromDateV.ToString("dd-MMM-yyyy"), ToDateV.ToString("dd-MMM-yyyy"), EmpSystemid);
+                //obj.LockValidation(identity.PlantId, FromDateV.ToString("dd-MMM-yyyy"), ToDateV.ToString("dd-MMM-yyyy"), EmpSystemid);
 
 
 
@@ -2336,14 +2336,14 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 _unitOfWork.Commit();
 
 
-                DateTime FromDate = Convert.ToDateTime(from_db.FromDate.ToString());
-                DateTime ToDate = Convert.ToDateTime(from_db.ToDate.ToString());
-                while (FromDate <= ToDate)
-                {
+                //DateTime FromDate = Convert.ToDateTime(from_db.FromDate.ToString());
+                //DateTime ToDate = Convert.ToDateTime(from_db.ToDate.ToString());
+                //while (FromDate <= ToDate)
+                //{
 
-                    obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"),"'"+ from_db.EmpSystemID+"'", true);
-                    FromDate = FromDate.AddDays(1);
-                }
+                //    obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"),"'"+ from_db.EmpSystemID+"'", true);
+                //    FromDate = FromDate.AddDays(1);
+                //}
 
                 // New Code
 
@@ -2368,6 +2368,8 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                             dr["LTSystemID"] = DBNull.Value;
                             dr["ManualFlag"] = true;
                             dr["IsLock"] = false;
+                            dr["LockedBy"] = DBNull.Value; 
+                            dr["LockedDate"] = DBNull.Value; 
                             dr.EndEdit();
                             RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
                         }
