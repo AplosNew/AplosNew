@@ -935,6 +935,7 @@ var upanelApp = angular
     .controller("ProductionOrderRateReportController", ProductionOrderRateReportController)
     .controller("EmployeeLeaveApplicationNewController", EmployeeLeaveApplicationNewController)
     .controller('EmployeeLeaveApprovalNewController', EmployeeLeaveApprovalNewController)
+    .controller('employeeLeaveDeleteApplicationNewController', employeeLeaveDeleteApplicationNewController)
     .controller('ProductionTargetReportController', ProductionTargetReportController)
 
 
@@ -943,6 +944,8 @@ var upanelApp = angular
     .controller('GRNRequisitionSOAllocationController', GRNRequisitionSOAllocationController)
     .controller('salaryProcessedReportControllerNew', salaryProcessedReportControllerNew)
     .controller('salaryStructureAndProcessedReportNewController', salaryStructureAndProcessedReportNewController)
+    .controller('finishGoodsInventoryRegisterController', finishGoodsInventoryRegisterController)
+
 
     .config(AccessControllerConfig)
     .config(accountConfig)

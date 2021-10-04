@@ -10,6 +10,7 @@ using Library.Service.Biometrics;
 using Library.Service.Core;
 using Library.Service.Employees;
 using Library.Service.Enums;
+using Library.Service.Extension;
 using Library.Service.Extension.HumanResource.Leave;
 using Library.Service.Logs;
 using Library.Service.Organizations;
@@ -2274,7 +2275,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
 
 
-            clsAttendance.AttendanceProcessAplos obj = new AttendanceProcessAplos();
+            //clsAttendance.AttendanceProcessAplos obj = new AttendanceProcessAplos();
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var from_db = Find(id);
 
@@ -2282,6 +2283,26 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             var flag = false;
             try
             {
+                //New Code
+                DateTime FD = Convert.ToDateTime(from_db.FromDate.ToString());
+                DateTime TD = Convert.ToDateTime(from_db.ToDate.ToString());
+
+                DataSet PlantLock;
+                PlantLockCheck(FD.ToString("dd-MMM-yyyy"), TD.ToString("dd-MMM-yyyy"), out PlantLock, identity.PlantId);
+                string pl = "";
+                if (PlantLock.Tables[0].Rows.Count > 0)
+                {
+                    for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                    {
+                        pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                    }
+
+                    throw new Exception("The Plant is Locked for - " + pl);
+                }
+
+                //new Code Ends
+
+
                 DateTime FromDateV = Convert.ToDateTime(from_db.FromDate.ToString());
                 DateTime ToDateV = Convert.ToDateTime(from_db.ToDate.ToString());
                 //while (FromDateV <= ToDateV)
@@ -2292,7 +2313,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 //    FromDateV = FromDateV.AddDays(1);
                 //}
             
-                obj.LockValidation(identity.PlantId, FromDateV.ToString("dd-MMM-yyyy"), ToDateV.ToString("dd-MMM-yyyy"), EmpSystemid);
+                //obj.LockValidation(identity.PlantId, FromDateV.ToString("dd-MMM-yyyy"), ToDateV.ToString("dd-MMM-yyyy"), EmpSystemid);
 
 
 
@@ -2315,14 +2336,54 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 _unitOfWork.Commit();
 
 
-                DateTime FromDate = Convert.ToDateTime(from_db.FromDate.ToString());
-                DateTime ToDate = Convert.ToDateTime(from_db.ToDate.ToString());
-                while (FromDate <= ToDate)
-                {
+                //DateTime FromDate = Convert.ToDateTime(from_db.FromDate.ToString());
+                //DateTime ToDate = Convert.ToDateTime(from_db.ToDate.ToString());
+                //while (FromDate <= ToDate)
+                //{
 
-                    obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"),"'"+ from_db.EmpSystemID+"'", true);
-                    FromDate = FromDate.AddDays(1);
+                //    obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"),"'"+ from_db.EmpSystemID+"'", true);
+                //    FromDate = FromDate.AddDays(1);
+                //}
+
+                // New Code
+
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + identity.PlantId + @"' and EmpSystemID='"+EmpSystemid+"'", out dsMaster, false, "1");
+                string RowsEdit = "''";
+
+                while(FD <= TD)
+                {
+                    string newformat = Convert.ToDateTime(FD).ToString("yyyyMMdd");
+
+                    if (FD <= DateTime.Now )
+                    {
+                        dsMaster.Tables[0].DefaultView.RowFilter = "RowId='" + newformat + EmpSystemid+ "'";
+                        int j = dsMaster.Tables[0].DefaultView.Count;
+                        if(j > 0)
+                        {
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["LeaveStatus"] = DBNull.Value;
+                            dr["LTSystemID"] = DBNull.Value;
+                            dr["ManualFlag"] = true;
+                            dr["IsLock"] = false;
+                            dr["LockedBy"] = DBNull.Value; 
+                            dr["LockedDate"] = DBNull.Value; 
+                            dr.EndEdit();
+                            RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
+                        }
+                    }
+                    FD = FD.AddDays(1);
                 }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                ap.ManualScheduler(identity.PlantId, RowsEdit);
+                
+                //New Code Ends
 
             }
             finally
@@ -2352,7 +2413,25 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             }
         }
 
+        public void PlantLockCheck(string FDate, string TDate, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string From = Convert.ToDateTime(FDate).ToString("dd-MMM-yyyy");
+                string To = Convert.ToDateTime(TDate).ToString("dd-MMM-yyyy");
 
+                var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
+                and LockedDate between '" + From + "' and '" + To + "' and IsActive='1'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
     }
 }
