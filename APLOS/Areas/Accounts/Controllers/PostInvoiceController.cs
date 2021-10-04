@@ -250,10 +250,10 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPostableList()
+        public ActionResult GetPostableList(string id)
         {
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
-            return Json(_accountsInventoryPayableService.GetPostableList(), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInventoryPayableService.GetPostableList(id), JsonRequestBehavior.AllowGet);
         }
 
         #endregion

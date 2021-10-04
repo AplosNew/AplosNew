@@ -271,7 +271,7 @@
                         </div>
                         <div class="clearfix"></div>
                         <div class="content-container-fluid" style="color:black;">
-                            <div style="color:black;" id="gridTab" ej-grid e-datasource="multipleVendorpaymentList"
+                            <div style="color:black;" id="gridTab" ej-grid e-datasource="postableList"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                                  e-filtersettings-filterType="excel" e-recorddoubleclick="Done"
                                  e-enabletouch="true" e-allowselection="true" e-templaterefresh="refreshTemplate"
@@ -280,19 +280,19 @@
 
                                 <div e-columns>
                                     <div e-column e-template="#bootstrapToggle2" e-headertext="Check" e-width="40" textAlign='center'></div>
-                                    <div e-column e-field="Id" e-headertext="Payment No" e-width="60"></div>
-                                    <div e-column e-field="DueUpToDate" e-headertext="DueUpToDate" e-width="60"></div>
+                                    <div e-column e-field="Id" e-headertext="PostInvoice No" e-width="60"></div>
+                                    <div e-column e-field="InvoicceDate" e-headertext="InvoicceDate" e-width="60"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="DocRefNo" e-width="60"></div>
                                     @*<div e-column e-field="TentativeDate" e-headertext="TentativeDate" e-width="60"></div>*@
-                                    <div e-column e-template="#TentativeDate" e-headertext="Tentative Date" e-width="60" style="height: 20px;"></div>
+                                    @*<div e-column e-template="#TentativeDate" e-headertext="Tentative Date" e-width="60" style="height: 20px;"></div>*@
                                     <div e-column e-field="PartyName" e-headertext="Party" e-width="120"></div>
-                                    <div e-column e-field="AccountTitle" e-headertext="Bank" e-width="120"></div>
                                     <div e-column e-field="Amount" e-headertext="Amount (TRN)" textAlign='Right' e-width="80"></div>
                                 </div>
                             </div>
                         </div>
-                        <script type="text/template" id="TentativeDate">
+                        @*<script type="text/template" id="TentativeDate">
                             <input type="text" ng-model="data.TentativeDate" style="color:black;" class="form-control" />
-                        </script>
+                        </script>*@
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li><button ng-click="Post();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
