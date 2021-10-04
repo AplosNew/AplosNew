@@ -1,5 +1,4 @@
-﻿using Library.Core;
-using Library.Data;
+﻿using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
@@ -9,13 +8,11 @@ using Library.Model.Finances;
 using Library.Model.Parties;
 using Library.Model.Payments;
 using Library.Model.Vouchers;
-using Library.Service.Calendars;
 using Library.Service.Core;
 using Library.Service.Currencies;
 using Library.Service.Enums;
 using Library.Service.Logs;
 using Library.Service.Systems;
-using Library.Service.Taxations;
 using Library.Service.Vouchers;
 using Library.ViewModel.Accounts;
 using Library.ViewModel.Vouchers;
@@ -23,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using System.Data;
+using Library.Service.Extension.Accounts;
 
 namespace Library.Service.Finances
 {
@@ -33,52 +30,28 @@ namespace Library.Service.Finances
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
-        private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
-        private readonly ICompanyFiscalYearService _companyFiscalYearService;
-        private readonly ICompanyTaxYearService _companyTaxYearService;
         private readonly IVoucherService _voucherService;
         private readonly IFinancingTypeGLService _financingTypeGLService;
-        private readonly IRepositoryAsync<BankMaster> _bankMasterRepository;
-        private readonly IRepositoryAsync<CashMaster> _cashMasterRepository;
-        private readonly IRepositoryAsync<CompanyParty> _companyPartyRepository;
-        private readonly IRepositoryAsync<CompanyPartyGL> _companyPartyGLRepository;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
         private readonly IFinancingService _financingService;
-        private readonly IExchangeGainLossService _exchangeGainLossService;
         private readonly IPKGeneratorService _pkGeneratorService;
 
         public LoanService(
              IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
-            , ICompanyParallelCurrencyService companyParallelCurrencyService
-            , ICompanyFiscalYearService companyFiscalYearService
-            , ICompanyTaxYearService companyTaxYearService
             , IVoucherService voucherService
             , IFinancingTypeGLService financingTypeGLService
-            , IRepositoryAsync<BankMaster> bankMasterRepository
-            , IRepositoryAsync<CashMaster> cashMasterRepository
-            , IRepositoryAsync<CompanyParty> companyPartyRepository
-            , IRepositoryAsync<CompanyPartyGL> companyPartyGLRepository
             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
             , IFinancingService financingService
-            , IExchangeGainLossService exchangeGainLossService
             , IPKGeneratorService pkGeneratorService
             )
         {
             _sqlRepository = sqlRepository;
             _unitOfWork = unitOfWork;
             _pkGeneratorService = pkGeneratorService;
-            _companyParallelCurrencyService = companyParallelCurrencyService;
-            _companyFiscalYearService = companyFiscalYearService;
-            _companyTaxYearService = companyTaxYearService;
             _voucherService = voucherService;
             _financingTypeGLService = financingTypeGLService;
-            _bankMasterRepository = bankMasterRepository;
-            _cashMasterRepository = cashMasterRepository;
-            _companyPartyRepository = companyPartyRepository;
-            _companyPartyGLRepository = companyPartyGLRepository;
             _financingService = financingService;
-            _exchangeGainLossService = exchangeGainLossService;
             _loanInterestPayableRepository = loanInterestPayableRepository;
         }
 
@@ -89,9 +62,10 @@ namespace Library.Service.Finances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -198,15 +172,15 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(financing.BankMasterId))
                             throw new CustomException("Bank Id not found!");
-                        var bankMaster = _bankMasterRepository.Find(financing.BankMasterId);
-                        if (null == bankMaster)
-                            throw new CustomException("Bank data not found!");
-                        if (null == bankMaster.ActivityId)
+                       
+                        var bankMaster =  _accountsCommonService.GetBankMaster(financing.BankMasterId);
+                       
+                        if (null == bankMaster["ActivityId"].ToString())
                             throw new CustomException("Activity not found!");
-                        investmentDetail.BankMasterId = bankMaster.Id;
-                        voucherDetailFrom.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
-                        voucherDetailFrom.BudgetMasterId = bankMaster.BudgetMasterId;
-                        voucherDetailFrom.ActivityId = bankMaster.ActivityId;
+                        investmentDetail.BankMasterId = bankMaster["Id"].ToString();
+                        voucherDetailFrom.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailFrom.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                        voucherDetailFrom.ActivityId = bankMaster["ActivityId"].ToString();
 
                         voucherDetailFrom.BankMasterId = investmentDetail.BankMasterId;
                         voucherDetailFrom.TrnNature = TransactionNature.Bank.ToString();
@@ -215,16 +189,14 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(financing.CashMasterId))
                             throw new CustomException("Cash Id not found!");
-                        var cashMaster = _cashMasterRepository.Find(financing.CashMasterId);
-                        if (null == cashMaster)
-                            throw new CustomException("Cash data not found!");
-                        if (null == cashMaster.ActivityId)
+                        var cashMaster = _accountsCommonService.GetCashMaster(financing.CashMasterId);
+                        
+                        if (null == cashMaster["ActivityId"].ToString())
                             throw new CustomException("Activity not found!");
-                        investmentDetail.CashMasterId = cashMaster.Id;
-                        //investmentDetail.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
-                        voucherDetailFrom.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
-                        voucherDetailFrom.BudgetMasterId = cashMaster.BudgetMasterId;
-                        voucherDetailFrom.ActivityId = cashMaster.ActivityId;
+                        investmentDetail.CashMasterId = cashMaster["Id"].ToString();
+                        voucherDetailFrom.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailFrom.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                        voucherDetailFrom.ActivityId = cashMaster["ActivityId"].ToString();
                         voucherDetailFrom.CashMasterId = investmentDetail.CashMasterId;
                         voucherDetailFrom.TrnNature = TransactionNature.Bank.ToString();
 
@@ -326,15 +298,14 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(financing.BankMasterId))
                             throw new CustomException("Bank Id not found!");
-                        var bankMaster = _bankMasterRepository.Find(financing.BankMasterId);
-                        if (null == bankMaster)
-                            throw new CustomException("Bank data not found!");
-                        if (null == bankMaster.ActivityId)
+                        var bankMaster =  _accountsCommonService.GetBankMaster(financing.BankMasterId);
+                        
+                        if (null == bankMaster["ActivityId"].ToString())
                             throw new CustomException("Activity not found!");
-                        voucherDetailTo.BankMasterId = bankMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = bankMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = bankMaster.ActivityId;
+                        voucherDetailTo.BankMasterId = bankMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = bankMaster["ActivityId"].ToString();
 
                         voucherDetailTo.TrnNature = TransactionNature.ToBank.ToString();
                     }
@@ -342,15 +313,15 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(financing.CashMasterId))
                             throw new CustomException("Cash Id not found!");
-                        var cashMaster = _cashMasterRepository.Find(financing.CashMasterId);
+                        var cashMaster = _accountsCommonService.GetCashMaster(financing.CashMasterId);
                         if (null == cashMaster)
                             throw new CustomException("Bank data not found!");
-                        if (null == cashMaster.ActivityId)
+                        if (null == cashMaster["ActivityId"].ToString())
                             throw new CustomException("Activity not found!");
-                        voucherDetailTo.CashMasterId = cashMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = cashMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = cashMaster.ActivityId;
+                        voucherDetailTo.CashMasterId = cashMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = cashMaster["ActivityId"].ToString();
 
                         voucherDetailTo.CashMasterId = voucherVM.CashMasterId;
                         voucherDetailTo.TrnNature = TransactionNature.ToCash.ToString();
@@ -403,12 +374,12 @@ namespace Library.Service.Finances
                     {
                         if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId))
                         {
-                            var bankMasterTo = _bankMasterRepository.Find(voucherDetailTo.BankMasterId);
+                            var bankMasterTo = _accountsCommonService.GetBankMaster(voucherDetailTo.BankMasterId);
                             _voucherService.InsertGLTransactionDetail(voucherDetailTo, new GLTransactionDetail
                             {
                                 BankMasterId = voucherDetailTo.BankMasterId,
                                 CashMasterId = voucherDetailTo.CashMasterId,
-                                DrAmount = bankMasterTo.CurrencyId == voucher.CurrencyId ? voucherVM.Amount : voucherVM.CompanyCurrencyRate * voucherVM.Amount,
+                                DrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherVM.Amount : voucherVM.CompanyCurrencyRate * voucherVM.Amount,
                                 SourceType = voucherDetailTo.PaymentSource
                             });
                         }
@@ -443,13 +414,13 @@ namespace Library.Service.Finances
                     {
                         if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId))
                         {
-                            var bankMasterTo = _bankMasterRepository.Find(voucherDetailTo.BankMasterId);
+                            var bankMasterTo = _accountsCommonService.GetBankMaster(voucherDetailTo.BankMasterId);
 
                             _voucherService.InsertGLTransactionDetail(voucherDetailTo, new GLTransactionDetail
                             {
                                 BankMasterId = voucherDetailTo.BankMasterId,
                                 CashMasterId = voucherDetailTo.CashMasterId,
-                                DrAmount = bankMasterTo.CurrencyId == voucher.CurrencyId ? voucherVM.Amount : voucherVM.CompanyCurrencyRate * voucherVM.Amount,
+                                DrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherVM.Amount : voucherVM.CompanyCurrencyRate * voucherVM.Amount,
                                 SourceType = voucherDetailTo.PaymentSource
                             });
                         }
@@ -606,13 +577,13 @@ namespace Library.Service.Finances
                 {
                     if (!string.IsNullOrEmpty(voucherDetailFrom.BankMasterId))
                     {
-                        var bankMasterFrom = _bankMasterRepository.Find(voucherDetailFrom.BankMasterId);
+                        var bankMasterFrom = _accountsCommonService.GetBankMaster(voucherDetailFrom.BankMasterId);
 
                         _voucherService.InsertGLTransactionDetail(voucherDetailFrom, new GLTransactionDetail
                         {
                             BankMasterId = voucherDetailFrom.BankMasterId,
                             CashMasterId = voucherDetailFrom.CashMasterId,
-                            CrAmount = bankMasterFrom.CurrencyId == voucher.CurrencyId ? voucherVM.Amount : voucherVM.CompanyCurrencyRate * voucherVM.Amount,
+                            CrAmount = bankMasterFrom["CurrencyId"].ToString() == voucher.CurrencyId ? voucherVM.Amount : voucherVM.CompanyCurrencyRate * voucherVM.Amount,
                             SourceType = voucherDetailFrom.PaymentSource
                         });
                     }
@@ -677,9 +648,10 @@ namespace Library.Service.Finances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -805,13 +777,12 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(voucherVM.BankMasterId))
                             throw new CustomException("Bank Id not found!");
-                        var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
-                        if (null == bankMaster)
-                            throw new CustomException("Bank data not found!");
-                        voucherDetailTo.BankMasterId = bankMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = bankMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = bankMaster.ActivityId;
+                        var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
+                       
+                        voucherDetailTo.BankMasterId = bankMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = bankMaster["ActivityId"].ToString();
 
                         //voucherDetailFrom.BankMasterId = financingDetailWriteOff.BankMasterId;
                         voucherDetailTo.TrnNature = TransactionNature.Bank.ToString();
@@ -820,14 +791,12 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                             throw new CustomException("Cash Id not found!");
-                        var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
-                        if (null == cashMaster)
-                            throw new CustomException("Cash data not found!");
-                        voucherDetailTo.CashMasterId = cashMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = cashMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = cashMaster.ActivityId;
-                        // voucherDetailFrom.CashMasterId = financingDetailWriteOff.CashMasterId;
+                        var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
+                       
+                        voucherDetailTo.CashMasterId = cashMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = cashMaster["ActivityId"].ToString();
                         voucherDetailTo.TrnNature = TransactionNature.Bank.ToString();
 
                     }
@@ -945,13 +914,12 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(voucherVM.BankMasterId))
                             throw new CustomException("Bank Id not found!");
-                        var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
-                        if (null == bankMaster)
-                            throw new CustomException("Bank data not found!");
-                        voucherDetailTo.BankMasterId = bankMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = bankMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = bankMaster.ActivityId;
+                        var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
+                        
+                        voucherDetailTo.BankMasterId = bankMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = bankMaster["ActivityId"].ToString();
 
                         voucherDetailTo.TrnNature = TransactionNature.ToBank.ToString();
                     }
@@ -959,13 +927,12 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                             throw new CustomException("Cash Id not found!");
-                        var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
-                        if (null == cashMaster)
-                            throw new CustomException("Cash data not found!");
-                        voucherDetailTo.CashMasterId = cashMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = cashMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = cashMaster.ActivityId;
+                        var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
+                       
+                        voucherDetailTo.CashMasterId = cashMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = cashMaster["ActivityId"].ToString();
 
                         voucherDetailTo.CashMasterId = voucherVM.CashMasterId;
                         voucherDetailTo.TrnNature = TransactionNature.ToCash.ToString();
@@ -1134,11 +1101,11 @@ namespace Library.Service.Finances
                 //***********************Exchange Loss*************************************
                 if (!string.IsNullOrEmpty(voucherVM.ExchangeType) && voucherVM.ExchangeType == "ExchangeLoss" && voucherVM.ExchangeAmount > 0)
                 {
-                    var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                    var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
 
-                    exchangeloss.GLGeneralInfoId = lossGL.CompanyCurrencyGLId;
-                    exchangeloss.BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId;
-                    exchangeloss.ActivityId = lossGL.CompanyCurrencyActivityId;
+                    exchangeloss.GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString();
+                    exchangeloss.BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString();
+                    exchangeloss.ActivityId = lossGL["CompanyCurrencyActivityId"].ToString();
                     exchangeloss.CurrencyId = voucher.CurrencyId;
                     exchangeloss.DocDate = voucher.DocDate;
                     exchangeloss.DocRefNo = voucher.DocRefNo;
@@ -1164,10 +1131,10 @@ namespace Library.Service.Finances
                 //***********************Exchange Gain*************************************
                 if (!string.IsNullOrEmpty(voucherVM.ExchangeType) && voucherVM.ExchangeType == "ExchangeGain" && voucherVM.ExchangeAmount > 0)
                 {
-                    var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
-                    exchangeGain.GLGeneralInfoId = gainGL.CompanyCurrencyGLId;
-                    exchangeGain.BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId;
-                    exchangeGain.ActivityId = gainGL.CompanyCurrencyActivityId;
+                    var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                    exchangeGain.GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString();
+                    exchangeGain.BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString();
+                    exchangeGain.ActivityId = gainGL["CompanyCurrencyActivityId"].ToString();
                     exchangeGain.CurrencyId = voucher.CurrencyId;
                     exchangeGain.DocDate = voucher.DocDate;
                     exchangeGain.DocRefNo = voucher.DocRefNo;
@@ -1233,12 +1200,12 @@ namespace Library.Service.Finances
                     {
                         if (!string.IsNullOrEmpty(voucherDetailFrom.BankMasterId))
                         {
-                            var bankMasterFrom = _bankMasterRepository.Find(voucherDetailFrom.BankMasterId);
+                            var bankMasterFrom = _accountsCommonService.GetBankMaster(voucherDetailFrom.BankMasterId);
                             _voucherService.InsertGLTransactionDetail(voucherDetailFrom, new GLTransactionDetail
                             {
                                 BankMasterId = voucherDetailFrom.BankMasterId,
                                 CashMasterId = voucherDetailFrom.CashMasterId,
-                                DrAmount = bankMasterFrom.CurrencyId == voucher.CurrencyId ? voucherDetailFrom.DrAmount : voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount,
+                                DrAmount = bankMasterFrom["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailFrom.DrAmount : voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount,
                                 SourceType = voucherDetailFrom.PaymentSource
                             });
                         }
@@ -1260,13 +1227,13 @@ namespace Library.Service.Finances
                 {
                     if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId))
                     {
-                        var bankMasterTo = _bankMasterRepository.Find(voucherDetailTo.BankMasterId);
+                        var bankMasterTo = _accountsCommonService.GetBankMaster(voucherDetailTo.BankMasterId);
 
                         _voucherService.InsertGLTransactionDetail(voucherDetailTo, new GLTransactionDetail
                         {
                             BankMasterId = voucherDetailTo.BankMasterId,
                             CashMasterId = voucherDetailTo.CashMasterId,
-                            CrAmount = bankMasterTo.CurrencyId == voucher.CurrencyId ? voucherDetailTo.CrAmount : voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount,
+                            CrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailTo.CrAmount : voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount,
                             SourceType = voucherDetailTo.PaymentSource
                         });
                     }
@@ -1336,9 +1303,10 @@ namespace Library.Service.Finances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1427,13 +1395,13 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(voucherVM.BankMasterId))
                             throw new CustomException("Bank Id not found!");
-                        var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
+                        var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
                         if (null == bankMaster)
                             throw new CustomException("Bank data not found!");
-                        voucherDetailTo.BankMasterId = bankMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = bankMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = bankMaster.ActivityId;
+                        voucherDetailTo.BankMasterId = bankMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = bankMaster["ActivityId"].ToString();
 
                         //voucherDetailFrom.BankMasterId = financingDetailWriteOff.BankMasterId;
                         voucherDetailTo.TrnNature = TransactionNature.Bank.ToString();
@@ -1442,14 +1410,13 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                             throw new CustomException("Cash Id not found!");
-                        var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                        var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
                         if (null == cashMaster)
                             throw new CustomException("Cash data not found!");
-                        voucherDetailTo.CashMasterId = cashMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = cashMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = cashMaster.ActivityId;
-                        // voucherDetailFrom.CashMasterId = financingDetailWriteOff.CashMasterId;
+                        voucherDetailTo.CashMasterId = cashMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = cashMaster["ActivityId"].ToString();
                         voucherDetailTo.TrnNature = TransactionNature.Bank.ToString();
 
                     }
@@ -1582,13 +1549,12 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(voucherVM.BankMasterId))
                             throw new CustomException("Bank Id not found!");
-                        var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
-                        if (null == bankMaster)
-                            throw new CustomException("Bank data not found!");
-                        voucherDetailTo.BankMasterId = bankMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = bankMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = bankMaster.ActivityId;
+                        var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
+                     
+                        voucherDetailTo.BankMasterId = bankMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = bankMaster["ActivityId"].ToString();
                         voucherDetailTo.PaymentSource = voucherVM.PaymentSource;
 
                         voucherDetailTo.TrnNature = TransactionNature.ToBank.ToString();
@@ -1597,13 +1563,12 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                             throw new CustomException("Cash Id not found!");
-                        var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
-                        if (null == cashMaster)
-                            throw new CustomException("Cash data not found!");
-                        voucherDetailTo.CashMasterId = cashMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = cashMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = cashMaster.ActivityId;
+                        var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
+                        
+                        voucherDetailTo.CashMasterId = cashMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = cashMaster["ActivityId"].ToString();
 
                         voucherDetailTo.CashMasterId = voucherVM.CashMasterId;
                         voucherDetailTo.TrnNature = TransactionNature.ToCash.ToString();
@@ -1658,12 +1623,12 @@ namespace Library.Service.Finances
                     {
                         if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId))
                         {
-                            var bankMasterTo = _bankMasterRepository.Find(voucherDetailTo.BankMasterId);
+                            var bankMasterTo = _accountsCommonService.GetBankMaster(voucherDetailTo.BankMasterId);
                             _voucherService.InsertGLTransactionDetail(voucherDetailTo, new GLTransactionDetail
                             {
                                 BankMasterId = voucherDetailTo.BankMasterId,
                                 CashMasterId = voucherDetailTo.CashMasterId,
-                                DrAmount = bankMasterTo.CurrencyId == voucher.CurrencyId ? voucherDetailTo.DrAmount : voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount,
+                                DrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailTo.DrAmount : voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount,
                                 SourceType = voucherDetailTo.PaymentSource
                             });
                         }
@@ -1683,11 +1648,11 @@ namespace Library.Service.Finances
                 //***********************Exchange Loss*************************************
                 if (!string.IsNullOrEmpty(voucherVM.ExchangeType) && voucherVM.ExchangeType == "ExchangeLoss" && voucherVM.ExchangeAmount > 0)
                 {
-                    var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                    var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
 
-                    exchangeloss.GLGeneralInfoId = lossGL.CompanyCurrencyGLId;
-                    exchangeloss.BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId;
-                    exchangeloss.ActivityId = lossGL.CompanyCurrencyActivityId;
+                    exchangeloss.GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString();
+                    exchangeloss.BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString();
+                    exchangeloss.ActivityId = lossGL["CompanyCurrencyActivityId"].ToString();
                     exchangeloss.CurrencyId = voucher.CurrencyId;
                     exchangeloss.DocDate = voucher.DocDate;
                     exchangeloss.DocRefNo = voucher.DocRefNo;
@@ -1713,10 +1678,10 @@ namespace Library.Service.Finances
                 //***********************Exchange Gain*************************************
                 if (!string.IsNullOrEmpty(voucherVM.ExchangeType) && voucherVM.ExchangeType == "ExchangeGain" && voucherVM.ExchangeAmount > 0)
                 {
-                    var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
-                    exchangeGain.GLGeneralInfoId = gainGL.CompanyCurrencyGLId;
-                    exchangeGain.BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId;
-                    exchangeGain.ActivityId = gainGL.CompanyCurrencyActivityId;
+                    var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                    exchangeGain.GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString();
+                    exchangeGain.BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString();
+                    exchangeGain.ActivityId = gainGL["CompanyCurrencyActivityId"].ToString();
                     exchangeGain.CurrencyId = voucher.CurrencyId;
                     exchangeGain.DocDate = voucher.DocDate;
                     exchangeGain.DocRefNo = voucher.DocRefNo;
@@ -1850,9 +1815,10 @@ namespace Library.Service.Finances
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1935,13 +1901,13 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(voucherVM.BankMasterId))
                             throw new CustomException("Bank Id not found!");
-                        var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
+                        var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
                         if (null == bankMaster)
                             throw new CustomException("Bank data not found!");
-                        voucherDetailTo.BankMasterId = bankMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = bankMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = bankMaster.ActivityId;
+                        voucherDetailTo.BankMasterId = bankMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = bankMaster["ActivityId"].ToString();
 
                         //voucherDetailFrom.BankMasterId = financingDetailWriteOff.BankMasterId;
                         voucherDetailTo.TrnNature = TransactionNature.Bank.ToString();
@@ -1950,14 +1916,12 @@ namespace Library.Service.Finances
                     {
                         if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                             throw new CustomException("Cash Id not found!");
-                        var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
-                        if (null == cashMaster)
-                            throw new CustomException("Cash data not found!");
-                        voucherDetailTo.CashMasterId = cashMaster.Id;
-                        voucherDetailTo.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
-                        voucherDetailTo.BudgetMasterId = cashMaster.BudgetMasterId;
-                        voucherDetailTo.ActivityId = cashMaster.ActivityId;
-                        // voucherDetailFrom.CashMasterId = financingDetailWriteOff.CashMasterId;
+                        var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
+                       
+                        voucherDetailTo.CashMasterId = cashMaster["Id"].ToString();
+                        voucherDetailTo.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                        voucherDetailTo.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                        voucherDetailTo.ActivityId = cashMaster["ActivityId"].ToString();
                         voucherDetailTo.TrnNature = TransactionNature.Bank.ToString();
 
                     }
@@ -2065,11 +2029,11 @@ namespace Library.Service.Finances
                 //***********************Exchange Loss*************************************
                 if (!string.IsNullOrEmpty(voucherVM.ExchangeType) && voucherVM.ExchangeType == "ExchangeLoss" && voucherVM.ExchangeAmount > 0)
                 {
-                    var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                    var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
 
-                    exchangeloss.GLGeneralInfoId = lossGL.CompanyCurrencyGLId;
-                    exchangeloss.BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId;
-                    exchangeloss.ActivityId = lossGL.CompanyCurrencyActivityId;
+                    exchangeloss.GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString();
+                    exchangeloss.BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString();
+                    exchangeloss.ActivityId = lossGL["CompanyCurrencyActivityId"].ToString();
                     exchangeloss.CurrencyId = voucher.CurrencyId;
                     exchangeloss.DocDate = voucher.DocDate;
                     exchangeloss.DocRefNo = voucher.DocRefNo;
@@ -2095,10 +2059,10 @@ namespace Library.Service.Finances
                 //***********************Exchange Gain*************************************
                 if (!string.IsNullOrEmpty(voucherVM.ExchangeType) && voucherVM.ExchangeType == "ExchangeGain" && voucherVM.ExchangeAmount > 0)
                 {
-                    var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
-                    exchangeGain.GLGeneralInfoId = gainGL.CompanyCurrencyGLId;
-                    exchangeGain.BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId;
-                    exchangeGain.ActivityId = gainGL.CompanyCurrencyActivityId;
+                    var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                    exchangeGain.GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString();
+                    exchangeGain.BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString();
+                    exchangeGain.ActivityId = gainGL["CompanyCurrencyActivityId"].ToString();
                     exchangeGain.CurrencyId = voucher.CurrencyId;
                     exchangeGain.DocDate = voucher.DocDate;
                     exchangeGain.DocRefNo = voucher.DocRefNo;

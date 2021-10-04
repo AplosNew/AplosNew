@@ -248,6 +248,14 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             return Json(_accountsInventoryPayableService.GetSavedGRNListForPostInvoice(identity.PlantId,masterId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetPostableList(string id)
+        {
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetPostableList(id), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
 
     }

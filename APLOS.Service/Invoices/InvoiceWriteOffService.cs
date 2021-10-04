@@ -45,10 +45,7 @@ namespace Library.Service.Invoices
         private readonly IVoucherService _voucherService;
         private readonly IRepositoryAsync<OtherInvoice> _otherInvoiceRepository;
         private readonly IBankChargeService _bankChargeService;
-        private readonly IExchangeGainLossService _exchangeGainLossService;
         private readonly IRepositoryAsync<TaxCode> _taxCodeRepository;
-        private readonly IRepositoryAsync<TaxCodeGL> _taxCodeGLRepository;
-        private readonly IRepositoryAsync<TaxCategoryGL> _taxCategoryGLRepository;
         private readonly IInvoiceTaxService _invoiceTaxService;
         private readonly IFinancingTypeGLService _financingTypeGLService;
         private readonly IBankJournalService _bankJournalService;
@@ -80,9 +77,7 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<OtherInvoice> otherInvoiceRepository
             , ISqlRepository sqlRepository
             , IBankChargeService bankChargeService
-            , IExchangeGainLossService exchangeGainLossService
             , IInvoiceTaxService invoiceTaxService
-            , IRepositoryAsync<TaxCodeGL> taxCodeGLRepository
             , IRepositoryAsync<TaxCode> taxCodeRepository
             , IFinancingTypeGLService financingTypeGLService
             , IBankJournalService bankJournalService
@@ -94,7 +89,6 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<FinancingType> financingTypeRepository
             , IRepositoryAsync<InvoiceTax> invoiceTaxRepository
             , IRepositoryAsync<InvoiceTaxDetail> invoiceTaxDetailRepository
-            , IRepositoryAsync<TaxCategoryGL> taxCategoryGLRepository
             , IInvoiceService invoiceService
             , IRepositoryAsync<AdditionalTax> additionalTaxRepository
             , IRepositoryAsync<AdditionalTaxDetail> additionalTaxDetailRepository
@@ -113,9 +107,7 @@ namespace Library.Service.Invoices
             _voucherService = voucherService;
             _otherInvoiceRepository = otherInvoiceRepository;
             _bankChargeService = bankChargeService;
-            _exchangeGainLossService = exchangeGainLossService;
             _invoiceTaxService = invoiceTaxService;
-            _taxCodeGLRepository = taxCodeGLRepository;
             _taxCodeRepository = taxCodeRepository;
             _financingTypeGLService = financingTypeGLService;
             _bankJournalService = bankJournalService;
@@ -126,7 +118,6 @@ namespace Library.Service.Invoices
             _financingTypeRepository = financingTypeRepository;
             _invoiceTaxRepository = invoiceTaxRepository;
             _invoiceTaxDetailRepository = invoiceTaxDetailRepository;
-            _taxCategoryGLRepository = taxCategoryGLRepository;
             _purchaseLCTaxRepository = purchaseLCTaxRepository;
             _invoiceService = invoiceService;
             _additionalTaxRepository = additionalTaxRepository;
@@ -712,12 +703,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
                         var voucherDtEx = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -741,12 +732,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeGain" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
                         var voucherDtExGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -771,12 +762,12 @@ namespace Library.Service.Invoices
                 }
                 if (voucherVM.ExchangeType == "ExchangeLoss" && voucherVM.ExchangeAmount > 0)
                 {
-                    var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                    var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
                     var voucherDtEx = new VoucherDetail
                     {
-                        GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                        BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                        ActivityId = lossGL.CompanyCurrencyActivityId,
+                        GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                        BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                        ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                         CurrencyId = voucher.CurrencyId,
                         DocDate = voucher.DocDate,
                         DocRefNo = voucher.DocRefNo,
@@ -803,12 +794,12 @@ namespace Library.Service.Invoices
 
                 if (voucherVM.ExchangeType == "ExchangeGain" && voucherVM.ExchangeAmount > 0)
                 {
-                    var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                    var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
                     var voucherDtExGain = new VoucherDetail
                     {
-                        GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                        BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                        ActivityId = gainGL.CompanyCurrencyActivityId,
+                        GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                        BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                        ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                         CurrencyId = voucher.CurrencyId,
                         DocDate = voucher.DocDate,
                         DocRefNo = voucher.DocRefNo,
@@ -919,16 +910,16 @@ namespace Library.Service.Invoices
                             if (null == taxCode)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id); _accountsCommonService.GetTaxCodeGL(taxCode.Id);
                             if (null == taxCodeGL)
                                 throw new CustomException("Tax code GL not found!");
 
                             addtionalTaxDetailId++;
                             var tdsDetail = new AdditionalTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = voucherDetailVMList.Sum(r => r.Amount),
                                 AdditionalTaxId = tdstax.Id,
                                 TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -1563,12 +1554,12 @@ namespace Library.Service.Invoices
 
                         if (multiplePaymentDetail.ExchangeType == "ExchangeLoss" && multiplePaymentDetail.ExchangeAmount > 0)
                         {
-                            var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                            var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
                             var voucherDtEx = new VoucherDetail
                             {
-                                GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = lossGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 DocDate = voucher.DocDate,
                                 DocRefNo = voucher.DocRefNo,
@@ -1592,12 +1583,12 @@ namespace Library.Service.Invoices
 
                         if (multiplePaymentDetail.ExchangeType == "ExchangeGain" && multiplePaymentDetail.ExchangeAmount > 0)
                         {
-                            var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                            var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
                             var voucherDtExGain = new VoucherDetail
                             {
-                                GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = gainGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 DocDate = voucher.DocDate,
                                 DocRefNo = voucher.DocRefNo,
@@ -1620,12 +1611,12 @@ namespace Library.Service.Invoices
 
                         if (voucherVM.ExchangeType == "ExchangeLoss" && voucherVM.ExchangeAmount > 0)
                         {
-                            var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                            var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
                             var voucherDtEx = new VoucherDetail
                             {
-                                GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = lossGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 DocDate = voucher.DocDate,
                                 DocRefNo = voucher.DocRefNo,
@@ -1652,12 +1643,12 @@ namespace Library.Service.Invoices
 
                         if (voucherVM.ExchangeType == "ExchangeGain" && voucherVM.ExchangeAmount > 0)
                         {
-                            var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                            var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
                             var voucherDtExGain = new VoucherDetail
                             {
-                                GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = gainGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 DocDate = voucher.DocDate,
                                 DocRefNo = voucher.DocRefNo,
@@ -1745,7 +1736,7 @@ namespace Library.Service.Invoices
                                 if (null == taxCode)
                                     throw new CustomException("Tax code not found!");
 
-                                var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
+                                var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id);
                                 if (null == taxCodeGL)
                                     throw new CustomException("Tax code GL not found!");
 
@@ -1762,13 +1753,13 @@ namespace Library.Service.Invoices
 
                                 // Insert Into Customer Invoice Tax Detail (Withhold GL)
                                 withholdgl = taxCode.IsWithhold;
-                                if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                                 {
                                     var invoiceTaxDetail = new InvoiceTaxDetail
                                     {
-                                        GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                        BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                        ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                        GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                        BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                        ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                         Amount = invoiceTax.TaxAmount,
                                         AType = "Cr"
                                     };
@@ -2944,12 +2935,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                         var voucherDtEx = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -2973,12 +2964,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeGain" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                         var voucherDtExGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -3064,7 +3055,7 @@ namespace Library.Service.Invoices
                             if (null == taxCode)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id);
                             if (null == taxCodeGL)
                                 throw new CustomException("Tax code GL not found!");
 
@@ -3081,13 +3072,13 @@ namespace Library.Service.Invoices
 
                             // Insert Into Customer Invoice Tax Detail (Withhold GL)
                             withholdgl = taxCode.IsWithhold;
-                            if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                            if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                             {
                                 var invoiceTaxDetail = new InvoiceTaxDetail
                                 {
-                                    GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                    BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                    ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                    GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                     Amount = invoiceTax.TaxAmount,
                                     AType = "Dr"
                                 };
@@ -3587,12 +3578,12 @@ namespace Library.Service.Invoices
                     {
                         if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                         {
-                            var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                            var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                             var voucherDtEx = new VoucherDetail
                             {
-                                GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = lossGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 DocDate = voucher.DocDate,
                                 DocRefNo = voucher.DocRefNo,
@@ -3636,12 +3627,12 @@ namespace Library.Service.Invoices
                     {
                         if (voucherDetailVM.ExchangeType == "ExchangeGain" && voucherDetailVM.ExchangeAmount > 0)
                         {
-                            var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                            var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                             var voucherDtExGain = new VoucherDetail
                             {
-                                GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = gainGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 DocDate = voucher.DocDate,
                                 DocRefNo = voucher.DocRefNo,
@@ -4317,12 +4308,12 @@ namespace Library.Service.Invoices
                     var currentVoucherDetailId = 0;
                     if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
                         var voucherDtEx = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = companyCurrencyId,
 
                             DocDate = voucher.DocDate,
@@ -4374,12 +4365,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeGain" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
                         var voucherCtExGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = companyCurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -4785,12 +4776,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
                         var voucherDtEx = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -4814,12 +4805,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeGain" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
                         var voucherDtExGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -5178,12 +5169,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
                         var voucherDtEx = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -5207,12 +5198,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeGain" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
                         var voucherDtExGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -5335,12 +5326,12 @@ namespace Library.Service.Invoices
 
                         if (voucherDetailVM.ExchangeType == "ExchangeGain")
                         {
-                            var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                            var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                             var voucherDetailGain = new VoucherDetail
                             {
-                                GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = gainGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 PartyType = voucherDetailVM.ExchangeType
                             };
@@ -5359,12 +5350,12 @@ namespace Library.Service.Invoices
                         }
                         else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                         {
-                            var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                            var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                             var voucherDetailLoss = new VoucherDetail
                             {
-                                GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = lossGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 PartyType = voucherDetailVM.ExchangeType
                             };
@@ -5542,12 +5533,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
                         var voucherDtEx = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -5571,12 +5562,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeGain" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
                         var voucherDtExGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -5661,7 +5652,7 @@ namespace Library.Service.Invoices
                 //            if (null == taxCode)
                 //                throw new CustomException("Tax code not found!");
 
-                //            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
+                //            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id);
                 //            if (null == taxCodeGL)
                 //                throw new CustomException("Tax code GL not found!");
 
@@ -5678,13 +5669,13 @@ namespace Library.Service.Invoices
 
                 //            // Insert Into Customer Invoice Tax Detail (Withhold GL)
                 //            withholdgl = taxCode.IsWithhold;
-                //            if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                //            if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                 //            {
                 //                var invoiceTaxDetail = new InvoiceTaxDetail
                 //                {
-                //                    GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                //                    BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                //                    ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                //                    GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                //                    BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                //                    ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                 //                    Amount = invoiceTax.TaxAmount,
                 //                    AType = "Cr"
                 //                };
@@ -5750,16 +5741,14 @@ namespace Library.Service.Invoices
                             if (null == taxCode)
                                 throw new CustomException("Tax code not found!");
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
-                            if (null == taxCodeGL)
-                                throw new CustomException("Tax code GL not found!");
-
+                            var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode.Id);
+                            
                             addtionalTaxDetailId++;
                             var tdsDetail = new AdditionalTaxDetail
                             {
-                                GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                 Amount = voucherDetailVMList.Sum(r => r.Amount),
                                 AdditionalTaxId = tdstax.Id,
                                 TaxCodeId = invoiceTaxVM.TaxCodeId,
@@ -6154,12 +6143,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
                         var voucherDtEx = new VoucherDetail
                         {
-                            GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                            BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = lossGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -6183,12 +6172,12 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.ExchangeType == "ExchangeGain" && voucherDetailVM.ExchangeAmount > 0)
                     {
-                        var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
                         var voucherDtExGain = new VoucherDetail
                         {
-                            GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                            BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                            ActivityId = gainGL.CompanyCurrencyActivityId,
+                            GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                            BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                            ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                             CurrencyId = voucher.CurrencyId,
                             DocDate = voucher.DocDate,
                             DocRefNo = voucher.DocRefNo,
@@ -6310,12 +6299,12 @@ namespace Library.Service.Invoices
 
                         if (voucherDetailVM.ExchangeType == "ExchangeGain")
                         {
-                            var gainGL = _exchangeGainLossService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
+                            var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Receivable);
                             var voucherDetailGain = new VoucherDetail
                             {
-                                GLGeneralInfoId = gainGL.CompanyCurrencyGLId,
-                                BudgetMasterId = gainGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = gainGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 PartyType = voucherDetailVM.ExchangeType
                             };
@@ -6334,12 +6323,12 @@ namespace Library.Service.Invoices
                         }
                         else if (voucherDetailVM.ExchangeType == "ExchangeLoss")
                         {
-                            var lossGL = _exchangeGainLossService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
+                            var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Receivable);
                             var voucherDetailLoss = new VoucherDetail
                             {
-                                GLGeneralInfoId = lossGL.CompanyCurrencyGLId,
-                                BudgetMasterId = lossGL.CompanyCurrencyBudgetMasterId,
-                                ActivityId = lossGL.CompanyCurrencyActivityId,
+                                GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                                BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                                ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
                                 CurrencyId = voucher.CurrencyId,
                                 PartyType = voucherDetailVM.ExchangeType
                             };
@@ -6829,11 +6818,9 @@ namespace Library.Service.Invoices
                                     //var invoiceTaxPk = _invoiceTaxService.GetMaxNumber();
                                     foreach (var invoiceTaxVM in invoieTaxVM)
                                     {
-                                        var taxCategoryGL = _taxCategoryGLRepository.Query(r => r.TaxCategoryId == invoiceTaxVM.TaxCategoryId && r.InputTaxOutPutTax == "Input").Select().FirstOrDefault();
-                                        if (null == taxCategoryGL)
-                                            throw new CustomException("Tax Category not found!");
-
-                                        if (null == taxCategoryGL.ExpensesGLId)
+                                        var taxCategoryGL = _accountsCommonService.GetTaxCategoryInputGL(invoiceTaxVM.TaxCategoryId);
+                                      
+                                        if (null == taxCategoryGL["ExpensesGLId"].ToString())
                                             throw new CustomException("Tax Category Expenses GL not found!");
 
                                         currentTaxRecord++;
@@ -6855,13 +6842,13 @@ namespace Library.Service.Invoices
                                         _invoiceTaxRepository.Insert(invoiceTax);
                                         totalTaxAmount += invoiceTax.TaxAmount;
 
-                                        if (!string.IsNullOrEmpty(taxCategoryGL.ExpensesGLId))
+                                        if (!string.IsNullOrEmpty(taxCategoryGL["ExpensesGLId"].ToString()))
                                         {
                                             var invoiceTaxDetail = new InvoiceTaxDetail
                                             {
-                                                GLGeneralInfoId = taxCategoryGL.ExpensesGLId,
-                                                BudgetMasterId = taxCategoryGL.ExpensesBudgetMasterId,
-                                                ActivityId = taxCategoryGL.ExpensesActivityId,
+                                                GLGeneralInfoId = taxCategoryGL["ExpensesGLId"].ToString(),
+                                                BudgetMasterId = taxCategoryGL["ExpensesBudgetMasterId"].ToString(),
+                                                ActivityId = taxCategoryGL["ExpensesActivityId"].ToString(),
                                                 Amount = invoiceTax.TaxAmount,
                                                 AType = "Dr"
                                             };

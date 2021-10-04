@@ -64,11 +64,13 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.model = obj.data;
         $scope.modelNew = Object.assign({}, $scope.model);
         //$scope.getDetailDataList();
-        $scope.GetSavedGRNListForPostInvoice();
+        //$scope.GetSavedGRNListForPostInvoice();
+        $scope.getPostableList($scope.modelNew.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+        $scope.setTab2(2);
     };
 
     $scope.approvedGRNList = [];
@@ -364,6 +366,44 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.Action = 'Save';
     }
 
-  
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab) {
+        $scope.tab2 = newTab;
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab2 === tabNum;
+    };
+    $scope.postableList = [];
+    $scope.getPostableList = function (id) {
+        $http({
+            method: "POST",
+            url: "accounts/PostInvoice/GetPostableList?id=" + id
+        }).then(function successCallback(response) {
+            $scope.postableList = response.data;
+            //$scope.getDetailData(id);
+        });
+    };
+
+    $scope.selectPaymentList = function () {
+        $scope.checkedMultipleVendorpaymentList = [];
+        $scope.MultiplepaymentDetailSelectedList = [];
+        for (var i = 0; i < $scope.postableList.length; i++) {
+            if ($scope.postableList[i].flag === true) {
+                $scope.checkedMultipleVendorpaymentList.push($scope.postableList[i]);
+                for (var j = 0; j < window.lst.length; j++) {
+                    if (window.lst[j].PartyId == $scope.postableList[i].PartyId) {
+                        $scope.MultiplepaymentDetailSelectedList.push(window.lst[j]);
+                    }
+                }
+            }
+        }
+    }
 }
