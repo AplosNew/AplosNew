@@ -231,8 +231,6 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                clsLeaveApproval objLvTrsEmpWise;
-                objLvTrsEmpWise = new clsLeaveApproval(_sqlRepository);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 foreach (LeaveVM item in LeaveData)
@@ -257,24 +255,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                     }
                 }
 
-                foreach (LeaveVM item in LeaveData)
-                {
-                    LeaveCustomPara obj = new LeaveCustomPara();
-                    obj.EmpSystemId = item.EmployeeID;
-                    obj.FromDate = Convert.ToDateTime(item.FromDate);
-                    obj.ToDate = Convert.ToDateTime(item.ToDate);
-                    obj.LvTransSystemID = item.LvTransSystemID;
-                    obj.LTSystemID = item.LTSystemID;
-                    obj.CalanderYearID = item.CalanderYearID;
-
-                    obj.PlantId = identity.PlantId;
-                    obj.CompanyId = identity.CompanyId;
-                    obj.GroupId = identity.CompanyGroupId;
-                    obj.UserId = identity.Name;
-                    obj.EmpSystemId = item.EmployeeID;
-
-                    objLvTrsEmpWise.SaveData(obj);
-                }
 
                 //************New Leave Work Code
 
@@ -290,6 +270,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
+                    
 
                     //Getting the Leave Code
                     var strCode = "Select Code from dbo.LeaveType where Id = '" + item.LTSystemID + "'";
@@ -309,7 +290,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             dr["LeaveStatus"] = LeaveCode;
-                            dr["LTSytemID"] = item.LTSystemID;
+                            dr["LTSystemID"] = item.LTSystemID;
                             dr["UpdatedBy"] = "Schedule";
                             dr["ManualEntryTime"] = Convert.ToDateTime(DateTime.Now);
                             dr["LockedDate"] = DBNull.Value;
@@ -326,7 +307,22 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(dsRef);
+
+                    var sqls = @"UPDATE LeaveTransactionDetails SET IsAvailed = 1,LeaveStatus = '"+LeaveCode+@"',UpdatedBy = '"+identity.Name+@"',DateUpdated = '"+DateTime.Now+@"'
+                                    where LvTrnsSystemID = '"+item.LvTransSystemID+"'";
+
+                    var sqlss = @"UPDATE LeaveTransaction SET IsApproved = 1,UpdatedBy = '" + identity.Name + @"',DateUpdated = '" + DateTime.Now + @"'
+                                    where SystemID = '" + item.LvTransSystemID + "'";
+
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenConnection("1");
+                    objCon.BeginTransaction();
+                    objCon.ExecuteNonQueryWrapper(sqls, true, "1");
+                    objCon.ExecuteNonQueryWrapper(sqlss, true, "1");
+                    objCon.CommitTransaction();
                 }
+
+                
 
                 NewAttendanceProcessService ap = new NewAttendanceProcessService();
                 ap.ManualScheduler(identity.PlantId, RowsEdited);
