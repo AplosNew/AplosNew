@@ -13,16 +13,13 @@ using Library.Model.Parties;
 using Library.Model.Payments;
 using Library.Model.Vouchers;
 using Library.Service.Banks;
-using Library.Service.Calendars;
 using Library.Service.Core;
-using Library.Service.Currencies;
 using Library.Service.Employees;
 using Library.Service.Enums;
+using Library.Service.Extension.Accounts;
 using Library.Service.Invoices;
 using Library.Service.Logs;
-using Library.Service.ManagementChartOfAccounts;
 using Library.Service.Systems;
-using Library.Service.Taxations;
 using Library.Service.Vouchers;
 using Library.ViewModel.Accounts;
 using Library.ViewModel.Vouchers;
@@ -39,23 +36,13 @@ namespace Library.Service.Expenses
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
-        private readonly IBudgetMasterService _budgetMasterService;
         private readonly IVoucherService _voucherService;
         private readonly IEmployeePayableService _employeePayableService;
         private readonly IInvoiceService _invoiceService;
-        private readonly ICompanyTaxYearService _companyTaxYearService;
-        private readonly ICompanyFiscalYearService _companyFiscalYearService;
-        private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
         private readonly IRepositoryAsync<ExpenseBookingApprovalHistory> _expenseBookingApprovalHistoryRepository;
         private readonly IRepositoryAsync<ExpenseBookingDetail> _expenseBookingDetailRepository;
         private readonly IRepositoryAsync<ApprovalConfiguration> _approvalConfigurationrepository;
-        private readonly IRepositoryAsync<CompanyParty> _companyPartyRepository;
-        private readonly IRepositoryAsync<CompanyPartyGL> _companyPartyGLRepository;
         private readonly IRepositoryAsync<ExpenseBooking> _expenseBookingRepository;
-        private readonly IRepositoryAsync<BankMaster> _bankMasterRepository;
-        private readonly IRepositoryAsync<CashMaster> _cashMasterRepository;
-        private readonly IRepositoryAsync<BankJournal> _bankJournalRepository;
-        private readonly IRepositoryAsync<BankJournalDetail> _bankJournalDetailRepository;
         private readonly IRepositoryAsync<ExpenseActivity> _expenseActivityRepository;
         private readonly IBankJournalService _bankJournalService;
         private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
@@ -65,21 +52,11 @@ namespace Library.Service.Expenses
             , IPKGeneratorService pkGeneratorService
             , ISqlRepository sqlRepository
             , IUnitOfWork unitOfWork
-            , IBudgetMasterService budgetMasterService
             , IRepositoryAsync<ExpenseBookingApprovalHistory> expenseBookingApprovalHistoryRepository
             , IRepositoryAsync<ExpenseBookingDetail> expenseBookingDetailRepository
-            , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IVoucherService voucherService
             , IRepositoryAsync<ApprovalConfiguration> approvalConfigurationrepository
             , IEmployeePayableService employeePayableService
-            , ICompanyTaxYearService companyTaxYearService
-            , ICompanyFiscalYearService companyFiscalYearService
-            , IRepositoryAsync<CompanyParty> companyPartyRepository
-            , IRepositoryAsync<CompanyPartyGL> companyPartyGLRepository
-            , IRepositoryAsync<BankMaster> bankMasterRepository
-            , IRepositoryAsync<CashMaster> cashMasterRepository
-            , IRepositoryAsync<BankJournal> bankJournalRepository
-            , IRepositoryAsync<BankJournalDetail> bankJournalDetailRepository
             , IRepositoryAsync<ExpenseActivity> expenseActivityRepository
             , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
         , IBankJournalService bankJournalService
@@ -91,20 +68,10 @@ namespace Library.Service.Expenses
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
             _expenseBookingApprovalHistoryRepository = expenseBookingApprovalHistoryRepository;
-            _budgetMasterService = budgetMasterService;
             _expenseBookingDetailRepository = expenseBookingDetailRepository;
-            _companyParallelCurrencyService = companyParallelCurrencyService;
             _voucherService = voucherService;
             _approvalConfigurationrepository = approvalConfigurationrepository;
             _employeePayableService = employeePayableService;
-            _companyTaxYearService = companyTaxYearService;
-            _companyFiscalYearService = companyFiscalYearService;
-            _companyPartyRepository = companyPartyRepository;
-            _companyPartyGLRepository = companyPartyGLRepository;
-            _bankMasterRepository = bankMasterRepository;
-            _cashMasterRepository = cashMasterRepository;
-            _bankJournalRepository = bankJournalRepository;
-            _bankJournalDetailRepository = bankJournalDetailRepository;
             _bankJournalService = bankJournalService;
             _invoiceService = invoiceService;
             _expenseActivityRepository = expenseActivityRepository;
@@ -123,13 +90,14 @@ namespace Library.Service.Expenses
 
         public void InsertOrUpdateGraph(IEnumerable<ExpenseBookingDetail> entities, IEnumerable<ExpenseActivity> expActdetails, ExpenseBooking expenseBooking)
         {
+            AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
             if (entities != null)
             {
                 var budgetTransactionDetailDb_list = _expenseBookingDetailRepository.Query(r => r.ExpenseBookingId == expenseBooking.Id).Select();
                 var currentRecord = _expenseBookingDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.ExpenseBookingDetail WHERE ExpenseBookingId='{expenseBooking.Id}'").First();
                 foreach (var entity in entities)
                 {
-                    entity.GLGeneralInfoId = _budgetMasterService.GetGLNameByBudget(entity.BudgetMasterId);
+                    entity.GLGeneralInfoId = _accountsCommonService.GetGLByBudgetMasterId(entity.BudgetMasterId).ToString();
 
                     if (!string.IsNullOrEmpty(entity.Id))
                     {
@@ -204,13 +172,15 @@ namespace Library.Service.Expenses
 
         public void EntityInsertOrUpdateGraph(IEnumerable<ExpenseBookingDetail> entities, ExpenseBooking expenseBooking)
         {
+            AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+
             if (entities != null)
             {
                 var budgetTransactionDetailDb_list = _expenseBookingDetailRepository.Query(r => r.ExpenseBookingId == expenseBooking.Id).Select();
                 var currentRecord = _expenseBookingDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.ExpenseBookingDetail WHERE ExpenseBookingId='{expenseBooking.Id}'").First();
                 foreach (var entity in entities)
                 {
-                    entity.GLGeneralInfoId = _budgetMasterService.GetGLNameByBudget(entity.BudgetMasterId);
+                    entity.GLGeneralInfoId = _accountsCommonService.GetGLByBudgetMasterId(entity.BudgetMasterId).ToString();
 
                     if (!string.IsNullOrEmpty(entity.Id))
                     {
@@ -1007,9 +977,10 @@ namespace Library.Service.Expenses
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
@@ -1110,19 +1081,15 @@ namespace Library.Service.Expenses
                 }
                 if (voucherVM.BeneficiaryType == BeneficiaryType.Vendor.ToString())
                 {
-                    var companyParty = _companyPartyRepository.Query(r => r.CompanyId == voucherVM.CompanyId && r.PlantId == voucherVM.PlantId && r.PartyId == voucherVM.PartyId && r.PartyType == "Vendor").Select().FirstOrDefault();
-                    var companyPartyGLList = _companyPartyGLRepository.Query(r => r.PartyId == voucherVM.PartyId && r.CompanyPartyId == companyParty.Id).Select().ToList();
-                    if (null == companyPartyGLList)
-                        throw new CustomException("Party GL not found!");
-
-                    var reconGL = PartyGLType.ReconciliationGL.ToString();
-                    var regularGL = companyPartyGLList.FirstOrDefault(r => r.PartyGLType == reconGL);
+                    var companyParty = _accountsCommonService.GetCompanyParty(voucherVM.CompanyId, voucherVM.PlantId, voucherVM.PartyId, "Vendor");
+                    var regularGL = _accountsCommonService.GetCompanyPartyGL(voucherVM.PartyId,companyParty["Id"].ToString(), PartyGLType.ReconciliationGL.ToString());
+                   ;
                     if (null == regularGL)
                         throw new CustomException("Party Reconciliation GL not found!");
 
-                    voucherVM.GLGeneralInfoId = regularGL.GLGeneralInfoId;
-                    voucherVM.BudgetMasterId = regularGL.BudgetMasterId;
-                    voucherVM.ActivityId = regularGL.ActivityId;
+                    voucherVM.GLGeneralInfoId = regularGL["GLGeneralInfoId"].ToString();
+                    voucherVM.BudgetMasterId = regularGL["BudgetMasterId"].ToString();
+                    voucherVM.ActivityId = regularGL["ActivityId"].ToString();
 
                     var invoiceDetail = new InvoiceDetail
                     {
@@ -1420,9 +1387,10 @@ namespace Library.Service.Expenses
                 if (voucherVM.Amount <= 0)
                     throw new CustomException("Amount is 0.");
 
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1474,7 +1442,7 @@ namespace Library.Service.Expenses
                 // Set Voucher Id to BankJournal Table.
                 bankJournal.VoucherId = voucher.Id;
 
-                var cashMaster = _cashMasterRepository.Find(bankJournal.CashMasterId);
+                var cashMaster = _accountsCommonService.GetCashMaster(bankJournal.CashMasterId);
 
                 // INSERT INTO VoucherDetail Credit
                 var currentVoucherDetailId = 1;
@@ -1490,9 +1458,9 @@ namespace Library.Service.Expenses
                     CashMasterId = bankJournal.CashMasterId,
                     PaymentSource = bankJournal.PaymentSource,
                     PartyType = bankJournal.PaymentSource,
-                    GLGeneralInfoId = cashMaster.GLGeneralInfoId,
-                    BudgetMasterId = cashMaster.BudgetMasterId,
-                    ActivityId = cashMaster.ActivityId
+                    GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString(),
+                    BudgetMasterId = cashMaster["BudgetMasterId"].ToString(),
+                    ActivityId = cashMaster["ActivityId"].ToString()
                 }, currentVoucherDetailId);
 
                 // INSRT INTO GLTransactionDetail
@@ -1633,9 +1601,10 @@ namespace Library.Service.Expenses
                 if (voucherVM.Amount <= 0)
                     throw new CustomException("Amount is 0.");
 
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;

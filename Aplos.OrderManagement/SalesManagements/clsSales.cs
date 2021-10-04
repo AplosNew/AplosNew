@@ -22,13 +22,13 @@ namespace Library.OrderManagement.Sales
 
 
         }
-		#endregion Constructor
+        #endregion Constructor
 
-		public IEnumerable<object> GetItemSOSKUList(string masterOrderId)
-		{
-			try
-			{
-				var sql = @"SELECT  MOI.Id MasterOrderItemId,MOI.MasterOrderId,SO.Id SONo, po.PONumber,PODate=REPLACE(CONVERT(CHAR(11), po.PODate, 106),' ','-'), DeliveryDate = REPLACE(CONVERT(CHAR(11), SO.DeliveryDate, 106),' ','-'),SO.ParentId
+        public IEnumerable<object> GetItemSOSKUList(string masterOrderId)
+        {
+            try
+            {
+                var sql = @"SELECT  MOI.Id MasterOrderItemId,MOI.MasterOrderId,SO.Id SONo, po.PONumber,PODate=REPLACE(CONVERT(CHAR(11), po.PODate, 106),' ','-'), DeliveryDate = REPLACE(CONVERT(CHAR(11), SO.DeliveryDate, 106),' ','-'),SO.ParentId
                             , SO.DestinationId
 							,DT.UserName DestinationName
 							,PM.UserName ProductName
@@ -111,18 +111,18 @@ namespace Library.OrderManagement.Sales
 					   ) A ON A.SalesOrderId=SO.Id
 
                     WHERE MOI.Id " + masterOrderId + " ORDER BY SO.DeliveryDate";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public List<Dictionary<string, object>> GetMasterOrderSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
-		{
+        public List<Dictionary<string, object>> GetMasterOrderSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
+        {
 
-			var cmdText = @"SELECT SM.*,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
+            var cmdText = @"SELECT SM.*,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
             , BUoM.UserName AS BaseUoM, TUoM.UserName AS TransactionUoM
             , CU.Code AS Currency,NULL TaxList ,FC.ValueFreeText,FCV.UserName AS [FreeText] 
             , SCV.UserName AS SecondCharacteristicsValue,TCV.UserName AS ThirdCharacteristicsValue
@@ -179,12 +179,12 @@ namespace Library.OrderManagement.Sales
             JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
             WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND SA.Id='" + salesId + "'";
 
-			return _sqlRepository.GetDataCollection(cmdText);
-		}
+            return _sqlRepository.GetDataCollection(cmdText);
+        }
 
-		public List<Dictionary<string, object>> GetSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
-		{
-			var cmdText = @"SELECT SM.Id, SM.SalesId, MGM.UserName AS MaterialGroupMasterName, SM.MaterialMasterId, MM.UserName MaterialMasterName, SM.ArticleId, ART.StandardName AS ArticleName
+        public List<Dictionary<string, object>> GetSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
+        {
+            var cmdText = @"SELECT SM.Id, SM.SalesId, MGM.UserName AS MaterialGroupMasterName, SM.MaterialMasterId, MM.UserName MaterialMasterName, SM.ArticleId, ART.StandardName AS ArticleName
             , SM.TransactionQty,BUoM.UserName AS BaseUoM, SM.BaseUOMId, SM.TransactionUoMId, TUoM.UserName AS TransactionUoM, SM.TransactionRate
             , CU.Code AS Currency, SM.TransactionAmount, SM.TaxAmount, SM.NetAmount, NULL TaxList ,FC.ValueFreeText,FCV.UserName AS [FreeText] 
             , SCV.UserName AS SecondCharacteristicsValue,TCV.UserName AS ThirdCharacteristicsValue 
@@ -204,94 +204,94 @@ namespace Library.OrderManagement.Sales
             JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
             WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND SA.Id='" + salesId + @"'";
 
-			return _sqlRepository.GetDataCollection(cmdText);
-		}
+            return _sqlRepository.GetDataCollection(cmdText);
+        }
 
-		private string GetAddiTaxId()
-		{
-			string sID = string.Empty;
-			bplib.clsGenID objGenID = new bplib.clsGenID();
-			objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesAdditionalTax", out sID);
-			return sID;
-		}
+        private string GetAddiTaxId()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesAdditionalTax", out sID);
+            return sID;
+        }
 
 
-		public void SaveAdditinalTax(string MasterId,  decimal BooksCurrencyBaseRate, OTSBD.IdentityParameter para, List<Dictionary<string, object>> UserSendData)
-		{
-		
-			try
-			{
-				string sql = "select * from TRN.SalesAdditionalTax where SalesId='" + MasterId + "'";
-				ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-				con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
+        public void SaveAdditinalTax(string MasterId, decimal BooksCurrencyBaseRate, OTSBD.IdentityParameter para, List<Dictionary<string, object>> UserSendData)
+        {
 
-				for (int i = 0; i < UserSendData.Count; i++)
-				{
-					dsDetail.Tables[0].DefaultView.RowFilter = "TaxCodeId='" + UserSendData[i]["TaxCodeId"].ToString() + "'";
-					if (dsDetail.Tables[0].DefaultView.Count == 0)
-					{
+            try
+            {
+                string sql = "select * from TRN.SalesAdditionalTax where SalesId='" + MasterId + "'";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
 
-						DataRow dr = dsDetail.Tables[0].NewRow();
-						dr["Id"] = GetAddiTaxId();
-						dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
-						dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
-						dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
-						dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
-						dr["BooksCurrencyTaxAmount"] = Math.Round(Convert.ToDecimal(UserSendData[i]["TaxAmount"]) * BooksCurrencyBaseRate,2);
+                for (int i = 0; i < UserSendData.Count; i++)
+                {
+                    dsDetail.Tables[0].DefaultView.RowFilter = "TaxCodeId='" + UserSendData[i]["TaxCodeId"].ToString() + "'";
+                    if (dsDetail.Tables[0].DefaultView.Count == 0)
+                    {
+
+                        DataRow dr = dsDetail.Tables[0].NewRow();
+                        dr["Id"] = GetAddiTaxId();
+                        dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
+                        dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
+                        dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
+                        dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
+                        dr["BooksCurrencyTaxAmount"] = Math.Round(Convert.ToDecimal(UserSendData[i]["TaxAmount"]) * BooksCurrencyBaseRate, 2);
                         dr["AddedBy"] = para.AddedBy;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = para.AddedFromIP;
                         dr["SalesId"] = MasterId.ToString();
-						dsDetail.Tables[0].Rows.Add(dr);
-					}
-					
-				}
+                        dsDetail.Tables[0].Rows.Add(dr);
+                    }
+
+                }
 
 
-				clsStaticInfo info = new clsStaticInfo();
-				info.SaveDataSets(dsDetail);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsDetail);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetAdvanceTaxInfo(string SalesId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			try
-			{
-				var sql = "";
-				sql = @"Select a.Id,a.TaxCodeId,a.Percentage ValueOfFixed,a.TaxAmount,a.AddedBy,a.AddedDate,a.AddedFromIP,b.UserName TaxName,SalesId
+        public IEnumerable<object> GetAdvanceTaxInfo(string SalesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = "";
+                sql = @"Select a.Id,a.TaxCodeId,a.Percentage ValueOfFixed,a.TaxAmount,a.AddedBy,a.AddedDate,a.AddedFromIP,b.UserName TaxName,SalesId
 						from [TRN].[SalesAdditionalTax] a
 						left join [mst].[TAXCode] b ON b.Id=a.TaxCodeId where a.SalesId='" + SalesId + "'";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> AdditionalTaxDelete(string Id)
-		{
-			try
-			{
-				var _sql = @" Delete from [TRN].[SalesAdditionalTax] where Id='" + Id + @"'";
-				return _sqlRepository.GetDataCollection(_sql);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+        public IEnumerable<object> AdditionalTaxDelete(string Id)
+        {
+            try
+            {
+                var _sql = @" Delete from [TRN].[SalesAdditionalTax] where Id='" + Id + @"'";
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetPackingSOData(string PackingId)
-		{
-			try
-			{
-				var _sql = @"SELECT  MOI.Id MasterOrderItemId,MOI.MasterOrderId,SO.Id SONo,SO.Id SalesOrderId, po.PONumber,PODate=REPLACE(CONVERT(CHAR(11), po.PODate, 106),' ','-'), DeliveryDate = REPLACE(CONVERT(CHAR(11), SO.DeliveryDate, 106),' ','-'),SO.ParentId
+        public IEnumerable<object> GetPackingSOData(string PackingId)
+        {
+            try
+            {
+                var _sql = @"SELECT  MOI.Id MasterOrderItemId,MOI.MasterOrderId,SO.Id SONo,SO.Id SalesOrderId, po.PONumber,PODate=REPLACE(CONVERT(CHAR(11), po.PODate, 106),' ','-'), DeliveryDate = REPLACE(CONVERT(CHAR(11), SO.DeliveryDate, 106),' ','-'),SO.ParentId
 							, SO.DestinationId
 							,DT.UserName DestinationName
 							,PM.UserName ProductName
@@ -364,20 +364,20 @@ namespace Library.OrderManagement.Sales
 							JOIN trn.PackingLineItem PLI ON PLI.SOId=SM.SalesOrderId
 							GROUP BY  SM.SalesOrderId
 							) A ON A.SalesOrderId=SO.Id
-							WHERE  PLI.PackingId " + PackingId+@" ORDER BY SO.DeliveryDate";
-				return _sqlRepository.GetDataCollection(_sql);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+							WHERE  PLI.PackingId " + PackingId + @" ORDER BY SO.DeliveryDate";
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public GridModel GetPackingSalesList(GridParameter parameters, string companyGroupId, string companyId)
-		{
-			try
-			{
-				parameters.CmdText = @"SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId,CO.BaseCurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
+        public GridModel GetPackingSalesList(GridParameter parameters, string companyGroupId, string companyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId,CO.BaseCurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
 									 Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,
 									Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
                                     , S.RowState, S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId, S.BaseNoOfDays, S.BaseOnDueDate
@@ -401,18 +401,18 @@ namespace Library.OrderManagement.Sales
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
                                     WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "'  AND SourceType='Packing'";
 
-				return _sqlRepository.GetGridData(parameters);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
-		{
+        public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
+        {
 
-			var cmdText = @"SELECT SM.*,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
+            var cmdText = @"SELECT SM.*,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS MaterialMasterArticleName
             , BUoM.UserName AS BaseUoM, TUoM.UserName AS TransactionUoM
             , CU.Code AS Currency,NULL TaxList ,FC.ValueFreeText,FCV.UserName AS [FreeText] 
             , SCV.UserName AS SecondCharacteristicsValue,TCV.UserName AS ThirdCharacteristicsValue
@@ -462,14 +462,14 @@ namespace Library.OrderManagement.Sales
             JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
             WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND SA.Id='" + salesId + "'";
 
-			return _sqlRepository.GetDataCollection(cmdText);
-		}
+            return _sqlRepository.GetDataCollection(cmdText);
+        }
 
-		public IEnumerable<object> GetSalesPackingData(string salesId)
-		{
-			try
-			{
-				string str = @"SELECT SP.Id,SP.PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
+        public IEnumerable<object> GetSalesPackingData(string salesId)
+        {
+            try
+            {
+                string str = @"SELECT SP.Id,SP.PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
                             ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency 
                             FROM dbo.SalesPacking SP
 							LEFT JOIN TRN.Packing pk ON pk.PackingId=SP.PackingId
@@ -480,20 +480,20 @@ namespace Library.OrderManagement.Sales
                             LEFT JOIN org.Entity en on en.Id = pk.EntityId
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
-							Where SP.SalesId='"+ salesId + "'";
-				return _sqlRepository.GetDataCollection(str);
-			}
-			catch (Exception e)
-			{
-				throw e;
-			}
-		}
+							Where SP.SalesId='" + salesId + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
-		public Dictionary<string, object> GetQtyAmountByPackingId(string packingid)
+        public Dictionary<string, object> GetQtyAmountByPackingId(string packingid)
         {
             try
             {
-				string sql = @"Select PackingID,Sum(NetWeight) Qty,Sum(Amount) Amount,TembTbl.ProductLibraryId from
+                string sql = @"Select PackingID,Sum(NetWeight) Qty,Sum(Amount) Amount,TembTbl.ProductLibraryId from
 							(
 							SELECT PK.PackingId,IsNull(ISC.NetWeight,0) NetWeight,IsNull(RD.MaterialTranRate,0) Rate,IsNull(ISC.NetWeight,0) * IsNull(RD.MaterialTranRate,0) Amount,PL.Id ProductLibraryId FROM
 							dbo.ItemScanChild ISC
@@ -502,10 +502,10 @@ namespace Library.OrderManagement.Sales
 							LEFT JOIN TRN.Packing PK ON PLI.PackingId=PK.PackingId
 							LEFT JOIN TRN.InventoryReceiveDetail RD ON ISC.InventoryReceiveDetailId=RD.Id
 							LEFT JOIN dbo.ProductLibrary PL ON PL.Code=ISC.ProductCode
-							Where PK.PackingId='"+ packingid + @"'
+							Where PK.PackingId='" + packingid + @"'
 							) TembTbl group by PackingId,ProductLibraryId";
-				return _sqlRepository.GetData(sql, null);
-			}
+                return _sqlRepository.GetData(sql, null);
+            }
             catch (Exception ex)
             {
                 throw ex;
@@ -513,9 +513,9 @@ namespace Library.OrderManagement.Sales
         }
 
 
+        
 
-
-	}
+    }
 
 
 }
