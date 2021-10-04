@@ -6899,7 +6899,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
         public void UpdateBudgetCode(EmployeeInformation entity)
         {
             try
-            {
+            {   
                 var dblist = Find(entity.SystemId);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 EmployeeBudgetCodeHistory employeeBudgetCodeHistory = new EmployeeBudgetCodeHistory

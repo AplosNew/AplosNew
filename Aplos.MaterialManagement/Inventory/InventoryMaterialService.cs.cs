@@ -2301,13 +2301,13 @@ namespace Library.MaterialManagement.Inventory
 						,pwg.UserName GateName
                         ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-                    JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
+                    left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                    left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
                     left join trn.GateEntry G On G.id=IR.GateEntryNo
 					Left Join dbo.PlantWiseGate pwg On pwg.Id=G.PlantWiseGateId
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'
@@ -2395,15 +2395,15 @@ namespace Library.MaterialManagement.Inventory
 						,GateEntryNo
 						,pwg.UserName GateName,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-                    JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
-                     left join trn.GateEntry G On G.id=IR.GateEntryNo
-					Left Join dbo.PlantWiseGate pwg On pwg.Id=G.PlantWiseGateId
+						left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+						left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+						left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+						left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+						left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+						left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
+                        left join trn.GateEntry G On G.id=IR.GateEntryNo
+					    Left Join dbo.PlantWiseGate pwg On pwg.Id=G.PlantWiseGateId
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.IsApproved=0
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
@@ -2489,13 +2489,13 @@ namespace Library.MaterialManagement.Inventory
 						,pwg.UserName GateName,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         ,V.VoucherNo
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
+                    LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
                     left join trn.GateEntry G On G.id=IR.GateEntryNo
 					Left Join dbo.PlantWiseGate pwg On pwg.Id=G.PlantWiseGateId
 
@@ -2541,13 +2541,13 @@ namespace Library.MaterialManagement.Inventory
                         ,FORMAT((IRD.MaterialTranRate*IR.ToCurrencyRate),'N4') BaseCurrencyRate
                         ,V.VoucherNo
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-                    JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
+                    left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                    left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
                     left join trn.invoice I ON I.InventoryReceiveId=IR.Id
 					left join trn.Voucher V On V.Id=I.VoucherId
 
@@ -2556,7 +2556,7 @@ namespace Library.MaterialManagement.Inventory
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
-                    AND CAST(IR.GRNDate AS DATE)> CAST('" + issueDate + "' AS DATE) ORDER BY CAST(IRD.AddedDate AS DATE)";
+                    AND CAST(IR.GRNDate AS DATE) <= CAST('" + issueDate + "' AS DATE) ORDER BY CAST(IRD.AddedDate AS DATE)";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -3045,12 +3045,12 @@ namespace Library.MaterialManagement.Inventory
                         from(
 		              SELECT TotalQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"'
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
@@ -3060,12 +3060,12 @@ namespace Library.MaterialManagement.Inventory
             UNION ALL
             SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
                     AND IR.[Status]='Posting' 
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"'
@@ -3076,12 +3076,12 @@ namespace Library.MaterialManagement.Inventory
                     UNION ALL
                     SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
                     AND IR.[Status]='Posting' AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.GRNType='MaterialTransfer'
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"'
@@ -3092,12 +3092,12 @@ namespace Library.MaterialManagement.Inventory
                     UNION ALL
                     SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
                     AND IR.[Status] IS NULL AND IR.IsApproved=1 AND IR.RequiredPosting=0 AND IR.GRNType='MaterialTransfer'
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"'
@@ -3108,12 +3108,12 @@ namespace Library.MaterialManagement.Inventory
             UNION ALL
            SELECT 0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
                     AND IR.IsApproved=1
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"'
@@ -3124,12 +3124,12 @@ namespace Library.MaterialManagement.Inventory
                 UNION ALL
                 SELECT 0 TotalQty,0 PostingQty,0 ApprovedQty, UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
                     AND IR.IsApproved=0
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"'

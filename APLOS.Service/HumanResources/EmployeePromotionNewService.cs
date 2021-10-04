@@ -787,12 +787,6 @@ namespace Library.Service.HumanResources
                 dsLocal = null;
             }
 
-
-
-
-
-
-
             //obj.LoadEmployeeInfo(_para, out dsLocal);
 
             //_para.CompanyId = employeeInformation.CompanyId;

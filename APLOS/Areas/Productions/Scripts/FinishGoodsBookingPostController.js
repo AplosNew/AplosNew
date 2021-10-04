@@ -10,6 +10,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
     $scope.saveUrl = 'Productions/FinishGoodsBooking/FinishGoodsBookingPost/';
     $scope.AcceptanceId = null;
     $scope.TotalPayableAmount = 0;
+    $scope.IsPostButtonDisable = false;
 
     $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
     $scope.searchByPostedGRNList = [{ value: 'InventoryReceiveId', name: "FG Inventory No" }, { value: 'Id', name: "FG Book No" }, { value: 'VoucherNo', name: "VoucherNo" }
@@ -181,17 +182,18 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         $scope.valueData = '';
         angular.element(document.querySelector('#GRNpopUp')).modal('hide');
     };
-    function getVendorPayableGLBudgetActivity(inveReveiveId) {
-        $http.get('Productions/FinishGoodsBooking/GetVendorPayableGLBudgetActivity?inveReveiveId=' + inveReveiveId)
+    $scope.fGInventoryGLBudgetActivityList = [];
+    function getFGInventoryGLBudgetActivity(inveReveiveId) {
+        $http.get('Productions/FinishGoodsBooking/GetFGInventoryGLBudgetActivity?inveReveiveId=' + inveReveiveId)
             .then(function (response) {
-                $scope.inventoryPayableList = [];
-                $scope.inventoryPayableList = response.data;
+                $scope.fGInventoryGLBudgetActivityList = [];
+                $scope.fGInventoryGLBudgetActivityList = response.data;
             });
     }
     function getInventoryMaterialList(inveReveiveId) {
         $http.get('Productions/FinishGoodsBooking/GetFGJournal?inventoryReceiveId=' + inveReveiveId)
             .then(function (response) {
-                $scope.inventoryPayableList = [];
+                $scope.fGInventoryGLBudgetActivityList = [];
                 $scope.inventoryReceiveDetailList = [];
                 $scope.inventoryMaterialList = [];
                 $scope.newList = [];
@@ -199,8 +201,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
 
                 
                     reArrangeCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
-                if (baseService.isUndefinedOrNull(employeeId))
-                    getVendorPayableGLBudgetActivity(inveReveiveId);
+                getFGInventoryGLBudgetActivity(inveReveiveId);
             });
     }
     $scope.inventoryTaxList = [];
@@ -280,6 +281,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
 
 
     $scope.Post = function () {
+        $scope.IsPostButtonDisable = true;
         if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
        
         for (var i = 0; i < $scope.newList.length; i++) {
@@ -291,6 +293,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
             data: {
                  voucherVM: $scope.modelNew
                 , voucherDetailVMList: $scope.newList
+                , fGInventoryGLBudgetActivityVMList : $scope.fGInventoryGLBudgetActivityList
             },
             dataType: 'JSON'
         }).then(function (response) {
@@ -298,9 +301,9 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
                 ShowResult(response.data.Message, 'failure');
             else {
                 ShowResult(response.data.Message, 'success');
-
+                $scope.Clear();
                 $scope.getDataList($scope.modelNew.Id);
-
+                $scope.IsPostButtonDisable = false;
             }
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
@@ -311,9 +314,10 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         $scope.modelNew = { PostingDate: new Date() };
         $scope.inventoryMaterialList = [];
         $scope.inventoryReceivedList = [];
-        $scope.inventoryPayableList = [];
+        $scope.fGInventoryGLBudgetActivityList = [];
         $scope.inventoryReceiveDetailList = [];
         $scope.advanceTaxesList = [];
+        $scope.IsPostButtonDisable = false;
         $scope.newList = [];
         if (baseService.arrayLength($scope.voucherTypeList) === 1)
             $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;

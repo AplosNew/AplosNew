@@ -1840,7 +1840,9 @@
     <Content Include="Areas\HumanResource\Scripts\ArrearProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterPatternController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterUpdatesController.js" />
+    <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCCompanyController.js" />
+    <Content Include="Areas\HumanResource\Scripts\salaryStructureAndProcessedReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
@@ -2160,6 +2162,7 @@
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
     <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
+    <Content Include="Areas\Productions\Scripts\finishGoodsInventoryRegisterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionOrderProcessWithRateController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
     <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
@@ -3674,7 +3677,7 @@
     <Content Include="Areas\Attendances\Views\ManualOTUploadNew\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\ManualOTReportNew\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\CutPlan\Aplos.cshtml" />
-    <Content Include="Areas\Productions\Views\FinishGoodsBooking\ConsumptionBookPost.cshtml" />
+    <Content Include="Areas\Productions\Views\FinishGoodsBooking\FGInventoryPost.cshtml" />
     <Content Include="Areas\Productions\Views\PackingInvoice\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\CompanyWiseExternalDataUploadFromExcel\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\CompanyWiseBankSheet\Aplos.cshtml" />
@@ -3729,6 +3732,9 @@
     <Content Include="Areas\Payrolls\Views\SalaryProcessOtherStatusNew\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\InventoryPayable\_GRNDetailPopUp.cshtml" />
     <Content Include="Areas\Products\Views\GoodsReceiveNote\GRNRequitionSOAllocation.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryProcessedReportNew.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryStructureAndProcessedReportNew.cshtml" />
+    <Content Include="Areas\Productions\Views\FinishGoodsInventoryRegister.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

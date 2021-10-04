@@ -874,7 +874,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
 
     $scope.SaveMaster = function () {
         try {
-
+            if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
+                throw "Future Date not allowed for Production Booking.";
+            }
            
             ValidationMaster();
             if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {

@@ -414,6 +414,9 @@
                 <div e-column e-field="RowState" e-headertext="Status" e-width="100"></div>
                 <div e-column e-headertext="Sales" e-template="#SalesTemplate" e-width="60"></div>
                 <div e-column e-headertext=" Posting " e-template="#PostingTemplate" e-width="80"></div>
+
+                <div e-column e-headertext="Delete" e-template="#DeleteTemplate" e-width="50"></div>
+
             </div>
         </div>
         <script id="SalesTemplate" type="text/template">
@@ -430,6 +433,20 @@
                 </ul>
             </div>
         </script>
+
+        <script id="DeleteTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-disabled="data.IsPark==false" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                            <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
+
+
 
         <script id="PostingTemplate" type="text/template">
             <div class="common-btn">
@@ -451,6 +468,8 @@
     </div>
 </div>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(salesdb)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(salesId,voucherId)"></confirm-archive-generic>
+
 @Html.Partial("~/Areas/SalesManagements/Views/_masterOrderSalesDetailPopUp.cshtml")
 
 <div class="loader" data-loader>

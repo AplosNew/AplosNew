@@ -766,6 +766,8 @@
                     <ul class="list-inline action-list">
                         @*<li ng-show="x.IsPosted || x.IsPark"><a ng-click="confirmPost(x);" href="" class="btn btn-action tooltip-here">Post</a></li>*@
                         <li ng-show="x.IsPosted || x.IsPark"><a class="btn btn-action" title="Journal" ng-click="ShowJournalPopUp(x);"><i class="glyphicon glyphicon-eye-open"></i></a></li>
+                        <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+
                         @*<li><a class="btn btn-action" ng-click="SalesReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>*@
                         <li>
                             <a class="btn btn-action" ng-click="CommercialInvoiceReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Commercial Invoice" href="" target="_blank"><i class=""></i>CI</a>
@@ -1253,3 +1255,4 @@
 <confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmTaxServiceDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeServiceTaxRow()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(salesdb)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteSales(invoiceId,voucherId)"></confirm-archive-generic>
