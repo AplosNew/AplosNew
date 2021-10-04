@@ -390,30 +390,44 @@
                             <div e-column e-field="OtherIsPark" e-headertext="Status" e-width="100" textAlign='Right'></div>
                             @*<div e-column e-headertext="AdditionalTax" e-commands="additionalTaxPop" e-isunbound=true e-textalign="center" e-width="100"></div>*@
 
-                            <div e-column e-headertext="Govt Subsidy" e-template="#AdditionalTaxTemplate" e-width="100"></div>
-                            <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
-                            <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
-                            <div e-column e-headertext="Sales" e-commands="commandSales" e-isunbound=true e-textalign="left" e-width="60"></div>
-                            <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>
+                            @*<div e-column e-headertext="Govt Subsidy" e-template="#AdditionalTaxTemplate" e-width="100"></div>*@
+                            <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
+                            <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="130"></div>
                         </div>
 
                     </div>
-                    <script id="AdditionalTaxTemplate" type="text/template">
+                    @*<script id="AdditionalTaxTemplate" type="text/template">
                         <ul class="common-btn list-inline text-right">
                             <li> <button type="button" class="btn" ng-disabled="data.OtherInvoiceId==null" ng-click="$parent.onClickadditionalTaxPop(data);">Govt Subsidy Post</button></li>
                         </ul>
 
+                    </script>*@
+                    <script id="ReportTemplate" type="text/template">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-center">
+                                <li>
+                                    <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                                        <i class="fa fa-file-pdf-o"></i>
+                                    </button>
+                                    <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                                        <i class="fa fa-file-excel-o"></i>
+                                    </button>
+                                    <button ng-click="$parent.downloadSalesReport(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Sales">
+                                        <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     </script>
-
                     <script id="DeleteTemplate" type="text/template">
                         <div class="common-btn">
                             <ul class="common-btn list-inline text-center">
                                 <li>
-                             
+                                    <button type="button" class="btn" ng-disabled="data.OtherInvoiceId==null" ng-click="$parent.onClickadditionalTaxPop(data);" title="Govt Subsidy Post">G.S.Post</button>
                                     <button ng-disabled="data.IsPark==false" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
                                         <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
                                     </button>
-                           
+
                                 </li>
                             </ul>
                         </div>
@@ -462,11 +476,26 @@
                             <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
                             <div e-column e-field="TransactionAmount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
                             <div e-column e-field="MaterialStorageName" e-headertext="Storage Location" e-width="130"></div>
-                            <div e-column e-headertext="PDF" e-commands="commandInventoryPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
-                            <div e-column e-headertext="Excel" e-commands="commandInventoryExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
-                            <div e-column e-headertext="Sales" e-commands="commandInventorySales" e-isunbound=true e-textalign="left" e-width="60"></div>
+                            <div e-column e-headertext="Report" e-template="#InvReportTemplate" e-width="100"></div>
                         </div>
                     </div>
+                    <script id="InvReportTemplate" type="text/template">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-center">
+                                <li>
+                                    <button ng-click="$parent.downloadInventorySalePDF(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                                        <i class="fa fa-file-pdf-o"></i>
+                                    </button>
+                                    <button ng-click="$parent.downloadInventorySaleExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                                        <i class="fa fa-file-excel-o"></i>
+                                    </button>
+                                    <button ng-click="$parent.downloadInventorySales(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Sales">
+                                        <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
                     <i>**Showing top 300 Posted Sales  order by PostingDate</i>
                 </div>
             </div>

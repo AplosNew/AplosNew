@@ -73,7 +73,7 @@ namespace Library.Accounting.FixedAssets
             dr["UpdatedDate"] = DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
-            
+
         }
         private void EditRow(DataSet ds)
         {
@@ -92,7 +92,7 @@ namespace Library.Accounting.FixedAssets
             obj.SaveDataSets(ds);
 
         }
-        
+
 
 
         public string InsertFinishGoodsBookingPosting(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> fGInventoryGLBudgetActivityVMList
@@ -114,8 +114,8 @@ namespace Library.Accounting.FixedAssets
                 DataSet _inventoryReceiveData = null;
                 DataSet _inventoryReceiveDetailData = null;
 
-               // voucherVM.CompanyCurrencyRate = 1;
-               // voucherVM.CurrencyId = companyCurrencyId;
+                // voucherVM.CompanyCurrencyRate = 1;
+                // voucherVM.CurrencyId = companyCurrencyId;
                 voucherVM.DocDate = Convert.ToDateTime(voucherVM.DocDate);
                 voucherVM.PostingDate = Convert.ToDateTime(voucherVM.PostingDate);
                 var voucher = new Voucher
@@ -129,7 +129,7 @@ namespace Library.Accounting.FixedAssets
                     TaxYearId = voucherVM.TaxYearId,
                     TaxYearPeriodId = voucherVM.TaxYearPeriodId,
                     VoucherDate = DateTime.Now,
-                    DocDate =  voucherVM.DocDate,
+                    DocDate = voucherVM.DocDate,
                     DocRefNo = voucherVM.DocRefNo,
                     Narration = "Posting",//voucherVM.Narration,
                     PostingDate = voucherVM.PostingDate,
@@ -141,8 +141,8 @@ namespace Library.Accounting.FixedAssets
                 var currentVoucherDetaiRecord = 0;
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
-                    
-                    if (voucherDetailVM.TrnType == "Dr" && voucherDetailVM.Amount>0)
+
+                    if (voucherDetailVM.TrnType == "Dr" && voucherDetailVM.Amount > 0)
                     {
                         if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
                             throw new CustomException("Without GL can not post.");
@@ -169,8 +169,8 @@ namespace Library.Accounting.FixedAssets
                             DrAmount = voucherDr.DrAmount * voucherVM.CompanyCurrencyRate
                         }, ref _drvDetailCurrencyData);
 
-                        
-                       
+
+
                     }
                     else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.Amount > 0)
                     {
@@ -201,9 +201,9 @@ namespace Library.Accounting.FixedAssets
                     }
                 }
 
-                
-                con.OpenDataSetThroughAdapter(@"SELECT * FROM trn.InventoryReceive WHERE Id='" + voucherVM.InventoryReceiveId+"'", out _inventoryReceiveData, false, "1");
-                    con.OpenDataSetThroughAdapter(@"SELECT * FROM trn.InventoryReceiveDetail WHERE InventoryReceiveId='" + voucherVM.InventoryReceiveId + "'", out _inventoryReceiveDetailData, false, "1");
+
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM trn.InventoryReceive WHERE Id='" + voucherVM.InventoryReceiveId + "'", out _inventoryReceiveData, false, "1");
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM trn.InventoryReceiveDetail WHERE InventoryReceiveId='" + voucherVM.InventoryReceiveId + "'", out _inventoryReceiveDetailData, false, "1");
 
                 if (_inventoryReceiveData.Tables[0].Rows.Count > 0)
                 {
@@ -219,7 +219,7 @@ namespace Library.Accounting.FixedAssets
                             {
                                 dr.BeginEdit();
 
-                                dr["Status"] = "Posted";
+                                dr["Status"] = "Posting";
                                 dr["VoucherId"] = voucher.Id;
                                 dr["UpdatedBy"] = voucher.AddedBy;
                                 dr["UpdatedDate"] = voucher.AddedDate;
@@ -232,39 +232,31 @@ namespace Library.Accounting.FixedAssets
                         }
                     }
                 }
+
                 foreach (var item in fGInventoryGLBudgetActivityVMList.Where(r => r.TrnType == "Dr"))
                 {
-                    if (_inventoryReceiveDetailData.Tables[0].Rows.Count > 0)
+                    _inventoryReceiveDetailData.Tables[0].DefaultView.RowFilter = "Id='" + item.InventoryReceiveDetailId + @"'";
+
+                    DataRow drDetail = _inventoryReceiveDetailData.Tables[0].DefaultView[0].Row;
+                    if (string.IsNullOrEmpty(drDetail["PostDrGLGeneralInfoId"].ToString()))
                     {
-                        for (int j = 0; j < _inventoryReceiveDetailData.Tables[0].Rows.Count; j++)
-                        {
-                            _inventoryReceiveDetailData.Tables[0].DefaultView.RowFilter = "Id='" + item.InventoryReceiveDetailId + @"'";
+                        drDetail.BeginEdit();
 
-                            if (_inventoryReceiveDetailData.Tables[0].DefaultView.Count > 0)
-                            {
-                                //edit
-                                DataRow drDetail = _inventoryReceiveDetailData.Tables[0].DefaultView[0].Row;
-                                if (string.IsNullOrEmpty(drDetail["PostDrGLGeneralInfoId"].ToString()))
-                                {
-                                    drDetail.BeginEdit();
-
-                                    drDetail["PostDrGLGeneralInfoId"] = item.GLGeneralInfoId;
-                                    drDetail["PostDrBudgetMasterId"] = item.BudgetMasterId;
-                                    drDetail["PostDrActivityId"] = item.ActivityId;
-                                    drDetail["UpdatedDate"] = voucher.AddedDate;
-                                    drDetail.EndEdit();
-                                }
-                                else
-                                {
-                                    throw new Exception("This FG Inventory already posted.");
-                                }
-                            }
-                        }
+                        drDetail["PostDrGLGeneralInfoId"] = item.GLGeneralInfoId;
+                        drDetail["PostDrBudgetMasterId"] = item.BudgetMasterId;
+                        drDetail["PostDrActivityId"] = item.ActivityId;
+                        drDetail["UpdatedDate"] = voucher.AddedDate;
+                        drDetail.EndEdit();
                     }
+                    else
+                    {
+                        throw new Exception("This FG Inventory already posted.");
+                    }
+
                 }
 
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset , _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _inventoryReceiveData, _inventoryReceiveDetailData
+                objApp.SaveDataSets(_vdataset, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _inventoryReceiveData, _inventoryReceiveDetailData
                     );
                 return "";
             }
@@ -276,7 +268,7 @@ namespace Library.Accounting.FixedAssets
             }
         }
 
-      
+
         public void GetParallelCurrency(string companyId, out string companyCurrencyId, out string companyCurrencyCode)
         {
             var companyParallelCurrency = GetCompanyCurrencyId(companyId);
@@ -287,7 +279,7 @@ namespace Library.Accounting.FixedAssets
         }
         private Dictionary<string, object> GetCompanyCurrencyId(string companyId)        {            var cmdText = @"select cpc.CurrencyId,C.Code CurrencyCode from SCS.CompanyParallelCurrency cpc
                             LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '" + ParallelCurrencyType.CompanyCurrency.ToString() + "'";            return _sqlRepository.GetData(cmdText);        }
-     
+
         private bool GetPlantIsShowFCInWord(string plantId)
         {
             return bplib.clsWebLib.GetBoolData(_sqlRepository.GetDataCollection(@"SELECT IsShowFCInWord FROM ORG.Plant WHERE Id='" + plantId + "'")[0]["IsShowFCInWord"].ToString());
@@ -330,7 +322,7 @@ namespace Library.Accounting.FixedAssets
 					 FROM TRN.InventoryReceiveDetail AS A  GROUP BY A.InventoryReceiveId) AS  IRD ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
                     LEFT JOIN SCS.Currency C ON C.Id=Ir.CurrencyId
-					WHERE IR.VoucherId<>'' AND IR.PlantId='"+ plantId + @"'";
+					WHERE IR.VoucherId<>'' AND IR.PlantId='" + plantId + @"'";
             return _sqlRepository.GetDataCollection(sql);
         }
         //vendor invoice header data old & NEW

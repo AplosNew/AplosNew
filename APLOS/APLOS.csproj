@@ -2163,6 +2163,7 @@
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
     <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
+    <Content Include="Areas\Productions\Scripts\finishGoodsInventoryRegisterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionOrderProcessWithRateController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
     <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
@@ -3734,6 +3735,7 @@
     <Content Include="Areas\Products\Views\GoodsReceiveNote\GRNRequitionSOAllocation.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryProcessedReportNew.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryStructureAndProcessedReportNew.cshtml" />
+    <Content Include="Areas\Productions\Views\FinishGoodsInventoryRegister.cshtml" />
     <Content Include="Areas\HumanResource\Views\LeaveApplicationNew\LeaveDelete.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

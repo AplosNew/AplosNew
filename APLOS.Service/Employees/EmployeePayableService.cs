@@ -11,14 +11,12 @@ using Library.Model.Parties;
 using Library.Model.Systems;
 using Library.Model.Taxations;
 using Library.Model.Vouchers;
-using Library.Service.Calendars;
 using Library.Service.Core;
-using Library.Service.Currencies;
 using Library.Service.Enums;
+using Library.Service.Extension.Accounts;
 using Library.Service.Invoices;
 using Library.Service.Logs;
 using Library.Service.Systems;
-using Library.Service.Taxations;
 using Library.Service.Vouchers;
 using Library.ViewModel.Invoices;
 using Library.ViewModel.Vouchers;
@@ -38,19 +36,10 @@ namespace Library.Service.Employees
         private readonly ISqlRepository _sqlRepository;
         private readonly IVoucherService _voucherService;
         private readonly IPKGeneratorService _pKGeneratorService;
-        private readonly ICompanyTaxYearService _companyTaxYearService;
-        private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
         private readonly IRepositoryAsync<EmployeeTransactionTypeGL> _employeeTransactionTypeGLRepository;
         private readonly IRepositoryAsync<EmployeePayable> _employeePayableRepository;
         private readonly IRepositoryAsync<EmployeePayableDetail> _employeePayableDetailRepository;
-        private readonly ICompanyFiscalYearService _companyFiscalYearService;
-        //private readonly AccountVoucherReportService _accountVoucherReportService;
         private readonly IInvoiceTaxService _invoiceTaxService;
-        private readonly IRepositoryAsync<TaxCode> _taxCodeRepository;
-        private readonly IRepositoryAsync<TaxCodeGL> _taxCodeGLRepository;
-        private readonly IRepositoryAsync<Voucher> _voucherRepository;
-        private readonly IRepositoryAsync<VoucherDetail> _voucherDetailRepository;
-        private readonly IRepositoryAsync<VoucherDetailCurrency> _voucherDetailCurrencyRepository;
         private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
         private readonly IRepositoryAsync<InvoiceTaxDetail> _invoiceTaxDetailRepository;
         private readonly IRepositoryAsync<AdditionalTax> _additionalTaxRepository;
@@ -62,45 +51,28 @@ namespace Library.Service.Employees
             , ISqlRepository sqlRepository
             , IPKGeneratorService pkGeneratorService
             , IVoucherService voucherService
-            , ICompanyTaxYearService companyTaxYearService
-            , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IRepositoryAsync<EmployeeTransactionTypeGL> employeeTransactionTypeGLRepository
             , IRepositoryAsync<EmployeePayableDetail> employeePayableDetailRepository
-            , ICompanyFiscalYearService companyFiscalYearService
             , IInvoiceTaxService invoiceTaxService
-            //, AccountVoucherReportService accountVoucherReportService
-            , IRepositoryAsync<TaxCode> taxCodeRepository
-            , IRepositoryAsync<TaxCodeGL> taxCodeGLRepository
-            ,IRepositoryAsync<Voucher> voucherRepository
-            ,IRepositoryAsync<VoucherDetail> voucherDetailRepository
             , IRepositoryAsync<InvoiceTax> invoiceTaxRepository
             , IRepositoryAsync<InvoiceTaxDetail> invoiceTaxDetailRepository
             , IRepositoryAsync<AdditionalTax> additionalTaxRepository
             , IRepositoryAsync<AdditionalTaxDetail> additionalTaxDetailRepository
              , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
-            , IRepositoryAsync<VoucherDetailCurrency> voucherDetailCurrencyRepository)
+            )
         {
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
             _voucherService = voucherService;
-            _companyTaxYearService = companyTaxYearService;
-            _companyParallelCurrencyService = companyParallelCurrencyService;
             _employeePayableRepository = employeePayableRepository;
             _employeePayableDetailRepository = employeePayableDetailRepository;
             _employeeTransactionTypeGLRepository = employeeTransactionTypeGLRepository;
-            _companyFiscalYearService = companyFiscalYearService;
             _pKGeneratorService = pkGeneratorService;
             _invoiceTaxService = invoiceTaxService;
-            //_accountVoucherReportService = accountVoucherReportService;
-            _taxCodeGLRepository = taxCodeGLRepository;
-            _taxCodeRepository = taxCodeRepository;
-            _voucherRepository = voucherRepository;
-            _voucherDetailRepository = voucherDetailRepository;
             _invoiceTaxRepository = invoiceTaxRepository;
             _invoiceTaxDetailRepository = invoiceTaxDetailRepository;
             _additionalTaxRepository = additionalTaxRepository;
             _additionalTaxDetailRepository = additionalTaxDetailRepository;
-            _voucherDetailCurrencyRepository = voucherDetailCurrencyRepository;
              _employeeSubsequentTransactionRepository = employeeSubsequentTransactionRepository;
         }
 
@@ -192,9 +164,10 @@ namespace Library.Service.Employees
             var flag = false;
             try
             {
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -248,11 +221,9 @@ namespace Library.Service.Employees
                         var invoiceTaxPk = _invoiceTaxService.GetMaxNumber();
                         foreach (var invoiceTaxVM in taxDetailVMList)
                         {
-                            var taxCode = _taxCodeRepository.Find(invoiceTaxVM.TaxCodeId);
-                            if (null == taxCode)
-                                throw new CustomException("Tax code not found!");
+                        var taxCode = _accountsCommonService.GetTaxCode(invoiceTaxVM.TaxCodeId);
 
-                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
+                        var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode["Id"].ToString());
                             if (null == taxCodeGL)
                                 throw new CustomException("Tax code GL not found!");
 
@@ -268,14 +239,14 @@ namespace Library.Service.Employees
                             _invoiceTaxService.InsertInvoiceTax(employeePayable, invoiceTax, invoiceTaxPk);
 
                             // Insert Into Customer Invoice Tax Detail (Withhold GL)
-                            withholdgl = taxCode.IsWithhold;
-                            if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                            withholdgl = Convert.ToBoolean(taxCode["IsWithhold"]);
+                            if (Convert.ToBoolean(taxCode["IsWithhold"]) && !string.IsNullOrEmpty(taxCodeGL["WithholdCreditableGLId"].ToString()))
                             {
                                 var invoiceTaxDetail = new InvoiceTaxDetail
                                 {
-                                    GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
-                                    BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
-                                    ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                    GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                                    BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                                    ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
                                     Amount = invoiceTax.TaxAmount,
                                     AType = "Cr"
                                 };
@@ -409,9 +380,10 @@ namespace Library.Service.Employees
                 voucherVM.PlantId = employeePayable.PlantId;
                 voucherVM.EntityId = employeePayable.EntityId;
 
-                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
-                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -793,24 +765,24 @@ namespace Library.Service.Employees
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var employeePayable = _employeePayableRepository.Find(invoiceId);
                 var employeePayableDetail = _employeePayableDetailRepository.Query(r => r.EmployeePayableId == invoiceId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.EmployeePayableId == invoiceId).Select().ToList();
                 var invoiceTDS = _additionalTaxRepository.Query(r => r.EmployeePayableId == invoiceId).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
 
                 foreach (var item in voucherdetail)
                 {
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 foreach (var item in employeePayableDetail)
                 {
@@ -850,7 +822,7 @@ namespace Library.Service.Employees
                     }
                 }
                 _employeePayableRepository.Delete(employeePayable.Id);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -880,12 +852,12 @@ namespace Library.Service.Employees
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var employeePayable = _employeePayableRepository.Find(invoiceId);
                 if (employeePayable.WrittenOffAmount > 0)
                     throw new CustomException("Please Delete Payment Voucher first ! ");
@@ -900,12 +872,12 @@ namespace Library.Service.Employees
 
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
 
                 foreach (var item in voucherdetail)
                 {
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 foreach (var item in employeePayableDetail)
                 {
@@ -945,7 +917,7 @@ namespace Library.Service.Employees
                     }
                 }
                 _employeePayableRepository.Delete(employeePayable.Id);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -976,12 +948,12 @@ namespace Library.Service.Employees
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                var voucher = _voucherRepository.Find(voucherId);
+                var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
                 var employeePayable = _employeePayableRepository.Find(invoiceId);
                 if (employeePayable.WrittenOffAmount > 0)
                     throw new CustomException("Please Delete Payment Voucher first ! ");
@@ -996,12 +968,12 @@ namespace Library.Service.Employees
 
                 foreach (var item in voucherdetailcurrnecy)
                 {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
 
                 foreach (var item in voucherdetail)
                 {
-                    _voucherDetailRepository.Delete(item.Id);
+                    _voucherService.DeleteVoucherDetail(item.Id);
                 }
                 foreach (var item in employeePayableDetail)
                 {
@@ -1041,7 +1013,7 @@ namespace Library.Service.Employees
                     }
                 }
                 _employeePayableRepository.Delete(employeePayable.Id);
-                _voucherRepository.Delete(voucher.Id);
+                _voucherService.DeleteVoucher(voucher.Id);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
