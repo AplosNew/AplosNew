@@ -246,7 +246,17 @@ namespace Library.Service.Extension.Accounts
 
             return glTemp;
         }
+        public Dictionary<string, object> GetGLByBudgetMasterId(string budgetmasterid)
+        {
 
+            var sql = @"SELECT TOP(1) GLGeneralInfoId FROM [MST].[BudgetMaster]  
+                        WHERE Id='" + budgetmasterid + "'";
+            var budgetmasterTemp = _sqlRepository.GetData(sql);
+            if (null == budgetmasterTemp || budgetmasterTemp.Count == 0)
+                throw new CustomException("Budget Master  not Found!");
+
+            return budgetmasterTemp;
+        }
         public Dictionary<string, object> GetBankMaster(string bankMasterId)
         {
 

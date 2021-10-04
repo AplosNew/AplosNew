@@ -9,9 +9,7 @@ using Library.Model.Expenses;
 using Library.Model.Parties;
 using Library.Model.Payments;
 using Library.Model.Vouchers;
-using Library.Service.Calendars;
 using Library.Service.Core;
-using Library.Service.Currencies;
 using Library.Service.Enums;
 using Library.Service.Extension.Accounts;
 using Library.Service.Finances;
@@ -19,7 +17,6 @@ using Library.Service.Invoices;
 using Library.Service.Logs;
 using Library.Service.Properties;
 using Library.Service.Systems;
-using Library.Service.Taxations;
 using Library.Service.Vouchers;
 using Library.ViewModel.Vouchers;
 using System;
@@ -46,7 +43,7 @@ namespace Library.Service.Employees
         private readonly IRepositoryAsync<ExpenseBookingDetail> _expenseBookingDetailRepository;
         private readonly IRepositoryAsync<ExpenseBookingApprovalHistory> _expenseBookingApprovalHistoryRepository;
         //private readonly IRepositoryAsync<Voucher> _voucherRepository;
-        private readonly IRepositoryAsync<GLTransactionDetail> _gLTransactionDetailRepository;
+        //private readonly IRepositoryAsync<GLTransactionDetail> _gLTransactionDetailRepository;
         private readonly IPKGeneratorService _pKGeneratorService;
         private readonly IFinancingTypeGLService _financingTypeGLService;
         private readonly IInvoiceTaxService _invoiceTaxService;
@@ -63,7 +60,7 @@ namespace Library.Service.Employees
             , IRepositoryAsync<EmployeePayableWriteOffDetail> employeePayableWriteOffDetailRepository
             , IRepositoryAsync<EmployeePayableDetail> employeePayableDetailRepository
             //, IRepositoryAsync<Voucher> voucherRepository
-            , IRepositoryAsync<GLTransactionDetail> gLTransactionDetailRepository
+            //, IRepositoryAsync<GLTransactionDetail> gLTransactionDetailRepository
             , IFinancingTypeGLService financingTypeGLService
             , IRepositoryAsync<ExpenseBooking> expenseBookingRepository
             , IRepositoryAsync<ExpenseBookingDetail> expenseBookingDetailRepository
@@ -83,7 +80,7 @@ namespace Library.Service.Employees
             _financingTypeGLService = financingTypeGLService;
             _invoiceTaxService = invoiceTaxService;
            // _voucherRepository = voucherRepository;
-            _gLTransactionDetailRepository = gLTransactionDetailRepository;
+            //_gLTransactionDetailRepository = gLTransactionDetailRepository;
             _expenseBookingRepository = expenseBookingRepository;
             _expenseBookingDetailRepository = expenseBookingDetailRepository;
             _expenseBookingApprovalHistoryRepository = expenseBookingApprovalHistoryRepository;
@@ -572,10 +569,10 @@ namespace Library.Service.Employees
                 }
                 foreach (var item in voucherdetail)
                 {
-                    var glTransactionDetail = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().FirstOrDefault();
+                    var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
                     if (glTransactionDetail != null)
                     {
-                        _gLTransactionDetailRepository.Delete(item.Id);
+                        _voucherService.DeleteGLTransactionDetail(item.Id);
                     }
                     var rdBuilder = new System.Text.StringBuilder();
                     var builderSql = @"UPDATE [TRN].VoucherDetail SET EmployeePayableWriteOffDetailId=NULL WHERE Id='" + item.Id + "'";
@@ -667,10 +664,10 @@ namespace Library.Service.Employees
 
                 foreach (var item in voucherdetail)
                 {
-                    var glTransactionDetail = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().FirstOrDefault();
+                    var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
                     if (glTransactionDetail != null)
                     {
-                        _gLTransactionDetailRepository.Delete(item.Id);
+                        _voucherService.DeleteGLTransactionDetail(item.Id);
                     }
                     _voucherService.DeleteVoucherDetail(item.Id);
                 }
