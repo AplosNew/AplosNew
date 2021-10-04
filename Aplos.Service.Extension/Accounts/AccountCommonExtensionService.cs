@@ -354,8 +354,8 @@ namespace Library.Service.Extension.Accounts
 
         public Dictionary<string, object> GetTaxCode(string id)
         {
-            var sql = @"SELECT TOP(1) TCGL.* FROM [MST].[TaxCodeGL] AS TCGL
-                        WHERE TCGL.TaxCodeId='" + id + "' ";
+            var sql = @"SELECT TOP(1) TCGL.* FROM [MST].[TaxCode] AS TCGL
+                        WHERE TCGL.Id='" + id + "' ";
             var glTemp = _sqlRepository.GetData(sql);
 
             if (null == sql || glTemp.Count == 0)
