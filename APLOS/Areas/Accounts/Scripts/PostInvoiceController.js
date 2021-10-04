@@ -259,6 +259,32 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         }
     };
 
+    $scope.refreshTemplateDetail = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllDetail });
+    };
+
+    function CheckBoxSelectAllDetail(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GRNDetail").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.InventoryReceiveDetailList.length; i++) {
+                $scope.InventoryReceiveDetailList[i].Activ = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GRNDetail").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.InventoryReceiveDetailLists = [];
     $scope.Action = 'Save';
     $scope.Save = function () {
         try {
@@ -270,6 +296,9 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                     if ($scope.InventoryReceiveDetailList[i].GRNQty < $scope.InventoryReceiveDetailList[i].OtherQty + $scope.InventoryReceiveDetailList[i].TransactionQty) {
                         throw "Invoice Qty can't greater than GRN Qty.";
                     }
+                    if ($scope.InventoryReceiveDetailList[i].Activ) {
+                        $scope.InventoryReceiveDetailLists.push($scope.InventoryReceiveDetailList[i]);
+                    }
                 }
             }
 
@@ -279,7 +308,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                         method: 'POST',
                         url: 'Accounts/PostInvoice/Create',
                         data: {
-                            'master': $scope.modelNew, 'dataList': $scope.InventoryReceiveDetailList
+                            'master': $scope.modelNew, 'dataList': $scope.InventoryReceiveDetailLists
                         },
                         dataType: 'JSON'
                         , contentType: "application/json charset=utf-8"

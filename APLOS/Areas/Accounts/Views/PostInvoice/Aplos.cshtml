@@ -155,8 +155,9 @@
     <fieldset class="scheduler-border">
         <legend class="scheduler-border">GRN Detail</legend>
         <div ng-show="InventoryReceiveDetailList.length>0">
-            <div style="color:black;" id="GRNDetail" ej-grid e-datasource="InventoryReceiveDetailList" e-allowpaging="true" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true" e-allowResizing="true">
+            <div style="color:black;" id="GRNDetail" ej-grid e-datasource="InventoryReceiveDetailList" e-allowpaging="true" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true" e-allowResizing="true"  e-templaterefresh="refreshTemplateDetail">
                 <div e-columns>
+                    <div e-column e-headertext="" e-headertemplateid="#headerTemplateDetail" e-template="#checkboxTemplateDetail" e-textalign="center" e-width="30"></div>
                     <div e-column e-field="InventoryReceiveId" e-headertext="GRN No" e-width="50" e-filter="false"></div>
                     <div e-column e-field="InventoryReceiveDetailId" e-headertext="Detail No" e-width="50"></div>
                     <div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="80"></div>
@@ -178,6 +179,12 @@
                 <div style="padding:0px; width:100%;">
                     <input type="text" style="text-align:right" class="form-control" n-decimals="2" ng-model="data.TransactionQty" ng-blur="$parent.calculateAmount(data)" />
                 </div>
+            </script>
+            <script type="text/template" id="checkboxTemplateDetail">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Activ" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplateDetail">
+                <input type="checkbox" id="headchk" />
             </script>
         </div>
     </fieldset>
