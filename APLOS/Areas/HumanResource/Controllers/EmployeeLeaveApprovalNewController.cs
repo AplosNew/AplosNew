@@ -264,6 +264,23 @@ namespace Aplos.Areas.HumanResource.Controllers
                 //Getting the Employees Data from the APD Table
                 foreach (LeaveVM item in LeaveData)
                 {
+
+                    DateTime Ftd = Convert.ToDateTime(item.FromDate);
+                    DateTime Tld = Convert.ToDateTime(item.ToDate);
+
+                    DataSet PlantLock;
+                    PlantLockCheck(Ftd.ToString(), Tld.ToString(), out PlantLock, identity.PlantId);
+                    string pl = "";
+                    if (PlantLock.Tables[0].Rows.Count > 0)
+                    {
+                        for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                        {
+                            pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                        }
+
+                        throw new Exception("The Plant is Locked for - " + pl);
+                    }
+
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                     var sqlx = @"select * from AttdnProcessData where WorkDate between '" + Convert.ToDateTime(item.FromDate) + "' and '" + Convert.ToDateTime(item.ToDate) + @"' 
                             and EmpSystemID ='" + item.EmployeeID + "' ";
@@ -278,8 +295,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                     string LeaveCode = ddt.Rows[0]["Code"].ToString();
 
 
-                    DateTime Ftd = Convert.ToDateTime(item.FromDate);
-                    DateTime Tld = Convert.ToDateTime(item.ToDate);
+                   
+
                     while (Ftd <= Tld)
                     {
                         string newformat = Convert.ToDateTime(Ftd).ToString("yyyyMMdd");
@@ -404,24 +421,29 @@ namespace Aplos.Areas.HumanResource.Controllers
                 objLvTrsEmpWise.Reject(obj);
             }
 
-
-
-
-
             //MasterId = obj.SaveMasterAndDetailForLeavePolicy(LeaveData);
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
 
+        public void PlantLockCheck(string FDate, string TDate, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string From = Convert.ToDateTime(FDate).ToString("dd-MMM-yyyy");
+                string To = Convert.ToDateTime(TDate).ToString("dd-MMM-yyyy");
 
+                var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
+                and LockedDate between '" + From + "' and '" + To + "' and IsActive='1'";
 
-
-
-
-
-
-
-
-
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         #endregion
 
