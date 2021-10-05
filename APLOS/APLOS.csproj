@@ -495,6 +495,7 @@
     <Compile Include="Areas\Employees\Controllers\EmployeeMyAppLeaveApplicationController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeePlantTransferController.cs" />
     <Compile Include="Areas\Employees\Controllers\HRDashboardtrController.cs" />
+    <Compile Include="Areas\Employees\Controllers\LeaveDeleteSingleDayNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\LeaveDeleteSingleDayController.cs" />
     <Compile Include="Areas\Employees\Controllers\SpecialUnlockController.cs" />
     <Compile Include="Areas\Employees\Controllers\ProfileFromExcelController.cs" />
@@ -1741,6 +1742,7 @@
     <Content Include="Areas\Employees\Scripts\CompanyWiseEmployeePlantTransferController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeePlantTransferNewController.js" />
     <Content Include="Areas\Employees\Scripts\hrDashboardtrController.js" />
+    <Content Include="Areas\Employees\Scripts\LeaveDeleteSingleDayNewController.js" />
     <Content Include="Areas\Employees\Scripts\LeaveDeleteSingleDayController.js" />
     <Content Include="Areas\Employees\Scripts\specialUnlockController.js" />
     <Content Include="Areas\Employees\Scripts\employeeInformationNewController.js" />
@@ -3738,6 +3740,7 @@
     <Content Include="Areas\Productions\Views\FinishGoodsInventoryRegister.cshtml" />
     <Content Include="Areas\Productions\Views\_FGInventoryRegisterPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\LeaveApplicationNew\LeaveDelete.cshtml" />
+    <Content Include="Areas\Employees\Views\LeaveDeleteSingleDayNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

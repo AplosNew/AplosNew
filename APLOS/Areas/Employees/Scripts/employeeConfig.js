@@ -471,6 +471,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/LeaveDeleteSingleDay/Aplos',
             controller: 'LeaveDeleteSingleDayController'
         })
+        .when('/leave-delete-singleday-new', {
+            templateUrl: 'Employees/LeaveDeleteSingleDayNew/Aplos',
+            controller: 'LeaveDeleteSingleDayNewController'
+        })
         .when('/accounts-group', {
             templateUrl: 'Employees/AccountsGroup/Aplos',
             controller: 'AccountsGroupController'
