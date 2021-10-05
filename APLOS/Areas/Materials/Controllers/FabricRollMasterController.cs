@@ -157,7 +157,7 @@ namespace Aplos.Areas.Materials.Controllers
                         LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
                         LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
 
-						WHERE B.PlantId='" + identity.PlantId + @"' --and BP.BusinessProcessName='FabricRollManagement'
+						WHERE B.PlantId='" + identity.PlantId + @"' and BP.BusinessProcessName='FabricRollManagement'
 						GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
 
 

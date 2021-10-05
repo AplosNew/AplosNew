@@ -8521,10 +8521,9 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 			//{
 
 
-			cmdText = @"select 
-						
-						 IRD.Id
-                      ,isnull(MM.UserName,'') MaterialMasterName	
+			cmdText = @"select 						
+				     IRD.Id
+                     ,isnull(MM.UserName,'') MaterialMasterName	
 					,MM.id MId
 					,isnull( ART.StandardName,'') ArticleName		
 					,ART.id ARTId
@@ -8534,44 +8533,57 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					,TUoM.UserName UOM,main.IssueType
 					,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') RcvDate
 					,Round(IRD.BaseQty,2) RcvQty
-					,Round(IRD.BooksCurrencyBaseRate,2) RcvRate
+					,Round(IRD.BooksCurrencyBaseRate,4) RcvRate
 					--,Round(IRD.TotalMaterialBooksCurrencyAmount,2) RcvAmount	
 					,Round((Round(IRD.BaseQty,2)*Round(IRD.BooksCurrencyBaseRate,4)),2) RcvAmount	
 
 					,REPLACE(CONVERT(CHAR(11), main.IssueDate, 106),' ','-') IssueDate
 					,main.IssueNo IssueNo
 					,isnull(Round(main.IssueQty,2),0) IssueQty
-					,isnull(Round(main.Rate,2),0) Rate
+					,isnull(Round(main.Rate,4),0) Rate
 					,isnull(Round(main.IssueAmount,2),0) IssueAmount
 
 
                       ,REPLACE(CONVERT(CHAR(11), main.POReturnDate, 106),' ','-') PurchaseReturnDate
 					,main.PurchaseReturnNo PurchaseReturnNo
 					,isnull(Round(main.PurchaseReturnQty,2),0) PurchaseReturnQty
-					,isnull(Round(main.PurchaseReturnRate,2),0) PurchaseReturnRate
+					,isnull(Round(main.PurchaseReturnRate,4),0) PurchaseReturnRate
 					,isnull(Round(main.PurchaseReturnAmount,2),0) PurchaseReturnAmount
 
 
                       ,REPLACE(CONVERT(CHAR(11), main.ReturnIssueDate, 106),' ','-') IssueReturnDate
 					,main.ReturnIssueReturnNo IssueReturnNo
 					,isnull(Round(main.IssueReturnQty,2),0) IssueReturnQty
-					,isnull(Round(main.IssueReturnRate,2),0) IssueReturnRate
+					,isnull(Round(main.IssueReturnRate,4),0) IssueReturnRate
 					,isnull(Round(main.IssueReturnAmount,2),0) IssueReturnAmount
 
 
 					,REPLACE(CONVERT(CHAR(11), main.PhysicalIssueDate, 106),' ','-') AdjustmentDate
 					,main.PhysicalIssueNo AdjustmentNo
 					,isnull(Round(main.PhysicalStockAdjustmentqty,2),0) AdjustmentQty
-					,isnull(Round(main.PhysicalStockAdjustmentRate,2),0) AdjustmentRate
-					,isnull(Round(main.PhysicalStockAdjustmentAmount,2),0) AdjustmentAmount						
+					,isnull(Round(main.PhysicalStockAdjustmentRate,4),0) AdjustmentRate
+					,isnull(Round(main.PhysicalStockAdjustmentAmount,2),0) AdjustmentAmount		
+					
+					--InventorySales
+					,REPLACE(CONVERT(CHAR(11), main.SalesDate, 106),' ','-') SalesDate
+					,main.SalesNo SalesNo
+					,isnull(Round(main.Salesqty,2),0) Salesqty
+					,isnull(Round(main.BaseRate,4),0) SalesRate
+					,isnull(Round(main.SalesAmount,2),0) SalesAmount
+
+					--InventorySalesReturn
+					,REPLACE(CONVERT(CHAR(11), main.SalesReturnDate, 106),' ','-') SalesReturnDate
+					,main.SalesReturnNo SalesReturnNo
+					,isnull(Round(main.SalesReturnqty,2),0) SalesReturnQty
+					,isnull(Round(main.SalesReturnRate,4),0) SalesReturnRate
+					,isnull(Round(main.SalesReturnAmount,2),0) SalesReturnAmount
 
 
 
-
-					,Round(((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)),2) BalanceQty
+					,Round(((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0)),2) BalanceQty
 
 					,CASE WHEN Round((IRD.BaseQty- isnull(main.IssueQty,0)),2)>0 then Round(IRD.BooksCurrencyBaseRate,4) else 0 END BalanceRate
-					,Round((((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0))* Round(IRD.BooksCurrencyBaseRate,4)),2) BalanceAmount
+					,Round((((((IRD.BaseQty-isnull(Round(main.PurchaseReturnQty,2),0))-isnull(Round(main.IssueQty,2),0))+isnull(Round(main.IssueReturnQty,2),0))-isnull(Round(main.PhysicalStockAdjustmentqty,2),0)-isnull(Round(main.Salesqty,2),0)+isnull(Round(main.SalesReturnQty,2),0) )* Round(IRD.BooksCurrencyBaseRate,4)),2) BalanceAmount
 
 					,IRD.IsAsset						
 					,CASE WHEN IRD.IsAsset=1 THEN 'Asset' ELSE 'Inventory' END IsAssetStatus
@@ -8597,7 +8609,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 						left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-						left join(select IH.InventoryReceiveDetailId,II.IssueDate,II.Id IssueNo,II.IssueType,NULL POReturnDate,NULL PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo
+						left join(
+						select IH.InventoryReceiveDetailId,II.IssueDate,II.Id IssueNo,II.IssueType,NULL POReturnDate,NULL PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
 
                                     ,(Sum(Isnull(Ih.Qty,0))) IssueQty 
                                     ,Sum(IH.Rate) Rate
@@ -8605,6 +8618,12 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                     ,0 PurchaseReturnQty,0 PurchaseReturnRate,0 PurchaseReturnAmount
                                     ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
                                     , 0 PhysicalStockAdjustmentqty   ,0 PhysicalStockAdjustmentRate ,0 PhysicalStockAdjustmentAmount
+									,0 Salesqty 
+									,0 BaseRate
+									,0 SalesAmount
+									,0 SalesReturnqty 
+									,0 SalesReturnRate
+									,0 SalesReturnAmount
                                      from  [TRN].[InventoryReceiveDetail] AS IRD 
                                      LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      LEFT JOIN  TRN.InventoryIssueDetail IID on IID.ID=IH.InventoryIssueDetailId
@@ -8614,7 +8633,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
                                      Union all
 
-                        select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,II.POReturnDate  ,II.Id PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo
+                        select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,II.POReturnDate  ,II.Id PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
 
                                     , 0 IssueQty,0 Rate,0 IssueAmount
                                      ,(Sum(Isnull(IH.TransactionQty,0))) PurchaseReturnQty 
@@ -8622,6 +8641,12 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      ,(Sum(Isnull(IH.TransactionQty,0))*Sum(IH.MaterialTranRate)) AS PurchaseReturnAmount
                                        ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
                                    , 0 PhysicalStockAdjustmentqty   ,0 PhysicalStockAdjustmentRate ,0 PhysicalStockAdjustmentAmount
+								   	,0 Salesqty 
+									,0 BaseRate
+									,0 SalesAmount
+									,0 SalesReturnqty 
+									,0 SalesReturnRate
+									,0 SalesReturnAmount
                                      from  [TRN].[InventoryReceiveDetail] AS IRD 
                                      LEFT JOIN TRN.PurchaseReturnDetail IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      LEFT JOIN TRN.PurchaseReturn II ON IH.PurchaseReturnId=II.Id 
@@ -8633,7 +8658,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
  
  
 
-                        select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    II.IssueDate ReturnIssueDate ,II.Id ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo
+                        select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    II.IssueDate ReturnIssueDate ,II.Id ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
 
                                      , 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
                                      ,0 PurchaseReturnRate,0PurchaseReturnAmount
@@ -8641,6 +8666,12 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                     ,Sum(IH.Rate) IssueReturnRate
                                     ,(Sum(Isnull(IH.Qty,0))*Sum(IH.Rate)) AS IssueReturnAmount 
                                     , 0 PhysicalStockAdjustmentqty   ,0 PhysicalStockAdjustmentRate ,0 PhysicalStockAdjustmentAmount
+									,0 Salesqty 
+									,0 BaseRate
+									,0 SalesAmount
+									,0 SalesReturnqty 
+									,0 SalesReturnRate
+									,0 SalesReturnAmount
                                      from  [TRN].[InventoryReceiveDetail] AS IRD 
                                      LEFT JOIN TRN.InventoryIssueReturnHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      --LEFT JOIN  TRN.InventoryIssueDetail IID on IID.ID=IH.InventoryIssueDetailId
@@ -8649,20 +8680,76 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      group by IH.InventoryReceiveDetailId,II.IssueDate ,II.Id
 
                              Union all
-                        select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, II.IssueDate PhysicalIssueDate,II.Id PhysicalIssueNo
+                        select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, II.IssueDate PhysicalIssueDate,II.Id PhysicalIssueNo,NULL SalesDate,NULL SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
 									, 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
                                      ,0 PurchaseReturnRate,0PurchaseReturnAmount
                                       ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
                                     ,(Sum(Isnull(Ih.Qty,0))) PhysicalStockAdjustmentqty 
                                     ,Sum(IH.Rate) PhysicalStockAdjustmentRate
                                     ,(Sum(Isnull(Ih.Qty,0))*Sum(IH.Rate)) AS PhysicalStockAdjustmentAmount
+
+									,0 Salesqty 
+									,0 BaseRate
+									,0 SalesAmount
+									,0 SalesReturnqty 
+									,0 SalesReturnRate
+									,0 SalesReturnAmount
                                      from  [TRN].[InventoryReceiveDetail] AS IRD 
                                      LEFT JOIN TRN.PhysicalStockAdjustmentHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
                                      LEFT JOIN  TRN.PhysicalStockAdjustmentDetail IID on IID.ID=IH.PhysicalStockAdjustmentDetailId
                                      LEFT JOIN TRN.PhysicalStockAdjustmentMaster II ON IID.PhysicalStockAdjustmentMasterID=II.Id 
                                      Where Ih.Qty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
                                      group by IH.InventoryReceiveDetailId,II.IssueDate,II.Id,II.IssueType
-                                     )main on main.InventoryReceiveDetailId=IRD.Id									 
+
+
+
+									Union all
+                                    select  IH.InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,II.SalesDate,II.Id SalesNo,NULL SalesReturnDate,NULL SalesReturnNo
+								, 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
+                                    ,0 PurchaseReturnRate,0PurchaseReturnAmount
+                                    ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
+									,0 PhysicalStockAdjustmentqty 
+                                    ,0 PhysicalStockAdjustmentRate
+                                    ,0 PhysicalStockAdjustmentAmount
+									,(Sum(Isnull(Ih.Qty,0))) Salesqty 
+									,Sum(IH.BaseRate) BaseRate
+									,(Sum(Isnull(Ih.Qty,0))*Sum(IH.BaseRate)) AS SalesAmount
+
+									,0 SalesReturnqty 
+									,0 SalesReturnRate
+									,0 SalesReturnAmount
+                                    from  [TRN].[InventoryReceiveDetail] AS IRD 
+                                    LEFT JOIN TRN.InventorySalesHistory IH On IH.InventoryReceiveDetailId=IRD.ID 
+                                    LEFT JOIN  TRN.InventorySalesDetail IID on IID.ID=IH.InventorySalesDetailId
+                                    LEFT JOIN TRN.InventorySales II ON IID.InventorySalesId=II.Id 
+                                    Where Ih.Qty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
+                                    group by IH.InventoryReceiveDetailId,II.SalesDate,II.Id,II.IssueType
+
+									Union all
+                                    select  IRD.Id InventoryReceiveDetailId,NULL IssueDate,NULL IssueNo,NULL IssueType,NULL POReturnDate  ,NULL PurchaseReturnNo,    NULL ReturnIssueDate ,NULL IssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo,NULL SalesDate,NULL SalesNo,Ins.SalesDate SalesReturnDate,Ins.Id SalesReturnNo
+								, 0 IssueQty,0 Rate,0 IssueAmount,0 PurchaseReturnQty
+                                    ,0 PurchaseReturnRate,0PurchaseReturnAmount
+                                    ,0 IssueReturnQty,0 IssueReturnRate,0 IssueReturnAmount
+									,0 PhysicalStockAdjustmentqty 
+                                    ,0 PhysicalStockAdjustmentRate
+                                    ,0 PhysicalStockAdjustmentAmount
+									,0 Salesqty 
+									,0 BaseRate
+									,0 SalesReturnAmount
+
+									,(Sum(Isnull(ISD.TransactionQty,0))) SalesReturnqty 
+									,Sum(ISD.SalesRate) SalesReturnRate
+									,(Sum(Isnull(ISD.TransactionQty,0))*Sum(ISD.SalesRate)) AS SalesReturnAmount
+
+                                    from  [TRN].InventorySalesReturnDetail ISD 
+									Left join [TRN].InventorySalesReturn Ins on Ins.Id=ISD.InventorySalesReturnId
+									left JOIN trn.InventoryReceive IR ON IR.Id=Ins.InventoryReceiveId
+									Left join trn.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id		
+                                   
+                                    Where ISD.TransactionQty>0 --ANd IH.InventoryReceiveDetailId='2020258-1'
+                                    group by IRD.Id,Ins.SalesDate,Ins.Id--,Ins.Iss
+                                     )main on main.InventoryReceiveDetailId=IRD.Id		
+                                     									 
 						where  	IM.PlantId='" + plantId + @"' AND MM.Id='" + MaterialId + @"' AND Art.Id='" + ArticleId + @"' AND 
 						Convert(date ,IR.GRNDate) between '"+fromDate+@"' AND '"+toDate+@"'
 						Order By IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueDate DESC";
@@ -8806,16 +8893,42 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 			sheet1.Range[_row, 24, _row, 28].Merge();
 
 
-			sheet1[_row, 29].Text = "STOCK BALANCE";
+			sheet1[_row, 29].Text = "INVENTORY SALES";
 			sheet1[_row, 29].CellStyle.Font.Size = 10;
 			sheet1[_row, 29].CellStyle.Font.Bold = true;
 			//sheet1.UsedRange.WrapText = true;
 			sheet1[_row, 29].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1[_row, 6].CellStyle.Interior.Color = System.Drawing.Color.Gray;
+			sheet1.Range[_row, 29, _row, 33].BorderAround(ExcelLineStyle.Thick);
+			sheet1.Range[_row, 29, _row, 33].BorderInside(ExcelLineStyle.Hair);
+			sheet1.Range[_row, 29, _row, 33].CellStyle.FillBackground = ExcelKnownColors.Tan;
+			sheet1.Range[_row, 29, _row, 33].Merge();
+
+
+			sheet1[_row, 34].Text = "INVENTORY SALES RETURN";
+			sheet1[_row, 34].CellStyle.Font.Size = 10;
+			sheet1[_row, 34].CellStyle.Font.Bold = true;
+			//sheet1.UsedRange.WrapText = true;
+			sheet1[_row, 34].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1[_row, 6].CellStyle.Interior.Color = System.Drawing.Color.Gray;
+			sheet1.Range[_row, 34, _row, 38].BorderAround(ExcelLineStyle.Thick);
+			sheet1.Range[_row, 34, _row, 38].BorderInside(ExcelLineStyle.Hair);
+			sheet1.Range[_row, 34, _row, 38].CellStyle.FillBackground = ExcelKnownColors.Tan;
+			sheet1.Range[_row, 34, _row, 38].Merge();
+
+
+
+
+			sheet1[_row, 39].Text = "STOCK BALANCE";
+			sheet1[_row, 39].CellStyle.Font.Size = 10;
+			sheet1[_row, 39].CellStyle.Font.Bold = true;
+			//sheet1.UsedRange.WrapText = true;
+			sheet1[_row, 39].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			//sheet1[_row, 11].CellStyle.Interior.Color = System.Drawing.Color.HotPink;
-			sheet1.Range[_row, 29, _row, 31].BorderAround(ExcelLineStyle.Thick);
-			sheet1.Range[_row, 29, _row, 31].BorderInside(ExcelLineStyle.Hair);
-			sheet1.Range[_row, 29, _row, 31].CellStyle.FillBackground = ExcelKnownColors.Tan;
-			sheet1.Range[_row, 29, _row, 31].Merge();
+			sheet1.Range[_row, 39, _row, 41].BorderAround(ExcelLineStyle.Thick);
+			sheet1.Range[_row, 39, _row, 41].BorderInside(ExcelLineStyle.Hair);
+			sheet1.Range[_row, 39, _row, 41].CellStyle.FillBackground = ExcelKnownColors.Tan;
+			sheet1.Range[_row, 39, _row, 41].Merge();
 
 			var _rowL = _row;
 			var row = _row + 1;
@@ -9158,6 +9271,133 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
+			//SK
+			//InventorySales 
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Date");
+			var colInventorySalesDate = sheet1headreColIndex;
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Date";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "AdjustmentsNo");
+			var colInventorySalesNo = sheet1headreColIndex;
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "SalesNo";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Quantity");
+			var colInventorySalesQty = sheet1headreColIndex;
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Rate");
+			var colInventorySalesRate = sheet1headreColIndex;
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rate";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Amount");
+			var colInventorySalesAmount = sheet1headreColIndex;
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+
+
+			//InventorySalesReturn 
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Date");
+			var colInventorySalesReturnDate = sheet1headreColIndex;
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Date";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "AdjustmentsNo");
+			var colInventorySalesReturnNo = sheet1headreColIndex;
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "SalesReturnNo";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Quantity");
+			var colInventorySalesReturnQty = sheet1headreColIndex;
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quantity";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Rate");
+			var colInventorySalesReturnRate = sheet1headreColIndex;
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rate";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Amount");
+			var colInventorySalesReturnAmount = sheet1headreColIndex;
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+
+
+
+
 
 			//Balance
 
@@ -9204,6 +9444,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
 			var balanceQty = 0.00;
 			List<string> list = new List<string>();
+			int sr = _rowL;
 			for (int n = 0; n < inventoryMaterialList.Rows.Count; n++)
 			{
 				_rowL++;
@@ -9223,6 +9464,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					report.SetText(ref sheet1, _rowL, colUOM, inventoryMaterialList.Rows[n]["UOM"].ToString());
 					report.SetText(ref sheet1, _rowL, colRCVQuantity, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvQty"].ToString()));
 					report.SetText(ref sheet1, _rowL, colRCVRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvRate"].ToString()));
+					sheet1.Range[_rowL, colRCVRate].NumberFormat = report.NumberFormatDecimalFour();
 					report.SetText(ref sheet1, _rowL, colRCVAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvAmount"].ToString()));
 
 
@@ -9233,11 +9475,13 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					var AdjustmentQty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(AdjustmentQty)", "Id = '" + rcvid + "'").ToString());
 					var PurchaseReturnQty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(PurchaseReturnQty)", "Id = '" + rcvid + "'").ToString());
 					var IssueReturnQty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(IssueReturnQty)", "Id = '" + rcvid + "'").ToString());
+					var Salesqty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(Salesqty)", "Id = '" + rcvid + "'").ToString());
+					var SalesReturnQty = clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(SalesReturnQty)", "Id = '" + rcvid + "'").ToString()); 
 
 					//end
 
 					//balanceQty = clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvQty"].ToString()) - clsStaticInfo.dbl(inventoryMaterialList.Compute("SUM(IssueQty)", "Id = '" + rcvid + "'").ToString());
-					balanceQty = RcvQty - IssueQty - AdjustmentQty - PurchaseReturnQty + IssueReturnQty;
+					balanceQty = RcvQty - IssueQty - AdjustmentQty - PurchaseReturnQty + IssueReturnQty- Salesqty+ SalesReturnQty;
 					report.SetText(ref sheet1, _rowL, colBalanceQty, balanceQty);
 					report.SetText(ref sheet1, _rowL, colBalanceQty, balanceQty);
 					if (balanceQty == 0)
@@ -9249,6 +9493,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 					else
 					{
 						report.SetText(ref sheet1, _rowL, colBalanceRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BalanceRate"].ToString()));
+						sheet1.Range[_rowL, colBalanceRate].NumberFormat = report.NumberFormatDecimalFour();
 						report.SetText(ref sheet1, _rowL, colBalanceAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BalanceRate"].ToString()) * balanceQty);
 					}
 
@@ -9261,6 +9506,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 				report.SetText(ref sheet1, _rowL, colPurchaseReturnNo, inventoryMaterialList.Rows[n]["PurchaseReturnNo"].ToString());
 				report.SetText(ref sheet1, _rowL, colPurchaseReturnQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PurchaseReturnQty"].ToString()));
 				report.SetText(ref sheet1, _rowL, colPurchaseReturnRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PurchaseReturnRate"].ToString()));
+				sheet1.Range[_rowL, colPurchaseReturnRate].NumberFormat = report.NumberFormatDecimalFour();
 				report.SetText(ref sheet1, _rowL, colPurchaseReturnAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PurchaseReturnAmount"].ToString()));
 
 
@@ -9272,6 +9518,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 				report.SetText(ref sheet1, _rowL, colType, inventoryMaterialList.Rows[n]["IssueType"].ToString());
 				report.SetText(ref sheet1, _rowL, colIssueQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueQty"].ToString()));
 				report.SetText(ref sheet1, _rowL, colIssueRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Rate"].ToString()));
+				sheet1.Range[_rowL, colIssueRate].NumberFormat = report.NumberFormatDecimalFour();
 				report.SetText(ref sheet1, _rowL, colIssueAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueAmount"].ToString()));
 
 				//Issue Return
@@ -9280,6 +9527,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 				report.SetText(ref sheet1, _rowL, colIssuereturnNo, inventoryMaterialList.Rows[n]["IssueReturnNo"].ToString());
 				report.SetText(ref sheet1, _rowL, colIssuereturnQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueReturnQty"].ToString()));
 				report.SetText(ref sheet1, _rowL, colIssuereturnRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueReturnRate"].ToString()));
+				sheet1.Range[_rowL, colIssuereturnRate].NumberFormat = report.NumberFormatDecimalFour();
 				report.SetText(ref sheet1, _rowL, colIssuereturnAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueReturnAmount"].ToString()));
 
 				//Adjustment
@@ -9288,9 +9536,35 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 				report.SetText(ref sheet1, _rowL, colAdjustmentNo, inventoryMaterialList.Rows[n]["AdjustmentNo"].ToString());
 				report.SetText(ref sheet1, _rowL, colAdjustmentQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AdjustmentQty"].ToString()));
 				report.SetText(ref sheet1, _rowL, colAdjustmentRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AdjustmentRate"].ToString()));
+				sheet1.Range[_rowL, colAdjustmentRate].NumberFormat = report.NumberFormatDecimalFour();
 				report.SetText(ref sheet1, _rowL, colAdjustmentAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AdjustmentAmount"].ToString()));
 
+
+
+				//InventorySales
+
+				report.SetText(ref sheet1, _rowL, colInventorySalesDate, inventoryMaterialList.Rows[n]["SalesDate"].ToString());
+				report.SetText(ref sheet1, _rowL, colInventorySalesNo, inventoryMaterialList.Rows[n]["SalesNo"].ToString());
+				report.SetText(ref sheet1, _rowL, colInventorySalesQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Salesqty"].ToString()));
+				report.SetText(ref sheet1, _rowL, colInventorySalesRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SalesRate"].ToString()));
+				//sheet1[_rowL, colInventorySalesRate].NumberFormat = "#,##0.00;(#,##0.0000)";
+				sheet1.Range[_rowL, colInventorySalesRate].NumberFormat = report.NumberFormatDecimalFour();
+				report.SetText(ref sheet1, _rowL, colInventorySalesAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SalesAmount"].ToString()));
+
+
+				//InventorySalesReturn
+
+				report.SetText(ref sheet1, _rowL, colInventorySalesReturnDate, inventoryMaterialList.Rows[n]["SalesReturnDate"].ToString());
+				report.SetText(ref sheet1, _rowL, colInventorySalesReturnNo, inventoryMaterialList.Rows[n]["SalesReturnNo"].ToString());
+				report.SetText(ref sheet1, _rowL, colInventorySalesReturnQty, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SalesReturnQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, colInventorySalesReturnRate, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SalesReturnRate"].ToString()));
+				sheet1.Range[_rowL, colInventorySalesReturnRate].NumberFormat = report.NumberFormatDecimalFour();
+				report.SetText(ref sheet1, _rowL, colInventorySalesReturnAmount, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SalesReturnAmount"].ToString()));
+
+
 			}
+
+			//sheet1[sr, colInventorySalesRate, _rowL, colInventorySalesRate].NumberFormat = "#,##0.00;(#,##0.00)";
 
 			//_rowL++;
 
@@ -9307,6 +9581,11 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 			sheet1.Range[Row_Total_Start, colAdjustmentDate, _rowL, colAdjustmentAmount].BorderAround(ExcelLineStyle.Thin);
 			sheet1.Range[Row_Total_Start, colAdjustmentDate, _rowL, colAdjustmentAmount].BorderInside(ExcelLineStyle.Hair);
 
+			sheet1.Range[Row_Total_Start, colInventorySalesDate, _rowL, colInventorySalesAmount].BorderAround(ExcelLineStyle.Thin);
+			sheet1.Range[Row_Total_Start, colInventorySalesDate, _rowL, colInventorySalesAmount].BorderInside(ExcelLineStyle.Hair);
+
+			sheet1.Range[Row_Total_Start, colInventorySalesReturnDate, _rowL, colInventorySalesReturnAmount].BorderAround(ExcelLineStyle.Thin);
+			sheet1.Range[Row_Total_Start, colInventorySalesReturnDate, _rowL, colInventorySalesReturnAmount].BorderInside(ExcelLineStyle.Hair);
 
 			sheet1.Range[Row_Total_Start, colIssueDate, _rowL, colIssueAmount].BorderAround(ExcelLineStyle.Thin);
 			sheet1.Range[Row_Total_Start, colIssueDate, _rowL, colIssueAmount].BorderInside(ExcelLineStyle.Hair);
