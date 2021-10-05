@@ -793,6 +793,7 @@ var upanelApp = angular
     .controller("EmployeeServiceVariableController", EmployeeServiceVariableController)
     .controller("gstR2ReportController", gstR2ReportController)
     .controller("LeaveDeleteSingleDayController", LeaveDeleteSingleDayController)
+    .controller("LeaveDeleteSingleDayNewController", LeaveDeleteSingleDayNewController)
     .controller("MonthlyAttendanceSummeryReportController", MonthlyAttendanceSummeryReportController)
     .controller("jwTransformationPurchaseOrderController", jwTransformationPurchaseOrderController)
     .controller("ProfessionalTaxOBController", ProfessionalTaxOBController)
