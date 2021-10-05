@@ -282,7 +282,7 @@ function finishGoodsInventoryRegisterController(fileReader, commonMessage, $scop
 		var reportFormat = "Excel";
 		var IsTaxApplicable = false;
 		if (baseService.isUndefinedOrNull(data.GRNId)) return ShowResult('No Id found', 'failure');
-		$window.open('Accounts/InventoryPayable/PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNId + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + IsTaxApplicable, '_blank');
+        $window.open('Accounts/InventoryPayable/FGInventoryJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.GRNId + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + IsTaxApplicable, '_blank');
 
 	};
 	$scope.commandExcel = [{
@@ -2452,7 +2452,7 @@ function finishGoodsInventoryRegisterController(fileReader, commonMessage, $scop
         }
     }
 
-    $scope.MaterialStoreLedgerReportPdfAll = function (reportFormat) {
+        $scope.MaterialStoreLedgerReportPdfAll = function (reportFormat) {
         if (baseService.isUndefinedOrNull($scope.productNew.Asset) && baseService.isUndefinedOrNull($scope.productNew.Inventory)) {
             ShowResult('Select Asset Or Inventory', 'failure');
             return false;
@@ -2471,10 +2471,62 @@ function finishGoodsInventoryRegisterController(fileReader, commonMessage, $scop
         $window.open('Materials/MaterialLedger/MaterialStoreLedgerReportAll?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate1 + '&toDate=' + $scope.report.ToDate1 + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&MaterialId=' + $scope.detailModel.MaterialMasterId + '&ArticleId=' + $scope.detailModel.ArticleId + "&Asset=" + $scope.productNew.Asset + "&Inventory=" + $scope.productNew.Inventory, '_blank');
 
     };
+    //#endregion
 
 
 
-     //#endregion
+    $scope.GetRawMaterialDetail = function (obj) {
+        //$scope.bomDetailNew = {
+        //    Id: null, BOMMasterId: null, Sequence: 0, RMMaterialMasterId: null, RMArticleId: null, Description: null, CustomerSpec: null, VendorSpec: null, Consumption: 0, UoMId: null, ProcessId: null, VendorId: null, WastagePer: 0, FirstCharacteristicsId: null, SecondCharacteristicsId: null, ThirdCharacteristicsId: null, FirstCharacteristicsValueId: null, SecondCharacteristicsValueId: null, ThirdCharacteristicsValueId: null, IsSKUCommon: true, WithSKU: false, IsConsumptionDetail: false, Specific: true, SKUMatrix: false, IsDestinationSpecific: false, IsPOSpecific: false, ConsumptionSpecificToSKU1: false, ConsumptionSpecificToSKU2: false, ConsumptionSpecificToSKU3: false, SalesOrderSpecificMaterial: true
+        //}
+        //$scope.getRMCharacteristicsList(obj.data.RMMaterialMasterId);
+
+       // $scope.bomDetailNew = obj.data;
+
+        //if ($scope.bomDetailNew.WithSKU) {
+        //    $scope.msg = "has";
+        //} else {
+        //    $scope.msg = "has no";
+        //}
+
+        //UomCboByMaterialMaster($scope.bomDetailNew.RMMaterialMasterId);
+
+
+        //if ($scope.bomDetailNew.IsSKUCommon === true) {
+        //    $scope.bomDetailNew.Specific = true;
+        //    $scope.bomDetailNew.SKUMatrix = false;
+        //} else {
+        //    $scope.bomDetailNew.SKUMatrix = true;
+        //    $scope.bomDetailNew.Specific = false;
+        //}
+
+        //$scope.ShowHide();
+
+        //if ($scope.bomDetailNew.Specific === false) {
+        //    $scope.matrixrad = false;
+
+        //} else {
+        //    $scope.matrixrad = true;
+        //}
+
+        //$scope.rmchar1.CharacteristicsId = $scope.bomDetailNew.FirstCharacteristicsId;
+
+
+
+
+
+
+        //var DropDownListObj = $("#destinationList").data("ejDropDownList");
+        //DropDownListObj.uncheckAll();
+        //$scope.GetBOMDestinationData($scope.bomDetailNew.Id);
+        angular.element(document.querySelector('#FGInventoryRegisterPopup')).modal('show');
+    };
+
+    $scope.CloseFGInventoryRegister = function () {
+        angular.element(document.querySelector('#FGInventoryRegisterPopup')).modal('hide');
+    }
+
+
 }
 
  

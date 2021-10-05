@@ -599,6 +599,7 @@ var upanelApp = angular
     .controller('OrderCostingController', OrderCostingController)
     .controller('OrderReportController', OrderReportController)
     .controller('OTLimitTransactionController', OTLimitTransactionController)
+    .controller('OTLimitTransactionFromAppController', OTLimitTransactionFromAppController)
     .controller('otSlabController', otSlabController)
     .controller('ParollsReportController', ParollsReportController)
     .controller('partyGroupCategoryController', PartyGroupCategoryController)
@@ -792,6 +793,7 @@ var upanelApp = angular
     .controller("EmployeeServiceVariableController", EmployeeServiceVariableController)
     .controller("gstR2ReportController", gstR2ReportController)
     .controller("LeaveDeleteSingleDayController", LeaveDeleteSingleDayController)
+    .controller("LeaveDeleteSingleDayNewController", LeaveDeleteSingleDayNewController)
     .controller("MonthlyAttendanceSummeryReportController", MonthlyAttendanceSummeryReportController)
     .controller("jwTransformationPurchaseOrderController", jwTransformationPurchaseOrderController)
     .controller("ProfessionalTaxOBController", ProfessionalTaxOBController)
@@ -935,6 +937,7 @@ var upanelApp = angular
     .controller("ProductionOrderRateReportController", ProductionOrderRateReportController)
     .controller("EmployeeLeaveApplicationNewController", EmployeeLeaveApplicationNewController)
     .controller('EmployeeLeaveApprovalNewController', EmployeeLeaveApprovalNewController)
+    .controller('employeeLeaveDeleteApplicationNewController', employeeLeaveDeleteApplicationNewController)
     .controller('ProductionTargetReportController', ProductionTargetReportController)
 
 

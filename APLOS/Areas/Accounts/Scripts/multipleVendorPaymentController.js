@@ -90,6 +90,7 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         }
     }
 
+
     $scope.Get = function () {
         var gridObj = $("#MultiplePaymentGrid").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];

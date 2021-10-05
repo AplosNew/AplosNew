@@ -60,7 +60,8 @@ namespace Library.Service.SalesManagements
         private readonly IRepositoryAsync<ThirdCharacteristics> _thirdCharacteristicsRepository;
         private readonly IInvoiceTaxService _invoiceTaxService;
         private readonly IRepositoryAsync<Library.Model.Inventory.InventoryIssue> _issueRepository;
-        private readonly Library.Model.Inventory.InventoryIssueDetail _issueDetailService;
+        private readonly IRepositoryAsync<Library.Model.Inventory.InventoryIssueDetail> _issueDetailService;
+        private readonly IRepositoryAsync<Library.Model.Inventory.InventoryIssueHistory> _issueHistoryService;
         public SalesService(
              IInvoiceService invoiceService
             , IVoucherService voucherService
@@ -90,8 +91,9 @@ namespace Library.Service.SalesManagements
             , IRepositoryAsync<SecondCharacteristics> secondCharacteristicsRepository
             , IRepositoryAsync<ThirdCharacteristics> thirdCharacteristicsRepository
             , IInvoiceTaxService invoiceTaxService
-            ,IRepositoryAsync<Library.Model.Inventory.InventoryIssue> issueRepository
-            , Library.Model.Inventory.InventoryIssueDetail issueDetailService
+            , IRepositoryAsync<Library.Model.Inventory.InventoryIssue> issueRepository
+            , IRepositoryAsync<Library.Model.Inventory.InventoryIssueDetail> issueDetailService
+            , IRepositoryAsync<Library.Model.Inventory.InventoryIssueHistory> issueHistoryService
             )
         {
             _unitOfWork = unitOfWork;
@@ -125,6 +127,7 @@ namespace Library.Service.SalesManagements
             _invoiceTaxService = invoiceTaxService;
             _issueRepository = issueRepository;
             _issueDetailService = issueDetailService;
+            _issueHistoryService = issueHistoryService;
 
         }
 
@@ -2902,7 +2905,7 @@ namespace Library.Service.SalesManagements
 
         #region Packing Integration
 
-        public void PackingInvoiceInsert(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList)
+        public void PackingInvoiceInsert(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList, DataSet dsDetail, DataSet dsHistory)
         {
             var flag = false;
             try
@@ -2949,8 +2952,8 @@ namespace Library.Service.SalesManagements
                     SourceType = "Packing",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
-                
-               
+
+
                 sales.DocRefNo = sales.Id;
                 sales.InvoiceNo = sales.Id;
                 voucherVM.Id = sales.Id;
@@ -3085,14 +3088,24 @@ namespace Library.Service.SalesManagements
                             }
                         }
                     }
-
-                    foreach (var salesMaterialVM in salesMaterialVMList)
+                }
+                currentSalesMaterialId = 0;
+                int count = 0;
+                if (dsDetail.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < dsDetail.Tables[0].Rows.Count; i++)
                     {
                         currentSalesMaterialId++;
-                        var InventoryIssueDetail = new Library.Model.Inventory.InventoryIssueDetail
+                        var IssueDetail = new Library.Model.Inventory.InventoryIssueDetail
                         {
                             Id = _pkGeneratorService.MakePK(InventoryIssue.Id, currentSalesMaterialId, 2),
                             InventoryIssueId = InventoryIssue.Id,
+                            InventoryMaterialId = dsDetail.Tables[0].Rows[i]["InventoryMaterialId"].ToString(),
+                            TransactionQty = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["TransactionQty"].ToString()),
+                            PolicyRate = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyRate"]),
+                            PolicyAmount = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyAmount"].ToString()),
+                            BaseUOMId= dsDetail.Tables[0].Rows[i]["BaseUOMId"].ToString(),
+                            TransactionUoMId= dsDetail.Tables[0].Rows[i]["TransactionUoMId"].ToString(),
 
                             AddedBy = sales.AddedBy,
                             AddedDate = sales.AddedDate,
@@ -3100,11 +3113,36 @@ namespace Library.Service.SalesManagements
                             UpdatedBy = null,
                             UpdatedDate = null,
                             UpdatedFromIP = null
-                        };                        
+                        };
+                        _issueDetailService.Insert(IssueDetail);
+                        for (int j = 0; j < dsHistory.Tables[0].Rows.Count; j++)
+                        {
+                            if (dsHistory.Tables[0].Rows[j]["PackingId"].ToString() == dsDetail.Tables[0].Rows[i]["PackingId"].ToString())
+                            {
+                                count++;
+                                var InventoryIssueHistory = new Library.Model.Inventory.InventoryIssueHistory
+                                {
+                                    Id = _pkGeneratorService.MakePK(IssueDetail.Id, count, 2),
+                                    InventoryIssueDetailId = IssueDetail.Id,
+                                    InventoryReceiveDetailId = dsHistory.Tables[0].Rows[j]["InventoryReceiveDetailId"].ToString(),
+                                    Qty = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["Qty"].ToString()),
+                                    TotalAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalAmount"].ToString()),
+                                    BooksCurrencyBaseRate = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["BooksCurrencyBaseRate"].ToString()),
+                                    TotalMaterialBooksCurrencyAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalMaterialBooksCurrencyAmount"].ToString()),
+                                    Rate=Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["MaterialTranRate"].ToString()),
+                                    AddedBy = sales.AddedBy,
+                                    AddedDate = sales.AddedDate,
+                                    AddedFromIP = sales.AddedFromIP,
+                                    UpdatedBy = null,
+                                    UpdatedDate = null,
+                                    UpdatedFromIP = null
+                                };
+                                _issueHistoryService.Insert(InventoryIssueHistory);
+                            }
+                        }
+
                     }
-
                 }
-
 
                 if (selectedPackingList != null)
                 {
@@ -3189,6 +3227,8 @@ namespace Library.Service.SalesManagements
                         }
                     }
                 }
+
+
 
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -4198,10 +4238,10 @@ namespace Library.Service.SalesManagements
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
-               // var invoice = base.Find(invoiceId);
+                // var invoice = base.Find(invoiceId);
                 var invoiceDetail = _invoiceDetailRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
-               // var invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
+                // var invoiceTDS = _additionalTaxRepository.Query(r => r.InvoiceId == invoiceId).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
                     _voucherService.DeleteVoucherDetailCurrency(item.Id);

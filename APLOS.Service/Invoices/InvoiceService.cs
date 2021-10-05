@@ -2032,11 +2032,11 @@ namespace Library.Service.Invoices
                                    
                                     if (voucherVM.IsExcludingTax)
                                     {
-                                        if (Convert.ToBoolean(taxCode["IsWithhold"]) == false)
+                                        if (Convert.ToBoolean(taxCode["IsWithhold"].ToString()) == false)
                                             throw new CustomException("Withhold  is not configured for TaxCode " + taxCode["StandardName"].ToString());
                                     }
 
-                                    merge = Convert.ToBoolean(taxCode["IsMerge"]);
+                                    merge = Convert.ToBoolean(taxCode["IsMerge"].ToString());
                                     var taxCodeGL = _accountsCommonService.GetTaxCodeGL(taxCode["Id"].ToString());
                                     if (null == taxCodeGL)
                                         throw new CustomException("Tax code GL not found!");
