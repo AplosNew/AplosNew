@@ -406,7 +406,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 														   INNER JOIN 
 																   (
 																	SELECT EmpSystemId, MAX(EffectiveDate) EffectiveDate FROM [dbo].[PFEmployeeVoluntaryValue] 
-																	 WHERE  CONVERT(date, EffectiveDate) <= CONVERT(date, '" + para.FromDate + @"') 
+																	 WHERE  CONVERT(date, EffectiveDate) <= CONVERT(date, '" + para.ToDate + @"') 
 																	GROUP BY EmpSystemId
 																   ) B ON A.EmpSystemId = B.EmpSystemId AND A.EffectiveDate = B.EffectiveDate
 

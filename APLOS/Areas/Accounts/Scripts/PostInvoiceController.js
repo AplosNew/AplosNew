@@ -63,8 +63,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.Get = function (obj) {
         $scope.model = obj.data;
         $scope.modelNew = Object.assign({}, $scope.model);
-        //$scope.getDetailDataList();
-        //$scope.GetSavedGRNListForPostInvoice();
+        $scope.GetSavedGRNListForPostInvoice();
         $scope.getPostableList($scope.modelNew.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {

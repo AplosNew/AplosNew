@@ -754,7 +754,19 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
     $scope.getNewDataList = function (grnId) {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetPostingList',            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
             dataType: 'JSON',        }).then(function successCallback(response) {            $scope.products = response.data;            var rowdata = $filter("filter")($scope.products, { Id: grnId });            if (!baseService.isUndefinedOrNull(rowdata[0].AdditionalTaxId)) {                $scope.onClickadditionalTaxPop(rowdata[0]);
             }            $scope.Clear();        });    };
-
+    $scope.updatePayableGL = function () {
+        for (var i = 0; i < $scope.newList.length; i++) {
+            if ($scope.newList[i].OtherName == 'LCBase' && $scope.newList[i].TrnType == 'Cr') {
+                for (var j = 0; j < $scope.inventoryPayableList.length; j++) {
+                    if ($scope.inventoryPayableList[j].TrnType == 'Cr') {
+                        $scope.inventoryPayableList[j].GLGeneralInfoId = $scope.newList[i].GLGeneralInfoId;
+                        $scope.inventoryPayableList[j].BudgetMasterId = $scope.newList[i].BudgetMasterId;
+                        $scope.inventoryPayableList[j].ActivityId = $scope.newList[i].ActivityId;
+                    }
+                }    
+            }
+        }
+    }
     $scope.Post = function () {
         if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
         if (!baseService.isUndefinedOrNull($scope.modelNew.EmployeeId)) {
@@ -775,9 +787,11 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                     $scope.inventoryMaterialList[i].ActivityName = data[0].ActivityName;
                 }
             }
+          
             $scope.modelNew.MatureDate = $filter("date")($scope.modelNew.NewBaseOnDueDate, "dd-MMM-yyyy");
             $scope.modelNew.BaseOnDueDate = $filter("date")($scope.modelNew.NewBaseOnDueDate, "dd-MMM-yyyy");
         }
+        $scope.updatePayableGL();
         for (var i = 0; i < $scope.newList.length; i++) {
             $scope.newList[i].Amount = parseFloat($scope.newList[i].Amount).toFixed(4);
         }
