@@ -5170,7 +5170,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {                   
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
-                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0 where PlantID='"+Plant+@"'
+                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0
+                    where PlantID='" + Plant+@"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
                   
                     ConnectionManager.DAL.ConManager objCone = null;

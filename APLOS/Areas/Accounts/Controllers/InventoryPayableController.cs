@@ -217,7 +217,26 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-        
+        [HttpGet, Authorize]
+        public ActionResult FGInventoryJournal(ReportFormat reportFormat, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "FG Inventory GRN";
+            AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
+            var workbook = accountsInventoryPayableReportService.FGInventoryJournal(identity.CompanyId, identity.PlantId, inventoryReceiveId, employeeId, isReversCharge, isFoc, reportFileName);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
         #endregion
         #region InventoryJobWorkReceived
 

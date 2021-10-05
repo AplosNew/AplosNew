@@ -31,6 +31,7 @@ using Library.ViewModel.Vouchers;
 using Library.ViewModel.SalesManagements;
 using Library.Model.SalesManagements;
 using Library.Service.SalesManagements;
+using Library.Model.Inventory;
 
 #endregion Using
 
@@ -44,7 +45,7 @@ namespace Aplos.Areas.Productions.Controllers
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public PackingInvoiceController(ISalesService salesService,ISqlRepository R)
+        public PackingInvoiceController(ISalesService salesService, ISqlRepository R)
         {
             _salesService = salesService;
             _sqlRepository = R;
@@ -98,6 +99,8 @@ namespace Aplos.Areas.Productions.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
+            DataSet dsDetail;
+            DataSet dsHistory;
             if (salesMaterialVMList != null)
             {
                 foreach (var item in salesMaterialVMList)
@@ -120,6 +123,7 @@ namespace Aplos.Areas.Productions.Controllers
                         throw new CustomException("Please Input Service Amount !");
                 }
             }
+            string PackingId = "";
             if (selectedPackingList != null)
             {
                 foreach (var item in selectedPackingList)
@@ -128,12 +132,68 @@ namespace Aplos.Areas.Productions.Controllers
                     item.Qty = Convert.ToDecimal(data["Qty"].ToString());
                     item.Amount = Convert.ToDecimal(data["Amount"].ToString());
                     item.ProductLibraryId = data["ProductLibraryId"].ToString();
+
+                    if (PackingId == "")
+                    {
+                        PackingId = "'" + item.PackingId + "'";
+                    }
+                    else
+                    {
+                        PackingId += ",'" + item.PackingId + "'";
+                    }
                 }
             }
+            GetIssueDetail(PackingId, out dsDetail);
+            GetIssueHistory(PackingId, out dsHistory);
+            //List<Dictionary<string,object>> InventoryIssueDetail = new List<Dictionary<string, object>>();
+            //InventoryIssueDetail = dsDetail.Tables[0].ToList<Dictionary<string, object>>();
+            //List<Dictionary<string, object>> InventoryHistoryList = dsHistory.Tables[0].ToList<Dictionary<string, object>>();
 
 
-            _salesService.PackingInvoiceInsert(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList);
+            _salesService.PackingInvoiceInsert(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList, dsDetail, dsHistory);
             return Json(new { Data = voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
+        }
+
+        public void GetIssueHistory(string packingid,out System.Data.DataSet dsRef)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                string sql = @"select RD.Id InventoryReceiveDetailId,RD.TransactionQty Qty,RD.MaterialTranRate,RD.TotalMaterialTranAmount TotalAmount,RD.BooksCurrencyBaseRate,RD.TotalMaterialBooksCurrencyAmount
+								,PLI.PackingId
+								from TRN.InventoryReceiveDetail RD
+								left join(Select distinct InventoryReceiveDetailId,PackingId from dbo.ItemScanChild) ISC ON ISC.InventoryReceiveDetailId=RD.Id
+								 JOIN TRN.POLotReference POR ON ISC.PackingId=POR.Id
+								 JOIN TRN.PackingLineItem PLI ON POR.PackingLineItemId=PLI.PackingLineItemId
+								Where PLI.PackingId IN(" + packingid + ")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void GetIssueDetail(string packingid,out System.Data.DataSet dsRef)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                string sql = @"select RD.InventoryMaterialId,SUM(RD.TransactionQty)TransactionQty,PolicyRate=SUM(RD.TotalMaterialTranAmount)/SUM(RD.TransactionQty),PolicyAmount=SUM(RD.TotalMaterialTranAmount)
+                                    ,PLI.PackingId
+                                    from TRN.InventoryReceiveDetail RD
+                                    left join(Select distinct InventoryReceiveDetailId,PackingId from dbo.ItemScanChild) ISC ON ISC.InventoryReceiveDetailId=RD.Id
+                                    LEFT JOIN TRN.POLotReference POR ON ISC.PackingId=POR.Id
+                                    LEFT JOIN TRN.PackingLineItem PLI ON POR.PackingLineItemId=PLI.PackingLineItemId
+								Where PLI.PackingId IN(" + packingid + ") GROUP BY RD.InventoryMaterialId,PLI.PackingId";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         [HttpPost]

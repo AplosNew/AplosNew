@@ -386,6 +386,7 @@
     <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessPlantWiseController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceFromAppReportController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\OTLimitTransactionFromAppController.cs" />
     <Compile Include="Areas\Attendances\Controllers\PayrollManagementDashboardController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AuditReportSummeryController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ExceptionOTProcessController.cs" />
@@ -495,6 +496,7 @@
     <Compile Include="Areas\Employees\Controllers\EmployeeMyAppLeaveApplicationController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeePlantTransferController.cs" />
     <Compile Include="Areas\Employees\Controllers\HRDashboardtrController.cs" />
+    <Compile Include="Areas\Employees\Controllers\LeaveDeleteSingleDayNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\LeaveDeleteSingleDayController.cs" />
     <Compile Include="Areas\Employees\Controllers\SpecialUnlockController.cs" />
     <Compile Include="Areas\Employees\Controllers\ProfileFromExcelController.cs" />
@@ -1611,6 +1613,7 @@
     <Content Include="Areas\Attendances\Scripts\monthlyGoodWorkReportNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessPlantWiseController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessController.js" />
+    <Content Include="Areas\Attendances\Scripts\OTLimitTransactionFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\PayrollManagementDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummeryController.js" />
     <Content Include="Areas\Attendances\Scripts\ExceptionOTProcessController.js" />
@@ -1741,6 +1744,7 @@
     <Content Include="Areas\Employees\Scripts\CompanyWiseEmployeePlantTransferController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeePlantTransferNewController.js" />
     <Content Include="Areas\Employees\Scripts\hrDashboardtrController.js" />
+    <Content Include="Areas\Employees\Scripts\LeaveDeleteSingleDayNewController.js" />
     <Content Include="Areas\Employees\Scripts\LeaveDeleteSingleDayController.js" />
     <Content Include="Areas\Employees\Scripts\specialUnlockController.js" />
     <Content Include="Areas\Employees\Scripts\employeeInformationNewController.js" />
@@ -1806,6 +1810,7 @@
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApplicationNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeLeaveApprovalNewController.js" />
+    <Content Include="Areas\HumanResource\Scripts\employeeLeaveDeleteApplicationNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\jobCardReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\NewAttendanceProcessAuditReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\NewAttdnProcessLockController.js" />
@@ -2162,6 +2167,7 @@
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
     <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
+    <Content Include="Areas\Productions\Scripts\finishGoodsInventoryRegisterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionOrderProcessWithRateController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
     <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
@@ -3733,6 +3739,11 @@
     <Content Include="Areas\Products\Views\GoodsReceiveNote\GRNRequitionSOAllocation.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryProcessedReportNew.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryStructureAndProcessedReportNew.cshtml" />
+    <Content Include="Areas\Productions\Views\FinishGoodsInventoryRegister.cshtml" />
+    <Content Include="Areas\Productions\Views\_FGInventoryRegisterPopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\LeaveApplicationNew\LeaveDelete.cshtml" />
+    <Content Include="Areas\Attendances\Views\OTLimitTransactionFromApp\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\LeaveDeleteSingleDayNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

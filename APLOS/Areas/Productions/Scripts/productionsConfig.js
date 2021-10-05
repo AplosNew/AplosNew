@@ -200,5 +200,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             controller: 'ProductionOrderRateReportController'
         })
 
+        .when('/finish-goods-inventory-register-report', {
+            templateUrl: 'Productions/FinishGoodsBooking/FinishGoodsInventoryRegister',
+            controller: 'finishGoodsInventoryRegisterController'
+        })
+
         ;
 }

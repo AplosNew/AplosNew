@@ -639,7 +639,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 controller: 'salaryStructureAndProcessedReportNewController'
             })
 
-
+        .when('/leave-delete-new', {
+            templateUrl: 'humanresource/LeaveApplicationNew/LeaveDelete',
+            controller: 'employeeLeaveDeleteApplicationNewController'
+        })
 ;
     
 

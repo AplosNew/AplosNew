@@ -100,56 +100,88 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
         $scope.fabricRollMasterList = [];
     }
     //#region GRN Load
-    $scope.grnList = [];
-    $scope.getGRNDataList = function () {
-        try {
-            $scope.grnParameters = {
-                limit: 10,
-                offset: 0,
-                order: 'asc',
-                sort: 'GRNDate',
-                searchBy: 'GRNDate',
-                pageSize: 10,
-                total_count: 0,
-                search: null,
-                serverPagination: true
-            };
-            $scope.searchGRNByList = [
-                {
-                    name: 'GRN No',
-                    value: 'GRNNo'
-                },
-                {
-                    name: 'GRNDate',
-                    value: 'GRNDate'
-                },
-                {
-                    name: 'Party',
-                    value: 'PartyName'
-                }
-            ];
+    //$scope.grnList = [];
+    //$scope.getGRNDataList = function () {
+    //    try {
+    //        $scope.grnParameters = {
+    //            limit: 10,
+    //            offset: 0,
+    //            order: 'asc',
+    //            sort: 'GRNDate',
+    //            searchBy: 'GRNDate',
+    //            pageSize: 10,
+    //            total_count: 0,
+    //            search: null,
+    //            serverPagination: true
+    //        };
+          
 
-            $scope.popUpUrl = '';
-            $scope.popUpUrl = 'Materials/FabricRollMaster/GetGRNList';
-            $scope.getGRNData = function (pageno) {
-                baseService.paginationBase($scope.popUpUrl, pageno, $scope.grnParameters)
-                    .then(function (result) {
-                        $scope.grnList = result.Rows;
-                        $scope.grnParameters.total_count = result.Total;
-                    }, function () {
-                        ShowResult(commonMessage.NetworkError, 'failure', '#grnPopUp');
-                    }).finally(function () {
-                    });
-            };
+    //        $scope.popUpUrl = '';
+    //        $scope.popUpUrl = 'Materials/FabricRollMaster/GetGRNList';
+    //        $scope.getGRNData = function (pageno) {
+    //            baseService.paginationBase($scope.popUpUrl, pageno, $scope.grnParameters)
+    //                .then(function (result) {
+    //                    $scope.grnList = result.Rows;
+    //                    $scope.grnParameters.total_count = result.Total;
+    //                }, function () {
+    //                    ShowResult(commonMessage.NetworkError, 'failure', '#grnPopUp');
+    //                }).finally(function () {
+    //                });
+    //        };
 
-            $scope.fieldName = name;
-            $scope.getGRNData();
-        } catch (e) {
-            ShowResult(e, 'failure');
+    //        $scope.fieldName = name;
+    //        $scope.getGRNData();
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
+    //$scope.getGRNDataList();
+   // #endregion GRN Load
+
+    $scope.searchGRNByList = [
+        {
+            name: 'GRN No',
+            value: 'GRNNo'
+        },
+        {
+            name: 'GRNDate',
+            value: 'GRNDate'
+        },
+        {
+            name: 'Party',
+            value: 'PartyName'
         }
-    };
-    $scope.getGRNDataList();
-    //#endregion GRN Load
+    ];
+    $scope.GRNsearchBy = "GRN No";
+    $scope.GRNsearch = "";
+    $scope.GRNGridList = [];
+    $scope.LoadGRNSearchList = function () {             
+        $scope.GRNGridList = [];
+                try {
+                    if ($scope.GRNsearch == '')
+                        throw "Please insert search value.";
+                    $http({
+                        method: 'POST',
+                        url: $scope.path + "GRNList",
+                        data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
+                        dataType: 'JSON'
+
+                    }).then(function successCallback(response) {
+                        $scope.GRNGridList = [];
+                        $scope.GRNGridList = response.data;
+                    });
+                }
+                catch (e) {
+                    ShowResult(e, 'failure');
+                }
+
+          
+        
+    }
+
+
+
+
 
     //#region Display Material by GRN ID
     $scope.closeGRNPopUp = function (data) {

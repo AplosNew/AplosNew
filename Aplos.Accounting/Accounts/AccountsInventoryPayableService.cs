@@ -4424,7 +4424,7 @@ LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 WHERE IR.PlantId='"+ plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND ISNULL(IR.VoucherId,'')<>'' AND IR.IsPaymentHold=0 AND IR.PlantId='"+ plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
 AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.GRNType!='MaterialTransfer' AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].[Invoice] where ISNULL(InventoryReceiveId,'')<>'')
 AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].EmployeePayable where ISNULL(InventoryReceiveId,'')<>'')
---AND IR.Id NOT IN(Select distinct InventoryReceiveId from [dbo].[PostGRNInvoiceDetail])
+AND IR.Id NOT IN(Select distinct InventoryReceiveId from [dbo].[PostGRNInvoiceDetail])
 order by IR.GRNDate desc";
 				return _sqlRepository.GetDataCollection(sql);
 			}
@@ -4439,7 +4439,7 @@ order by IR.GRNDate desc";
 		{
 			try
 			{
-				var sql = @"SELECT PID.Id,IRD.InventoryReceiveId ,IRD.Id InventoryReceiveDetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
+				var sql = @"SELECT Activ=CAST (CASE WHEN PID.Id IS NULL THEN 0 ELSE 1 END AS bit),PID.Id,IRD.InventoryReceiveId ,IRD.Id InventoryReceiveDetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
 	                        ,MM.UserName MaterialMaster,IRD.MaterialStorageId,IRD.BaseUOMId,IM.ArticleId,ART.StandardName Article,IM.FirstCharacteristicsId,FC.UserName AS FirstCharacteristics
 	                        ,IM.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
 	                        ,IM.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,IM.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
@@ -4507,6 +4507,24 @@ order by IR.GRNDate desc";
 				string sql = @"select top 100 * from (SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate FROM [dbo].[PostGRNInvoice] PGI
                             LEFT JOIN HKP.Party P ON P.Id=PGI.PartyId
                             LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId) AS TEMP WHERE " + strkey + "";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		public IEnumerable<object> GetPostableList(string id)
+		{
+			try
+			{
+				string sql = @"SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate ,PGD.Amount
+FROM [dbo].[PostGRNInvoice] PGI
+                            LEFT JOIN HKP.Party P ON P.Id=PGI.PartyId
+                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId 
+							LEFT JOIN (SELECT SUM(TransactionAmount) Amount,PostGRNInvoiceId 
+									FROM dbo.PostGRNInvoiceDetail GROUP BY PostGRNInvoiceId) PGD ON PGD.PostGRNInvoiceId=PGI.Id 
+							where PGI.Id='" + id + "'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -4653,7 +4671,7 @@ LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND ISNULL(IR.VoucherId,'')<>'' AND IR.IsPaymentHold=0 AND IR.PlantId='" + plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
 AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.GRNType!='MaterialTransfer' AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].[Invoice] where ISNULL(InventoryReceiveId,'')<>'')
 AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].EmployeePayable where ISNULL(InventoryReceiveId,'')<>'')
-AND IR.Id IN(Select distinct InventoryReceiveId from [dbo].[PostGRNInvoiceDetail]  Where PostGRNInvoiceId='"+masterId+@"')
+AND IR.Id IN(Select distinct InventoryReceiveId from [dbo].[PostGRNInvoiceDetail]  Where PostGRNInvoiceId='" + masterId+@"')
 order by IR.GRNDate desc";
 				return _sqlRepository.GetDataCollection(sql);
 			}
