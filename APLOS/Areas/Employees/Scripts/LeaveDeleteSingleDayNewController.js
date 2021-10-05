@@ -1,7 +1,7 @@
 ﻿'use strict';
 LeaveDeleteSingleDayNewController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
 function LeaveDeleteSingleDayNewController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
-    $rootScope.title = 'Leave Delete Single Day';
+    $rootScope.title = 'Leave Delete Single Day New';
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.LeaveTransactionList = [];

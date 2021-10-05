@@ -4,6 +4,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.HumanResource.Leave;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.Biometrics;
 using Library.Model.HumanResources;
 using Library.Service.Biometrics;
@@ -109,10 +110,20 @@ namespace Aplos.Areas.Employees.Controllers
             bool _isToDate = false;
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DateTime _fd = Convert.ToDateTime(FromDate);
                 DateTime _td = Convert.ToDateTime(ToDate);
                 DateTime _wd = Convert.ToDateTime(workdate);
-                if(_wd==_fd)
+
+                DataSet PlantLock;
+                PlantLockCheck(workdate, out PlantLock, identity.PlantId);
+                if (PlantLock.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Plant is Locked For the Date!");
+                }
+
+
+                if (_wd==_fd)
                 {
                     _isFromDate = true;
                     _fd = _fd.AddDays(1);
@@ -123,22 +134,28 @@ namespace Aplos.Areas.Employees.Controllers
                     _isToDate = true;
                     _td = _td.AddDays(-1);
                 }
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
                 clsLeaveInfo p = new clsLeaveInfo();
                 p.DeleteLeave(ID, Update, _isFromDate, _isToDate, _fd.ToString("dd-MMM-yyyy"),_td.ToString("dd-MMM-yyyy"));
                 //string strSQL = string.Empty;
                 //clsAttendance.AttendanceProcessAplos objAttdn = new clsAttendance.AttendanceProcessAplos();
                 //objAttdn.SaveTotal(identity.PlantId, workdate, EmpId, false);
 
-                var sqls = @"Update AttdnProcessData SET LeaveStatus=null , LTSystemID=null , ManualFlag=1 , IsLock=0 where EmpSystemID= '"+EmpId+@"' and WorkDate = '"+_wd+"' " ;
+                var sqls = @"Update AttdnProcessData SET LeaveStatus=null , LTSystemID=null , ManualFlag=1 , IsLock=0 , LockedBy=null , LockedDate=null where EmpSystemID= '" + EmpId+@"' and WorkDate = '"+_wd+"' " ;
 
                 ConnectionManager.DAL.ConManager objCone = null;
                 objCone = new ConnectionManager.DAL.ConManager("1");
                 objCone.OpenConnection("1");
                 objCone.BeginTransaction();
 
+                string newformat = Convert.ToDateTime(_wd).ToString("yyyyMMdd");
+                string RowIds = "'','" + newformat + EmpId + "'";
+
                 objCone.ExecuteNonQueryWrapper(sqls, true, "1");
                 objCone.CommitTransaction();
+
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                ap.ManualScheduler(identity.PlantId, RowIds);
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
@@ -173,8 +190,25 @@ namespace Aplos.Areas.Employees.Controllers
 
 
             //return Json(data, JsonRequestBehavior.AllowGet);
-        }        
+        }
+        public void PlantLockCheck(string Date, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string Today = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
 
+                var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
+                and LockedDate='" + Today + "' and IsActive='1'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         #endregion -- Operations
     }
 }
