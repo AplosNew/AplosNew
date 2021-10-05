@@ -2426,8 +2426,16 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			if (!baseService.isUndefinedOrNull($scope.IssueChildList[index].MaterialMasterId) && !baseService.isUndefinedOrNull($scope.IssueChildList[index].ArticleId)) {
 				if (($scope.IssueChildList[index].MaterialMasterId === $scope.IssueChildList[i].MaterialMasterId) && $scope.IssueChildList[index].ArticleId === $scope.IssueChildList[i].ArticleId) {
 
-					if ((Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100) > Math.round(($scope.IssueChildList[i].PostingQty) * 100 + Number.EPSILON) / 100) {
-						ShowResult("Issue qty must be less than or equal Ready for Issue Qty");
+					//if ((Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100) > Math.round(($scope.IssueChildList[i].PostingQty) * 100 + Number.EPSILON) / 100) {
+					//	ShowResult("Issue qty must be less than or equal Ready for Issue Qty");
+					//	$scope.IssueChildList[index].TransactionQty = 0;
+					//	$scope.IssueChildList[i].BalanceToIssue = ($scope.IssueChildList[i].RequiredQuantity - (Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
+					//	return false;
+					//	//throw 'Issue qty must be less than or equal Ready for Issue Qty.';
+					//}
+
+					if ((Math.round(($scope.IssueChildList[index].TransactionQty) * 100 + Number.EPSILON) / 100) > Math.round(($scope.IssueChildList[i].PostingQty) * 100 + Number.EPSILON) / 100) {
+						ShowResult("Issue quantity must be less than or equal to Ready for Issue Quantity");
 						$scope.IssueChildList[index].TransactionQty = 0;
 						$scope.IssueChildList[i].BalanceToIssue = ($scope.IssueChildList[i].RequiredQuantity - (Math.round(($scope.IssueChildList[index].TransactionQty + $scope.IssueChildList[i].TIRCTotalQty) * 100 + Number.EPSILON) / 100));
 						return false;

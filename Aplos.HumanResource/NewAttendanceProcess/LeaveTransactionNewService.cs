@@ -2272,10 +2272,6 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
         public void DeleteApprovedLeaveGraph(string id,string EmpSystemid)
         {
-
-
-
-            //clsAttendance.AttendanceProcessAplos obj = new AttendanceProcessAplos();
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var from_db = Find(id);
 
@@ -2305,24 +2301,11 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
                 DateTime FromDateV = Convert.ToDateTime(from_db.FromDate.ToString());
                 DateTime ToDateV = Convert.ToDateTime(from_db.ToDate.ToString());
-                //while (FromDateV <= ToDateV)
-                //{
-                //    DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE pwal.LockedDate='" + FromDateV.ToString("dd-MMM-yyyy") + "' AND pwal.PlantId='" + identity.PlantId + "'");
-                //    if (dtLock.Rows.Count > 0)
-                //        throw new Exception("Day locked");
-                //    FromDateV = FromDateV.AddDays(1);
-                //}
-            
-                //obj.LockValidation(identity.PlantId, FromDateV.ToString("dd-MMM-yyyy"), ToDateV.ToString("dd-MMM-yyyy"), EmpSystemid);
-
+                
 
 
 
                 _unitOfWork.BeginTransaction();
-                //if (from_db.IsApproved)
-                //{
-                //    throw new CustomException("Leave already approved.");
-                //}
 
                 foreach (var item in detailsData)
                 {
@@ -2335,15 +2318,6 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 flag = false;
                 _unitOfWork.Commit();
 
-
-                //DateTime FromDate = Convert.ToDateTime(from_db.FromDate.ToString());
-                //DateTime ToDate = Convert.ToDateTime(from_db.ToDate.ToString());
-                //while (FromDate <= ToDate)
-                //{
-
-                //    obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"),"'"+ from_db.EmpSystemID+"'", true);
-                //    FromDate = FromDate.AddDays(1);
-                //}
 
                 // New Code
 

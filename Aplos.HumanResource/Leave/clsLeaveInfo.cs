@@ -227,5 +227,92 @@ namespace Library.HumanResource.Leave
             }
         }
 
+        // New Attendance Process
+        public IEnumerable<object> GetGeneralNew(string id, string EmpSystemid)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+
+                strSQL = @"select d.SystemID, LT.LeaveDays, L.UserName LeaveTypeName,format( LT.FromDate , 'dd-MMM-yyyy') FromDate,format( LT.ToDate , 'dd-MMM-yyyy') ToDate,FORMAT(d.WorkDate,'dd-MMM-yyyy') WorkDate,a.DayStatus,
+                            CONCAT(sd.ShiftType,'(' ,format (sd.InTime, 'HH:mm'),'-',format (sd.OutTime, 'HH:mm'),')') shiftTime, 
+                            concat (case when a.InTime is not null then format (a.InTime, 'HH:mm')
+                           -- when m.InTime is not null then format (m.InTime, 'HH:mm')
+                            else format (a.PunchInTime, 'HH:mm') end,
+							'-', 
+							case when a.OutTime is not null then format (a.OutTime, 'HH:mm')
+                           -- when m.OutTime is not null then format (m.OutTime, 'HH:mm')
+                            else format (a.PunchOutTime, 'HH:mm') end) punchTime
+
+							,format (a.ManualInTime, 'HH:mm')+'-'+format (a.ManualOutTime, 'HH:mm') ManualTime
+                            from LeaveTransactionDetails d
+                            left join AttdnProcessData a on a.WorkDate=d.WorkDate and a.EmpSystemID='" + EmpSystemid + @"'
+                            left join ShiftDefination sd on sd.SystemID = a.ShiftSystemID
+							left join [dbo].[LeaveTransaction] AS LT on LT.SystemID = d.LvTrnsSystemID
+							LEFT JOIN [dbo].[LeaveType] AS L ON L.Id=LT.LTSystemID
+                            where LvTrnsSystemID= '" + id + "' order by d.WorkDate";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
+
+        public IEnumerable<object> GetEmpLeaveListForSingleDeleteNew(string companyGroupId, string companyId, string plantId, string employeeId, string yearNo)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+                var fromDate = string.Empty;
+                var toDate = string.Empty;
+                DataSet dsYear = null;
+                GetYearlyCalendarDetails(yearNo, out dsYear);
+                if (dsYear.Tables[0].Rows.Count > 0)
+                {
+                    fromDate = dsYear.Tables[0].Rows[0]["FromDate"].ToString();
+                    toDate = dsYear.Tables[0].Rows[0]["ToDate"].ToString();
+                }
+                else
+                {
+                    var newyear = DateTime.Now.Year;
+                    fromDate = "01-Jan-" + newyear;
+                    toDate = "31-Dec-" + newyear;
+                }
+                strSQL = @"SELECT LT.*, e.SectionId , format(LT.FromDate,'dd-MMM-yyyy') Fdate,format(LT.ToDate,'dd-MMM-yyyy') Tdate, 
+                                        L.UserName  AS leaveTypeName,e.EmployeeName,e.EmployeeCode,e.EmpPicPath,
+                                        dpt.UserName Depertment,ds.username Designation, de.duration
+                                        FROM [dbo].[LeaveTransaction] AS LT
+                                        LEFT JOIN [dbo].[LeaveType] AS L ON L.Id=LT.LTSystemID
+                                        LEFT JOIN EmployeeInformation E ON E.SystemId=LT.EmpSystemID
+                                        LEFT JOIN ORG.Department dpt on dpt.Id = e.DepartmentId
+                                        LEFT JOIN HKP.Designation ds on ds.Id = e.DesignationSystemID
+                                        left join (select sum(LeaveDuration) duration,LvTrnsSystemID from LeaveTransactionDetails group by LvTrnsSystemID) de on de.LvTrnsSystemID = lt.SystemID
+                                    WHERE  LT.EmpSystemID=e.SystemId and lt.PlantID = '" + plantId + @"' and de.duration > 1
+                                    and LT.SystemID in(--33
+                                    select d.LvTrnsSystemID
+                                    from LeaveTransactionDetails d
+                                    left join AttdnProcessData a on a.WorkDate=d.WorkDate and a.EmpSystemID=e.SystemId and a.LeaveDuration = 1
+                                    inner join DayType dt on dt.DayType = a.DayStatus --and dt.category in ('Present','Late')
+                                    
+                                    where a.EmpSystemID=e.SystemId and 
+                                    (a.InTime is not null or a.PunchInTime is not null or a.ManualInTime is not null
+                                    or a.OutTime is not null or a.PunchOutTime is not null or a.ManualOutTime is not null
+                                    )
+                                        )--33
+                                    AND ((LT.FromDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
+                                    OR LT.ToDate BETWEEN '" + fromDate + @"' AND '" + toDate + "') OR L.LeaveType ='Maternity') ";
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+
+        }//End Function
+
     }
 }
