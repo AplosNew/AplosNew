@@ -386,6 +386,7 @@
     <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessPlantWiseController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceFromAppReportController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\OTLimitTransactionFromAppController.cs" />
     <Compile Include="Areas\Attendances\Controllers\PayrollManagementDashboardController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AuditReportSummeryController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ExceptionOTProcessController.cs" />
@@ -1611,6 +1612,7 @@
     <Content Include="Areas\Attendances\Scripts\monthlyGoodWorkReportNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessPlantWiseController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessController.js" />
+    <Content Include="Areas\Attendances\Scripts\OTLimitTransactionFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\PayrollManagementDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummeryController.js" />
     <Content Include="Areas\Attendances\Scripts\ExceptionOTProcessController.js" />
@@ -3738,6 +3740,7 @@
     <Content Include="Areas\Productions\Views\FinishGoodsInventoryRegister.cshtml" />
     <Content Include="Areas\Productions\Views\_FGInventoryRegisterPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\LeaveApplicationNew\LeaveDelete.cshtml" />
+    <Content Include="Areas\Attendances\Views\OTLimitTransactionFromApp\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
