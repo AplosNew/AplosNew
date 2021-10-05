@@ -25,11 +25,9 @@ namespace Aplos.Areas.Attendances.Controllers
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        private readonly IOTManagementService _OTManagementService;
-        public OTLimitTransactionFromAppController(ISqlRepository sqlRepository, IOTManagementService OTManagementService)
+        public OTLimitTransactionFromAppController(ISqlRepository sqlRepository)
         {
             _sqlRepository = sqlRepository;
-            _OTManagementService = OTManagementService;
         }
         #endregion
 
@@ -890,6 +888,8 @@ namespace Aplos.Areas.Attendances.Controllers
                 DataView DvMaster = new DataView(dsManualAttanData.Tables[0]);
                 DataView DvHourlyOTData = new DataView(dsHourlyOTData.Tables[0]);
                 Random rnd = new Random((int)DateTime.Now.Ticks);
+
+                string sID = string.Empty;
                 for (int i = 0; i < AttendanceProcessData.Count; i++)
                 {
 
@@ -965,11 +965,14 @@ namespace Aplos.Areas.Attendances.Controllers
                     DvHourlyOTData.RowFilter = "EmpSystemID='" + AttendanceProcessData[i].EmpSystemId + "' AND WorkDate='" + AttendanceProcessData[i].WorkDate + "'";
                     if (DvHourlyOTData.Count == 0)
                     {
-                        string sID = string.Empty;
-                        bplib.clsGenID objGenID = new bplib.clsGenID();
-                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "HourlyOT", out sID);
+                        if (string.IsNullOrEmpty(sID))
+                        {
+                            bplib.clsGenID objGenID = new bplib.clsGenID();
+                            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "HourlyOT", out sID);
+                            sID = "OX" + sID;
+                        }
                         DataRow dr = dsHourlyOTData.Tables[0].NewRow();
-                        dr["Id"] = "OLEO" + sID;
+                        dr["Id"] = sID + "-" + (i + 1).ToString();
                         dr["EmpSystemId"] = AttendanceProcessData[i].EmpSystemId;
                         //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
                         dr["FromDate"] = RandomOutTime;
