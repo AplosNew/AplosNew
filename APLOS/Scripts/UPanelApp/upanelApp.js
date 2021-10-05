@@ -599,6 +599,7 @@ var upanelApp = angular
     .controller('OrderCostingController', OrderCostingController)
     .controller('OrderReportController', OrderReportController)
     .controller('OTLimitTransactionController', OTLimitTransactionController)
+    .controller('OTLimitTransactionFromAppController', OTLimitTransactionFromAppController)
     .controller('otSlabController', otSlabController)
     .controller('ParollsReportController', ParollsReportController)
     .controller('partyGroupCategoryController', PartyGroupCategoryController)
