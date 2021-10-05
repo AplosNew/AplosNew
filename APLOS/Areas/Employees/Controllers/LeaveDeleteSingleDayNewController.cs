@@ -184,9 +184,6 @@ namespace Aplos.Areas.Employees.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
 
-
-
-            //return Json(data, JsonRequestBehavior.AllowGet);
         }
         public void PlantLockCheck(string Date, out DataSet ds, string Plant)
         {
