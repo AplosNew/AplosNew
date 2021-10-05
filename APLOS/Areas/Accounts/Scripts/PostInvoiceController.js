@@ -14,7 +14,36 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         Id: null, InvoiceDate: null, DocRefNo: null, PartyId: null, PartyPlantId: null, CurrencyId: null, ToCurrencyRate: null, Narration: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
-  
+    $scope.voucher = {
+        Id: null,
+        CompanyId: null,
+        EntityId: null,
+        PlantId: null,
+        PartyId: null,
+        PartyName: null,
+        PartyType: null,
+        CurrencyId: null,
+        PaymentTermId: null,
+        SourceType: null,
+        VoucherNo: null,
+        VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: null,
+        DocDate: null,
+        BaseOnDueDate: null,
+        BaseNoOfDays: null,
+        MatureDate: null,
+        DocRefNo: null,
+        FiscalYearId: null,
+        FiscalYearName: null,
+        FiscalYearPeriodId: null,
+        FiscalYearPeriodName: null,
+        TaxYearId: null,
+        TaxYearPeriodId: null,
+        IsExcludingTax: false,
+        Amount: null,
+        Narration: null,
+        Remarks: null,
+    };
     $scope.getDataList = function () {
         $http({
             method: 'POST',
@@ -63,12 +92,19 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.Get = function (obj) {
         $scope.model = obj.data;
         $scope.modelNew = Object.assign({}, $scope.model);
-        //$scope.getDetailDataList();
+        $scope.voucher.CurrencyId = $scope.modelNew.CurrencyId;
+        $scope.voucher.DocRefNo = $scope.modelNew.DocRefNo;
+        $scope.voucher.PostingDate = $scope.modelNew.InvoiceDate;
+        $scope.voucher.DocDate = $scope.modelNew.InvoiceDate;
+        $scope.voucher.ToCurrencyRate = $scope.modelNew.ToCurrencyRate;
+        $scope.voucher.Currency = $scope.modelNew.Currency;
         $scope.GetSavedGRNListForPostInvoice();
+        $scope.getPostableJVList($scope.modelNew.Id, $scope.modelNew.PartyId);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+        $scope.setTab2(2);
     };
 
     $scope.approvedGRNList = [];
@@ -259,6 +295,32 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         }
     };
 
+    $scope.refreshTemplateDetail = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllDetail });
+    };
+
+    function CheckBoxSelectAllDetail(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GRNDetail").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.InventoryReceiveDetailList.length; i++) {
+                $scope.InventoryReceiveDetailList[i].Activ = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GRNDetail").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.InventoryReceiveDetailLists = [];
     $scope.Action = 'Save';
     $scope.Save = function () {
         try {
@@ -270,6 +332,19 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                     if ($scope.InventoryReceiveDetailList[i].GRNQty < $scope.InventoryReceiveDetailList[i].OtherQty + $scope.InventoryReceiveDetailList[i].TransactionQty) {
                         throw "Invoice Qty can't greater than GRN Qty.";
                     }
+                    if ($scope.InventoryReceiveDetailList[i].Activ) {
+                        $scope.InventoryReceiveDetailLists.push($scope.InventoryReceiveDetailList[i]);
+                    }
+                }
+            }
+            if (baseService.arrayLength($scope.InventoryReceiveDetailLists)==0) {
+                throw "Please select GRN Detail data.";
+            }
+            else {
+                for (var i = 0; i < $scope.InventoryReceiveDetailLists.length; i++) {
+                    if ($scope.InventoryReceiveDetailLists[i].TransactionQty == 0 || baseService.isUndefinedOrNull($scope.InventoryReceiveDetailLists[i].TransactionQty)) {
+                        throw "Please input Qty.";
+                    }
                 }
             }
 
@@ -279,7 +354,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                         method: 'POST',
                         url: 'Accounts/PostInvoice/Create',
                         data: {
-                            'master': $scope.modelNew, 'dataList': $scope.InventoryReceiveDetailList
+                            'master': $scope.modelNew, 'dataList': $scope.InventoryReceiveDetailLists
                         },
                         dataType: 'JSON'
                         , contentType: "application/json charset=utf-8"
@@ -289,7 +364,8 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                         }
                         else {
                             ShowResult(response.data.Message, 'success');
-                            $scope.getDataList();;
+                            $scope.getDataList();
+                            //$scope.getPostableJVList($scope.modelNew.Id);
                             $scope.Clear();
                         }
                     }), function errorCallBack(response) {
@@ -316,6 +392,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.getDataList();
+                    
                     $scope.Clear();
                 }
                 function errorCallBack(response) {
@@ -350,5 +427,28 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.isSet2 = function (tabNum) {
         return $scope.tab2 === tabNum;
     };
+    $scope.postableJVList = [];
+    $scope.getPostableJVList = function (id,partyId) {
+        $http({
+            method: "POST",
+            url: "accounts/PostInvoice/GetPostableJVList?id=" + id + '&partyId=' + $scope.modelNew.PartyId
+        }).then(function successCallback(response) {
+            $scope.postableJVList = response.data;
+        });
+    };
 
+    $scope.selectPaymentList = function () {
+        $scope.checkedMultipleVendorpaymentList = [];
+        $scope.MultiplepaymentDetailSelectedList = [];
+        for (var i = 0; i < $scope.postableList.length; i++) {
+            if ($scope.postableList[i].flag === true) {
+                $scope.checkedMultipleVendorpaymentList.push($scope.postableList[i]);
+                for (var j = 0; j < window.lst.length; j++) {
+                    if (window.lst[j].PartyId == $scope.postableList[i].PartyId) {
+                        $scope.MultiplepaymentDetailSelectedList.push(window.lst[j]);
+                    }
+                }
+            }
+        }
+    }
 }

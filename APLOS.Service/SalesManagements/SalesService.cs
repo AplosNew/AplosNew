@@ -3104,6 +3104,8 @@ namespace Library.Service.SalesManagements
                             TransactionQty = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["TransactionQty"].ToString()),
                             PolicyRate = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyRate"]),
                             PolicyAmount = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyAmount"].ToString()),
+                            BaseUOMId= dsDetail.Tables[0].Rows[i]["BaseUOMId"].ToString(),
+                            TransactionUoMId= dsDetail.Tables[0].Rows[i]["TransactionUoMId"].ToString(),
 
                             AddedBy = sales.AddedBy,
                             AddedDate = sales.AddedDate,
@@ -3127,7 +3129,7 @@ namespace Library.Service.SalesManagements
                                     TotalAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalAmount"].ToString()),
                                     BooksCurrencyBaseRate = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["BooksCurrencyBaseRate"].ToString()),
                                     TotalMaterialBooksCurrencyAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalMaterialBooksCurrencyAmount"].ToString()),
-
+                                    Rate=Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["MaterialTranRate"].ToString()),
                                     AddedBy = sales.AddedBy,
                                     AddedDate = sales.AddedDate,
                                     AddedFromIP = sales.AddedFromIP,

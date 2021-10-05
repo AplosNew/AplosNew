@@ -169,8 +169,9 @@
                         <fieldset class="scheduler-border">
                             <legend class="scheduler-border">GRN Detail</legend>
                             <div ng-show="InventoryReceiveDetailList.length>0">
-                                <div style="color:black;" id="GRNDetail" ej-grid e-datasource="InventoryReceiveDetailList" e-allowpaging="true" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true" e-allowResizing="true">
+                                <div style="color:black;" id="GRNDetail" ej-grid e-datasource="InventoryReceiveDetailList" e-allowpaging="true" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true" e-allowResizing="true"  e-templaterefresh="refreshTemplateDetail">
                                     <div e-columns>
+                                        <div e-column e-headertext="" e-headertemplateid="#headerTemplateDetail" e-template="#checkboxTemplateDetail" e-textalign="center" e-width="30"></div>
                                         <div e-column e-field="InventoryReceiveId" e-headertext="GRN No" e-width="50" e-filter="false"></div>
                                         <div e-column e-field="InventoryReceiveDetailId" e-headertext="Detail No" e-width="50"></div>
                                         <div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="80"></div>
@@ -192,6 +193,12 @@
                                     <div style="padding:0px; width:100%;">
                                         <input type="text" style="text-align:right" class="form-control" n-decimals="2" ng-model="data.TransactionQty" ng-blur="$parent.calculateAmount(data)" />
                                     </div>
+                                </script>
+                                <script type="text/template" id="checkboxTemplateDetail">
+                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Activ" />
+                                </script>
+                                <script type="text/x-jsrender" id="headerTemplateDetail">
+                                    <input type="checkbox" id="headchk" />
                                 </script>
                             </div>
                         </fieldset>
@@ -215,37 +222,25 @@
                                     <input type="text" name="VoucherDate" ng-model="voucher.VoucherDate" datepicker class="form-control" disabled required>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Payment Source<sup>*</sup></label>
-                                <div class="col-sm-8 radio">
-                                    <label>
-                                        <input ng-click="clearBankPopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
-                                        <span class="cr" tabindex="17"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
-                                    </label>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="VoucherDate" ng-model="voucher.PostingDate" datepicker class="form-control" disabled required>
                                 </div>
                             </div>
-
                         </div>
 
                         <div class="col-xs-12 col-sm-4 col-md-4">
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Doc Ref<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="4" required capitalize autocomplete="off">
+                                    <input type="text" maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="4" required disabled autocomplete="off">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-                                <div class="col-sm-5 show-message" style="padding-right:0px;">
-                                    <div class="select-style">
-                                        <select id="currencyTransactionId" class="form-control" tabindex="5" name="Currency" required ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();checkBankAmount();">
-                                            <option value="">--Select--</option>
-                                            <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-sm-3 show-message" style="padding-left:0px;">
-                                    <input type="text" maxlength="50" n-decimals="4" name="Rate" ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate);rateChangeBankCharge(voucher.CompanyCurrencyRate)" id="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="voucher.CurrencyId==companyCurrencyId">
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" maxlength="50" name="Currency" ng-model="voucher.Currency" class="form-control" tabindex="4" required disabled autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -270,29 +265,33 @@
 
                         </div>
                         <div class="clearfix"></div>
-                        <div class="content-container-fluid" style="color:black;">
-                            <div style="color:black;" id="gridTab" ej-grid e-datasource="multipleVendorpaymentList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                                 e-filtersettings-filterType="excel" e-recorddoubleclick="Done"
-                                 e-enabletouch="true" e-allowselection="true" e-templaterefresh="refreshTemplate"
-                                 e-rowdatabound="rowDataBound" e-scrollsettings="scroll" e-detailstemplate="detailTemp"
-                                 e-detailsdatabound="detailgrid">
-
-                                <div e-columns>
-                                    <div e-column e-template="#bootstrapToggle2" e-headertext="Check" e-width="40" textAlign='center'></div>
-                                    <div e-column e-field="Id" e-headertext="Payment No" e-width="60"></div>
-                                    <div e-column e-field="DueUpToDate" e-headertext="DueUpToDate" e-width="60"></div>
-                                    @*<div e-column e-field="TentativeDate" e-headertext="TentativeDate" e-width="60"></div>*@
-                                    <div e-column e-template="#TentativeDate" e-headertext="Tentative Date" e-width="60" style="height: 20px;"></div>
-                                    <div e-column e-field="PartyName" e-headertext="Party" e-width="120"></div>
-                                    <div e-column e-field="AccountTitle" e-headertext="Bank" e-width="120"></div>
-                                    <div e-column e-field="Amount" e-headertext="Amount (TRN)" textAlign='Right' e-width="80"></div>
-                                </div>
-                            </div>
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>GL</th>
+                                        <th>Budget</th>
+                                        <th>Activity</th>
+                                        <th>Dr</th>
+                                        <th>Cr</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in postableJVList">
+                                        <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                        <td>{{x.BudgetName}}</td>
+                                        <td>{{x.ActivityName}}</td>
+                                        <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                        <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td class="text-right"><strong>{{postableJVList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                        <td class="text-right"><strong>{{postableJVList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <script type="text/template" id="TentativeDate">
-                            <input type="text" ng-model="data.TentativeDate" style="color:black;" class="form-control" />
-                        </script>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li><button ng-click="Post();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
@@ -300,20 +299,7 @@
                                 <li><button ng-click="postClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
-                        <script type="text/template" id="bootstrapToggle2">
-                            <input type="checkbox" e-change="$parent.selectPaymentList" e-value="data.flag" ej-checkbox class="rowCheckbox" e-checked="data.flag" />
-                        </script>
-                        <script id="tabGridContents" type="text/x-jsrender">
-                            <div class="tabcontrol" id="Test">
-                                <ul>
-                                    <li><a href="#gridTab{{:Id}}">Detail</a></li>
-                                </ul>
-                                <div id="gridTab{{:Id}}">
-                                    <div id="detailGrid"></div>
-                                </div>
-
-                            </div>
-                        </script>
+                        
                     </div>
 
                 </div>

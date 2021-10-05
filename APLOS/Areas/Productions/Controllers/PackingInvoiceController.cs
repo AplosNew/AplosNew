@@ -160,7 +160,7 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 ConnectionManager.DAL.ConManager objCon;
                 string sql = @"select RD.Id InventoryReceiveDetailId,RD.TransactionQty Qty,RD.MaterialTranRate,RD.TotalMaterialTranAmount TotalAmount,RD.BooksCurrencyBaseRate,RD.TotalMaterialBooksCurrencyAmount
-								,PLI.PackingId
+								,PLI.PackingId,RD.MaterialTranRate
 								from TRN.InventoryReceiveDetail RD
 								left join(Select distinct InventoryReceiveDetailId,PackingId from dbo.ItemScanChild) ISC ON ISC.InventoryReceiveDetailId=RD.Id
 								 JOIN TRN.POLotReference POR ON ISC.PackingId=POR.Id
@@ -181,12 +181,12 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 ConnectionManager.DAL.ConManager objCon;
                 string sql = @"select RD.InventoryMaterialId,SUM(RD.TransactionQty)TransactionQty,PolicyRate=SUM(RD.TotalMaterialTranAmount)/SUM(RD.TransactionQty),PolicyAmount=SUM(RD.TotalMaterialTranAmount)
-                                    ,PLI.PackingId
+                                    ,PLI.PackingId,RD.TransactionUoMId,RD.BaseUOMId
                                     from TRN.InventoryReceiveDetail RD
                                     left join(Select distinct InventoryReceiveDetailId,PackingId from dbo.ItemScanChild) ISC ON ISC.InventoryReceiveDetailId=RD.Id
                                     LEFT JOIN TRN.POLotReference POR ON ISC.PackingId=POR.Id
                                     LEFT JOIN TRN.PackingLineItem PLI ON POR.PackingLineItemId=PLI.PackingLineItemId
-								Where PLI.PackingId IN(" + packingid + ") GROUP BY RD.InventoryMaterialId,PLI.PackingId";
+								Where PLI.PackingId IN(" + packingid + ") GROUP BY RD.InventoryMaterialId,PLI.PackingId,RD.TransactionUoMId,RD.BaseUOMId";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
             }

@@ -281,12 +281,12 @@ namespace Library.Accounting.Accounts
             var cmdText = @"select IsNonCreditable,PartyId FROM TRN.[InventoryReceive] where Id = '" + receivedId.ToString() + "'";
             return _sqlRepository.GetData(cmdText);
         }
-		private Dictionary<string, object> GetPurchaseReturn(string purchaseReturnId)
-		{
-			var cmdText = @"select IsNonCreditable,PartyId FROM TRN.[PurchaseReturn] where Id = '" + purchaseReturnId.ToString() + "'";
-			return _sqlRepository.GetData(cmdText);
-		}
-		private Dictionary<string, object> GetCompanyPartyGroup(string partyId, string plantId)
+        private Dictionary<string, object> GetPurchaseReturn(string purchaseReturnId)
+        {
+            var cmdText = @"select IsNonCreditable,PartyId FROM TRN.[PurchaseReturn] where Id = '" + purchaseReturnId.ToString() + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
+        private Dictionary<string, object> GetCompanyPartyGroup(string partyId, string plantId)
         {
             var cmdText = @"select PartyAccountGroupId FROM HKP.CompanyParty where PartyId = '" + partyId + "' AND PlantId='" + plantId + @"' and PartyType='Vendor'";
             return _sqlRepository.GetData(cmdText);
@@ -812,15 +812,15 @@ SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-		public IEnumerable<object> GetInventoryMaterialReversChargePayable(string companyId, string plantId, string inveReveiveId)
-		{
-			try
-			{
-				var inventoryReceiveData = GetInventoryReceive(inveReveiveId);
-				var companyParty = GetCompanyPartyGroup(inventoryReceiveData["PartyId"].ToString(), plantId);
-				if (Convert.ToBoolean(inventoryReceiveData["IsNonCreditable"].ToString()))
+        public IEnumerable<object> GetInventoryMaterialReversChargePayable(string companyId, string plantId, string inveReveiveId)
+        {
+            try
+            {
+                var inventoryReceiveData = GetInventoryReceive(inveReveiveId);
+                var companyParty = GetCompanyPartyGroup(inventoryReceiveData["PartyId"].ToString(), plantId);
+                if (Convert.ToBoolean(inventoryReceiveData["IsNonCreditable"].ToString()))
                 {
-					var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
+                    var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -972,11 +972,11 @@ UNION
 					) AS T
 					GROUP BY  T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType--,T.TaxCategoryId, T.IsAsset
 					ORDER BY T.TrnType DESC ";
-					return _sqlRepository.GetDataCollection(sql);
-				}
-				else
+                    return _sqlRepository.GetDataCollection(sql);
+                }
+                else
                 {
-					var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @countryId varchar(10)
+                    var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @countryId varchar(10)
                     SET @countryId =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)
                     SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId
 	                        , MGGL.InventoryGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
@@ -1183,26 +1183,26 @@ UNION
 					WHERE IRTS.InventoryReceiveId=@receiveId AND IR.IsNonCreditable=0
 					AND IRTS.InventoryServiceId<>'' AND TCGL.InputTaxOutPutTax='Input' AND TCGL.TaxType='RCM'
 					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName";
-				return _sqlRepository.GetDataCollection(sql);
+                    return _sqlRepository.GetDataCollection(sql);
 
-				}
+                }
 
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public IEnumerable<object> GetInventoryMaterialForImprestPayable(string companyId, string plantId, string inveReveiveId)
-		{
-			try
-			{
-				var isNonCreditable = GetInventoryReceive(inveReveiveId);
-				if (Convert.ToBoolean(isNonCreditable["IsNonCreditable"].ToString()))
-				{
-					var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @countryId varchar(10)
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetInventoryMaterialForImprestPayable(string companyId, string plantId, string inveReveiveId)
+        {
+            try
+            {
+                var isNonCreditable = GetInventoryReceive(inveReveiveId);
+                if (Convert.ToBoolean(isNonCreditable["IsNonCreditable"].ToString()))
+                {
+                    var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @countryId varchar(10)
                     SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 	                    , T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 	                    , T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -1284,11 +1284,11 @@ UNION
 	                    WHERE IRD.InventoryReceiveId=@receiveId
                     ) AS T
                     GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId";
-					return _sqlRepository.GetDataCollection(sql);
-				}
-				else
-				{
-					var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @countryId varchar(10)
+                    return _sqlRepository.GetDataCollection(sql);
+                }
+                else
+                {
+                    var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @countryId varchar(10)
                     SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 	                    , T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 	                    , T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -1436,24 +1436,24 @@ UNION
 	                    WHERE IRD.InventoryReceiveId=@receiveId
                     ) AS T
                     GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId";
-					return _sqlRepository.GetDataCollection(sql);
+                    return _sqlRepository.GetDataCollection(sql);
 
-				}
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public GridModel GetPayableMaterial(GridParameter parameters, string inveReveiveId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public GridModel GetPayableMaterial(GridParameter parameters, string inveReveiveId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-				parameters.CmdText = @"DECLARE @inventoryReceiveId VARCHAR(10)='" + inveReveiveId + @"',@companyId varchar(10)='" + identity.CompanyId + @"',@plantId varchar(10)='" + identity.PlantId + @"'
+                parameters.CmdText = @"DECLARE @inventoryReceiveId VARCHAR(10)='" + inveReveiveId + @"',@companyId varchar(10)='" + identity.CompanyId + @"',@plantId varchar(10)='" + identity.PlantId + @"'
                                         , @totalReceiveAmount DECIMAL(18, 4)=0
 	                                  , @totalServiceAmount DECIMAL(18, 4)=0
 	                                  , @totalSvcTaxAmount DECIMAL(18, 4)=0
@@ -1530,22 +1530,22 @@ UNION
 						LEFT JOIN [HKP].[Budget] AS BP ON BMP.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS AP ON MGPGL.ActivityId= AP.Id
                         WHERE IRD.InventoryReceiveId=@inventoryReceiveId";
-				return _sqlRepository.GetDifferentGridData(parameters);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDifferentGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
 
-		public IEnumerable<object> GetGRNListForInvPayable(string plantId)
-		{
-			try
-			{
-				var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+        public IEnumerable<object> GetGRNListForInvPayable(string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
 								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
 			                    , CP.UserName AS PartyAccountGroupName
 			                    , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
@@ -1624,23 +1624,23 @@ UNION
                     WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0 AND IR.PlantId='" + plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
 					AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.GRNType!='MaterialTransfer'
                     order by IR.GRNDate desc";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public IEnumerable<object> GetPostedInventoryTransferList(string column, string value, string plantId)
-		{
-			try
-			{
-				string strkey = "1=1";
-				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-					strkey = column + " like '%" + value + "%'";
-				var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetPostedInventoryTransferList(string column, string value, string plantId)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
                         select top 300 * from (SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 			                        , CP.UserName AS PartyAccountGroupName
 			                        , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
@@ -1691,17 +1691,17 @@ UNION
 						LEFT JOIN ORG.Plant FP ON FP.Id=IR.PlantId
                         WHERE IR.PlantId=@plantId AND IR.[Status]='Posting' AND IR.IsPaymentHold=0 AND IR.PlantId=@plantId AND IR.FixedAssetOrInventory='Inventory' AND IR.GRNType='MaterialTransfer' AND IR.OpeningBalanceId IS NULL
 						) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		public IEnumerable<object> GetAdditionalTaxDetail(string additionalTaxId)
+        public IEnumerable<object> GetAdditionalTaxDetail(string additionalTaxId)
         {
             try
             {
@@ -1735,12 +1735,12 @@ UNION
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-		
-		public IEnumerable<object> GetPurchaseOrderDiscount(string plantId, string grnId)
-		{
-			try
-			{
-				var sql = @"SELECT DISTINCT pod.InventoryReceiveId POId,IRD.InventoryReceiveId,IR.Id GRNNo,MGM.UserName MaterialGroup,po.DiscountAmount,0 Amount
+
+        public IEnumerable<object> GetPurchaseOrderDiscount(string plantId, string grnId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT pod.InventoryReceiveId POId,IRD.InventoryReceiveId,IR.Id GRNNo,MGM.UserName MaterialGroup,po.DiscountAmount,0 Amount
 							,GL.UserName GLName,B.UserName BugetName,A.UserName AcitivityName,MGPGL.GLGeneralInfoId,MGPGL.BudgetMasterId,MGPGL.ActivityId
 							FROM trn.InventoryReceiveDetail IRD 
 							left join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
@@ -1758,21 +1758,21 @@ UNION
 							LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
 							LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
 							LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
-							where IR.Id='"+ grnId + "'";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public IEnumerable<object> GetPurchaseOrderDiscountWithAcceptance(string plantId, string purchaseDocAcceptanceId)
-		{
-			try
-			{
-				var sql = @"SELECT DISTINCT pod.InventoryReceiveId POId,pdad.PurchaseDocAcceptanceId,pda.AcceptanceNo,MGM.UserName MaterialGroup,po.DiscountAmount,0 Amount
+							where IR.Id='" + grnId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetPurchaseOrderDiscountWithAcceptance(string plantId, string purchaseDocAcceptanceId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT pod.InventoryReceiveId POId,pdad.PurchaseDocAcceptanceId,pda.AcceptanceNo,MGM.UserName MaterialGroup,po.DiscountAmount,0 Amount
 						,GL.UserName GLName,B.UserName BugetName,A.UserName AcitivityName
 						FROM trn.PurchaseDocAcceptanceDetail pdad 
 						left join trn.PurchaseDocAcceptance pda on pda.Id=pdad.PurchaseDocAcceptanceId
@@ -1790,19 +1790,19 @@ UNION
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
 						where pda.Id='" + purchaseDocAcceptanceId + "'";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
         private Dictionary<string, object> GetCompanyParty(string partyId, string plantId)
         {
-            var cmdText = @"select PartyAccountGroupId from hkp.CompanyParty where PartyId='"+ partyId + "' AND Plantid='"+ plantId + "'";
+            var cmdText = @"select PartyAccountGroupId from hkp.CompanyParty where PartyId='" + partyId + "' AND Plantid='" + plantId + "'";
             return _sqlRepository.GetData(cmdText);
         }
         public IEnumerable<object> GetInventoryMaterialReceivableData(string companyId, string plantId, string inveReveiveId, string partyId, string taxapplicable)
@@ -1944,11 +1944,11 @@ UNION
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-		public IEnumerable<object> GetGRNListForTransferJournal(string plantId)
-		{
-			try
-			{
-				var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId,IR.FromPlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+        public IEnumerable<object> GetGRNListForTransferJournal(string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId,IR.FromPlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
 								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
 			                    , CP.UserName AS PartyAccountGroupName
 			                    , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
@@ -1995,22 +1995,22 @@ UNION
 					AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
 				AND IR.RequiredPosting=1 AND IR.GRNType='MaterialTransfer' AND IR.PlantId!=IR.ToPlantId
                     order by IR.GRNDate desc";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public IEnumerable<object> GetFromPlantInventoryTransferPayable(string companyId, string plantId, string inveReveiveId)
-		{
-			try
-			{
-				var inventoryReceiveData = GetInventoryReceive(inveReveiveId);
-				
-					var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"',@countryId varchar(10)
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetFromPlantInventoryTransferPayable(string companyId, string plantId, string inveReveiveId)
+        {
+            try
+            {
+                var inventoryReceiveData = GetInventoryReceive(inveReveiveId);
+
+                var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"',@countryId varchar(10)
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -2170,23 +2170,23 @@ UNION
 					
 					
 					ORDER BY T.TrnType DESC ";
-					return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		public IEnumerable<object> GetToPlantInventoryTransferPayable(string companyId, string plantId, string inveReveiveId)
-		{
-			try
-			{
-				var inventoryReceiveData = GetInventoryReceive(inveReveiveId);
+        public IEnumerable<object> GetToPlantInventoryTransferPayable(string companyId, string plantId, string inveReveiveId)
+        {
+            try
+            {
+                var inventoryReceiveData = GetInventoryReceive(inveReveiveId);
 
-				var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"',@countryId varchar(10)
+                var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"',@countryId varchar(10)
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -2346,19 +2346,19 @@ UNION
 					
 					
 					ORDER BY T.TrnType DESC ";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public IEnumerable<object> GetTransferVendorPayableGLBudgetActivity(string receiveId, string companyId, string plantId,string partyId)
-		{
-			var companyParty = GetCompanyParty(partyId, plantId);
-			var sql = @"DECLARE @receiveId varchar(10)='" + receiveId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetTransferVendorPayableGLBudgetActivity(string receiveId, string companyId, string plantId, string partyId)
+        {
+            var companyParty = GetCompanyParty(partyId, plantId);
+            var sql = @"DECLARE @receiveId varchar(10)='" + receiveId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
 
                             SELECT distinct IR.Id,IRD.Id AS InventoryReceiveDetailId, 'Vendor' AS OtherName, 'Cr' AS TrnType ,MM.MaterialGroupMasterId, NULL AS TaxCategoryId
                             ,GLGeneralInfoId =case WHEN MM.IsAsset=0 THEN MGPGL.GLGeneralInfoId  ELSE FAG.VendorReconGLId END
@@ -2398,12 +2398,12 @@ UNION
 						LEFT JOIN [HKP].[Activity] AS AF ON FAG.VendorReconActivityId= AF.Id
 
 						WHERE IRD.InventoryReceiveId=@receiveId";
-			return _sqlRepository.GetDataCollection(sql);
-		}
-		
-		public GridModel GetPurchaseReturnPostedData(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
-		{
-			parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.VoucherId, A.PostingDate, A.DocDate
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public GridModel GetPurchaseReturnPostedData(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
+        {
+            parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.VoucherId, A.PostingDate, A.DocDate
                                 , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsPark,PR.Id PurchaseReturnNo
                                 FROM [TRN].[AdjustmentNote] AS A
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
@@ -2412,13 +2412,13 @@ UNION
                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
 								LEFT JOIN TRN.PurchaseReturn PR ON PR.VoucherId=A.VoucherId
                                 WHERE A.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
-			return _sqlRepository.GetGridData(parameters);
-		}
-		public IEnumerable<object> GetPurchaseReturnPostableData(string plantId)
-		{
-			try
-			{
-				var sql = @"SELECT PR.Id ,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+            return _sqlRepository.GetGridData(parameters);
+        }
+        public IEnumerable<object> GetPurchaseReturnPostableData(string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT PR.Id ,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
 								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
 			                    , CP.UserName AS PartyAccountGroupName
 			                    , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
@@ -2457,26 +2457,26 @@ UNION
 					LEFT JOIN (SELECT   A.PurchaseReturnId,SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.TotalMaterialTranAmount,4)) AS TransactionAmount
 					, SUM(ROUND(A.TotalMaterialBooksCurrencyAmount,0)) AS BaseAmount 
 					 FROM [TRN].[PurchaseReturnDetail] AS A
-		             JOIN [TRN].[PurchaseReturn] AS B ON A.PurchaseReturnId=B.Id WHERE B.PlantId='"+ plantId + @"' GROUP BY A.PurchaseReturnId) AS IRD ON IRD.PurchaseReturnId=PR.Id
+		             JOIN [TRN].[PurchaseReturn] AS B ON A.PurchaseReturnId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.PurchaseReturnId) AS IRD ON IRD.PurchaseReturnId=PR.Id
                   
                     WHERE PR.PlantId='" + plantId + @"' AND ISNULL(PR.[Status],'')<>'Posting' AND PR.VoucherId IS NULL  AND PR.FixedAssetOrInventory='Inventory' AND PR.OpeningBalanceId IS NULL 
 					AND PR.IsApproved=1
                     order by IR.GRNDate desc";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public GridModel GetPurchaseReturnMaterial(GridParameter parameters,string companyId,string plantId, string purchaseReturnId)
-		{
-			try
-			{
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public GridModel GetPurchaseReturnMaterial(GridParameter parameters, string companyId, string plantId, string purchaseReturnId)
+        {
+            try
+            {
 
-				parameters.CmdText = @"DECLARE @purchaseReturnId VARCHAR(10)='"+ purchaseReturnId + "',@companyId varchar(10)='"+ companyId + "',@plantId varchar(10)='"+ plantId + @"'
+                parameters.CmdText = @"DECLARE @purchaseReturnId VARCHAR(10)='" + purchaseReturnId + "',@companyId varchar(10)='" + companyId + "',@plantId varchar(10)='" + plantId + @"'
                                         , @totalReceiveAmount DECIMAL(18, 4)=0
 	                                  , @totalServiceAmount DECIMAL(18, 4)=0
 	                                  , @totalSvcTaxAmount DECIMAL(18, 4)=0
@@ -2546,21 +2546,21 @@ UNION
 						LEFT JOIN [HKP].[Budget] AS BP ON BMP.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS AP ON MGPGL.ActivityId= AP.Id
                         WHERE IRD.PurchaseReturnId=@purchaseReturnId";
-				return _sqlRepository.GetDifferentGridData(parameters);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public GridModel GetPurchaseReturnService(GridParameter parameters, string companyId, string plantId, string purchaseReturnId)
-		{
-			try
-			{
+                return _sqlRepository.GetDifferentGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public GridModel GetPurchaseReturnService(GridParameter parameters, string companyId, string plantId, string purchaseReturnId)
+        {
+            try
+            {
 
-				parameters.CmdText = @"SELECT A.Id
+                parameters.CmdText = @"SELECT A.Id
                         , A.PurchaseReturnId
                         , A.ServiceMasterId
                         , B.UserName AS ServiceMasterName
@@ -2575,25 +2575,25 @@ UNION
                         left JOIN (select Id, Amount from TRN.POService) AS POT on A.POServiceId=POT.Id
                         left join ( Select InventoryServiceId, sum(TaxAmount) TaxAmount from  trn.PurchaseReturnTax group by InventoryServiceId) IRT On IRT.InventoryServiceId=A.Id
                         
-                        WHERE A.PurchaseReturnId='"+ purchaseReturnId + "'";
-				return _sqlRepository.GetDifferentGridData(parameters);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public IEnumerable<object> GetPurchaseReturnMaterialPayable(string companyId, string plantId, string purchaseReturnId)
-		{
-			try
-			{
-				var purchaseReturnData = GetPurchaseReturn(purchaseReturnId);
-				var companyParty = GetCompanyPartyGroup(purchaseReturnData["PartyId"].ToString(), plantId);
-				if (Convert.ToBoolean(purchaseReturnData["IsNonCreditable"].ToString()))
-				{
-					var sql = @"DECLARE @receiveId varchar(10)='" + purchaseReturnId + "', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
+                        WHERE A.PurchaseReturnId='" + purchaseReturnId + "'";
+                return _sqlRepository.GetDifferentGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetPurchaseReturnMaterialPayable(string companyId, string plantId, string purchaseReturnId)
+        {
+            try
+            {
+                var purchaseReturnData = GetPurchaseReturn(purchaseReturnId);
+                var companyParty = GetCompanyPartyGroup(purchaseReturnData["PartyId"].ToString(), plantId);
+                if (Convert.ToBoolean(purchaseReturnData["IsNonCreditable"].ToString()))
+                {
+                    var sql = @"DECLARE @receiveId varchar(10)='" + purchaseReturnId + "', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -2675,11 +2675,11 @@ UNION
                     , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId
 					
                     ORDER BY T.TrnType DESC";
-					return _sqlRepository.GetDataCollection(sql);
-				}
+                    return _sqlRepository.GetDataCollection(sql);
+                }
                 else
                 {
-					var sql = @"DECLARE @receiveId varchar(10)='" + purchaseReturnId + "', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
+                    var sql = @"DECLARE @receiveId varchar(10)='" + purchaseReturnId + "', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -2848,27 +2848,27 @@ UNION
 					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
 					
                     ORDER BY T.TrnType DESC";
-					return _sqlRepository.GetDataCollection(sql);
-				}
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                    return _sqlRepository.GetDataCollection(sql);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		public IEnumerable<object> GetPurchaseReturnServicePayable(string companyId, string plantId, string purchaseReturnId)
-		{
-			try
-			{
-				var purchaseReturnData = GetPurchaseReturn(purchaseReturnId);
-				var companyParty = GetCompanyPartyGroup(purchaseReturnData["PartyId"].ToString(), plantId);
+        public IEnumerable<object> GetPurchaseReturnServicePayable(string companyId, string plantId, string purchaseReturnId)
+        {
+            try
+            {
+                var purchaseReturnData = GetPurchaseReturn(purchaseReturnId);
+                var companyParty = GetCompanyPartyGroup(purchaseReturnData["PartyId"].ToString(), plantId);
 
 
 
-				var sql = @"DECLARE @receiveId varchar(10)='" + purchaseReturnId + "', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
+                var sql = @"DECLARE @receiveId varchar(10)='" + purchaseReturnId + "', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -2993,26 +2993,26 @@ UNION
 					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
 					
                     ORDER BY T.TrnType DESC";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		public IEnumerable<object> GetPurchaseReturnMaterialRCMPayable(string companyId, string plantId, string purchaseReturnId)
-		{
-			try
-			{
-				var purchaseReturnData = GetPurchaseReturn(purchaseReturnId);
-				var companyParty = GetCompanyPartyGroup(purchaseReturnData["PartyId"].ToString(), plantId);
+        public IEnumerable<object> GetPurchaseReturnMaterialRCMPayable(string companyId, string plantId, string purchaseReturnId)
+        {
+            try
+            {
+                var purchaseReturnData = GetPurchaseReturn(purchaseReturnId);
+                var companyParty = GetCompanyPartyGroup(purchaseReturnData["PartyId"].ToString(), plantId);
 
 
 
-				var sql = @"DECLARE @receiveId varchar(10)='" + purchaseReturnId + "', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
+                var sql = @"DECLARE @receiveId varchar(10)='" + purchaseReturnId + "', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -3177,22 +3177,22 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					WHERE IRT.PurchaseReturnId=@receiveId   AND ITD.AType='Dr'
 					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
                     ORDER BY T.TrnType DESC";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		#region ServicePayable
-		public IEnumerable<object> GetListForSvcPayable(string plantId)
-		{
-			try
-			{
-				var sql = @"SELECT IR.Id,  IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+        #region ServicePayable
+        public IEnumerable<object> GetListForSvcPayable(string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT IR.Id,  IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
 								, P.UserName AS PartyName
 			                    , CP.UserName AS PartyAccountGroupName
 			                   
@@ -3245,21 +3245,21 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					
                     WHERE IR.PlantId='" + plantId + @"' 
 					AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		public IEnumerable<object> GetServicePayable(string companyId, string plantId, string serviceAcknowledgementMasterId)
-		{
-			try
-			{
-				var sql = @"DECLARE @serviceAcknowledgementMasterId varchar(10)='" + serviceAcknowledgementMasterId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"',@countryId varchar(10)
+        public IEnumerable<object> GetServicePayable(string companyId, string plantId, string serviceAcknowledgementMasterId)
+        {
+            try
+            {
+                var sql = @"DECLARE @serviceAcknowledgementMasterId varchar(10)='" + serviceAcknowledgementMasterId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"',@countryId varchar(10)
 					
                             SELECT  'Svc' AS OtherName, 'Dr' AS TrnType, MM.Id as MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId
 							, MGGL.ServiceGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
@@ -3397,20 +3397,20 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                         where ServicePOAckMasterId=@serviceAcknowledgementMasterId group by INS.ServicePOAckMasterId
 						) AS TCS on TCS.ServicePOAckMasterId=MAT.ServiceAcknowledgementMasterId
                         --ORDER BY TrnType DESC ";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public IEnumerable<object> GetServiceDetailGL(string companyId, string plantId, string serviceAcknowledgementMasterId)
-		{
-			try
-			{
-				var sql = @"DECLARE @serviceAcknowledgementMasterId varchar(10)='" + serviceAcknowledgementMasterId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"',@countryId varchar(10)
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetServiceDetailGL(string companyId, string plantId, string serviceAcknowledgementMasterId)
+        {
+            try
+            {
+                var sql = @"DECLARE @serviceAcknowledgementMasterId varchar(10)='" + serviceAcknowledgementMasterId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"',@countryId varchar(10)
                             SELECT  'Svc' AS OtherName, 'Dr' AS TrnType, MM.Id as MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId
 							, MGGL.ServiceGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 							, MGGL.ServiceBudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
@@ -3430,22 +3430,22 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						WHERE IM.ServiceAcknowledgementMasterId=@serviceAcknowledgementMasterId
 						GROUP BY MM.Id, MGGL.ServiceGLId, GL.AccountCode, GL.UserName, MGGL.ServiceBudgetMasterId, B.Code, B.UserName, MGGL.ServiceActivityId, A.Code, A.UserName,IM.Id
                          ";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public GridModel GetServiceData(GridParameter parameters, string serviceAcknowledgementMasterId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public GridModel GetServiceData(GridParameter parameters, string serviceAcknowledgementMasterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-				parameters.CmdText = @"SELECT IR.Id,  IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+                parameters.CmdText = @"SELECT IR.Id,  IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
 								, P.UserName AS PartyName
 			                    , CP.UserName AS PartyAccountGroupName
 			                   
@@ -3482,41 +3482,41 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                     LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
                     WHERE IR.Id='" + serviceAcknowledgementMasterId + @"'
 					AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1";
-				return _sqlRepository.GetDifferentGridData(parameters);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public GridModel GetServiceAdditionalTax(GridParameter parameters, string serviceAcknowledgementMasterId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return _sqlRepository.GetDifferentGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public GridModel GetServiceAdditionalTax(GridParameter parameters, string serviceAcknowledgementMasterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-				parameters.CmdText = @"Select * from trn.ServiceAcknowledgementAdditionalTax
+                parameters.CmdText = @"Select * from trn.ServiceAcknowledgementAdditionalTax
                     WHERE ServicePOAckMasterId='" + serviceAcknowledgementMasterId + @"'";
-				return _sqlRepository.GetDifferentGridData(parameters);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDifferentGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		public IEnumerable<object> GetServicePostingList(string column, string value, string plantId)
-		{
-			try
-			{
-				string strkey = "1=1";
-				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-					strkey = column + " like '%" + value + "%'";
-				var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+        public IEnumerable<object> GetServicePostingList(string column, string value, string plantId)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
 				select top 100 * from (SELECT IR.Id,  IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
 								, P.UserName AS PartyName
 			                    , CP.UserName AS PartyAccountGroupName
@@ -3568,24 +3568,24 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					AND IR.[Status]='Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1
 					) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
 
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		#endregion
+        #endregion
 
-		public GridModel GetIssueJournalList(GridParameter parameters, string plantId)
-		{
-			try
-			{
-				parameters.CmdText =
-						@"SELECT  V.VoucherNo,II.VoucherId,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
+        public GridModel GetIssueJournalList(GridParameter parameters, string plantId)
+        {
+            try
+            {
+                parameters.CmdText =
+                        @"SELECT  V.VoucherNo,II.VoucherId,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
 						,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
 						,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName ,V.IsPark
                         FROM TRN.InventoryIssue II 
@@ -3599,20 +3599,20 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						LEFT JOIN dbo.MasterLC LC ON LC.Id=CN.MasterLCId
 						LEFT JOIN HKP.Party P ON P.Id=LC.CustomerId
                         Where V.SourceType='" + SourceType.IssueJournal + @"' AND V.PlantId= '" + plantId + "'";
-				return _sqlRepository.GetGridData(parameters);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public GridModel GetIssueMaterialGL(GridParameter parameters, string issueId, string companyId)
-		{
-			try
-			{
-				parameters.CmdText = @"DECLARE  @issueId varchar(10)='" + issueId + "', @companyId varchar(10)='" + companyId + @"'
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public GridModel GetIssueMaterialGL(GridParameter parameters, string issueId, string companyId)
+        {
+            try
+            {
+                parameters.CmdText = @"DECLARE  @issueId varchar(10)='" + issueId + "', @companyId varchar(10)='" + companyId + @"'
                             SELECT IR.Id InventoryIssueId,IRD.Id InventoryIssueDetailId,IR.CompanyGroupId,IRD.CostCenterId
                                 ,IR.CompanyId
                                 ,Plant.GSTIN 
@@ -3734,20 +3734,20 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						, ID.PostDrBudgetMasterId, B.Code , B.UserName , ID.PostDrActivityId, A.Code , A.UserName 
 						) AS IH ON IH.InventoryIssueDetailId=IRD.Id
                          WHERE IR.Id=@issueId";
-				return _sqlRepository.GetDifferentGridData(parameters);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDifferentGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
 
-		public IEnumerable<object> GetInventoryShortage(string companyGroupId, string companyId, string plantId, SourceType sourceType)
-		{
-			var sql = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.VoucherId, A.PostingDate, A.DocDate
+        public IEnumerable<object> GetInventoryShortage(string companyGroupId, string companyId, string plantId, SourceType sourceType)
+        {
+            var sql = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.VoucherId, A.PostingDate, A.DocDate
                                 , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsPark
                                 FROM [TRN].[AdjustmentNote] AS A
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
@@ -3755,14 +3755,14 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
                                 WHERE A.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
-			return _sqlRepository.GetDataCollection(sql);
-		}
+            return _sqlRepository.GetDataCollection(sql);
+        }
 
-		public IEnumerable<object> GetJobWorkReceivedList(string plantId)
-		{
-			try
-			{
-				var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+        public IEnumerable<object> GetJobWorkReceivedList(string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
 								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
 			                    , CP.UserName AS PartyAccountGroupName
 			                    , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
@@ -3842,24 +3842,24 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					--AND IR.IsApproved=1 AND IR.RequiredPosting=1 
 					AND IR.GRNType='GRNBYJW'
                     order by IR.GRNDate desc";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public IEnumerable<object> GetInventoryJobWorkReceivedJV(string companyId, string plantId, string inveReveiveId)
-		{
-			try
-			{
-				var inventoryReceiveData = GetInventoryReceive(inveReveiveId);
-				var companyParty = GetCompanyPartyGroup(inventoryReceiveData["PartyId"].ToString(), plantId);
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetInventoryJobWorkReceivedJV(string companyId, string plantId, string inveReveiveId)
+        {
+            try
+            {
+                var inventoryReceiveData = GetInventoryReceive(inveReveiveId);
+                var companyParty = GetCompanyPartyGroup(inventoryReceiveData["PartyId"].ToString(), plantId);
 
-				
-					var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
+
+                var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
 					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
@@ -4095,21 +4095,21 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					) AS T
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId, T.IsAsset
 					ORDER BY T.TrnType DESC ";
-					return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		public IEnumerable<object> GetInventoryJobWorkGIRI(string companyId, string plantId, string inveReveiveId)
-		{
-			try
-			{
-					var sql = @"DECLARE @receiveId varchar(10)= '"+ inveReveiveId + @"',@plantId varchar(10)='" + plantId + @"'
+        public IEnumerable<object> GetInventoryJobWorkGIRI(string companyId, string plantId, string inveReveiveId)
+        {
+            try
+            {
+                var sql = @"DECLARE @receiveId varchar(10)= '" + inveReveiveId + @"',@plantId varchar(10)='" + plantId + @"'
 
 						SELECT  'JobWork' AS OtherName, 'Dr' AS TrnType
 							,GLGeneralInfoId =SVGL.ServiceGLId
@@ -4168,21 +4168,21 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						GROUP BY SVGL.ClearingAccountGLId,SVGL.ClearingAccountBudgetMasterId,SVGL.ClearingAccountActivityId,GLF.AccountCode,GLF.UserName
 						,BF.Code,BF.UserName
 						,AF.Code,AF.UserName";
-					return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		public IEnumerable<object> GetInventoryJobWorkWIP(string companyId, string plantId, string inveReveiveId)
-		{
-			try
-			{
-				var sql = @"DECLARE @receiveId varchar(10)= '" + inveReveiveId + @"' , @companyId varchar(10)='" + companyId + @"',@plantId varchar(10)='" + plantId + @"'
+        public IEnumerable<object> GetInventoryJobWorkWIP(string companyId, string plantId, string inveReveiveId)
+        {
+            try
+            {
+                var sql = @"DECLARE @receiveId varchar(10)= '" + inveReveiveId + @"' , @companyId varchar(10)='" + companyId + @"',@plantId varchar(10)='" + plantId + @"'
 
 						SELECT  'CostOfGoodsSold' AS OtherName, 'Dr' AS TrnType
 							,GLGeneralInfoId =MGGL.ExpenseGLId
@@ -4238,24 +4238,24 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						GROUP BY GAD.GLGeneralInfoId,GL.AccountCode,GL.UserName,GAD.BudgetMasterId
 						,B.Code,B.UserName,GAD.ActivityId,A.Code,A.UserName";
 
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
 
-		public IEnumerable<object> GetJWPostedList(string column, string value, string plantId)
-		{
-			try
-			{
-				string strkey = "1=1";
-				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-					strkey = column + " like '%" + value + "%'";
-				var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+        public IEnumerable<object> GetJWPostedList(string column, string value, string plantId)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
                         select top 100 * from (SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,  P.Code AS PartyCode, P.UserName AS PartyName
                                     , Particular= P.UserName
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
@@ -4311,265 +4311,22 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						LEFT JOIN TRN.Voucher V ON  V.Id=IR.JWGRIRVoucherId
 						LEFT JOIN(SELECT VoucherId,SUM(DrAmount) DrAmount FROM  TRN.VoucherDetail GROUP BY VoucherId) VD ON VD.VoucherId=V.Id
                         WHERE IR.PlantId=@plantId AND IR.JWGRIRVoucherId<>'') AS TEMP WHERE " + strkey + " order by PostingDate DESC";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-
-		#region Post Invoice
-		public IEnumerable<object> GetGRNListForPostInvoice(string plantId)
-		{
-			try
-			{
-				var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
-		, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
-		, CP.UserName AS PartyAccountGroupName
-		, IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-        , Particular=CASE WHEN IR.EmployeeId<>'' THEN EI.EmployeeName WHEN IR.PartyId<>'' THEN P.UserName  ELSE P.UserName END
-	    , IR.MaterialStorageId, IR.DocRefNo, IR.DocDate
-	    , IR.GateEntryNo,PG.UserName GateEntryName, REPLACE(CONVERT(CHAR(11), GE.EntryDate, 106),' ','-') AS EntryDate
-		, IR.CurrencyId, CU.Code AS CurrencyCode
-		, IR.BaseCurrencyId
-	    , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo
-		, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-	    , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId
-		, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	    , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
-        , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName,PT.PaymentMode
-		, CP.TaxApplicable, IR.IsTaxApplicable, IR.ToCurrencyRate, IR.ToCurrencyRate CompanyCurrencyRate
-		,[Type]=CASE WHEN IR.EmployeeId<>'' THEN 'Employee' Else 'Vendor' END
-		,IR.NoteForAccounts Narration
-        ,IR.PurchaseDocumentAcceptanceId AcceptanceId, REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate
-		, PDA.AcceptanceNo
-		,IsFOC=CASE WHEN IR.IsFOC=1 THEN 'YES' ELSE 'NO' END
-		,IR.GRNType
-		,POId=	STUFF((select distinct ','+PO.Id from
-								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
-								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-		,PODate=	STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') from
-								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
-								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-		,POVendorRefNo=	STUFF((select distinct ','+PO.DocRefNo from
-								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
-								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-		,LCNo=	STUFF((select distinct ','+LC.LCRef from
-								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
-								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
-								LEFT JOIN DBO.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
-								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-			,PurchaseLCId=	STUFF((select distinct ','+LC.Id from
-								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
-								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
-								LEFT JOIN DBO.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
-								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-		,ContractNo=	STUFF((select distinct ','+C.ContractNo from
-								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
-								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
-								LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
-								LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
-								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-			,CustomerName=	STUFF((select distinct ','+P.UserName from
-								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
-								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
-								LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
-								LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
-								LEFT JOIN HKP.Party P ON P.Id=C.CustomerId
-								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-			, RGL.ReconciliationGLId, RGL.ReconciliationGLCode, RGL.ReconciliationGLName
-            , RGL.ReconciliationBudgetId, RGL.ReconciliationBudgetCode, RGL.ReconciliationBudgetName
-            , RGL.ReconciliationActivityId, RGL.ReconciliationActivityCode, RGL.ReconciliationActivityName
-FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-LEFT JOIN (
-SELECT C.Id,C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable 
-FROM [HKP].[CompanyParty] AS C 
-LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor'
-) AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-
-		LEFT JOIN(
-                                    SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS ReconciliationGLId, GL.AccountCode AS ReconciliationGLCode, GL.UserName AS ReconciliationGLName
-                                    , CPGL.BudgetMasterId AS ReconciliationBudgetId, B.Code AS ReconciliationBudgetCode, B.UserName AS ReconciliationBudgetName
-                                    , CPGL.ActivityId AS ReconciliationActivityId, A.Code AS ReconciliationActivityCode, A.UserName AS ReconciliationActivityName
-                                    FROM [HKP].[CompanyPartyGL] AS CPGL
-                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
-                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
-                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
-                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
-                                    WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
-                                    ) AS RGL ON RGL.CompanyPartyId=CP.Id
-LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
-LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-LEFT JOIN [TRN].GateEntry GE ON GE.Id=IR.GateEntryNo
-LEFT JOIN dbo.PlantWiseGate PG ON PG.Id=GE.PlantWiseGateId
-LEFT JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=IR.PurchaseDocumentAcceptanceId
-LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
-					
-LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.TotalMaterialTranAmount,4)) AS TransactionAmount, SUM(ROUND(A.TotalMaterialBooksCurrencyAmount,0)) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
-		JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-		WHERE B.PlantId='"+ plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-WHERE IR.PlantId='"+ plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND ISNULL(IR.VoucherId,'')<>'' AND IR.IsPaymentHold=0 AND IR.PlantId='"+ plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
-AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.GRNType!='MaterialTransfer' AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].[Invoice] where ISNULL(InventoryReceiveId,'')<>'')
-AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].EmployeePayable where ISNULL(InventoryReceiveId,'')<>'')
---AND IR.Id NOT IN(Select distinct InventoryReceiveId from [dbo].[PostGRNInvoiceDetail])
-order by IR.GRNDate desc";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public IEnumerable<object> GetGRNDetailListForPostInvoice(string inventoryReceiveId, string masterId)
-		{
-			try
-			{
-				var sql = @"SELECT PID.Id,IRD.InventoryReceiveId ,IRD.Id InventoryReceiveDetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
-	                        ,MM.UserName MaterialMaster,IRD.MaterialStorageId,IRD.BaseUOMId,IM.ArticleId,ART.StandardName Article,IM.FirstCharacteristicsId,FC.UserName AS FirstCharacteristics
-	                        ,IM.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
-	                        ,IM.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,IM.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
-	                        ,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
-	                         ,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,IRD.TotalMaterialTranAmount,IRD.TransactionQty GRNQty,ISNULL(PIND.OtherQty,0) OtherQty,PID.TransactionQty
-							,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4'),TransactionAmount
-							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate,Balance=IRD.TransactionQty-(ISNULL(PIND.OtherQty,0)+PID.TransactionQty)				
-                        FROM TRN.[InventoryReceiveDetail] AS IRD  
-						LEFT JOIN TRN.InventoryReceive AS IR ON IRD.InventoryReceiveId = IR.Id
-						LEFT JOIN TRN.InventoryMaterial AS IM ON IRD.InventoryMaterialId = IM.Id
-                        LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
-                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id                    
-                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
-						LEFT JOIN dbo.PostGRNInvoiceDetail PID ON PID.InventoryReceiveId=IRD.InventoryReceiveId AND PID.InventoryReceiveDetailId=IRD.Id AND PID.PostGRNInvoiceId='" + masterId + @"'
-						LEFT JOIN (SELECT InventoryReceiveId,InventoryReceiveDetailId,ISNULL(SUM(TransactionQty),0) OtherQty FROM dbo.PostGRNInvoiceDetail WHERE PostGRNInvoiceId<>'"+ masterId + @"'
-                            GROUP BY InventoryReceiveId,InventoryReceiveDetailId) PIND ON PIND.InventoryReceiveId=IRD.InventoryReceiveId AND PIND.InventoryReceiveDetailId=IRD.Id
-                        Where IRD.InventoryReceiveId " + inventoryReceiveId + "";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
-		public IEnumerable<object> GetPostInvoiceDetailGL(string inventoryReceiveId)
-        {
-            try
-            {
-				string sql = @"SELECT GL.UserName GLGeneralInfoName,GL.AccountCode GLGeneralInfoCode,VD.GLGeneralInfoId
-				,B.UserName BudgetName,B.Code BudgetCode,VD.BudgetMasterId,A.UserName ActivityName,VD.ActivityId,VD.CrAmount DrAmount
-				from TRN.VoucherDetail VD
-				LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=VD.GLGeneralInfoId
-				LEFT JOIN MSt.BudgetMaster BM ON BM.Id=VD.BudgetMasterId
-				LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
-				JOIN TRN.Voucher V ON V.Id=VD.VoucherId
-				JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
-				JOIN HKP.Budget B ON B.Id=BM.BudgetId
-				WHERE IR.Id='"+ inventoryReceiveId + @"' AND VD.CrAmount>0";
-				return _sqlRepository.GetDataCollection(sql);
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
 
-		public IEnumerable<object> GetPostInvoiceList(string column, string value)
-		{
-			try
-			{
-				string strkey = "1=1";
-				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-					strkey = column + " like '%" + value + "%'";
-
-				string sql = @"select top 100 * from (SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate FROM [dbo].[PostGRNInvoice] PGI
-                            LEFT JOIN HKP.Party P ON P.Id=PGI.PartyId
-                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId) AS TEMP WHERE " + strkey + "";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-		public IEnumerable<object> GetPostableList()
-		{
-			try
-			{
-				string sql = @"SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate FROM [dbo].[PostGRNInvoice] PGI
-                            LEFT JOIN HKP.Party P ON P.Id=PGI.PartyId
-                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-
-		public IEnumerable<object> GetPostInvoiceDetailData(string masterId)
-		{
-			try
-			{
-				string sql = @"SELECT PGD.Id,IRD.InventoryReceiveId ,IRD.Id InventoryReceiveDetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
-							,MM.UserName MaterialMaster,IRD.MaterialStorageId,IRD.BaseUOMId,IM.ArticleId,ART.StandardName Article,IM.FirstCharacteristicsId,FC.UserName AS FirstCharacteristics
-							,IM.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
-							,IM.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,IM.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
-							,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
-							,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,IRD.TransactionQty,TransactionAmount=FORMAT((FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')*IRD.TransactionQty),'N2')
-							,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')
-							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate						
-						FROM [dbo].[PostGRNInvoiceDetail] PGD
-						LEFT JOIN TRN.[InventoryReceiveDetail] AS IRD  ON PGD.InventoryReceiveId = IRD.InventoryReceiveId AND PGD.InventoryReceiveDetailId = IRD.Id
-						LEFT JOIN TRN.InventoryReceive AS IR ON IRD.InventoryReceiveId = IR.Id
-						LEFT JOIN TRN.InventoryMaterial AS IM ON IRD.InventoryMaterialId = IM.Id
-						LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
-						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-						LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id                    
-						LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
-						Where PGD.PostGRNInvoiceId='"+ masterId + "'";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-
-		public IEnumerable<object> GetSavedGRNListForPostInvoice(string plantId, string masterId)
-		{
-			try
-			{
-				var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+        #region Post Invoice
+        public IEnumerable<object> GetGRNListForPostInvoice(string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
 		, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
 		, CP.UserName AS PartyAccountGroupName
 		, IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
@@ -4667,18 +4424,339 @@ LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND ISNULL(IR.VoucherId,'')<>'' AND IR.IsPaymentHold=0 AND IR.PlantId='" + plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
 AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.GRNType!='MaterialTransfer' AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].[Invoice] where ISNULL(InventoryReceiveId,'')<>'')
 AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].EmployeePayable where ISNULL(InventoryReceiveId,'')<>'')
-AND IR.Id IN(Select distinct InventoryReceiveId from [dbo].[PostGRNInvoiceDetail]  Where PostGRNInvoiceId='"+masterId+@"')
+AND IR.Id NOT IN(Select distinct InventoryReceiveId from [dbo].[PostGRNInvoiceDetail])
 order by IR.GRNDate desc";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetGRNDetailListForPostInvoice(string inventoryReceiveId, string masterId)
+        {
+            try
+            {
+                var sql = @"SELECT Activ=CAST (CASE WHEN PID.Id IS NULL THEN 0 ELSE 1 END AS bit),PID.Id,IRD.InventoryReceiveId ,IRD.Id InventoryReceiveDetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
+	                        ,MM.UserName MaterialMaster,IRD.MaterialStorageId,IRD.BaseUOMId,IM.ArticleId,ART.StandardName Article,IM.FirstCharacteristicsId,FC.UserName AS FirstCharacteristics
+	                        ,IM.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
+	                        ,IM.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,IM.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
+	                        ,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
+	                         ,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,IRD.TotalMaterialTranAmount,IRD.TransactionQty GRNQty,ISNULL(PIND.OtherQty,0) OtherQty,PID.TransactionQty
+							,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4'),TransactionAmount
+							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate,Balance=IRD.TransactionQty-(ISNULL(PIND.OtherQty,0)+PID.TransactionQty)				
+                        FROM TRN.[InventoryReceiveDetail] AS IRD  
+						LEFT JOIN TRN.InventoryReceive AS IR ON IRD.InventoryReceiveId = IR.Id
+						LEFT JOIN TRN.InventoryMaterial AS IM ON IRD.InventoryMaterialId = IM.Id
+                        LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id                    
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+						LEFT JOIN dbo.PostGRNInvoiceDetail PID ON PID.InventoryReceiveId=IRD.InventoryReceiveId AND PID.InventoryReceiveDetailId=IRD.Id AND PID.PostGRNInvoiceId='" + masterId + @"'
+						LEFT JOIN (SELECT InventoryReceiveId,InventoryReceiveDetailId,ISNULL(SUM(TransactionQty),0) OtherQty FROM dbo.PostGRNInvoiceDetail WHERE PostGRNInvoiceId<>'" + masterId + @"'
+                            GROUP BY InventoryReceiveId,InventoryReceiveDetailId) PIND ON PIND.InventoryReceiveId=IRD.InventoryReceiveId AND PIND.InventoryReceiveDetailId=IRD.Id
+                        Where IRD.InventoryReceiveId " + inventoryReceiveId + "";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public IEnumerable<object> GetPostInvoiceDetailGL(string inventoryReceiveId)
+        {
+            try
+            {
+                string sql = @"SELECT GL.UserName GLGeneralInfoName,GL.AccountCode GLGeneralInfoCode,VD.GLGeneralInfoId
+				,B.UserName BudgetName,B.Code BudgetCode,VD.BudgetMasterId,A.UserName ActivityName,VD.ActivityId,VD.CrAmount DrAmount
+				from TRN.VoucherDetail VD
+				LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=VD.GLGeneralInfoId
+				LEFT JOIN MSt.BudgetMaster BM ON BM.Id=VD.BudgetMasterId
+				LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+				JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+				JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
+				JOIN HKP.Budget B ON B.Id=BM.BudgetId
+				WHERE IR.Id='" + inventoryReceiveId + @"' AND VD.CrAmount>0";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetPostInvoiceList(string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                string sql = @"select top 100 * from (SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate FROM [dbo].[PostGRNInvoice] PGI
+                            LEFT JOIN HKP.Party P ON P.Id=PGI.PartyId
+                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId) AS TEMP WHERE " + strkey + "";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetPostableList(string id)
+        {
+            try
+            {
+                string sql = @"SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate ,PGD.Amount
+							FROM [dbo].[PostGRNInvoice] PGI
+                            LEFT JOIN HKP.Party P ON P.Id=PGI.PartyId
+                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId 
+							LEFT JOIN (SELECT SUM(TransactionAmount) Amount,PostGRNInvoiceId 
+									FROM dbo.PostGRNInvoiceDetail GROUP BY PostGRNInvoiceId) PGD ON PGD.PostGRNInvoiceId=PGI.Id 
+							where PGI.Id='" + id + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetPostInvoiceDetailData(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT PGD.Id,IRD.InventoryReceiveId ,IRD.Id InventoryReceiveDetailId,MGM.UserName AS MaterialGroupMasterName,MM.Id MaterialMasterId
+							,MM.UserName MaterialMaster,IRD.MaterialStorageId,IRD.BaseUOMId,IM.ArticleId,ART.StandardName Article,IM.FirstCharacteristicsId,FC.UserName AS FirstCharacteristics
+							,IM.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
+							,IM.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,IM.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
+							,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
+							,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,IRD.TransactionQty,TransactionAmount=FORMAT((FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')*IRD.TransactionQty),'N2')
+							,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4')
+							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate						
+						FROM [dbo].[PostGRNInvoiceDetail] PGD
+						LEFT JOIN TRN.[InventoryReceiveDetail] AS IRD  ON PGD.InventoryReceiveId = IRD.InventoryReceiveId AND PGD.InventoryReceiveDetailId = IRD.Id
+						LEFT JOIN TRN.InventoryReceive AS IR ON IRD.InventoryReceiveId = IR.Id
+						LEFT JOIN TRN.InventoryMaterial AS IM ON IRD.InventoryMaterialId = IM.Id
+						LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
+						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+						LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id                    
+						LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+						Where PGD.PostGRNInvoiceId='" + masterId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSavedGRNListForPostInvoice(string plantId, string masterId)
+        {
+            try
+            {
+                var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+		, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
+		, CP.UserName AS PartyAccountGroupName
+		, IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+        , Particular=CASE WHEN IR.EmployeeId<>'' THEN EI.EmployeeName WHEN IR.PartyId<>'' THEN P.UserName  ELSE P.UserName END
+	    , IR.MaterialStorageId, IR.DocRefNo, IR.DocDate
+	    , IR.GateEntryNo,PG.UserName GateEntryName, REPLACE(CONVERT(CHAR(11), GE.EntryDate, 106),' ','-') AS EntryDate
+		, IR.CurrencyId, CU.Code AS CurrencyCode
+		, IR.BaseCurrencyId
+	    , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo
+		, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+	    , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId
+		, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+	    , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
+        , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName,PT.PaymentMode
+		, CP.TaxApplicable, IR.IsTaxApplicable, IR.ToCurrencyRate, IR.ToCurrencyRate CompanyCurrencyRate
+		,[Type]=CASE WHEN IR.EmployeeId<>'' THEN 'Employee' Else 'Vendor' END
+		,IR.NoteForAccounts Narration
+        ,IR.PurchaseDocumentAcceptanceId AcceptanceId, REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate
+		, PDA.AcceptanceNo
+		,IsFOC=CASE WHEN IR.IsFOC=1 THEN 'YES' ELSE 'NO' END
+		,IR.GRNType
+		,POId=	STUFF((select distinct ','+PO.Id from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+		,PODate=	STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+		,POVendorRefNo=	STUFF((select distinct ','+PO.DocRefNo from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+		,LCNo=	STUFF((select distinct ','+LC.LCRef from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+								LEFT JOIN DBO.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			,PurchaseLCId=	STUFF((select distinct ','+LC.Id from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+								LEFT JOIN DBO.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+		,ContractNo=	STUFF((select distinct ','+C.ContractNo from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+								LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+								LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
+								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			,CustomerName=	STUFF((select distinct ','+P.UserName from
+								TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
+								LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId
+								LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+								LEFT JOIN dbo.[Contract] C ON C.Id=LC.ContractId
+								LEFT JOIN HKP.Party P ON P.Id=C.CustomerId
+								for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			, RGL.ReconciliationGLId, RGL.ReconciliationGLCode, RGL.ReconciliationGLName
+            , RGL.ReconciliationBudgetId, RGL.ReconciliationBudgetCode, RGL.ReconciliationBudgetName
+            , RGL.ReconciliationActivityId, RGL.ReconciliationActivityCode, RGL.ReconciliationActivityName
+FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+LEFT JOIN (
+SELECT C.Id,C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable 
+FROM [HKP].[CompanyParty] AS C 
+LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor'
+) AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+
+		LEFT JOIN(
+                                    SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS ReconciliationGLId, GL.AccountCode AS ReconciliationGLCode, GL.UserName AS ReconciliationGLName
+                                    , CPGL.BudgetMasterId AS ReconciliationBudgetId, B.Code AS ReconciliationBudgetCode, B.UserName AS ReconciliationBudgetName
+                                    , CPGL.ActivityId AS ReconciliationActivityId, A.Code AS ReconciliationActivityCode, A.UserName AS ReconciliationActivityName
+                                    FROM [HKP].[CompanyPartyGL] AS CPGL
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
+                                    WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
+                                    ) AS RGL ON RGL.CompanyPartyId=CP.Id
+LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
+LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+LEFT JOIN [TRN].GateEntry GE ON GE.Id=IR.GateEntryNo
+LEFT JOIN dbo.PlantWiseGate PG ON PG.Id=GE.PlantWiseGateId
+LEFT JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=IR.PurchaseDocumentAcceptanceId
+LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
+					
+LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.TotalMaterialTranAmount,4)) AS TransactionAmount, SUM(ROUND(A.TotalMaterialBooksCurrencyAmount,0)) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
+		JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
+		WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND ISNULL(IR.VoucherId,'')<>'' AND IR.IsPaymentHold=0 AND IR.PlantId='" + plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
+AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.GRNType!='MaterialTransfer' AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].[Invoice] where ISNULL(InventoryReceiveId,'')<>'')
+AND IR.Id NOT IN(Select InventoryReceiveId FROM [TRN].EmployeePayable where ISNULL(InventoryReceiveId,'')<>'')
+AND IR.Id IN(Select distinct InventoryReceiveId from [dbo].[PostGRNInvoiceDetail]  Where PostGRNInvoiceId='" + masterId + @"')
+order by IR.GRNDate desc";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+		public IEnumerable<object> GetPostableJVList(string companyId,string plantId,string postGRNInvoiceId,string partyId)
+		{
+			try
+			{
+				
+				var companyParty = GetCompanyPartyGroup(partyId, plantId);
+
+				string sql = @"DECLARE @receiveId varchar(10)='"+ postGRNInvoiceId + "', @companyId varchar(10)='"+ companyId + "', @plantId varchar(30)='"+ plantId + "', @partyAccountGruopId varchar(10)='"+ companyParty["PartyAccountGroupId"].ToString() + @"'
+						SELECT distinct  'Provisonal' AS OtherName, 'Dr' AS TrnType ,NULL MaterialGroupMasterId, NULL AS TaxCategoryId
+                            ,GLGeneralInfoId= IRD.PostCRGLGeneralInfoId
+							,GLGeneralInfoCode =GL.AccountCode
+							,GLGeneralInfoName = GL.UserName
+							,BudgetMasterId =IRD.PostCRBudgetMasterId
+							,BudgetCode =B.Code
+							,BudgetName =B.UserName
+							,ActivityId =IRD.PostCRActivityId
+							,ActivityCode =A.Code
+							,ActivityName =A.UserName
+							,SUM(ISNULL(PGD.TransactionAmount,0)) Dr
+							,0 Cr
+							,SUM(ISNULL(PGD.TransactionAmount,0)) Amount
+						FROM dbo.PostGRNInvoiceDetail PGD 
+						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.Id=PGD.InventoryReceiveDetailId
+						LEFT JOIN dbo.PostGRNInvoice PGI ON PGI.Id=PGD.PostGRNInvoiceId
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON IRD.PostCRGLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON IRD.PostCRBudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON IRD.PostCRActivityId= A.Id
+						WHERE PGD.PostGRNInvoiceId=@receiveId
+						GROUP BY IRD.PostCRGLGeneralInfoId ,GL.AccountCode ,GL.UserName ,IRD.PostCRBudgetMasterId ,B.Code
+							,B.UserName ,IRD.PostCRActivityId ,A.Code ,A.UserName
+						
+						UNION ALL
+
+                        SELECT distinct 'Vendor' AS OtherName, 'Cr' AS TrnType ,MM.MaterialGroupMasterId, NULL AS TaxCategoryId
+                            ,GLGeneralInfoId= MGPGL.GLGeneralInfoId
+							,GLGeneralInfoCode =GL.AccountCode
+							,GLGeneralInfoName = GL.UserName
+							,BudgetMasterId =MGPGL.BudgetMasterId
+							,BudgetCode =B.Code
+							,BudgetName =B.UserName
+							,ActivityId =MGPGL.ActivityId
+							,ActivityCode =A.Code
+							,ActivityName =A.UserName
+							,0 Dr
+							,SUM(ISNULL(PGD.TransactionAmount,0)) Cr
+							,SUM(ISNULL(PGD.TransactionAmount,0)) Amount
+							
+						FROM dbo.PostGRNInvoiceDetail PGD 
+						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.Id=PGD.InventoryReceiveDetailId
+						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+						LEFT JOIN dbo.PostGRNInvoice PGI ON PGI.Id=PGD.PostGRNInvoiceId
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Vendor')AS CP ON IR.PartyId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+						WHERE PGD.PostGRNInvoiceId=@receiveId
+						GROUP BY MGPGL.GLGeneralInfoId ,GL.AccountCode ,GL.UserName ,MGPGL.BudgetMasterId ,B.Code
+							,B.UserName ,MGPGL.ActivityId ,A.Code ,A.UserName,MM.MaterialGroupMasterId";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
 			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+				throw ex;
 			}
 		}
-
 		#endregion Post Invoice
 
 	}

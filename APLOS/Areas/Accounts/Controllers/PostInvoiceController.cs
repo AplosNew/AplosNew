@@ -250,12 +250,18 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetPostableList()
+        public ActionResult GetPostableList(string id)
         {
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
-            return Json(_accountsInventoryPayableService.GetPostableList(), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInventoryPayableService.GetPostableList(id), JsonRequestBehavior.AllowGet);
         }
-
+        [HttpPost, Authorize]
+        public ActionResult GetPostableJVList(string id,string partyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetPostableJVList(identity.CompanyId, identity.PlantId, id,partyId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
     }

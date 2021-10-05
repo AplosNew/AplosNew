@@ -20,16 +20,14 @@ using System.Web.Script.Serialization;
 
 namespace Aplos.Areas.Attendances.Controllers
 {
-    public class OTLimitTransactionController : BaseController
+    public class OTLimitTransactionFromAppController : BaseController
     {
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        private readonly IOTManagementService _OTManagementService;
-        public OTLimitTransactionController(ISqlRepository sqlRepository, IOTManagementService OTManagementService)
+        public OTLimitTransactionFromAppController(ISqlRepository sqlRepository)
         {
             _sqlRepository = sqlRepository;
-            _OTManagementService = OTManagementService;
         }
         #endregion
 
@@ -135,8 +133,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @" SELECT  [CheckBoxSelect] = Convert(BIT, 'False'), apd.EmpSystemID
-                              ,SUM(apd.ProcessedOT) TotalOTHr
-                              ,FactorOT=SUM(apd.ProcessedOT)*" + FactorOT + @" --,dt.OriginalDayType
+                              ,SUM(OTFA.OThour) TotalOTHr
+                              ,FactorOT=SUM(OTFA.OThour)*" + FactorOT + @" --,dt.OriginalDayType
                               ,EI.EmployeeCode
                               ,EI.EmployeeName
                               ,format(EI.DOJ,'dd-MMM-yyyy') DOJ                            
@@ -155,7 +153,7 @@ namespace Aplos.Areas.Attendances.Controllers
                               --,LSG.UserName SalaryGrade ,s.UserName  Section,sb.UserName SubSection,IsExceptionOT
                              FROM  AttdnProcessData AS apd
                              INNER JOIN EmployeeInformation EI ON EI.SystemId = apd.EmpSystemID 
-                             --INNER JOIN OTfromApp OTFA  on OTFA.EmpSystemId=apd.EmpSystemID and OTFA.WorkDate=apd.WorkDate 
+                             INNER JOIN OTfromApp OTFA  on OTFA.EmpSystemId=apd.EmpSystemID and OTFA.WorkDate=apd.WorkDate 
 							 --LEFT JOIN DayType dt on dt.DayType=apd.DayStatus
                              --LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                              --LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -178,8 +176,8 @@ namespace Aplos.Areas.Attendances.Controllers
                              LEFT JOIN HourlyOT eot  on eot.EmpSystemId=apd.EmpSystemID and eot.WorkDate=apd.WorkDate 
                              ---LEFT JOIN (select IsExceptionOT=case when id is not null then 1 else 0 end ,EmpSystemId,WorkDate from ExceptionOTProcess) excot  on excot.EmpSystemId=apd.EmpSystemID and excot.WorkDate=apd.WorkDate 
                              WHERE apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  AND EI.PlantID='" + identity.PlantId + @"'                            
-                             AND  apd.IsOTEntitled=1 AND isnull(APD.IsOTComfirm,0)=0 AND ISNULL(apd.ProcessedOT,0)>0
-                             --AND apd.EmpSystemID IN (select distinct EmpSystemID from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
+                             AND  apd.IsOTEntitled=1 ---AND OTFA.IsConfirmed=0
+                             AND apd.EmpSystemID IN (select distinct EmpSystemID from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
 
                             GROUP BY apd.EmpSystemID 
                               ,EI.EmployeeCode
@@ -249,6 +247,12 @@ namespace Aplos.Areas.Attendances.Controllers
                 else
                     EmpSytemId = EmpSytemId + ",'" + item.ToString() + "'";
             }
+
+
+
+
+
+
 
 
             string sql2 = "SELECT * FROM OTLimitSetting WHERE Id='" + OTLimitSettingId + "'";
@@ -512,6 +516,197 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
 
+        [HttpPost, Authorize]
+        public ActionResult xSaveOTLimitOverlapData(string YearNo, string MonthNo, string OTLimitSettingId, string[] EmpSystemIds)
+        {
+            DataSet dsOTLimitSetting;
+            string OTLimit = string.Empty;
+            string FromDate = string.Empty;
+            string ToDate = string.Empty;
+            string EmpSytemId = string.Empty;
+            decimal MinOTLimitParDay = 0;
+            decimal MaxOTLimitParDay = 0;
+            decimal MaxOTLimitParWeek = 0;
+            decimal OTreductionFactor = 0;
+
+            List<OTLimitTransactionVM> oOTLimitTransaction = new List<OTLimitTransactionVM>();
+
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+
+            foreach (var item in EmpSystemIds)
+            {
+                if (EmpSytemId == "")
+                    EmpSytemId = "'" + item.ToString() + "'";
+                else
+                    EmpSytemId = EmpSytemId + ",'" + item.ToString() + "'";
+            }
+
+
+
+
+
+
+
+
+            string sql2 = "SELECT * FROM OTLimitSetting WHERE Id='" + OTLimitSettingId + "'";
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter(sql2, out dsOTLimitSetting, false, "1");
+            if (dsOTLimitSetting.Tables[0].Rows.Count > 0)
+            {
+                OTLimit = dsOTLimitSetting.Tables[0].Rows[0]["MinOTLimitParDay"].ToString();
+                //FromDate = dsOTLimitSetting.Tables[0].Rows[0]["FromDay"].ToString() + "-" + MonthNo + "-" + YearNo;
+                //ToDate = dsOTLimitSetting.Tables[0].Rows[0]["ToDay"].ToString() + "-" + MonthNo + "-" + YearNo;
+                string week = dsOTLimitSetting.Tables[0].Rows[0]["Week"].ToString();
+                if (week == "First Week")
+                {
+                    FromDate = "01-" + MonthNo + "-" + YearNo;
+                    ToDate = "07-" + MonthNo + "-" + YearNo;
+                }
+
+                if (week == "Second Week")
+                {
+                    FromDate = "08-" + MonthNo + "-" + YearNo;
+                    ToDate = "14-" + MonthNo + "-" + YearNo;
+                }
+                if (week == "Third Week")
+                {
+                    FromDate = "15-" + MonthNo + "-" + YearNo;
+                    ToDate = "21-" + MonthNo + "-" + YearNo;
+                }
+                if (week == "Last Week")
+                {
+                    FromDate = "22-" + MonthNo + "-" + YearNo;
+                    ToDate = Convert.ToDateTime("01-" + MonthNo + "-" + YearNo).AddMonths(1).AddDays(-1).ToString("dd-MMMM-yyyy");
+                }
+                MinOTLimitParDay = Convert.ToDecimal(dsOTLimitSetting.Tables[0].Rows[0]["MinOTLimitParDay"].ToString());
+                MaxOTLimitParDay = Convert.ToDecimal(dsOTLimitSetting.Tables[0].Rows[0]["MaxOTLimitParDay"].ToString());
+                MaxOTLimitParWeek = Convert.ToDecimal(dsOTLimitSetting.Tables[0].Rows[0]["MaxOTLimitParWeek"].ToString());
+                OTreductionFactor = Convert.ToDecimal(dsOTLimitSetting.Tables[0].Rows[0]["OTreductionFactor"].ToString());
+
+            }
+
+
+            DataSet dsOTDetails = null;
+            GetOTData(FromDate, ToDate, EmpSytemId, out dsOTDetails);
+
+
+
+
+            if (EmpSystemIds.Length > 0)
+            {
+                foreach (var item in EmpSystemIds)
+                {
+
+                    DataView dv = new DataView(dsOTDetails.Tables[0]);
+                    dv.RowFilter = "EmpSystemID='" + item + "'";
+                    //dv.Count
+                    if (dv.Count > 0)
+                    {
+
+                        decimal TotalWeeklyOT = 0;
+                        for (int i = 0; i < dv.Count; i++)
+                        {
+                            OTLimitTransactionVM o = new OTLimitTransactionVM();
+                            //string EmpSystemID = dv[i]["EmpSystemID"].ToString();
+                            decimal TotalOTHr = Convert.ToDecimal(dv[i]["TotalOTHr"].ToString());
+                            //string WorkDate = dv[i]["WorkDate"].ToString();
+                            //string ShiftName = dv[i]["ShiftName"].ToString();
+                            //string ShiftInTime = dv[i]["ShiftInTime"].ToString();
+                            //string ShiftOutTime = dv[i]["ShiftOutTime"].ToString();
+                            //string InTime = dv[i]["InTime"].ToString();
+                            //string OutTime = dv[i]["OutTime"].ToString();
+                            //string DayStatus = dv[i]["DayStatus"].ToString();
+                            decimal ExtraOT = 0;
+                            decimal NewOT = 0;
+
+
+
+
+
+                            decimal DailyOT = Convert.ToDecimal(dv[i]["TotalOTHr"]) * OTreductionFactor;
+                            string OriginalDayType = dv[i]["OriginalDayType"].ToString();
+
+
+                            decimal FirstSlabMin = Convert.ToDecimal(dv[i]["FirstSlabMin"]);
+
+
+                            if (dv[i]["OriginalDayType"].ToString().ToUpper() == "NW")
+                            //if (1==1)
+                            {
+                                if (DailyOT > 0)
+                                {
+
+
+                                    if (DailyOT >= MinOTLimitParDay)
+                                    {
+                                        ExtraOTCalculation(DailyOT, MaxOTLimitParWeek, MaxOTLimitParDay, ref TotalWeeklyOT, out NewOT, out ExtraOT);
+
+                                    }
+                                    else
+                                    {
+                                        NewOT = 0;
+                                        //ExtraOT = DailyOT;
+                                        ExtraOT = 0;
+                                    }
+
+
+                                }
+                                else// all r 0
+                                {
+                                    NewOT = 0;
+                                    ExtraOT = 0;
+                                }
+                                o.IsExtraOTOnly = false;
+                            }
+                            else//W and H
+                            {
+                                NewOT = 0;
+                                ExtraOT = DailyOT;
+                                o.IsExtraOTOnly = true;
+                            }
+
+
+                            o.EmpSystemId = dv[i]["EmpSystemID"].ToString();
+                            o.WorkDate = dv[i]["WorkDate"].ToString();
+                            o.ShiftInTime = dv[i]["ShiftInTime"].ToString();
+                            o.ShiftOutTime = dv[i]["ShiftOutTime"].ToString();
+                            o.InTime = dv[i]["InTime"].ToString();
+                            o.OutTime = dv[i]["OutTime"].ToString();
+                            o.DayStatus = dv[i]["DayStatus"].ToString();
+                            o.OriginalDayType = dv[i]["OriginalDayType"].ToString();
+                            o.ShiftName = dv[i]["ShiftName"].ToString();
+
+
+                            o.IsManualInTime = Convert.ToBoolean(dv[i]["IsManualInTime"].ToString());
+                            o.ManualInTime = dv[i]["ManualInTime"].ToString();
+                            o.IsManualOutTime = Convert.ToBoolean(dv[i]["IsManualOutTime"].ToString());
+                            o.ManualOutTime = dv[i]["ManualOutTime"].ToString();
+
+
+                            o.TotalOT = DailyOT;
+                            o.OT = NewOT;
+                            o.ExtraOT = ExtraOT;
+                            oOTLimitTransaction.Add(o);
+
+
+
+
+
+                        }
+                    }
+                    dv.RowFilter = null;
+
+                }
+            }
+
+            SaveDataWithOTConfirmed(oOTLimitTransaction, EmpSytemId, FromDate, ToDate);
+            return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+        }
+
+
 
 
 
@@ -611,7 +806,7 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
                 strSql = @"SELECT  apd.EmpSystemID
-                           ,APD.ProcessedOT TotalOTHr
+                           ,OTFA.OThour TotalOTHr
                            ,FORMAT(apd.WorkDate, 'dd-MMM-yyyy') WorkDate
                            ,sd.UserName ShiftName
                            ,FORMAT(sd.InTime, 'hh:mm tt') ShiftInTime
@@ -626,8 +821,8 @@ namespace Aplos.Areas.Attendances.Controllers
                            ---,FirstSlabMin= Isnull(pl.firstSlab,0)*60 
                            ,Isnull(excot.IsExceptionOT,0) IsExceptionOT
                            FROM  AttdnProcessData AS apd
-                           --INNER JOIN OTfromApp OTFA  on OTFA.EmpSystemId=apd.EmpSystemID and OTFA.WorkDate=apd.WorkDate 
-                           LEFT JOIN EmployeeInformation EI ON EI.SystemId = APD.EmpSystemID 
+                           INNER JOIN OTfromApp OTFA  on OTFA.EmpSystemId=apd.EmpSystemID and OTFA.WorkDate=apd.WorkDate 
+                           LEFT JOIN EmployeeInformation EI ON EI.SystemId = OTFA.EmpSystemID 
                            LEFT JOIN ShiftDefination AS sd ON sd.SystemID=apd.ShiftSystemID 
                            LEFT JOIN DayType dt on dt.DayType=apd.DayStatus
                            LEFT JOIN (select IsExceptionOT=case when id is not null then 1 else 0 end ,EmpSystemId,WorkDate from ExceptionOTProcess) excot  on excot.EmpSystemId=apd.EmpSystemID and excot.WorkDate=apd.WorkDate 
@@ -635,10 +830,10 @@ namespace Aplos.Areas.Attendances.Controllers
                            ---LEFT JOIN OTSlabDefineGeneral pl ON pl.DayType = dt.OriginalDayType                        
 															---AND apd.WorkDate BETWEEN pl.FromDate AND pl.ToDate AND pl.PlantID=EI.PlantID
                            WHERE apd.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and isnull(apd.EmpSystemID,'') IN ( " + EmpSystemId + @" )                                                 
-                           AND apd.IsOTEntitled=1 AND isnull(APD.ProcessedOT,0)>0 --AND isnull(APD.IsOTComfirm,0)=0 ---AND OTFA.IsConfirmed=0
-                           --AND isnull(apd.EmpSystemID,'') IN (select distinct isnull(EmpSystemID,'') from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
+                           AND apd.IsOTEntitled=1 ---AND OTFA.IsConfirmed=0
+                           AND isnull(apd.EmpSystemID,'') IN (select distinct isnull(EmpSystemID,'') from OTfromApp where IsConfirmed=0 and WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' )
                                
-                           ORDER BY apd.EmpSystemID ,APD.ProcessedOT desc";
+                           ORDER BY apd.EmpSystemID ,OTFA.OThour desc";
 
                 ConnectionManager.clsConnection _con = new ConnectionManager.clsConnection();
                 _con.getDataSet(strSql, out dsRef);
@@ -693,6 +888,8 @@ namespace Aplos.Areas.Attendances.Controllers
                 DataView DvMaster = new DataView(dsManualAttanData.Tables[0]);
                 DataView DvHourlyOTData = new DataView(dsHourlyOTData.Tables[0]);
                 Random rnd = new Random((int)DateTime.Now.Ticks);
+
+                string sID = string.Empty;
                 for (int i = 0; i < AttendanceProcessData.Count; i++)
                 {
 
@@ -768,11 +965,14 @@ namespace Aplos.Areas.Attendances.Controllers
                     DvHourlyOTData.RowFilter = "EmpSystemID='" + AttendanceProcessData[i].EmpSystemId + "' AND WorkDate='" + AttendanceProcessData[i].WorkDate + "'";
                     if (DvHourlyOTData.Count == 0)
                     {
-                        string sID = string.Empty;
-                        bplib.clsGenID objGenID = new bplib.clsGenID();
-                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "HourlyOT", out sID);
+                        if (string.IsNullOrEmpty(sID))
+                        {
+                            bplib.clsGenID objGenID = new bplib.clsGenID();
+                            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "HourlyOT", out sID);
+                            sID = "OX" + sID;
+                        }
                         DataRow dr = dsHourlyOTData.Tables[0].NewRow();
-                        dr["Id"] = "OLEO" + sID;
+                        dr["Id"] = sID + "-" + (i + 1).ToString();
                         dr["EmpSystemId"] = AttendanceProcessData[i].EmpSystemId;
                         //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
                         dr["FromDate"] = RandomOutTime;
@@ -871,10 +1071,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
             //return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
-        private string constructKey(string EmpSystemID, string WorkDate)
-        {
-            return EmpSystemID + "-" + Convert.ToDateTime(WorkDate).ToString("dd-MMM-yyyy");
-        }
+
         public void SaveDataWithOTConfirmed(List<OTLimitTransactionVM> OTLimitTransactionData, string EmpSytemId, string FromDate, string ToDate)
         {
             clsStaticInfo objStatic = null;
@@ -888,10 +1085,16 @@ namespace Aplos.Areas.Attendances.Controllers
 
             DataSet dsFinalOT = null;
             DataRow drFinalOT = null;
-       
+            DataTable dtFinalOT = null;
+            DataView dvFinalOT = null;
+
             DataSet dsAttProc = null;
             DataRow drAttProc = null;
-     
+            DataTable dtAttProc = null;
+            DataView dvAttProc = null;
+
+
+
 
             AttendanceProcessAplos objAttdnProc;
             objAttdnProc = new AttendanceProcessAplos();
@@ -935,9 +1138,20 @@ namespace Aplos.Areas.Attendances.Controllers
 
             }
 
+
+
+
+
+
+
+
+
+
+
+
             DataSet dsManualAttanData = null;
             DataSet dsHourlyOTData = null;
-            //DataSet dsOTfromAppData = null;
+            DataSet dsOTfromAppData = null;
 
             ConnectionManager.DAL.ConManager objCon;
             try
@@ -954,57 +1168,50 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 Delete(EmpSytemId, FromDate, ToDate);
 
+                string sql = "SELECT * FROM [dbo].[AttdnManualData] WHERE EmpSystemID IN (" + EmpSytemId + ") AND WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsManualAttanData, false, "1");
+
                 string sql1 = "SELECT * FROM [dbo].[HourlyOT] WHERE EmpSystemID IN (" + EmpSytemId + ") AND WorkDate  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql1, out dsHourlyOTData, false, "1");
 
-                Dictionary<string, DataRow> dicHourlyOTData = new Dictionary<string, DataRow>();
-                for (int i = 0; i < dsHourlyOTData.Tables[0].Rows.Count; i++)
-                {
-                    string Key = constructKey(dsHourlyOTData.Tables[0].Rows[i]["EmpSystemID"].ToString(), dsHourlyOTData.Tables[0].Rows[i]["WorkDate"].ToString());
-                    if (dicHourlyOTData.ContainsKey(Key) == false)
-                        dicHourlyOTData.Add(Key, dsHourlyOTData.Tables[0].Rows[i]);
-                }
 
 
 
                 string sqlAttProc = "SELECT * FROM [dbo].[AttdnProcessData] WHERE EmpSystemID IN (" + EmpSytemId + ") AND WorkDate  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqlAttProc, out dsAttProc, false, "1");
-                Dictionary<string, DataRow> dicAttProc = new Dictionary<string, DataRow>();
-                for (int i = 0; i < dsAttProc.Tables[0].Rows.Count; i++)
-                {
-
-
-                    string Key = constructKey(dsAttProc.Tables[0].Rows[i]["EmpSystemID"].ToString(), dsAttProc.Tables[0].Rows[i]["WorkDate"].ToString());
-                    if (dicAttProc.ContainsKey(Key) == false)
-                        dicAttProc.Add(Key, dsAttProc.Tables[0].Rows[i]);
-
-                    dsAttProc.Tables[0].Rows[i].BeginEdit();
-                    dsAttProc.Tables[0].Rows[i]["IsOTComfirm"] = true;
-                    dsAttProc.Tables[0].Rows[i].EndEdit();
-
-                }
 
 
                 string sqlFinalOT = "SELECT * FROM [dbo].[FinalOT] WHERE EmpSystemID IN (" + EmpSytemId + ") AND WorkDate  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqlFinalOT, out dsFinalOT, false, "1");
 
-                Dictionary<string, DataRow> dicFinalOT = new Dictionary<string, DataRow>();
-                for (int i = 0; i < dsFinalOT.Tables[0].Rows.Count; i++)
-                {
-                    string Key = constructKey(dsFinalOT.Tables[0].Rows[i]["EmpSystemID"].ToString(), dsFinalOT.Tables[0].Rows[i]["WorkDate"].ToString());
-                    if (dicFinalOT.ContainsKey(Key) == false)
-                        dicFinalOT.Add(Key, dsFinalOT.Tables[0].Rows[i]);
-                }
 
-                string sID = string.Empty;
+                string sqlOTfromApp = "SELECT * FROM [dbo].[OTfromApp] WHERE EmpSystemID IN (" + EmpSytemId + ") AND WorkDate  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlOTfromApp, out dsOTfromAppData, false, "1");
+
+
+
+
+                //objAttdnManOT.GetFinalOT(identity.CompanyGroupId, identity.PlantId, lblEmpSysIDForAttdSummry, ProcDate, out dsFinalOT);
+                dtFinalOT = dsFinalOT.Tables[0];
+                dvFinalOT = new DataView();
+
+                //objAttdnManOT.GetAttdnProcessData(identity.CompanyGroupId, identity.PlantId, lblEmpSysIDForAttdSummry.Trim(), ProcDate, out dsAttProc);
+                dtAttProc = dsAttProc.Tables[0];
+                dvAttProc = new DataView();
+
+                DataView DvOTfromAppData = new DataView(dsOTfromAppData.Tables[0]);
+                DataView DvManualAttanData = new DataView(dsManualAttanData.Tables[0]);
+                DataView DvHourlyOTData = new DataView(dsHourlyOTData.Tables[0]);
                 Random rnd = new Random((int)DateTime.Now.Ticks);
                 for (int i = 0; i < OTLimitTransactionData.Count; i++)
                 {
 
-                    string Key = constructKey(OTLimitTransactionData[i].EmpSystemId, OTLimitTransactionData[i].WorkDate);
+
 
                     string JoinDT = string.Empty;
                     string Date = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate).ToString("dd-MMM-yyyy");
@@ -1039,14 +1246,52 @@ namespace Aplos.Areas.Attendances.Controllers
                     DateTime d2 = Convert.ToDateTime(RandomOutTime);
                     DateTime ExtraOTOutTime = d2.AddMinutes(Convert.ToInt32(OTLimitTransactionData[i].ExtraOT));
 
-                  
+                    //if (OTLimitTransactionData[i].OriginalDayType.ToString().ToUpper() == "NW")
                     if (OTLimitTransactionData[i].IsExtraOTOnly == false)
                     {
-                        #region Final OT
-                 
-                        if (dicFinalOT.ContainsKey(Key))
+
+                        #region Manual Attendance 
+                        //Manual Attendance 
+                        DvManualAttanData.RowFilter = "EmpSystemID='" + OTLimitTransactionData[i].EmpSystemId + "' AND WorkDate='" + OTLimitTransactionData[i].WorkDate + "'";
+                        if (DvManualAttanData.Count == 0)
                         {
-                            drFinalOT = dicFinalOT[Key];// dvFinalOT[0].Row;
+
+                            DataRow dr = dsManualAttanData.Tables[0].NewRow();
+                            dr["EmpSystemID"] = OTLimitTransactionData[i].EmpSystemId;
+                            dr["WorkDate"] = Convert.ToDateTime(OTLimitTransactionData[i].WorkDate);
+                            dr["GroupID"] = identity.CompanyGroupId;
+                            //dr["PlantID"] = identity.PlantId;
+                            dr["EntryFlag"] = "OTLIMIT";
+                            //dr["OutTime"] = AttendanceProcessData[i].NewOutTime;
+                            dr["OutTime"] = Convert.ToDateTime(RandomOutTime);
+                            dr["AddedBy"] = identity.Name;
+                            dr["DateAdded"] = DateTime.Now;
+
+                            dsManualAttanData.Tables[0].Rows.Add(dr);
+
+                        }
+                        else
+                        {
+                            DataRow dr = DvManualAttanData[0].Row;
+                            dr.BeginEdit();
+                            dr["EntryFlag"] = "OTLIMIT";
+                            //dr["OutTime"] = AttendanceProcessData[i].NewOutTime;
+                            dr["OutTime"] = Convert.ToDateTime(RandomOutTime);
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["DateUpdated"] = System.DateTime.Now.ToString();
+                            dr.EndEdit();
+
+                        }
+                        DvManualAttanData.RowFilter = null;
+                        #endregion
+
+
+                        #region Final OT
+                        dvFinalOT.Table = dtFinalOT;
+                        dvFinalOT.RowFilter = "EmpSystemID = '" + OTLimitTransactionData[i].EmpSystemId + "' AND WorkDate='" + OTLimitTransactionData[i].WorkDate + "'";
+                        if (dvFinalOT.Count > 0)
+                        {
+                            drFinalOT = dvFinalOT[0].Row;
                             drFinalOT.BeginEdit();
 
                             drFinalOT["OTDayType"] = OTLimitTransactionData[i].OriginalDayType;//////
@@ -1083,19 +1328,20 @@ namespace Aplos.Areas.Attendances.Controllers
                             dsFinalOT.Tables[0].Rows.Add(drFinalOT);
                         }
 
-
+                        dvFinalOT.RowFilter = null;
                         #endregion
 
 
                         #region Attdn Proc
-                        if (dicAttProc.ContainsKey(Key))
+                        dvAttProc.Table = dtAttProc;
+                        dvAttProc.RowFilter = "EmpSystemID = '" + OTLimitTransactionData[i].EmpSystemId + "' AND WorkDate='" + OTLimitTransactionData[i].WorkDate + "'";
+                        if (dvAttProc.Count > 0)
                         {
-                            drAttProc = dicAttProc[Key];// dvAttProc[0].Row;
+                            drAttProc = dvAttProc[0].Row;
                             drAttProc.BeginEdit();
 
-                            drAttProc["OutTime"] = Convert.ToDateTime(RandomOutTime);
                             drAttProc["IsManualOutTime"] = true;
-                            drAttProc["ManualOutTime"] = Convert.ToDateTime(RandomOutTime);
+                            drAttProc["OutTime"] = Convert.ToDateTime(RandomOutTime);
                             drAttProc["OTHr"] = Convert.ToDecimal(OTLimitTransactionData[i].OT);
 
                             drAttProc["IsOTComfirm"] = true;
@@ -1106,7 +1352,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             drAttProc.EndEdit();
                         }
 
-     
+                        dvAttProc.RowFilter = null;
                         #endregion
                     }
 
@@ -1114,16 +1360,14 @@ namespace Aplos.Areas.Attendances.Controllers
                     #region Extra OT                   
 
 
-                    if (dicHourlyOTData.ContainsKey(Key) == false)
+                    DvHourlyOTData.RowFilter = "EmpSystemID='" + OTLimitTransactionData[i].EmpSystemId + "' AND WorkDate='" + OTLimitTransactionData[i].WorkDate + "'";
+                    if (DvHourlyOTData.Count == 0)
                     {
-                        if (string.IsNullOrEmpty(sID))
-                        {
-                            bplib.clsGenID objGenID = new bplib.clsGenID();
-                            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "HourlyOT", out sID);
-                            sID = "OX" + sID;
-                        }
+                        string sID = string.Empty;
+                        bplib.clsGenID objGenID = new bplib.clsGenID();
+                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "HourlyOT", out sID);
                         DataRow dr = dsHourlyOTData.Tables[0].NewRow();
-                        dr["Id"] = sID + "-" + (i + 1).ToString();
+                        dr["Id"] = "OLEO" + sID;
                         dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
                         //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
                         dr["FromDate"] = RandomOutTime;
@@ -1156,7 +1400,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     else
                     {
-                        DataRow dr = dicHourlyOTData[Key];// DvHourlyOTData[0].Row;
+                        DataRow dr = DvHourlyOTData[0].Row;
                         dr.BeginEdit();
                         dr["EmpSystemId"] = OTLimitTransactionData[i].EmpSystemId;
                         //dr["FromDate"] = AttendanceProcessData[i].ExtraOTInTime;
@@ -1181,12 +1425,46 @@ namespace Aplos.Areas.Attendances.Controllers
                         dr["OTType"] = "OTLIMIT";
                         dr.EndEdit();
                     }
+                    DvHourlyOTData.RowFilter = null;
+
+
+
+
+
+
+
 
                     #endregion
+
+
+                    #region OT From App
+                    DvOTfromAppData.RowFilter = "EmpSystemID = '" + OTLimitTransactionData[i].EmpSystemId + "' AND WorkDate='" + OTLimitTransactionData[i].WorkDate + "'";
+                    if (DvOTfromAppData.Count > 0)
+                    {
+                        DataRow dr = DvOTfromAppData[0].Row;
+                        dr.BeginEdit();
+                        dr["IsConfirmed"] = true;
+                        dr["UpdatedBy"] = bplib.clsWebLib.RetValidLen(identity.Name);
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr.EndEdit();
+                    }
+
+                    DvOTfromAppData.RowFilter = null;
+                    #endregion
+
+
+
+
                 }
 
                 clsStaticInfo objsave = new clsStaticInfo();
-                objsave.SaveDataSets(dsHourlyOTData, dsFinalOT, dsAttProc);
+                objsave.SaveDataSets(dsManualAttanData, dsHourlyOTData, dsFinalOT, dsAttProc, dsOTfromAppData);
+
+
+
+
+
+
 
             }
             catch (Exception ex)
@@ -3348,35 +3626,4 @@ namespace Aplos.Areas.Attendances.Controllers
     }
 
 
-    public class OTLimitTransactionVM
-    {
-
-        public string WorkDate { get; set; }
-        public string ShiftName { get; set; }
-        public string ShiftInTime { get; set; }
-        public string ShiftOutTime { get; set; }
-        public string InTime { get; set; }
-        public string OutTime { get; set; }
-        public string DayStatus { get; set; }
-        public decimal TotalOT { get; set; }
-        public decimal OT { get; set; }
-        public decimal ExtraOT { get; set; }
-        public string EmpSystemId { get; set; }
-        public bool IsManualInTime { get; set; }
-        public string ManualInTime { get; set; }
-        public bool IsManualOutTime { get; set; }
-        public string ManualOutTime { get; set; }
-        public string OriginalDayType { get; set; }
-        public bool IsExtraOTOnly { get; set; }
-        public decimal FirstSlabMin { get; set; }
-
-
-
-    }
-    public class OTLimitCalVM
-    {
-        public decimal TotalOT { get; set; }
-        public decimal OT { get; set; }
-        public decimal ExtraOT { get; set; }
-    }
 }
