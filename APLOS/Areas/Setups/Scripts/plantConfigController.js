@@ -179,7 +179,7 @@ function PlantConfigController(cboService, commonMessage, $scope, $rootScope, ba
                 params: { Id: $scope.plantConfig.Id, CompanyGroupId: $scope.plantConfig.CompanyGroupId, CompanyId: $scope.plantConfig.CompanyId, PlantId: $scope.plantConfig.PlantId }
             }).then(function successCallback(response) {
                 try {
-                    if (baseService.arrayLength(response.data.dData) > 0) throw "Can not Save. Data already Exist with this plant...";
+                   if (baseService.arrayLength(response.data.dData) > 0) throw "Can not Save. Data already Exist with this plant...";
                     //End Validation
                     $http({
                         method: 'POST',

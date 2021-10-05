@@ -83,19 +83,51 @@
         <div class="col-md-12">
             <label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated. </span></label>
             <div class="form-elements form-horizontal" ng-form id="FabricRoll">
-                <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNList"
+                <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList"
                      e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-                     e-filtersettings-filterType="excel" e-enabletouch="false"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
                      e-allowselection="false">
                     <div e-columns>
-                        <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="150"></div>
-                        <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="80"></div>
-                        <div e-column e-type="string" e-field="POID" e-headertext="PO ID" e-width="120"></div>
-                        <div e-column e-type="string" e-field="PartyName" e-headertext="Party" e-width="120"></div>
-                        <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="80"></div>
-                        <div e-column e-type="number" e-field="TotalDetailQty" e-textalign="right" e-format="{0:N2}" e-headertext="Qty" e-width="100"></div>
-                        <div e-column e-type="number" e-field="TotalDetailAmount" e-textalign="right" e-headertext="Amount" e-width="50"></div>
-                        <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                        <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="100"></div>
+                        <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="120"></div>
+                        <div e-column e-type="string" e-field="POId" e-headertext="PO ID" e-width="100"></div>
+                        <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="120"></div>
+                        <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="120"></div>
+                        <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Qty" e-width="80"></div>
+                        <div e-column e-type="number" e-field="TransactionAmount" e-textalign="right" e-format="{0:N2}" e-headertext="Amount" e-width="100"></div>
+                        <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+
+                        <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
+                        <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
+                        <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                        <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
+                        @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
+                            <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
+                        <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="ContractNo" e-headertext="Contract No." e-width="100"></div>
+                        <div e-column e-field="LCANo" e-headertext="LC Ref No." e-width="100"></div>
+                        <div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="120"></div>
+                        <div e-column e-field="UDNo" e-headertext="UD" e-width="80"></div>
+                        <div e-column e-field="OpeningBank" e-headertext="OpeningBank" e-width="100"></div>
+
+                        <div e-column e-field="AcceptanceNo" e-headertext="Aceptance No." e-width="110"></div>
+                        <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="100"></div>
+
+                        <div e-column e-field="DocRefNo" e-headertext="Vendor Doc No." e-width="150"></div>
+                        <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="150"></div>
+                        <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="CheckedBy" e-headertext=" Checked By" e-width="150"></div>
+                        <div e-column e-field="ApprovedBy" e-headertext=" To Be Approved By" e-width="150"></div>
+                        <div e-column e-field="GRNType" e-headertext="GRN Type" e-width="100"></div>
+                        <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " @*textAlign='Right'*@ e-width="150"></div>
+                        <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " @*textAlign='Right'*@ e-width="150"></div>
+                        <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" @*textAlign='Right'*@ e-width="150"></div>
+                        <div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" @*textAlign='Right'*@ e-width="150"></div>
                     </div>
                 </div>
             </div>

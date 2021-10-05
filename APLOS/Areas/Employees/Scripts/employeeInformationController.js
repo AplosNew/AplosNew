@@ -990,6 +990,9 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
         $scope.employeeInformation = obj.data;
         $scope.imageSrc = virtualPath.EmployeePic + $scope.employeeInformation.EmpPicPath;
+        console.log('virtualPath.EmployeePic', virtualPath.EmployeePic);
+        console.log('$scope.employeeInformation.EmpPicPath', $scope.employeeInformation.EmpPicPath);
+        console.log(' $scope.imageSrc', $scope.imageSrc);
         $scope.EmpSignature = virtualPath.CardHolderSignature + $scope.employeeInformation.EmpSignature;
         $rootScope.img = $scope.employeeInformation.EmpPicPath;
         $scope.user = $scope.employeeInformation.SystemId;
