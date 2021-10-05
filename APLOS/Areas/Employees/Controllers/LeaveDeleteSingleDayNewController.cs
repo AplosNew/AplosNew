@@ -137,10 +137,7 @@ namespace Aplos.Areas.Employees.Controllers
                 
                 clsLeaveInfo p = new clsLeaveInfo();
                 p.DeleteLeave(ID, Update, _isFromDate, _isToDate, _fd.ToString("dd-MMM-yyyy"),_td.ToString("dd-MMM-yyyy"));
-                //string strSQL = string.Empty;
-                //clsAttendance.AttendanceProcessAplos objAttdn = new clsAttendance.AttendanceProcessAplos();
-                //objAttdn.SaveTotal(identity.PlantId, workdate, EmpId, false);
-
+                
                 var sqls = @"Update AttdnProcessData SET LeaveStatus=null , LTSystemID=null , ManualFlag=1 , IsLock=0 , LockedBy=null , LockedDate=null where EmpSystemID= '" + EmpId+@"' and WorkDate = '"+_wd+"' " ;
 
                 ConnectionManager.DAL.ConManager objCone = null;
