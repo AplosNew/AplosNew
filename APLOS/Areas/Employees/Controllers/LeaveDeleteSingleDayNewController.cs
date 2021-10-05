@@ -64,7 +64,7 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsLeaveInfo ep = new clsLeaveInfo();
-                return Json(ep.GetGeneral(id, EmpSystemid), JsonRequestBehavior.AllowGet);
+                return Json(ep.GetGeneralNew(id, EmpSystemid), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -79,7 +79,7 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsLeaveInfo ep = new clsLeaveInfo();
-                return Json(ep.GetEmpLeaveListForSingleDelete( identity.CompanyGroupId, identity.CompanyId, identity.PlantId, EmpsystemId, yearNo), JsonRequestBehavior.AllowGet);
+                return Json(ep.GetEmpLeaveListForSingleDeleteNew( identity.CompanyGroupId, identity.CompanyId, identity.PlantId, EmpsystemId, yearNo), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
