@@ -1,11 +1,11 @@
 ﻿'use strict';
 LeaveDeleteSingleDayNewController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
 function LeaveDeleteSingleDayNewController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
-    $rootScope.title = 'Leave Delete Single Day';
+    $rootScope.title = 'Leave Delete Single Day New';
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.LeaveTransactionList = [];
-    $scope.path = 'Employees/LeaveDeleteSingleDay/';
+    $scope.path = 'Employees/LeaveDeleteSingleDayNew/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
     $scope.updateUrl = $scope.path + 'edit';
@@ -60,7 +60,7 @@ function LeaveDeleteSingleDayNewController(commonMessage, $scope, $rootScope, ba
 
     $scope.leaveYearlist = [];
     $scope.getLeaveYear = function () {
-        $http.get('Employees/LeaveDeleteSingleDay/LoadYearlyCalendar')
+        $http.get('Employees/LeaveDeleteSingleDayNew/LoadYearlyCalendar')
             .then(function (response) {
                 $scope.leaveYearlist = response.data;
             });
@@ -68,7 +68,7 @@ function LeaveDeleteSingleDayNewController(commonMessage, $scope, $rootScope, ba
     $scope.getLeaveYear();
     $scope.YearNo = null;
     $scope.getLeaveBalance = function () {
-        $http.get('Employees/LeaveDeleteSingleDay/GetEmpLeaveBalance?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo)
+        $http.get('Employees/LeaveDeleteSingleDayNew/GetEmpLeaveBalance?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo)
             .then(function (response) {
                 $scope.LeaveBalanceList = response.data;
             });
@@ -121,7 +121,7 @@ function LeaveDeleteSingleDayNewController(commonMessage, $scope, $rootScope, ba
             $scope.Clear();
         }
         else {
-            $http.get('Employees/LeaveDeleteSingleDay/GetEmpLeaveListForSingleDelete?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&yearNo=' + $scope.YearNo)
+            $http.get('Employees/LeaveDeleteSingleDayNew/GetEmpLeaveListForSingleDelete?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&yearNo=' + $scope.YearNo)
                 .then(function (data) {
                     $scope.LeaveTransactionList = data.data;
                     //$scope.leaveParameters.total_count = data.Total;
