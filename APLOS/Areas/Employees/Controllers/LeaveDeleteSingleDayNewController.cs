@@ -103,7 +103,7 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteLeave(string ID, string Update, string EmpId,string workdate, string FromDate, string ToDate )
+        public ActionResult DeleteLeave(string ID, string Update, string EmpId, string workdate, string FromDate, string ToDate )
         {
             bool _isFromDate = false;
             bool _isToDate = false;
@@ -126,9 +126,19 @@ namespace Aplos.Areas.Employees.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsLeaveInfo p = new clsLeaveInfo();
                 p.DeleteLeave(ID, Update, _isFromDate, _isToDate, _fd.ToString("dd-MMM-yyyy"),_td.ToString("dd-MMM-yyyy"));
-                string strSQL = string.Empty;
-                clsAttendance.AttendanceProcessAplos objAttdn = new clsAttendance.AttendanceProcessAplos();
-                objAttdn.SaveTotal(identity.PlantId, workdate, EmpId, false);
+                //string strSQL = string.Empty;
+                //clsAttendance.AttendanceProcessAplos objAttdn = new clsAttendance.AttendanceProcessAplos();
+                //objAttdn.SaveTotal(identity.PlantId, workdate, EmpId, false);
+
+                var sqls = @"Update AttdnProcessData SET LeaveStatus=null , LTSystemID=null , ManualFlag=1 , IsLock=0 where EmpSystemID= '"+EmpId+@"' and WorkDate = '"+_wd+"' " ;
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sqls, true, "1");
+                objCone.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
