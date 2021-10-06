@@ -306,6 +306,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int iSubSection = 0;
                     int iDesig = 0;
                     int iTtlAPD = 0;
+                    int iWorkingCount = 0;
                     int cPayDays = 0;
                     int iTtlHD = 0;
                     int iTtlWO = 0;
@@ -327,6 +328,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                     #region ------------------Column Header------------------
 
                     #region ------------------Details Header-----------------
+
+
+                    #region Employee Values
 
                     xlsRow += 1;
 
@@ -469,6 +473,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     xlsRow++;
 
 
+                    #endregion
+
+                    #region Summary Region
+
                     if (withSummary)
                     {
                         xlsCol += 1;
@@ -478,6 +486,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet1.Range[xlsRow - 1, iTtlAPD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         sheet1.Range[xlsRow - 1, iTtlAPD].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet1.Range[xlsRow - 1, iTtlAPD, xlsRow, iTtlAPD].Merge();
+
+                        xlsCol += 1;
+                        iWorkingCount = xlsCol;
+                        sheet1.Range[xlsRow - 1, iWorkingCount].Text = "Working Days";
+                        sheet1.Range[xlsRow - 1, iWorkingCount].ColumnWidth = 6;
+                        sheet1.Range[xlsRow - 1, iWorkingCount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow - 1, iWorkingCount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow - 1, iWorkingCount, xlsRow, iWorkingCount].Merge();
+
 
                         xlsCol += 1;
                         cPayDays = xlsCol;
@@ -577,7 +594,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet1.Range[xlsRow - 1, iEarlyOut, xlsRow, iEarlyOut].Merge();
                     }
 
-                    //}
+                    #endregion
 
                     #endregion ------------------Details Header-------------------------
 
@@ -602,6 +619,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         xlsCol = 1;
 
                         #region ----------------------Data-----------------------
+
+                        #region Employee Data
                         strCount += 1;
                         sheet1.Range[xlsRow, iSrNo].Number = strCount;
                         sheet1.Range[xlsRow, iEmpCode].Text = dvMonthlyAttnSumm[i]["EmployeeCode"].ToString().Trim();
@@ -623,6 +642,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         xlsCol = iDesig;
                         string ecode = dvMonthlyAttnSumm[i]["EmployeeCode"].ToString().Trim();
                         string _SystemId = dvMonthlyAttnSumm[i]["EmployeePK"].ToString().Trim();
+
+                        #endregion
 
                         #region Attendance Data Plotting
                         try
@@ -749,8 +770,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.Range[xlsRow, iTtlAPD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlAPD].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                       
+                            sheet1.Range[xlsRow, iWorkingCount].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalActualDays"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iWorkingCount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iWorkingCount].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                          //  var DaysInaMonth = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim());
+
+                            //  var DaysInaMonth = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim());
                             var TotalAbsent = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim());
                             var TotalLWP = clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim());
                             //var DaysInaMonth = _ExtraAbsent;
@@ -1218,7 +1244,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 isnull(SUM(P.PresentValue),'0')TotalPresent,isnull(SUM(p.LateValue),'0')TotalLate,isnull(SUM(p.AbsentValue),'0')TotalAbsent
                 ,isnull(SUM(p.LvValue),'0')TotalLv,isnull(SUM(p.MLvValue),'0')TotalMlv,isnull(SUM(p.CompAssignLvValue),'0')TotalCompAssignLv,
                 isnull(SUM(p.WeekOffValue),'0')TotalWeekOff,isnull(SUM(p.HoliDayValue),'0')TotalHoliDay,isnull(SUM(p.WeekOffHoliDayValue),'0')TotalWeekOffHoliDay
-               ,isnull(SUM(p.LWPValue),'0')TotalLWP,isnull(SUM(p.PayDayValue),'0')TotalPayDay
+               ,isnull(SUM(p.LWPValue),'0')TotalLWP,isnull(SUM(p.PayDayValue),'0')TotalPayDay,isnull(SUM(p.ActualWorkingDayValue),'0')TotalActualDays
 			            from AttdnProcessData p
                         where isnull(p.DayStatus,'')!='' and WorkDate between '" + objm.FDate+@"'
 						 and '"+objm.TDate+@"' group BY EmpSystemID) as dd
@@ -1566,6 +1592,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int iSubSection = 0;
                     int iDesig = 0;
                     int iTtlAPD = 0;
+                    int iWorkingCount = 0;
                     int cPayDays = 0;
                     int iTtlHD = 0;
                     int iTtlWO = 0;
@@ -2313,7 +2340,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 isnull(SUM(P.PresentValue),'0')TotalPresent,isnull(SUM(p.LateValue),'0')TotalLate,isnull(SUM(p.AbsentValue),'0')TotalAbsent
                 ,isnull(SUM(p.LvValue),'0')TotalLv,isnull(SUM(p.MLvValue),'0')TotalMlv,isnull(SUM(p.CompAssignLvValue),'0')TotalCompAssignLv,
                 isnull(SUM(p.WeekOffValue),'0')TotalWeekOff,isnull(SUM(p.HoliDayValue),'0')TotalHoliDay,isnull(SUM(p.WeekOffHoliDayValue),'0')TotalWeekOffHoliDay
-               ,isnull(SUM(p.LWPValue),'0')TotalLWP,isnull(SUM(p.PayDayValue),'0')TotalPayDay
+               ,isnull(SUM(p.LWPValue),'0')TotalLWP,isnull(SUM(p.PayDayValue),'0')TotalPayDay,isnull(SUM(p.ActualWorkingDayValue),'0')TotalActualDays
 			            from AttdnProcessData p
                         where isnull(p.DayStatus,'')!='' and WorkDate between '" + objm.FDate + @"'
 						 and '" + objm.TDate + @"' group BY EmpSystemID) as dd
