@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using Aplos.Properties;
 using System.Data;
 using Library.Security.Core;
+using Library.ViewModel.Vouchers;
+using Library.Data;
+using System.Linq;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -262,6 +265,40 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             return Json(_accountsInventoryPayableService.GetPostableJVList(identity.CompanyId, identity.PlantId, id,partyId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult Postdata(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            //AccountingFinishGoodsService accountingFinishGoodsService = new AccountingFinishGoodsService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            if (voucherDetailVMList != null)
+            {
+                foreach (var item in voucherDetailVMList)
+                {
+                    if (item.GLGeneralInfoId == null)
+                        throw new CustomException("GL is Not Mapped !");
+                    if (item.BudgetMasterId == null)
+                        throw new CustomException("Budget is Not Mapped !");
+                    if (item.ActivityId == null)
+                        throw new CustomException("Activity is Not Mapped!");
+                }
+
+                if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+                    throw new CustomException("Dr Cr Amount not equal");
+            }
+            else
+                throw new CustomException("No Journal");
+
+            return Json(new
+            {
+                //Message = string.Format(AplosMessage.VoucherSave, accountingFinishGoodsService.InsertFinishGoodsBookingPosting(voucherVM, voucherDetailVMList))
+            });
+
+        }
+
         #endregion
 
     }

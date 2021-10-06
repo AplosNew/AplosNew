@@ -6,6 +6,7 @@ using Library.Data.Sql;
 using Library.Model.Currencies;
 using Library.Model.Employees;
 using Library.Model.FixedAssets;
+using Library.Model.Invoices;
 using Library.Model.Organizations;
 using Library.Model.Vouchers;
 using Library.Service.Core;
@@ -314,7 +315,7 @@ namespace Library.Accounting.Accounts
         {
             return InsertVoucher(voucher, fiscalYearPrefix, true, out dsData);
         }
-
+ 
         public Voucher InsertVoucher(Voucher voucher, string fiscalYearPrefix, bool flag, out DataSet dsData)
         {
 
@@ -499,11 +500,49 @@ namespace Library.Accounting.Accounts
             con.getDataSet("Select * from TRN.GLTransactionDetail where 1=2", out glTransactionData);
             AddNewRow<GLTransactionDetail>(glTransactionData.Tables[0], glTransactionDetail);
         }
+
         public decimal GetCompanyCurrencyExchange(string transactionCurrencyId, string companyCurrencyId, decimal companyCurrencyRate)
         {
             return transactionCurrencyId == companyCurrencyId ? (decimal)1 : 1 / companyCurrencyRate;
         }
 
+        #region Invoice
+        public Invoice InsertInvoice(Invoice invoice, out DataSet dsData)
+        {
+            return InsertInvoice(invoice, true, out dsData);
+        }
+        public Invoice InsertInvoice(Invoice invoice, bool flag, out DataSet dsData)
+        {
+            invoice.Id = GetAutoNumber(nameof(Invoice), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            invoice.Narration = invoice.Narration?.ToUpper();
+            if (string.IsNullOrEmpty(invoice.AddedBy))
+                AuditService.AddedLog(invoice);
+
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.Invoice where 1=2", out dsData);
+
+            AddNewRow<Invoice>(dsData.Tables[0], invoice);
+
+            return invoice;
+        }
+        public InvoiceDetail InsertInvoiceDetail(Invoice invoice, InvoiceDetail invoiceDetail, int currentId, ref DataSet vDetailData)
+        {
+            invoiceDetail.Id = "IND" + MakePK(invoice.Id, currentId, 1);
+            invoiceDetail.InvoiceId = invoice.Id;
+            invoiceDetail.Archive = invoice.Archive;
+            invoiceDetail.AddedBy = invoice.AddedBy;
+            invoiceDetail.AddedDate = invoice.AddedDate;
+            invoiceDetail.AddedFromIP = invoice.AddedFromIP;
+            if (vDetailData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.InvoiceDetail where 1=2", out vDetailData);
+            }
+
+            AddNewRow<InvoiceDetail>(vDetailData.Tables[0], invoiceDetail);
+            return invoiceDetail;
+        }
+        #endregion
 
         public GridModel GetVoucherListForCashCheckPrinting(GridParameter parameters)
 
