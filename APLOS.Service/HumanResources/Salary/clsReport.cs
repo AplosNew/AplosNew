@@ -1522,10 +1522,10 @@ namespace OTSBD
                                 LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
                                 LEFT JOIN DayType dt on dt.Daytype=AR.DayStatus
                             
-							inner join OTSlabDefineGeneral g on 
-							'" + ToDate + @"' between g.FromDate and g.ToDate 
-							and g.PlantID=ar.PlantID 
-							and g.DayType=dt.OriginalDayType
+							--inner join OTSlabDefineGeneral g on 
+							--'" + ToDate + @"' between g.FromDate and g.ToDate 
+							--and g.PlantID=ar.PlantID 
+							--and g.DayType=dt.OriginalDayType
 
                                 left join AttendanceInfoExtra LO on LO.EmpSystemId=e.SystemId and LO.WorkDate=ar.WorkDate and LO.InfoType='LUNCHOUT'
 								left join AttendanceInfoExtra EO on EO.EmpSystemId=e.SystemId and EO.WorkDate=ar.WorkDate and EO.InfoType='EARLYOUT'
