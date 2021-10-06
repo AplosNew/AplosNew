@@ -24667,6 +24667,145 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
 		#endregion
 
+		#region FG Grn register 
+		public void FGInventoryReceive(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId)
+		{
+
+			var fileName = "";
+			var strPath = "";
+
+			var File = "";
+
+			ReportUtility ru = new ReportUtility();
+
+			//tempId = dtLangName.Rows[0]["UserName"].ToString();
+			fileName = "FGGRNRegisterReport" + plantId + ".docx";
+			strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+			File = strPath;
+			if (!System.IO.File.Exists(strPath))
+			{
+				throw new CustomException("File <" + fileName + "> Not Found.");
+			}
+
+			//makeDictionary();
+			////A opens input document.
+			WordDocument document = new WordDocument(File, FormatType.Docx);
+			//Gets the paragraph at index 1
+			try
+			{
+				WSection section = document.Sections[0];
+
+				DataTable dtOrderMaster;
+
+
+				dtOrderMaster = loadGRNMaterialMaster(grnId);
+
+
+				var invoicePartyAddress = ru.GetAddress(dtOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dtOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
+				document.Replace("{InvoicingPartyAddress}", invoicePartyAddress, false, false);
+
+				var vendorPartyAddress = ru.GetAddress(dtOrderMaster.Rows[0]["VendorAddressMasterId"].ToString(), "");
+				document.Replace("{VendorAddress}", vendorPartyAddress, false, false);
+
+				Dictionary<string, string> columns = new Dictionary<string, string>();
+
+				var poApprovedStatus = "";
+				foreach (DataColumn item in dtOrderMaster.Columns)
+					columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+				var dsServiceItems = loadGRNServiceMaster(grnId);
+				var materialTotal = makeOrderDetailsTable(document, dtOrderMaster, grnId);//Material Details 
+				var dsInventoryReceiveAdditionalTax = loadInventoryReceiveAdditionalTax(grnId);
+				var InventoryReceiveAdditionalTax = 0.00;
+				if (dsInventoryReceiveAdditionalTax.Rows.Count > 0)
+
+				{
+					InventoryReceiveAdditionalTax = makeInventoryReceiveAdditionalTaxTable(document, dsInventoryReceiveAdditionalTax, grnId);//Service Details 
+																																			 //document.Replace("{ServiceDetails}", "Service Details", true, true);
+
+					//{TotalInWords}
+				}
+				loadGRNShortageTable(document, grnId);
+				loadGRNRejectionTable(document, grnId);
+				var serviceTotal = 0.00;
+				if (dsServiceItems.Rows.Count > 0)
+
+				{
+					serviceTotal = makeOrderServiceTable(document, dsServiceItems, grnId);//Service Details 
+					document.Replace("{ServiceDetails}", "Service Details", true, true);
+
+					//{TotalInWords}
+				}
+				document.Replace("{GrandTotal}", ((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+				document.Replace("{TotalInWords}", ru.InWord(((materialTotal + serviceTotal) + InventoryReceiveAdditionalTax), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+
+				Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+
+				TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+				List<string> strReplace = new List<string>();
+
+				StringCollection strColDistinct = new StringCollection();
+
+				for (int i = 0; i < allresult.Length; i++)
+					strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+
+				for (int i = 0; i < strReplace.Count; i++)
+				{
+					if (strColDistinct.Contains(strReplace[i].ToUpper()))
+						continue;
+
+					strColDistinct.Add(strReplace[i].ToUpper());             //For Same Name Use
+					string text = strReplace[i].ToUpper();
+
+					ReplaceInfo.Add(text, 0);
+					if (columns.ContainsKey(text.ToUpper()))
+					{
+						ReplaceInfo[text] = document.Replace(text, dtOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+					}
+				}
+
+				document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+
+				//removing any unused place holder
+				foreach (var item in ReplaceInfo.Keys)
+				{
+					if (ReplaceInfo[item.ToString()] == 0)
+						document.Replace(item.ToString(), "", false, false);
+
+				}
+
+				//Region that is for Pdf.Document
+				DocToPDFConverter converter = new DocToPDFConverter();
+
+				//Converts Word document into PDF document
+				PdfDocument pdfDocument = converter.ConvertToPDF(document);
+				pdfDocument.PageSettings.Width = 1200;
+				pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+				//Releases all resources used by DocToPDFConverter
+				converter.Dispose();
+
+				//Closes the instance of document objects
+
+				//Saves the PDF file 
+				string Prefix = "GRN" + grnId;
+
+				pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+				//Closes the instance of document objects
+				pdfDocument.Close(true);
+
+				document.Close();
+			}
+
+
+			catch (Exception ex)
+			{
+				throw ex;
+
+			}
+			document.Close();
+		}
+
+		#endregion
 
 	}
 }

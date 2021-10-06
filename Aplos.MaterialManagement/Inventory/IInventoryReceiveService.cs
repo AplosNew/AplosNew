@@ -177,5 +177,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetJWApproving(string plantId, string GRNbyPOApprovedStatus);
         IEnumerable<object> GetJWCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy);
 
+        void FGInventoryReceive(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
+
     }
 }
