@@ -12728,7 +12728,7 @@ ORDER BY tg.[Sequence]";
 						,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty
 						,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty
 						,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty	 				
-						,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM
+						,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM,CU.Code CurrencyName
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -13014,7 +13014,7 @@ ORDER BY tg.[Sequence]";
 					,0 ReductionByAdjustmentQty
 					,0 InventorySalesQty
 					,0 InventoryScrapQty						
-					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM
+					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM,'' CurrencyName
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
