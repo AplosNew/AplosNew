@@ -795,7 +795,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             return false;
         }
 
-       
+
         $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $scope.fileNew.CompanyId + '&PlantId=' + $scope.fileNew.PlantId;
 
         $http({
@@ -1328,7 +1328,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
     //#endregion Job Work Type
 
-
+    $scope.mitemList = [];
     $scope.getMasterItemList = function () {
         $scope.itemList = [];
         $scope.itemTestingStandardList = [];
@@ -1339,12 +1339,23 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $http.get($scope.path + "GetMasterItemList?masterOrderId=" + $scope.fileNew.Id)
             .then(function (response) {
                 $scope.itemList = response.data;
+                $scope.mitemList = response.data;
+                var obj = { MasterOrderItemId:null};
                 if (baseService.arrayLength($scope.itemList) > 0) {
                     for (var i = 0; i < $scope.itemList.length; i++) {
+                        $scope.itemList[i].TempList = [];
                         if ($scope.itemList[i].Type == 'JobWork' || $scope.itemList[i].Type == 'OutSource') {
                             $scope.enableJobOrOutSource = false;
                         } else {
                             $scope.enableJobOrOutSource = true;
+                        }
+
+                        for (var j = 0; j < $scope.mitemList.length; j++) {
+                            if ($scope.mitemList[j].Id != $scope.itemList[i].Id) {
+                                obj.MasterOrderItemId = $scope.mitemList[j].Id;
+                                $scope.itemList[i].TempList.push(obj);
+                                obj = {};
+                            }
                         }
                     }
                 }
@@ -3881,7 +3892,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ShowResult('Select Plant', 'failure');
             return false;
         }
-     
+
 
         $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $scope.fileNew.CompanyId + '&PlantId=' + $scope.fileNew.PlantId;
 
