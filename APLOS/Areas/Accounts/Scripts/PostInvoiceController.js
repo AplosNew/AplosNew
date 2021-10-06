@@ -451,4 +451,16 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             }
         }
     }
+    $scope.getCboVoucherTypePostInvoiceList = function () {
+        cboService.getCboVoucherTypePostInvoiceList(function (result) {
+            $scope.voucherTypeList = result;
+            if ($scope.voucherTypeList.length === 1) {
+                $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+                $scope.voucher.DocDate = $scope.voucher.PostingDate;
+            }
+        });
+    };
+    $scope.getCboVoucherTypePostInvoiceList();
+    
 }
