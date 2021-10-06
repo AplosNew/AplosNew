@@ -154,7 +154,7 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(new { Data = voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
         }
 
-        public void GetIssueHistory(string packingid,out System.Data.DataSet dsRef)
+        public void GetIssueHistory(string packingid,out DataSet dsRef)
         {
             try
             {
@@ -175,7 +175,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public void GetIssueDetail(string packingid,out System.Data.DataSet dsRef)
+        public void GetIssueDetail(string packingid,out DataSet dsRef)
         {
             try
             {

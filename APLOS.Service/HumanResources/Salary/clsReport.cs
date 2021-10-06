@@ -1345,7 +1345,7 @@ namespace OTSBD
             try
             {
                 strSql = @"SELECT A.EmployeeCode,A.EmployeeCodeNumeric
-                            	,A.EmployeeName,A.OutTime punchTime,A.firstSlab
+                            	,A.EmployeeName,A.OutTime punchTime--,A.firstSlab
                                 ,A.EmployeeStatus
                             	,A.DOJ
                             	,A.GivenDesignation
@@ -1395,7 +1395,7 @@ namespace OTSBD
 									,A.LO
                                     ,A.Line
                             FROM(
-                                SELECT E.EmployeeCode,e.EmployeeCodeNumeric,g.firstSlab
+                                SELECT E.EmployeeCode,e.EmployeeCodeNumeric--,g.firstSlab
                                     , E.EmployeeName
                                     ,E.EmployeeStatus
                                     , REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ
@@ -1522,10 +1522,10 @@ namespace OTSBD
                                 LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
                                 LEFT JOIN DayType dt on dt.Daytype=AR.DayStatus
                             
-							inner join OTSlabDefineGeneral g on 
-							'" + ToDate + @"' between g.FromDate and g.ToDate 
-							and g.PlantID=ar.PlantID 
-							and g.DayType=dt.OriginalDayType
+							--inner join OTSlabDefineGeneral g on 
+							--'" + ToDate + @"' between g.FromDate and g.ToDate 
+							--and g.PlantID=ar.PlantID 
+							--and g.DayType=dt.OriginalDayType
 
                                 left join AttendanceInfoExtra LO on LO.EmpSystemId=e.SystemId and LO.WorkDate=ar.WorkDate and LO.InfoType='LUNCHOUT'
 								left join AttendanceInfoExtra EO on EO.EmpSystemId=e.SystemId and EO.WorkDate=ar.WorkDate and EO.InfoType='EARLYOUT'

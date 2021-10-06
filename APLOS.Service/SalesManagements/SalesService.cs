@@ -2968,6 +2968,7 @@ namespace Library.Service.SalesManagements
                     EntityId = voucherVM.EntityId,
                     CurrencyId = voucherVM.CurrencyId,
                     SalesDate = (DateTime)voucherVM.InvoiceDate,
+                    DocDate = (DateTime)voucherVM.InvoiceDate,
 
 
                     Id = _pkGeneratorService.GetAutoNumber(nameof(Library.Model.Inventory.InventorySales), PKGeneratorEnum.Yearly, null, DateTime.Now),
@@ -3102,11 +3103,12 @@ namespace Library.Service.SalesManagements
                             InventorySalesId = InventorySales.Id,
                             InventoryMaterialId = dsDetail.Tables[0].Rows[i]["InventoryMaterialId"].ToString(),
                             TransactionQty = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["TransactionQty"].ToString()),
+                            BaseQty = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["TransactionQty"].ToString()),
                             PolicyRate = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyRate"]),
                             PolicyAmount = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyAmount"].ToString()),
-                            BaseUOMId= dsDetail.Tables[0].Rows[i]["BaseUOMId"].ToString(),
-                            TransactionUoMId= dsDetail.Tables[0].Rows[i]["TransactionUoMId"].ToString(),
-
+                            BaseUOMId = dsDetail.Tables[0].Rows[i]["BaseUOMId"].ToString(),
+                            TransactionUoMId = dsDetail.Tables[0].Rows[i]["TransactionUoMId"].ToString(),
+                            Policy = "FIFO",
                             AddedBy = sales.AddedBy,
                             AddedDate = sales.AddedDate,
                             AddedFromIP = sales.AddedFromIP,
