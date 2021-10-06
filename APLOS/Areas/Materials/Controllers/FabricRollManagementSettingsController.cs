@@ -2,6 +2,7 @@
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Materials;
 using Library.Service.Materials;
 using System.Threading;
@@ -14,7 +15,7 @@ namespace Aplos.Areas.Materials.Controllers
     {
         #region -- Constructor
         private readonly IFabricRollManagementSettingsService _baseService;
-
+        private SqlRepository _sqlRepository = new SqlRepository();
         public FabricRollManagementSettingsController(IFabricRollManagementSettingsService baseService)
         {
             _baseService = baseService;
@@ -66,6 +67,17 @@ namespace Aplos.Areas.Materials.Controllers
         {
             _baseService.Delete(id);
             return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetBlankeData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select 
+BlanketDefaultLength,BlanketDefaultWidth,IsBlanketDefaultLengthValuesChangeable,IsBlanketDefaultWidthValuesChangeable
+from SCS.PlantConfig where PlantId='"+identity.PlantId+@"'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         #endregion
     }

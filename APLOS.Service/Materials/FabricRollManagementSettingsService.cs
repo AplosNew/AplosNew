@@ -102,7 +102,7 @@ namespace Library.Service.Materials
                 if (!string.IsNullOrEmpty(sqlParam))
                     sqlParam = sqlParam.Insert(0, " AND ");
 
-                parameters.CmdText = @"SELECT MT.Description AS MaterialType
+                parameters.CmdText = @"SELECT MT.UserName AS MaterialType
                                       , MGP.UserName AS MaterialGroupMaster
                                       , PM.UserName AS ProductMaster
                                       , UOMB.UserName AS BaseUom
@@ -115,15 +115,18 @@ namespace Library.Service.Materials
                                       , B.Code AS AssetBudgetCode
                                       , Revenue=CASE WHEN (MM.IsInventory=1 OR MM.IsExpenseOut=1) THEN 'Yes' ELSE 'No' END
                 FROM [MST].[MaterialMaster] AS MM
-                LEFT JOIN [HKP].[MaterialType] AS MT ON MM.MaterialTypeId = MT.Id
                 LEFT JOIN [MST].[MaterialGroupMaster] AS MGP ON MM.MaterialGroupMasterId = MGP.Id
+                LEFT JOIN [HKP].[MaterialType] AS MT ON MGP.MaterialTypeId = MT.Id
                 LEFT JOIN [HKP].[MaterialCategory] AS MC ON MM.MaterialCategoryId = MC.Id
                 LEFT JOIN [HKP].[MaterialSubCategory] AS MSC ON MM.MaterialSubCategoryId = MSC.Id
-                LEFT JOIN [MST].[FixedAssetMaster] AS FAM ON MM.AssetMasterId = FAM.Id
+				                                LEFT JOIN MST.BudgetMaster AS BM ON MM.BudgetMasterId=BM.Id
+                                LEFT JOIN HKP.Budget AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN HKP.FixedAssetMasterBudgetTag AS FAMT ON FAMT.BudgetMasterId=BM.Id
+                                LEFT JOIN [MST].[FixedAssetMaster] AS FAM ON FAMT.FixedAssetMasterId=FAM.Id
+                                LEFT JOIN HKP.Activity AS ACT ON MM.ActivityId=ACT.Id
                 LEFT JOIN [MST].[ProductMaster] AS PM ON MM.ProductMasterId = PM.Id
                 INNER JOIN [SCS].[UnitOfMeasurement] AS UOMB ON MM.BaseUOMId = UOMB.Id
-                LEFT JOIN MST.BudgetMaster AS BM ON MM.BudgetMasterId=BM.Id
-                LEFT JOIN HKP.Budget AS B ON B.Id=BM.BudgetId
+            
                 WHERE MM.CompanyGroupId = '" + companyGroupId + @"' AND MM.Archive = 0 AND MM.Active = 1
                 AND MM.Id IN(SELECT MaterialMasterId FROM MST.MaterialMasterBusinessProcess AS A INNER JOIN SCS.BusinessProcess AS B ON A.BusinessProcessId=B.Id
 							WHERE B.BusinessProcessName='" + BusinessProcessEnum.FabricRollManagement+ "')" + sqlParam;

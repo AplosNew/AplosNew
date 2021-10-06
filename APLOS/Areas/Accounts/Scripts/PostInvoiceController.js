@@ -14,7 +14,36 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         Id: null, InvoiceDate: null, DocRefNo: null, PartyId: null, PartyPlantId: null, CurrencyId: null, ToCurrencyRate: null, Narration: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
-  
+    $scope.voucher = {
+        Id: null,
+        CompanyId: null,
+        EntityId: null,
+        PlantId: null,
+        PartyId: null,
+        PartyName: null,
+        PartyType: null,
+        CurrencyId: null,
+        PaymentTermId: null,
+        SourceType: null,
+        VoucherNo: null,
+        VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: null,
+        DocDate: null,
+        BaseOnDueDate: null,
+        BaseNoOfDays: null,
+        MatureDate: null,
+        DocRefNo: null,
+        FiscalYearId: null,
+        FiscalYearName: null,
+        FiscalYearPeriodId: null,
+        FiscalYearPeriodName: null,
+        TaxYearId: null,
+        TaxYearPeriodId: null,
+        IsExcludingTax: false,
+        Amount: null,
+        Narration: null,
+        Remarks: null,
+    };
     $scope.getDataList = function () {
         $http({
             method: 'POST',
@@ -63,8 +92,14 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.Get = function (obj) {
         $scope.model = obj.data;
         $scope.modelNew = Object.assign({}, $scope.model);
+        $scope.voucher.CurrencyId = $scope.modelNew.CurrencyId;
+        $scope.voucher.DocRefNo = $scope.modelNew.DocRefNo;
+        $scope.voucher.PostingDate = $scope.modelNew.InvoiceDate;
+        $scope.voucher.DocDate = $scope.modelNew.InvoiceDate;
+        $scope.voucher.ToCurrencyRate = $scope.modelNew.ToCurrencyRate;
+        $scope.voucher.Currency = $scope.modelNew.Currency;
         $scope.GetSavedGRNListForPostInvoice();
-        $scope.getPostableList($scope.modelNew.Id);
+        $scope.getPostableJVList($scope.modelNew.Id, $scope.modelNew.PartyId);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -302,6 +337,16 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                     }
                 }
             }
+            if (baseService.arrayLength($scope.InventoryReceiveDetailLists)==0) {
+                throw "Please select GRN Detail data.";
+            }
+            else {
+                for (var i = 0; i < $scope.InventoryReceiveDetailLists.length; i++) {
+                    if ($scope.InventoryReceiveDetailLists[i].TransactionQty == 0 || baseService.isUndefinedOrNull($scope.InventoryReceiveDetailLists[i].TransactionQty)) {
+                        throw "Please input Qty.";
+                    }
+                }
+            }
 
             if ($scope.modelNewForm.$valid) {
                 if ($scope.Action === 'Save' || $scope.Action === 'Update') {
@@ -319,7 +364,8 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                         }
                         else {
                             ShowResult(response.data.Message, 'success');
-                            $scope.getDataList();;
+                            $scope.getDataList();
+                            //$scope.getPostableJVList($scope.modelNew.Id);
                             $scope.Clear();
                         }
                     }), function errorCallBack(response) {
@@ -346,6 +392,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.getDataList();
+                    
                     $scope.Clear();
                 }
                 function errorCallBack(response) {
@@ -380,14 +427,13 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.isSet2 = function (tabNum) {
         return $scope.tab2 === tabNum;
     };
-    $scope.postableList = [];
-    $scope.getPostableList = function (id) {
+    $scope.postableJVList = [];
+    $scope.getPostableJVList = function (id,partyId) {
         $http({
             method: "POST",
-            url: "accounts/PostInvoice/GetPostableList?id=" + id
+            url: "accounts/PostInvoice/GetPostableJVList?id=" + id + '&partyId=' + $scope.modelNew.PartyId
         }).then(function successCallback(response) {
-            $scope.postableList = response.data;
-            //$scope.getDetailData(id);
+            $scope.postableJVList = response.data;
         });
     };
 
