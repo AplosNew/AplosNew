@@ -1345,7 +1345,7 @@ namespace OTSBD
             try
             {
                 strSql = @"SELECT A.EmployeeCode,A.EmployeeCodeNumeric
-                            	,A.EmployeeName,A.OutTime punchTime,A.firstSlab
+                            	,A.EmployeeName,A.OutTime punchTime--,A.firstSlab
                                 ,A.EmployeeStatus
                             	,A.DOJ
                             	,A.GivenDesignation
@@ -1395,7 +1395,7 @@ namespace OTSBD
 									,A.LO
                                     ,A.Line
                             FROM(
-                                SELECT E.EmployeeCode,e.EmployeeCodeNumeric,g.firstSlab
+                                SELECT E.EmployeeCode,e.EmployeeCodeNumeric--,g.firstSlab
                                     , E.EmployeeName
                                     ,E.EmployeeStatus
                                     , REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ
