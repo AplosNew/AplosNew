@@ -259,7 +259,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                  
                     DataTable dtdaytype=_sqlRepository.GetDataTable("SELECT * FROM DayType");
 
-                    int row = 2;
+                    int row = 1;
+                    sheet2.Name = "Legends";
+                    sheet2[row, 1].Text = "Day Type";
+                    sheet2[row, 2].Text = "Description"; sheet1[row, 2].ColumnWidth = 20;
+                    sheet2[row, 3].Text = "Category";
+                    sheet2[row, 4].Text = "Color";
+                    sheet2.Range[row, 1, row, 4].CellStyle.Font.Bold = true;
+                    row++;
 
                     Dictionary<string, IStyle> daylegends = new Dictionary<string, IStyle>();
                     for(int i=0; i<dtdaytype.Rows.Count; i++)
@@ -280,14 +287,14 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         daylegends.Add(dtdaytype.Rows[i]["DayType"].ToString(), DayTypeStyle);
 
-                        sheet2[1, 1].Text = "DayType";
-                        sheet2[1, 2].Text = "Color";
-                        sheet2[row,1].Text = dtdaytype.Rows[i]["DayType"].ToString();
-                        sheet2[row, 2].CellStyle = DayTypeStyle;
+                        sheet2[row, 1].Text = dtdaytype.Rows[i]["DayType"].ToString();
+                        sheet2[row, 2].Text = dtdaytype.Rows[i]["Description"].ToString();
+                        sheet2[row, 3].Text = dtdaytype.Rows[i]["Category"].ToString();
+                        sheet2[row, 4].CellStyle = DayTypeStyle;
                         row++;
 
                     }
-
+                
                     #endregion.
 
 
@@ -1079,14 +1086,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet1.IsDisplayZeros = false;
                     sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                     sheet1.UsedRange["A9"].FreezePanes();
-                    sheet1.FirstVisibleColumn = 1;
-                    sheet1.FirstVisibleRow = 6;
                     #endregion
 
                     #region Page Setup
                     sheet1.PageSetup.TopMargin = 0.5;
                     sheet1.PageSetup.BottomMargin = 0.7;
-                    sheet1.PageSetup.PrintTitleRows = "$1:$5";
                     sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
                     sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + userName + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
                     sheet1.PageSetup.LeftMargin = 0.5;
