@@ -605,6 +605,7 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
+
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false)
                 strkey = column + " like '%" + value + "%'";
