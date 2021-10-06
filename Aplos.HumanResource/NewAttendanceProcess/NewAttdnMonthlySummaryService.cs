@@ -318,6 +318,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int iTtlHD = 0;
                     int iTtlWO = 0;
                     int iTtlPst = 0;
+                    int ionlyP = 0;
                     int iTtlAbs = 0;
                     int iTtlLte = 0;
                     int iTtlLv = 0;
@@ -497,7 +498,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         xlsCol += 1;
                         iWorkingCount = xlsCol;
                         sheet1.Range[xlsRow - 1, iWorkingCount].Text = "Working Days";
-                        sheet1.Range[xlsRow - 1, iWorkingCount].ColumnWidth = 6;
+                        sheet1.Range[xlsRow - 1, iWorkingCount].ColumnWidth = 9;
                         sheet1.Range[xlsRow - 1, iWorkingCount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         sheet1.Range[xlsRow - 1, iWorkingCount].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet1.Range[xlsRow - 1, iWorkingCount, xlsRow, iWorkingCount].Merge();
@@ -510,6 +511,40 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet1.Range[xlsRow - 1, cPayDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         sheet1.Range[xlsRow - 1, cPayDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet1.Range[xlsRow - 1, cPayDays, xlsRow, cPayDays].Merge();
+
+                        xlsCol += 1;
+                        ionlyP = xlsCol;
+                        sheet1.Range[xlsRow - 1, ionlyP].Text = "Total Present";
+                        sheet1.Range[xlsRow - 1, ionlyP].ColumnWidth = 10;
+                        sheet1.Range[xlsRow - 1, ionlyP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow - 1, ionlyP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow - 1, ionlyP, xlsRow, ionlyP].Merge();
+
+                        xlsCol += 1;
+                        iTtlLte = xlsCol;
+                        sheet1.Range[xlsRow - 1, iTtlLte].Text = "Total Late";
+                        sheet1.Range[xlsRow - 1, iTtlLte].ColumnWidth = 6;
+                        sheet1.Range[xlsRow - 1, iTtlLte].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow - 1, iTtlLte].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow - 1, iTtlLte, xlsRow, iTtlLte].Merge();
+
+                        xlsCol += 1;
+                        iTtlPst = xlsCol;
+                        sheet1.Range[xlsRow - 1, iTtlPst].Text = "Total Present (Late included)";
+                        sheet1.Range[xlsRow - 1, iTtlPst].ColumnWidth = 10;
+                        sheet1.Range[xlsRow - 1, iTtlPst].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow - 1, iTtlPst].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow - 1, iTtlPst, xlsRow, iTtlPst].Merge();
+
+                        
+                        xlsCol += 1;
+                        iTtlAbs = xlsCol;
+                        sheet1.Range[xlsRow - 1, iTtlAbs].Text = "Total Absent";
+                        sheet1.Range[xlsRow - 1, iTtlAbs].ColumnWidth = 6;
+                        sheet1.Range[xlsRow - 1, iTtlAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow - 1, iTtlAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow - 1, iTtlAbs, xlsRow, iTtlAbs].Merge();
+
 
                         xlsCol += 1;
                         iTtlHD = xlsCol;
@@ -527,30 +562,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet1.Range[xlsRow - 1, iTtlWO].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet1.Range[xlsRow - 1, iTtlWO, xlsRow, iTtlWO].Merge();
 
-                        xlsCol += 1;
-                        iTtlPst = xlsCol;
-                        sheet1.Range[xlsRow - 1, iTtlPst].Text = "Total Present (Late included)";
-                        sheet1.Range[xlsRow - 1, iTtlPst].ColumnWidth = 10;
-                        sheet1.Range[xlsRow - 1, iTtlPst].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow - 1, iTtlPst].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet1.Range[xlsRow - 1, iTtlPst, xlsRow, iTtlPst].Merge();
-
-                        xlsCol += 1;
-                        iTtlAbs = xlsCol;
-                        sheet1.Range[xlsRow - 1, iTtlAbs].Text = "Total Absent";
-                        sheet1.Range[xlsRow - 1, iTtlAbs].ColumnWidth = 6;
-                        sheet1.Range[xlsRow - 1, iTtlAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow - 1, iTtlAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet1.Range[xlsRow - 1, iTtlAbs, xlsRow, iTtlAbs].Merge();
-
-                        xlsCol += 1;
-                        iTtlLte = xlsCol;
-                        sheet1.Range[xlsRow - 1, iTtlLte].Text = "Total Late";
-                        sheet1.Range[xlsRow - 1, iTtlLte].ColumnWidth = 6;
-                        sheet1.Range[xlsRow - 1, iTtlLte].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow - 1, iTtlLte].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet1.Range[xlsRow - 1, iTtlLte, xlsRow, iTtlLte].Merge();
-
+                      
+                     
                         xlsCol += 1;
                         iTtlLv = xlsCol;
                         sheet1.Range[xlsRow - 1, iTtlLv].Text = "Leave";
@@ -561,7 +574,15 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
                         xlsCol += 1;
+                        iTtlLWP = xlsCol;
+                        sheet1.Range[xlsRow - 1, iTtlLWP].Text = "LWP";
+                        sheet1.Range[xlsRow - 1, iTtlLWP].ColumnWidth = 7.20;
+                        sheet1.Range[xlsRow - 1, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow - 1, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow - 1, iTtlLWP, xlsRow, iTtlLWP].Merge();
 
+
+                        xlsCol += 1;
                         iTtlMLv = xlsCol;
                         sheet1.Range[xlsRow - 1, iTtlMLv].Text = "Maternity Leave";
                         sheet1.Range[xlsRow - 1, iTtlMLv].ColumnWidth = 15;
@@ -569,13 +590,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet1.Range[xlsRow - 1, iTtlMLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet1.Range[xlsRow - 1, iTtlMLv, xlsRow, iTtlMLv].Merge();
 
-                        xlsCol += 1;
-                        iTtlLWP = xlsCol;
-                        sheet1.Range[xlsRow - 1, iTtlLWP].Text = "LWP";
-                        sheet1.Range[xlsRow - 1, iTtlLWP].ColumnWidth = 7.20;
-                        sheet1.Range[xlsRow - 1, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow - 1, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet1.Range[xlsRow - 1, iTtlLWP, xlsRow, iTtlLWP].Merge();
+
 
                         xlsCol += 1;
                         iExtraAbs = xlsCol;
@@ -823,6 +838,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.Range[xlsRow, iTtlPst].Number = TPresentAndLate;
                             sheet1.Range[xlsRow, iTtlPst].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, iTtlPst].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, ionlyP].Number = _pre;
+                            sheet1.Range[xlsRow, ionlyP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, ionlyP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
 
                             sheet1.Range[xlsRow, iTtlAbs].Number = Convert.ToDouble(clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim()));
                             sheet1.Range[xlsRow, iTtlAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
