@@ -1,11 +1,11 @@
 ﻿'use strict';
-fabricRollMasterController.$inject = ['commonMessage', '$controller', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService'];
-function fabricRollMasterController(commonMessage, $controller, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService) {
+FabricRollController.$inject = ['commonMessage', '$controller', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService'];
+function FabricRollController(commonMessage, $controller, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService) {
     $rootScope.title = "Fabric Roll Master";
     $scope.Action = 'Save';
     $scope.fabricRollMasters = [];
     $scope.selectedGRNList = [];
-    $scope.path = 'Materials/FabricRollMaster/';
+    $scope.path = 'Materials/FabricRoll/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -186,19 +186,19 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
 
         $scope.fabricRollMaster = Object.assign({}, args.data);
 
-        $scope.fabricRollMaster.InventoryReceiveId = data.data.Id;
+        //$scope.fabricRollMaster.InventoryReceiveId = data.data.Id;
 
-        $scope.fabricRollMaster.GRNNo = data.data.GRNNo;
-        $scope.fabricRollMaster.GRNDate = data.data.GRNDate;
-        $scope.fabricRollMaster.POID = data.POID;
-        $scope.fabricRollMaster.PODate = data.PODate;
-        $scope.fabricRollMaster.Code = data.Code;
-        $scope.fabricRollMaster.PlantId = data.PlantId;
-        $scope.fabricRollMaster.PartyName = data.PartyName;
+        //$scope.fabricRollMaster.GRNNo = data.data.GRNNo;
+        //$scope.fabricRollMaster.GRNDate = data.data.GRNDate;
+        //$scope.fabricRollMaster.POID = data.POID;
+        //$scope.fabricRollMaster.PODate = data.PODate;
+        //$scope.fabricRollMaster.Code = data.Code;
+        //$scope.fabricRollMaster.PlantId = data.PlantId;
+        //$scope.fabricRollMaster.PartyName = data.PartyName;
 
-        $scope.fabricRollMaster.TotalDetailQty = data.TotalDetailQty;
-        $scope.fabricRollMaster.TotalDetailAmount = data.TotalDetailAmount;
-        $scope.fabricRollMaster.Currency = data.Currency;
+        //$scope.fabricRollMaster.TotalDetailQty = data.TotalDetailQty;
+        //$scope.fabricRollMaster.TotalDetailAmount = data.TotalDetailAmount;
+        //$scope.fabricRollMaster.Currency = data.Currency;
         $scope.getGRNDetail();
     };
      //#endregion Material
