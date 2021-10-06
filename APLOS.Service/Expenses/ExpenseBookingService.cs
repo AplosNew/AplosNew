@@ -97,8 +97,8 @@ namespace Library.Service.Expenses
                 var currentRecord = _expenseBookingDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.ExpenseBookingDetail WHERE ExpenseBookingId='{expenseBooking.Id}'").First();
                 foreach (var entity in entities)
                 {
-                    entity.GLGeneralInfoId = _accountsCommonService.GetGLByBudgetMasterId(entity.BudgetMasterId).ToString();
-
+                    var gl = _accountsCommonService.GetGLByBudgetMasterId(entity.BudgetMasterId);
+                    entity.GLGeneralInfoId = gl["GLGeneralInfoId"].ToString();
                     if (!string.IsNullOrEmpty(entity.Id))
                     {
                         var budgetTransactionDetailDb = budgetTransactionDetailDb_list.FirstOrDefault(r => r.Id == entity.Id);

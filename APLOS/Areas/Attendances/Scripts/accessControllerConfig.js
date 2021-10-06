@@ -212,6 +212,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/OTLimitTransaction/Aplos',
             controller: 'OTLimitTransactionController'
         })
+        .when('/ot-limit-transaction-from-app', {
+            templateUrl: 'Attendances/OTLimitTransactionFromApp/Aplos',
+            controller: 'OTLimitTransactionFromAppController'
+        })
         .when('/ot-limit-setting', {
             templateUrl: 'Attendances/OTLimitSetting/Aplos',
             controller: 'OTLimitSettingController'

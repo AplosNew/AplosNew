@@ -54,8 +54,19 @@ function fabricRollManagementSettingsController(commonMessage, $scope, $rootScop
         , IsDimension1: false
         , IsDimension2: false
         , IsDimension3: false
+        , IsBlanketDefaultLengthValuesChangeable: false
+        , IsBlanketDefaultWidthValuesChangeable: false
     };
     $scope.modelNew = Object.assign({}, $scope.model);
+
+    $scope.modelBlanket = {
+         BlanketLengthBeforeWash: 0
+        , BlanketWidthBeforeWash: 0
+        , IsBlanketDefaultLengthValuesChangeable: false
+        , IsBlanketDefaultWidthValuesChangeable: false
+    };
+    $scope.modelNewBlanket = Object.assign({}, $scope.modelBlanket);
+
 
     $scope.searchModel = {
         Code: null
@@ -328,4 +339,21 @@ function fabricRollManagementSettingsController(commonMessage, $scope, $rootScop
             });
     }
     // #endregion DDL
+
+    $scope.getBlanketData = function () {
+        //$scope.modelNew = data;
+        $http.get("Materials/fabricrollmanagementsettings/GetBlankeData")
+                .then(
+                    function successCallback(response) {
+                        $scope.modelNewBlanket.BlanketLengthBeforeWash = response.data[0].BlanketDefaultLength;
+                        $scope.modelNewBlanket.BlanketWidthBeforeWash = response.data[0].BlanketDefaultWidth;
+                        $scope.modelNewBlanket.IsBlanketDefaultLengthValuesChangeable = response.data[0].IsBlanketDefaultLengthValuesChangeable;
+                        $scope.modelNewBlanket.IsBlanketDefaultWidthValuesChangeable = response.data[0].IsBlanketDefaultWidthValuesChangeable;
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+      
+    };
+    $scope.getBlanketData();
 }

@@ -568,7 +568,6 @@ namespace Library.Service.Invoices
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1004,7 +1003,8 @@ namespace Library.Service.Invoices
                             CashMasterId = voucherVM.CashMasterId
                         };
 
-
+                        if(string.IsNullOrEmpty(bankMaster["ActivityId"].ToString()))
+                            throw new CustomException("ActivityId  not Found in Bank Master!");
                         voucherDetailCr.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
                         voucherDetailCr.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
                         voucherDetailCr.ActivityId = bankMaster["ActivityId"].ToString();

@@ -1111,6 +1111,21 @@ namespace Aplos.Areas.Products.Controllers
 
 		#endregion
 
+		#region FG INVENTORY Register  Report  
+
+		[Authorize, HttpGet]
+		public ActionResult FGGRNReport(string grnId)
+
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+			_inventoryReveiveService.FGInventoryReceive(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+			return null;
+		}
+
+		#endregion
+
 
 
 
