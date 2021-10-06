@@ -27,6 +27,19 @@ namespace Library.HumanResource.NewAttendanceProcess
             ConManager = new ConnectionManager.clsConnectionManager();
         }
 
+        Color ContrastColor(Color color)
+        {
+            int d = 0;
+            // Counting the perceptive luminance - human eye favors green color... 
+            double luminance = (0.299 * color.R + 0.587 * color.G + 0.114 * color.B) / 255;
+            if (luminance > 0.5)
+                d = 0; // bright colors - black font
+            else
+                d = 255; // dark colors - white font
+            return Color.FromArgb(d, d, d);
+        }
+
+
         public IWorkbook XlsMonthlyAttendanceSummaryReport(string companyId, string plantId, string Month, string Year, string userName, string DayStatus, Dictionary<string, string> empParameters, bool withColor, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
         {
             #region Variable
@@ -113,6 +126,14 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
                 #endregion Validation
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheet2 = workbook.Worksheets[1];
+                sheet1.IsGridLinesVisible = true;
+                workbook.Version = ExcelVersion.Excel2016;
 
                 #region Variable
 
@@ -221,16 +242,11 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 if (dvMonthlyAttnSumm.Count > 0)
                 {
-                    excelEngine = new ExcelEngine();
-                    application = excelEngine.Excel;
-
-                    workbook = application.Workbooks.Create(1);
-                    sheet1 = workbook.Worksheets[0];
-                    sheet1.IsGridLinesVisible = true;
-                    workbook.Version = ExcelVersion.Excel97to2003;
+                  
                     xlsRow = 6;
 
                     #region StyleSheet
+
 
                     IStyle baseStyle = workbook.Styles.Add("BaseStyle");
                     baseStyle.Font.Color = ExcelKnownColors.Black;
@@ -240,57 +256,37 @@ namespace Library.HumanResource.NewAttendanceProcess
                     baseStyle.Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Hair;
                     baseStyle.Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Hair;
 
-                    IStyle absentStyle = workbook.Styles.Add("AbsentStyle");
-                    //absentStyle = baseStyle;
-                    absentStyle.Font.Color = ExcelKnownColors.White;
-                    absentStyle.Color = System.Drawing.Color.Red;
+                 
+                    DataTable dtdaytype=_sqlRepository.GetDataTable("SELECT * FROM DayType");
 
-                    IStyle presentStyle = workbook.Styles.Add("PresentStyle");
-                    //presentStyle = baseStyle;
-                    presentStyle.Font.Color = ExcelKnownColors.White;
-                    presentStyle.Color = System.Drawing.Color.Green;
+                    int row = 2;
 
-                    IStyle noOUTtimeStyle = workbook.Styles.Add("NoOUTtimeStyle");
-                    //noOUTtimeStyle = baseStyle;
-                    noOUTtimeStyle.Font.Color = ExcelKnownColors.White;
-                    noOUTtimeStyle.Color = System.Drawing.Color.Violet;
+                    Dictionary<string, IStyle> daylegends = new Dictionary<string, IStyle>();
+                    for(int i=0; i<dtdaytype.Rows.Count; i++)
+                    {
+                        string backgroundcolor = dtdaytype.Rows[i]["ColorCode"].ToString();
+                        if(string.IsNullOrEmpty(backgroundcolor))
+                        {
+                            backgroundcolor = "#FFFFFF";
+                        }
+                       
+                        Color forcolor = ColorTranslator.FromHtml(backgroundcolor);
+                        forcolor = ContrastColor(forcolor);
+                        
+                        IStyle DayTypeStyle = workbook.Styles.Add("Style"+dtdaytype.Rows[i]["DayType"].ToString());
+                        DayTypeStyle.Font.RGBColor = forcolor;
 
-                    IStyle lateStyle = workbook.Styles.Add("LateStyle");
-                    //lateStyle = baseStyle;
-                    lateStyle.Font.Color = ExcelKnownColors.White;
-                    lateStyle.Color = System.Drawing.Color.Blue;
+                        DayTypeStyle.Color = ColorTranslator.FromHtml(backgroundcolor);
 
+                        daylegends.Add(dtdaytype.Rows[i]["DayType"].ToString(), DayTypeStyle);
 
-                    IStyle leaveStyle = workbook.Styles.Add("LeaveStyle");
-                    //leaveStyle = baseStyle;
-                    leaveStyle.Font.Color = ExcelKnownColors.Black;
-                    leaveStyle.Color = System.Drawing.Color.Yellow;
+                        sheet2[1, 1].Text = "DayType";
+                        sheet2[1, 2].Text = "Color";
+                        sheet2[row,1].Text = dtdaytype.Rows[i]["DayType"].ToString();
+                        sheet2[row, 2].CellStyle = DayTypeStyle;
+                        row++;
 
-
-                    IStyle isManualandNotLeaveStyle = workbook.Styles.Add("IsManualandNotLeaveStyle");
-                    //isManualandNotLeaveStyle = baseStyle;
-                    isManualandNotLeaveStyle.Font.Color = ExcelKnownColors.White;
-                    isManualandNotLeaveStyle.Color = System.Drawing.Color.Orange;
-
-
-
-                    IStyle isHalfLeaveStyle = workbook.Styles.Add("IsHalfLeaveStyle");
-                    //isHalfLeaveStyle = baseStyle;
-                    isHalfLeaveStyle.Font.Color = ExcelKnownColors.Yellow;
-                    isHalfLeaveStyle.Font.Bold = true;
-
-                    IStyle isExtraAbsentStyle = workbook.Styles.Add("IsExtraAbsentStyle");
-                    //isExtraAbsentStyle = baseStyle;
-                    isExtraAbsentStyle.Font.Color = ExcelKnownColors.Red;
-                    isExtraAbsentStyle.Font.Bold = true;
-
-
-                    IStyle isShortLeaveStyle = workbook.Styles.Add("IsShortLeaveStyle");
-                    ////isShortLeaveStyle = baseStyle;
-                    isShortLeaveStyle.Font.Color = ExcelKnownColors.Magenta;
-                    isShortLeaveStyle.Font.Bold = true;
-
-
+                    }
 
                     #endregion.
 
@@ -622,7 +618,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sheet1.Range[xlsRow, iPlant].Text = dvMonthlyAttnSumm[i]["PlantName"].ToString().Trim();
 
                         sheet1.Range[xlsRow, iDesig].Text = dvMonthlyAttnSumm[i]["LegalDG"].ToString().Trim();
-                        string _m = bplib.clsWebLib.GetMonthName(Month);
+                        string _m = clsWebLib.GetMonthName(Month);
                         dtFrmDt = Convert.ToDateTime("01-" + _m + "-" + Year);
                         xlsCol = iDesig;
                         string ecode = dvMonthlyAttnSumm[i]["EmployeeCode"].ToString().Trim();
@@ -649,22 +645,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         attdnStatus = "";
                                         _day_status = "";
                                         _day_status = item["DayStatus"].ToString();
+                                        //var _day_
                                         if (_FLAG.ToUpper() == "DAYSTATUS")
-                                        {
-                                            if (item["DayCategory"].ToString().ToUpper() == "Leave".ToUpper())
-                                            {
-                                                attdnStatus = item["LeaveCode"].ToString();
-                                            }
-                                            else
-                                            {
-                                                attdnStatus = item["DayStatus"].ToString();
-                                            }
+                                        {                                                
+                                            attdnStatus = item["DayStatus"].ToString();                                          
                                         }
                                         else if (_FLAG.ToUpper() == "ALLSTATUS")
                                         {
                                             if (item["DayCategory"].ToString().ToUpper() == "Leave".ToUpper())
                                             {
-                                                attdnStatus = item["LeaveCode"].ToString();
+                                                attdnStatus = item["DayStatus"].ToString();
 
                                             }
                                             else
@@ -707,125 +697,33 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         }
 
 
-                                        ///manual
                                         if (item["MANUALStatus"].ToString().ToUpper() == "MANUAL")
                                         {
                                             IsManual = true;
 
                                         }
-
-
-
                                     }
-                                    catch (Exception ex)
+                                    catch (Exception)
                                     {
 
-
-
                                     }
-                                    if (withColor == true)
+                                    try
                                     {
-
-                                        try
-                                        {
-                                            if (!HasOUTtime)
-                                            {
-                                                if (item["DayCategory"].ToString().ToUpper() == "WEEKEND" || item["DayCategory"].ToString().ToUpper() != "HOLIDAY")
-                                                {
-
-                                                }
-                                                else
-                                                {
-
-                                                    sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = noOUTtimeStyle;
-                                                }
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Violet;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-                                            if (_day_status == "P")
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = presentStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Green;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-                                            if (_day_status == "A")
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = absentStyle;
-
-                                            }
-                                            if (_day_status == "L" || _day_status == "LVL" || _day_status == "WL" || _day_status == "HL")
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = lateStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Blue;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-                                            if (_day_status.Contains("LV"))
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = leaveStyle;
-
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Yellow;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Black;
-                                            }
-
-                                            if (IsManual && !_day_status.Contains("LV"))
-                                            {
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isManualandNotLeaveStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Orange;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-
-                                            if (IsHalfLeave)
-                                            {
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isHalfLeaveStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Yellow;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Bold = true;
-                                            }
-
-                                            if (IsExtraAbsent)
-                                            {
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isExtraAbsentStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Red;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Bold = true;
-                                            }
-                                            if (IsShortLeave)
-                                            {
-                                                if (_day_status == "P")
-                                                {
-                                                    isShortLeaveStyle.Color = Color.Green;
-                                                }
-                                                if (_day_status == "L" || _day_status == "LVL" || _day_status == "WL" || _day_status == "HL")
-                                                {
-                                                    isShortLeaveStyle.Color = Color.Blue;
-                                                }
-                                                if (IsManual && !_day_status.Contains("LV"))
-                                                {
-                                                    isShortLeaveStyle.Color = System.Drawing.Color.Orange;
-
-                                                }
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isShortLeaveStyle;
-
-                                            }
-                                        }
-                                        catch (Exception)
+                                        if (withColor == true)
                                         {
 
-
+                                            sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = daylegends[item["DayStatus"].ToString()];
                                         }
                                     }
+                                    catch (Exception)
+                                    { 
+                                    
+                                    }
+
+                                    
                                 }
-
                             }
+                            
                         }
                         catch (Exception ex)
                         {
@@ -1010,73 +908,73 @@ namespace Library.HumanResource.NewAttendanceProcess
                     //sheet1.Range[xlsRow, 1].CellStyle.Rotation
 
                     // start color indication  
-                    if (withColor == true)
-                    {
-                        sheet1.Range[xlsRow, endXlsCol - 4, xlsRow, endXlsCol - 1].Merge();
-                        sheet1.Range[xlsRow, endXlsCol - 4].Text = "Color Indication";
-                        sheet1.Range[xlsRow, endXlsCol - 4].CellStyle.Font.Bold = true;
-                        sheet1.Range[xlsRow, endXlsCol - 4].CellStyle.Interior.Color = System.Drawing.Color.LightGray;
-                        sheet1.Range[xlsRow, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //if (withColor == true)
+                    //{
+                    //    sheet1.Range[xlsRow, endXlsCol - 4, xlsRow, endXlsCol - 1].Merge();
+                    //    sheet1.Range[xlsRow, endXlsCol - 4].Text = "Color Indication";
+                    //    sheet1.Range[xlsRow, endXlsCol - 4].CellStyle.Font.Bold = true;
+                    //    sheet1.Range[xlsRow, endXlsCol - 4].CellStyle.Interior.Color = System.Drawing.Color.LightGray;
+                    //    sheet1.Range[xlsRow, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //    sheet1.Range[xlsRow, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        sheet1.Range[xlsRow + 1, endXlsCol - 4].Text = "Present";
-                        sheet1.Range[xlsRow + 1, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Green;
-                        sheet1.Range[xlsRow + 1, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 1, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //    sheet1.Range[xlsRow + 1, endXlsCol - 4].Text = "Present";
+                    //    sheet1.Range[xlsRow + 1, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Green;
+                    //    sheet1.Range[xlsRow + 1, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //    sheet1.Range[xlsRow + 1, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        sheet1.Range[xlsRow + 1, endXlsCol - 2].Text = "Absent";
-                        sheet1.Range[xlsRow + 1, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Red;
-                        sheet1.Range[xlsRow + 1, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 1, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //    sheet1.Range[xlsRow + 1, endXlsCol - 2].Text = "Absent";
+                    //    sheet1.Range[xlsRow + 1, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Red;
+                    //    sheet1.Range[xlsRow + 1, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //    sheet1.Range[xlsRow + 1, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        sheet1.Range[xlsRow + 2, endXlsCol - 4].Text = "Leave";
-                        sheet1.Range[xlsRow + 2, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Yellow;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 4].Text = "Leave";
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Yellow;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        sheet1.Range[xlsRow + 2, endXlsCol - 2].Text = "Half Day Leave";
-                        sheet1.Range[xlsRow + 2, endXlsCol - 2].WrapText = true;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 2].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].CellStyle.Font.Color = ExcelKnownColors.Yellow;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 2].Text = "Half Day Leave";
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 2].WrapText = true;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 2].CellStyle.Font.Size = 8;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 1].CellStyle.Font.Color = ExcelKnownColors.Yellow;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].Text = "Yellow Font";
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].WrapText = true;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 1].Text = "Yellow Font";
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 1].WrapText = true;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 1].CellStyle.Font.Size = 8;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //    sheet1.Range[xlsRow + 2, endXlsCol - 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
 
-                        sheet1.Range[xlsRow + 3, endXlsCol - 2].Text = "Late";
-                        sheet1.Range[xlsRow + 3, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Blue;
+                    //    sheet1.Range[xlsRow + 3, endXlsCol - 2].Text = "Late";
+                    //    sheet1.Range[xlsRow + 3, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Blue;
 
-                        sheet1.Range[xlsRow + 3, endXlsCol - 4].Text = "Out T Miss:";
-                        sheet1.Range[xlsRow + 3, endXlsCol - 4].WrapText = true;
-                        sheet1.Range[xlsRow + 3, endXlsCol - 4].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 3, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Violet;
+                    //    sheet1.Range[xlsRow + 3, endXlsCol - 4].Text = "Out T Miss:";
+                    //    sheet1.Range[xlsRow + 3, endXlsCol - 4].WrapText = true;
+                    //    sheet1.Range[xlsRow + 3, endXlsCol - 4].CellStyle.Font.Size = 8;
+                    //    sheet1.Range[xlsRow + 3, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Violet;
 
-                        sheet1.Range[xlsRow + 4, endXlsCol - 4].Text = "Manual Attdn:";
-                        sheet1.Range[xlsRow + 4, endXlsCol - 4].WrapText = true;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 4].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Orange;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 4].Text = "Manual Attdn:";
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 4].WrapText = true;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 4].CellStyle.Font.Size = 8;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Orange;
 
-                        sheet1.Range[xlsRow + 4, endXlsCol - 2].Text = "Short Leave";
-                        sheet1.Range[xlsRow + 4, endXlsCol - 2].WrapText = true;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 2].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 2].Text = "Short Leave";
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 2].WrapText = true;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 2].CellStyle.Font.Size = 8;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].Text = "Maganta Font";
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].WrapText = true;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].CellStyle.Font.Color = ExcelKnownColors.Magenta;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 1].Text = "Maganta Font";
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 1].WrapText = true;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 1].CellStyle.Font.Size = 8;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 1].CellStyle.Font.Color = ExcelKnownColors.Magenta;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //    sheet1.Range[xlsRow + 4, endXlsCol - 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                        sheet1.Range[xlsRow, endXlsCol - 5, xlsRow + 4, endXlsCol - 1].BorderAround(ExcelLineStyle.Hair);
-                    }
+                    //    sheet1.Range[xlsRow, endXlsCol - 5, xlsRow + 4, endXlsCol - 1].BorderAround(ExcelLineStyle.Hair);
+                    //}
 
                     // END color indication
 
@@ -1472,6 +1370,15 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             #endregion Variable
 
+            excelEngine = new ExcelEngine();
+            application = excelEngine.Excel;
+
+            workbook = application.Workbooks.Create(2);
+            sheet1 = workbook.Worksheets[0];
+            IWorksheet sheet2 = workbook.Worksheets[1];
+            sheet1.IsGridLinesVisible = true;
+            workbook.Version = ExcelVersion.Excel2016;
+
             try
             {
 
@@ -1596,13 +1503,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 if (dvMonthlyAttnSumm.Count > 0)
                 {
-                    excelEngine = new ExcelEngine();
-                    application = excelEngine.Excel;
-
-                    workbook = application.Workbooks.Create(1);
-                    sheet1 = workbook.Worksheets[0];
-                    sheet1.IsGridLinesVisible = true;
-                    workbook.Version = ExcelVersion.Excel97to2003;
+                   
                     xlsRow = 6;
 
                     #region StyleSheet
@@ -1615,56 +1516,36 @@ namespace Library.HumanResource.NewAttendanceProcess
                     baseStyle.Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Hair;
                     baseStyle.Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Hair;
 
-                    IStyle absentStyle = workbook.Styles.Add("AbsentStyle");
-                    //absentStyle = baseStyle;
-                    absentStyle.Font.Color = ExcelKnownColors.White;
-                    absentStyle.Color = System.Drawing.Color.Red;
+                    DataTable dtdaytype = _sqlRepository.GetDataTable("SELECT * FROM DayType");
 
-                    IStyle presentStyle = workbook.Styles.Add("PresentStyle");
-                    //presentStyle = baseStyle;
-                    presentStyle.Font.Color = ExcelKnownColors.White;
-                    presentStyle.Color = Color.Green;
+                    int row = 2;
 
-                    IStyle noOUTtimeStyle = workbook.Styles.Add("NoOUTtimeStyle");
-                    //noOUTtimeStyle = baseStyle;
-                    noOUTtimeStyle.Font.Color = ExcelKnownColors.White;
-                    noOUTtimeStyle.Color = System.Drawing.Color.Violet;
+                    Dictionary<string, IStyle> daylegends = new Dictionary<string, IStyle>();
+                    for (int i = 0; i < dtdaytype.Rows.Count; i++)
+                    {
+                        string backgroundcolor = dtdaytype.Rows[i]["ColorCode"].ToString();
+                        if (string.IsNullOrEmpty(backgroundcolor))
+                        {
+                            backgroundcolor = "#FFFFFF";
+                        }
 
-                    IStyle lateStyle = workbook.Styles.Add("LateStyle");
-                    //lateStyle = baseStyle;
-                    lateStyle.Font.Color = ExcelKnownColors.White;
-                    lateStyle.Color = Color.Blue;
+                        Color forcolor = ColorTranslator.FromHtml(backgroundcolor);
+                        forcolor = Color.FromArgb(forcolor.ToArgb() ^ 0xffffff);
 
+                        IStyle DayTypeStyle = workbook.Styles.Add("Style" + dtdaytype.Rows[i]["DayType"].ToString());
+                        DayTypeStyle.Font.RGBColor = forcolor;
 
-                    IStyle leaveStyle = workbook.Styles.Add("LeaveStyle");
-                    //leaveStyle = baseStyle;
-                    leaveStyle.Font.Color = ExcelKnownColors.Black;
-                    leaveStyle.Color = System.Drawing.Color.Yellow;
+                        DayTypeStyle.Color = ColorTranslator.FromHtml(backgroundcolor);
 
+                        daylegends.Add(dtdaytype.Rows[i]["DayType"].ToString(), DayTypeStyle);
 
-                    IStyle isManualandNotLeaveStyle = workbook.Styles.Add("IsManualandNotLeaveStyle");
-                    //isManualandNotLeaveStyle = baseStyle;
-                    isManualandNotLeaveStyle.Font.Color = ExcelKnownColors.White;
-                    isManualandNotLeaveStyle.Color = System.Drawing.Color.Orange;
+                        sheet2[1, 1].Text = "DayType";
+                        sheet2[1, 2].Text = "Color";
+                        sheet2[row, 1].Text = dtdaytype.Rows[i]["DayType"].ToString();
+                        sheet2[row, 2].CellStyle = DayTypeStyle;
+                        row++;
 
-
-
-                    IStyle isHalfLeaveStyle = workbook.Styles.Add("IsHalfLeaveStyle");
-                    //isHalfLeaveStyle = baseStyle;
-                    isHalfLeaveStyle.Font.Color = ExcelKnownColors.Yellow;
-                    isHalfLeaveStyle.Font.Bold = true;
-
-                    IStyle isExtraAbsentStyle = workbook.Styles.Add("IsExtraAbsentStyle");
-                    //isExtraAbsentStyle = baseStyle;
-                    isExtraAbsentStyle.Font.Color = ExcelKnownColors.Red;
-                    isExtraAbsentStyle.Font.Bold = true;
-
-
-                    IStyle isShortLeaveStyle = workbook.Styles.Add("IsShortLeaveStyle");
-                    ////isShortLeaveStyle = baseStyle;
-                    isShortLeaveStyle.Font.Color = ExcelKnownColors.Magenta;
-                    isShortLeaveStyle.Font.Bold = true;
-
+                    }
 
 
                     #endregion.
@@ -2017,20 +1898,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         _day_status = item["DayStatus"].ToString();
                                         if (_FLAG.ToUpper() == "DAYSTATUS")
                                         {
-                                            if (item["DayCategory"].ToString().ToUpper() == "Leave".ToUpper())
-                                            {
-                                                attdnStatus = item["LeaveCode"].ToString();
-                                            }
-                                            else
-                                            {
-                                                attdnStatus = item["DayStatus"].ToString();
-                                            }
+                                            
+                                            attdnStatus = item["DayStatus"].ToString();
+                                            
                                         }
                                         else if (_FLAG.ToUpper() == "ALLSTATUS")
                                         {
                                             if (item["DayCategory"].ToString().ToUpper() == "Leave".ToUpper())
                                             {
-                                                attdnStatus = item["LeaveCode"].ToString();
+                                                attdnStatus = item["DayStatus"].ToString();
 
                                             }
                                             else
@@ -2080,8 +1956,6 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                         }
 
-
-
                                     }
                                     catch (Exception )
                                     {
@@ -2093,90 +1967,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                         try
                                         {
-                                            if (!HasOUTtime && (item["DayCategory"].ToString().ToUpper() != "WEEKEND" || item["DayCategory"].ToString().ToUpper() != "HOLIDAY"))
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = noOUTtimeStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Violet;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-                                            if (_day_status == "P")
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = presentStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Green;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-                                            if (_day_status == "A")
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = absentStyle;
-
-                                            }
-                                            if (_day_status == "L" || _day_status == "LVL" || _day_status == "WL" || _day_status == "HL")
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = lateStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Blue;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-                                            if (_day_status.Contains("LV"))
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = leaveStyle;
-
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Yellow;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Black;
-                                            }
-
-                                            if (IsManual && !_day_status.Contains("LV"))
-                                            {
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isManualandNotLeaveStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Orange;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-
-                                            if (IsHalfLeave)
-                                            {
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isHalfLeaveStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Yellow;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Bold = true;
-                                            }
-
-                                            if (IsExtraAbsent)
-                                            {
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isExtraAbsentStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Red;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Bold = true;
-                                            }
-                                            if (IsShortLeave)
-                                            {
-                                                if (_day_status == "P")
-                                                {
-                                                    isShortLeaveStyle.Color = Color.Green;
-                                                }
-                                                if (_day_status == "L" || _day_status == "LVL" || _day_status == "WL" || _day_status == "HL")
-                                                {
-                                                    isShortLeaveStyle.Color = Color.Blue;
-                                                }
-                                                if (IsManual && !_day_status.Contains("LV"))
-                                                {
-                                                    isShortLeaveStyle.Color = Color.Orange;
-
-                                                }
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isShortLeaveStyle;
-
-                                            }
+                                            sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = daylegends[item["DayStatus"].ToString()];
                                         }
                                         catch (Exception)
                                         {
-
 
                                         }
                                     }
@@ -2350,79 +2144,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol - 5].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                    //sheet1.Range[xlsRow, 1].CellStyle.Rotation
-
-                    // start color indication 
-                    if (withColor == true)
-                    {
-                        sheet1.Range[xlsRow, endXlsCol - 4, xlsRow, endXlsCol - 1].Merge();
-                        sheet1.Range[xlsRow, endXlsCol - 4].Text = "Color Indication";
-                        sheet1.Range[xlsRow, endXlsCol - 4].CellStyle.Font.Bold = true;
-                        sheet1.Range[xlsRow, endXlsCol - 4].CellStyle.Interior.Color = System.Drawing.Color.LightGray;
-                        sheet1.Range[xlsRow, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow + 1, endXlsCol - 4].Text = "Present";
-                        sheet1.Range[xlsRow + 1, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Green;
-                        sheet1.Range[xlsRow + 1, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 1, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow + 1, endXlsCol - 2].Text = "Absent";
-                        sheet1.Range[xlsRow + 1, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Red;
-                        sheet1.Range[xlsRow + 1, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 1, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow + 2, endXlsCol - 4].Text = "Leave";
-                        sheet1.Range[xlsRow + 2, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Yellow;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow + 2, endXlsCol - 2].Text = "Half Day Leave";
-                        sheet1.Range[xlsRow + 2, endXlsCol - 2].WrapText = true;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 2].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].CellStyle.Font.Color = ExcelKnownColors.Yellow;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].Text = "Yellow Font";
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].WrapText = true;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 2, endXlsCol - 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-
-                        sheet1.Range[xlsRow + 3, endXlsCol - 2].Text = "Late";
-                        sheet1.Range[xlsRow + 3, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Blue;
-
-                        sheet1.Range[xlsRow + 3, endXlsCol - 4].Text = "Out T Miss:";
-                        sheet1.Range[xlsRow + 3, endXlsCol - 4].WrapText = true;
-                        sheet1.Range[xlsRow + 3, endXlsCol - 4].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 3, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Violet;
-
-                        sheet1.Range[xlsRow + 4, endXlsCol - 4].Text = "Manual Attdn:";
-                        sheet1.Range[xlsRow + 4, endXlsCol - 4].WrapText = true;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 4].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Orange;
-
-                        sheet1.Range[xlsRow + 4, endXlsCol - 2].Text = "Short Leave";
-                        sheet1.Range[xlsRow + 4, endXlsCol - 2].WrapText = true;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 2].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].Text = "Maganta Font";
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].WrapText = true;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].CellStyle.Font.Size = 8;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].CellStyle.Font.Color = ExcelKnownColors.Magenta;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow + 4, endXlsCol - 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        sheet1.Range[xlsRow, endXlsCol - 5, xlsRow + 4, endXlsCol - 1].BorderAround(ExcelLineStyle.Hair);
-                    }
-
-                    // END color 
-
+                    //sheet1.Range[xlsRow, 1].CellStyle.Rotation                   
+                    
                     xlsRow += 1;
                     if (dsFactory.Tables[0].Rows.Count > 0)
                     {
