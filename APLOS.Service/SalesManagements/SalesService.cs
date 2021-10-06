@@ -59,9 +59,9 @@ namespace Library.Service.SalesManagements
         private readonly IRepositoryAsync<SecondCharacteristics> _secondCharacteristicsRepository;
         private readonly IRepositoryAsync<ThirdCharacteristics> _thirdCharacteristicsRepository;
         private readonly IInvoiceTaxService _invoiceTaxService;
-        private readonly IRepositoryAsync<Library.Model.Inventory.InventoryIssue> _issueRepository;
-        private readonly IRepositoryAsync<Library.Model.Inventory.InventoryIssueDetail> _issueDetailService;
-        private readonly IRepositoryAsync<Library.Model.Inventory.InventoryIssueHistory> _issueHistoryService;
+        private readonly IRepositoryAsync<Library.Model.Inventory.InventorySales> _SalesRepository;
+        private readonly IRepositoryAsync<Library.Model.Inventory.InventorySalesDetail> _SalesDetailService;
+        private readonly IRepositoryAsync<Library.Model.Inventory.InventorySalesHistory> _SalesHistoryService;
         public SalesService(
              IInvoiceService invoiceService
             , IVoucherService voucherService
@@ -91,9 +91,9 @@ namespace Library.Service.SalesManagements
             , IRepositoryAsync<SecondCharacteristics> secondCharacteristicsRepository
             , IRepositoryAsync<ThirdCharacteristics> thirdCharacteristicsRepository
             , IInvoiceTaxService invoiceTaxService
-            , IRepositoryAsync<Library.Model.Inventory.InventoryIssue> issueRepository
-            , IRepositoryAsync<Library.Model.Inventory.InventoryIssueDetail> issueDetailService
-            , IRepositoryAsync<Library.Model.Inventory.InventoryIssueHistory> issueHistoryService
+            , IRepositoryAsync<Library.Model.Inventory.InventorySales> SalesRepository
+            , IRepositoryAsync<Library.Model.Inventory.InventorySalesDetail> SalesDetailService
+            , IRepositoryAsync<Library.Model.Inventory.InventorySalesHistory> SalesHistoryService
             )
         {
             _unitOfWork = unitOfWork;
@@ -125,9 +125,9 @@ namespace Library.Service.SalesManagements
             _secondCharacteristicsRepository = secondCharacteristicsRepository;
             _thirdCharacteristicsRepository = thirdCharacteristicsRepository;
             _invoiceTaxService = invoiceTaxService;
-            _issueRepository = issueRepository;
-            _issueDetailService = issueDetailService;
-            _issueHistoryService = issueHistoryService;
+            _SalesRepository = SalesRepository;
+            _SalesDetailService = SalesDetailService;
+            _SalesHistoryService = SalesHistoryService;
 
         }
 
@@ -2960,20 +2960,21 @@ namespace Library.Service.SalesManagements
                 AuditService.AddedLog(sales);
                 _salesRepository.Insert(sales);
 
-                var InventoryIssue = new Library.Model.Inventory.InventoryIssue
+                var InventorySales = new Library.Model.Inventory.InventorySales
                 {
                     CompanyGroupId = voucherVM.CompanyGroupId,
                     CompanyId = voucherVM.CompanyId,
                     PlantId = voucherVM.PlantId,
                     EntityId = voucherVM.EntityId,
                     CurrencyId = voucherVM.CurrencyId,
-                    IssueDate = (DateTime)voucherVM.InvoiceDate,
+                    SalesDate = (DateTime)voucherVM.InvoiceDate,
+                    DocDate = (DateTime)voucherVM.InvoiceDate,
 
 
-                    Id = _pkGeneratorService.GetAutoNumber(nameof(Library.Model.Inventory.InventoryIssue), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                    Id = _pkGeneratorService.GetAutoNumber(nameof(Library.Model.Inventory.InventorySales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
-                AuditService.AddedLog(InventoryIssue);
-                _issueRepository.Insert(InventoryIssue);
+                AuditService.AddedLog(InventorySales);
+                _SalesRepository.Insert(InventorySales);
 
                 var currentSalesMaterialId = 0;
                 var currentSalesOrderItemId = 0;
@@ -3096,17 +3097,18 @@ namespace Library.Service.SalesManagements
                     for (int i = 0; i < dsDetail.Tables[0].Rows.Count; i++)
                     {
                         currentSalesMaterialId++;
-                        var IssueDetail = new Library.Model.Inventory.InventoryIssueDetail
+                        var SalesDetail = new Library.Model.Inventory.InventorySalesDetail
                         {
-                            Id = _pkGeneratorService.MakePK(InventoryIssue.Id, currentSalesMaterialId, 2),
-                            InventoryIssueId = InventoryIssue.Id,
+                            Id = _pkGeneratorService.MakePK(InventorySales.Id, currentSalesMaterialId, 2),
+                            InventorySalesId = InventorySales.Id,
                             InventoryMaterialId = dsDetail.Tables[0].Rows[i]["InventoryMaterialId"].ToString(),
                             TransactionQty = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["TransactionQty"].ToString()),
+                            BaseQty = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["TransactionQty"].ToString()),
                             PolicyRate = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyRate"]),
                             PolicyAmount = Convert.ToDecimal(dsDetail.Tables[0].Rows[i]["PolicyAmount"].ToString()),
-                            BaseUOMId= dsDetail.Tables[0].Rows[i]["BaseUOMId"].ToString(),
-                            TransactionUoMId= dsDetail.Tables[0].Rows[i]["TransactionUoMId"].ToString(),
-
+                            BaseUOMId = dsDetail.Tables[0].Rows[i]["BaseUOMId"].ToString(),
+                            TransactionUoMId = dsDetail.Tables[0].Rows[i]["TransactionUoMId"].ToString(),
+                            Policy = "FIFO",
                             AddedBy = sales.AddedBy,
                             AddedDate = sales.AddedDate,
                             AddedFromIP = sales.AddedFromIP,
@@ -3114,22 +3116,22 @@ namespace Library.Service.SalesManagements
                             UpdatedDate = null,
                             UpdatedFromIP = null
                         };
-                        _issueDetailService.Insert(IssueDetail);
+                        _SalesDetailService.Insert(SalesDetail);
                         for (int j = 0; j < dsHistory.Tables[0].Rows.Count; j++)
                         {
                             if (dsHistory.Tables[0].Rows[j]["PackingId"].ToString() == dsDetail.Tables[0].Rows[i]["PackingId"].ToString())
                             {
                                 count++;
-                                var InventoryIssueHistory = new Library.Model.Inventory.InventoryIssueHistory
+                                var InventorySalesHistory = new Library.Model.Inventory.InventorySalesHistory
                                 {
-                                    Id = _pkGeneratorService.MakePK(IssueDetail.Id, count, 2),
-                                    InventoryIssueDetailId = IssueDetail.Id,
+                                    Id = _pkGeneratorService.MakePK(SalesDetail.Id, count, 2),
+                                    InventorySalesDetailId = SalesDetail.Id,
                                     InventoryReceiveDetailId = dsHistory.Tables[0].Rows[j]["InventoryReceiveDetailId"].ToString(),
                                     Qty = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["Qty"].ToString()),
-                                    TotalAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalAmount"].ToString()),
-                                    BooksCurrencyBaseRate = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["BooksCurrencyBaseRate"].ToString()),
-                                    TotalMaterialBooksCurrencyAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalMaterialBooksCurrencyAmount"].ToString()),
-                                    Rate=Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["MaterialTranRate"].ToString()),
+                                    TotalBaseAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalAmount"].ToString()),
+                                    BaseRate = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["BooksCurrencyBaseRate"].ToString()),
+                                    BooksCurrencyBaseAmount = Convert.ToDecimal(dsHistory.Tables[0].Rows[j]["TotalMaterialBooksCurrencyAmount"].ToString()),
+                                
                                     AddedBy = sales.AddedBy,
                                     AddedDate = sales.AddedDate,
                                     AddedFromIP = sales.AddedFromIP,
@@ -3137,7 +3139,7 @@ namespace Library.Service.SalesManagements
                                     UpdatedDate = null,
                                     UpdatedFromIP = null
                                 };
-                                _issueHistoryService.Insert(InventoryIssueHistory);
+                                _SalesHistoryService.Insert(InventorySalesHistory);
                             }
                         }
 

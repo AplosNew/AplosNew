@@ -59,6 +59,15 @@ function fabricRollManagementSettingsController(commonMessage, $scope, $rootScop
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
+    $scope.modelBlanket = {
+         BlanketLengthBeforeWash: 0
+        , BlanketWidthBeforeWash: 0
+        , IsBlanketDefaultLengthValuesChangeable: false
+        , IsBlanketDefaultWidthValuesChangeable: false
+    };
+    $scope.modelNewBlanket = Object.assign({}, $scope.modelBlanket);
+
+
     $scope.searchModel = {
         Code: null
         , ShortName: null
@@ -336,10 +345,10 @@ function fabricRollManagementSettingsController(commonMessage, $scope, $rootScop
         $http.get("Materials/fabricrollmanagementsettings/GetBlankeData")
                 .then(
                     function successCallback(response) {
-                        $scope.modelNew.BlanketLengthBeforeWash = response.data[0].BlanketDefaultLength;
-                        $scope.modelNew.BlanketWidthBeforeWash = response.data[0].BlanketDefaultWidth;
-                        $scope.modelNew.IsBlanketDefaultLengthValuesChangeable = response.data[0].IsBlanketDefaultLengthValuesChangeable;
-                        $scope.modelNew.IsBlanketDefaultWidthValuesChangeable = response.data[0].IsBlanketDefaultWidthValuesChangeable;
+                        $scope.modelNewBlanket.BlanketLengthBeforeWash = response.data[0].BlanketDefaultLength;
+                        $scope.modelNewBlanket.BlanketWidthBeforeWash = response.data[0].BlanketDefaultWidth;
+                        $scope.modelNewBlanket.IsBlanketDefaultLengthValuesChangeable = response.data[0].IsBlanketDefaultLengthValuesChangeable;
+                        $scope.modelNewBlanket.IsBlanketDefaultWidthValuesChangeable = response.data[0].IsBlanketDefaultWidthValuesChangeable;
                     },
                     function errorCallback(response) {
                         ShowResult(response, 'failure');

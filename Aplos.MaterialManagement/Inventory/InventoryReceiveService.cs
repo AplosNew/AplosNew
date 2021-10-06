@@ -9568,7 +9568,7 @@ ORDER BY tg.[Sequence]";
 
 				//{ TotalInWords}
 
-				document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+				document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.000") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
 				document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
 				Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
@@ -10102,7 +10102,7 @@ ORDER BY tg.[Sequence]";
 						value += clsStdLib.dbl(item.Text);
 					}
 				}
-				_TROW.Cells[C].AddParagraph().AppendText(value.ToString("F2")).ApplyCharacterFormat(FontBold);
+				_TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.000")).ApplyCharacterFormat(FontBold);
 			}
 			#endregion Total
 
@@ -12728,7 +12728,7 @@ ORDER BY tg.[Sequence]";
 						,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty
 						,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty
 						,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty	 				
-						,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM
+						,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM,CU.Code CurrencyName
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -13014,7 +13014,7 @@ ORDER BY tg.[Sequence]";
 					,0 ReductionByAdjustmentQty
 					,0 InventorySalesQty
 					,0 InventoryScrapQty						
-					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM
+					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM,'' CurrencyName
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
@@ -19905,7 +19905,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				}
 				//{ TotalInWords}
 
-				document.Replace("{GrandTotal}", (materialTotal + serviceTotal+ InventorySalesAdditionalTax).ToString("F2") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+				document.Replace("{GrandTotal}", (materialTotal + serviceTotal+ InventorySalesAdditionalTax).ToString("#,##0.000") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
 				document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal+ InventorySalesAdditionalTax), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
 				Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
@@ -20415,7 +20415,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 			double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(TotalAmount)", "").ToString())
 				//- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
 				+ clsStdLib.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
-
+			//_TROW.Cells[C].AddParagraph().AppendText(total.ToString("#,##0.000")).ApplyCharacterFormat(FontBold);
 			//_TROW.Cells[SubTotalColumn + 1].AddParagraph().AppendText(total.ToString("F2") + " (" + ru.InWord(total, dsOrderMaster.Rows[0]["CurrencyId"].ToString()) + ")");
 
 			#endregion Total

@@ -1378,12 +1378,12 @@ namespace Aplos.Areas.Attendances.Controllers
                         dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
                         if (OTLimitTransactionData[i].IsManualInTime)
                         {
-                            dr["ManualInTime"] = Convert.ToDateTime(OTLimitTransactionData[i].ManualInTime);
+                            dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
                         }
                         dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
                         if (OTLimitTransactionData[i].IsManualOutTime)
                         {
-                            dr["ManualOutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].ManualOutTime);
+                            dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
                         }
 
 
@@ -1411,12 +1411,12 @@ namespace Aplos.Areas.Attendances.Controllers
                         dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
                         if (OTLimitTransactionData[i].IsManualInTime)
                         {
-                            dr["ManualInTime"] = Convert.ToDateTime(OTLimitTransactionData[i].ManualInTime);
+                            dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
                         }
                         dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
                         if (OTLimitTransactionData[i].IsManualOutTime)
                         {
-                            dr["ManualOutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].ManualOutTime);
+                            dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
                         }
                         dr["PlantId"] = identity.PlantId;
                         dr["UpdatedBy"] = identity.Name;
