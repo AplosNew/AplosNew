@@ -12,6 +12,9 @@ using System.Threading;
 using System.Web.Mvc;
 using Library.Data.Sql;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json;
+using Library.ViewModel.Materials;
+using Syncfusion.DocIO.DLS;
 
 #endregion using
 
@@ -55,9 +58,15 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_fabricRollMasterService.InsertOrUpdateGraphIncrement(), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult Create(IEnumerable<FabricRollMaster> entities)
-        {
-            _fabricRollMasterService.InsertOrUpdateGraph(entities);
+        public JsonResult Create(string entities)/*IEnumerable<FabricRollMaster> entities*/
+		{
+			var settings = new JsonSerializerSettings
+			{
+				NullValueHandling = NullValueHandling.Ignore,
+				MissingMemberHandling = MissingMemberHandling.Ignore
+			};
+			List<FabricRollMaster> entities1 = JsonConvert.DeserializeObject<List<FabricRollMaster>>(entities, settings);
+            _fabricRollMasterService.InsertOrUpdateGraph(entities1);
             return Json(new { Message = AplosMessage.Insert });
         }
 

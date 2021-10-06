@@ -32,16 +32,16 @@
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="GRNsearch" ng-enter="LoadGRNSearchList()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="GRNsearch" ng-enter="getGRNData()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="LoadGRNSearchList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <button type="button" ng-click="getGRNData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                @*<div class="table-responsive modal-table">
+                <div class="table-responsive modal-table">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -56,7 +56,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr dir-paginate="x in GRNList|itemsPerPage:grnParameters.pageSize" total-items="grnParameters.total_count" pagination-id="metaData.name + 'grnList'" ng-dblclick="closeGRNPopUp(x);">
+                                <tr dir-paginate="x in grnList|itemsPerPage:grnParameters.pageSize" total-items="grnParameters.total_count" pagination-id="metaData.name + 'grnList'" ng-dblclick="closeGRNPopUp(x);">
                                     <td>{{x.GRNNo}}</td>
                                     <td>{{x.GRNDate}}</td>
                                     <td>{{x.POID}}</td>
@@ -74,13 +74,13 @@
                                                  boundary-links="true"
                                                  on-page-change="getGRNData(newPageNumber)">
                         </dir-pagination-controls>
-                    </div>*@
+                    </div>
 
 
             </div>
         </div>
 
-        <div class="col-md-12">
+        @*<div class="col-md-12">
             <label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated. </span></label>
             <div class="form-elements form-horizontal" ng-form id="FabricRoll">
                 <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList"
@@ -102,8 +102,7 @@
                         <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
                         <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
                         <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
-                        @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-                            <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
+                       
                         <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                         <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
                         <div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
@@ -124,14 +123,14 @@
                         <div e-column e-field="CheckedBy" e-headertext=" Checked By" e-width="150"></div>
                         <div e-column e-field="ApprovedBy" e-headertext=" To Be Approved By" e-width="150"></div>
                         <div e-column e-field="GRNType" e-headertext="GRN Type" e-width="100"></div>
-                        <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " @*textAlign='Right'*@ e-width="150"></div>
-                        <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " @*textAlign='Right'*@ e-width="150"></div>
-                        <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" @*textAlign='Right'*@ e-width="150"></div>
-                        <div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" @*textAlign='Right'*@ e-width="150"></div>
+                        <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount "  e-width="150"></div>
+                        <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax "  e-width="150"></div>
+                        <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax"  e-width="150"></div>
+                        <div e-column e-field="RequisitionNumber" e-headertext="Requisition Number"  e-width="150"></div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>*@
     </div>
 </div>
 
