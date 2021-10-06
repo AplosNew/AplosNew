@@ -99,9 +99,49 @@ namespace Aplos.Areas.Attendances.Controllers
                 string sql = "";
                 if (string.IsNullOrEmpty(EntityId))
                 {
+                    //             sql = @"SELECT distinct convert(bit,0) AS isSelected, Emp.SystemID AS EmployeeSystemId, EMP.EmployeeStatus,
+                    //                     EMP.EmployeeName,EMP.EmployeeCode AS Code,cm.Id as CompanyId,cm.UserName as Company,apd.InTime as EMPAPDInTime, CONVERT(varchar(5), apd.[InTime], 108)[APDInTime]
+                    //                     ,apd.OutTime as EMPAPDOutTime, CONVERT(varchar(5), apd.[OutTime], 108)[APDOutTime], apd.OTHr as OverStay
+                    //                     --, FORMAT(apd.WorkDate, 'dd-MMM-yyyy') as APDEmpWorkDate
+                    //                     ,APDEmpWorkDate=case when apd.WorkDate is not null then FORMAT(apd.WorkDate, 'dd-MMM-yyyy') when mo.WorkDate is not null then FORMAT(mo.WorkDate, 'dd-MMM-yyyy') End
+                    //,apd.DayStatus,dt.Category,FORMAT(apd.InTime, 'dd-MMM-yyyy HH:mm') as APDEmpInDateAndTime,FORMAT(apd.OutTime, 'dd-MMM-yyyy HH:mm') as APDEmpOutDateAndTime,
+                    //                     EMP.BudgetCode,sd.UserName as EmpShift,E.Id as EntityId,E.UserName EntityName,div.Id as DivisionId,div.UserName as Division,D.Id as DesignationId, isnull(D.UserName, '') Designation,
+                    //                     PR.UserName PositionName,DEPT.Id as DepartmentId,
+                    //                     DEPT.UserName DepartmentName, S.UserName Section,
+                    //                     EMP.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
+                    //                     ,PL.UserName Plant, PL.Id as PlantId
+                    //                     --, mo.OThour as ManualOT
+                    //                     ,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt when mo.EmpSystemId is not null then mo.OThour else '0' End 
+                    //                     , ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
+                    //,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
+                    //                     ,WorkingMin=DATEDIFF(Minute,apd.InTime,apd.OutTime)
+                    //,LateByMin=case when((CONVERT(varchar(5), apd.[InTime], 108))>(CONVERT(varchar(5), sd.[InTime], 108))) then DATEDIFF(Minute,CONVERT(varchar(5), sd.[InTime], 108),CONVERT(varchar(5), apd.[InTime], 108)) else '0' end
+                    //,IsOTEntitled = CASE WHEN dmc.IsOTEntitled = 1 THEN 'Yes' ELSE 'No' END
+                    //                     FROM EmployeeInformation EMP
+                    //                     LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode = PMB.Id
+                    //                     LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                    //                     LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id
+                    //                     LEFT JOIN ORG.Section S ON S.Id = pr.SectionId
+                    //                     LEFT JOIN ORG.SubSection SS ON SS.Id = pr.SubSectionId
+                    //                     LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id = EMP.LegalDesignationId
+                    //                     LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+                    //                     LEFT JOIN ORG.Plant PL ON PL.Id = EMP.PlantId
+                    //                     left join mst.DesignationMasterLegalDesignation dd on dd.LegalDesignationId = D.Id
+                    //                     left join scs.DesignationMasterConfiguration dmc on dmc.DesignationMasterId = dd.DesignationMasterId and dmc.PlantId = EMP.PlantId
+                    //                     left join AttdnProcessData apd on apd.EmpSystemID = EMP.SystemId and (apd.[WorkDate] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"'))
+                    //                     left join DayType dt on dt.DayType = apd.DayStatus
+                    //                     left join OTfromApp mo on mo.EmpSystemID = emp.SystemId and (mo.[WorkDate] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"'))
+                    //left join ORG.Company cm on cm.Id=EMP.CompanyId
+                    //left join ORG.Division div on div.Id=EMP.DivisionId
+                    //left join dbo.ShiftDefination sd on sd.SystemID=apd.ShiftSystemID
+                    //                     WHERE emp.GroupID = '" + identity.CompanyGroupId + @"' and emp.doj <= '" + ToDate + @"' and(dos is null or dos >= '" + FromDate + @"')
+                    //                     and EMP.CompanyId = '" + identity.CompanyId + @"' And EMP.PlantId='" + PlantId + @"' and EMP.EmployeeStatus='Active'
+                    //                     and (apd.WorkDate is not null or mo.WorkDate is not null)  ";
+
                     sql = @"SELECT distinct convert(bit,0) AS isSelected, Emp.SystemID AS EmployeeSystemId, EMP.EmployeeStatus,
                             EMP.EmployeeName,EMP.EmployeeCode AS Code,cm.Id as CompanyId,cm.UserName as Company,apd.InTime as EMPAPDInTime, CONVERT(varchar(5), apd.[InTime], 108)[APDInTime]
-                            ,apd.OutTime as EMPAPDOutTime, CONVERT(varchar(5), apd.[OutTime], 108)[APDOutTime], apd.OTHr as OverStay
+                            ,apd.OutTime as EMPAPDOutTime, CONVERT(varchar(5), apd.[OutTime], 108)[APDOutTime]--, apd.OTHr as OverStay
+							,apd.ProcessedOT as OverStay
                             --, FORMAT(apd.WorkDate, 'dd-MMM-yyyy') as APDEmpWorkDate
                             ,APDEmpWorkDate=case when apd.WorkDate is not null then FORMAT(apd.WorkDate, 'dd-MMM-yyyy') when mo.WorkDate is not null then FORMAT(mo.WorkDate, 'dd-MMM-yyyy') End
 							,apd.DayStatus,dt.Category,FORMAT(apd.InTime, 'dd-MMM-yyyy HH:mm') as APDEmpInDateAndTime,FORMAT(apd.OutTime, 'dd-MMM-yyyy HH:mm') as APDEmpOutDateAndTime,
@@ -111,9 +151,12 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
                             ,PL.UserName Plant, PL.Id as PlantId
                             --, mo.OThour as ManualOT
-                            ,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt when mo.EmpSystemId is not null then mo.OThour else '0' End 
-                            , ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
-							,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
+                          --  ,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt when mo.EmpSystemId is not null then mo.OThour else '0' End 
+							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then ISNULL(apd.ManualOt,'0') else '0' End
+                         --   , ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
+						    , ExcessOT= case when(apd.ManualOt>apd.ProcessedOT) then (apd.ManualOt - apd.ProcessedOT) else '0' end, LessOT= case when(apd.ManualOt<apd.ProcessedOT) then (apd.ProcessedOT-apd.ManualOt) else '0' end
+							--	,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
+							,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and apd.ManualOt>0 then 'OT without Out-time' when (apd.ManualOt - apd.ProcessedOT)>0 then 'Excess OT' when (apd.ProcessedOT - apd.ManualOt)>0 then 'Less OT' else 'NIL'  end
                             ,WorkingMin=DATEDIFF(Minute,apd.InTime,apd.OutTime)
 							,LateByMin=case when((CONVERT(varchar(5), apd.[InTime], 108))>(CONVERT(varchar(5), sd.[InTime], 108))) then DATEDIFF(Minute,CONVERT(varchar(5), sd.[InTime], 108),CONVERT(varchar(5), apd.[InTime], 108)) else '0' end
 							,IsOTEntitled = CASE WHEN dmc.IsOTEntitled = 1 THEN 'Yes' ELSE 'No' END
@@ -141,9 +184,49 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
                 else
                 {
+                    //             sql = @"SELECT distinct convert(bit,0) AS isSelected, Emp.SystemID AS EmployeeSystemId, EMP.EmployeeStatus,
+                    //                     EMP.EmployeeName,EMP.EmployeeCode AS Code,cm.Id as CompanyId,cm.UserName as Company,apd.InTime as EMPAPDInTime, CONVERT(varchar(5), apd.[InTime], 108)[APDInTime]
+                    //                     ,apd.OutTime as EMPAPDOutTime, CONVERT(varchar(5), apd.[OutTime], 108)[APDOutTime], apd.OTHr as OverStay
+                    //                     --, FORMAT(apd.WorkDate, 'dd-MMM-yyyy') as APDEmpWorkDate
+                    //                     ,APDEmpWorkDate=case when apd.WorkDate is not null then FORMAT(apd.WorkDate, 'dd-MMM-yyyy') when mo.WorkDate is not null then FORMAT(mo.WorkDate, 'dd-MMM-yyyy') End
+                    //,apd.DayStatus,dt.Category,FORMAT(apd.InTime, 'dd-MMM-yyyy HH:mm') as APDEmpInDateAndTime,FORMAT(apd.OutTime, 'dd-MMM-yyyy HH:mm') as APDEmpOutDateAndTime,
+                    //                     EMP.BudgetCode,sd.UserName as EmpShift,E.Id as EntityId,E.UserName EntityName,div.Id as DivisionId,div.UserName as Division,D.Id as DesignationId, isnull(D.UserName, '') Designation,
+                    //                     PR.UserName PositionName,DEPT.Id as DepartmentId,
+                    //                     DEPT.UserName DepartmentName, S.UserName Section,
+                    //                     EMP.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
+                    //                     ,PL.UserName Plant, PL.Id as PlantId
+                    //                     --, mo.OThour as ManualOT
+                    //                     ,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt when mo.EmpSystemId is not null then mo.OThour else '0' End 
+                    //                     , ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
+                    //,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
+                    //                     ,WorkingMin=DATEDIFF(Minute,apd.InTime,apd.OutTime)
+                    //,LateByMin=case when((CONVERT(varchar(5), apd.[InTime], 108))>(CONVERT(varchar(5), sd.[InTime], 108))) then DATEDIFF(Minute,CONVERT(varchar(5), sd.[InTime], 108),CONVERT(varchar(5), apd.[InTime], 108)) else '0' end
+                    //,IsOTEntitled = CASE WHEN dmc.IsOTEntitled = 1 THEN 'Yes' ELSE 'No' END
+                    //                     FROM EmployeeInformation EMP
+                    //                     LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode = PMB.Id
+                    //                     LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+                    //                     LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id
+                    //                     LEFT JOIN ORG.Section S ON S.Id = pr.SectionId
+                    //                     LEFT JOIN ORG.SubSection SS ON SS.Id = pr.SubSectionId
+                    //                     LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id = EMP.LegalDesignationId
+                    //                     LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+                    //                     LEFT JOIN ORG.Plant PL ON PL.Id = EMP.PlantId
+                    //                     left join mst.DesignationMasterLegalDesignation dd on dd.LegalDesignationId = D.Id
+                    //                     left join scs.DesignationMasterConfiguration dmc on dmc.DesignationMasterId = dd.DesignationMasterId and dmc.PlantId = EMP.PlantId
+                    //                     left join AttdnProcessData apd on apd.EmpSystemID = EMP.SystemId and (apd.[WorkDate] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"'))
+                    //                     left join DayType dt on dt.DayType = apd.DayStatus
+                    //                     left join OTfromApp mo on mo.EmpSystemID = emp.SystemId and (mo.[WorkDate] between CONVERT(DATE, '" + FromDate + @"') AND CONVERT(DATE, '" + ToDate + @"'))
+                    //left join ORG.Company cm on cm.Id=EMP.CompanyId
+                    //left join ORG.Division div on div.Id=EMP.DivisionId
+                    //left join dbo.ShiftDefination sd on sd.SystemID=apd.ShiftSystemID
+                    //                     WHERE emp.GroupID = '" + identity.CompanyGroupId + @"' and emp.doj <= '" + ToDate + @"' and(dos is null or dos >= '"+ FromDate + @"')
+                    //                     and EMP.CompanyId = '"+ identity.CompanyId + @"' And EMP.PlantId='"+ PlantId + @"' and E.Id='"+ EntityId + @"' and EMP.EmployeeStatus='Active'
+                    //                     and (apd.WorkDate is not null or mo.WorkDate is not null) ";
+
                     sql = @"SELECT distinct convert(bit,0) AS isSelected, Emp.SystemID AS EmployeeSystemId, EMP.EmployeeStatus,
                             EMP.EmployeeName,EMP.EmployeeCode AS Code,cm.Id as CompanyId,cm.UserName as Company,apd.InTime as EMPAPDInTime, CONVERT(varchar(5), apd.[InTime], 108)[APDInTime]
-                            ,apd.OutTime as EMPAPDOutTime, CONVERT(varchar(5), apd.[OutTime], 108)[APDOutTime], apd.OTHr as OverStay
+                            ,apd.OutTime as EMPAPDOutTime, CONVERT(varchar(5), apd.[OutTime], 108)[APDOutTime]--, apd.OTHr as OverStay
+							,apd.ProcessedOT as OverStay
                             --, FORMAT(apd.WorkDate, 'dd-MMM-yyyy') as APDEmpWorkDate
                             ,APDEmpWorkDate=case when apd.WorkDate is not null then FORMAT(apd.WorkDate, 'dd-MMM-yyyy') when mo.WorkDate is not null then FORMAT(mo.WorkDate, 'dd-MMM-yyyy') End
 							,apd.DayStatus,dt.Category,FORMAT(apd.InTime, 'dd-MMM-yyyy HH:mm') as APDEmpInDateAndTime,FORMAT(apd.OutTime, 'dd-MMM-yyyy HH:mm') as APDEmpOutDateAndTime,
@@ -153,9 +236,12 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
                             ,PL.UserName Plant, PL.Id as PlantId
                             --, mo.OThour as ManualOT
-                            ,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt when mo.EmpSystemId is not null then mo.OThour else '0' End 
-                            , ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
-							,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
+                          --  ,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt when mo.EmpSystemId is not null then mo.OThour else '0' End 
+							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then ISNULL(apd.ManualOt,'0') else '0' End
+                         --   , ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
+						    , ExcessOT= case when(apd.ManualOt>apd.ProcessedOT) then (apd.ManualOt - apd.ProcessedOT) else '0' end, LessOT= case when(apd.ManualOt<apd.ProcessedOT) then (apd.ProcessedOT-apd.ManualOt) else '0' end
+							--	,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
+							,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and apd.ManualOt>0 then 'OT without Out-time' when (apd.ManualOt - apd.ProcessedOT)>0 then 'Excess OT' when (apd.ProcessedOT - apd.ManualOt)>0 then 'Less OT' else 'NIL'  end
                             ,WorkingMin=DATEDIFF(Minute,apd.InTime,apd.OutTime)
 							,LateByMin=case when((CONVERT(varchar(5), apd.[InTime], 108))>(CONVERT(varchar(5), sd.[InTime], 108))) then DATEDIFF(Minute,CONVERT(varchar(5), sd.[InTime], 108),CONVERT(varchar(5), apd.[InTime], 108)) else '0' end
 							,IsOTEntitled = CASE WHEN dmc.IsOTEntitled = 1 THEN 'Yes' ELSE 'No' END
@@ -176,8 +262,8 @@ namespace Aplos.Areas.Attendances.Controllers
 							left join ORG.Company cm on cm.Id=EMP.CompanyId
 							left join ORG.Division div on div.Id=EMP.DivisionId
 							left join dbo.ShiftDefination sd on sd.SystemID=apd.ShiftSystemID
-                            WHERE emp.GroupID = '" + identity.CompanyGroupId + @"' and emp.doj <= '" + ToDate + @"' and(dos is null or dos >= '"+ FromDate + @"')
-                            and EMP.CompanyId = '"+ identity.CompanyId + @"' And EMP.PlantId='"+ PlantId + @"' and E.Id='"+ EntityId + @"' and EMP.EmployeeStatus='Active'
+                            WHERE emp.GroupID = '" + identity.CompanyGroupId + @"' and emp.doj <= '" + ToDate + @"' and(dos is null or dos >= '" + FromDate + @"')
+                            and EMP.CompanyId = '" + identity.CompanyId + @"' And EMP.PlantId='" + PlantId + @"' and E.Id='" + EntityId + @"' and EMP.EmployeeStatus='Active'
                             and (apd.WorkDate is not null or mo.WorkDate is not null) ";
                 }
 
@@ -468,20 +554,62 @@ namespace Aplos.Areas.Attendances.Controllers
 
         private DataTable GetOTManualReportData(string From, string To, string Code, string PlantId, string EntityId, string DivisionId, string DepartmentId, string SectionId, string SubSectionId, string DesignationId, string APDEmpWorkDate)
         {
+            //     var sql = @"SELECT distinct convert(bit,0) AS isSelected, Emp.SystemID AS EmployeeSystemId, EMP.EmployeeStatus,
+            //                     EMP.EmployeeName,EMP.EmployeeCode AS Code,cm.Id as CompanyId,cm.UserName as Company,apd.InTime as EMPAPDInTime, CONVERT(varchar(5), apd.[InTime], 108)[APDInTime]
+            //,apd.OutTime as EMPAPDOutTime, CONVERT(varchar(5), apd.[OutTime], 108)[APDOutTime], apd.OTHr as OverStay--, FORMAT(apd.WorkDate, 'dd-MMM-yyyy') as APDEmpWorkDate
+            //,APDEmpWorkDate=case when apd.WorkDate is not null then FORMAT(apd.WorkDate, 'dd-MMM-yyyy') when mo.WorkDate is not null then FORMAT(mo.WorkDate, 'dd-MMM-yyyy') End
+            //,apd.DayStatus,dt.Category,FORMAT(apd.InTime, 'dd-MMM-yyyy HH:mm') as APDEmpInDateAndTime,FORMAT(apd.OutTime, 'dd-MMM-yyyy HH:mm') as APDEmpOutDateAndTime,
+            //                     EMP.BudgetCode,sd.UserName as EmpShift,E.Id as EntityId,E.UserName EntityName,div.Id as DivisionId,div.UserName as Division,D.Id as DesignationId, isnull(D.UserName, '') Designation,
+            //                     PR.UserName PositionName,DEPT.Id as DepartmentId,
+            //                     DEPT.UserName DepartmentName, S.UserName Section,
+            //                     EMP.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
+            //                     ,PL.UserName Plant, PL.Id as PlantId
+            //                      --,mo.OThour as ManualOT
+            // ,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt when mo.EmpSystemId is not null then mo.OThour else '0' End 
+            // , ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
+            //,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
+            //                     ,WorkingMin=DATEDIFF(Minute,apd.InTime,apd.OutTime)
+            //,LateByMin=case when((CONVERT(varchar(5), apd.[InTime], 108))>(CONVERT(varchar(5), sd.[InTime], 108))) then DATEDIFF(Minute,CONVERT(varchar(5), sd.[InTime], 108),CONVERT(varchar(5), apd.[InTime], 108)) else '0' end
+            //,IsOTEntitled = CASE WHEN dmc.IsOTEntitled = 1 THEN 'Yes' ELSE 'No' END
+            //                     FROM EmployeeInformation EMP
+            //                     LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode = PMB.Id
+            //                     LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+            //                     LEFT JOIN ORG.Entity E ON PMB.EntityId = E.Id
+            //                     LEFT JOIN ORG.Section S ON S.Id = pr.SectionId
+            //                     LEFT JOIN ORG.SubSection SS ON SS.Id = pr.SubSectionId
+            //                     LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id = EMP.LegalDesignationId
+            //                     LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+            //                     LEFT JOIN ORG.Plant PL ON PL.Id = EMP.PlantId
+            //                     left join mst.DesignationMasterLegalDesignation dd on dd.LegalDesignationId = D.Id
+            //                     left join scs.DesignationMasterConfiguration dmc on dmc.DesignationMasterId = dd.DesignationMasterId and dmc.PlantId = EMP.PlantId
+            //                     left join AttdnProcessData apd on apd.EmpSystemID = EMP.SystemId and (apd.[WorkDate] between CONVERT(DATE, '" + From + @"') AND CONVERT(DATE, '" + To + @"'))
+            //                     left join DayType dt on dt.DayType = apd.DayStatus
+            //                     left join OTfromApp mo on mo.EmpSystemID = emp.SystemId and (mo.[WorkDate] between CONVERT(DATE, '" + From + @"') AND CONVERT(DATE, '" + To + @"'))
+            //left join ORG.Company cm on cm.Id=EMP.CompanyId
+            //left join ORG.Division div on div.Id=EMP.DivisionId
+            //left join dbo.ShiftDefination sd on sd.SystemID=apd.ShiftSystemID
+            //where PL.Id IN ( " + PlantId + " ) and E.Id IN ( " + EntityId + " ) and EMP.EmployeeCode IN ( " + Code + " ) and div.Id IN ( " + DivisionId + " ) and DEPT.Id IN ( " + DepartmentId + " ) and S.Id IN ( " + SectionId + " ) and SS.Id IN( " + SubSectionId + " ) and D.Id IN( " + DesignationId + " ) and (apd.WorkDate IN( "+ APDEmpWorkDate + " ) or mo.WorkDate IN( "+ APDEmpWorkDate + ")) ";
+
+
             var sql = @"SELECT distinct convert(bit,0) AS isSelected, Emp.SystemID AS EmployeeSystemId, EMP.EmployeeStatus,
                             EMP.EmployeeName,EMP.EmployeeCode AS Code,cm.Id as CompanyId,cm.UserName as Company,apd.InTime as EMPAPDInTime, CONVERT(varchar(5), apd.[InTime], 108)[APDInTime]
-							,apd.OutTime as EMPAPDOutTime, CONVERT(varchar(5), apd.[OutTime], 108)[APDOutTime], apd.OTHr as OverStay--, FORMAT(apd.WorkDate, 'dd-MMM-yyyy') as APDEmpWorkDate
-							,APDEmpWorkDate=case when apd.WorkDate is not null then FORMAT(apd.WorkDate, 'dd-MMM-yyyy') when mo.WorkDate is not null then FORMAT(mo.WorkDate, 'dd-MMM-yyyy') End
+                            ,apd.OutTime as EMPAPDOutTime, CONVERT(varchar(5), apd.[OutTime], 108)[APDOutTime]--, apd.OTHr as OverStay
+							,apd.ProcessedOT as OverStay
+                            --, FORMAT(apd.WorkDate, 'dd-MMM-yyyy') as APDEmpWorkDate
+                            ,APDEmpWorkDate=case when apd.WorkDate is not null then FORMAT(apd.WorkDate, 'dd-MMM-yyyy') when mo.WorkDate is not null then FORMAT(mo.WorkDate, 'dd-MMM-yyyy') End
 							,apd.DayStatus,dt.Category,FORMAT(apd.InTime, 'dd-MMM-yyyy HH:mm') as APDEmpInDateAndTime,FORMAT(apd.OutTime, 'dd-MMM-yyyy HH:mm') as APDEmpOutDateAndTime,
                             EMP.BudgetCode,sd.UserName as EmpShift,E.Id as EntityId,E.UserName EntityName,div.Id as DivisionId,div.UserName as Division,D.Id as DesignationId, isnull(D.UserName, '') Designation,
                             PR.UserName PositionName,DEPT.Id as DepartmentId,
                             DEPT.UserName DepartmentName, S.UserName Section,
                             EMP.SectionId,SS.UserName SubSection,SS.Id as SubSectionId
                             ,PL.UserName Plant, PL.Id as PlantId
-                             --,mo.OThour as ManualOT
-							 ,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt when mo.EmpSystemId is not null then mo.OThour else '0' End 
-							 , ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
-							,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
+                            --, mo.OThour as ManualOT
+                          --  ,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt when mo.EmpSystemId is not null then mo.OThour else '0' End 
+							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then ISNULL(apd.ManualOt,'0') else '0' End
+                         --   , ExcessOT= case when(mo.OThour>apd.OTHr) then (mo.OThour - apd.OTHr) else '0' end, LessOT= case when(mo.OThour<apd.OTHr) then (apd.OTHr-mo.OThour) else '0' end
+						    , ExcessOT= case when(apd.ManualOt>apd.ProcessedOT) then (apd.ManualOt - apd.ProcessedOT) else '0' end, LessOT= case when(apd.ManualOt<apd.ProcessedOT) then (apd.ProcessedOT-apd.ManualOt) else '0' end
+							--	,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and mo.OThour>0 then 'OT without Out-time' when (mo.OThour - apd.OTHr)>0 then 'Excess OT' when (apd.OTHr-mo.OThour)>0 then 'Less OT' else 'NIL'  end
+							,Remarks= case when(FORMAT(apd.OutTime,'dd-MMM-yyyy')='0' or FORMAT(apd.OutTime,'dd-MMM-yyyy')='') and apd.ManualOt>0 then 'OT without Out-time' when (apd.ManualOt - apd.ProcessedOT)>0 then 'Excess OT' when (apd.ProcessedOT - apd.ManualOt)>0 then 'Less OT' else 'NIL'  end
                             ,WorkingMin=DATEDIFF(Minute,apd.InTime,apd.OutTime)
 							,LateByMin=case when((CONVERT(varchar(5), apd.[InTime], 108))>(CONVERT(varchar(5), sd.[InTime], 108))) then DATEDIFF(Minute,CONVERT(varchar(5), sd.[InTime], 108),CONVERT(varchar(5), apd.[InTime], 108)) else '0' end
 							,IsOTEntitled = CASE WHEN dmc.IsOTEntitled = 1 THEN 'Yes' ELSE 'No' END
@@ -502,7 +630,7 @@ namespace Aplos.Areas.Attendances.Controllers
 							left join ORG.Company cm on cm.Id=EMP.CompanyId
 							left join ORG.Division div on div.Id=EMP.DivisionId
 							left join dbo.ShiftDefination sd on sd.SystemID=apd.ShiftSystemID
-							where PL.Id IN ( " + PlantId + " ) and E.Id IN ( " + EntityId + " ) and EMP.EmployeeCode IN ( " + Code + " ) and div.Id IN ( " + DivisionId + " ) and DEPT.Id IN ( " + DepartmentId + " ) and S.Id IN ( " + SectionId + " ) and SS.Id IN( " + SubSectionId + " ) and D.Id IN( " + DesignationId + " ) and (apd.WorkDate IN( "+ APDEmpWorkDate + " ) or mo.WorkDate IN( "+ APDEmpWorkDate + ")) ";
+							where PL.Id IN ( " + PlantId + " ) and E.Id IN ( " + EntityId + " ) and EMP.EmployeeCode IN ( " + Code + " ) and div.Id IN ( " + DivisionId + " ) and DEPT.Id IN ( " + DepartmentId + " ) and S.Id IN ( " + SectionId + " ) and SS.Id IN( " + SubSectionId + " ) and D.Id IN( " + DesignationId + " ) and (apd.WorkDate IN( " + APDEmpWorkDate + " ) or mo.WorkDate IN( " + APDEmpWorkDate + ")) ";
 
             return _sqlRepository.GetDataTable(sql);
         }

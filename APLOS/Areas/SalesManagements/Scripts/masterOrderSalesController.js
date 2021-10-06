@@ -2521,7 +2521,6 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         angular.element(document.querySelector('#masterOrderItemPopUp')).modal('hide');
     }
 
-
     $scope.GetCheckItemArticleSKUData = function () {
         $http({
             method: "GET",
@@ -2642,25 +2641,6 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     };
     $scope.getShipmode();
 
-    //$scope.PlantCountryId = null;
-    //$scope.getPantCountry = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Commercial/PurchaseLC/GetPlantCountry'
-    //    }).then(function successCallback(response) {
-    //        if (baseService.arrayLength(response.data) > 0) {
-    //            $scope.PlantCountryId = response.data[0].PlantCountryId;
-    //        }
-    //    });
-    //};
-    //$scope.getPantCountry();
-
-
-
-
-
-
-
     $scope.dischargePortList = [];
     $scope.GetPortOfDischargeByDstination = function () {
         $http({
@@ -2721,7 +2701,6 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-
 
     $scope.destinationList = [];
     $scope.getDestination = function () {
@@ -2872,7 +2851,6 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
        
-
     $scope.showPartyPopUp = function (flg) {
         $scope.flag = flg;
         if ($scope.flag === 'Transport' || $scope.flag === 'CNF') {

@@ -198,8 +198,6 @@ namespace Aplos.Areas.JobWork.Controllers
                 }
             }
             
-
-
             try
             {
                 ConnectionManager.DAL.ConManager con2 = new ConnectionManager.DAL.ConManager("1");

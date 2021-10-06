@@ -156,7 +156,8 @@ namespace Library.Service.Materials
                         Year = DateTime.Now.Year,
                         Month = DateTime.Now.Month,
                         Day = DateTime.Now.Day,
-                        IncrementValue = 1
+                        IncrementValue = 1,
+                        PlantId= PlantId
                     };
                     _fabricRollMasterIncrementValue.Insert(fabricRollMasterIncrementValue);
                 }
