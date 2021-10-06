@@ -182,7 +182,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
 
     //#region Display Material by GRN ID
     $scope.closeGRNPopUp = function (args) {
-        debugger;
+    /*    debugger;*/
 
         $scope.fabricRollMaster = Object.assign({}, args.data);
 
