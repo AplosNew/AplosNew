@@ -13,6 +13,7 @@ namespace Library.Model.Setups
         public int Year { get; set; }
         public int Month { get; set; }
         public int Day { get; set; }
+        public string PlantId { get; set; } 
         public int IncrementValue { get; set; }
         #endregion Scalar Properties
     }

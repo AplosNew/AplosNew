@@ -222,6 +222,8 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpPost]
         public ActionResult SaveOTLimitOverlapData(string YearNo, string MonthNo, string OTLimitSettingId, string[] EmpSystemIds)
         {
+
+
             DataSet dsOTLimitSetting;
             string OTLimit = string.Empty;
             string FromDate = string.Empty;
@@ -509,6 +511,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
             SaveDataWithOTConfirmed(oOTLimitTransaction, EmpSytemId, FromDate, ToDate);
             return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+
+
         }
 
 
@@ -888,10 +892,10 @@ namespace Aplos.Areas.Attendances.Controllers
 
             DataSet dsFinalOT = null;
             DataRow drFinalOT = null;
-       
+
             DataSet dsAttProc = null;
             DataRow drAttProc = null;
-     
+
 
             AttendanceProcessAplos objAttdnProc;
             objAttdnProc = new AttendanceProcessAplos();
@@ -1039,11 +1043,11 @@ namespace Aplos.Areas.Attendances.Controllers
                     DateTime d2 = Convert.ToDateTime(RandomOutTime);
                     DateTime ExtraOTOutTime = d2.AddMinutes(Convert.ToInt32(OTLimitTransactionData[i].ExtraOT));
 
-                  
+
                     if (OTLimitTransactionData[i].IsExtraOTOnly == false)
                     {
                         #region Final OT
-                 
+
                         if (dicFinalOT.ContainsKey(Key))
                         {
                             drFinalOT = dicFinalOT[Key];// dvFinalOT[0].Row;
@@ -1106,7 +1110,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             drAttProc.EndEdit();
                         }
 
-     
+
                         #endregion
                     }
 
@@ -1134,12 +1138,12 @@ namespace Aplos.Areas.Attendances.Controllers
                         dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
                         if (OTLimitTransactionData[i].IsManualInTime)
                         {
-                            dr["ManualInTime"] = Convert.ToDateTime(OTLimitTransactionData[i].ManualInTime);
+                            dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
                         }
                         dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
                         if (OTLimitTransactionData[i].IsManualOutTime)
                         {
-                            dr["ManualOutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].ManualOutTime);
+                            dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
                         }
 
 
@@ -1167,12 +1171,12 @@ namespace Aplos.Areas.Attendances.Controllers
                         dr["IsManualInTime"] = OTLimitTransactionData[i].IsManualInTime;
                         if (OTLimitTransactionData[i].IsManualInTime)
                         {
-                            dr["ManualInTime"] = Convert.ToDateTime(OTLimitTransactionData[i].ManualInTime);
+                            dr["ManualInTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualInTime));
                         }
                         dr["IsManualOutTime"] = OTLimitTransactionData[i].IsManualOutTime;
                         if (OTLimitTransactionData[i].IsManualOutTime)
                         {
-                            dr["ManualOutTime"] = Convert.ToDateTime(OTLimitTransactionData[i].ManualOutTime);
+                            dr["ManualOutTime"] = bplib.clsWebLib.RetValidLen(clsStaticInfo.GetDateTime(OTLimitTransactionData[i].ManualOutTime));
                         }
                         dr["PlantId"] = identity.PlantId;
                         dr["UpdatedBy"] = identity.Name;

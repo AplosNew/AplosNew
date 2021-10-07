@@ -2476,51 +2476,69 @@ function finishGoodsInventoryRegisterController(fileReader, commonMessage, $scop
 
 
     $scope.GetRawMaterialDetail = function (obj) {
-        //$scope.bomDetailNew = {
-        //    Id: null, BOMMasterId: null, Sequence: 0, RMMaterialMasterId: null, RMArticleId: null, Description: null, CustomerSpec: null, VendorSpec: null, Consumption: 0, UoMId: null, ProcessId: null, VendorId: null, WastagePer: 0, FirstCharacteristicsId: null, SecondCharacteristicsId: null, ThirdCharacteristicsId: null, FirstCharacteristicsValueId: null, SecondCharacteristicsValueId: null, ThirdCharacteristicsValueId: null, IsSKUCommon: true, WithSKU: false, IsConsumptionDetail: false, Specific: true, SKUMatrix: false, IsDestinationSpecific: false, IsPOSpecific: false, ConsumptionSpecificToSKU1: false, ConsumptionSpecificToSKU2: false, ConsumptionSpecificToSKU3: false, SalesOrderSpecificMaterial: true
-        //}
-        //$scope.getRMCharacteristicsList(obj.data.RMMaterialMasterId);
 
-       // $scope.bomDetailNew = obj.data;
+        $scope.getFGInventoryRegisterPopUpData(obj.data.FinishGoodsBookingId)
 
-        //if ($scope.bomDetailNew.WithSKU) {
-        //    $scope.msg = "has";
-        //} else {
-        //    $scope.msg = "has no";
-        //}
-
-        //UomCboByMaterialMaster($scope.bomDetailNew.RMMaterialMasterId);
-
-
-        //if ($scope.bomDetailNew.IsSKUCommon === true) {
-        //    $scope.bomDetailNew.Specific = true;
-        //    $scope.bomDetailNew.SKUMatrix = false;
-        //} else {
-        //    $scope.bomDetailNew.SKUMatrix = true;
-        //    $scope.bomDetailNew.Specific = false;
-        //}
-
-        //$scope.ShowHide();
-
-        //if ($scope.bomDetailNew.Specific === false) {
-        //    $scope.matrixrad = false;
-
-        //} else {
-        //    $scope.matrixrad = true;
-        //}
-
-        //$scope.rmchar1.CharacteristicsId = $scope.bomDetailNew.FirstCharacteristicsId;
-
-
-
-
-
-
-        //var DropDownListObj = $("#destinationList").data("ejDropDownList");
-        //DropDownListObj.uncheckAll();
-        //$scope.GetBOMDestinationData($scope.bomDetailNew.Id);
         angular.element(document.querySelector('#FGInventoryRegisterPopup')).modal('show');
     };
+
+    //$scope.showTrialBalanceDRcumulativePopUp = function (args) {
+    //    $scope.toDate = $scope.reportParameters.ToDate
+
+    //    if (args.BankMasterId != null) {
+    //        //if (baseService.isUndefinedOrNull(args.BudgetMasterId)) {
+    //        //    args.BudgetMasterId = null;
+    //        $scope.getTrialBLAllLevelBankMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.BankMasterId, $scope.toDate)
+    //        $scope.getTrialBLAllLevelBankMasterHeaderLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.BankMasterId, $scope.toDate)
+    //    }
+    //    else if (args.CashMasterId != null) {
+    //        //if (baseService.isUndefinedOrNull(args.BudgetMasterId)) {
+    //        //    args.BudgetMasterId = null;
+  
+    //        $scope.getTrialBLAllLevelCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.CashMasterId, $scope.toDate)
+    //        $scope.getTrialBLHeadingAllLevelCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.CashMasterId, $scope.toDate)
+
+    //    }
+    //    else if (args.PartyId != null) {
+    //        //if (baseService.isUndefinedOrNull(args.BudgetMasterId)) {
+    //        //    args.BudgetMasterId = null;
+    //        //}
+ 
+    //        $scope.getTrialBLAllLevelPartyLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, $scope.toDate)
+    //        $scope.getTrialBLAllLevelHeadingPartyLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, $scope.toDate)
+    //    }
+    //    else {
+    //        if (baseService.isUndefinedOrNull(args.BudgetMasterId)) {
+    //            args.BudgetMasterId = null;
+    //        }
+    //        if (baseService.isUndefinedOrNull(args.ActivityId)) {
+    //            args.ActivityId = null;
+    //        }
+    //        if (baseService.isUndefinedOrNull(args.Particulars)) {
+    //            args.Particulars = null;
+    //        }
+    //        $scope.getTrialBLAllLevelGeneralLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, $scope.toDate)
+    //        $scope.getTrialBLHeadingAllLevelGeneralLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, $scope.toDate)
+
+    //    }
+    //};
+
+    $scope.FGInventoryRegisterPoPUpList = [];
+    $scope.getFGInventoryRegisterPopUpData = function (finishGoodsBookingId) {
+
+        $http({
+            method: "GET",
+            url: "Productions/FinishGoodsBooking/GetFGInventoryRegisterPoPUpListData?finishGoodsBookingId=" + finishGoodsBookingId 
+        }).then(function successCallback(response) {
+            $scope.FGInventoryRegisterPoPUpList = response.data;
+            //$scope.TotalDRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.BankLedgerDetailLevelPoPUpList), "CompanyCurrencyDrAmount") * 100 + Number.EPSILON) / 100;
+            //$scope.TotalCRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.BankLedgerDetailLevelPoPUpList), "CompanyCurrencyCrAmount") * 100 + Number.EPSILON) / 100;
+            //$scope.BankLedgerClosingBalance = Math.round(($scope.TotalDRAmount - $scope.TotalCRAmount) * 100 + Number.EPSILON) / 100;
+            //$scope.DRBalanceType = 'DR'
+        });
+       // $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
+    };
+
 
     $scope.CloseFGInventoryRegister = function () {
         angular.element(document.querySelector('#FGInventoryRegisterPopup')).modal('hide');

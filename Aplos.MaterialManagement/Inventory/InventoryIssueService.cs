@@ -10764,7 +10764,8 @@ namespace Library.MaterialManagement.Inventory
                                                     if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
 
                                                     if (item.TransactionUoMId != item.BaseUOMId)
-                                                        totalReqQty = Convert.ToInt32(item.RequisitionQty * item.BaseUoMFactor);
+                                                       // totalReqQty = Convert.ToInt32(item.RequisitionQty * item.BaseUoMFactor);
+                                                        totalReqQty = Convert.ToDecimal(item.RequisitionQty * item.BaseUoMFactor);
                                                     else
                                                         totalReqQty = item.RequisitionQty;
                                                     historyId++;

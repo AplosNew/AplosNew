@@ -42,7 +42,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Length<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" n-decimals="2" name="Length Before Wash" ng-model="modelNew.BlanketLengthBeforeWash" class="form-control text-right" required tabindex="2">
+                    <input type="text" n-decimals="2" name="Length Before Wash" ng-model="modelNewBlanket.BlanketLengthBeforeWash" ng-disabled="modelNewBlanket.IsBlanketDefaultLengthValuesChangeable==false" class="form-control text-right" required tabindex="2">
                 </div>
             </div>
         </div>
@@ -50,7 +50,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Width<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" n-decimals="2" name="Width Before Wash" ng-model="modelNew.BlanketWidthBeforeWash" class="form-control text-right" required tabindex="3">
+                    <input type="text" n-decimals="2" name="Width Before Wash" ng-model="modelNewBlanket.BlanketWidthBeforeWash" ng-disabled="modelNewBlanket.IsBlanketDefaultWidthValuesChangeable==false" class="form-control text-right" required tabindex="3">
                 </div>
             </div>
         </div>

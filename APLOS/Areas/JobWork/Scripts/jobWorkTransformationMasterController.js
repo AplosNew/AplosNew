@@ -580,15 +580,6 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
         });
     };
 
-    //$scope.ChangePopupByProductUOM = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + 'GetMaterialMasterUOM?Id=' + $scope.ByProduct.JobWorkItemId
-    //    }).then(function successCallback(response) {
-    //        $scope.ByProduct.UOM = response.data[0]["UOMId"];
-    //    });
-    //};
-
     $scope.CalculateMaterialInputGrossConsumption = function () {
         var NetConsumption = isNaN($scope.MaterialInput.NetConsumption) ? 0 : $scope.MaterialInput.NetConsumption;
         var ValueLoss = isNaN($scope.MaterialInput.ValueLoss) ? 0 : $scope.MaterialInput.ValueLoss;

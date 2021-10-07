@@ -1006,7 +1006,7 @@ namespace Library.HumanResource.Report.OT
                 #region Column Variables
                 int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, ColPlantName = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0, colBank = 0, colBankAccountNo = 0
-                   , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic = 0, colGross = 0, colCTC = 0;
+                   , ColLWP = 0, cDMP = 0,  colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic = 0, colGross = 0, colCTC = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0;
                 int npstruct = 0;
 
                 #endregion
@@ -1036,21 +1036,24 @@ namespace Library.HumanResource.Report.OT
                 SetCellValue("Grade", sheet1, xlsRow, ref xlsCol, out cGrade, 25);
                 SetCellValue("Direct Manpower Cost", sheet1, xlsRow, ref xlsCol, out colDirectManpowerCost, 25);
 
-                SetCellValue("Working Days", sheet1, xlsRow, ref xlsCol, out int colWorkingDays, 9);
-                SetCellValue("Pay Days", sheet1, xlsRow, ref xlsCol, out colPayDays, 5);
+                SetCellValue("Total Days", sheet1, xlsRow, ref xlsCol, out ColTotalWorkingDay, 8);
+                SetCellValue("Working Days", sheet1, xlsRow, ref xlsCol, out ColActualWorkingDay, 8);
+                SetCellValue("Pay Days", sheet1, xlsRow, ref xlsCol, out colPayDays, 8);
                 SetCellValue("Present", sheet1, xlsRow, ref xlsCol, out ColPdDy, 9);
                 SetCellValue("Late", sheet1, xlsRow, ref xlsCol, out ColLate, 9);
+                SetCellValue("Total Present (Including Late)", sheet1, xlsRow, ref xlsCol, out ColLatePresent, 23);
+
                 SetCellValue("Absent", sheet1, xlsRow, ref xlsCol, out ColAbDy, 9);
-                SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
-                SetCellValue("Extra Absent", sheet1, xlsRow, ref xlsCol, out ColExtraAbsent, 9);
                 SetCellValue("Holiday", sheet1, xlsRow, ref xlsCol, out ColHlDy, 9);
                 SetCellValue("WeekOff", sheet1, xlsRow, ref xlsCol, out ColWkOf, 9);
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
-                SetCellValue("Maternity Leave", sheet1, xlsRow, ref xlsCol, out ColMLv, 20);
+                SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
+                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 20);
+
                 SetCellValue("Structured Basic", sheet1, xlsRow, ref xlsCol, out colBasic, 11);
                 SetCellValue("Structured Gross", sheet1, xlsRow, ref xlsCol, out colGross, 11);
                 SetCellValue("Structured CTC", sheet1, xlsRow, ref xlsCol, out colCTC, 11);
-                SetCellValue("Total Ot Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
+                SetCellValue("Total OT Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
                 endGenericColumn = xlsCol;
 
                 //SR to
@@ -1450,37 +1453,21 @@ namespace Library.HumanResource.Report.OT
 
                         #endregion
                         #region Attendance Data
-                        double _ExtraAbsent = 0;
-                        dvExtraAbsent.RowFilter = "EmpSystemID='" + dtEmployees.Rows[i]["EmpSystemID"].ToString() + "' ";
-                        _ExtraAbsent = dvExtraAbsent.Count;
-                        var payDays = 0.00;// clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString());
-                        if (!String.IsNullOrEmpty(dtEmployees.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
-                        {
-                            if (dtEmployees.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
-                            {
-                                payDays = clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalHoliDay"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString());
-
-                            }
-                            if (dtEmployees.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
-                            {
-                                payDays = clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString());
-                            }
-                        }
-                        else
-                        {
-                            payDays = clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString());
-                        }
-
-                        SetCellTextAttdn(sheet1, xlsRow, colPayDays, payDays);
+                        SetCellTextAttdn(sheet1, xlsRow, ColTotalWorkingDay, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWorkingDay"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, ColActualWorkingDay, clsStaticInfo.dbl(dtEmployees.Rows[i]["ActualWorkingDay"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, colPayDays, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalPayDay"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColPdDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalPresent"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColLate, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLate"].ToString()));
-                        SetCellTextNumber(sheet1, xlsRow, ColAbDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLWP"].ToString()));
+                        var LatePresent = Convert.ToDecimal(dtEmployees.Rows[i]["TotalPresent"].ToString()) + Convert.ToDecimal(dtEmployees.Rows[i]["TotalLate"].ToString());
+                        SetCellTextAttdn(sheet1, xlsRow, ColLatePresent, clsStaticInfo.dbl(LatePresent));
+                        SetCellTextNumber(sheet1, xlsRow, ColAbDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColLWP, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLWP"].ToString()));
-                        SetCellTextAttdn(sheet1, xlsRow, ColExtraAbsent, _ExtraAbsent);
                         SetCellTextAttdn(sheet1, xlsRow, ColHlDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalHoliDay"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColWkOf, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLv"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColMLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalMLv"].ToString()));
+
+
                         SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
 
                         double WorkingDays = clsStaticInfo.dbl(dtEmployees.Rows[i]["WorkDays"].ToString());
@@ -1502,7 +1489,7 @@ namespace Library.HumanResource.Report.OT
 
                         }
 
-                        SetCellTextAttdn(sheet1, xlsRow, colWorkingDays, WorkingDays);
+                        SetCellTextAttdn(sheet1, xlsRow, ColActualWorkingDay, WorkingDays);
                         //ExtraOT = ExtraOTH + ExtraOTW;
                         SetCellTextAttdn(sheet1, xlsRow, colExtraOT, ExtraOTH);
                         SetCellTextAttdn(sheet1, xlsRow, colWeekOff, ExtraOTW);
@@ -4203,7 +4190,7 @@ namespace Library.HumanResource.Report.OT
 													) MW ON MW.SystemId = EmpBasic.EmpSystemId
                                     INNER JOIN
 		                                    (
-													SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
+													SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalWorkingDay,0) TotalWorkingDay,ISNULL(TotalPayDay,0)TotalPayDay,ISNULL(TotalNonPayDay,0)TotalNonPayDay,ISNULL(ActualWorkingDay,0)ActualWorkingDay,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
 										,ISNULL(TotalLv,0) TotalLv
 										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr

@@ -88,16 +88,12 @@ namespace Aplos.Areas.Attendances.Controllers
                 NewAttdnMonthlySummaryService app = new NewAttdnMonthlySummaryService();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                //var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xls";
-                //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
                 var workbook = app.XlsMonthlyAttendanceSummaryReport(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters1, withColor, includeCurrentDate, false, isActive, isSeperated, isMaternity);
 
 
 
                 return RenderReportAsPdf(workbook, "MonthlyAttdnInfo");
-
-                //return RedirectToAction("GetData", "AttendanceProcessUI", workbook);
-            }
+             }
 
             catch (Exception ex)
             {
@@ -118,11 +114,11 @@ namespace Aplos.Areas.Attendances.Controllers
                 NewAttdnMonthlySummaryService app = new NewAttdnMonthlySummaryService();
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xls";
+                var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xlsx";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
                 var workbook = app.XlsMonthlyAttendanceSummaryReport(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters, withColor, includeCurrentDate, withSummary, isActive, isSeperated, isMaternity);
 
-                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.Version = ExcelVersion.Excel2016;
                 workbook.SaveAs(fullPath);
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
@@ -175,11 +171,11 @@ namespace Aplos.Areas.Attendances.Controllers
                 NewAttdnMonthlyDateRangeSummaryService appx = new NewAttdnMonthlyDateRangeSummaryService();
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xls";
+                var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xlsx";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
                 var workbook = appx.XlsMonthlyAttendanceSummaryReportDateRange(identity.CompanyId, identity.PlantId, FromDate, ToDate, identity.Name, DayStatus, empParameters, withColor, includeCurrentDate, withSummary, isActive, isSeperated, isMaternity);
 
-                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.Version = ExcelVersion.Excel2016;
                 workbook.SaveAs(fullPath);
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);

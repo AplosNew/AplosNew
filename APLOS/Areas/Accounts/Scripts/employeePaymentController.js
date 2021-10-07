@@ -619,6 +619,8 @@ function employeePaymentController(cboService, commonMessage, $scope, $rootScope
     };
 
     $scope.Save = function () {
+        if ($scope.voucher.CompanyCurrencyRate == 0)
+            $scope.voucher.CompanyCurrencyRate=1
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
         $scope.checkPostingDate();

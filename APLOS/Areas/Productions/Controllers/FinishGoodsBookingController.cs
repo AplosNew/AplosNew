@@ -342,6 +342,18 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
 
+
+        [HttpGet, Authorize]
+        public ActionResult GetFGInventoryRegisterPoPUpListData(string finishGoodsBookingId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           // AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+
+            //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(clsFinishGoodsBooking.GetFGInventoryRegisterPoPUpListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, finishGoodsBookingId), JsonRequestBehavior.AllowGet);
+
+        }
+
         //[HttpGet, Authorize]
         //public ActionResult PabyableJournal(ReportFormat reportFormat, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc)
         //{
