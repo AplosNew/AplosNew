@@ -103,6 +103,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.voucher.ToCurrencyRate = $scope.modelNew.ToCurrencyRate;
         $scope.voucher.CompanyCurrencyRate = $scope.modelNew.ToCurrencyRate;
         $scope.voucher.Currency = $scope.modelNew.Currency;
+        $scope.voucher.IsPark = $scope.modelNew.IsPark;
         $scope.GetSavedGRNListForPostInvoice();
         $scope.getPostableJVList($scope.modelNew.Id, $scope.modelNew.PartyId);
         $scope.paymentTerm();
@@ -156,6 +157,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.TempList = [];
         for (var i = 0; i < $scope.approvedGRNList.length; i++) {
             var getRow = $filter("filter")($scope.TempList, { "TempList": $scope.approvedGRNList[i].Id });
+            
             if (getRow.length == 0) {
                 if ($scope.approvedGRNList[i].Active == true) {
                     var ob = {};
@@ -185,7 +187,11 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
 
             }
         }
-        $scope.GetCurrencyExchangeRate();
+        if ($scope.TempList.length > 0) {
+            $scope.totalExchangeRate = Math.round($filter("sumByKey")($filter("filter")($scope.TempList), "CompanyCurrencyRate") * 10000 + Number.EPSILON) / 10000;
+            $scope.modelNew.ToCurrencyRate = ($scope.totalExchangeRate / $scope.TempList.length)
+        }
+        
     }
 
     $scope.GetCurrencyExchangeRate = function () {
@@ -236,6 +242,8 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                     wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
                 }
                 $scope.sqlInStatement = wcInventoryReceiveId;
+
+
             }
             if (!baseService.isUndefinedOrNull($scope.sqlInStatement)) {
                 $scope.GetDetailData($scope.sqlInStatement);
@@ -287,6 +295,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         try {
             if (data.GRNQty >= data.OtherQty + data.TransactionQty) {
                 data.TransactionAmount = parseFloat(data.TransactionQty * data.TransactionRate).toFixed(2);
+                data.BooksAmount = parseFloat((data.TransactionQty * data.TransactionRate) * data.ToCurrencyRate).toFixed(2);
                 data.Balance = data.GRNQty - (data.OtherQty + data.TransactionQty)	
                 var gridObj = $("#GRNDetail").data("ejGrid");
                 gridObj.refreshContent(true);
@@ -415,6 +424,8 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         };
         $scope.modelNew = Object.assign({}, $scope.model);
         $scope.InventoryReceiveDetailList = [];
+        $scope.postableJVList = [];
+        $scope.voucher = {};
         $scope.TempList = [];
         $scope.Action = 'Save';
     }

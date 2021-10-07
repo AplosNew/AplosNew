@@ -116,6 +116,8 @@ namespace Library.Accounting.Accounts
                 };
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
                 invoice.VoucherId = voucher.Id;
+                invoice.PostGRNInvoiceId = voucherVM.Id;
+
                 _accountsCommonService.InsertInvoice(invoice, out DataSet _invoicedataSet);
                 var currentVoucherDetaiRecord = 0;
                 var currentInvoiceDetail = 0;
@@ -146,7 +148,7 @@ namespace Library.Accounting.Accounts
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _accountsCommonService.GetCompanyCurrencyExchange(voucher.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            DrAmount = voucherDr.DrAmount * voucherVM.CompanyCurrencyRate
+                            DrAmount = voucherDetailVM.BaseDrAmount
                         }, ref _drvDetailCurrencyData);
 
 
@@ -204,7 +206,7 @@ namespace Library.Accounting.Accounts
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _accountsCommonService.GetCompanyCurrencyExchange(voucher.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            CrAmount = voucherCr.CrAmount * voucherVM.CompanyCurrencyRate
+                            CrAmount = voucherDetailVM.BaseCrAmount
                         }, ref _crvDetailCurrencyData);
                     }
                 }
