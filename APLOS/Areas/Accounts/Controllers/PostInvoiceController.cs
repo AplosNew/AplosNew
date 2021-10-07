@@ -12,6 +12,7 @@ using Library.Security.Core;
 using Library.ViewModel.Vouchers;
 using Library.Data;
 using System.Linq;
+using Library.Model.Enums;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -269,7 +270,7 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost]
         public JsonResult Postdata(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
-            //AccountingFinishGoodsService accountingFinishGoodsService = new AccountingFinishGoodsService(_sqlRepository);
+            AccountsPostInvoiceService accountsPostInvoiceService = new AccountsPostInvoiceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
@@ -294,11 +295,30 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(new
             {
-                //Message = string.Format(AplosMessage.VoucherSave, accountingFinishGoodsService.InsertFinishGoodsBookingPosting(voucherVM, voucherDetailVMList))
+                Message = string.Format(AplosMessage.VoucherSave, accountsPostInvoiceService.InsertPostInvoice(voucherVM, voucherDetailVMList))
             });
 
         }
+        
+        [HttpGet, Authorize]
+        public ActionResult PostInvoiceVoucherReport(ReportFormat reportFormat, string voucherId)
+        {
+            AccountsPostInvoiceService accountsPostInvoiceService = new AccountsPostInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsPostInvoiceService.GetPostInvoiceVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
 
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
         #endregion
 
     }
