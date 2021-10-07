@@ -156,7 +156,8 @@ namespace Library.Service.Materials
                         Year = DateTime.Now.Year,
                         Month = DateTime.Now.Month,
                         Day = DateTime.Now.Day,
-                        IncrementValue = 1
+                        IncrementValue = 1,
+                        PlantId= PlantId
                     };
                     _fabricRollMasterIncrementValue.Insert(fabricRollMasterIncrementValue);
                 }
@@ -513,7 +514,7 @@ namespace Library.Service.Materials
         public GridModel GetGRNList(GridParameter parameters, string fabricRoll)
 
 
-        {
+       {
             try
             {
                 parameters.CmdText = @"SELECT IR.Id GRNNo,IR.Id,IR.CompanyGroupId,IR.CompanyId,IR.PlantId,P.UserName PartyName,SUM(IRD.TransactionQty) TotalDetailQty,SUM(IRD.MaterialTranAmount) TotalDetailAmount,C.Code Currency, REPLACE(Convert(VARCHAR(11), IR.GRNDate, 106), ' ', '-')  GRNDate,po.Id AS POID,po.PODate,C.Code FROM TRN.InventoryReceive IR

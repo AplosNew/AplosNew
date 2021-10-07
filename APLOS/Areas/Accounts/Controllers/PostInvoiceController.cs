@@ -9,6 +9,10 @@ using System.Collections.Generic;
 using Aplos.Properties;
 using System.Data;
 using Library.Security.Core;
+using Library.ViewModel.Vouchers;
+using Library.Data;
+using System.Linq;
+using Library.Model.Enums;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -261,6 +265,59 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             return Json(_accountsInventoryPayableService.GetPostableJVList(identity.CompanyId, identity.PlantId, id,partyId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult Postdata(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            AccountsPostInvoiceService accountsPostInvoiceService = new AccountsPostInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            if (voucherDetailVMList != null)
+            {
+                foreach (var item in voucherDetailVMList)
+                {
+                    if (item.GLGeneralInfoId == null)
+                        throw new CustomException("GL is Not Mapped !");
+                    if (item.BudgetMasterId == null)
+                        throw new CustomException("Budget is Not Mapped !");
+                    if (item.ActivityId == null)
+                        throw new CustomException("Activity is Not Mapped!");
+                }
+
+                if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+                    throw new CustomException("Dr Cr Amount not equal");
+            }
+            else
+                throw new CustomException("No Journal");
+
+            return Json(new
+            {
+                Message = string.Format(AplosMessage.VoucherSave, accountsPostInvoiceService.InsertPostInvoice(voucherVM, voucherDetailVMList))
+            });
+
+        }
+        
+        [HttpGet, Authorize]
+        public ActionResult PostInvoiceVoucherReport(ReportFormat reportFormat, string voucherId)
+        {
+            AccountsPostInvoiceService accountsPostInvoiceService = new AccountsPostInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsPostInvoiceService.GetPostInvoiceVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
         }
         #endregion
 
