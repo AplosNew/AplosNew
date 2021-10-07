@@ -615,6 +615,7 @@
     <Compile Include="Areas\IE\Controllers\BulletinReportController.cs" />
     <Compile Include="Areas\IE\Controllers\ElementCodeController.cs" />
     <Compile Include="Areas\IE\Controllers\GaugeFolderController.cs" />
+    <Compile Include="Areas\IE\Controllers\LineLayoutForProductionBulletinController.cs" />
     <Compile Include="Areas\IE\Controllers\MachineMapController.cs" />
     <Compile Include="Areas\IE\Controllers\MachineMasterUIController.cs" />
     <Compile Include="Areas\IE\Controllers\OperationConsumptionController.cs" />
@@ -1876,6 +1877,7 @@
     <Content Include="Areas\IE\Scripts\bartackCodeController.js" />
     <Content Include="Areas\IE\Scripts\bulletinReportController.js" />
     <Content Include="Areas\IE\Scripts\elementCodeController.js" />
+    <Content Include="Areas\IE\Scripts\LineLayoutForProductionBulletinController.js" />
     <Content Include="Areas\IE\Scripts\MachineMapController.js" />
     <Content Include="Areas\IE\Scripts\productionSystemAllowanceController.js" />
     <Content Include="Areas\IE\Scripts\sewingCodeController.js" />
@@ -3747,6 +3749,7 @@
     <Content Include="Areas\Attendances\Views\OTLimitTransactionFromApp\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\LeaveDeleteSingleDayNew\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\FabricRoll\Aplos.cshtml" />
+    <Content Include="Areas\IE\Views\LineLayoutForProductionBulletin\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
