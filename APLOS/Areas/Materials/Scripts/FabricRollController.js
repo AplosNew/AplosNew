@@ -1,11 +1,11 @@
 ﻿'use strict';
-fabricRollMasterController.$inject = ['commonMessage', '$controller', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService'];
-function fabricRollMasterController(commonMessage, $controller, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService) {
+FabricRollController.$inject = ['commonMessage', '$controller', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService'];
+function FabricRollController(commonMessage, $controller, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService) {
     $rootScope.title = "Fabric Roll Master";
     $scope.Action = 'Save';
     $scope.fabricRollMasters = [];
     $scope.selectedGRNList = [];
-    $scope.path = 'Materials/FabricRollMaster/';
+    $scope.path = 'Materials/FabricRoll/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -22,6 +22,7 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
         EmployeeName: "",
         GRNSplitQty: null
     };
+
     $scope.fabricRollSplitOb = {
         VendorWidth: null
     }
@@ -100,43 +101,43 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
         $scope.fabricRollMasterList = [];
     }
     //#region GRN Load
-    $scope.grnList = [];
-    $scope.getGRNDataList = function () {
-        try {
-            $scope.grnParameters = {
-                limit: 10,
-                offset: 0,
-                order: 'asc',
-                sort: 'GRNDate',
-                searchBy: 'GRNDate',
-                pageSize: 10,
-                total_count: 0,
-                search: null,
-                serverPagination: true
-            };
+    //$scope.grnList = [];
+    //$scope.getGRNDataList = function () {
+    //    try {
+    //        $scope.grnParameters = {
+    //            limit: 10,
+    //            offset: 0,
+    //            order: 'asc',
+    //            sort: 'GRNDate',
+    //            searchBy: 'GRNDate',
+    //            pageSize: 10,
+    //            total_count: 0,
+    //            search: null,
+    //            serverPagination: true
+    //        };
+          
 
+    //        $scope.popUpUrl = '';
+    //        $scope.popUpUrl = 'Materials/FabricRollMaster/GetGRNList';
+    //        $scope.getGRNData = function (pageno) {
+    //            baseService.paginationBase($scope.popUpUrl, pageno, $scope.grnParameters)
+    //                .then(function (result) {
+    //                    $scope.grnList = result.Rows;
+    //                    $scope.grnParameters.total_count = result.Total;
+    //                }, function () {
+    //                    ShowResult(commonMessage.NetworkError, 'failure', '#grnPopUp');
+    //                }).finally(function () {
+    //                });
+    //        };
 
-            $scope.popUpUrl = '';
-            $scope.popUpUrl = 'Materials/FabricRollMaster/GetGRNList';
-            $scope.getGRNData = function (pageno) {
-                baseService.paginationBase($scope.popUpUrl, pageno, $scope.grnParameters)
-                    .then(function (result) {
-                        $scope.grnList = result.Rows;
-                        $scope.grnParameters.total_count = result.Total;
-                    }, function () {
-                        ShowResult(commonMessage.NetworkError, 'failure', '#grnPopUp');
-                    }).finally(function () {
-                    });
-            };
-
-            $scope.fieldName = name;
-            $scope.getGRNData();
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
-    $scope.getGRNDataList();
-    //#endregion GRN Load
+    //        $scope.fieldName = name;
+    //        $scope.getGRNData();
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
+    //$scope.getGRNDataList();
+   // #endregion GRN Load
 
     $scope.searchGRNByList = [
         {
@@ -155,53 +156,52 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
     $scope.GRNsearchBy = "GRN No";
     $scope.GRNsearch = "";
     $scope.GRNGridList = [];
-    $scope.LoadGRNSearchList = function () {
+    $scope.LoadGRNSearchList = function () {             
         $scope.GRNGridList = [];
-        try {
-            if ($scope.GRNsearch == '')
-                throw "Please insert search value.";
-            $http({
-                method: 'POST',
-                url: $scope.path + "GRNList",
-                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
-                dataType: 'JSON'
+                try {
+                    if ($scope.GRNsearch == '')
+                        throw "Please insert search value.";
+                    $http({
+                        method: 'POST',
+                        url: $scope.path + "GRNList",
+                        data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
+                        dataType: 'JSON'
 
-            }).then(function successCallback(response) {
-                $scope.GRNGridList = [];
-                $scope.GRNGridList = response.data;
-            });
-        }
-        catch (e) {
-            ShowResult(e, 'failure');
-        }
+                    }).then(function successCallback(response) {
+                        $scope.GRNGridList = [];
+                        $scope.GRNGridList = response.data;
+                    });
+                }
+                catch (e) {
+                    ShowResult(e, 'failure');
+                }
 
-
-
+          
+        
     }
-    $scope.LoadGRNSearchList();
-
-
-
-
 
     //#region Display Material by GRN ID
-    $scope.closeGRNPopUp = function (data) {
-        debugger;
-        $scope.fabricRollMaster.InventoryReceiveId = data.Id;
-        $scope.fabricRollMaster.GRNNo = data.GRNNo;
-        $scope.fabricRollMaster.GRNDate = data.GRNDate;
-        $scope.fabricRollMaster.POID = data.POID;
-        $scope.fabricRollMaster.PODate = data.PODate;
-        $scope.fabricRollMaster.Code = data.Code;
-        $scope.fabricRollMaster.PlantId = data.PlantId;
-        $scope.fabricRollMaster.PartyName = data.PartyName;
+    $scope.closeGRNPopUp = function (args) {
+    /*    debugger;*/
 
-        $scope.fabricRollMaster.TotalDetailQty = data.TotalDetailQty;
-        $scope.fabricRollMaster.TotalDetailAmount = data.TotalDetailAmount;
-        $scope.fabricRollMaster.Currency = data.Currency;
+        $scope.fabricRollMaster = Object.assign({}, args.data);
+
+        //$scope.fabricRollMaster.InventoryReceiveId = data.data.Id;
+
+        //$scope.fabricRollMaster.GRNNo = data.data.GRNNo;
+        //$scope.fabricRollMaster.GRNDate = data.data.GRNDate;
+        //$scope.fabricRollMaster.POID = data.POID;
+        //$scope.fabricRollMaster.PODate = data.PODate;
+        //$scope.fabricRollMaster.Code = data.Code;
+        //$scope.fabricRollMaster.PlantId = data.PlantId;
+        //$scope.fabricRollMaster.PartyName = data.PartyName;
+
+        //$scope.fabricRollMaster.TotalDetailQty = data.TotalDetailQty;
+        //$scope.fabricRollMaster.TotalDetailAmount = data.TotalDetailAmount;
+        //$scope.fabricRollMaster.Currency = data.Currency;
         $scope.getGRNDetail();
     };
-    //#endregion Material
+     //#endregion Material
     //#region grnDetail
     $scope.grnDetailList = [];
     $scope.getGRNDetail = function () {
@@ -263,20 +263,20 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
         if (!baseService.isUndefinedOrNull($scope.selectedGRNRow.Id)) {
             $http.get("Materials/FabricRollMaster/GetFABRollList?inventoryReceiveDetailId=" + $scope.selectedGRNRow.Id)
                 .then(
-                    function successCallback(response) {
-                        $scope.fabricRollMasterList = response.data.Rows;
-                    },
-                    function errorCallback(response) {
-                        ShowResult(response, 'failure');
-                    });
+                function successCallback(response) {
+                    $scope.fabricRollMasterList = response.data.Rows;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
         }
     };
     //#end region
 
+    
 
 
-
-
+    
     function checkExisting(id) {
         for (var i = 0; i < $scope.selectedGRNList.length; i++) {
             var ob = $scope.selectedGRNList[i];
@@ -286,9 +286,9 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
         }
         return false;
     }
-
+   
     //#end region
-
+    
     function validFabric() {
         angular.forEach($scope.fabricRollMasterList, function (item) {
             if (duplicateVendorLotNo($scope.fabricRollMasterList, item.VendorRollNo) === true) {
@@ -302,15 +302,15 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
             }
         });
     }
-    function duplicateVendorLotNo(list, value) {
-        for (var i = 0; i < list.length; i++) {
-            if (baseService.isUndefinedOrNull(value)) {
-                for (var x = i + 1; x < list.length; x++) {
-                    if (!baseService.isUndefinedOrNull(list[i].VendorRollNo) && list[i].VendorRollNo === list[x].VendorRollNo) {
-                        return true;
-                    }
-                }
-            }
+   function duplicateVendorLotNo (list, value) {
+       for (var i = 0; i < list.length; i++) {
+           if (baseService.isUndefinedOrNull(value)) {
+               for (var x = i + 1; x < list.length; x++) {
+                   if (!baseService.isUndefinedOrNull(list[i].VendorRollNo)&& list[i].VendorRollNo === list[x].VendorRollNo) {
+                       return true;
+                   }
+               }
+           }
         }
         return false;
     };
@@ -329,11 +329,8 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: {
-                        entities: JSON.stringify($scope.fabricRollMasterList)
-                    },
+                    data: $scope.fabricRollMasterList,
                     dataType: 'JSON'
-                    , contentType: "application/json charset=utf-8"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
@@ -348,7 +345,7 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
                 };
             }
         } catch (e) {
-            ShowResult(e, 'failure', 'fabricRollPopUp');
+            ShowResult(e, 'failure','fabricRollPopUp');
         }
     };
     //Deleting Rows from RetentionAllowanceList
@@ -407,45 +404,45 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
     function getPdf(inventoryReceiveDetailId) {
         $http.get("Materials/FabricRollMaster/GetBarCideList?inventoryReceiveDetailId=" + inventoryReceiveDetailId)
             .then(
-                function successCallback(response) {
-                    var tttt = response.data;
-                    var imgData = tttt;
-                    var doc = new jsPDF();
-                    var y = 10;
-                    var th = 10;
-                    var h = 12;
-                    angular.forEach(imgData, function (item, i) {
-                        //if ((i + 1) % 6 === 0) {
-                        //    doc.addPage('1', 'a6');
-                        //}
-                        doc.setFontSize(15);
-                        doc.text(item.GRNNo, y, th);
-                        doc.text(item.RollNo, y, th + 10);
-                        doc.addImage(item.barCode, 'JPEG', y, th + 12, 50, 10);
-                        doc.setFontSize(10);
-                        doc.text(item.MaterialName, y, th + 26);
-                        doc.text(item.ArticleName, y, th + 30);
-                        doc.setFontSize(12);
-                        doc.text("Vendor:" + item.Party, y, th + 36);
-                        doc.text("Vendor Lot:" + item.VendorLotNo, y, th + 40);
-                        doc.text("Vendor Qty:" + item.VendorQty, y + 40, th + 40);
-                        doc.text("Shrinkage:" + item.ShrinkagePercentageWidth, y, th + 45);
-                        doc.setLineWidth(0.5);
-                        doc.line(10, th + 50, y, th + 50); // horizontal line
-                        y += 80;
-                        if ((i + 1) % 2 === 0 && i !== 0) {
-                            var tth = th;
-                            th += (th + 10 + 8 + 10 + 30) - tth;
-                            y = 10;
+            function successCallback(response) {
+                var tttt = response.data;
+                var imgData = tttt;
+                var doc = new jsPDF();
+                var y = 10;
+                var th = 10;
+                var h = 12;
+                angular.forEach(imgData, function (item, i) {
+                    //if ((i + 1) % 6 === 0) {
+                    //    doc.addPage('1', 'a6');
+                    //}
+                    doc.setFontSize(15);
+                    doc.text(item.GRNNo, y, th);
+                    doc.text(item.RollNo, y, th+10);
+                    doc.addImage(item.barCode, 'JPEG', y, th+12, 50, 10);
+                    doc.setFontSize(10);
+                    doc.text(item.MaterialName, y, th+26);
+                    doc.text(item.ArticleName, y, th+30);
+                    doc.setFontSize(12);
+                    doc.text("Vendor:" + item.Party, y, th + 36);
+                    doc.text("Vendor Lot:" + item.VendorLotNo, y, th + 40);
+                    doc.text("Vendor Qty:" + item.VendorQty, y + 40, th + 40);
+                    doc.text("Shrinkage:" + item.ShrinkagePercentageWidth, y, th + 45);
+                    doc.setLineWidth(0.5);
+                    doc.line(10, th + 50, y, th + 50); // horizontal line
+                    y += 80;
+                    if ((i + 1) % 2 === 0 && i !== 0) {
+                        var tth = th;
+                        th += (th + 10 + 8 + 10 + 30) - tth;
+                        y = 10;
 
-                        }
+                    }
 
-                    });
-                    pdf_test_harness_init(doc, null);
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
                 });
+                pdf_test_harness_init(doc, null);
+            },
+            function errorCallback(response) {
+                ShowResult(response, 'failure');
+            });
     }
 
 }

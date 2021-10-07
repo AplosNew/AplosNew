@@ -6620,7 +6620,7 @@ ORDER BY tg.[Sequence]";
 			dsOrderItems = loadOrderMasterItems(grnId);
 			dsTax = loadOrderMasterTax(grnId);
 
-			int LasColumnIndex = 15;
+			int LasColumnIndex = 11;
 			Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
 			DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
 			if (dv.Count > 0)
@@ -6721,28 +6721,28 @@ ORDER BY tg.[Sequence]";
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
 			range.ApplyCharacterFormat(FontBold);
-			int colRate = COL; COL++;
+			int colRate = COL; //COL++;
 			wTable.Rows[ROW].Cells[colRate].Width = 55;
 
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
-			range.ApplyCharacterFormat(FontBold);
-			int colUoM = COL; COL++;
+			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+			//range.ApplyCharacterFormat(FontBold);
+			//int colUoM = COL; COL++;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
-			range.ApplyCharacterFormat(FontBold);
-			int colQualityStatus = COL; COL++;
+			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
+			//range.ApplyCharacterFormat(FontBold);
+			//int colQualityStatus = COL; COL++;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GrossAmount");
-			range.ApplyCharacterFormat(FontBold);
-			int colGrossAmount = COL; COL++;
+			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GrossAmount");
+			//range.ApplyCharacterFormat(FontBold);
+			//int colGrossAmount = COL; COL++;
 
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("DiscountAmount");
-			range.ApplyCharacterFormat(FontBold);
-			int colDiscountAmount = COL;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("DiscountAmount");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colDiscountAmount = COL;
 
-			int colTotalTaxableAmount = COL;
+            int colTotalTaxableAmount = COL;
 			if (dv.Count > 0)
 			{
 				COL++;
@@ -6867,10 +6867,10 @@ ORDER BY tg.[Sequence]";
 				TROW.Cells[colLotNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
 				TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
 				TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
-				TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-				TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
-                TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("F2"));
-                TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("F2"));
+				//TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
+				//TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
+                //TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("F2"));
+                //TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("F2"));
                 TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
 				totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
 				//TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
@@ -6902,7 +6902,7 @@ ORDER BY tg.[Sequence]";
 
 			for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
 			{
-				if (C == colHSNCode || C == colRate || C == colQualityStatus || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate || C == colUoM || dicTaxes.ContainsValue(C))
+				if (C == colHSNCode || C == colRate /*|| C == colQualityStatus*/ || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate /*|| C == colUoM*/ || dicTaxes.ContainsValue(C))
 					continue;
 
 				double value = 0;
@@ -9568,7 +9568,7 @@ ORDER BY tg.[Sequence]";
 
 				//{ TotalInWords}
 
-				document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+				document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.000") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
 				document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
 				Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
@@ -10102,7 +10102,7 @@ ORDER BY tg.[Sequence]";
 						value += clsStdLib.dbl(item.Text);
 					}
 				}
-				_TROW.Cells[C].AddParagraph().AppendText(value.ToString("F2")).ApplyCharacterFormat(FontBold);
+				_TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.000")).ApplyCharacterFormat(FontBold);
 			}
 			#endregion Total
 
@@ -12728,7 +12728,7 @@ ORDER BY tg.[Sequence]";
 						,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty
 						,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty
 						,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty	 				
-						,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM
+						,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM,CU.Code CurrencyName
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -13014,7 +13014,7 @@ ORDER BY tg.[Sequence]";
 					,0 ReductionByAdjustmentQty
 					,0 InventorySalesQty
 					,0 InventoryScrapQty						
-					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM
+					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM,'' CurrencyName
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
@@ -19905,7 +19905,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				}
 				//{ TotalInWords}
 
-				document.Replace("{GrandTotal}", (materialTotal + serviceTotal+ InventorySalesAdditionalTax).ToString("F2") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+				document.Replace("{GrandTotal}", (materialTotal + serviceTotal+ InventorySalesAdditionalTax).ToString("#,##0.000") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
 				document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal+ InventorySalesAdditionalTax), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
 				Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
@@ -20415,7 +20415,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 			double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(TotalAmount)", "").ToString())
 				//- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
 				+ clsStdLib.dbl(dsTax.Compute("SUM(TaxAmount)", "").ToString());
-
+			//_TROW.Cells[C].AddParagraph().AppendText(total.ToString("#,##0.000")).ApplyCharacterFormat(FontBold);
 			//_TROW.Cells[SubTotalColumn + 1].AddParagraph().AppendText(total.ToString("F2") + " (" + ru.InWord(total, dsOrderMaster.Rows[0]["CurrencyId"].ToString()) + ")");
 
 			#endregion Total

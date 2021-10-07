@@ -9685,6 +9685,33 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 			sheet1.Range[_rowL, colAdjustmentAmount].CellStyle.Font.Bold = true;
 			sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
 
+			//InventorySales 
+			sheet1.Range[_rowL, colInventorySalesQty].Formula = "=SUM(" + report.GetColumnNameForXls(colInventorySalesQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colInventorySalesQty) + (_rowL - 1) + ")";
+			sheet1.Range[_rowL, colInventorySalesQty].NumberFormat = report.NumberFormatDecimalTwo();
+			sheet1.Range[_rowL, colInventorySalesQty].CellStyle.Font.Bold = true;
+			sheet1.Range[_rowL, 1, _rowL, 8].CellStyle.Font.Underline = ExcelUnderline.Double; 
+
+
+
+			sheet1.Range[_rowL, colInventorySalesAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colInventorySalesAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colInventorySalesAmount) + (_rowL - 1) + ")";
+			sheet1.Range[_rowL, colInventorySalesAmount].NumberFormat = report.NumberFormatDecimalTwo();
+			sheet1.Range[_rowL, colInventorySalesAmount].CellStyle.Font.Bold = true;
+			sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
+
+			//InventorySalesReturn 
+			sheet1.Range[_rowL, colInventorySalesReturnQty].Formula = "=SUM(" + report.GetColumnNameForXls(colInventorySalesReturnQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colInventorySalesReturnQty) + (_rowL - 1) + ")";
+			sheet1.Range[_rowL, colInventorySalesReturnQty].NumberFormat = report.NumberFormatDecimalTwo();
+			sheet1.Range[_rowL, colInventorySalesReturnQty].CellStyle.Font.Bold = true;
+			sheet1.Range[_rowL, 1, _rowL, 8].CellStyle.Font.Underline = ExcelUnderline.Double;
+
+
+
+			sheet1.Range[_rowL, colInventorySalesReturnAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colInventorySalesReturnAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colInventorySalesReturnAmount) + (_rowL - 1) + ")";
+			sheet1.Range[_rowL, colInventorySalesReturnAmount].NumberFormat = report.NumberFormatDecimalTwo();
+			sheet1.Range[_rowL, colInventorySalesReturnAmount].CellStyle.Font.Bold = true;
+			sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
+
+
 
 			#endregion sumCalc
 

@@ -686,6 +686,7 @@
     <Compile Include="Areas\Leave\Controllers\LeaveTypeController.cs" />
     <Compile Include="Areas\Leave\Controllers\SandWichLeaveOnHolidayController.cs" />
     <Compile Include="Areas\Leave\LeaveAreaRegistration.cs" />
+    <Compile Include="Areas\Materials\Controllers\FabricRollController.cs" />
     <Compile Include="Areas\Materials\Controllers\RackController.cs" />
     <Compile Include="Areas\Modules\Controllers\NotificationURLController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\DispatchMasterController.cs" />
@@ -1918,6 +1919,7 @@
     <Content Include="Areas\Leave\Scripts\onDutyTransactionController.js" />
     <Content Include="Areas\Leave\Scripts\leaveTypeController.js" />
     <Content Include="Areas\Leave\Scripts\SandWichLeaveOnHolidayController.js" />
+    <Content Include="Areas\Materials\Scripts\FabricRollController.js" />
     <Content Include="Areas\Materials\Scripts\RackController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchMasterController.js" />
     <Content Include="Areas\OrderManagements\Scripts\SalesOrderUpdateController.js" />
@@ -3744,6 +3746,7 @@
     <Content Include="Areas\HumanResource\Views\LeaveApplicationNew\LeaveDelete.cshtml" />
     <Content Include="Areas\Attendances\Views\OTLimitTransactionFromApp\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\LeaveDeleteSingleDayNew\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\FabricRoll\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3800,7 +3803,6 @@
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
     <Content Include="POPResources\Templates\PurchaseOrder202034.docx" />
     <Content Include="POPResources\Templates\InventoryScrapReport202026.docx" />
-    <Content Include="POPResources\Templates\GRNReport202034.docx" />
     <Content Include="POPResources\Templates\GratuityInsuranceAgreement.docx" />
     <Content Include="POPResources\Templates\TaxInvoice202034.docx" />
     <Content Include="POPResources\Templates\ServiceRequisition202034.docx" />

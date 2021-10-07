@@ -312,13 +312,15 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 			                            TotalAbsent = AbsentValue,
 			                            TotalLv = LvValue,
                                         TotalLWP = LWPValue,
-			                            TotalMLv = 0,
+			                            TotalMLv = CASE WHEN ISNULL(lt.LeaveType,'')='' THEN 0 ELSE 1 END,
                                         TotalCompAssignLv = 0,
 			                            TotalWeekOff = WeekOffValue,
 			                            TotalHoliDay = HoliDayValue,
                                         TotalWeekOffHoliDay = 0,
                                         OTHr
-	                             FROM dbo.AttdnProcessData left join daytype p on AttdnProcessData.DayStatus=p.DayType
+	                            FROM dbo.AttdnProcessData APD
+                                left join daytype p on APD.DayStatus=p.DayType
+                                left join LeaveType LT ON LT.Id=APD.LTSystemID AND lt.LeaveType='Maternity'
                                 WHERE WorkDate BETWEEN '" + sfrmDate + @"'
                                     AND '" + sToDate + @"'  
                                     AND (" + sEmpSystemID + @")) A
