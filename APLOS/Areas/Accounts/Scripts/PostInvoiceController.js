@@ -92,14 +92,21 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.Get = function (obj) {
         $scope.model = obj.data;
         $scope.modelNew = Object.assign({}, $scope.model);
+        $scope.voucher.Id = $scope.modelNew.Id;
         $scope.voucher.CurrencyId = $scope.modelNew.CurrencyId;
         $scope.voucher.DocRefNo = $scope.modelNew.DocRefNo;
         $scope.voucher.PostingDate = $scope.modelNew.InvoiceDate;
         $scope.voucher.DocDate = $scope.modelNew.InvoiceDate;
+        $scope.voucher.PartyId = $scope.modelNew.PartyId;
+        $scope.voucher.PartyPlantId = $scope.modelNew.PartyPlantId;
+        $scope.voucher.Amount = $scope.modelNew.Amount;
         $scope.voucher.ToCurrencyRate = $scope.modelNew.ToCurrencyRate;
+        $scope.voucher.CompanyCurrencyRate = $scope.modelNew.ToCurrencyRate;
         $scope.voucher.Currency = $scope.modelNew.Currency;
+        $scope.voucher.IsPark = $scope.modelNew.IsPark;
         $scope.GetSavedGRNListForPostInvoice();
         $scope.getPostableJVList($scope.modelNew.Id, $scope.modelNew.PartyId);
+        $scope.paymentTerm();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -150,6 +157,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.TempList = [];
         for (var i = 0; i < $scope.approvedGRNList.length; i++) {
             var getRow = $filter("filter")($scope.TempList, { "TempList": $scope.approvedGRNList[i].Id });
+            
             if (getRow.length == 0) {
                 if ($scope.approvedGRNList[i].Active == true) {
                     var ob = {};
@@ -179,7 +187,11 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
 
             }
         }
-        $scope.GetCurrencyExchangeRate();
+        if ($scope.TempList.length > 0) {
+            $scope.totalExchangeRate = Math.round($filter("sumByKey")($filter("filter")($scope.TempList), "CompanyCurrencyRate") * 10000 + Number.EPSILON) / 10000;
+            $scope.modelNew.ToCurrencyRate = ($scope.totalExchangeRate / $scope.TempList.length)
+        }
+        
     }
 
     $scope.GetCurrencyExchangeRate = function () {
@@ -230,6 +242,8 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                     wcInventoryReceiveId += Array.prototype.map.call(uniqueInventoryReceiveId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
                 }
                 $scope.sqlInStatement = wcInventoryReceiveId;
+
+
             }
             if (!baseService.isUndefinedOrNull($scope.sqlInStatement)) {
                 $scope.GetDetailData($scope.sqlInStatement);
@@ -281,6 +295,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         try {
             if (data.GRNQty >= data.OtherQty + data.TransactionQty) {
                 data.TransactionAmount = parseFloat(data.TransactionQty * data.TransactionRate).toFixed(2);
+                data.BooksAmount = parseFloat((data.TransactionQty * data.TransactionRate) * data.ToCurrencyRate).toFixed(2);
                 data.Balance = data.GRNQty - (data.OtherQty + data.TransactionQty)	
                 var gridObj = $("#GRNDetail").data("ejGrid");
                 gridObj.refreshContent(true);
@@ -365,7 +380,8 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
                         else {
                             ShowResult(response.data.Message, 'success');
                             $scope.getDataList();
-                            //$scope.getPostableJVList($scope.modelNew.Id);
+                            //$scope.paymentTerm();
+                            //$scope.setTab2(2);
                             $scope.Clear();
                         }
                     }), function errorCallBack(response) {
@@ -408,6 +424,8 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         };
         $scope.modelNew = Object.assign({}, $scope.model);
         $scope.InventoryReceiveDetailList = [];
+        $scope.postableJVList = [];
+        $scope.voucher = {};
         $scope.TempList = [];
         $scope.Action = 'Save';
     }
@@ -431,7 +449,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.getPostableJVList = function (id,partyId) {
         $http({
             method: "POST",
-            url: "accounts/PostInvoice/GetPostableJVList?id=" + id + '&partyId=' + $scope.modelNew.PartyId
+            url: "accounts/PostInvoice/GetPostableJVList?id=" + id + '&partyId=' + partyId
         }).then(function successCallback(response) {
             $scope.postableJVList = response.data;
         });
@@ -462,5 +480,91 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         });
     };
     $scope.getCboVoucherTypePostInvoiceList();
-    
+
+    $scope.SavePost = function () {
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.formPost.$valid) {
+                $http({
+                    method: "POST",
+                    url: "accounts/PostInvoice/Postdata",
+                    data: {
+                        "voucherVM": $scope.voucher,
+                        "voucherDetailVMList": $scope.postableJVList,
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.getDataList();
+                        $scope.Clear();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+        }
+    };
+    $scope.paymentTerm = function () {
+
+        $scope.paymenttermUrl = "accounts/PaymentTerm/getvendorcbo";
+        $http({
+            method: "GET",
+            url: $scope.paymenttermUrl
+        }).then(function successCallback(response) {
+            $scope.paymentTermList = response.data;
+        });
+    };
+    $scope.changePaymentTerm = function (id) {
+        if (!baseService.isUndefinedOrNull(id)) {
+            var paymentTerm = $.grep($scope.paymentTermList, function (item) {
+                return item.Value === id;
+            })[0];
+            $scope.voucher.PaymentTermCode = paymentTerm.PaymentTermCode;
+            $scope.voucher.BaseNoOfDays = paymentTerm.NoOfDay;
+            if (paymentTerm.BaseLineDate !== null)
+                if (paymentTerm.BaseLineDate === "documentdate") {
+                    $scope.voucher.BaseOnDueDate = $scope.voucher.DocDate;
+                    $scope.IsBaseOnDueDateEnable = true;
+                } else if (paymentTerm.BaseLineDate === "postingdate") {
+                    $scope.voucher.BaseOnDueDate = $scope.voucher.PostingDate;
+                    $scope.IsBaseOnDueDateEnable = true;
+                }
+                else if (paymentTerm.BaseLineDate === "voucherdate") {
+                    $scope.voucher.BaseOnDueDate = $filter("dateFiltering")(Date.now());
+                    $scope.IsBaseOnDueDateEnable = true;
+                }
+                else {
+                    $scope.IsBaseOnDueDateEnable = false;
+                    $scope.voucher.BaseOnDueDate = $filter("dateFiltering")(Date.now());
+                }
+            $scope.getMatureDate($scope.voucher.BaseOnDueDate, $scope.voucher.BaseNoOfDays);
+        }
+    };
+
+    $scope.getMatureDate = function (date, days) {
+        if (!baseService.isUndefinedOrNull(date)) {
+            date = new Date(date);
+            date.setDate(date.getDate() + days);
+            $scope.voucher.MatureDate = $filter("date")(date, "dd-MMM-yyyy");
+        }
+    };
+    $scope.getMatureDateNew = function (date) {
+        if (!baseService.isUndefinedOrNull(date)) {
+            $scope.voucher.MatureDate = $filter("date")(date, "dd-MMM-yyyy");
+        }
+    };
+    $scope.onClickReportExcelPosting = function (data) {
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.VoucherId)) return ShowResult('No Id found', 'failure');
+        $window.open('accounts/PostInvoice/PostInvoiceVoucherReport?reportFormat=' + reportFormat + '&&voucherId=' + data.VoucherId, '_blank');
+    };
+    $scope.onClickReportPDFPosting = function (data) {
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.VoucherId)) return ShowResult('No Id found', 'failure');
+        $window.open('accounts/PostInvoice/PostInvoiceVoucherReport?reportFormat=' + reportFormat + '&&voucherId=' + data.VoucherId, '_blank');
+    };
+
 }

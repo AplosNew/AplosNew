@@ -121,5 +121,9 @@ function IEConfig($routeProvider, $locationProvider) {
             templateUrl: 'ie/MachineMap/Aplos',
             controller: 'MachineMapController'
         })
+        .when('/line-layout-for-production-bulletin', {
+            templateUrl: 'ie/LineLayoutForProductionBulletin/Aplos',
+            controller: 'LineLayoutForProductionBulletinController'
+        })
         ;
 };

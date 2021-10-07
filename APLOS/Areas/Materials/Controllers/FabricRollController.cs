@@ -100,7 +100,7 @@ namespace Aplos.Areas.Materials.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT                               IR.Id GRNNo
+            string sql = @"select top 100 * from (SELECT              IR.Id GRNNo
                                     ,IR.Status GRNStatus
                                     ,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
                                     , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
@@ -114,6 +114,7 @@ namespace Aplos.Areas.Materials.Controllers
                                     , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 									, IR.IsApproved, IR.IsPaymentHold
                                     ,isnull(PO.POId,'') POId
+									,PO.PODate
 									,isnull(PO.PurchaseLCId,'') PurchaseLCId
 									,isnull(PO.ContractId,'') ContractId
                                     ,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCANo,isnull(PO.LCDate,'') LCDate
@@ -144,9 +145,9 @@ namespace Aplos.Areas.Materials.Controllers
 						, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent 
 						,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount
 						FROM [TRN].[InventoryReceiveDetail] AS A
-		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='"+identity.PlantId+@"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='20171' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
                         LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-		                            WHERE B.PlantId='"+identity.PlantId+@"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
+		                            WHERE B.PlantId='20171' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
 						Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
@@ -213,12 +214,18 @@ namespace Aplos.Areas.Materials.Controllers
 								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
 								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,PODate=STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), xpo.PODate, 106),' ','-') from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 								from  trn.POGGRNMap PDAMAP 
 							  LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
 							  LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
 							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
+							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate,PODate
 							)PO ON PO.GRNId = IR.Id
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 							LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
@@ -237,5 +244,31 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-    }
+		[HttpPost, Authorize]
+		public ActionResult MaterialList(string inventoryReceiveId)
+		{
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			string sql = @"SELECT DISTINCT IRD.Id,IRD.InventoryReceiveId,IRD.TransactionQty,IRD.TransactionUoMId,Isnull(FRM.SplitCount,0)SplitCount,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,IR.Id GRNNo,IR.GRNDate,P.UserName PartyName,PL.FabRollPrefix,IM.PlantId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsId SKUId,MM.UserName MaterialMasterName,MMA.StandardName ArticleName,C.UserName SKUName,CV.UserName SKUValue, C.UserName +':'+CV.UserName SKUInfo,CU.Code FROM [TRN].[InventoryReceiveDetail] IRD
+                                        LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
+                                        LEFT JOIN HKP.Party P ON IR.PartyId=P.Id
+                                        LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
+										--LEFT JOIN ORG.Plant PL ON IM.PlantId= PL.Id
+                                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+										LEFT JOIN scs.PlantConfig PL ON  PL.PlantId=IM.PlantId
+                                        LEFT JOIN SCS.UnitOfMeasurement UOM ON IRD.TransactionUoMId=UOM.Id
+                                        LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
+                                        LEFT JOIN MST.MaterialMasterArticle MMA ON IM.ArticleId=MMA.Id
+                                        LEFT JOIN HKP.Characteristics C ON IM.FirstCharacteristicsId=C.Id
+                                        LEFT JOIN [HKP].[CharacteristicsValue] CV ON IM.FirstCharacteristicsValueId=CV.Id
+                                        LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
+                                        LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
+										LEFT JOIN (SELECT COUNT(Id) SplitCount,Sum(VendorQty) TotalDistributeQty,InventoryReceiveDetailId FROM TRN.FabricRollMaster GROUP BY InventoryReceiveDetailId) FRM ON IRD.Id=FRM.InventoryReceiveDetailId
+                                        WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
+
+			            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+
+		}
+
+	}
 }
