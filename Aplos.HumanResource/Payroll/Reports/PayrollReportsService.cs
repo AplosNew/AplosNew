@@ -2047,7 +2047,7 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("WeekOff", sheet1, xlsRow, ref xlsCol, out ColWkOf, 9);
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
-                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 17);
+                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 9);
                 SetCellValue("Total OT Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOtHr, 25);
 
                 //SR to
@@ -5155,7 +5155,7 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("WeekOff", sheet1, xlsRow, ref xlsCol, out ColWkOf, 9);
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
-                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 20);
+                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 9);
                 SetCellValue("Total OT Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
                 endGenericColumn = xlsCol;
 

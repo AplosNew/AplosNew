@@ -1048,7 +1048,7 @@ namespace Library.HumanResource.Report.OT
                 SetCellValue("WeekOff", sheet1, xlsRow, ref xlsCol, out ColWkOf, 9);
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
-                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 20);
+                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 9);
 
                 SetCellValue("Structured Basic", sheet1, xlsRow, ref xlsCol, out colBasic, 11);
                 SetCellValue("Structured Gross", sheet1, xlsRow, ref xlsCol, out colGross, 11);
