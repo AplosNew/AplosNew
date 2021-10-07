@@ -19,8 +19,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             string ZeroWC = string.Empty;
             try
             {
-                GetHRSettingForSeparatedZero(sPlantID,out dsHR);
-                if(dsHR.Tables[0].Rows.Count==0)
+                GetHRSettingForSeparatedZero(sPlantID, out dsHR);
+                if (dsHR.Tables[0].Rows.Count == 0)
                 {
                     ZeroBody = @"left join 
                                 (
@@ -29,7 +29,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 ) summ on summ.EmpSystemID=e.SystemId";
                     ZeroWC = @"and isnull(summ.EmpSystemID,'')=''";
                 }
-                
+
 
                 string dtFD = Convert.ToDateTime(sFromDate).AddDays(-1).ToString("dd-MMM-yyyy");
                 string dtFDPrevM = Convert.ToDateTime(sFromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
@@ -81,7 +81,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
 										left join hkp.SeparationType st on st.id=r.SeparationTypeId
 
 --============
-" + ZeroBody+@"
+" + ZeroBody + @"
 left join
 (
 					select ss.EmpInfoSystemID from
@@ -144,7 +144,7 @@ select EmpSystemId from SalaryLock where MonthNo=Month('" + sFromDate + @"' ) an
 e.dos between '" + sFromDate + @"'   and  '" + sToDate + @"' 
 and isnull(ssna.EmpInfoSystemID,'')=''
 and (isnull(ssnd2.EmpInfoSystemID,'')<>'' or isnull(ssnd.EmpInfoSystemID,'')<>'' )
-"+ZeroWC+@"
+" + ZeroWC + @"
 and isnull(os.SystemID,'')=''
 and isnull(aps.EmpSystemId,'')=''
 
@@ -256,7 +256,9 @@ and isnull(aps.EmpSystemId,'')=''
 --============
 left join 
 (
-select EmpSystemID from AttdnDataMonthlySummary where YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0 and PlantID='" + sPlantID + @"'
+SELECT apd.EmpSystemID FROM AttdnProcessData AS apd WHERE apd.WorkDate BETWEEN '" + sFromDate + @"' AND '" + sToDate + @"'	GROUP BY apd.EmpSystemID HAVING SUM(ISNULL(apd.PresentValue,0)+ISNULL(apd.LateValue,0)+ISNULL(apd.LvValue,0))=0											                
+							                       
+--select EmpSystemID from AttdnDataMonthlySummary where YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0 and PlantID='" + sPlantID + @"'
 ) summ on summ.EmpSystemID=e.SystemId
 left join
 (
@@ -361,13 +363,13 @@ and isnull(aps.EmpSystemId,'')=''
                                                     )
                                                 ";
 
-                
+
                 if (sPlantID != "ALL")
                 {
                     strSQL += @"
                                AND E.PlantID = '" + sPlantID + @"'";
                 }
-                
+
 
                 strSQL += @"
                             ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric desc ";
@@ -385,7 +387,7 @@ and isnull(aps.EmpSystemId,'')=''
             }
         }//End Function
 
-        
+
         public string ExceptionEmpsForSP(string sPlantID)
         {
             string strSQL = string.Empty;
@@ -414,8 +416,8 @@ and isnull(aps.EmpSystemId,'')=''
             {
             }
         }//End Function
-       
-        public void GetHRSettingForSeparatedZero(string sPlantID,  out System.Data.DataSet dsRef)
+
+        public void GetHRSettingForSeparatedZero(string sPlantID, out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;

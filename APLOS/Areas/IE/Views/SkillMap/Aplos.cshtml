@@ -72,8 +72,24 @@
                 </div>
                 <div class="row" style="margin-top:50px;">
 
-                    <div id="filters">
+                    @*<div id="filters">
 
+                    </div>*@
+
+                    <div id="filters" ej-grid e-datasource="filters" 
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                        <div e-columns>
+                            <div e-column e-field="Company" e-headertext="Comapny" e-width="2"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="2"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="2"></div>
+                            <div e-column e-field="Shift" e-headertext="Shift" e-width="2"></div>
+                            <div e-column e-field="Process" e-headertext="Process" e-width="2"></div>
+                            <div e-column e-field="Category" e-headertext="Category" e-width="2"></div>
+                            <div e-column e-field="Type" e-headertext="Type" e-width="2"></div>
+                            <div e-column e-field="Skill" e-headertext="Skill" e-width="2"></div>
+                            <div e-column e-field="SkillGroup" e-headertext="Skill Group" e-width="2"></div>
+                        </div>
                     </div>
 
 
