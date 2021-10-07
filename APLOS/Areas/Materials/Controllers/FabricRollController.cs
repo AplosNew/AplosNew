@@ -249,7 +249,15 @@ namespace Aplos.Areas.Materials.Controllers
 		{
 
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			string sql = @"SELECT DISTINCT IRD.Id,IRD.InventoryReceiveId,IRD.TransactionQty,IRD.TransactionUoMId,Isnull(FRM.SplitCount,0)SplitCount,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,IR.Id GRNNo,IR.GRNDate,P.UserName PartyName,PL.FabRollPrefix,IM.PlantId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsId SKUId,MM.UserName MaterialMasterName,MMA.StandardName ArticleName,C.UserName SKUName,CV.UserName SKUValue, C.UserName +':'+CV.UserName SKUInfo,CU.Code FROM [TRN].[InventoryReceiveDetail] IRD
+			string sql = @"SELECT 
+DISTINCT IRD.Id,IRD.InventoryReceiveId,IRD.TransactionQty,IRD.TransactionUoMId,Isnull(FRM.SplitCount,0)SplitCount
+,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,IR.Id GRNNo,IR.GRNDate
+,P.UserName PartyName,PL.FabRollPrefix,IM.PlantId,IM.MaterialMasterId,IM.ArticleId
+,IM.FirstCharacteristicsId SKUId,MM.UserName MaterialMasterName,MMA.StandardName ArticleName
+,C.UserName SKU1,C2.UserName SKU2,C3.UserName SKU3,CV.UserName SKUValue, C.UserName +':'+CV.UserName SKUInfo,CU.Code
+
+,MGM.UserName MaterialGroup
+FROM [TRN].[InventoryReceiveDetail] IRD
                                         LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
                                         LEFT JOIN HKP.Party P ON IR.PartyId=P.Id
                                         LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
@@ -258,13 +266,21 @@ namespace Aplos.Areas.Materials.Controllers
 										LEFT JOIN scs.PlantConfig PL ON  PL.PlantId=IM.PlantId
                                         LEFT JOIN SCS.UnitOfMeasurement UOM ON IRD.TransactionUoMId=UOM.Id
                                         LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
+
+                                        LEFT JOIN MST.MaterialGroupMaster MGM ON MM.MaterialGroupMasterId=MGM.Id
                                         LEFT JOIN MST.MaterialMasterArticle MMA ON IM.ArticleId=MMA.Id
+
                                         LEFT JOIN HKP.Characteristics C ON IM.FirstCharacteristicsId=C.Id
+                                        LEFT JOIN HKP.Characteristics C2 ON IM.SecondCharacteristicsId=C2.Id
+                                        LEFT JOIN HKP.Characteristics C3 ON IM.ThirdCharacteristicsId=C3.Id
+
                                         LEFT JOIN [HKP].[CharacteristicsValue] CV ON IM.FirstCharacteristicsValueId=CV.Id
                                         LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
                                         LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
-										LEFT JOIN (SELECT COUNT(Id) SplitCount,Sum(VendorQty) TotalDistributeQty,InventoryReceiveDetailId FROM TRN.FabricRollMaster GROUP BY InventoryReceiveDetailId) FRM ON IRD.Id=FRM.InventoryReceiveDetailId
-                                        WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
+										LEFT JOIN (SELECT COUNT(Id) SplitCount,Sum(VendorQty) TotalDistributeQty
+										,InventoryReceiveDetailId FROM TRN.FabricRollMaster 
+										GROUP BY InventoryReceiveDetailId) FRM ON IRD.Id=FRM.InventoryReceiveDetailId
+WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
 
 			            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 
