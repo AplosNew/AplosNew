@@ -1747,7 +1747,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
 						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
-						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						--,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
                         --,isnull(p.TINNO,'') GSTINNo
 						,isnull(PP.GSTIN,'') GSTINNo
@@ -1770,6 +1771,9 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty	 				
 						,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM
 						,ISNULL( IR.FinishGoodsBookingId,'')FinishGoodsBookingId
+						,IR.ProductionOrderId
+						,CU.Code Currency
+
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -2037,7 +2041,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
 						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
-						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						--,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
                        -- ,isnull(p.TINNO,'') GSTINNo
 					,isnull(PP.GSTIN,'') GSTINNo
@@ -2059,6 +2064,9 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 					,0 InventoryScrapQty						
 					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM
 					,ISNULL( IR.FinishGoodsBookingId,'')FinishGoodsBookingId
+					,IR.ProductionOrderId
+					,null Currency
+
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
@@ -4451,7 +4459,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
 						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
-						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						--,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
                         --,isnull(p.TINNO,'') GSTINNo
 						,isnull(PP.GSTIN,'') GSTINNo
@@ -4476,6 +4485,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						,IRD.InventorySalesQty
 						,IRD.InventoryScrapQty						
 						,IRD.InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM
+							,IR.ProductionOrderId
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -4780,7 +4790,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
 						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
-						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						--,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') PostingDate
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
                        -- ,isnull(p.TINNO,'') GSTINNo
 					,isnull(PP.GSTIN,'') GSTINNo
@@ -4804,6 +4815,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 					,0 InventorySalesQty
 					,0 InventoryScrapQty						
 					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM
+					,null ProductionOrderId
+
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
@@ -5007,7 +5020,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
 			sheet1.Range[_rowL, COL].Text = "Production Id";
 			int colProductionId = COL;
-			sheet1.Range[_rowL, COL].ColumnWidth = 10;
+			sheet1.Range[_rowL, COL].ColumnWidth = 15;
 			sheet1.Range[_rowL, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, COL].CellStyle.Font.Bold = true;
@@ -5524,7 +5537,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 				//report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["DeliveryPartyPlant"].ToString());
 
 				//report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["GSTINNo"].ToString());
-				//report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["FirstName"].ToString());
+				report.SetText(ref sheet1, _rowL, colProductionId, inventoryMaterialList.Rows[n]["ProductionOrderId"].ToString());
 				report.SetText(ref sheet1, _rowL, colGateEntryNo, inventoryMaterialList.Rows[n]["GateEntryNo"].ToString());
 				report.SetText(ref sheet1, _rowL, colGateName, inventoryMaterialList.Rows[n]["GateName"].ToString());
 				report.SetText(ref sheet1, _rowL, colDocRefNo, inventoryMaterialList.Rows[n]["DocRefNo"].ToString());

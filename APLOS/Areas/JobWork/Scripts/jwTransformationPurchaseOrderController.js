@@ -3091,7 +3091,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: $scope.path + 'GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&JWPOId=' + $scope.productNew.Id + '&JWPODId=' + $scope.detailModel.Id + '&jwActivityId=' + activityListStr
+            url: $scope.path + 'GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&JWPOId=' + $scope.productNew.Id + '&JWPODId=' + $scope.detailModel.Id + '&jwActivityId=' + activityListStr + '&POType=' + $scope.productNew.POType
         }).then(function successCallback(response) {
             $scope.GetListForMasterOrder = [];
             $scope.GetListForMasterOrder = response.data;

@@ -514,7 +514,8 @@ namespace Library.Service.Materials
         public GridModel GetGRNList(GridParameter parameters, string fabricRoll)
 
 
-       {
+       
+        {
             try
             {
                 parameters.CmdText = @"SELECT IR.Id GRNNo,IR.Id,IR.CompanyGroupId,IR.CompanyId,IR.PlantId,P.UserName PartyName,SUM(IRD.TransactionQty) TotalDetailQty,SUM(IRD.MaterialTranAmount) TotalDetailAmount,C.Code Currency, REPLACE(Convert(VARCHAR(11), IR.GRNDate, 106), ' ', '-')  GRNDate,po.Id AS POID,po.PODate,C.Code FROM TRN.InventoryReceive IR
@@ -522,7 +523,7 @@ namespace Library.Service.Materials
 										LEFT JOIN TRN.InventoryReceiveDetail IRD ON IR.Id=IRD.InventoryReceiveId
                                         LEFT JOIN TRN.PurchaseOrder po on po.id=IRD.POId
 										LEFT JOIN SCS.Currency C ON IR.CurrencyId=C.Id
-										      LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
+									    LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
                                         LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
                                         LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
                                         LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
