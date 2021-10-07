@@ -948,6 +948,7 @@ var upanelApp = angular
     .controller('salaryProcessedReportControllerNew', salaryProcessedReportControllerNew)
     .controller('salaryStructureAndProcessedReportNewController', salaryStructureAndProcessedReportNewController)
     .controller('finishGoodsInventoryRegisterController', finishGoodsInventoryRegisterController)
+    .controller('LineLayoutForProductionBulletinController', LineLayoutForProductionBulletinController)
 
 
     .config(AccessControllerConfig)

@@ -194,7 +194,17 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.filters = [];
     $scope.loadFilters = function () {
-
+        var ColumnList = [
+            { field: 'Company', width: 20, headerText: "Company", type: 'string' },
+            { field: 'Plant', width: 20, headerText: "Plant", type: 'string' },
+            { field: 'Entity', width: 20, headerText: "Entity", type: 'string' },
+            { field: 'Shift', width: 20, headerText: "Shift", type: 'string' },
+            { field: 'Process', width: 20, headerText: "Process", type: 'string' },
+            { field: 'Category', width: 20, headerText: "Category", type: 'string' },
+            { field: 'Type', width: 20, headerText: "Type", type: 'string' },
+            { field: 'Skill', width: 20, headerText: "Skill", type: 'string' },
+            { field: 'SkillGroup', width: 20, headerText: "Skill Group", type: 'string' },
+        ];
 
         $http({
             method: 'GET',
@@ -204,40 +214,25 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
             $scope.filters = response.data;
            
 
-        try {
-            var gridObj = $("#filters").data("ejGrid");
-            if (gridObj !== undefined && typeof gridObj === 'object' && typeof gridObj.destroy === 'function') gridObj.destroy();
-        } catch (e) {
+        //try {
+        //    var gridObj = $("#filters").data("ejGrid");
+        //    if (gridObj !== undefined && typeof gridObj === 'object' && typeof gridObj.destroy === 'function') gridObj.destroy();
+        //} catch (e) {
 
-        }
-        var ColumnList = [
-            { field: 'Company', width: 20, headerText: "Company" , type: 'string' },
-            { field: 'Plant', width: 20, headerText: "Plant" , type: 'string' },
-            { field: 'Entity', width: 20, headerText: "Entity", type: 'string'},
-            { field: 'Shift', width: 20, headerText: "Shift", type: 'string'},            
-            { field: 'Process', width: 20, headerText: "Process", type: 'string'},
-            { field: 'Category', width: 20, headerText: "Category", type: 'string'},
-            { field: 'Type', width: 20, headerText: "Type", type: 'string' },
-            { field: 'Skill', width: 20, headerText: "Skill", type: 'string'},
-            { field: 'SkillGroup', width: 20, headerText: "Skill Group", type: 'string' },
-        ];
-            
-        
-
-        $("#filters").ejGrid({
-            dataSource: $scope.filters,
-            minWidth: 450, minHeight: 400,
-            allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
-            filterSettings: { filterType: "excel" },
-            columns: ColumnList
-        });
+        //}
+        //$("#filters").ejGrid({
+        //    dataSource: $scope.filters,
+        //    minWidth: 450, minHeight: 400,
+        //    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true,
+        //    filterSettings: { filterType: "excel" },
+        //    columns: ColumnList
+        //});
 
         var gridObj = $("#filters").data("ejGrid");
-        gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-            $("#filters").children('.e-pager.e-js.e-pager').hide();
-            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#filters").children('.e-gridcontent').hide();
+        //gridObj.refreshTemplate();
+        $("#filters").children('.e-pager.e-js.e-pager').hide();
+        $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+        $("#filters").children('.e-gridcontent').hide();
         });
     }
 
@@ -252,6 +247,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.intervalSet = function () {
         $scope.showDates = [];
+        
         var i = 0;
         var intervals = parseInt($scope.Interval);
 
@@ -260,6 +256,7 @@ function SkillMapController(cboService, commonMessage, $scope, $rootScope, baseS
                 
         }
         $scope.fillTableGrid();
+        $scope.loadFilters();
     }
 
 

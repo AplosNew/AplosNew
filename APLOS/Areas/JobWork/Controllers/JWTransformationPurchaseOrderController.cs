@@ -339,13 +339,13 @@ namespace Aplos.Areas.JobWork.Controllers
         #region Order Specific JW PO
 
         [Authorize, HttpGet]
-        public JsonResult GetBOQItems(string ContractId, string VendorId, string IsOwnVendor, string JWPOId, string JWPODId, string jwActivityId)
+        public JsonResult GetBOQItems(string ContractId, string VendorId, string IsOwnVendor, string JWPOId, string JWPODId, string jwActivityId, string POType)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
-                return Json(JobWorkCommon.GetBOQItems(ContractId, VendorId, IsOwnVendor, JWPOId, JWPODId, jwActivityId), JsonRequestBehavior.AllowGet);
+                return Json(JobWorkCommon.GetBOQItems(ContractId, VendorId, IsOwnVendor, JWPOId, JWPODId, jwActivityId, POType), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
