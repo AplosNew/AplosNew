@@ -4504,9 +4504,14 @@ order by IR.GRNDate desc";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                string sql = @"select top 100 * from (SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate FROM [dbo].[PostGRNInvoice] PGI
+                string sql = @"select top 100 * from (SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate,PGD.Amount,V.VoucherNo
+							,IsPark=CASE WHEN V.IsPark=1 then 'Parked' else 'Posted' end
+							FROM [dbo].[PostGRNInvoice] PGI
                             LEFT JOIN HKP.Party P ON P.Id=PGI.PartyId
-                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId) AS TEMP WHERE " + strkey + "";
+                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId
+							LEFT JOIN TRN.Voucher V ON V.Id=PGI.VoucherId
+							LEFT JOIN (SELECT PostGRNInvoiceId,SUM(TransactionAmount) Amount 
+									FROM dbo.PostGRNInvoiceDetail GROUP BY PostGRNInvoiceId) PGD ON PGD.PostGRNInvoiceId=PGI.Id) AS TEMP WHERE " + strkey + "";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

@@ -8,7 +8,6 @@ using Library.Data.Sql;
 using Library.HumanResource.Payroll.Allowance;
 using Library.HumanResource.Payroll.SalaryProcess;
 using Library.HumanResource.Payroll.SalaryProcessActive;
-using Library.Service.Payrolls.SalaryProcess;
 using Library.Service.TaskScheduler;
 using Newtonsoft.Json;
 using OTSBD;

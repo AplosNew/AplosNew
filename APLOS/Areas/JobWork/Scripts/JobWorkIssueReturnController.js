@@ -2146,6 +2146,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 							, specificStockList: $scope.specificStockList
 							, inventoryIssue: $scope.IssueTransformation
 							, IssueTypeStatus: 'Inventory'
+							, TabType: $scope.ModelNew.TabType
 
 						}
 						, dataType: 'JSON'
