@@ -289,6 +289,8 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
                     throw new CustomException("Dr Cr Amount not equal");
+                if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.BaseDrAmount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.BaseCrAmount))
+                    throw new CustomException("Books Dr Cr Amount not equal");
             }
             else
                 throw new CustomException("No Journal");
