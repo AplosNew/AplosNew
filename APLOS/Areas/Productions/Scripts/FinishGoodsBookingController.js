@@ -20,7 +20,6 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         CompanyCurrencyId:null
     }
 
-
     $scope.GetProductionBookFromToDate = function () {
         $http({
             method: 'Get',
@@ -31,7 +30,6 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         });
     };
     $scope.GetProductionBookFromToDate();
-
 
     $scope.entityList = [];
     $scope.getAllEntities = function () {
@@ -165,6 +163,7 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
 
                         for (var i = 0; i < $scope.DatewiseList.length; i++) {
                             ob.WorkDate = $scope.DatewiseList[i].WorkDate;
+                            ob.ProductionOrderId = $scope.DatewiseList[i].ProductionOrderId;
                             if (checkExistList($scope.WorkDayList, ob.WorkDate) === false) {
                                 $scope.WorkDayList.push(ob);
                                 ob = {};
