@@ -4444,7 +4444,8 @@ order by IR.GRNDate desc";
 	                        ,IM.FirstCharacteristicsValueId,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SecondCharacteristics
 	                        ,IM.SecondCharacteristicsValueId,SCV.UserName AS SecondCharacteristicsValue,IM.ThirdCharacteristicsId,TC.UserName AS ThirdCharacteristics
 	                        ,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue,0 AS BaseTaxAmount,0 AS TaxAmount,0 AS ChargesAmount
-	                         ,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,IRD.TotalMaterialTranAmount,IRD.TransactionQty GRNQty,ISNULL(PIND.OtherQty,0) OtherQty,PID.TransactionQty
+	                         ,0 AS ServiceCharge,0 AS ServiceTax,IRD.CountryId,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount BooksAmount
+							,IRD.TransactionQty GRNQty,ISNULL(PIND.OtherQty,0) OtherQty,PID.TransactionQty
 							,TransactionRate=FORMAT((IRD.TotalMaterialTranAmount/IRD.TransactionQty),'N4'),TransactionAmount
 							,IRD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,IR.ToCurrencyRate,Balance=IRD.TransactionQty-(ISNULL(PIND.OtherQty,0)+PID.TransactionQty)				
                         FROM TRN.[InventoryReceiveDetail] AS IRD  
@@ -4504,9 +4505,14 @@ order by IR.GRNDate desc";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                string sql = @"select top 100 * from (SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate FROM [dbo].[PostGRNInvoice] PGI
+                string sql = @"select top 100 * from (SELECT PGI.*,P.UserName PartyName,C.Code Currency,FORMAT(PGI.InvoiceDate,'dd-MMM-yyyy') InvDate,PGD.Amount,V.VoucherNo
+							,IsPark=CASE WHEN V.IsPark IS NULL THEN 'ToBePost' WHEN V.IsPark=1 then 'Parked'  else 'Posted' end
+							FROM [dbo].[PostGRNInvoice] PGI
                             LEFT JOIN HKP.Party P ON P.Id=PGI.PartyId
-                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId) AS TEMP WHERE " + strkey + "";
+                            LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId
+							LEFT JOIN TRN.Voucher V ON V.Id=PGI.VoucherId
+							LEFT JOIN (SELECT PostGRNInvoiceId,SUM(TransactionAmount) Amount 
+									FROM dbo.PostGRNInvoiceDetail GROUP BY PostGRNInvoiceId) PGD ON PGD.PostGRNInvoiceId=PGI.Id) AS TEMP WHERE " + strkey + "";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -4704,6 +4710,8 @@ order by IR.GRNDate desc";
 							,SUM(ISNULL(PGD.TransactionAmount,0)) Dr
 							,0 Cr
 							,SUM(ISNULL(PGD.TransactionAmount,0)) Amount
+							,SUM(ISNULL(PGD.BooksAmount,0)) BaseDrAmount
+							,0 BaseCrAmount
 						FROM dbo.PostGRNInvoiceDetail PGD 
 						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.Id=PGD.InventoryReceiveDetailId
 						LEFT JOIN dbo.PostGRNInvoice PGI ON PGI.Id=PGD.PostGRNInvoiceId
@@ -4730,7 +4738,8 @@ order by IR.GRNDate desc";
 							,0 Dr
 							,SUM(ISNULL(PGD.TransactionAmount,0)) Cr
 							,SUM(ISNULL(PGD.TransactionAmount,0)) Amount
-							
+							,0 BaseDrAmount
+							,SUM(ISNULL(PGD.BooksAmount,0)) BaseCrAmount
 						FROM dbo.PostGRNInvoiceDetail PGD 
 						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.Id=PGD.InventoryReceiveDetailId
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id

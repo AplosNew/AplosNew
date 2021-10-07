@@ -9,7 +9,6 @@ using Library.HumanResource.Payroll.Allowance;
 using Library.HumanResource.Payroll.SalaryProcess;
 using Library.HumanResource.Payroll.SalaryProcessActive;
 using Library.Model.Setups;
-using Library.Service.Payrolls.SalaryProcess;
 using Library.Service.Setups;
 using OTSBD;
 using System;

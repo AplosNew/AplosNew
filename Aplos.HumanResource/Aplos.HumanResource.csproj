@@ -252,6 +252,7 @@
     <Compile Include="Payroll\SalaryProcessActive\clsSalaryProcModels.cs" />
     <Compile Include="Payroll\SalaryProcessActive\clsSalaryReprocessUnit.cs" />
     <Compile Include="Payroll\SalaryProcessActive\clsSalaryUtility.cs" />
+    <Compile Include="Payroll\SalaryProcessActive\SalaryProcessDic.cs" />
     <Compile Include="Payroll\SalaryProcess\clsAdvanceProcess.cs" />
     <Compile Include="Payroll\SalaryProcess\clsSalaryLock.cs" />
     <Compile Include="Payroll\SalaryProcess\clsEmpExtraSalaryAmt.cs" />

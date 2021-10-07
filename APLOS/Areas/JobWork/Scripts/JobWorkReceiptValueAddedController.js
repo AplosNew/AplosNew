@@ -189,16 +189,15 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 					$scope.GetJWGRNDataChecking();
 					$scope.GRNListDetails();
 					$scope.GetTransformationReceiptCurrency();
+					$scope.GetJWGRNDataChecking();
 				}
 
 			});
-
-
-
-			$scope.setTab(2);
+			
 			$scope.ModelNew.Type = $scope.TabTypeNew;
-			$scope.setStatus = 'Selected';
-	     	$scope.setTabGRNList(1);
+			//$scope.setStatus = 'Selected';
+	  //  	$scope.setTabGRNList(1);
+			$scope.setTab(2);
 		}
 		else {
 
@@ -2722,6 +2721,20 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			}).then(function successCallback(response) {
 				$scope.GriddataMaster = response.data;
 				//entrydata = copy(searchdata);
+
+				if ($scope.GriddataMaster.length == 0) {
+					$scope.ShowHomeList = true;
+					$scope.setTab(2);
+					if (!$rootScope.isCollapsed) {
+						$rootScope.toggle();
+					}
+				}
+				else {
+					$scope.ShowHomeList = false;
+					$scope.setTabGRNList(1);
+					$scope.setTab(2);
+				}
+
 			});
 		}
 		else {
