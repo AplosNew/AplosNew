@@ -6389,7 +6389,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				e.GroupID,
                 mb.ShiftDefinationId as BudgetedShift,isnull(stcm.InTime,sdy.InTime) as BudgetShiftIn,
 				ISNULL(stcm.OutTime,sdy.OutTime) as BudgetShiftOut,
-                ISNULL(stcm.ShiftDuration,sdy.ShiftDuration) as BudgetDuration,
+                ISNULL(stcm.ShiftDuration,sdy.ShiftDuration) as ShiftDuration,
 				mb.Id as BudgetId,Op.InPunchStartTime as PlantInPunchStartTime, 
                 FullDayDuration=ISNULL(stcm.FullDayDuration,sdy.FullDayDuration),HalfDayDuration=
 				isnull(stcm.HalfDayDuration,sdy.HalfDayDuration),
@@ -6459,8 +6459,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 else
                 {
-                    string EmpMaster = "''";
-                    #region Previous Day Duration EarlyIn Late EarlyOut OverStay
+                    string EmpMaster = "''",CreatedEmpIds="''";
+                    #region Previous DOJ Row Creation Logic
                     DataSet MissingDOJ;
                     MissingRowsDOJ(out MissingDOJ, PlantValue,Date);
                     if (MissingDOJ.Tables[0].Rows.Count > 0)
@@ -6472,18 +6472,124 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         for (int i = 0; i < MissingDOJ.Tables[0].Rows.Count; i++)
                         {
                             string EmpId = MissingDOJ.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                            CheckerFunction(ref EmpMaster, EmpId);
+                            CheckerFunction(ref EmpMaster, EmpId); // loop in and Adding distinct Employees
                         }
 
 
                         if (StartDate != "")
                         {
+                            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                            objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate between '"+StartDate+"' and '"+ToDate+"' and PlantID = '"+PlantValue+"' and EmpSystemID in ("+EmpMaster+")", out DataSet dsRef, false, false, "", "1");
+                           
+                            DateTime frmdate = Convert.ToDateTime(StartDate);
+                            DateTime Todate = Convert.ToDateTime(ToDate);
+                            int days = 0;
 
-                            while (Convert.ToDateTime(StartDate) <=Convert.ToDateTime(ToDate))
+                            while (frmdate.AddDays(days) <= Todate)
                             {
+                                DataSet RowCreationData;
+                                PastDOJ(out RowCreationData, PlantValue, StartDate, EmpMaster);
+                                if (RowCreationData.Tables[0].Rows.Count > 0)
+                                {
+                                    string EmpWkDate = RowCreationData.Tables[0].Rows[0][@"WorkDate"].ToString();
+
+                                    for (int i = 0; i < RowCreationData.Tables[0].Rows.Count; i++)
+                                    {
+                                        string EmpId = RowCreationData.Tables[0].Rows[i][@"SystemId"].ToString();
+                                        var GpId = RowCreationData.Tables[0].Rows[0][@"GroupID"].ToString();
+                                        string PlantId = RowCreationData.Tables[0].Rows[i][@"PlantId"].ToString();
+                                        string RowId = RowCreationData.Tables[0].Rows[i][@"RowId"].ToString();
+
+                                        // Set Budgeted Shift as Default Shift  
+                                        string BudgetShift = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"BudgetedShift"]).ToString();
+                                        string BudgetShiftDurn = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"ShiftDuration"]).ToString();
+                                        string BudgetShiftIn = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"BudgetShiftIn"]).ToString();
+                                        string BudgetShiftOut = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"BudgetShiftOut"]).ToString();
+                                        ShiftTime(ref BudgetShiftIn, ref BudgetShiftOut, EmpWkDate);
+
+                                        var BudgetId = RowCreationData.Tables[0].Rows[i][@"BudgetId"].ToString();
+                                        var FullDayDuration = RowCreationData.Tables[0].Rows[i][@"FullDayDuration"].ToString();
+                                        var HalfDayDuration = RowCreationData.Tables[0].Rows[i][@"HalfDayDuration"].ToString();
+                                        var ShortDuration = RowCreationData.Tables[0].Rows[i][@"ShortDuration"].ToString();
+                                        var HoursWithoutOT = RowCreationData.Tables[0].Rows[i][@"HoursWithoutOT"].ToString();
+
+                                        var PlantInPunchStartTime = RowCreationData.Tables[0].Rows[i][@"PlantInPunchStartTime"].ToString();
+                                        PlantInTime(ref PlantInPunchStartTime, EmpWkDate);
+
+                                        dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+
+                                        if (dsRef.Tables[0].DefaultView.Count == 0 && Convert.ToBoolean(RowCreationData.Tables[0].Rows[i]["TobeAdded"].ToString()) == true)
+                                        {
+                                            DataRow dr = dsRef.Tables[0].NewRow();
+                                            dr["EmpSystemID"] = EmpId;
+                                            dr["RowId"] = RowId;
+                                            dr["WorkDate"] = EmpWkDate;
+                                            dr["GroupID"] = GpId;
+                                            dr["PlantID"] = PlantId;
+
+                                            dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId);
+                                            dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
+
+
+                                            if (BudgetShift.ToString() != "")
+                                            {
+                                                // Assigned Shift
+                                                dr["ShiftSystemID"] = BudgetShift;
+                                                dr["ShiftInTime"] = BudgetShiftIn;
+                                                dr["ShiftOutTime"] = BudgetShiftOut;
+                                                dr["BudgetedShiftID"] = BudgetShift;
+
+                                                // Duration Columns
+                                                dr["ShiftDuration"] = BudgetShiftDurn;
+                                                dr["ShiftHalfDayDuration"] = clsWebLib.RetValidLen(HalfDayDuration);
+                                                dr["ShiftShortDuration"] = clsWebLib.RetValidLen(ShortDuration);
+                                                dr["ShiftFullDayDuration"] = clsWebLib.RetValidLen(FullDayDuration);
+                                                dr["ShiftHoursWithoutOT"] = clsWebLib.RetValidLen(HoursWithoutOT);
+                                            }
+
+                                            #region  Not Nullable Columns default values
+
+                                            dr["WrongShift"] = 0;
+                                            dr["OTHr"] = "0";
+                                            dr["ProcessedOT"] = "0";
+                                            dr["IsOTComfirm"] = 0;
+                                            dr["IsLock"] = 0;
+                                            dr["IsOTEntitled"] = 0;
+                                            dr["IsLWP"] = 0;
+                                            dr["IsOD"] = 0;
+                                            dr["IsHalfDayLeave"] = 0;
+                                            dr["OTIntime"] = "0";
+                                            dr["OTOuttime"] = "0";
+                                            dr["LeaveDuration"] = "0";
+                                            dr["ToReprocess"] = "No";
+                                            dr["AddedBy"] = "Schedule";
+                                            dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
+
+                                            #endregion
+
+                                            dsRef.Tables[0].Rows.Add(dr);
+
+                                            CheckerFunction(ref CreatedEmpIds, RowId); // loop in and Adding distinct RowIds
+                                        }
+
+                                    }
+                                    //#region HolidayData Flagging
+                                    //DataSet Holiday;
+                                    //HolidayData(EmpWkDate, out Holiday, PlantValue);
+                                    //if (Holiday.Tables[0].Rows.Count > 0)
+                                    //{
+                                    //    dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
+                                    //    if (dsRef.Tables[0].DefaultView.Count == 0)
+                                    //    {
+                                    //    }
+                                    //#endregion
+                                }
+
 
                             }
-                        }
+
+                            SaveDataSets(dsRef);
+                        } 
                     }
                     #endregion
 
