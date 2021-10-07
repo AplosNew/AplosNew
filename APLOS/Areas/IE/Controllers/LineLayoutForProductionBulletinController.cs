@@ -6,6 +6,7 @@ using Library.Core;
 using Library.Data.Sql;
 using Library.Model.IE;
 using Library.Model.Setups;
+using Library.Planning.LineDesign;
 using Library.Service.IE;
 using Library.Service.Setups;
 using System.Web.Mvc;
@@ -19,7 +20,7 @@ namespace Aplos.Areas.IE.Controllers
         #region Constructor
         private readonly SqlRepository _sqlRepository;
         private readonly ISizeGroupService _sizeGroupService;
-
+        clsLineLayoutForProductionBulletin cp = new clsLineLayoutForProductionBulletin();
         public LineLayoutForProductionBulletinController(
               ISizeGroupService sizeGroupService
             )
@@ -83,5 +84,10 @@ namespace Aplos.Areas.IE.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetProductionOrderDataList(string entityId)
+        {
+            return Json(cp.GetProductionOrderData(entityId), JsonRequestBehavior.AllowGet);
+        }
     }
 }
