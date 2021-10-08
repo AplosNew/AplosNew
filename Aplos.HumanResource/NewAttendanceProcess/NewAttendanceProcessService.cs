@@ -6399,13 +6399,17 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 from SCS.OffDayMaster om left join scs.OffDayDetail od
                 on om.Id=od.OffDayMasterId where od.OffDayDate='"+WkDate+@"'
                 and om.PlantId='"+Plant+ @"' and om.OffDayType='H'),'false'),
-                WeekOfftype=isnull((SELECT WOHeaderId FROM EmployeeWeeklyOff
-				where EmpSystemID in("+EmpMaster+@")),'CompanyWeekOff'),
+                WeekOfftype=isnull((SELECT WOHeaderId FROM EmployeeWeeklyOff ex
+				left join EmployeeInformation emp on emp.SystemId=ex.EmpSystemId
+				where  
+				emp.DOJ <= '"+WkDate+@"' AND (emp.DOS >= '"+WkDate+ @"' OR 
+				ISNULL(emp.DOS,'') = '' 
+				OR emp.DOS = '01/01/1901') and emp.SystemId=e.SystemId),'CompanyWeekOff'),
 				WeeklyStatus=isnull((select od.OffDayType
 				from scs.OffDayMaster od 
 				left join scs.OffDayDetail odd on odd.OffDayMasterId=od.Id
 				where od.OffDayType='W' 
-				and od.PlantId='"+Plant+"' and odd.OffDayDate='"+WkDate+@"'),'NW') 
+				and od.PlantId='" + Plant+"' and odd.OffDayDate='"+WkDate+@"'),'NW') 
                 from EmployeeInformation e 
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId				  
@@ -6454,6 +6458,66 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
         }
 
+        public void IndividualWeekOffDataSet(out DataSet ds, string FromDate, string ToDate, string EmpMaster)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                // It finds all the Weekoff Values of Range of Dates from DOJ To Today's Date 
+                // That have Week Off other than Company Week Off ....
+                var sql = @"select dd.* from (Select jj.* ,  (Select wcc.DayType from
+                                                 
+												    dbo.WeekOffChild wcc where wcc.WOSequence =jj.Seq 
+                                                    and wcc.WOHeaderId = jj.WeekOffHeaderId) 
+                                                    as DayType , ap.RowId , (Case when 
+													ap.RowId = jj.MyRowId then 1 else 0 end) as Checks
+                                        from
+                                                    (Select ap.WorkDate, ap.EmpSystemID, format(ap.WorkDate,'yyyyMMdd')+ap.EmpSystemID as MyRowId,
+                                                    (Select distinct
+                                                    (DATEDIFF(DAY, (Select top 1 ed.EffectiveDate from
+                                                     dbo.WeekOffHeader h 
+                                                    left join dbo.WeekOffEffectiveDate ed on ed.WOHeaderId = h.Id
+                                                    where ed.EffectiveDate <= ap.WorkDate and ed.WOHeaderId =  
+                                        (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                                                    where EmpSystemId = e.SystemId and ex.EffectiveDate<=ap.WorkDate
+                                                    order by ex.EffectiveDate desc)
+                                                    order by ed.EffectiveDate desc) , ap.WorkDate) % 
+                                                    (Select max(WOSequence) from WeekOffHeader h 
+                                                    left join WeekOffChild wc on wc.WOHeaderId=h.Id 
+                                                    where h.Id =  
+                                        (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                                                    where EmpSystemId = e.SystemId and ex.EffectiveDate<=ap.WorkDate
+                                                    order by ex.EffectiveDate desc)
+                                        )
+                                        )+1 as DayDiff
+                                                    from 
+                                                    EmployeeInformation e
+                                                    left join EmployeeWeeklyOff ex on e.SystemId=ex.EmpSystemId
+                                                    where e.PlantId=ap.PlantID and e.SystemId = ap.EmpSystemID) as Seq,
+
+                                                    (Select top 1 ex.WOHeaderId from dbo.EmployeeWeeklyOff ex
+                                                    where EmpSystemId = ap.EmpSystemID and ex.EffectiveDate<=ap.WorkDate
+                                                    order by ex.EffectiveDate desc) WeekOffHeaderId 
+                                        from AttdnProcessData ap 
+
+                                        where ap.EmpSystemID In("+EmpMaster+@") and WorkDate 
+										between '"+FromDate+@"' and '"+ToDate+@"'
+                                        )as jj
+                                        left join AttdnProcessData ap on
+										ap.WorkDate = jj.WorkDate and 
+										ap.EmpSystemID In("+EmpMaster+@") and ap.WorkDate 
+										between '"+FromDate+@"' and '"+ToDate+@"'
+										)as dd where dd.Checks=1 and isnull(dd.DayType,'')!=''";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
 
         #endregion
 
@@ -6474,7 +6538,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     string EmpMaster = "''",CreatedEmpIds="''";
                  
                     #region Previous DOJ Row Creation Logic
-                    DataSet MissingDOJ;
+                    DataSet MissingDOJ,IndividualWeekOfDOJ;
                     MissingRowsDOJ(out MissingDOJ, PlantValue,Date);// Finds All Entries in Today's Date with Past DOJ
                     if (MissingDOJ.Tables[0].Rows.Count > 0)
                     {
@@ -6546,7 +6610,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                             dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId);
                                             dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
-
+                                            dr["ManualFlag"] = true;
 
                                             if (BudgetShift.ToString() != "")
                                             {
@@ -6590,6 +6654,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             }
                                             if (WeekOfftype == "CompanyWeekOff")
                                             {
+                                                // Setting WeekOff Using Company WeekOff Setting
                                                 dr["WeeklyStatus"] = WeeklyStatus;
                                             }
 
@@ -6604,8 +6669,39 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 days += 1; // Increment Day Counter
                             }
 
-                            SaveDataSets(dsRef);
-                        } 
+                            SaveDataSets(dsRef); // Rows Saved
+
+                            #region Individual WeekOff Setting
+                            // New Entry of Employees and Fetching from Range
+                            IndividualWeekOffDataSet(out IndividualWeekOfDOJ, StartDate, ToDate, EmpMaster);
+                            if(IndividualWeekOfDOJ.Tables[0].Rows.Count>0)
+                            {
+                                ConnectionManager.DAL.ConManager conx = new ConnectionManager.DAL.ConManager("1");
+                                conx.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId in (" + CreatedEmpIds + ")", out DataSet dsMaster, false, false, "", "1");
+
+                                for (int i = 0; i < IndividualWeekOfDOJ.Tables[0].Rows.Count; i++)
+                                {
+                                    string RowId = IndividualWeekOfDOJ.Tables[0].Rows[i][@"RowId"].ToString();
+                                    string DayType = clsWebLib.RetValidLen(IndividualWeekOfDOJ.Tables[0].Rows[i][@"DayType"]).ToString();
+
+                                    dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+
+                                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                                    {
+                                        // Calculated DayType and Setting Their Weekoffs in APD
+                                        DataRow drx = dsMaster.Tables[0].DefaultView[0].Row;
+                                        drx.BeginEdit();
+                                        drx["WeeklyStatus"] = DayType;
+                                        drx["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                        drx["UpdatedBy"] = "DOJProcess";
+                                        drx.EndEdit();
+                                    }
+                                }
+                                SaveDataSets(dsMaster);
+                            }
+
+                            #endregion
+                        }
                     }
                     #endregion
 
