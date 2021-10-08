@@ -414,7 +414,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
 
                     #endregion
-
+                     
                     #region LeaveData Flagging
                     DataSet Leavedata;
                     LeaveData(Date, out Leavedata, PlantValue); // Building Leave DataSet of Employees 
@@ -6398,7 +6398,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 HolidayStatus=isnull((select om.OffDayType
                 from SCS.OffDayMaster om left join scs.OffDayDetail od
                 on om.Id=od.OffDayMasterId where od.OffDayDate='"+WkDate+@"'
-                and om.PlantId='"+Plant+@"' and om.OffDayType='H'),'false')
+                and om.PlantId='"+Plant+ @"' and om.OffDayType='H'),'false'),
+                WeekOfftype=isnull((SELECT WOHeaderId FROM EmployeeWeeklyOff
+				where EmpSystemID in("+EmpMaster+@")),'CompanyWeekOff'),
+				WeeklyStatus=isnull((select od.OffDayType
+				from scs.OffDayMaster od 
+				left join scs.OffDayDetail odd on odd.OffDayMasterId=od.Id
+				where od.OffDayType='W' 
+				and od.PlantId='"+Plant+"' and odd.OffDayDate='"+WkDate+@"'),'NW') 
                 from EmployeeInformation e 
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId				  
@@ -6413,6 +6420,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 "and DOJ <= '"+WkDate+@"' AND (E.DOS >= '"+WkDate+@"' OR ISNULL(E.DOS,'') = '' 
 				OR E.DOS = '01/01/1901') ";
 
+                // Finds HolidayStatus,BudgetCode as well as Weekly Status if Company WeekOff
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -6464,9 +6472,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 else
                 {
                     string EmpMaster = "''",CreatedEmpIds="''";
+                 
                     #region Previous DOJ Row Creation Logic
                     DataSet MissingDOJ;
-                    MissingRowsDOJ(out MissingDOJ, PlantValue,Date);
+                    MissingRowsDOJ(out MissingDOJ, PlantValue,Date);// Finds All Entries in Today's Date with Past DOJ
                     if (MissingDOJ.Tables[0].Rows.Count > 0)
                     {
                         // Dataset Generated for New Entries Having Past DOJ
@@ -6492,7 +6501,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             while (frmdate.AddDays(days) <= Todate)
                             {
                                 string CurrentDate = Convert.ToString(Convert.ToDateTime(frmdate).AddDays(days));
-                                DataSet RowCreationData;
+                                DataSet RowCreationData; // Iterate b/w DOJ and Today's Date
                                 PastDOJ(out RowCreationData, PlantValue, CurrentDate, EmpMaster);
                                 if (RowCreationData.Tables[0].Rows.Count > 0)
                                 {
@@ -6505,6 +6514,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         string PlantId = RowCreationData.Tables[0].Rows[i][@"PlantId"].ToString();
                                         string RowId = RowCreationData.Tables[0].Rows[i][@"RowId"].ToString();
                                         string HoliDay = RowCreationData.Tables[0].Rows[i][@"HolidayStatus"].ToString();
+                                        string WeekOfftype= clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"WeekOfftype"]).ToString();
+                                        string WeeklyStatus = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"WeeklyStatus"]).ToString();
 
                                         // Set Budgeted Shift as Default Shift  
                                         string BudgetShift = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"BudgetedShift"]).ToString();
@@ -6562,11 +6573,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             dr["IsLock"] = 0;
                                             dr["IsOTEntitled"] = 0;
                                             dr["IsLWP"] = 0;
-                                            dr["IsOD"] = 0;
-                                            if(HoliDay!="false")
-                                            {
-                                                dr["HolidayStatus"] = "H";
-                                            }
+                                            dr["IsOD"] = 0;                                          
                                             dr["IsHalfDayLeave"] = 0;
                                             dr["OTIntime"] = "0";
                                             dr["OTOuttime"] = "0";
@@ -6577,22 +6584,21 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                             #endregion
 
+                                            if (HoliDay != "false")
+                                            {
+                                                dr["HolidayStatus"] = "H";
+                                            }
+                                            if (WeekOfftype == "CompanyWeekOff")
+                                            {
+                                                dr["WeeklyStatus"] = WeeklyStatus;
+                                            }
+
                                             dsRef.Tables[0].Rows.Add(dr);
 
                                             CheckerFunction(ref CreatedEmpIds, RowId); // loop in and Adding distinct RowIds
                                         }
 
-                                    }
-                                    //#region HolidayData Flagging
-                                    //DataSet Holiday;
-                                    //HolidayData(EmpWkDate, out Holiday, PlantValue);
-                                    //if (Holiday.Tables[0].Rows.Count > 0)
-                                    //{
-                                    //    dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
-                                    //    if (dsRef.Tables[0].DefaultView.Count == 0)
-                                    //    {
-                                    //    }
-                                    //#endregion
+                                    }                                   
                                 }
 
                                 days += 1; // Increment Day Counter
@@ -6798,6 +6804,32 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         CommonLogFunction(ex, CatchPlant, "ManualProcess");
                     }
                     
+                }
+            }
+        }
+
+        public void DOJProcessGroupWise(string Date, string GroupId)
+        {
+            DataSet PlantList;
+            GetPlant(GroupId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        CatchPlant = PlantValue;
+                        PastDOJProcess(Date, PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLogFunction(ex, CatchPlant, "DOJProcess");
+                    }
+
                 }
             }
         }
