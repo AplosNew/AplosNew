@@ -10,7 +10,7 @@
         @*Convert.ToDateTime(WkDate).ToString("yyyyMMdd");*@
     <div id="TabOne">
         <h2>In Progress ... Please Don't Use For General Purpose !! Only For Trial! </h2>
-        @*<div class="row">
+        <div class="row">
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label" style="margin-top:10px">Employee<sup>*</sup></label>
@@ -43,7 +43,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label" style="margin-top:10px">Effective Date</label>
                     <div class="col-sm-8 show-message" style="margin-top:10px">
-                        <input type="text" name="Date" ng-model="EffectiveDate" datepicker class="form-control">
+                        <input type="text" id="DD" name="Date" ng-model="EffectiveDates" datepicker class="form-control ssd">
 
                     </div>
                 </div>
@@ -60,7 +60,20 @@
 
                 </ul>
             </div>
-        </div>*@
+        </div>
+        <div class="row">
+            <div id="showEmp" ej-grid e-datasource="EmpGridList"
+                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                 e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                <div e-columns>
+                    <div e-column e-field="UserName" e-headertext="Week Off" e-width="80"></div>
+                    <div e-column e-field="EffectiveDate" e-headertext="Effective Date" e-width="80"></div>
+
+                </div>
+            </div>
+
+        </div>
     </div>
         <div id="TabTwo">
                 <div class="row">
