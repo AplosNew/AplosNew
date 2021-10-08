@@ -1853,6 +1853,7 @@
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployeeWeekOffUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeekOffUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\yearlySalaryProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCController.js" />
@@ -3750,6 +3751,7 @@
     <Content Include="Areas\Employees\Views\LeaveDeleteSingleDayNew\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\FabricRoll\Aplos.cshtml" />
     <Content Include="Areas\IE\Views\LineLayoutForProductionBulletin\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\WeekOffUpdates\EWeekUpdate.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
