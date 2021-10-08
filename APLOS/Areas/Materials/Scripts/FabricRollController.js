@@ -21,6 +21,16 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         EmployeeCode: "",
         EmployeeName: "",
         GRNSplitQty: null
+        , TransactionQty: 0
+        , TransactionAmount: 0
+        , CurrencyCode: null
+        , POId: null
+        , PODate: null
+        , GRNNo: null
+        , VendorRefNo: null
+        , PurchaseLCNo: null
+        , PINo: null
+        , LCDate: null
     };
 
     $scope.fabricRollSplitOb = {
@@ -31,10 +41,10 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     $scope.selectedGRNRow = {};
     $scope.fabDistributeQty = 0;
     $scope.fabricEdit = false;
-    $scope.showFabricPop = function (index, data, isEdit) {
-        debugger;//1
+    $scope.showFabricPop = function (data) {
+      
         $scope.fabricRollSplitOb.VendorWidth = null;
-        $scope.fabricEdit = isEdit;
+        //$scope.fabricEdit = isEdit;
         $scope.fabricRollMasterNew.GRNSplitQty = null;
         $scope.fabricRollMasterList = [];
         $scope.selectedGRNRow = data;
@@ -153,14 +163,14 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             value: 'PartyName'
         }
     ];
-    $scope.GRNsearchBy = "GRN No";
+    $scope.GRNsearchBy = "GRNNo";
     $scope.GRNsearch = "";
     $scope.GRNGridList = [];
     $scope.LoadGRNSearchList = function () {             
         $scope.GRNGridList = [];
                 try {
-                    if ($scope.GRNsearch == '')
-                        throw "Please insert search value.";
+                    //if ($scope.GRNsearch == '')
+                    //    throw "Please insert search value.";
                     $http({
                         method: 'POST',
                         url: $scope.path + "GRNList",
@@ -175,30 +185,23 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
                 catch (e) {
                     ShowResult(e, 'failure');
                 }
-
-          
-        
     }
+    $scope.LoadGRNSearchList();
+
+    $scope.Get = function (args) {
+
+        $scope.fabricRollMaster = Object.assign({}, args.data);
+        //$scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+        $scope.LoadMaterialSearchList();
+    };
 
     //#region Display Material by GRN ID
     $scope.closeGRNPopUp = function (args) {
-    /*    debugger;*/
 
         $scope.fabricRollMaster = Object.assign({}, args.data);
-
-        //$scope.fabricRollMaster.InventoryReceiveId = data.data.Id;
-
-        //$scope.fabricRollMaster.GRNNo = data.data.GRNNo;
-        //$scope.fabricRollMaster.GRNDate = data.data.GRNDate;
-        //$scope.fabricRollMaster.POID = data.POID;
-        //$scope.fabricRollMaster.PODate = data.PODate;
-        //$scope.fabricRollMaster.Code = data.Code;
-        //$scope.fabricRollMaster.PlantId = data.PlantId;
-        //$scope.fabricRollMaster.PartyName = data.PartyName;
-
-        //$scope.fabricRollMaster.TotalDetailQty = data.TotalDetailQty;
-        //$scope.fabricRollMaster.TotalDetailAmount = data.TotalDetailAmount;
-        //$scope.fabricRollMaster.Currency = data.Currency;
         $scope.getGRNDetail();
     };
      //#endregion Material
@@ -206,30 +209,8 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     $scope.grnDetailList = [];
     $scope.getGRNDetail = function () {
         try {
-            $scope.grnDetailParameters = {
-                limit: 10,
-                offset: 0,
-                order: 'asc',
-                sort: 'MaterialMasterName',
-                searchBy: 'MaterialMasterName',
-                pageSize: 10,
-                total_count: 0,
-                search: null,
-                serverPagination: true
-            };
-            $scope.searchGRNDetailByList = [
-                {
-                    name: 'Material Master',
-                    value: 'MaterialMasterName'
-                },
-                {
-                    name: 'Party',
-                    value: 'PartyName'
-                }
-            ];
-
             $scope.popUpUrl = '';
-            $scope.popUpUrl = 'Materials/FabricRollMaster/GetGRNDetailList?inventoryReceiveId=' + $scope.fabricRollMaster.InventoryReceiveId;
+            $scope.popUpUrl = 'Materials/FabricRollMaster/MaterialList?inventoryReceiveId=' + $scope.fabricRollMaster.InventoryReceiveId;
             $scope.getGRNDetailData = function (pageno) {
                 baseService.paginationBase($scope.popUpUrl, pageno, $scope.grnDetailParameters)
                     .then(function (result) {
@@ -246,6 +227,36 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         }
         angular.element(document.querySelector('#grnPopUp')).modal('show');
     };
+
+
+
+    $scope.MaterialsearchBy = "Material Master";
+    $scope.Materialsearch = "";
+    $scope.MaterialGridList = [];
+    $scope.LoadMaterialSearchList = function () {
+        $scope.MaterialGridList = [];
+        try {
+         
+            $http({
+                method: 'POST',
+                url: $scope.path + "MaterialList",
+                data: { 'inventoryReceiveId': $scope.fabricRollMaster.GRNNo },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.MaterialGridList = [];
+                $scope.MaterialGridList = response.data;
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    //$scope.LoadGRNSearchList();
+
+
+
+
     //#endregion
 
 
@@ -444,5 +455,27 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
                 ShowResult(response, 'failure');
             });
     }
+
+    $scope.grnDetailParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'MaterialMasterName',
+        searchBy: 'MaterialMasterName',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.searchGRNDetailByList = [
+        {
+            name: 'Material Master',
+            value: 'MaterialMasterName'
+        },
+        {
+            name: 'Party',
+            value: 'PartyName'
+        }
+    ];
 
 }

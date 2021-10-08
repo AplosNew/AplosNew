@@ -1,8 +1,8 @@
 ﻿'use strict';
 LineLayoutForProductionBulletinController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function LineLayoutForProductionBulletinController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $scope.path = 'IE/LineDesigner/'
-    $rootScope.title = 'Machine Master';
+    $scope.path = 'IE/LineLayoutForProductionBulletin/'
+    $rootScope.title = 'Line Layout For Production Bulletin';
     //$scope.nodes = [
     //    {
     //        addInfo: { OperationId: "001", OperationDesc: "Operation Desc", MachineId: 'MACH001', MachineDesc: 'Machine desc', EmployeeId: '001', EmployeeName: 'Tarek', Designation: 'Operator', EmpPicPath:'1800001.jpg' },
@@ -267,4 +267,40 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
 
         }
     }
+
+    $scope.entityList = [];
+    $scope.getAllEntities = function () {
+        $http({
+            method: 'POST',
+            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
+        }).then(function successCallback(response) {
+            $scope.entityList = response.data;
+            if (baseService.arrayLength(response.data) === 1) {
+                $scope.modelNew.ProductionEntityId = $scope.entityList[0].Value;
+                //default                
+            }
+        });
+    }
+    $scope.getAllEntities();
+
+    $scope.ProductionOrderList = [];
+    $scope.getProductionOrderPopUp = function () {
+        if ($scope.modelNew.ProductionEntityId == null) {
+            //throw "Select Production Entity.."
+            ShowResult("Select Production Entity..", 'failure');
+        }
+        $scope.ProductionOrderList = [];
+        $http.get("IE/LineLayoutForProductionBulletin/GetProductionOrderDataList?entityId=" + $scope.modelNew.ProductionEntityId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.ProductionOrderList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+    };
+
 }

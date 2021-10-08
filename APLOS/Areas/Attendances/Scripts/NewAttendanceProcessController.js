@@ -56,6 +56,24 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
         }
     }
 
+    $scope.RunDOJProcess = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.NewAttdnProcessPlantWise.$valid) {
+            $http({
+                method: 'GET',
+                url: $scope.path + 'RunDOJProcess?Date=' + $scope.Attnd.Date,
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            });
+        }
+    }
+
     $scope.RunManualScheduler = function () {
        
             $http({

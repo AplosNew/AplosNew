@@ -7,6 +7,7 @@ function WeekOffUpdatesController(commonMessage, $scope, $rootScope, baseService
     var url = "humanresource/WeekOffUpdates/";
     $scope.path = "humanresource/WeekOffUpdates/";
 
+    
 
     // Code For the Second Tab
 
@@ -149,8 +150,8 @@ $scope.ModelNew = {
 
     $scope.employee = null;
     $scope.EmpSystemId = null;
-    $scope.EffectiveDate = new Date();
-
+    $scope.EffectiveDates = new Date();
+    $scope.EmpGridList = [];
     $http({
         method: 'GET',
         url: $scope.path + "getEmployees"
@@ -166,7 +167,7 @@ $scope.ModelNew = {
     $scope.doubleEmployee = function (e) {
         $scope.employee = e.data.EmployeeName;
         $scope.EmpSystemId = e.data.SystemId;
-
+        $scope.EmpGridList = [];
         angular.element(document.querySelector('#employeesModal')).modal('hide');
 
         $http({
@@ -177,12 +178,14 @@ $scope.ModelNew = {
             if (resp.data.length > 0) {
                 $scope.WekName = resp.data[0].UserName;
                 $scope.WekId = resp.data[0].WOHeaderId;
-                $scope.EffectiveDate = resp.data[0].EffectiveDate;
+                $scope.EffectiveDates = resp.data[0].EffectiveDate;
+
+                $scope.EmpGridList = resp.data;
             }
             else {
                 $scope.WekName =null;
                 $scope.WekId = null;
-                $scope.EffectiveDate = null;
+                $scope.EffectiveDates = null;
             }
             
         });
@@ -205,7 +208,7 @@ $scope.ModelNew = {
 
     $scope.saveSingle = function () {
 
-        if (angular.isUndefinedOrNull($scope.WekId) || angular.isUndefinedOrNull($scope.EffectiveDate) || angular.isUndefinedOrNull($scope.EmpSystemId)) {
+        if (angular.isUndefinedOrNull($scope.WekId) || angular.isUndefinedOrNull($scope.EffectiveDates) || angular.isUndefinedOrNull($scope.EmpSystemId)) {
             ShowResult("All Selections are Mandatory!!", 'failure');
             throw ("Invalid Request");
         }
@@ -213,7 +216,7 @@ $scope.ModelNew = {
         $http({
             method: 'POST',
             url: url + 'SaveSingle',
-            data: { 'EmpId': $scope.EmpSystemId, 'EffectiveDate': $scope.EffectiveDate, 'WeekId': $scope.WekId }
+            data: { 'EmpId': $scope.EmpSystemId, 'EffectiveDate': $scope.EffectiveDates, 'WeekId': $scope.WekId }
            
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -230,12 +233,12 @@ $scope.ModelNew = {
                         if (resp.data.length > 0) {
                             $scope.WekName = resp.data[0].UserName;
                             $scope.WekId = resp.data[0].WOHeaderId;
-                            $scope.EffectiveDate = resp.data[0].EffectiveDate;
+                            $scope.EffectiveDates = resp.data[0].EffectiveDate;
                         }
                         else {
                             $scope.WekName = null;
                             $scope.WekId = null;
-                            $scope.EffectiveDate = null;
+                            $scope.EffectiveDates = null;
                         }
 
                     });
@@ -252,7 +255,7 @@ $scope.ModelNew = {
     $scope.clearSingle = function () {
         $scope.employee = null;
         $scope.EmpSystemId = null;
-        $scope.EffectiveDate = new Date();
+        $scope.EffectiveDates = new Date();
         $scope.WekId = null;
     }
 

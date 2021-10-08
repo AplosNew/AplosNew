@@ -322,7 +322,7 @@
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li><button ng-click="SavePost();" ng-disabled="voucher.Ispark=='Posted'" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+                                <li><button ng-click="SavePost();" ng-disabled="voucher.IsPark=='Posted'" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
                                 @*<li><button ng-click="confirmDelete();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>*@
                                 <li><button ng-click="postClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
@@ -376,10 +376,10 @@
             <div class="common-btn">
                 <ul class="common-btn list-inline text-center">
                     <li>
-                        <button ng-click="$parent.onClickReportPDFPosting(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                        <button ng-click="$parent.onClickReportPDFPosting(data);" ng-hide="data.IsPark=='ToBePost'" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
                             <i class="fa fa-file-pdf-o"></i>
                         </button>
-                        <button ng-click="$parent.onClickReportExcelPosting(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                        <button ng-click="$parent.onClickReportExcelPosting(data);" ng-hide="data.IsPark=='ToBePost'" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
                             <i class="fa fa-file-excel-o"></i>
                         </button>
                     </li>

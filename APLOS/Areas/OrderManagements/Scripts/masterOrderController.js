@@ -4406,6 +4406,26 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }
         });
     }
+
+    $scope.CopySObyMOI = function (Id,MasterOrderItemId) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CopySOByMOI?MasterId=' + Id + '&masterItemId=' + MasterOrderItemId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                getSalesOrderList();
+                $scope.getMasterItemList();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    }
     //#endregion
 }
 
