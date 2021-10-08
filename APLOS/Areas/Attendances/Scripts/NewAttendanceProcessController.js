@@ -58,7 +58,7 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
 
     $scope.RunDOJProcess = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.NewAttdnProcessPlantWise.$valid) {
+        if ($scope.NewAttdnProcess.$valid) {
             $http({
                 method: 'GET',
                 url: $scope.path + 'RunDOJProcess?Date=' + $scope.Attnd.Date,
