@@ -6385,7 +6385,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
 			    else 'false' end , e.SystemId,'"+WkDate+@"' as WorkDate,
-                convert(varchar(30),'"+newformat+@"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,
+                convert(varchar(30),'"+newformat+ @"' )+convert(varchar(30), e.SystemId)RowId,e.PlantId,
 				e.GroupID,
                 mb.ShiftDefinationId as BudgetedShift,isnull(stcm.InTime,sdy.InTime) as BudgetShiftIn,
 				ISNULL(stcm.OutTime,sdy.OutTime) as BudgetShiftOut,
@@ -6394,11 +6394,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 FullDayDuration=ISNULL(stcm.FullDayDuration,sdy.FullDayDuration),HalfDayDuration=
 				isnull(stcm.HalfDayDuration,sdy.HalfDayDuration),
 				ShortDuration=ISNULL(stcm.ShortDuration,sdy.ShortDuration),
-				HoursWithoutOT=ISNULL(stcm.HoursWithoutOT,sdy.HoursWithoutOT)
+				HoursWithoutOT=ISNULL(stcm.HoursWithoutOT,sdy.HoursWithoutOT),
+                HolidayStatus=isnull((select om.OffDayType
+                from SCS.OffDayMaster om left join scs.OffDayDetail od
+                on om.Id=od.OffDayMasterId where od.OffDayDate='"+WkDate+@"'
+                and om.PlantId='"+Plant+@"' and om.OffDayType='H'),'false')
                 from EmployeeInformation e 
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
                 left join ShiftDefination sdy on sdy.SystemID=mb.ShiftDefinationId				  
-				LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '"+WkDate+@"' 
+				LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WkDate+@"' 
 							BETWEEN stcm.FromDate AND stcm.ToDate AND 
 							sdy.SystemID=stcm.ShiftDefinationID                            
                 left join org.Plant pl on pl.Id=e.PlantId
@@ -6455,7 +6459,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 PlantLockCheck(Date, out PlantLock, PlantValue);
                 if (PlantLock.Tables[0].Rows.Count > 0)
                 {
-
+                    return;
                 }
                 else
                 {
@@ -6471,10 +6475,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < MissingDOJ.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = MissingDOJ.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            string EmpId = MissingDOJ.Tables[0].Rows[i][@"EmpId"].ToString();
                             CheckerFunction(ref EmpMaster, EmpId); // loop in and Adding distinct Employees
                         }
-
+                         
 
                         if (StartDate != "")
                         {
@@ -6487,8 +6491,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             while (frmdate.AddDays(days) <= Todate)
                             {
+                                string CurrentDate = Convert.ToString(Convert.ToDateTime(frmdate).AddDays(days));
                                 DataSet RowCreationData;
-                                PastDOJ(out RowCreationData, PlantValue, StartDate, EmpMaster);
+                                PastDOJ(out RowCreationData, PlantValue, CurrentDate, EmpMaster);
                                 if (RowCreationData.Tables[0].Rows.Count > 0)
                                 {
                                     string EmpWkDate = RowCreationData.Tables[0].Rows[0][@"WorkDate"].ToString();
@@ -6499,6 +6504,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         var GpId = RowCreationData.Tables[0].Rows[0][@"GroupID"].ToString();
                                         string PlantId = RowCreationData.Tables[0].Rows[i][@"PlantId"].ToString();
                                         string RowId = RowCreationData.Tables[0].Rows[i][@"RowId"].ToString();
+                                        string HoliDay = RowCreationData.Tables[0].Rows[i][@"HolidayStatus"].ToString();
 
                                         // Set Budgeted Shift as Default Shift  
                                         string BudgetShift = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"BudgetedShift"]).ToString();
@@ -6523,7 +6529,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DataRow dr = dsRef.Tables[0].NewRow();
                                             dr["EmpSystemID"] = EmpId;
                                             dr["RowId"] = RowId;
-                                            dr["WorkDate"] = EmpWkDate;
+                                            dr["WorkDate"] = EmpWkDate; // Localizing Default Values
                                             dr["GroupID"] = GpId;
                                             dr["PlantID"] = PlantId;
 
@@ -6557,6 +6563,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             dr["IsOTEntitled"] = 0;
                                             dr["IsLWP"] = 0;
                                             dr["IsOD"] = 0;
+                                            if(HoliDay!="false")
+                                            {
+                                                dr["HolidayStatus"] = "H";
+                                            }
                                             dr["IsHalfDayLeave"] = 0;
                                             dr["OTIntime"] = "0";
                                             dr["OTOuttime"] = "0";
@@ -6585,7 +6595,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     //#endregion
                                 }
 
-
+                                days += 1; // Increment Day Counter
                             }
 
                             SaveDataSets(dsRef);
