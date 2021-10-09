@@ -421,22 +421,20 @@
                                         <th>Product Library</th>
                                         <th>Product</th>
                                         <th class="col-sm-1">Action</th>
-                                        <th>ContractNo</th>
-                                        <th>MasterLCNo</th>
+                                        @*<th>Copy SO</th>*@
+                                        <th>Contract No</th>
+                                        <th>MasterLC No</th>
                                         <th style="width: 170px;">JW/OS Type</th>
                                         <th>Entity/Vendor</th>
                                         <th>Remark</th>
                                         <th>Attachment</th>
-                                        @*<th>Order Status</th>*@
-                                        <th>SO Copy From</th>
+                                        <th>Order Status</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="x in itemList">
                                         <td>{{x.Id}}</td>
-
-
                                         <td>{{x.Inquiry}}</td>
                                         <td>{{x.SampleNo}}</td>
                                         <td>
@@ -539,6 +537,18 @@
                                                 </li>
                                             </ul>
                                         </td>
+                                        @*<td>
+                                            <div class="input-group">
+                                                <div class="select-style">
+                                                    <select name="SO Copy" class="form-control" ng-model="MasterOrderItemId" ng-options="item.MasterOrderItemId as item.MasterOrderItemId for item in x.TempList" tabindex="9" style="width: 82px;">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                                <span class="input-group-btn">
+                                                    <button ng-click="CopySObyMOI(x.Id,MasterOrderItemId);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>
+                                                </span>
+                                            </div>
+                                        </td>*@
                                         <td>{{x.ContractNo}}</td>
                                         <td>{{x.LCRef}}</td>
                                         <td>
@@ -594,19 +604,7 @@
                                                 </select>
                                             </div>
                                         </td>
-                                        <td>
-                                            @*<div class="form-group">
-                                                <div class="col-md-8">
-                                                    <div class="select-style">
-                                                        <select name="SO Copy" class="form-control" ng-model="MasterOrderItemId" ng-options="item.MasterOrderItemId as item.MasterOrderItemId for item in x.TempList" tabindex="9" style="width: 82px;">
-                                                            <option value="">--Select--</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4"><button ng-click="CopySObyMOI(x.Id,MasterOrderItemId);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Copy">SO Copy</button></div>
-                                            </div>*@
-                                        </td>
-                                        
+
                                         <td class="text-center">
                                             <button ng-click="ReportPopUp(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Costing Report">Costing</button>
 

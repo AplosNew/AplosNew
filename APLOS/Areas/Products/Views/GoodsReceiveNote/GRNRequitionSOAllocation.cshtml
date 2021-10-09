@@ -34,10 +34,10 @@
 									@*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO');" style="margin: -6px;"></i></button>*@
 								</div>
 								@*<div e-column e-template="#ToBeApprovedBy" e-headertext="To Be Approved By" e-width="190"></div>
-								<div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
-								<div e-column e-template="#CheckbyStatus" e-headertext="Check by Status" e-width="130"></div>*@
+		<div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
+		<div e-column e-template="#CheckbyStatus" e-headertext="Check by Status" e-width="130"></div>*@
 								<div e-column e-template="#bootstrapToggle2" e-headertext="Chk" e-width="40" textAlign='center'></div>
-								<div e-column e-field="InventoryReceiveId" e-headertext="GRN No" e-width="120"></div>
+								<div e-column e-field="InventoryReceiveDetailId" e-headertext="GRN No" e-width="120"></div>
 
 								<div e-column e-field="MaterialMasterName" e-headertext="MaterialMasterName" e-width="120"></div>
 								<div e-column e-field="ArticleName" e-headertext="ArticleName" e-width="180"></div>
@@ -49,9 +49,15 @@
 								<div e-column e-field="POBOQMapId" e-headertext="POBOQMapId" e-width="120"></div>
 								<div e-column e-field="POReqDetailsId" e-headertext="PO Requisition DetailId" e-width="120"></div>
 								<div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-								<div e-column e-field="TransactionQty" e-headertext="TranQty" e-width="100"></div>
+								<div e-column e-field="TransactionQty1" e-headertext="TranQty" e-width="100"></div>
+								<div e-column e-field="AllocatedQty" e-headertext="AlreadyAllocatedQty" e-width="120"></div>
+								<div e-column e-template="#TransQty" e-headertext="CurrentTransactionQty" e-width="190"></div>
+
+
+
 								<div e-column e-field="TransactionUoM" e-headertext="TUoM" textAlign='Right' e-width="100"></div>
-								<div e-column e-field="BaseQty" e-headertext="BaseQty" textAlign='Right' e-width="100"></div>
+								<div e-column e-field="BaseQty1" e-headertext="BaseQty" textAlign='Right' e-width="100"></div>
+								<div e-column e-template="#Baqty" e-headertext="CurrentBaseQty" e-width="190"></div>
 								<div e-column e-field="BaseUOMId" e-headertext="BUOMId" textAlign='Right' e-width="100"></div>
 								<div e-column e-field="BaseUoM" e-headertext="BaseUoM" textAlign='Right' e-width="100"></div>
 								<div e-column e-field="POBOQQty" e-headertext="POBOQQty" textAlign='Right' e-width="100"></div>
@@ -126,8 +132,11 @@
 			</div>
 
 		</script>
-		<script type="text/template" id="RejectCheckedReason">
-			<input type="text" ng-model="data.CheckedRejectReason" style="color:black;" class="form-control" />
+		<script type="text/template" id="TransQty">
+			<input type="text" ng-model="data.TransactionQty" style="color:black;" class="form-control" ng-blur="$parent.CalculateBaseQty(data)"/>
+		</script>
+		<script type="text/template" id="Baqty">
+			<input type="text" ng-model="data.BaseQty" style="color:black;" class="form-control" readonly />
 		</script>
 
 		<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNRejectHoldList(3), active: isSetGRNRejectHoldList(3) }">

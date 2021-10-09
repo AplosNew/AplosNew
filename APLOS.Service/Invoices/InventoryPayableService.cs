@@ -6409,13 +6409,18 @@ namespace Library.Service.Invoices
                          && r.BudgetMasterId == voucherCIInvDr.BudgetMasterId && r.ActivityId == voucherCIInvDr.ActivityId))
                             {
                                 var inventoryReceiveDetail = _inventoryReceiveDetailRepository.Find(item.InventoryReceiveDetailId);
-                                var CrGLBAct = inventoryPayableVMList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
                                 inventoryReceiveDetail.PostDrGLGeneralInfoId = voucherCIInvDr.GLGeneralInfoId;
                                 inventoryReceiveDetail.PostDrBudgetMasterId = voucherCIInvDr.BudgetMasterId;
                                 inventoryReceiveDetail.PostDrActivityId = voucherCIInvDr.ActivityId;
-                                inventoryReceiveDetail.PostCrGLGeneralInfoId = CrGLBAct.GLGeneralInfoId;
-                                inventoryReceiveDetail.PostCrBudgetMasterId = CrGLBAct.BudgetMasterId;
-                                inventoryReceiveDetail.PostCrActivityId = CrGLBAct.ActivityId;
+                                if(voucherVM.PartyId != null)
+                                {
+                                    var CrGLBAct = inventoryPayableVMList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
+                                    inventoryReceiveDetail.PostCrGLGeneralInfoId = CrGLBAct.GLGeneralInfoId;
+                                    inventoryReceiveDetail.PostCrBudgetMasterId = CrGLBAct.BudgetMasterId;
+                                    inventoryReceiveDetail.PostCrActivityId = CrGLBAct.ActivityId;
+                                }
+                               
+
                                 inventoryReceiveDetail.ModelState = ModelState.Modified;
                                 AuditService.UpdatedLog(inventoryReceiveDetail);
                                 _inventoryReceiveDetailRepository.Update(inventoryReceiveDetail);
