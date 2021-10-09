@@ -15,15 +15,7 @@ using System.Data;
 using System.Threading;
 using System.Web.Mvc;
 
-using Library.Model.OrderManagements;
-using Library.Service.OrderManagements;
-using Library.Model.Enums;
-using Syncfusion.XlsIO;
-using Library.OrderManagement.OrderControl;
-using System.IO;
-using Library.Data;
-using Library.Service.Helpers;
-using System.Linq;
+using Library.HumanResource.NewAttendanceProcess;
 
 #endregion Using
 
@@ -149,6 +141,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     DataSet EmpDayStatus;
                     DataSet IsEmpSalaryLocked;
                     DataSet EmpExistInAttProData;
+                    string RowsEdit = "''";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 var empdetails = "' '";
                 foreach (var empitem in SaveMultipleEmpOT)
@@ -194,15 +187,20 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     if (islocked==false)
                         {
-                  //      EmpDayStatus.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "'";
-   
+                        //      EmpDayStatus.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "'";
+
                         //if(EmpDayStatus.Tables[0].DefaultView.Count>0)
                         //    {
-                                //if (EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Present" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Late" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Weekend" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Holiday")
+                        //if (EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Present" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Late" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Weekend" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Holiday")
 
-                                //{
+                        //{
 
-                        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "'";
+                        string newformat = Convert.ToDateTime(data["WorkDate"]).ToString("yyyyMMdd");
+
+               //         dsMaster.Tables[0].DefaultView.RowFilter = "RowId='" + newformat + EmpSystemid + "'";
+
+                //        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "'";
+                        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and RowId='" + newformat + item.EmployeeSystemId + "' ";
 
                         if (EmpExistInAttProData.Tables[0].DefaultView.Count != 0)
                           {
@@ -231,13 +229,14 @@ namespace Aplos.Areas.Attendances.Controllers
                             dr["UpdatedBy"] = identity.Name;
                             dr["DateUpdated"] = System.DateTime.Now.ToString();
 
-
                             dr.EndEdit();
+                            RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
                         }
 
                         else
                         {
-                            EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "'";
+                    //        EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "'";
+                            EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and RowId='" + newformat + item.EmployeeSystemId + "' ";
 
                             if (EmpExistOrNot.Tables[0].DefaultView.Count == 0)
                             {
@@ -260,6 +259,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
                                 EmpExistOrNot.Tables[0].Rows.Add(dr);
+                                RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
                             }
                             else
                             {
@@ -283,8 +283,8 @@ namespace Aplos.Areas.Attendances.Controllers
                                 dr["UpdatedBy"] = identity.Name;
                                 dr["UpdatedDate"] = System.DateTime.Now.ToString();
 
-
                                 dr.EndEdit();
+                                RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
                             }
                         }
 
@@ -296,6 +296,9 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(EmpExistInAttProData,EmpExistOrNot);
+
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                ap.ManualScheduler(identity.PlantId, RowsEdit);
 
                 return Json(new { Error = false, Message = AplosMessage.Updated });
 

@@ -1765,8 +1765,10 @@ and isnull(locka.EmpSystemId,'')=''
                                                 and (DOS is null or DOS > '" + sToDate + @"') AND E.DOJ <= '" + sToDate + @"'
                                                 and isnull(lock.EmpSystemId,'') =''
                                                 and  E.SystemId in
-										                (														                
-							                                select EmpSystemID from AttdnDataMonthlySummary where  YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0  and PlantID='" + sPlantID + @"'
+										                (	
+   	                                                        SELECT apd.EmpSystemID FROM AttdnProcessData AS apd WHERE apd.WorkDate BETWEEN '" + sFromDate + @"' AND 	'" + sToDate + @"'	GROUP BY apd.EmpSystemID HAVING SUM(ISNULL(apd.PresentValue,0)+ISNULL(apd.LateValue,0)+ISNULL(apd.LvValue,0))=0											                
+							                         
+							                               -- select EmpSystemID from AttdnDataMonthlySummary where  YearNo=Year('" + sFromDate + @"') and MonthNo=Month('" + sFromDate + @"') and TotalPresent=0 and TotalLv=0 and TotalLate=0  and PlantID='" + sPlantID + @"'
 										                )--not in
                                    
                                                     --Exception emp

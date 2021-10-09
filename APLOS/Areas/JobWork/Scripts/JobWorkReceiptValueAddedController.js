@@ -189,16 +189,15 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 					$scope.GetJWGRNDataChecking();
 					$scope.GRNListDetails();
 					$scope.GetTransformationReceiptCurrency();
+					$scope.GetJWGRNDataChecking();
 				}
 
 			});
-
-
-
-			$scope.setTab(2);
+			
 			$scope.ModelNew.Type = $scope.TabTypeNew;
-			$scope.setStatus = 'Selected';
-	     	$scope.setTabGRNList(1);
+			//$scope.setStatus = 'Selected';
+	  //  	$scope.setTabGRNList(1);
+			$scope.setTab(2);
 		}
 		else {
 
@@ -218,6 +217,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
                     $scope.GetReceiptVAChildData();
                     //$scope.ShowHomeList = false;
                     //$scope.ShowReport = false;
+					$scope.GetTransformationReceiptCurrency();
 					$scope.GetIndividualReportData();
 				}
 
@@ -244,17 +244,33 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 	$scope.currencyList = [];
 	$scope.GetTransformationReceiptCurrency = function () {
-		$scope.currencyList = [];
-		$http({
-			method: 'GET',
-			url: $scope.path + 'GetTransformationReceiptCurrency?Id=' + $scope.Transformation.Id,
-		}).then(function successCallback(response) {
-			$scope.currencyList = response.data;
-			if ($scope.currencyList.length > 0) {
-				$scope.ReceiptTransformation.CurrencyId = $scope.currencyList[0].Value;
-				$scope.getToCurrencyRate();
-            }
-		});
+		if ($scope.ModelNew.TabType == "Transformation") {
+			$scope.currencyList = [];
+			$http({
+				method: 'GET',
+				url: $scope.path + 'GetTransformationReceiptCurrency?Id=' + $scope.Transformation.Id,
+			}).then(function successCallback(response) {
+				$scope.currencyList = response.data;
+				if ($scope.currencyList.length > 0) {
+					$scope.ReceiptTransformation.CurrencyId = $scope.currencyList[0].Value;
+					$scope.getToCurrencyRate();
+				}
+			});
+		}
+		else {
+			$scope.currencyList = [];
+			$http({
+				method: 'GET',
+				url: $scope.path + 'GetTransformationReceiptCurrency?Id=' + $scope.ModelNew.Id,
+			}).then(function successCallback(response) {
+				$scope.currencyList = response.data;
+				if ($scope.currencyList.length > 0) {
+					$scope.ReceiptVA.CurrencyId = $scope.currencyList[0].Value;
+					$scope.getToCurrencyRate();
+				}
+			});
+        }
+
 	}
 
 	$scope.GetIndividualReportData = function () {
@@ -2441,8 +2457,15 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 					debugger;
 					if ($scope.Action === 'Save') {
 						//	data.TransactionRate = (data.GrossConsumption * data.TransactionQty) / data.TransactionQty;
-						var MatTranRate = ((data.GrossConsumption) / data.PlanQuantity) / (parseFloat($scope.ReceiptVA.ToCurrencyRate));
-						data.TransactionRate = MatTranRate.toFixed(4);
+
+						// New Method
+					//	var MatTranRate = ((data.GrossConsumption) / data.PlanQuantity) / (parseFloat($scope.ReceiptVA.ToCurrencyRate));
+					//	data.TransactionRate = MatTranRate.toFixed(4);
+
+						// Again New Method
+						var MatTranRate = (data.IssueRate);
+					   	data.TransactionRate = MatTranRate.toFixed(4);
+
 					}
 
 
@@ -2722,6 +2745,20 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			}).then(function successCallback(response) {
 				$scope.GriddataMaster = response.data;
 				//entrydata = copy(searchdata);
+
+				if ($scope.GriddataMaster.length == 0) {
+					$scope.ShowHomeList = true;
+					$scope.setTab(2);
+					if (!$rootScope.isCollapsed) {
+						$rootScope.toggle();
+					}
+				}
+				else {
+					$scope.ShowHomeList = false;
+					$scope.setTabGRNList(1);
+					$scope.setTab(2);
+				}
+
 			});
 		}
 		else {

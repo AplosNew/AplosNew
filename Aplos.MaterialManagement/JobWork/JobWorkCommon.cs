@@ -914,7 +914,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             }
         }
 
-        public IEnumerable<object> GetBOQItems(string ContractId, string VendorId, string IsOwnVendor, string JWPOId, string JWPODId, string jwActivityId)
+        public IEnumerable<object> GetBOQItems(string ContractId, string VendorId, string IsOwnVendor, string JWPOId, string JWPODId, string jwActivityId, string POType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -932,13 +932,15 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
             if (IsOwnVendor == "OwnVendor")
             {
-                try
+                if (POType == "Transformation")
                 {
+                    try
+                    {
 
 
 
-                    var sql = "";
-                    sql = @"SELECT NULL AS uoMList, NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
+                        var sql = "";
+                        sql = @"SELECT NULL AS uoMList, NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
 						,b.MasterOrderItemId
 						,moi.MasterOrderId
 						,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
@@ -1024,6 +1026,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                           from dbo.JWPOBOQMAP boqmap left join dbo.JobWorkTransformationContractChild om on om.Id=boqmap.JWPODetailId
                                           left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
                                           left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
+                                          left join dbo.JWTransformationPurchaseOrder po on po.Id=om.JobWorkTransformationContractMasterId
+										  where po.POType='OSTransformationPO'
                                           group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId)
 										  kk on kk.SalesOrderId=so.Id and kk.BOQDetailId=b.Id
@@ -1038,68 +1042,243 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
 
 
-                    var Data = _sqlRepository.GetDataCollection(sql);
+                        var Data = _sqlRepository.GetDataCollection(sql);
 
-                    for (int i = 0; i < Data.Count; i++)
-                    {
-
-                        Data[i].Add("CombinationKey", MakeKey(Data[i]));
-
-                    }
-
-
-                    for (int i = 0; i < dtJWPODetail.Rows.Count; i++)
-                    {
-                        string jwPodetailCom = "";//dtJWPODetail
-
-                        jwPodetailCom = MakeKey(dtJWPODetail.Rows[i]);
-
-                        var x = Data.Where(xx => xx["CombinationKey"].ToString() == jwPodetailCom).ToList();
-                        foreach (var item in x)
+                        for (int i = 0; i < Data.Count; i++)
                         {
-                            Data.Remove(item);
+
+                            Data[i].Add("CombinationKey", MakeKey(Data[i]));
+
                         }
-                    }
 
 
-                    StringCollection strCol = new StringCollection();
-                    string MaterialMasterList = "''";
-                    for (int i = 0; i < Data.Count; i++)
-                    {
-                        if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
-                            continue;
-                        strCol.Add(Data[i]["MaterialMasterId"].ToString());
-                        MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+                        for (int i = 0; i < dtJWPODetail.Rows.Count; i++)
+                        {
+                            string jwPodetailCom = "";//dtJWPODetail
 
-                    }
+                            jwPodetailCom = MakeKey(dtJWPODetail.Rows[i]);
 
-                    var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
+                            var x = Data.Where(xx => xx["CombinationKey"].ToString() == jwPodetailCom).ToList();
+                            foreach (var item in x)
+                            {
+                                Data.Remove(item);
+                            }
+                        }
+
+
+                        StringCollection strCol = new StringCollection();
+                        string MaterialMasterList = "''";
+                        for (int i = 0; i < Data.Count; i++)
+                        {
+                            if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
+                                continue;
+                            strCol.Add(Data[i]["MaterialMasterId"].ToString());
+                            MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+
+                        }
+
+                        var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
 																	union
 																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
 																	) AS M
 																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
 																	 where m.Id in (" + MaterialMasterList + @")");
 
-                    for (int i = 0; i < Data.Count; i++)
-                    {
-                        var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
-                        Data[i]["uoMList"] = temp;
-                    }
+                        for (int i = 0; i < Data.Count; i++)
+                        {
+                            var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
+                            Data[i]["uoMList"] = temp;
+                        }
 
-                    var JWServiceList = _sqlRepository.GetDataCollection(@"select Id as Value, UserName as Text from HKP.ServiceMaster order by UserName");
-                    for (int i = 0; i < Data.Count; i++)
-                    {
-                        Data[i]["BOQserviceCboList"] = JWServiceList;
-                    }
+                        var JWServiceList = _sqlRepository.GetDataCollection(@"select Id as Value, UserName as Text from HKP.ServiceMaster order by UserName");
+                        for (int i = 0; i < Data.Count; i++)
+                        {
+                            Data[i]["BOQserviceCboList"] = JWServiceList;
+                        }
 
-                    return Data;
+                        return Data;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new CustomException(ex.Message, ex,
+                            Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                            ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    throw new CustomException(ex.Message, ex,
-                        Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                        ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+                    try
+                    {
+
+
+
+                        var sql = "";
+                        sql = @"SELECT NULL AS uoMList, NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
+						,b.MasterOrderItemId
+						,moi.MasterOrderId
+						,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
+						,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
+
+						,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
+						,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
+						, b.VendorId
+						,b.SalesOrderId
+						,mm.Id MaterialMasterId,mma.Id ArticleId
+						,IsNULL(mm.UserName,'') AS UserName
+						,IsNULL(mma.StandardName,'') AS StandardName
+						,IsNULL(p.UserName,'') AS Vendor
+						,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
+						,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
+						,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
+
+						,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
+						,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+						,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
+						,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
+						,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
+						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+						b.BOMQty,C.Id
+						,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
+						,Isnull(POMAP.TransactionQty,0) PORaisedQry--,ISNULL(OtherPOData.TransactionQty,0) OtherPOQty
+                        ,ISNULL(OtherPOData.TransactionQty,0) OtherPOQtyOrginal
+						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
+						,ISNULL(cpo.PONumber,'') PONumber
+					    --,AUOM.AlternativeUOMId,AUOM.BaseUOMId,AUOM.BaseUOMFactor,AUOM.AlternativeUOMFactor
+						--,uom1.UserName AlternateUOM
+						,b.RequiredQty
+						--,RequiredQty= CASE WHEN AUOM.BaseUOMFactor IS NULL THEN ROUND(isnull(b.RequiredQty,0),2) ELSE ROUND(isnull(b.BOMQty,0)/ISNULL(AUOM.BaseUOMFactor,0),2) END
+						,uom.UserName BOQUOM
+						--,UOM=CASE WHEN AUOM.AlternativeUOMId IS NULL then uom.UserName else  uom1.UserName END
+						,b.POUoMId FromPoUomId
+					    ,b.POUoMId
+						--,TransactionUoMId=CASE WHEN AUOM.AlternativeUOMId IS NULL THEN b.UoMId ELSE AUOM.AlternativeUOMId END
+						,b.RequiredQtyPO 
+						,b.RequiredQtyPO RequiredQtyPOOrginal
+						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
+						,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
+						,mm.BaseUOMId--,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
+                        ,BalanceQuantity=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
+                        ,TransactionQty=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
+                        ,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQty
+						FROM BOQ AS b
+						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+						LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+						LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+						LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+						LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
+						left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
+
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+
+						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
+						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
+						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
+
+						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
+						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
+									FROM JWPOBOQMAP POBOQMAP1
+									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									WHERE POM.Id ='" + JWPOId + @"'
+									GROUP by POBOQMAP1.BOQDetailId								
+									)POMAP ON POMAP.BOQDetailId=b.Id
+						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
+									FROM JWPOBOQMAP POBOQMAP1
+									LEFT JOIN  dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									WHERE POM.Id !='" + JWPOId + @"'
+									GROUP by POBOQMAP1.BOQDetailId
+								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
+                                    left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+                                          ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId
+                                          from dbo.JWPOBOQMAP boqmap left join dbo.JobWorkTransformationContractChild om on om.Id=boqmap.JWPODetailId
+                                          left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
+                                          left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
+                                          left join dbo.JWTransformationPurchaseOrder po on po.Id=om.JobWorkTransformationContractMasterId
+										  where po.POType='OSValueAddedPO'
+                                          group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+                                          ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId)
+										  kk on kk.SalesOrderId=so.Id and kk.BOQDetailId=b.Id
+                        LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
+						--LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
+						WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
+						--AND  b.id in(select ParentId from BOQ where ISNULL(ParentId,'')<>'' 
+                        --and ProcessId IN (Select ProcessId from JWActivity where Id IN (" + jwActivityId + @"))) --and isChild=0
+
+                            AND  b.id in(select ParentId from BOQ where ISNULL(ParentId,'')<>'' )
+
+						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
+
+
+                        var Data = _sqlRepository.GetDataCollection(sql);
+
+                        for (int i = 0; i < Data.Count; i++)
+                        {
+
+                            Data[i].Add("CombinationKey", MakeKey(Data[i]));
+
+                        }
+
+
+                        for (int i = 0; i < dtJWPODetail.Rows.Count; i++)
+                        {
+                            string jwPodetailCom = "";//dtJWPODetail
+
+                            jwPodetailCom = MakeKey(dtJWPODetail.Rows[i]);
+
+                            var x = Data.Where(xx => xx["CombinationKey"].ToString() == jwPodetailCom).ToList();
+                            foreach (var item in x)
+                            {
+                                Data.Remove(item);
+                            }
+                        }
+
+
+                        StringCollection strCol = new StringCollection();
+                        string MaterialMasterList = "''";
+                        for (int i = 0; i < Data.Count; i++)
+                        {
+                            if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
+                                continue;
+                            strCol.Add(Data[i]["MaterialMasterId"].ToString());
+                            MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+
+                        }
+
+                        var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
+																	union
+																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
+																	) AS M
+																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
+																	 where m.Id in (" + MaterialMasterList + @")");
+
+                        for (int i = 0; i < Data.Count; i++)
+                        {
+                            var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
+                            Data[i]["uoMList"] = temp;
+                        }
+
+                        var JWServiceList = _sqlRepository.GetDataCollection(@"select Id as Value, UserName as Text from HKP.ServiceMaster order by UserName");
+                        for (int i = 0; i < Data.Count; i++)
+                        {
+                            Data[i]["BOQserviceCboList"] = JWServiceList;
+                        }
+
+                        return Data;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new CustomException(ex.Message, ex,
+                            Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                            ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+                    }
                 }
+              
             }
             else if (IsOwnVendor == "OtherVendor")
             {

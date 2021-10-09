@@ -514,6 +514,7 @@ namespace Library.Service.Materials
         public GridModel GetGRNList(GridParameter parameters, string fabricRoll)
 
 
+       
         {
             try
             {
@@ -522,7 +523,7 @@ namespace Library.Service.Materials
 										LEFT JOIN TRN.InventoryReceiveDetail IRD ON IR.Id=IRD.InventoryReceiveId
                                         LEFT JOIN TRN.PurchaseOrder po on po.id=IRD.POId
 										LEFT JOIN SCS.Currency C ON IR.CurrencyId=C.Id
-										      LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
+									    LEFT JOIN TRN.InventoryMaterial IM ON IRD.InventoryMaterialId=IM.Id
                                         LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
                                         LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
                                         LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id

@@ -234,13 +234,13 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Doc Ref<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="4" required disabled autocomplete="off">
+                                    <input type="text" maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="4" disabled autocomplete="off">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" maxlength="50" name="Currency" ng-model="voucher.Currency" class="form-control" tabindex="4" required disabled autocomplete="off">
+                                    <input type="text" maxlength="50" name="Currency" ng-model="voucher.Currency" class="form-control" tabindex="4" disabled autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -264,6 +264,34 @@
                             </div>
 
                         </div>
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border">Payment Term</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-2 control-label">Payment Term<sup>*</sup></label>
+                                    <div class="col-sm-2 show-message">
+                                        <div class="select-style">
+                                            <select tabindex="10" id="paymentTermId" class="form-control" name="Payment Term" ng-model="voucher.PaymentTermId" ng-change="changePaymentTerm(voucher.PaymentTermId);">
+                                                <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <label class="col-sm-2 control-label">Due Date BaseOn<sup>*</sup></label>
+                                    <div class="col-sm-2 show-message">
+                                        <input type="text" name="BaseOnDueDate" ng-model="voucher.BaseOnDueDate" ng-change="getMatureDate(voucher.BaseOnDueDate,voucher.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11">
+                                    </div>
+                                    <label class="col-sm-1 control-label">No Of Days</label>
+                                    <div class="col-sm-1 show-message">
+                                        <input id="baseNoOfday" type="number" name="No Of Days" ng-model="voucher.BaseNoOfDays" ng-change="getMatureDate(voucher.BaseOnDueDate, voucher.BaseNoOfDays)" class="form-control" tabindex="12">
+                                    </div>
+                                    <label class="col-sm-1 control-label">Mature Date</label>
+                                    <div class="col-sm-1 show-message">
+                                        <input type="text" name="Mature Date" ng-model="voucher.MatureDate" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
                         <div class="clearfix"></div>
                         <div class="table-responsive modal-table">
                             <table class="table table-striped">
@@ -294,12 +322,12 @@
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li><button ng-click="Post();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
-                                <li><button ng-click="confirmDelete();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>
+                                <li><button ng-click="SavePost();" ng-disabled="voucher.IsPark=='Posted'" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+                                @*<li><button ng-click="confirmDelete();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>*@
                                 <li><button ng-click="postClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
-                        
+
                     </div>
 
                 </div>
@@ -333,13 +361,31 @@
         <div style="color:black;" id="GridPrint" ej-grid e-datasource="masterList" e-allowfiltering="true" e-allowpaging="true" e-recorddoubleclick="Get"
              e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowscrolling="true" e-showstackedheader="true">
             <div e-columns>
-                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                <div e-column e-field="Id" e-headertext="Post Invoice No" e-width="80"></div>
+                <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="80"></div>
                 <div e-column e-field="PartyName" e-headertext="Vendor" e-width="150"></div>
                 <div e-column e-field="InvDate" e-headertext="Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                 <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
                 <div e-column e-field="Currency" e-headertext="Currency" e-width="60"></div>
+                <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
+                <div e-column e-field="IsPark" e-headertext="Status" e-width="60"></div>
+                <div e-column e-headertext=" Posting " e-template="#PostingTemplate" e-width="80"></div>
             </div>
         </div>
+        <script id="PostingTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.onClickReportPDFPosting(data);" ng-hide="data.IsPark=='ToBePost'" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                            <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickReportExcelPosting(data);" ng-hide="data.IsPark=='ToBePost'" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                            <i class="fa fa-file-excel-o"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
     </div>
 </div>
 

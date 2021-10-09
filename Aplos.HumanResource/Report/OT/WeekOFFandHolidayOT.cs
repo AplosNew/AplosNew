@@ -70,7 +70,8 @@ namespace Library.HumanResource.Report.OT
                 application = excelEngine.Excel;
 
                 Dictionary<string, DataRow> dicHourlyOTW = new Dictionary<string, DataRow>();
-                dicHourlyOTW = GetDictionaryHourOTMonthReportWithWeekendORHoliday(Year, Month, PlantId, CompanyId, CompanyGroupId, parameters, isActive, isSeperated, "Weekend");
+                //dicHourlyOTW = GetDictionaryHourOTMonthReportWithWeekendORHoliday(Year, Month, PlantId, CompanyId, CompanyGroupId, parameters, isActive, isSeperated, "W");
+                dicHourlyOTW = GetDictionaryHourOTMonthReportWithWeekend(Year, Month, PlantId, CompanyId, CompanyGroupId, parameters, isActive, isSeperated);
 
 
 
@@ -920,8 +921,10 @@ namespace Library.HumanResource.Report.OT
                 Dictionary<string, DataRow> dicHourlyOTH = new Dictionary<string, DataRow>();
 
                 dicHourlyOTNW = GetDictionaryHourotmonthReportwithoutWeekendHoliday(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated);
-                dicHourlyOTW = GetDictionaryHourOTMonthReportWithWeekendORHoliday(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated, "Weekend");
-                dicHourlyOTH = GetDictionaryHourOTMonthReportWithWeekendORHoliday(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated, "Holiday");
+
+                dicHourlyOTW = GetDictionaryHourOTMonthReportWithWeekend(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated);
+                dicHourlyOTH = GetDictionaryHourOTMonthReportWithHoliday(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated);
+
 
 
                 //otc.LoadSalaryStructure(plantId, fdateOfMonth, ldateOfMonth, out dsSStructureOT);
@@ -1006,7 +1009,7 @@ namespace Library.HumanResource.Report.OT
                 #region Column Variables
                 int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, ColPlantName = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0, colBank = 0, colBankAccountNo = 0
-                   , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic = 0, colGross = 0, colCTC = 0;
+                   , ColLWP = 0, cDMP = 0,  colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic = 0, colGross = 0, colCTC = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0;
                 int npstruct = 0;
 
                 #endregion
@@ -1036,21 +1039,24 @@ namespace Library.HumanResource.Report.OT
                 SetCellValue("Grade", sheet1, xlsRow, ref xlsCol, out cGrade, 25);
                 SetCellValue("Direct Manpower Cost", sheet1, xlsRow, ref xlsCol, out colDirectManpowerCost, 25);
 
-                SetCellValue("Working Days", sheet1, xlsRow, ref xlsCol, out int colWorkingDays, 9);
-                SetCellValue("Pay Days", sheet1, xlsRow, ref xlsCol, out colPayDays, 5);
+                SetCellValue("Total Days", sheet1, xlsRow, ref xlsCol, out ColTotalWorkingDay, 8);
+                SetCellValue("Working Days", sheet1, xlsRow, ref xlsCol, out ColActualWorkingDay, 8);
+                SetCellValue("Pay Days", sheet1, xlsRow, ref xlsCol, out colPayDays, 8);
                 SetCellValue("Present", sheet1, xlsRow, ref xlsCol, out ColPdDy, 9);
                 SetCellValue("Late", sheet1, xlsRow, ref xlsCol, out ColLate, 9);
+                SetCellValue("Total Present (Including Late)", sheet1, xlsRow, ref xlsCol, out ColLatePresent, 23);
+
                 SetCellValue("Absent", sheet1, xlsRow, ref xlsCol, out ColAbDy, 9);
-                SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
-                SetCellValue("Extra Absent", sheet1, xlsRow, ref xlsCol, out ColExtraAbsent, 9);
                 SetCellValue("Holiday", sheet1, xlsRow, ref xlsCol, out ColHlDy, 9);
                 SetCellValue("WeekOff", sheet1, xlsRow, ref xlsCol, out ColWkOf, 9);
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
-                SetCellValue("Maternity Leave", sheet1, xlsRow, ref xlsCol, out ColMLv, 20);
+                SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
+                SetCellValue("Maternity", sheet1, xlsRow, ref xlsCol, out ColMLv, 9);
+
                 SetCellValue("Structured Basic", sheet1, xlsRow, ref xlsCol, out colBasic, 11);
                 SetCellValue("Structured Gross", sheet1, xlsRow, ref xlsCol, out colGross, 11);
                 SetCellValue("Structured CTC", sheet1, xlsRow, ref xlsCol, out colCTC, 11);
-                SetCellValue("Total Ot Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
+                SetCellValue("Total OT Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
                 endGenericColumn = xlsCol;
 
                 //SR to
@@ -1299,7 +1305,7 @@ namespace Library.HumanResource.Report.OT
                             HolidayOT = clsStaticInfo.dbl(dicHourlyOTH[x]["Duration"].ToString());
                             if (dicH.ContainsKey(x))
                             {
-                                ExtraOTH = clsStaticInfo.dbl(dicHourlyOTH[x]["DurationH"].ToString());
+                                //ExtraOTH = clsStaticInfo.dbl(dicHourlyOTH[x]["DurationH"].ToString());
                                 sheet1.Range[xlsRow, colHolidayOT].Number = clsStaticInfo.dbl(dicH[x]) * (clsStaticInfo.dbl(dicHourlyOTH[x]["DurationH"].ToString()));
 
                                 sheet1.Range[xlsRow, colHolidayOT].NumberFormat = NumberFormatTwoDecimal;
@@ -1450,37 +1456,21 @@ namespace Library.HumanResource.Report.OT
 
                         #endregion
                         #region Attendance Data
-                        double _ExtraAbsent = 0;
-                        dvExtraAbsent.RowFilter = "EmpSystemID='" + dtEmployees.Rows[i]["EmpSystemID"].ToString() + "' ";
-                        _ExtraAbsent = dvExtraAbsent.Count;
-                        var payDays = 0.00;// clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString());
-                        if (!String.IsNullOrEmpty(dtEmployees.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
-                        {
-                            if (dtEmployees.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
-                            {
-                                payDays = clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalHoliDay"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString());
-
-                            }
-                            if (dtEmployees.Rows[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
-                            {
-                                payDays = clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString());
-                            }
-                        }
-                        else
-                        {
-                            payDays = clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalProcDate"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString());
-                        }
-
-                        SetCellTextAttdn(sheet1, xlsRow, colPayDays, payDays);
+                        SetCellTextAttdn(sheet1, xlsRow, ColTotalWorkingDay, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWorkingDay"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, ColActualWorkingDay, clsStaticInfo.dbl(dtEmployees.Rows[i]["ActualWorkingDay"].ToString()));
+                        SetCellTextAttdn(sheet1, xlsRow, colPayDays, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalPayDay"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColPdDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalPresent"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColLate, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLate"].ToString()));
-                        SetCellTextNumber(sheet1, xlsRow, ColAbDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString()) - clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLWP"].ToString()));
+                        var LatePresent = Convert.ToDecimal(dtEmployees.Rows[i]["TotalPresent"].ToString()) + Convert.ToDecimal(dtEmployees.Rows[i]["TotalLate"].ToString());
+                        SetCellTextAttdn(sheet1, xlsRow, ColLatePresent, clsStaticInfo.dbl(LatePresent));
+                        SetCellTextNumber(sheet1, xlsRow, ColAbDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalAbsent"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColLWP, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLWP"].ToString()));
-                        SetCellTextAttdn(sheet1, xlsRow, ColExtraAbsent, _ExtraAbsent);
                         SetCellTextAttdn(sheet1, xlsRow, ColHlDy, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalHoliDay"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColWkOf, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLv"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColMLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalMLv"].ToString()));
+
+
                         SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
 
                         double WorkingDays = clsStaticInfo.dbl(dtEmployees.Rows[i]["WorkDays"].ToString());
@@ -1502,7 +1492,7 @@ namespace Library.HumanResource.Report.OT
 
                         }
 
-                        SetCellTextAttdn(sheet1, xlsRow, colWorkingDays, WorkingDays);
+                        SetCellTextAttdn(sheet1, xlsRow, ColActualWorkingDay, WorkingDays);
                         //ExtraOT = ExtraOTH + ExtraOTW;
                         SetCellTextAttdn(sheet1, xlsRow, colExtraOT, ExtraOTH);
                         SetCellTextAttdn(sheet1, xlsRow, colWeekOff, ExtraOTW);
@@ -3675,7 +3665,7 @@ namespace Library.HumanResource.Report.OT
                                         LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId							
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
                                     WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"
-                                   AND DT.Category NOT IN('Weekend','Holiday')  
+                                   AND ISNULL(AP.WeeklyStatus,'')+''+ISNULL(AP.HolidayStatus,'') IN('NW') 
                                     " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @"                             
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ
 									,s.UserName,sb.UserName,lg.UserName,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn ,ad.IsAllDesignation 
@@ -3865,7 +3855,264 @@ namespace Library.HumanResource.Report.OT
 									
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
 
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND DT.Category IN ('" + DayCategory + @"')  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
+                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND ap.DayStatus IN ('" + DayCategory + @"')  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
+                                        --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
+                                    GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
+									,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
+                                    ,ad.IsAllDesignation
+                                    ,ad.IsFixed
+                                    ,ad.FormulaDesID
+                                    ,dar.IsFixed
+                                    ,dar.FormulaDesID
+                                    ,ad.Rate
+                                    ,dar.rate
+	                                ,ei.DOS	,bb.UserName
+									,PG.UserName
+                                    ,ebi.IFSCCode
+									,ebi.BankAccNo
+                                    ,ec.UserName
+                                   ORDER BY ei.EmployeeCode
+                                    ";
+
+                ConnectionManager.clsConnectionManager con = new ConnectionManager.clsConnectionManager(600);
+                con.getDataSet(strSql, out dsRef);
+
+                DataTable dt = dsRef.Tables[0];
+
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    dicOTPolicy.Add(dt.Rows[i]["SystemId"].ToString(), dt.Rows[i]);
+                }
+
+                return dicOTPolicy;
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public Dictionary<string, DataRow> GetDictionaryHourOTMonthReportWithWeekend(string YearNo, string MonthNo, string plantId, string companyId, string companyGroupId, Dictionary<string, string> parameters, bool isActive, bool isSeperated)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            Dictionary<string, DataRow> dicOTPolicy = new Dictionary<string, DataRow>();
+            string strSql = string.Empty;
+            DataSet dsRef = null;
+            string FirstDayOfTheMonth = "01-" + MonthNo + "-" + YearNo;
+            string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+            try
+            {
+                string wcDos = "AND (1=0";
+
+                if (isActive == true && isSeperated == true)
+                {
+                    wcDos = " AND (1=1 ";
+                }
+                else
+                {
+                    if (isActive == true)
+                    {
+                        wcDos += " OR ISNULL(ei.DOS,'') = ''";
+                    }
+                    if (isSeperated == true)
+                    {
+                        wcDos += " OR ISNULL(ei.DOS,'') <> ''";
+                    }
+                }
+
+                wcDos += ")";
+
+                string wcEmpSystemId = "";
+                try
+                {
+                    if (parameters.Count > 0)
+                    {
+                        if (parameters.Keys.ElementAt(0) != "")
+                        {
+                            wcEmpSystemId += @"and HO.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+
+                strSql = @"SELECT ei.SystemId,ei.EmployeeName,ei.EmployeeCode,format(ei.DOJ,'dd-MMM-yyyy') DOJ,format(ei.DOS,'dd-MMM-yyyy') DOS,s.UserName as Section,sb.UserName as SubSection,lg.UserName Designation
+                                ,d.UserName Department,ei.GenderID,HO.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
+                                      ,sum(ho.Duration) AS Duration,SUM(CAST(ho.Duration AS decimal)/60) AS DurationH
+
+                                    ,AD.IsAllDesignation--1
+                                    ,ISNULL(ad.IsFixed,0) AS IsFixed---1--rate--0-farmula
+                                    ,ISNULL(ad.Rate,0) AS Rate
+                                    ,AD.FormulaDesID
+                                    ,ISNULL(dar.IsFixed,0) AS IsFixedFromRate--1--rate--0--farmula
+                                    ,ISNULL(dar.rate,0) AS ratear
+                                    ,dar.FormulaDesID FormulaDesIDFromRate
+		                            ,ISNULL(bb.UserName,'') BankName
+									,ISNULL(PG.UserName,'') PayRollGroup
+                                    ,ISNULL(ebi.IFSCCode,'') IFSCCode
+									,ISNULL(ebi.BankAccNo,'') BankAccNo
+                                    ,ISNULL(ec.UserName,'') EmployeeCategory
+                                      FROM HourlyOT  HO 
+                                      LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+                                      LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
+                                        LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
+                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                        left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
+                                        left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
+                                        left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
+                                        left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
+                                      LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
+                                      LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
+									  LEFT JOIN [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
+									  LEFT JOIN [HKP].[BankBranch] bbranch on bbranch.Id = ebi.BankBranchId
+									  LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = ei.SystemId
+                                        LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+									
+                                      LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
+
+                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"  
+                                     AND ISNULL(AP.WeeklyStatus,'')+''+ISNULL(AP.HolidayStatus,'') IN('W')  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
+                                        --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
+                                    GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
+									,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
+                                    ,ad.IsAllDesignation
+                                    ,ad.IsFixed
+                                    ,ad.FormulaDesID
+                                    ,dar.IsFixed
+                                    ,dar.FormulaDesID
+                                    ,ad.Rate
+                                    ,dar.rate
+	                                ,ei.DOS	,bb.UserName
+									,PG.UserName
+                                    ,ebi.IFSCCode
+									,ebi.BankAccNo
+                                    ,ec.UserName
+                                   ORDER BY ei.EmployeeCode
+                                    ";
+
+                ConnectionManager.clsConnectionManager con = new ConnectionManager.clsConnectionManager(600);
+                con.getDataSet(strSql, out dsRef);
+
+                DataTable dt = dsRef.Tables[0];
+
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    dicOTPolicy.Add(dt.Rows[i]["SystemId"].ToString(), dt.Rows[i]);
+                }
+
+                return dicOTPolicy;
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public Dictionary<string, DataRow> GetDictionaryHourOTMonthReportWithHoliday(string YearNo, string MonthNo, string plantId, string companyId, string companyGroupId, Dictionary<string, string> parameters, bool isActive, bool isSeperated)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            Dictionary<string, DataRow> dicOTPolicy = new Dictionary<string, DataRow>();
+            string strSql = string.Empty;
+            DataSet dsRef = null;
+            string FirstDayOfTheMonth = "01-" + MonthNo + "-" + YearNo;
+            string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+            try
+            {
+                string wcDos = "AND (1=0";
+
+                if (isActive == true && isSeperated == true)
+                {
+                    wcDos = " AND (1=1 ";
+                }
+                else
+                {
+                    if (isActive == true)
+                    {
+                        wcDos += " OR ISNULL(ei.DOS,'') = ''";
+                    }
+                    if (isSeperated == true)
+                    {
+                        wcDos += " OR ISNULL(ei.DOS,'') <> ''";
+                    }
+                }
+
+                wcDos += ")";
+
+                string wcEmpSystemId = "";
+                try
+                {
+                    if (parameters.Count > 0)
+                    {
+                        if (parameters.Keys.ElementAt(0) != "")
+                        {
+                            wcEmpSystemId += @"and HO.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+
+                strSql = @"SELECT ei.SystemId,ei.EmployeeName,ei.EmployeeCode,format(ei.DOJ,'dd-MMM-yyyy') DOJ,format(ei.DOS,'dd-MMM-yyyy') DOS,s.UserName as Section,sb.UserName as SubSection,lg.UserName Designation
+                                ,d.UserName Department,ei.GenderID,HO.EmpSystemId,l.UserName as Line,hr.OTConsiderOn--,YY.EntryAmount
+                                      ,sum(ho.Duration) AS Duration,SUM(CAST(ho.Duration AS decimal)/60) AS DurationH
+
+                                    ,AD.IsAllDesignation--1
+                                    ,ISNULL(ad.IsFixed,0) AS IsFixed---1--rate--0-farmula
+                                    ,ISNULL(ad.Rate,0) AS Rate
+                                    ,AD.FormulaDesID
+                                    ,ISNULL(dar.IsFixed,0) AS IsFixedFromRate--1--rate--0--farmula
+                                    ,ISNULL(dar.rate,0) AS ratear
+                                    ,dar.FormulaDesID FormulaDesIDFromRate
+		                            ,ISNULL(bb.UserName,'') BankName
+									,ISNULL(PG.UserName,'') PayRollGroup
+                                    ,ISNULL(ebi.IFSCCode,'') IFSCCode
+									,ISNULL(ebi.BankAccNo,'') BankAccNo
+                                    ,ISNULL(ec.UserName,'') EmployeeCategory
+                                      FROM HourlyOT  HO 
+                                      LEFT JOIN EmployeeInformation ei on ei.SystemId=HO.EmpSystemId
+                                      LEFT JOIN AttdnProcessData ap on  ho.EmpSystemId=ap.EmpSystemID and HO.WorkDate=ap.WorkDate
+                                        LEFT JOIN DayType  DT on  DT.DayType = ap.DayStatus
+                                      LEFT JOIN [ORG].[Section] s on s.Id=ei.SectionId
+                                      LEFT JOIN [ORG].[SubSection] sb on sb.Id=ei.SubSectionId
+                                        left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=ei.LegalDesignationId
+                                        left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
+                                        left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
+                                        left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
+                                      LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
+                                      LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
+                                      LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
+                                      LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
+                                      LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
+									  LEFT JOIN [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
+									  LEFT JOIN [HKP].[BankBranch] bbranch on bbranch.Id = ebi.BankBranchId
+									  LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = ei.SystemId
+                                        LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+									
+                                      LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
+
+                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND ISNULL(AP.WeeklyStatus,'')+''+ISNULL(AP.HolidayStatus,'') IN('NWH','WH')  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
                                         --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
 									,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
@@ -3996,7 +4243,7 @@ namespace Library.HumanResource.Report.OT
 									
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
 
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND DT.Category IN ('" + DayCategory + @"')  " + wcDos + @" " + Plant + @" " + wcEmpSystemId + @" 
+                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND ISNULL(AP.WeeklyStatus,'')+''+ISNULL(AP.HolidayStatus,'') IN('NWH','WH')  " + wcDos + @" " + Plant + @" " + wcEmpSystemId + @" 
                                         --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
 									,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
@@ -4203,7 +4450,7 @@ namespace Library.HumanResource.Report.OT
 													) MW ON MW.SystemId = EmpBasic.EmpSystemId
                                     INNER JOIN
 		                                    (
-													SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
+													SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalWorkingDay,0) TotalWorkingDay,ISNULL(TotalPayDay,0)TotalPayDay,ISNULL(TotalNonPayDay,0)TotalNonPayDay,ISNULL(ActualWorkingDay,0)ActualWorkingDay,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
 										,ISNULL(TotalLv,0) TotalLv
 										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
@@ -5157,7 +5404,7 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                                         left join org.Plant p on p.Id = ei.PlantId
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
                                     WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"
-                                   AND DT.Category NOT IN('Weekend','Holiday')  
+                                   AND ISNULL(AP.WeeklyStatus,'')+''+ISNULL(AP.HolidayStatus,'') IN('NW')
                                     " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @"                             
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ
 									,s.UserName,sb.UserName,lg.UserName,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn ,ad.IsAllDesignation 
@@ -5272,8 +5519,9 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                                         LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
 									
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
-
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND DT.Category IN ('" + DayCategory + @"')  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
+                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" 
+                                    AND ISNULL(AP.WeeklyStatus,'')+''+ISNULL(AP.HolidayStatus,'') IN('W')
+                                    " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
                                         --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
 									,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount

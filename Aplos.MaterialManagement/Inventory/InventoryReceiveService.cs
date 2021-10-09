@@ -6156,7 +6156,10 @@ namespace Library.MaterialManagement.Inventory
 
                             ,IRD.TransactionUoMId
                             ,TUoM.ShortName  AS TransactionUoM
-                            ,IRD.Id InventoryReceiveDetailId,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
+                            ,IRD.Id InventoryReceiveDetailId
+							,IR.ProductionOrderId
+
+							,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
                             ,CheckStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
                             when IR.CheckedByStatus='Hold' Then 'Hold'
                             when IR.CheckedByStatus='Reject' Then 'Reject'
@@ -6345,7 +6348,9 @@ namespace Library.MaterialManagement.Inventory
 
                             ,IRD.TransactionUoMId
                             ,TUoM.ShortName  AS TransactionUoM
-                            ,IRD.Id InventoryReceiveDetailId,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
+                            ,IRD.Id InventoryReceiveDetailId
+							,IR.ProductionOrderId
+							,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
                             ,PurOrCheckedStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
                             when IR.CheckedByStatus='Hold' Then 'Hold'
                             when IR.CheckedByStatus='Reject' Then 'Reject'
@@ -6620,7 +6625,7 @@ ORDER BY tg.[Sequence]";
 			dsOrderItems = loadOrderMasterItems(grnId);
 			dsTax = loadOrderMasterTax(grnId);
 
-			int LasColumnIndex = 15;
+			int LasColumnIndex = 12;
 			Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
 			DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
 			if (dv.Count > 0)
@@ -6656,6 +6661,11 @@ ORDER BY tg.[Sequence]";
 			range.ApplyCharacterFormat(FontBold);
 			int colRowId = COL; COL++;
 			//wTable.Rows[ROW].Cells[colRowId].Width = 50;
+
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("ProductionOrderId");
+			range.ApplyCharacterFormat(FontBold);
+			int colProductionOrderId = COL; COL++;
+			wTable.Rows[ROW].Cells[colProductionOrderId].Width = 80;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
 			range.ApplyCharacterFormat(FontBold);
@@ -6721,28 +6731,28 @@ ORDER BY tg.[Sequence]";
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
 			range.ApplyCharacterFormat(FontBold);
-			int colRate = COL; COL++;
+			int colRate = COL; //COL++;
 			wTable.Rows[ROW].Cells[colRate].Width = 55;
 
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
-			range.ApplyCharacterFormat(FontBold);
-			int colUoM = COL; COL++;
+			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+			//range.ApplyCharacterFormat(FontBold);
+			//int colUoM = COL; COL++;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
-			range.ApplyCharacterFormat(FontBold);
-			int colQualityStatus = COL; COL++;
+			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
+			//range.ApplyCharacterFormat(FontBold);
+			//int colQualityStatus = COL; COL++;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GrossAmount");
-			range.ApplyCharacterFormat(FontBold);
-			int colGrossAmount = COL; COL++;
+			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GrossAmount");
+			//range.ApplyCharacterFormat(FontBold);
+			//int colGrossAmount = COL; COL++;
 
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("DiscountAmount");
-			range.ApplyCharacterFormat(FontBold);
-			int colDiscountAmount = COL;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("DiscountAmount");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colDiscountAmount = COL;
 
-			int colTotalTaxableAmount = COL;
+            int colTotalTaxableAmount = COL;
 			if (dv.Count > 0)
 			{
 				COL++;
@@ -6856,6 +6866,7 @@ ORDER BY tg.[Sequence]";
 				}
 				TROW.Cells[colRo].AddParagraph().AppendText(sl.ToString());
 				TROW.Cells[colRowId].AddParagraph().AppendText(dsOrderMaster.Rows[i]["InventoryReceiveDetailId"].ToString());
+				TROW.Cells[colProductionOrderId].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProductionOrderId"].ToString());
 				TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
 				TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
 				TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
@@ -6867,10 +6878,10 @@ ORDER BY tg.[Sequence]";
 				TROW.Cells[colLotNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
 				TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
 				TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
-				TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-				TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
-                TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("F2"));
-                TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("F2"));
+				//TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
+				//TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
+                //TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("F2"));
+                //TROW.Cells[colDiscountAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["DiscountAmount"].ToString()).ToString("F2"));
                 TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
 				totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
 				//TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
@@ -6902,7 +6913,7 @@ ORDER BY tg.[Sequence]";
 
 			for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
 			{
-				if (C == colHSNCode || C == colRate || C == colQualityStatus || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate || C == colUoM || dicTaxes.ContainsValue(C))
+				if (C == colHSNCode || C == colRate /*|| C == colQualityStatus*/ || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate /*|| C == colUoM*/ || dicTaxes.ContainsValue(C))
 					continue;
 
 				double value = 0;
@@ -24787,7 +24798,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				//Closes the instance of document objects
 
 				//Saves the PDF file 
-				string Prefix = "GRN" + grnId;
+				string Prefix = "FG GRN" + grnId;
 
 				pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
 				//Closes the instance of document objects

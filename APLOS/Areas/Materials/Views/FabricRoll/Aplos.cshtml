@@ -1,135 +1,166 @@
-﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Fabric Roll</h3>
-<div id="fabricRollMasterNew" class="form-horizontal" ng-form name="fabricRollMasterNewForm">
-    <input type="hidden" ng-model="fabricRollMasterNew.Id">
-    @*<div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">GRN<sup>*</sup></label>
-                <div class="col-sm-8">
-                    <div class="input-group">
-                        <input type="text" name="GRN" ng-model="fabricRollMaster.GRNNo" class="form-control" required readonly>
-                        <span class="input-group-btn">
-                            <button name="submit" ng-click="getGRNPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </span>
+﻿@*<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Fabric Roll</h3>*@
+
+<togglable name="Fabric Roll"></togglable>
+<div class="form-elements form-horizontal" ng-form name="buyerNewForm">
+    @*<div class="modal-header">
+            Material
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>*@
+    <div class="modal-body">
+        <div class="row">
+            <div class="form-elements form-horizontal" >
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">GRN No :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.GRNNo}}</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PO No  :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.POId}}</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">LC No  :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.PurchaseLCNo}}</label>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl">
-        </div>
-        <div class="clearfix"></div>*@
-    <div class="row">
-        <div class="row form-elements">
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="GRNsearchBy">
-                                            <option ng-repeat="option in searchGRNByList" value="{{option.value}}">{{option.name}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="GRNsearch" ng-enter="LoadGRNSearchList()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="LoadGRNSearchList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                </div>
-                            </div>
-                        </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">GRN Date :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.GRNDate}}</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PO Date  :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.PODate}}</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">LC Date  :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.LCDate}}</label>
+                    </div>
+                    @*<div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Qty :</span></label>
+                            <label class="col-sm-8 control-label">{{fabricRollMaster.TransactionQty}}</label>
+                        </div>*@
+
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Amount :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.TransactionAmount}}&nbsp;{{fabricRollMaster.CurrencyCode}}</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">Vendor Ref No :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.VendorRefNo}}</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><span style="font-weight:bold">PI No :</span></label>
+                        <label class="col-sm-8 control-label">{{fabricRollMaster.PINo}}</label>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12" >
+
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label"><span style="font-weight:bold">Party :</span>{{fabricRollMaster.PartyName}}</label>
+                        <label class="col-sm-2 control-label">&nbsp;</label>
                     </div>
                 </div>
-                @*<div class="table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>GRNNo</th>
-                                    <th>GRN Date</th>
-                                    <th>PO No</th>
-                                    <th>PO Date</th>
-                                    <th>Party</th>
-                                    <th>Qty</th>
-                                    <th>Amount</th>
-                                    <th>Currency</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr dir-paginate="x in GRNList|itemsPerPage:grnParameters.pageSize" total-items="grnParameters.total_count" pagination-id="metaData.name + 'grnList'" ng-dblclick="closeGRNPopUp(x);">
-                                    <td>{{x.GRNNo}}</td>
-                                    <td>{{x.GRNDate}}</td>
-                                    <td>{{x.POID}}</td>
-                                    <td>{{x.PODate}}</td>
-                                    <td>{{x.PartyName}}</td>
-                                    <td>{{x.TotalDetailQty}}</td>
-                                    <td>{{x.TotalDetailAmount}}</td>
-                                    <td>{{x.Currency}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <dir-pagination-controls max-size="10"
-                                                 pagination-id="metaData.name + 'grnList'"
-                                                 direction-links="true"
-                                                 boundary-links="true"
-                                                 on-page-change="getGRNData(newPageNumber)">
-                        </dir-pagination-controls>
-                    </div>*@
-
 
             </div>
-        </div>
-
-        <div class="col-md-12">
-            <label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated. </span></label>
-            <div class="form-elements form-horizontal" ng-form id="FabricRoll">
-                <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList"  e-recorddoubleclick="closeGRNPopUp"
+            <div class="col-xs-12">
+                <div style="color:black;" id="drgtg" ej-grid e-datasource="MaterialGridList"
                      e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
                      e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
                      e-allowselection="false">
                     <div e-columns>
-                        <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="100"></div>
-                        <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="120"></div>
-                        <div e-column e-type="string" e-field="POId" e-headertext="PO ID" e-width="100"></div>
-                        <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="120"></div>
-                        <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="120"></div>
-                        <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Qty" e-width="80"></div>
-                        <div e-column e-type="number" e-field="TransactionAmount" e-textalign="right" e-format="{0:N2}" e-headertext="Amount" e-width="100"></div>
-                        <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                        <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material Master" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="100"></div>
+                        <div e-column e-type="string" e-field="SKUInfo" e-headertext="SKU Info." e-width="100"></div>
+                        <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Transaction Qty" e-width="100"></div>
 
-                        <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
-                        <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
-                        <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
-                        <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
-                        <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
-                        @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-                            <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
-                        <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
-                        <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
-                        <div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
-                        <div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
-                        <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
-                        <div e-column e-field="ContractNo" e-headertext="Contract No." e-width="100"></div>
-                        <div e-column e-field="LCANo" e-headertext="LC Ref No." e-width="100"></div>
-                        <div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="120"></div>
-                        <div e-column e-field="UDNo" e-headertext="UD" e-width="80"></div>
-                        <div e-column e-field="OpeningBank" e-headertext="OpeningBank" e-width="100"></div>
+                        <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="120"></div>
+                        <div e-column e-type="number" e-field="SplitCount" e-textalign="right" e-format="{0:N2}" e-headertext="Split Count" e-width="80"></div>
+                        <div e-column e-type="number" e-field="TotalDistributeQty" e-textalign="right" e-format="{0:N2}" e-headertext="TotalDistribute Qty" e-width="100"></div>
+                        <div e-column e-headertext=" Distribute " e-template="#distributeBTN" e-width="120"></div>
 
-                        <div e-column e-field="AcceptanceNo" e-headertext="Aceptance No." e-width="110"></div>
-                        <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="100"></div>
+                    </div>
+                    <script id="distributeBTN" type="text/template">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-center">
 
-                        <div e-column e-field="DocRefNo" e-headertext="Vendor Doc No." e-width="150"></div>
-                        <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="150"></div>
-                        <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
-                        <div e-column e-field="CheckedBy" e-headertext=" Checked By" e-width="150"></div>
-                        <div e-column e-field="ApprovedBy" e-headertext=" To Be Approved By" e-width="150"></div>
-                        <div e-column e-field="GRNType" e-headertext="GRN Type" e-width="100"></div>
-                        <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " @*textAlign='Right'*@ e-width="150"></div>
-                        <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " @*textAlign='Right'*@ e-width="150"></div>
-                        <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" @*textAlign='Right'*@ e-width="150"></div>
-                        <div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" @*textAlign='Right'*@ e-width="150"></div>
+                                <li><button ng-click="$parent.showFabricPop(data)" class="btn btn-action tooltip-here" ng-disabled="data.SplitCount>0" data-placement="top" title="Add New"><i class="glyphicon glyphicon-list"></i></button></li>
+                                <li><button ng-click="$parent.showFabricPop(data)" class="btn btn-action tooltip-here" ng-disabled="data.SplitCount<1" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
+
+                                <li>
+                                    <button ng-click="$parent.getpdff(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Edit">
+                                        <i class="glyphicon glyphicon-eye-open" style="color:orangered;"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive aplos-grid-toggle">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="GRNsearchBy">
+                                        <option ng-repeat="option in searchGRNByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="GRNsearch" ng-enter="LoadGRNSearchList()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="LoadGRNSearchList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated. </span></label>
+    <div class="table-responsive aplos-grid-toggle">
+        <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList" e-recorddoubleclick="Get"
+             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
+             e-allowselection="false">
+            <div e-columns>
+                <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="100"></div>
+                <div e-column e-type="date"   e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="120"></div>
+                <div e-column e-type="string" e-field="GRNType" e-headertext="GRN Type" e-width="100"></div>
+                <div e-column e-type="string" e-field="GRNStatus" e-headertext="GRN Status" e-width="100"></div>
+
+                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="120"></div>
+                <div e-column e-type="number" e-field="TransactionQty" e-textalign="right" e-format="{0:N2}" e-headertext="Qty" e-width="80"></div>
+                <div e-column e-type="number" e-field="TransactionAmount" e-textalign="right" e-format="{0:N2}" e-headertext="Amount" e-width="100"></div>
+                <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                <div e-column e-type="string" e-field="POId" e-headertext="PO No." e-width="100"></div>
+                <div e-column e-type="date"   e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="120"></div>
+                <div e-column e-type="string" e-field="VendorRefNo" e-headertext="PO Vendor Ref No." e-width="100"></div>
+                <div e-column e-type="string" e-field="PurchaseLCNo" e-headertext="Purchase LC No." e-width="100"></div>
+                <div e-column e-type="string" e-field="LCANo" e-headertext="LC Ref No." e-width="100"></div>
+                <div e-column e-type="date"   e-field="LCDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LC Date" e-width="120"></div>
+                <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="100"></div>
+                <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="100"></div>
+                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="100"></div>
+                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="120"></div>
+                <div e-column e-type="string" e-field="UDNo" e-headertext="UD" e-width="80"></div>
+                <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
+                <div e-column e-type="string" e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
             </div>
         </div>
     </div>
@@ -143,9 +174,9 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body ">
-                <div class="form-elements form-horizontal  mark">
-                    @*col-xs-12 divborder mark*@
-                    <div class="col-xs-12 col-sm-4 col-md-4 mark">
+                <div class="form-elements form-horizontal">
+                    @*col-xs-12 divborder*@
+                    <div class="col-xs-12 col-sm-4 col-md-4">
                         <div class="form-group">
                             <label class="col-sm-4 control-label"><span style="font-weight:bold">GRNNo</span></label>
                             <label class="col-sm-8 control-label">{{fabricRollMaster.GRNNo}}</label>
@@ -156,7 +187,7 @@
                         </div>
 
                     </div>
-                    <div class="col-xs-12 col-sm-4 col-md-4 mark">
+                    <div class="col-xs-12 col-sm-4 col-md-4">
                         <div class="form-group">
                             <label class="col-sm-4 control-label"><span style="font-weight:bold">GRN Date :</span></label>
                             <label class="col-sm-8 control-label">{{fabricRollMaster.GRNDate}}</label>
@@ -167,7 +198,7 @@
                         </div>
 
                     </div>
-                    <div class="col-xs-12 col-sm-4 col-md-4 mark">
+                    <div class="col-xs-12 col-sm-4 col-md-4">
                         <div class="form-group">
                             <label class="col-sm-4 control-label"><span style="font-weight:bold">PONo:</span></label>
                             <label class="col-sm-8 control-label">{{fabricRollMaster.POID}}</label>
@@ -178,11 +209,11 @@
                         </div>
 
                     </div>
-                    <div class="col-xs-12 col-sm-12 col-md-12 mark">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
 
                         <div class="form-group">
-                            <label class="col-sm-10 control-label mark"><span style="font-weight:bold">Party :</span>{{fabricRollMaster.PartyName}}</label>
-                            <label class="col-sm-2 control-label mark">&nbsp;</label>
+                            <label class="col-sm-10 control-label"><span style="font-weight:bold">Party :</span>{{fabricRollMaster.PartyName}}</label>
+                            <label class="col-sm-2 control-label">&nbsp;</label>
                         </div>
 
 
@@ -267,7 +298,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="row form-element-ctrl form-horizontal" style="background-color:antiquewhite;">
+                <div class="row form-element-ctrl form-horizontal" @*style="background-color:lightgray;"*@>
                     <div class="form-elements form-horizontal">
                         <div class="col-xs-12 col-sm-4 col-md-4">
                             <div class="form-group">
