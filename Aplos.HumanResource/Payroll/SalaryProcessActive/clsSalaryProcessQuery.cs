@@ -900,12 +900,15 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
                                   E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
-                                    
+                                      CASE WHEN ISNULL(e.LegalDesignationId,'')='' THEN 1 ELSE
+                                    	CASE WHEN ISNULL(dm.DesignationId,'')='' THEN 1 ELSE 0 END END AS MissingDesignation,
                                   '" + fromdate + @"' ToDate,
                                   ProcessStatus = 'OK',
                           e.GivenDesignationId
 
-                           FROM EmployeeInformation E
+                           FROM EmployeeInformation E                                        
+                                        left join mst.DesignationMasterLegalDesignation m on m.LegalDesignationId=E.LegalDesignationId
+                                        left join mst.DesignationMaster dm on dm.id=m.DesignationMasterId
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
                                         LEFT OUTER JOIN EmployeeBankInfo EBI ON E.SystemID = EBI.EmpSystemID AND EBI.IsApproved = 1
                                         LEFT OUTER JOIN (
@@ -923,6 +926,11 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    if (OTSBD.clsStaticInfo.dbl(dsRef.Tables[0].Rows[i]["MissingDesignation"].ToString()) == 1)
+                        throw new Exception("Employee found with missing designation. (hint: missing legal designation with designation master)");
+                }
             }
             catch (Exception ex)
             {
