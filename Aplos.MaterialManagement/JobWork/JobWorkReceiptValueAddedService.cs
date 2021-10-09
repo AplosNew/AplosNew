@@ -407,6 +407,7 @@ namespace Library.MaterialManagement.JobWork
                         ,null POUoMId
                         ,0 Tolerance
 						,vvvv.ConsumptionAmount as GrossConsumption
+                        ,vvvv.Rate as IssueRate
                         from dbo.JobWorkTransformationContractChild mp
                         left join dbo.JWTransformationPurchaseOrder tc on tc.Id = mp.JobWorkTransformationContractMasterId
 
@@ -486,7 +487,7 @@ namespace Library.MaterialManagement.JobWork
 	                            --, MOI.ArticleId, ART.StandardName AS ArticleName
 								,CN.ContractNo,MLC.LCRef, owrUom.UserName,owr.Id, owr.JobWorkTransformationContractChildMasterId, owr.OrderType,owr.Quantity
 								--,owr.PlanQuantity
-                                ,mp.BaseUOMId,TUoMM.Id
+                                ,mp.BaseUOMId,TUoMM.Id,vvvv.Rate
                                  ";
 
                 return _sqlRepository.GetDataCollection(sql, null);

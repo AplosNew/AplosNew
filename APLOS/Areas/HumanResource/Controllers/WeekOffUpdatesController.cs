@@ -46,6 +46,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+
+        public ActionResult EWeekUpdate()
+        {
+            return View();
+        }
         #endregion
 
         //#region -- Operations
@@ -406,7 +411,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(rs.getEmpWeekOff(EmpId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult saveSingle(string EmpId , string EffectiveDate , string WeekId)
         {
             try

@@ -6156,7 +6156,10 @@ namespace Library.MaterialManagement.Inventory
 
                             ,IRD.TransactionUoMId
                             ,TUoM.ShortName  AS TransactionUoM
-                            ,IRD.Id InventoryReceiveDetailId,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
+                            ,IRD.Id InventoryReceiveDetailId
+							,IR.ProductionOrderId
+
+							,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
                             ,CheckStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
                             when IR.CheckedByStatus='Hold' Then 'Hold'
                             when IR.CheckedByStatus='Reject' Then 'Reject'
@@ -6345,7 +6348,9 @@ namespace Library.MaterialManagement.Inventory
 
                             ,IRD.TransactionUoMId
                             ,TUoM.ShortName  AS TransactionUoM
-                            ,IRD.Id InventoryReceiveDetailId,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
+                            ,IRD.Id InventoryReceiveDetailId
+							,IR.ProductionOrderId
+							,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
                             ,PurOrCheckedStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
                             when IR.CheckedByStatus='Hold' Then 'Hold'
                             when IR.CheckedByStatus='Reject' Then 'Reject'
@@ -6620,7 +6625,7 @@ ORDER BY tg.[Sequence]";
 			dsOrderItems = loadOrderMasterItems(grnId);
 			dsTax = loadOrderMasterTax(grnId);
 
-			int LasColumnIndex = 11;
+			int LasColumnIndex = 12;
 			Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
 			DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
 			if (dv.Count > 0)
@@ -6656,6 +6661,11 @@ ORDER BY tg.[Sequence]";
 			range.ApplyCharacterFormat(FontBold);
 			int colRowId = COL; COL++;
 			//wTable.Rows[ROW].Cells[colRowId].Width = 50;
+
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("ProductionOrderId");
+			range.ApplyCharacterFormat(FontBold);
+			int colProductionOrderId = COL; COL++;
+			wTable.Rows[ROW].Cells[colProductionOrderId].Width = 80;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
 			range.ApplyCharacterFormat(FontBold);
@@ -6856,6 +6866,7 @@ ORDER BY tg.[Sequence]";
 				}
 				TROW.Cells[colRo].AddParagraph().AppendText(sl.ToString());
 				TROW.Cells[colRowId].AddParagraph().AppendText(dsOrderMaster.Rows[i]["InventoryReceiveDetailId"].ToString());
+				TROW.Cells[colProductionOrderId].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProductionOrderId"].ToString());
 				TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
 				TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
 				TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
@@ -12874,7 +12885,7 @@ ORDER BY tg.[Sequence]";
 							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
 							)PO ON PO.GRNId = IR.Id
-						 where  IR.PlantId='" + identity.PlantId + "'  AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW'
+						 where  IR.PlantId='" + identity.PlantId + "'  AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW' AND IR.GRNType<>'InventorySalesReturn'
 
 							UNION ALL
 
@@ -13086,7 +13097,7 @@ ORDER BY tg.[Sequence]";
 			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 			--AND IRT.InventoryServiceId is not null
-			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW'
+			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW' AND IR.GRNType<>'InventorySalesReturn'
 			)x
 			Order By X.GRNEntryDate ASC";
 
@@ -24787,7 +24798,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				//Closes the instance of document objects
 
 				//Saves the PDF file 
-				string Prefix = "GRN" + grnId;
+				string Prefix = "FG GRN" + grnId;
 
 				pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
 				//Closes the instance of document objects
