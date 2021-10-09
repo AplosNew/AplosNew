@@ -251,11 +251,10 @@ namespace Aplos.Areas.Materials.Controllers
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			string sql = @"SELECT 
 DISTINCT IRD.Id,IRD.InventoryReceiveId,IRD.TransactionQty,IRD.TransactionUoMId,Isnull(FRM.SplitCount,0)SplitCount
-,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,IR.Id GRNNo,IR.GRNDate
+,ISNULL(FRM.TotalDistributeQty,0)TotalDistributeQty,UOM.UserName UOM,BUoM.UserName BaseUoM,IR.Id GRNNo,IR.GRNDate
 ,P.UserName PartyName,PL.FabRollPrefix,IM.PlantId,IM.MaterialMasterId,IM.ArticleId
 ,IM.FirstCharacteristicsId SKUId,MM.UserName MaterialMasterName,MMA.StandardName ArticleName
 ,C.UserName SKU1,C2.UserName SKU2,C3.UserName SKU3,CV.UserName SKUValue, C.UserName +':'+CV.UserName SKUInfo,CU.Code
-
 ,MGM.UserName MaterialGroup
 FROM [TRN].[InventoryReceiveDetail] IRD
                                         LEFT JOIN TRN.InventoryReceive IR ON IRD.InventoryReceiveId=IR.Id
@@ -265,6 +264,7 @@ FROM [TRN].[InventoryReceiveDetail] IRD
                                         LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 										LEFT JOIN scs.PlantConfig PL ON  PL.PlantId=IM.PlantId
                                         LEFT JOIN SCS.UnitOfMeasurement UOM ON IRD.TransactionUoMId=UOM.Id
+                                        LEFT JOIN SCS.UnitOfMeasurement BUoM ON IRD.BaseUOMId=BUoM.Id
                                         LEFT JOIN MST.MaterialMaster MM ON IM.MaterialMasterId=MM.Id
 
                                         LEFT JOIN MST.MaterialGroupMaster MGM ON MM.MaterialGroupMasterId=MGM.Id
