@@ -1641,7 +1641,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
 
                 DataSet dsSOId;
-                GetSOId(masterItemId, out dsSOId);
+                GetSOId(MasterId, out dsSOId);
                 string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
                 string NewSoId = string.Empty;
 
@@ -1662,8 +1662,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 {
                     DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
                     CopyRow(dtFromMaster.Rows[0], ref drSalesOrder);
-                    drSalesOrder["Id"] = NewId+m+1;
-                    NewSoId= NewId + m+1;
+                    drSalesOrder["Id"] = Convert.ToInt32(NewId) +m+1;
+                    NewSoId= drSalesOrder["Id"].ToString();
                     drSalesOrder["MasterOrderItemId"] = MasterId;
                     dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
 
@@ -1676,7 +1676,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         drFirstCharacteristics["SalesOrderId"] = NewSoId;
                         dsToFirstCharacteristics.Tables[0].Rows.Add(drFirstCharacteristics);
 
-                        dtFromSecondCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + masterItemId + "' AND FirstCharacteristicsId='" + dtFromFirstCharacteristics.Rows[i]["Id"] + "'";
+                        dtFromSecondCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + dtFromMaster.Rows[m]["Id"].ToString() + "' AND FirstCharacteristicsId='" + dtFromFirstCharacteristics.Rows[i]["Id"] + "'";
                         for (int K = 0; K < dtFromSecondCharacteristics.DefaultView.Count; K++)
                         {
                             DataRow drSecondCharacteristics = dsToSecondCharacteristics.Tables[0].NewRow();
@@ -1686,7 +1686,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             drSecondCharacteristics["FirstCharacteristicsId"] = NewSoId + (i + 1);
                             dsToSecondCharacteristics.Tables[0].Rows.Add(drSecondCharacteristics);
 
-                            dtFromThirdCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + masterItemId + "' AND SecondCharacteristicsId='" + dtFromSecondCharacteristics.Rows[K]["Id"] + "'";
+                            dtFromThirdCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + dtFromMaster.Rows[m]["Id"].ToString() + "' AND SecondCharacteristicsId='" + dtFromSecondCharacteristics.Rows[K]["Id"] + "'";
                             for (int j = 0; j < dtFromThirdCharacteristics.DefaultView.Count; j++)
                             {
                                 DataRow drThirdCharacteristics = dsToThirdCharacteristics.Tables[0].NewRow();

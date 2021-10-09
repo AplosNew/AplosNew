@@ -57,6 +57,16 @@
     <div ng-form name="BulletinForm">
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group">
+                <label class="col-sm-4 control-label">Upload Picture</label>
+                <div class="col-sm-8">
+                    <img id="uploadSigsrc" ng-src="{{PicFileName}}" style="border: 1px dashed; height: 150px; width: 140px;" />
+                    <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
                 <label class="col-sm-4 control-label">Bulletin ID<sup>*</sup></label>
                 <div class="col-sm-8">
                     <input type="text" name="Bulletin Id" disabled ng-model="bulletinTemplateNew.Id" class="form-control">
@@ -105,19 +115,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Upload Picture</label>
-                <div class="col-sm-8">
-                    <img id="uploadSigsrc" ng-src="{{PicFileName}}" style="border: 1px dashed; height: 150px; width: 140px;" />
-                    <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
-                </div>
-                @*<div class="col-sm-4">
-                        <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
-                    </div>*@
-            </div>
 
-        </div>
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
