@@ -393,6 +393,7 @@
     <Compile Include="Areas\Attendances\Controllers\ManualOTReportNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ManualOTUploadNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\OTManualNewController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\WeekOffHolidayOTReportOriginalController.cs" />
     <Compile Include="Areas\Attendances\Controllers\WeekOffHolidayOTReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\DailyAttendanceReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ManualOTReportController.cs" />
@@ -1610,6 +1611,7 @@
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummaryNewController.js" />
+    <Content Include="Areas\Attendances\Scripts\holidayOTReportOriginalController.js" />
     <Content Include="Areas\Attendances\Scripts\MonthlyAttendanceInformationDateRangeNewController.js" />
     <Content Include="Areas\Attendances\Scripts\MonthlyAttendanceInformationNewController.js" />
     <Content Include="Areas\Attendances\Scripts\monthlyGoodWorkReportNewController.js" />
@@ -1623,6 +1625,7 @@
     <Content Include="Areas\Attendances\Scripts\ManualOTReportNewController.js" />
     <Content Include="Areas\Attendances\Scripts\ManualOTUploadNewController.js" />
     <Content Include="Areas\Attendances\Scripts\OTManualNewController.js" />
+    <Content Include="Areas\Attendances\Scripts\weekOffOTReportOriginalController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportController.js" />
     <Content Include="Areas\Attendances\Scripts\AdditionalPayDayController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceFromAppReportController.js" />
@@ -1849,6 +1852,7 @@
     <Content Include="Areas\HumanResource\Scripts\RosterUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCCompanyController.js" />
+    <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCOriginalController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureAndProcessedReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />

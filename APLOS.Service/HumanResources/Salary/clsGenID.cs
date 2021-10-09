@@ -79,6 +79,73 @@ namespace bplib
                 drLocal = null;
             }
         }
+        public void GenIDDaily(string strEntryDate, string strFieldName, out string strID)
+        {
+            ConnectionManager.DAL.ConManager objCoManager;
+            string strSql = "";
+            DataSet dsLocal = null;
+            DataTable dtLocal = null;
+            DataRow drLocal = null;
+            DataView dvLocal = null;
+            // System.Text.StringBuilder SB = null;
+            decimal LastNumber = 0;
+
+            try
+            {
+                //by Monir
+                strEntryDate = clsWebLib.AppDateConvert(strEntryDate, "MM/dd/yyyy", clsWebLib.getUserDateFormat()).ToShortDateString();
+                //strEntryDate = bplib.clsWebLib.AppDateConvert(strEntryDate, bplib.clsWebLib.getUserDateFormat(), "MM/dd/yyyy").ToString("MM/dd/yyyy");
+                strSql = "SELECT [Field], [Dates], [LastNumber], Year(Dates) as YearNo FROM Signature WHERE Field ='" + strFieldName.Trim() + "' and Dates = '" + Convert.ToDateTime(strEntryDate).Year.ToString() + "'";
+
+                //SB = new System.Text.StringBuilder(strEntryDate);
+                // strID = SB.Replace(bplib.clsWebLib.getUserDateSeparator().ToString(), "").ToString();
+
+                strID = Convert.ToDateTime(strEntryDate).Year.ToString();
+
+                objCoManager = new ConnectionManager.DAL.ConManager("1");
+                objCoManager.OpenDataSetThroughAdapter(strSql, out dsLocal, false, false, "", "1");
+                dtLocal = dsLocal.Tables[0];
+                dvLocal = new DataView();
+                dvLocal.Table = dtLocal;
+                dvLocal.RowFilter = "Field ='" + strFieldName.Trim() + "'and YearNo = '" + Convert.ToDateTime(strEntryDate).Year.ToString() + "'";
+                if (dvLocal.Count == 0)
+                {// Add data
+                    drLocal = dtLocal.NewRow();
+                    drLocal["Field"] = clsWebLib.RetValidLen(strFieldName, 50);
+                    drLocal["Dates"] = strEntryDate.Trim();
+                    drLocal["LastNumber"] = 1;
+                    LastNumber = 1;
+                    dtLocal.Rows.Add(drLocal);
+                }
+                else if (dvLocal.Count == 1)
+                {
+                    drLocal = dvLocal[0].Row;
+
+                    LastNumber = Convert.ToDecimal(clsWebLib.GetNumData(("" + drLocal["LastNumber"].ToString())));
+                    LastNumber = LastNumber + 1;
+
+                    drLocal.BeginEdit();
+                    drLocal["Dates"] = strEntryDate.Trim();
+                    drLocal["LastNumber"] = LastNumber;
+                    drLocal.EndEdit();
+                }
+                objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
+                //strID = strID + "-" + (int)LastNumber;
+                strID = strID + (int)LastNumber;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                dtLocal = null;
+                dvLocal = null;
+                drLocal = null;
+            }
+        }
+
         public void GenID(string strFieldName, out string strID)
         {
             ConnectionManager.DAL.ConManager objCoManager;

@@ -61,7 +61,24 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
-        [HttpPost]
+
+		[HttpPost]
+		public JsonResult Save(List<Dictionary<string, object>> FabricRollData)
+		{
+			_fabricRollMasterService.SaveFabricRoll(FabricRollData);
+			return Json(new { Message = AplosMessage.Insert });
+		}
+
+		[HttpPost, Authorize]
+		public JsonResult Roll(string InventoryReceiveDetailId, int NoofRolls)
+		{
+			_fabricRollMasterService.CreateRoll(InventoryReceiveDetailId, NoofRolls);
+			return Json(new { Message = AplosMessage.Insert });
+		}
+
+
+
+		[HttpPost]
         public JsonResult Delete(string id)
         {
             _fabricRollMasterService.DeleteGraph(id);

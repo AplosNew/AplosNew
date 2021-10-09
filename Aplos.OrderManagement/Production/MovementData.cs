@@ -2004,8 +2004,8 @@ namespace Library.Service.Productions
                       join dbo.ProductLibrary pl on pl.Code=s.ProductCode
 					  LEFT join mst.MaterialMasterArticle a on a.Id=pl.ArticleId
 					  left join hkp.ProductionStatus ps on ps.Id=p.ProductionStatusId
-                      left join hkp.MaterialMovementPurpose mp on mp.Id = sc.PurposeId
                       join mst.MaterialMovementMaster m on m.Id= sc.LocMasterId
+                      left join hkp.MaterialMovementPurpose mp on mp.Id = m.PurposeId
 
                       where (sc.WorkDate between '" + FromDate + "' and '" + ToDate + "') and " + strkey + " and m.EntityId = '" + EntityId + @"' and mp.Id = '" + PurposeId + "' and p.PlantId='" + identity.PlantId + "' order by sc.Time desc";
 
@@ -2044,8 +2044,8 @@ namespace Library.Service.Productions
                       join dbo.ProductLibrary pl on pl.Code=s.ProductCode
 					  LEFT join mst.MaterialMasterArticle a on a.Id=pl.ArticleId
 					  left join hkp.ProductionStatus ps on ps.Id=p.ProductionStatusId
-                      left join hkp.MaterialMovementPurpose mp on mp.Id = sc.PurposeId
                       join mst.MaterialMovementMaster m on m.Id= sc.LocMasterId
+                      left join hkp.MaterialMovementPurpose mp on mp.Id = m.PurposeId
 
                       where sc.WorkDate " +
                     "between '" + From + "' and '" + To + "'  and p.PlantId='" + identity.PlantId + @"'
@@ -2065,8 +2065,7 @@ namespace Library.Service.Productions
                     and isnull(m.FromLocation,'') IN (" + FromLoc + @")
                     and isnull(m.ToLocation,'') IN (" + ToLoc + @")
                     and isnull(mp.Id,'') IN (" + PurposeId + @")
-                    and m.EntityId = '" + EntityId + @"'
-";
+                    and m.EntityId = '" + EntityId + @"'";
 
                 return _sqlRepository.GetDataTable(_sql);
             }
