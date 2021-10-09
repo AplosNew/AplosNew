@@ -5147,15 +5147,15 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
                                       LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
                                       LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
-                                      LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
-                                      LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
+                                      LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=ei.PlantId   
+                                      LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ei.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
 									  LEFT JOIN [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
 									  LEFT JOIN [HKP].[BankBranch] bbranch on bbranch.Id = ebi.BankBranchId
 									  LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = ei.SystemId
                                         LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
                                         left join org.Plant p on p.Id = ei.PlantId
-                                      LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
+                                      LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ei.PlantId AND dar.DesignationId=dm.DesignationId
                                     WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"
                                    AND DT.Category NOT IN('Weekend','Holiday')  
                                     " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @"                             
@@ -5263,15 +5263,15 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                                         left join hkp.LegalDesignation LG on LG.Id = ei.LegalDesignationId
                                       LEFT JOIN [ORG].[Department] d on d.Id=ei.DepartmentId
                                       LEFT JOIN [ORG].[Line] l on l.Id=ei.LineId
-                                      LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=HO.PlantId   
-                                      LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ho.PlantId
+                                      LEFT JOIN PlantWiseHRMSSetting hr on hr.PlantID=ei.PlantId   
+                                      LEFT JOIN hkp.AllowanceDaily ad on ad.PlantID=ei.PlantId
                                       LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=ei.SystemId
 									  LEFT JOIN [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
 									  LEFT JOIN [HKP].[BankBranch] bbranch on bbranch.Id = ebi.BankBranchId
 									  LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = ei.SystemId
                                         LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
 									
-                                      LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
+                                      LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ei.PlantId AND dar.DesignationId=dm.DesignationId
 
                                     WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND DT.Category IN ('" + DayCategory + @"')  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
                                         --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
@@ -5352,12 +5352,12 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                             d on d.SalaryID=m.SystemID
                             left join SalaryHead h on h.SalaryHeadID=d.SalaryHeadID
                             LEFT JOIN IncrementHistory IH on IH.ToSalaryId=d.SalaryID
-                            
+                            left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                             LEFT JOIN Hkp.LegalDesignation LD ON LD.Id = ih. FromLegalDesignationId
-                            LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.FromLegalDesignationId AND LGD.PlantId in (" + sPlantID + @")
+                            LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.FromLegalDesignationId AND LGD.PlantId=e.PlantId AND LGD.PlantId in (" + sPlantID + @")
                             
                             LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId
-left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
+
                                 where (e.DOJ<='" + sToDate + @"') and (e.DOS is null or e.DOS>='" + sFromDate + @"') and e.PlantId in (" + sPlantID + @")
                             ORDER BY m.EmpInfoSystemID";
 
@@ -5413,7 +5413,7 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
 												inner join (select DesignationMasterId,OverTimePmtPolicyMasterID,IsOTEntitled ,PlantId
                                                             from scs.DesignationMasterConfiguration where PlantId in (" + sPlantID + @") and IsOTEntitled=1) dc 
                                                             on dc.DesignationMasterId=dml.Id and e.PlantId = dc.PlantId
-												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID in (" + sPlantID + @")
+												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID=E.PlantId  and otpm.PlantID in (" + sPlantID + @")
 												left join OverTimePmtPolicyDetails oH on oh.OverTimePmtPolicyID=otpm.ID and oh.OverTimeDayType='Holiday'
 												left join OverTimePmtPolicyDetails oW on ow.OverTimePmtPolicyID=otpm.ID and ow.OverTimeDayType='Week Off'
 												left join OverTimePmtPolicyDetails oNW on oNW.OverTimePmtPolicyID=otpm.ID and onw.OverTimeDayType='Working Day'
