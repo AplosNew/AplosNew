@@ -31,6 +31,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         , PurchaseLCNo: null
         , PINo: null
         , LCDate: null
+        , OpeningBank: null
     };
 
     $scope.fabricRollSplitOb = {
@@ -335,7 +336,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     $scope.Save = function () {
         try {
             $scope.$broadcast('show-errors-check-validity');
-            if ($scope.fabricRollMasterNewForm.$valid) {
+            /*if ($scope.fabricRollMasterNewForm.$valid) {*/
                 validFabric();
                 $http({
                     method: 'POST',
@@ -354,7 +355,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 };
-            }
+           /* }*/
         } catch (e) {
             ShowResult(e, 'failure','fabricRollPopUp');
         }
