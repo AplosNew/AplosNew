@@ -24,6 +24,8 @@ using System.IO;
 using Library.Data;
 using Library.Service.Helpers;
 
+using Library.HumanResource.NewAttendanceProcess;
+
 
 #endregion Using
 
@@ -351,6 +353,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 DataSet EmpDayStatus;
                 DataSet IsEmpSalaryLocked;
                 DataSet EmpExistInAttProData;
+                string RowsEdit = "''";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 var empdetails = "' '";
                 var empworkingdates = "''";
@@ -389,7 +392,10 @@ namespace Aplos.Areas.Attendances.Controllers
 
                         //    {
 
-                        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' ";
+                        string newformat = Convert.ToDateTime(item.APDEmpWorkDate).ToString("yyyyMMdd");
+
+                        //        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' ";
+                        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' and RowId='" + newformat + item.EmployeeSystemId + "' ";
 
                         if (EmpExistInAttProData.Tables[0].DefaultView.Count != 0)
                                 {
@@ -410,11 +416,14 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
                             dr.EndEdit();
+                            RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
 
-                                }
+                        }
                                 else
                                 {
-                               EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemId ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' ";
+                            //      EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemId ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' ";
+
+                            EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.APDEmpWorkDate + "' and RowId='" + newformat + item.EmployeeSystemId + "' ";
 
                             if (EmpExistOrNot.Tables[0].DefaultView.Count > 0)
                                     {
@@ -440,9 +449,10 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
                                         drr.EndEdit();
+                                        RowsEdit = RowsEdit + ",'" + drr["RowId"].ToString() + "'";
 
-                                       
-                                    }
+
+                            }
                                     if(EmpExistOrNot.Tables[0].DefaultView.Count == 0)
                                     {
                                         DataRow dr = EmpExistOrNot.Tables[0].NewRow();
@@ -464,7 +474,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
                                         EmpExistOrNot.Tables[0].Rows.Add(dr);
-                                    }
+                                        RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
+                            }
                                   
                                 }
                    //         }
@@ -475,6 +486,9 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(EmpExistInAttProData, EmpExistOrNot);
+
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                ap.ManualScheduler(identity.PlantId, RowsEdit);
 
                 return Json(new { Error = false, Message = AplosMessage.Updated });
 

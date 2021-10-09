@@ -949,7 +949,7 @@ var upanelApp = angular
     .controller('salaryStructureAndProcessedReportNewController', salaryStructureAndProcessedReportNewController)
     .controller('finishGoodsInventoryRegisterController', finishGoodsInventoryRegisterController)
     .controller('LineLayoutForProductionBulletinController', LineLayoutForProductionBulletinController)
-
+    .controller('EmployeeWeekOffUpdatesController', EmployeeWeekOffUpdatesController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)

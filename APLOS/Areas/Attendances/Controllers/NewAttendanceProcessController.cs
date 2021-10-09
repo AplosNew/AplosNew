@@ -166,6 +166,52 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult RunDOJProcess(string Date)
+        {
+            string CGId = "";
+
+            DataSet GroupList;
+            NewAttendanceProcessService repo = new NewAttendanceProcessService();
+
+            repo.GetCompanyGp(out GroupList);
+            if (GroupList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int k = 0; k < GroupList.Tables[0].Rows.Count; k++)
+                {
+                    CGId = GroupList.Tables[0].Rows[k][@"CGId"].ToString();
+
+                }
+            }
+
+            DataSet PlantList;
+            repo.GetPlant(CGId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        CatchPlant = PlantValue;
+                        rep.PastDOJProcess(Date, PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        rep.CommonLogFunction(ex, CatchPlant, "DOJProcess");
+
+                    }
+                }
+            }
+            return Json(new { Error = false, Message = "DOJ Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
+
+
+
+        [HttpGet, Authorize]
         public ActionResult ManualScheduler()
         {
             string CGId = "";
