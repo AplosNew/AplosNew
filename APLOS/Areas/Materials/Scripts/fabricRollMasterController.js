@@ -182,15 +182,11 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
     $scope.LoadGRNSearchList();
 
     //#region Display Material by GRN ID
-    $scope.closeGRNPopUp = function (args) {
+    $scope.closeGRNPopUp = function (data) {
         debugger;
-
-        $scope.fabricRollMaster = Object.assign({}, args.data);
-
-        $scope.fabricRollMaster.InventoryReceiveId = data.data.Id;
-
-        $scope.fabricRollMaster.GRNNo = data.data.GRNNo;
-        $scope.fabricRollMaster.GRNDate = data.data.GRNDate;
+        $scope.fabricRollMaster.InventoryReceiveId = data.Id;
+        $scope.fabricRollMaster.GRNNo = data.GRNNo;
+        $scope.fabricRollMaster.GRNDate = data.GRNDate;
         $scope.fabricRollMaster.POID = data.POID;
         $scope.fabricRollMaster.PODate = data.PODate;
         $scope.fabricRollMaster.Code = data.Code;

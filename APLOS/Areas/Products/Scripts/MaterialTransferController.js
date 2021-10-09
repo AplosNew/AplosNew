@@ -599,6 +599,12 @@ function MaterialTransferController($window, cboService, commonMessage, $scope, 
     $scope.Save = function () {
         //debugger;
         // $scope.SavePOPUpConfirm();
+        var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+        $scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
+        if (sumOfmaterialStockList < $scope.selectedRowQty1) {
+            ShowResult("Please select specific GRN", 'failure');
+            return false;
+        }
         if ($scope.productNew.FromMaterialStorageId === $scope.productNew.MaterialStorageId) {
             ShowResult('Please select Different To Storage Location');
             return false;
@@ -1203,6 +1209,13 @@ function MaterialTransferController($window, cboService, commonMessage, $scope, 
                     }
                 }
             }
+            for (var i1 = 0; i1 < $scope.materialStockList.length; i1++) {
+                $scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / data.BaseUoMFactor;
+                $scope.materialStockList[i1].IssueTransactionUoMId = data.TransactionUoMId;
+                $scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
+                $scope.materialStockList[i1].TransactionUoMId = data.TransactionUoMId;
+                $scope.materialStockList[i1].BaseUoMFactor = data.BaseUoMFactor;
+            }
 
             angular.element(document.querySelector('#stockPopUp')).modal('show');
         }), function (response) {
@@ -1227,7 +1240,8 @@ function MaterialTransferController($window, cboService, commonMessage, $scope, 
             }
             for (var n = 0; n < baseService.arrayLength($scope.materialStockList); n++) { // add
                 var nRow = $scope.materialStockList[n];
-                nRow.BaseQty = $scope.materialStockList[n].BaseIssueQty;
+                nRow.BaseQty = $scope.materialStockList[n].BaseQty;
+                nRow.BaseIssueQty = $scope.materialStockList[n].BaseIssueQty;
                 if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag)
                     //$scope.detailModel.IsSpecific = true;
                     $scope.specificStockList.push(nRow);

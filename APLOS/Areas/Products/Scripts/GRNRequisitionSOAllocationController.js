@@ -10,7 +10,7 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 	$scope.tab = 1;
 	$scope.setTabpou = function (newTab) {
 		$scope.tab = newTab;
-		$scope.getListForGRNUnchecked();
+		$scope.GetJWGRData();
 
 	};
 	$scope.isSetpou = function (tabNum) {
@@ -115,6 +115,8 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 		$scope.detailListNew = [];
 		for (var i = 0; i < $scope.JWGRNData.length; i++) {
 			if ($scope.JWGRNData[i].Active === true) {
+				//var JWGRNData = $filter("filter")($scope.JWGRNData, { "MaterialMasterId": $scope.JWGRNData[i].MaterialMasterId, "ArticleId": $scope.JWGRNData[i].ArticleId, "FirstCharacteristicsValueId": $scope.JWGRNData[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.JWGRNData[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.JWGRNData[i].ThirdCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.JWGRNData[i].InventoryReceiveDetailId, "check": true }).TransactionQty;
+				//$scope.JWGRNData[i].TransactionQty1 = $filter('sumByKey')($filter('filter')($scope.JWGRNData, {	MaterialMasterId: $scope.JWGRNData[i].MaterialMasterId, ArticleId: $scope.JWGRNData[i].ArticleId, FirstCharacteristicsValueId: $scope.JWGRNData[i].FirstCharacteristicsValueId, SecondCharacteristicsValueId: $scope.JWGRNData[i].SecondCharacteristicsValueId, ThirdCharacteristicsValueId: $scope.JWGRNData[i].ThirdCharacteristicsValueId, InventoryReceiveDetailId: $scope.JWGRNData[i].InventoryReceiveDetailId, "check": true }), 'TransactionQty1');
 				$scope.detailListNew.push($scope.JWGRNData[i]);
 			}
 		}
@@ -142,4 +144,23 @@ function GRNRequisitionSOAllocationController(accountService, addressService, $w
 		}
 		else ShowResult('Please issue material', 'failure');
 	};
+
+	$scope.CalculateBaseQty = function (data) {
+		if (data.TransactionQty > data.TransactionQty1) {
+			ShowResult('Current Transaction Qty can not grater than Transaction Qty ', 'failure');
+			data.TransactionQty = 0;
+			data.BaseQty = 0;
+			return false;
+
+		}
+		if (data.BaseQty > data.BaseQty1) {
+			ShowResult('Current Base Qty can not grater than Base Qty ', 'failure');
+			data.BaseQty = 0;
+			return false;
+		}
+		else {
+			data.BaseQty = (data.TransactionQty * data.BaseUOMFactor);
+		}
+		
+	}
 }
