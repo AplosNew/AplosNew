@@ -186,7 +186,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 					$scope.ShowHomeList = false;
 				//	$scope.ShowReport = true;
 					//$scope.GetIndividualReportData();
-					$scope.GetJWGRNDataChecking();
+				//	$scope.GetJWGRNDataChecking();
 					$scope.GRNListDetails();
 					$scope.GetTransformationReceiptCurrency();
 					$scope.GetJWGRNDataChecking();
@@ -2516,15 +2516,16 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 								if ($scope.ReceiptVAChildList[i].JWTCDetailId == data.JWTCDetailId) {
 									$scope.ReceiptVAChildList[i].TrnAmount = ($scope.ReceiptVAChildList[i].NetQty * $scope.ReceiptVAChildList[i].TransactionRate).toFixed(2);
 									$scope.ReceiptVAChildList[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.ReceiptVAChildList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.ReceiptVAChildList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * 100 + Number.EPSILON) / 100;
-									$scope.ReceiptVAChildList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.ReceiptVAChildList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.ReceiptVAChildList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.ReceiptVA.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
-
+								//	$scope.ReceiptVAChildList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.ReceiptVAChildList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.ReceiptVAChildList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.ReceiptVA.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
+									$scope.ReceiptVAChildList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.ReceiptVAChildList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.ReceiptVAChildList[i].ServiceCharge) + parseFloat(data.ServiceTax))) * 100 + Number.EPSILON) / 100;
 								}
 							}
 							else {
 								if ($scope.ReceiptVAChildList[i].JWTCMDId == data.JWTCMDId) {
 									$scope.ReceiptVAChildList[i].TrnAmount = Math.round(($scope.ReceiptVAChildList[i].NetQty * $scope.ReceiptVAChildList[i].TransactionRate) * 100 + Number.EPSILON) / 100;
 									$scope.ReceiptVAChildList[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.ReceiptVAChildList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * 100 + Number.EPSILON) / 100;
-									$scope.ReceiptVAChildList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.ReceiptVAChildList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.ReceiptVA.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
+							//		$scope.ReceiptVAChildList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.ReceiptVAChildList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.ReceiptVA.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
+									$scope.ReceiptVAChildList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.ReceiptVAChildList[i].TrnAmount) + parseFloat(data.ServiceCharge))) * 100 + Number.EPSILON) / 100;
 								}
 							}
 						}
