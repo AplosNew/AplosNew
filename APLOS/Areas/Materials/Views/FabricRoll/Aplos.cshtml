@@ -127,6 +127,7 @@
         </div>
     </div>
     <label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated. </span></label>
+    <br /><label class="control-label" style="color: blue; padding-left: 17px; font-size: 12px; margin-top: -6px;">Only <span style="text-transform: lowercase;">pending distribution is listed below. </span></label>
     <div class="table-responsive aplos-grid-toggle">
         <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList" e-recorddoubleclick="Get"
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
@@ -134,7 +135,7 @@
              e-allowselection="false">
             <div e-columns>
                 <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="100"></div>
-                <div e-column e-type="date"   e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="120"></div>
+                <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="120"></div>
                 <div e-column e-type="string" e-field="GRNType" e-headertext="GRN Type" e-width="100"></div>
                 <div e-column e-type="string" e-field="GRNStatus" e-headertext="GRN Status" e-width="100"></div>
 
@@ -143,11 +144,11 @@
                 <div e-column e-type="number" e-field="TransactionAmount" e-textalign="right" e-format="{0:N2}" e-headertext="Amount" e-width="100"></div>
                 <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
                 <div e-column e-type="string" e-field="POId" e-headertext="PO No." e-width="100"></div>
-                <div e-column e-type="date"   e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="120"></div>
+                <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="120"></div>
                 <div e-column e-type="string" e-field="VendorRefNo" e-headertext="PO Vendor Ref No." e-width="100"></div>
                 <div e-column e-type="string" e-field="PurchaseLCNo" e-headertext="Purchase LC No." e-width="100"></div>
                 <div e-column e-type="string" e-field="LCANo" e-headertext="LC Ref No." e-width="100"></div>
-                <div e-column e-type="date"   e-field="LCDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LC Date" e-width="120"></div>
+                <div e-column e-type="date" e-field="LCDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LC Date" e-width="120"></div>
                 <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="100"></div>
                 <div e-column e-type="string" e-field="OpeningBank" e-headertext="OpeningBank" e-width="100"></div>
                 <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="100"></div>
