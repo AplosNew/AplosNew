@@ -6535,6 +6535,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 }
                 else
                 {
+                    // Test
+                    string hello = "Test on Plant" + PlantValue;
+                    SaveLog(hello, "DOJ", false);
+
                     string EmpMaster = "''",CreatedEmpIds="''";
                  
                     #region Previous DOJ Row Creation Logic
@@ -6908,6 +6912,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
         {
             DataSet PlantList;
             GetPlant(GroupId, out PlantList);
+           
+            // Test
+            string hello = "Test on Group";
+            SaveLog(hello, "DOJ", false);
 
             if (PlantList.Tables[0].Rows.Count > 0)
             {

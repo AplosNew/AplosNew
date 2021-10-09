@@ -119,7 +119,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
 
     cboService.getCboEntityByPlant(null, null, "", function (result) {
         $scope.entityList = result;
-        console.log('entity',$scope.entityList);
+        console.log('entity', $scope.entityList);
     });
 
     $scope.changePaymentTerm = function (id) {
@@ -179,7 +179,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
             //}
         });
     }
-   
+
 
     $scope.approvedGRNList = [];    $scope.getPopUpData = function () {        $http({            method: 'GET',            url: 'Accounts/InventoryPayable/GetListForInvJobWorkReceived',        }).then(function successCallback(response) {            $scope.approvedGRNList = response.data;            for (var i = 0; i < $scope.approvedGRNList.length; i++) {
                 response.data[i].GRNDate = new Date($scope.approvedGRNList[i].GRNDate);                response.data[i].DocDate = new Date($scope.approvedGRNList[i].DocDate);
@@ -263,17 +263,17 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
         //};
         $scope.TotalPayableAmount = 0;
         $scope.getCboVoucherType();
-        
+
         $scope.modelNew.PostingDate = data.data.GRNDateNew;
         $scope.modelNew.GRNDateNew = data.data.GRNDateNew;
-        if (!baseService.isUndefinedOrNull(data.data.EmployeeId)){
+        if (!baseService.isUndefinedOrNull(data.data.EmployeeId)) {
             $scope.GetCboExpensesBookingTranType();
-            
+
         }
         $scope.paymentTerm();
         getRecievedList();
         getServiceChargeList();
-        getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable, $scope.modelNew.IsFOC);
+        getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable, $scope.modelNew.IsFOC, $scope.modelNew.PartyId);
         getInventoryTaxList(data.data.Id);
         if (data.data.GRNType == 'GRNBYPO') {
 
@@ -311,7 +311,8 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                 $scope.inventoryPayableList = response.data;
             });
     }
-    function getInventoryMaterialList(inveReveiveId, employeeId, isReversCharge, foc) {
+
+    function getInventoryMaterialList(inveReveiveId, employeeId, isReversCharge, foc, partyId) {
         $http.get('Accounts/InventoryPayable/GetInventoryJobWorkReceivedJV?inveReveiveId=' + inveReveiveId + '&employeeId=' + employeeId + '&isReversCharge=' + isReversCharge + '&foc=' + foc)
             .then(function (response) {
                 $scope.inventoryPayableList = [];
@@ -327,7 +328,9 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                 if (!baseService.isUndefinedOrNull(employeeId))
                     $scope.glPushInList();
                 if (baseService.isUndefinedOrNull(employeeId)) {
-                    getVendorPayableGLBudgetActivity(inveReveiveId);
+                    if (partyId != null) {
+                        getVendorPayableGLBudgetActivity(inveReveiveId);
+                    }
                     getInventoryJobWorkGIRI(inveReveiveId);
                     getInventoryJobWorkWIP(inveReveiveId);
                 }
@@ -452,8 +455,8 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
             //        newList.push(list[i]);
             //    }
             //}
-             if (row.OtherName === 'Tax' && row.TrnType === 'Dr' && row.Dr > 0) {
-                 var has = false;
+            if (row.OtherName === 'Tax' && row.TrnType === 'Dr' && row.Dr > 0) {
+                var has = false;
                 for (var a = 0; a < baseService.arrayLength(newList); a++) {
                     if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId
                         && row.ActivityId === newList[a].ActivityId) {
@@ -496,7 +499,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                     newList.push(list[i]);
             }
 
-             else if (row.OtherName === 'OutPutFinishGoodsMaterial' && row.TrnType === 'Dr') {
+            else if (row.OtherName === 'OutPutFinishGoodsMaterial' && row.TrnType === 'Dr') {
                 newInvRecDetailList.push(list[i]);
                 var has = false;
                 for (var a = 0; a < baseService.arrayLength(newList); a++) {
@@ -509,21 +512,21 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                 }
                 if (!has)
                     newList.push(list[i]);
-             }
-             else if (row.OtherName === 'OutPutByProductMaterial' && row.TrnType === 'Dr') {
-                 newInvRecDetailList.push(list[i]);
-                 var has = false;
-                 for (var a = 0; a < baseService.arrayLength(newList); a++) {
-                     if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId && row.ActivityId === newList[a].ActivityId) {
-                         newList[a].Dr += row.Dr;
-                         newList[a].Amount += row.Dr;
-                         has = true;
-                         break;
-                     }
-                 }
-                 if (!has)
-                     newList.push(list[i]);
-             }
+            }
+            else if (row.OtherName === 'OutPutByProductMaterial' && row.TrnType === 'Dr') {
+                newInvRecDetailList.push(list[i]);
+                var has = false;
+                for (var a = 0; a < baseService.arrayLength(newList); a++) {
+                    if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId && row.ActivityId === newList[a].ActivityId) {
+                        newList[a].Dr += row.Dr;
+                        newList[a].Amount += row.Dr;
+                        has = true;
+                        break;
+                    }
+                }
+                if (!has)
+                    newList.push(list[i]);
+            }
             else if (row.OtherName === 'Shortage' && row.TrnType === 'Dr' && row.Dr > 0) {
                 newInvRecDetailList.push(list[i]);
                 var has = false;
@@ -767,12 +770,12 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
 
     $scope.Post = function () {
         if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
-      
-               $http({
+
+        $http({
             method: 'POST',
             url: $scope.saveUrl,
             data: {
-                 'voucherVM': $scope.modelNew
+                'voucherVM': $scope.modelNew
                 , 'inventoryJobWorkWIPList': $scope.inventoryJobWorkWIPList/*$scope.inventoryMaterialList*/
                 , 'inventoryReceiveDetailVMList': $scope.inventoryReceiveDetailList
                 , 'inventoryPayableVMList': $scope.inventoryPayableList
@@ -839,11 +842,11 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
 
 
 
-    $scope.onClickReportDownloadWord = function (args) {        debugger;        var gridObj = $("#GridPrint").data("ejGrid");        //getting corresponding record         var data = gridObj.getSelectedRecords()[0];        var reportFormat = "Pdf";        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open($scope.path + 'GetOutSourcingVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId + '&sourceType=' + data.SourceType,  '_blank');
+    $scope.onClickReportDownloadWord = function (args) {        debugger;        var gridObj = $("#GridPrint").data("ejGrid");        //getting corresponding record         var data = gridObj.getSelectedRecords()[0];        var reportFormat = "Pdf";        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open($scope.path + 'GetOutSourcingVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId + '&sourceType=' + data.SourceType, '_blank');
     };    $scope.commandPDF = [{        type: "details", buttonOptions: {            text: "PDF",            width: "50",            height: "20",            click: $scope.onClickReportDownloadWord        }    }];
 
     $scope.onClickReportDownloadExcel = function (args) {        debugger;        var gridObj = $("#GridPrint").data("ejGrid");        //getting corresponding record         var data = gridObj.getSelectedRecords()[0];        var reportFormat = "Excel";        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open($scope.path + 'GetOutSourcingVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
-       // $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.VoucherId , '_blank');
+        // $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.VoucherId , '_blank');
     };
     $scope.commandExcel = [{        type: "details", buttonOptions: {            text: "Excel",            width: "50",            height: "20",            //contentType: "imageonly",            //prefixIcon: "e-icon e-dataexport",            //prefixIcon: "e-icon e-edit" ,            //prefixIcon: "e-icon e-delete",            //prefixIcon: " e-icon e-save",            //prefixIcon: " e-icon e-cancel",            click: $scope.onClickReportDownloadExcel        }    }];
 
@@ -963,7 +966,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                 $scope.additionalTaxVoucherTypeId = $scope.voucherTypeListnew[0].Value;
         });
     }
-   
+
     $scope.additionalTaxPostUrl = 'Accounts/InvoicePost/InsertAdditionalTaxPayable';
     $scope.additionalTaxDetailList = [];
     $scope.onClickadditionalTaxPop = function (x) {        $scope.additionalTaxData = {};        var data = x;        data.VoucherTypeId = null;        data.VoucherTypeId = $scope.additionalTaxVoucherTypeId;        data.VoucherDate = new Date();        $scope.additionalTaxData = data;        $http({
