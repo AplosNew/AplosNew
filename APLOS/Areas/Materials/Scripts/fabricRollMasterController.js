@@ -180,10 +180,6 @@ function fabricRollMasterController(commonMessage, $controller, $scope, $rootSco
     }
     $scope.LoadGRNSearchList();
 
-
-
-
-
     //#region Display Material by GRN ID
     $scope.closeGRNPopUp = function (data) {
         debugger;

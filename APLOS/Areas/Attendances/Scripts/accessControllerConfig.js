@@ -318,9 +318,17 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/WeekOffHolidayOTReport/Aplos',
             controller: 'weekOffOTReportController'
         })
+        .when('/weekoff-extraot-report-original', {
+            templateUrl: 'Attendances/WeekOffHolidayOTReport/Aplos',
+            controller: 'weekOffOTReportOriginalController'
+        })
         .when('/holiday-extraot-report', {
             templateUrl: 'Attendances/WeekOffHolidayOTReport/HolidayOT',
             controller: 'holidayOTReportController'
+        })
+        .when('/holiday-extraot-report-original', {
+            templateUrl: 'Attendances/WeekOffHolidayOTReport/HolidayOT',
+            controller: 'holidayOTReportOriginalController'
         })
         .when('/exception-ot-process', {
             templateUrl: 'Attendances/ExceptionOTProcess/Aplos',

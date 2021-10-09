@@ -274,6 +274,7 @@
     <Compile Include="Payroll\Tax\TaxSavingItemService.cs" />
     <Compile Include="Report\Attendance\clsMonthlyAttendanceInformation.cs" />
     <Compile Include="Report\OT\SalarySheetCompanyService.cs" />
+    <Compile Include="Report\OT\WeekOFFandHolidayOTOriginal.cs" />
     <Compile Include="Report\OT\WeekOFFandHolidayOT.cs" />
     <Compile Include="Report\Payroll\ProfessionalTaxReport.cs" />
     <Compile Include="Payroll\Tax\TaxOB.cs" />
