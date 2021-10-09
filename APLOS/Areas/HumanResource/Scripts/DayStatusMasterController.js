@@ -558,7 +558,8 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         DayStatusChange: false,
         AutoLock: false,
         EarnedPL: 0,
-        EarnedCL:0,
+        EarnedCL: 0,
+        IsCreditLimitAllowed: 0,
     };
 
     //Seleting the Current Day Status Starts
@@ -712,7 +713,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
             AutoLock: false,
             EarnedPL: 0,
             EarnedCL: 0,
-
+            IsCreditLimitAllowed: 0,
         };
         $scope.DayChild.HeaderId = $scope.Header.Id;
     }
