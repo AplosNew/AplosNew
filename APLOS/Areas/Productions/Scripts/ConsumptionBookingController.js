@@ -309,10 +309,8 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
 
                         for (var i = 0; i < $scope.DatewiseList.length; i++) {
                             ob.WorkDate = $scope.DatewiseList[i].WorkDate;
+                            ob.ProductionOrderId = $scope.DatewiseList[i].ProductionOrderId;
                             if (checkExistList($scope.WorkDayList, ob.WorkDate) === false) {
-                              
-                                //$scope.DatewiseList[i].Seq = incre++;
-                                //ob.
                                 $scope.WorkDayList.push(ob);
                                 ob = {};
                             }

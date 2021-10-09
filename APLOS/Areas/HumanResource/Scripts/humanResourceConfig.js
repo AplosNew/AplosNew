@@ -643,6 +643,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/LeaveApplicationNew/LeaveDelete',
             controller: 'employeeLeaveDeleteApplicationNewController'
         })
+        .when('/employee-weekoff-updates', {
+            templateUrl: 'humanresource/WeekOffUpdates/EWeekUpdate',
+            controller: 'EmployeeWeekOffUpdatesController'
+        })
 ;
     
 

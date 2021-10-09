@@ -1618,11 +1618,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         #region Copy SO
         [HttpPost, Authorize]
-        public JsonResult CopySOByMOI(string masterItemId)
+        public JsonResult CopySOByMOI(string MasterId, string masterItemId)
         {
             try
             {
-                CopySalesOrderByMOIData(masterItemId);
+                CopySalesOrderByMOIData(MasterId,masterItemId);
                 return Json(new { Error = false, Message = AplosMessage.Insert });
 
             }
@@ -1631,7 +1631,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        public void CopySalesOrderByMOIData(string masterItemId)
+        public void CopySalesOrderByMOIData(string MasterId,string masterItemId)
         {
             DataSet dsToSalesOrder;
             DataSet dsToFirstCharacteristics;
@@ -1641,8 +1641,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
 
                 DataSet dsSOId;
-                GetSalesOrderId(masterItemId, out dsSOId);
+                GetSOId(masterItemId, out dsSOId);
                 string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
+                string NewSoId = string.Empty;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
@@ -1652,46 +1653,53 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[ThirdCharacteristics] WHERE 1=2", out dsToThirdCharacteristics, false, "1");
 
                 DataTable dtFromMaster = _sqlRepository.GetDataTable("SELECT * FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='" + masterItemId + "'");
-                DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("Select * from TRN.FirstCharacteristics Where SalesOrderId IN(Select Id from TRN.SalesOrder Where MasterOrderItemId='"+ masterItemId + "')");
-                DataTable dtFromSecondCharacteristics = _sqlRepository.GetDataTable("Select * from TRN.SecondCharacteristics Where SalesOrderId IN(Select Id from TRN.SalesOrder Where MasterOrderItemId='"+ masterItemId + "')");
-                DataTable dtFromThirdCharacteristics = _sqlRepository.GetDataTable("Select * from TRN.ThirdCharacteristics Where SalesOrderId IN(Select Id from TRN.SalesOrder Where MasterOrderItemId='"+ masterItemId + "')");
+                DataTable dtFromFirstCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.FirstCharacteristics Where SalesOrderId IN(Select Id from TRN.SalesOrder Where MasterOrderItemId='"+ masterItemId + "')");
+                DataTable dtFromSecondCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.SecondCharacteristics Where SalesOrderId IN(Select Id from TRN.SalesOrder Where MasterOrderItemId='"+ masterItemId + "')");
+                DataTable dtFromThirdCharacteristics = _sqlRepository.GetDataTable("SELECT * FROM TRN.ThirdCharacteristics Where SalesOrderId IN(Select Id from TRN.SalesOrder Where MasterOrderItemId='"+ masterItemId + "')");
+                
 
-                DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
-                CopyRow(dtFromMaster.Rows[0], ref drSalesOrder);
-                drSalesOrder["Id"] = NewId;
-                //drSalesOrder["ParentId"] = MasterId;
-                dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
-
-                for (int i = 0; i < dtFromFirstCharacteristics.Rows.Count; i++)
+                for (int m  = 0; m < dtFromMaster.Rows.Count; m++)
                 {
-                    DataRow drFirstCharacteristics = dsToFirstCharacteristics.Tables[0].NewRow();
-                    CopyRow(dtFromFirstCharacteristics.Rows[i], ref drFirstCharacteristics);
-                    drFirstCharacteristics["Id"] = NewId + (i + 1);
-                    drFirstCharacteristics["SalesOrderId"] = NewId;
-                    dsToFirstCharacteristics.Tables[0].Rows.Add(drFirstCharacteristics);
+                    DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
+                    CopyRow(dtFromMaster.Rows[0], ref drSalesOrder);
+                    drSalesOrder["Id"] = NewId+m+1;
+                    NewSoId= NewId + m+1;
+                    drSalesOrder["MasterOrderItemId"] = MasterId;
+                    dsToSalesOrder.Tables[0].Rows.Add(drSalesOrder);
 
-                    dtFromSecondCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + masterItemId + "' AND FirstCharacteristicsId='" + dtFromFirstCharacteristics.Rows[i]["Id"] + "'";
-                    for (int K = 0; K < dtFromSecondCharacteristics.DefaultView.Count; K++)
+                    dtFromFirstCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + dtFromMaster.Rows[m]["Id"].ToString() + "'";
+                    for (int i = 0; i < dtFromFirstCharacteristics.DefaultView.Count; i++)
                     {
-                        DataRow drSecondCharacteristics = dsToSecondCharacteristics.Tables[0].NewRow();
-                        CopyRow(dtFromSecondCharacteristics.DefaultView[K].Row, ref drSecondCharacteristics);
-                        drSecondCharacteristics["Id"] = NewId + (i + 1) + (K + 1);
-                        drSecondCharacteristics["SalesOrderId"] = NewId;
-                        drSecondCharacteristics["FirstCharacteristicsId"] = NewId + (i + 1);
-                        dsToSecondCharacteristics.Tables[0].Rows.Add(drSecondCharacteristics);
+                        DataRow drFirstCharacteristics = dsToFirstCharacteristics.Tables[0].NewRow();
+                        CopyRow(dtFromFirstCharacteristics.Rows[i], ref drFirstCharacteristics);
+                        drFirstCharacteristics["Id"] = NewSoId + (i + 1);
+                        drFirstCharacteristics["SalesOrderId"] = NewSoId;
+                        dsToFirstCharacteristics.Tables[0].Rows.Add(drFirstCharacteristics);
 
-                        dtFromThirdCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + masterItemId + "' AND SecondCharacteristicsId='" + dtFromSecondCharacteristics.Rows[K]["Id"] + "'";
-                        for (int j = 0; j < dtFromThirdCharacteristics.DefaultView.Count; j++)
+                        dtFromSecondCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + masterItemId + "' AND FirstCharacteristicsId='" + dtFromFirstCharacteristics.Rows[i]["Id"] + "'";
+                        for (int K = 0; K < dtFromSecondCharacteristics.DefaultView.Count; K++)
                         {
-                            DataRow drThirdCharacteristics = dsToThirdCharacteristics.Tables[0].NewRow();
-                            CopyRow(dtFromThirdCharacteristics.DefaultView[j].Row, ref drThirdCharacteristics);
-                            drThirdCharacteristics["Id"] = NewId + (i + 1) + (j + 1);
-                            drThirdCharacteristics["SalesOrderId"] = NewId;
-                            drThirdCharacteristics["SecondCharacteristicsId"] = NewId + (i + 1) + (K + 1);
-                            dsToThirdCharacteristics.Tables[0].Rows.Add(drThirdCharacteristics);
+                            DataRow drSecondCharacteristics = dsToSecondCharacteristics.Tables[0].NewRow();
+                            CopyRow(dtFromSecondCharacteristics.DefaultView[K].Row, ref drSecondCharacteristics);
+                            drSecondCharacteristics["Id"] = NewSoId + (i + 1) + (K + 1);
+                            drSecondCharacteristics["SalesOrderId"] = NewSoId;
+                            drSecondCharacteristics["FirstCharacteristicsId"] = NewSoId + (i + 1);
+                            dsToSecondCharacteristics.Tables[0].Rows.Add(drSecondCharacteristics);
+
+                            dtFromThirdCharacteristics.DefaultView.RowFilter = "SalesOrderId='" + masterItemId + "' AND SecondCharacteristicsId='" + dtFromSecondCharacteristics.Rows[K]["Id"] + "'";
+                            for (int j = 0; j < dtFromThirdCharacteristics.DefaultView.Count; j++)
+                            {
+                                DataRow drThirdCharacteristics = dsToThirdCharacteristics.Tables[0].NewRow();
+                                CopyRow(dtFromThirdCharacteristics.DefaultView[j].Row, ref drThirdCharacteristics);
+                                drThirdCharacteristics["Id"] = NewSoId + (i + 1) + (j + 1);
+                                drThirdCharacteristics["SalesOrderId"] = NewSoId;
+                                drThirdCharacteristics["SecondCharacteristicsId"] = NewSoId + (i + 1) + (K + 1);
+                                dsToThirdCharacteristics.Tables[0].Rows.Add(drThirdCharacteristics);
+                            }
                         }
                     }
                 }
+               
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsToSalesOrder, dsToFirstCharacteristics, dsToSecondCharacteristics, dsToThirdCharacteristics);
@@ -1726,6 +1734,21 @@ namespace Aplos.Areas.OrderManagements.Controllers
             try
             {
                 string sql = @"SELECT ISNULL((MAX(Id)+1),0) Id FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='" + masterItemId + "'";
+                Obj = new ConnectionManager.DAL.ConManager("1");
+                Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void GetSOId(string masterItemId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager Obj;
+
+            try
+            {
+                string sql = @"SELECT ISNULL((MAX(Id)),0) Id FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='" + masterItemId + "'";
                 Obj = new ConnectionManager.DAL.ConManager("1");
                 Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
             }

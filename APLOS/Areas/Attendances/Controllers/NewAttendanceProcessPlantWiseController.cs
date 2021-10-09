@@ -93,6 +93,26 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult RunDOJProcess(string Date)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string CatchPlant = "";
+            try
+            {
+                CatchPlant = identity.PlantId;
+                rep.PastDOJProcess(Date, CatchPlant);
+            }
+            catch (Exception ex)
+            {
+                rep.CommonLogFunction(ex, CatchPlant, "DOJProcess");
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new { Error = false, Message = "DOJ Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        [HttpGet, Authorize]
         public ActionResult ManualScheduler()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

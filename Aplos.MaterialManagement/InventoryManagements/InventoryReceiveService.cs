@@ -18400,9 +18400,12 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='
 				, IRD.Id InventoryReceiveDetailId
 				, ISNULL(POBOQMAP.Id,'') POBOQMapId
 				,'' POReqDetailsId
+				,ISNULL(IRD.TransactionQty,0) TransactionQty1
 				,ISNULL(IRD.TransactionQty,0) TransactionQty
+	            ,ISNULL(AlreadyAllo.TransactionQty,0) AllocatedQty
 				,Isnull(IRD.TransactionUoMId,'') TransactionUoMId
 				,ISNULL(TUoM.UserName,'') TransactionUoM
+				,ISNULL(IRD.BaseQty,0) BaseQty1
 				,ISNULL(IRD.BaseQty,0) BaseQty
 				,ISNULL(IRD.BaseUOMId,'') BaseUoMId
 				,ISNULL(BUoM.UserName,'') BaseUoM
@@ -18415,21 +18418,22 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='
 
 				,IM.MaterialMasterId
 				,MM.UserName MaterialMasterName
-				-- , IM.ArticleId
+				, IM.ArticleId
 				, ART.StandardName ArticleName
 				,IsAsset=CASE WHEN MM.IsAsset=0 then 'No' else 'Yes' END
 				--, IM.FirstCharacteristicsId
 				--, FC.UserName AS FirstCharacteristics
-				--, IM.FirstCharacteristicsValueId
+				, IM.FirstCharacteristicsValueId
 				, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
 				--, IM.SecondCharacteristicsId
 				--, SC.UserName AS SecondCharacteristics
-				--, IM.SecondCharacteristicsValueId
+				, IM.SecondCharacteristicsValueId
 				, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 				--, IM.ThirdCharacteristicsId
 				--, TC.UserName AS ThirdCharacteristics
-				--, IM.ThirdCharacteristicsValueId
+				, IM.ThirdCharacteristicsValueId
 				, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
+				, BaseUOMFactor=CASE WHEN MaA.BaseUOMFactor IS null then 1 else MaA.BaseUOMFactor end
 				FROM trn.InventoryReceive IR
 				Left JOIN TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
 				left join [dbo].[JWPOBOQMAP] POBOQMAP ON POBOQMAP.JWPODetailId =IRD.JWTCMDId
@@ -18447,7 +18451,12 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='
 				LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
 				LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 				LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
-				WHERE IR.GRNType='GRNBYJW' and Boq.SalesOrderId IS NOT NULL";// ,MMAU.BaseUOMFactor
+				left join [MST].[MaterialMasterAlternativeUOM] MaA ON MaA.MaterialMasterId=mm.Id
+				left join(select InventoryReceiveDetailId ,Sum(TransactionQty) TransactionQty 
+						  from trn.GRNPORequisitionAllocation 
+						  group by InventoryReceiveDetailId
+						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id
+				WHERE IR.GRNType='GRNBYJW' and Boq.SalesOrderId IS NOT NULL Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
 				return _sqlRepository.GetDataCollection(sql);
 
 			}
