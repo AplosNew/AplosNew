@@ -26,7 +26,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $controller("MasterOrderTaskTemplateController", { cboService: cboService, $scope: $scope, $http: $http });
     $controller("TaskScheduleController", { cboService: cboService, $scope: $scope, $http: $http });
 
-
     // $scope.ExchangeRateTableName = 'MasterOrderExchangeRates';//very important to provide the table where the exchange rates will be saved
     $controller("CurrencyExchangeController", { cboService: cboService, $scope: $scope, $http: $http, TableName: 'MasterOrderExchangeRates' });
 
@@ -388,7 +387,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         return $scope.tab2 === tabNum;
     };
 
-
     $scope.currency = null;
     $scope.Get = function (index) {
         $scope.getPlantConfigByPlant();
@@ -447,7 +445,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.GetContractByMasterOrder();
     };
 
-
     $scope.GetPaymentTermChangeable = function () {
         $http({
             method: 'GET',
@@ -456,8 +453,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.fileNew.IsPaymentTermChangeable = response.data[0].IsPaymentTermChangeable;
         });
     }
-
-
 
     $scope.Save = function () {
 
@@ -838,8 +833,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.partyType = "Customer";
         $scope.searchParty = '';
     }
-
-
 
     $scope.changePaymentTerm = function () {
         if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId)) {
@@ -4405,9 +4398,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 ShowResult(response.data.Message, 'failure');
             }
         });
-    }
+    };
 
-    $scope.CopySObyMOI = function (Id,MasterOrderItemId) {
+    $scope.CopySObyMOI = function (Id, MasterOrderItemId) {
         $http({
             method: 'POST',
             url: $scope.path + 'CopySOByMOI?MasterId=' + Id + '&masterItemId=' + MasterOrderItemId,
@@ -4425,7 +4418,27 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 ShowResult(response.data.Message, 'failure');
             }
         });
+    };
+
+    $scope.GetFromItemMaterialSKU =  function () {
+        $http({
+            method: 'GET',
+            url: 'accounts/PaymentTerm/getcustomercbo'
+        }).then(function successCallback(response) {
+            $scope.FromSKUList = response.data;
+        });
     }
+    $scope.GetToItemMaterialSKU = function () {
+        $http({
+            method: 'GET',
+            url: 'accounts/PaymentTerm/getcustomercbo'
+        }).then(function successCallback(response) {
+            $scope.ToSKUList = response.data;
+        });
+    }
+
+    
+
     //#endregion
 }
 

@@ -365,7 +365,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
     function ClearFields() {
         $scope.Action = 'Save';
         $scope.bulletinTemplate = {};
-        $scope.bulletinTemplateNew = {};
+        $scope.bulletinTemplateNew = Object.assign({}, $scope.bulletinTemplate);
         $scope.processList = [];
         $scope.buyerList = [];
         $scope.operationList = [];
@@ -387,6 +387,8 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
         $scope.NonMCtotalMP = 0;
         $scope.machineOperationList = [];
         $scope.BulletinTemplateMasterId = null;
+        $scope.PicFileName = null;
+        $scope.PicFileName = '';
     }
 
     // #endregion bulletinTemplate
@@ -2431,6 +2433,27 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
 
     }
     $scope.uploadPBUrl = "IE/BulletinTemplate/SaveBulletinDefault";
+
+    $scope.getFileList = function () {
+        $http({
+            method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
+            data: { Id: $scope.bulletinTemplateNew.Id }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                var str = response.data[0].PicFileName;
+                var extention = str.substr(str.indexOf('.'));
+                $scope.PicFileName = virtualPath.BulletinTemplateImage + '/' + $scope.bulletinTemplateNew.Id + extention;
+                $scope.getData();
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
+
+
     $scope.fileselect = function (e) {
 
     }
@@ -2493,7 +2516,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
             }
             for (var i = 0; i < $scope.MultiCodeList.length; i++) {
                 if (checkSeqExists($scope.operationList, $scope.MultiCodeList[i].Sequenc)) {
-                    throw "This Sequence '" + $scope.MultiCodeList[i].Sequenc+"' is exists";
+                    throw "This Sequence '" + $scope.MultiCodeList[i].Sequenc + "' is exists";
                 }
             }
 
@@ -2521,7 +2544,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
 
 
         } catch (e) {
-            ShowResult(e, 'failure','AddMultiOperationCodePoUp');
+            ShowResult(e, 'failure', 'AddMultiOperationCodePoUp');
         }
     };
 
