@@ -1413,7 +1413,7 @@ namespace Library.Service.Extension
                     }
                     objCon.CloseConnection();
                 }
-                catch (Exception exp)
+                catch (Exception ex)
                 {
                     throw ex;
                 }

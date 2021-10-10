@@ -70,9 +70,9 @@ namespace Aplos.Areas.Materials.Controllers
 		}
 
 		[HttpPost, Authorize]
-		public JsonResult Roll(string InventoryReceiveDetailId, int NoofRolls)
+		public JsonResult GetRoll(string InventoryReceiveDetailId, int NoofRolls, int Qty)
 		{
-			_fabricRollMasterService.CreateRoll(InventoryReceiveDetailId, NoofRolls);
+			_fabricRollMasterService.CreateRoll(InventoryReceiveDetailId, NoofRolls, Qty);
 			return Json(new { Message = AplosMessage.Insert });
 		}
 
