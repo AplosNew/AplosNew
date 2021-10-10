@@ -163,8 +163,8 @@ WHERE d.ProductionBulletinTemplateMasterId='PBTM192' ORDER BY D.Sequence");
                     {
                         EmployeeId = dtBulletin.Rows[i]["EmployeeId"].ToString(),
                         EmployeeName = dtBulletin.Rows[i]["EmployeeName"].ToString(),
-                        MachineId = dtBulletin.Rows[i]["MachineId"].ToString(),
-                        MachineDesc = dtBulletin.Rows[i]["MachineDesc"].ToString(),
+                        MaterialMasterId = dtBulletin.Rows[i]["MachineId"].ToString(),
+                        MaterialMasterDesc = dtBulletin.Rows[i]["MachineDesc"].ToString(),
                         OperationId = dtBulletin.Rows[i]["OperationVariationId"].ToString(),
                         OperationDesc = dtBulletin.Rows[i]["OperationVariation"].ToString(),
                         Designation = dtBulletin.Rows[i]["Designation"].ToString(),

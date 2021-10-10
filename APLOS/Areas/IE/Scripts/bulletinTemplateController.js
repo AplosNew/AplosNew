@@ -387,8 +387,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
         $scope.NonMCtotalMP = 0;
         $scope.machineOperationList = [];
         $scope.BulletinTemplateMasterId = null;
-        $scope.PicFileName = null;
-        $scope.PicFileName = '';
+        $scope.PicFileName = virtualPath.BulletinTemplateImage + '';
     }
 
     // #endregion bulletinTemplate

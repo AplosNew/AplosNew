@@ -772,6 +772,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.TotalMP = 0;
         $scope.MCtotalMP = 0;
         $scope.NonMCtotalMP = 0;
+        $scope.PicFileName = virtualPath.ProductionBulletinImage + '';
     }
     $scope.Clear();
 
