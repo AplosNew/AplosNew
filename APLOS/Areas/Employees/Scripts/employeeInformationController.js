@@ -989,10 +989,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.approved = "";
 
         $scope.employeeInformation = obj.data;
-        $scope.imageSrc = virtualPath.EmployeePic + $scope.employeeInformation.EmpPicPath;
-        console.log('virtualPath.EmployeePic', virtualPath.EmployeePic);
-        console.log('$scope.employeeInformation.EmpPicPath', $scope.employeeInformation.EmpPicPath);
-        console.log(' $scope.imageSrc', $scope.imageSrc);
+        $scope.imageSrc = virtualPath.EmployeePic + $scope.employeeInformation.EmpPicPath;       
         $scope.EmpSignature = virtualPath.CardHolderSignature + $scope.employeeInformation.EmpSignature;
         $rootScope.img = $scope.employeeInformation.EmpPicPath;
         $scope.user = $scope.employeeInformation.SystemId;
@@ -3685,7 +3682,25 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     }
     $scope.uploadUrl = "Employees/EmployeeInformation/SaveSignature";
-    $scope.EmpSignature = virtualPath.CardHolderSignature + $scope.employeeInformation.EmpSignature;
+    
+
+    $scope.getFileList = function () {
+        $http({
+            method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
+            data: { Id: $scope.employeeInformation.SystemId }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                $scope.EmpSignature = virtualPath.CardHolderSignature + response.data[0].EmpSignature;
+                $scope.getData();
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
+
     $scope.fileselect = function (e) {
 
     }
@@ -3833,7 +3848,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
     }
 
-
+    
 
 
     //Line no - 518 : GetGivenDesignationByLegalDesignaiton
