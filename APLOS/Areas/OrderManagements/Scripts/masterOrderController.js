@@ -387,6 +387,14 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         return $scope.tab2 === tabNum;
     };
 
+    $scope.tab3 = 1;
+    $scope.setTab3 = function (newTab) {
+        $scope.tab3 = newTab;
+    };
+    $scope.isSet3 = function (tabNum) {
+        return $scope.tab3 === tabNum;
+    };
+
     $scope.currency = null;
     $scope.Get = function (index) {
         $scope.getPlantConfigByPlant();
@@ -1333,7 +1341,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             .then(function (response) {
                 $scope.itemList = response.data;
                 $scope.mitemList = response.data;
-                var obj = { MasterOrderItemId:null};
+                var obj = { MasterOrderItemId: null, MaterialMasterId: null };
                 if (baseService.arrayLength($scope.itemList) > 0) {
                     for (var i = 0; i < $scope.itemList.length; i++) {
                         $scope.itemList[i].TempList = [];
@@ -1346,6 +1354,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         for (var j = 0; j < $scope.mitemList.length; j++) {
                             if ($scope.mitemList[j].Id != $scope.itemList[i].Id) {
                                 obj.MasterOrderItemId = $scope.mitemList[j].Id;
+                                obj.MaterialMasterId = $scope.mitemList[j].MaterialMasterId;
                                 $scope.itemList[i].TempList.push(obj);
                                 obj = {};
                             }
@@ -4309,13 +4318,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.SaveContract = function () {
         try {
-
-
             if (baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
                 $scope.modelNew.MasterOrderId = $scope.fileNew.Id;
             }
-
-
 
             $scope.modelNew.Amount = $scope.modelNew.Amount.toFixed(2);
             $scope.modelNew.Amount = parseFloat($scope.modelNew.Amount);
@@ -4420,24 +4425,74 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     };
 
-    $scope.GetFromItemMaterialSKU =  function () {
-        $http({
-            method: 'GET',
-            url: 'accounts/PaymentTerm/getcustomercbo'
-        }).then(function successCallback(response) {
-            $scope.FromSKUList = response.data;
-        });
+    $scope.ModelSKU = {
+        FromSKU1Id: null,
+        ToSKU1Id: null,
+        FromSKU2Id: null,
+        ToSKU2Id: null
     }
-    $scope.GetToItemMaterialSKU = function () {
+
+    $scope.ShowSKUMapPopUp = function (data, MasterOrderItemId) {
+        try {
+          
+            $scope.setTab3(1);
+            $scope.ToMasterOrderItemId = data.Id;
+            $scope.FromMasterOrderItemId = MasterOrderItemId;
+            $scope.ToMaterialMasterId = data.MaterialMasterId;
+
+            $scope.GetFromItemMaterialSKU1Data($scope.FromMasterOrderItemId);
+            $scope.GetFromItemMaterialSKU2Data($scope.FromMasterOrderItemId);
+
+            $scope.GetToItemMaterialSKU1($scope.ToMaterialMasterId);
+            $scope.GetToItemMaterialSKU2($scope.ToMaterialMasterId);
+            angular.element(document.querySelector('#SKUsPopUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.FromSKU1List = [];
+    $scope.GetFromItemMaterialSKU1Data = function (ItemId) {
         $http({
             method: 'GET',
-            url: 'accounts/PaymentTerm/getcustomercbo'
+            url: 'OrderManagements/MasterOrder/GetFromItemMaterialSKU1Data?ItemId=' + ItemId
         }).then(function successCallback(response) {
-            $scope.ToSKUList = response.data;
+            $scope.FromSKU1List = response.data;
         });
     }
 
-    
+    $scope.FromSKU2List = [];
+    $scope.GetFromItemMaterialSKU2Data = function (ItemId) {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetFromItemMaterialSKU2Data?ItemId=' + ItemId
+        }).then(function successCallback(response) {
+            $scope.FromSKU2List = response.data;
+        });
+    }
+
+    $scope.ToSKU1List = [];
+    $scope.GetToItemMaterialSKU1 = function (materialId) {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetItemMaterialSKUData?materialMasterId=' + materialId + '&sequence=' + '1'
+        }).then(function successCallback(response) {
+            $scope.ToSKU1List = response.data;
+        });
+    }
+
+   
+
+    $scope.ToSKU2List = [];
+    $scope.GetToItemMaterialSKU2 = function (materialId) {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetItemMaterialSKUData?materialMasterId=' + materialId + '&sequence=' + '2'
+        }).then(function successCallback(response) {
+            $scope.ToSKU2List = response.data;
+        });
+    }
+
 
     //#endregion
 }
