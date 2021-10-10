@@ -421,7 +421,7 @@
                                         <th>Product Library</th>
                                         <th>Product</th>
                                         <th class="col-sm-1">Action</th>
-                                        @*<th>Copy SO</th>*@
+                                        <th>Copy SO</th>
                                         <th>Contract No</th>
                                         <th>MasterLC No</th>
                                         <th style="width: 170px;">JW/OS Type</th>
@@ -537,7 +537,7 @@
                                                 </li>
                                             </ul>
                                         </td>
-                                        @*<td>
+                                        <td>
                                             <div class="input-group">
                                                 <div class="select-style">
                                                     <select name="SO Copy" class="form-control" ng-model="MasterOrderItemId" ng-options="item.MasterOrderItemId as item.MasterOrderItemId for item in x.TempList" tabindex="9" style="width: 82px;">
@@ -548,7 +548,7 @@
                                                     <button ng-click="CopySObyMOI(x.Id,MasterOrderItemId);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>
                                                 </span>
                                             </div>
-                                        </td>*@
+                                        </td>
                                         <td>{{x.ContractNo}}</td>
                                         <td>{{x.LCRef}}</td>
                                         <td>
@@ -3393,6 +3393,20 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</ej-dialog>
+
+<ej-dialog id="SKU1PopUp" title="SKU1" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-close="onDialogClose" e-minwidth="450" e-minheight="80" e-open="enableBtn">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet3(1) }"><a ng-click="setTab3(1)" href="" data-toggle="tab">From SKU</a></li>
+                    <li role="presentation" ng-class="{ active: isSet3(3) }"><a ng-click="setTab3(3)" href="" data-toggle="tab">To SKU</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </ej-dialog>

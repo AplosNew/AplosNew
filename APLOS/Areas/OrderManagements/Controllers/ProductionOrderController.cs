@@ -1951,7 +1951,20 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetFileInfo(string Id)
+        {
 
+            try
+            {
+                return Json(_sqlRepository.GetDataCollection("SELECT PicFileName FROM [TRN].[ProductionBulletinTemplate] WHERE Id ='" + Id + "' "), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
         #endregion upload product picture
 
         #region Multi Operation Add

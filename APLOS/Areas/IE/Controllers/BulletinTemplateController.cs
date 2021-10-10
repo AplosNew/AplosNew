@@ -70,6 +70,21 @@ namespace Aplos.Areas.IE.Controllers
             return Json(_bulletinTemplateService.Query(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetFileInfo(string Id)
+        {
+
+            try
+            {
+                return Json(_sqlRepository.GetDataCollection("SELECT PicFileName FROM MST.BulletinTemplate WHERE Id ='" + Id + "' "), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetOperationData(string processId, string bulletinTemplateId)
         {

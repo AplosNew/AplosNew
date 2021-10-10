@@ -186,22 +186,23 @@ namespace Library.Service.Materials
 
 
         }
-        public void CreateRoll(string InventoryReceiveDetailId, int NoofRolls)
+        public void CreateRoll(string InventoryReceiveDetailId, int NoofRolls, int Qty)
         {
             DataSet dsFabricRoll;
             string _Id = GetFabricRollMasterPK();
             string Plantid = "";
             string RollPrefix = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
             conBin.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + InventoryReceiveDetailId + "'", out dsFabricRoll, false, "1");
-            conBin.OpenDataSetThroughAdapter("select * from scs.PlantConfig where PlantId='" + Plantid + @"'", out DataSet dsPlant, false, "1");
+            conBin.OpenDataSetThroughAdapter("select * from scs.PlantConfig where PlantId='" + identity.PlantId + @"'", out DataSet dsPlant, false, "1");
             if (dsPlant.Tables[0].Rows.Count > 0)
                 RollPrefix = dsPlant.Tables[0].Rows[0]["FabRollPrefix"].ToString();
 
 
             string sID = "";
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "FabricRollMaster" + Plantid, out sID);
+            objGenID.GenIDDaily(DateTime.Now.ToShortDateString().ToString(), "FabricRollMaster" + Plantid, out sID);
 
 
 
@@ -210,20 +211,23 @@ namespace Library.Service.Materials
                 DataRow dr = dsFabricRoll.Tables[0].NewRow();
 
 
-                string RollNo = RollPrefix + System.DateTime.Now.ToString("yyyy") + System.DateTime.Now.ToString("MM") + System.DateTime.Now.ToString("dd") + clsStaticInfo.dbl(sID).ToString("D4") + i.ToString("D4");
-                dr["SystemId"] = "R" + sID + "-" + i;
+                string RollNo = RollPrefix;
+                RollNo += System.DateTime.Now.ToString("yyyy");
+                RollNo += System.DateTime.Now.ToString("MM");
+                RollNo += System.DateTime.Now.ToString("dd");
+                RollNo += Convert.ToInt32(clsStaticInfo.dbl(sID)).ToString("D4");
+                RollNo += Convert.ToInt32(OTSBD.clsStaticInfo.dbl(i.ToString())).ToString("D4");
+
+                dr["Id"] = "R" + sID + "-" + i;
                 dr["RollNo"] = RollNo;
+                dr["VendorQty"] = Qty / NoofRolls;
+
 
                 dsFabricRoll.Tables[0].Rows.Add(dr);
             }
 
-
-
             clsStaticInfo _info = new clsStaticInfo();
             _info.SaveDataSets(dsFabricRoll);
-
-
-
         }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)

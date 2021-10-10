@@ -1820,6 +1820,21 @@ namespace Aplos.Areas.Employees.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetFileInfo(string Id)
+        {
+
+            try
+            {
+                return Json(_sqlRepository.GetDataCollection("SELECT EmpSignature FROM dbo.EmployeeInformation WHERE SystemId ='" + Id + "' "), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         [HttpGet, Authorize]
         public ActionResult IncrementHistory(string empId, string reportType, string tempId)
         {
