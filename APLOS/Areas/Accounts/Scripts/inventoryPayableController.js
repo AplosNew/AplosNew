@@ -10,6 +10,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
     $scope.saveUrl = 'Accounts/InvoicePost/GRNPost/';
     $scope.AcceptanceId = null;
     $scope.TotalPayableAmount = 0;
+    $scope.ispostDisable = false;
     //$scope.getDataList = function () {
     //    baseService.init($scope.getListUrl, null, null, null, 'PartyName, PartyAccountGroupName, Id, GRNDate', 'PartyName');
     //    $scope.getData = function (pageno) {
@@ -300,6 +301,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         factoryService.getCurrencyPrecision(data.data.BaseCurrencyId);
         GetCurrencyExchangeRateList();
         $scope.getFiscalInvoiceTotalAmountByParty(data.data.PartyId, $scope.modelNew.PostingDate);
+        $scope.ispostDisable = false;
         $scope.closeGRNPopUp();
     };
 
@@ -768,6 +770,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         }
     }
     $scope.Post = function () {
+        $scope.ispostDisable = true;
         if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
         if (!baseService.isUndefinedOrNull($scope.modelNew.EmployeeId)) {
             var data = $filter('filter')($scope.newList, { OtherName: 'Vendor' }, true);
@@ -816,7 +819,6 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                 ShowResult(response.data.Message, 'success');
 
                 $scope.getNewDataList($scope.modelNew.Id);
-
             }
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
@@ -837,6 +839,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         $scope.PODiscountAmount = 0;
         if (baseService.arrayLength($scope.voucherTypeList) === 1)
             $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
+        $scope.ispostDisable = false;
     };
 
     function getRecievedList() {

@@ -9,7 +9,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
     $scope.getListUrl = $scope.path + 'GetIssueJournalList';
     $scope.saveUrl = 'Accounts/InvoicePost/CreateIssue';
     $scope.deleteUrl = 'Accounts/InvoicePost/DeleteIssueJournal';
-
+    $scope.ispostDisable = false;
     $scope.searchByIssueList = [
         {
             value: 'IssueNo'
@@ -186,7 +186,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.modelNew.LCRef = data.LCRef;
         $scope.modelNew.Customer = data.Customer;
         $scope.modelNew.IsOrderSpecificy = data.IsOrderSpecificy;
-
+        $scope.ispostDisable = false;
         //getInventoryMaterialList();
         getIssueList()
         $scope.closePopUp();
@@ -240,6 +240,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
 
     }
     $scope.Post = function () {
+        $scope.ispostDisable = true;
         $scope.validation();
         if (!$scope.validation()) {
             $http({
@@ -274,6 +275,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.inventoryIssueList = [];
         if (baseService.arrayLength($scope.voucherTypeList) === 1)
             $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
+        $scope.ispostDisable = false;
     };
 
     //#region GL, Budget & Activity
