@@ -1413,9 +1413,9 @@ namespace Library.Service.Extension
                     }
                     objCon.CloseConnection();
                 }
-                catch (Exception ex)
+                catch (Exception exp)
                 {
-                    throw ex;
+                    throw exp;
                 }
             }
             finally
