@@ -107,6 +107,59 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             });
         }
     }
+
+    $scope.saveRoll = function () {
+        debugger;
+        if (!baseService.isUndefinedOrNull($scope.fabricRollMasterNew.GRNSplitQty)) {
+            var dbIncre = 0;
+            $http({
+                method: 'GET',
+                url: 'Materials/FabricRollMaster/Roll?InventoryReceiveDetailId=' + $scope.selectedGRNRow.inventoryReceiveDetailId + 'NoofRolls=' + $scope.fabricRollMasterNew.GRNSplitQty
+            }).then(function successCallback(response) {
+                //dbIncre = response.data;
+                //if (!$scope.fabricEdit) {
+                //    for (var i = 0; i < $scope.fabricRollMasterNew.GRNSplitQty; i++) {
+                //        var ob = Object.assign({}, $scope.selectedGRNRow);
+                //        if (ob.FabRollPrefix === null) {
+                //            ShowResult('Plan Configuaration is not set for roll prefix!', 'failure', 'fabricRollPopUp');
+
+                //        }
+
+                //        else {
+                //            ob.InventoryReceiveDetailId = ob.Id;
+                //            ob.Id = null;
+                //            ob.RollNo = ob.FabRollPrefix + new Date().getFullYear().toString().substring(2) + (new Date().getMonth() + 1) + new Date().getDate() + getGenNo(dbIncre + i);
+                //            ob.VendorQty = parseFloat((ob.TransactionQty / $scope.fabricRollMasterNew.GRNSplitQty).toFixed(2));
+                //            ob.VendorWidth = $scope.fabricRollSplitOb.VendorWidth;
+                //            ob.VendorRollNo = null;
+                //            ob.VendorLotNo = null;
+                //            $scope.fabricRollMasterList.push(ob);
+                //        }
+                //    }
+                //} else {
+                //    var tempQ = $scope.fabricRollMasterList.length;
+                //    for (var a = 0; a < $scope.fabricRollMasterNew.GRNSplitQty; a++) {
+                //        var oba = Object.assign({}, $scope.selectedGRNRow);
+                //        oba.InventoryReceiveDetailId = oba.Id;
+                //        oba.Id = null;
+                //        oba.RollNo = oba.FilePrefix + new Date().getFullYear().toString().substring(2) + (new Date().getMonth() + 1) + new Date().getDate() + getGenNo(tempQ + a + dbIncre);
+                //        oba.VendorQty = 0.00;
+                //        oba.VendorWidth = $scope.fabricRollSplitOb.VendorWidth;
+                //        oba.VendorRollNo = null;
+                //        oba.VendorLotNo = null;
+                //        $scope.fabricRollMasterList.push(oba);
+                //    }
+                //    tempQ = 0;
+                //}
+                //var ftempOb = 0;
+                //angular.forEach($scope.fabricRollMasterList, function (item) {
+                //    ftempOb += item.VendorQty;
+                //});
+                //$scope.fabDistributeQty = ftempOb;
+                //ftempOb = 0;
+            });
+        }
+    }
     $scope.clearSplitRow = function () {
         $scope.fabricRollMasterNew.GRNSplitQty = null;
         $scope.fabricRollMasterList = [];
@@ -338,10 +391,10 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             $scope.$broadcast('show-errors-check-validity');
             /*if ($scope.fabricRollMasterNewForm.$valid) {*/
                 validFabric();
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-                    data: $scope.fabricRollMasterList,
+            $http({
+                method: 'POST',
+                url: 'Materials/FabricRoll/Save',
+                data: { 'FabricRollData' : $scope.fabricRollMasterList },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -349,7 +402,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.getGRNDetail();
+                        //$scope.getGRNDetail();
                         angular.element(document.querySelector('#fabricRollPopUp')).modal('hide');
                     }
                 }), function errorCallBack(response) {

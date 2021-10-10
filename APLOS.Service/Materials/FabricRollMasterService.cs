@@ -11,6 +11,7 @@ using Library.Model.Materials;
 using Library.Model.Setups;
 using Library.Service.Core;
 using Library.Service.Enums;
+using Library.Service.Extension;
 using Library.Service.Logs;
 using Library.Service.Systems;
 using Library.ViewModel.Materials;
@@ -41,7 +42,7 @@ namespace Library.Service.Materials
 
         public FabricRollMasterService(
             IRepositoryAsync<FabricRollMasterIncrementValue> fabricRollMasterIncrementValue
-            ,IRepositoryAsync<FabricRollMaster> FabricRollMasterRepository
+            , IRepositoryAsync<FabricRollMaster> FabricRollMasterRepository
             , IPKGeneratorService pkGeneratorService
             , IFabricRollMasterDefectService fabricRollMasterDefectService
             , IUnitOfWork unitOfWork
@@ -130,8 +131,9 @@ namespace Library.Service.Materials
             }
             catch (Exception ex)
             {
-                throw new CustomException(ex.Message, ex, Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name,
-                null, ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Setup.ToString()));
+                throw ex;
+                //throw new CustomException(ex.Message, ex, Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name,
+                //null, ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Setup.ToString()));
             }
             finally
             {
@@ -139,6 +141,138 @@ namespace Library.Service.Materials
                     _unitOfWork.Rollback();
             }
         }
+
+        private string GetFabricRollMasterPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FabricRollMaster", out sID);
+            return sID;
+        }
+        public void SaveFabricRoll(List<Dictionary<string, object>> FabricRollData)
+        {
+            DataSet dsFabricRoll;
+            string _Id = GetFabricRollMasterPK();
+
+            ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
+            conBin.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where Invervid='" + _Id + "'", out dsFabricRoll, false, "1");
+
+            int count = 0;
+            if (FabricRollData != null)
+            {
+                foreach (var item in FabricRollData)
+                {
+                    count++;
+                    DataView dv = new DataView(dsFabricRoll.Tables[0]);
+                    dv.RowFilter = "RollNo='" + item["RollNo"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = _Id + "-" + count;
+
+                        AddNewRow(dsFabricRoll.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, item);
+                    }
+                }
+            }
+
+            clsStaticInfo _info = new clsStaticInfo();
+            _info.SaveDataSets(dsFabricRoll);
+
+
+
+        }
+        public void CreateRoll(string InventoryReceiveDetailId, int NoofRolls)
+        {
+            DataSet dsFabricRoll;
+            string _Id = GetFabricRollMasterPK();
+            string Plantid = "";
+            string RollPrefix = "";
+            ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
+            conBin.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + InventoryReceiveDetailId + "'", out dsFabricRoll, false, "1");
+            conBin.OpenDataSetThroughAdapter("select * from scs.PlantConfig where PlantId='" + Plantid + @"'", out DataSet dsPlant, false, "1");
+            if (dsPlant.Tables[0].Rows.Count > 0)
+                RollPrefix = dsPlant.Tables[0].Rows[0]["FabRollPrefix"].ToString();
+
+
+            string sID = "";
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "FabricRollMaster" + Plantid, out sID);
+
+
+
+            for (int i = 1; i <= NoofRolls; i++)
+            {
+                DataRow dr = dsFabricRoll.Tables[0].NewRow();
+
+
+                string RollNo = RollPrefix + System.DateTime.Now.ToString("yyyy") + System.DateTime.Now.ToString("MM") + System.DateTime.Now.ToString("dd") + clsStaticInfo.dbl(sID).ToString("D4") + i.ToString("D4");
+                dr["SystemId"] = "R" + sID + "-" + i;
+                dr["RollNo"] = RollNo;
+
+                dsFabricRoll.Tables[0].Rows.Add(dr);
+            }
+
+
+
+            clsStaticInfo _info = new clsStaticInfo();
+            _info.SaveDataSets(dsFabricRoll);
+
+
+
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+
+
         public int InsertOrUpdateGraphIncrement()
         {
             var flag = false;
@@ -146,10 +280,10 @@ namespace Library.Service.Materials
             {
                 _unitOfWork.BeginTransaction();
                 flag = true;
-              var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var PlantId = identity.PlantId;
-              var v = GetFabricIncrementValue(DateTime.Now.Year, DateTime.Now.Month,DateTime.Now.Day, PlantId).Max();
-                if (v==null)
+                var v = GetFabricIncrementValue(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, PlantId).Max();
+                if (v == null)
                 {
                     FabricRollMasterIncrementValue fabricRollMasterIncrementValue = new FabricRollMasterIncrementValue()
                     {
@@ -157,13 +291,13 @@ namespace Library.Service.Materials
                         Month = DateTime.Now.Month,
                         Day = DateTime.Now.Day,
                         IncrementValue = 1,
-                        PlantId= PlantId
+                        PlantId = PlantId
                     };
                     _fabricRollMasterIncrementValue.Insert(fabricRollMasterIncrementValue);
                 }
                 else
                 {
-                    v.IncrementValue= v.IncrementValue;
+                    v.IncrementValue = v.IncrementValue;
                     _fabricRollMasterIncrementValue.Update(v);
                 }
                 _unitOfWork.SaveChanges();
@@ -178,7 +312,7 @@ namespace Library.Service.Materials
                 {
 
                 }
-                return v==null?1:v.IncrementValue;
+                return v == null ? 1 : v.IncrementValue;
             }
             catch (Exception ex)
             {
@@ -451,11 +585,11 @@ namespace Library.Service.Materials
                 throw;
             }
         }
-        private IEnumerable<FabricRollMasterIncrementValue> GetFabricIncrementValue(int year,int month,int day,string PlantId)
+        private IEnumerable<FabricRollMasterIncrementValue> GetFabricIncrementValue(int year, int month, int day, string PlantId)
         {
             try
             {
-                var _sql = @"SELECT * FROM SCS.[FabricRollMasterIncrementValue] WHERE [YEAR]="+year+" AND [MONTH]="+month+" AND [DAY]="+day+ " AND PlantId="+ PlantId + "";
+                var _sql = @"SELECT * FROM SCS.[FabricRollMasterIncrementValue] WHERE [YEAR]=" + year + " AND [MONTH]=" + month + " AND [DAY]=" + day + " AND PlantId=" + PlantId + "";
                 return _sqlRepository.GetModelCollection<FabricRollMasterIncrementValue>(_sql, null);
             }
             catch (Exception)
@@ -514,7 +648,7 @@ namespace Library.Service.Materials
         public GridModel GetGRNList(GridParameter parameters, string fabricRoll)
 
 
-       
+
         {
             try
             {
@@ -539,7 +673,7 @@ namespace Library.Service.Materials
             }
         }
 
-        public GridModel GetGRNDetailList(GridParameter parameters, string inventoryReceiveId,string fabricRoll)
+        public GridModel GetGRNDetailList(GridParameter parameters, string inventoryReceiveId, string fabricRoll)
         {
             try
             {
@@ -558,7 +692,7 @@ namespace Library.Service.Materials
                                         LEFT JOIN MST.MaterialMasterBusinessProcess MMBP ON MM.Id=MMBP.MaterialMasterId
                                         LEFT JOIN SCS.BusinessProcess BP ON MMBP.BusinessProcessId=BP.Id
 										LEFT JOIN (SELECT COUNT(Id) SplitCount,Sum(VendorQty) TotalDistributeQty,InventoryReceiveDetailId FROM TRN.FabricRollMaster GROUP BY InventoryReceiveDetailId) FRM ON IRD.Id=FRM.InventoryReceiveDetailId
-                                        WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId +@"'";
+                                        WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -582,7 +716,7 @@ namespace Library.Service.Materials
                                         LEFT JOIN HKP.Characteristics C ON IM.FirstCharacteristicsId=C.Id
                                         LEFT JOIN [HKP].[CharacteristicsValue] CV ON IM.FirstCharacteristicsValueId=CV.Id
                                         LEFT JOIN HKP.Party P ON IR.PartyId=P.Id
-                                        WHERE FRM.InventoryReceiveDetailId='"+ inventoryReceiveDetailId + "'";
+                                        WHERE FRM.InventoryReceiveDetailId='" + inventoryReceiveDetailId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -606,12 +740,13 @@ namespace Library.Service.Materials
                             LEFT JOIN HKP.CharacteristicsValue CV ON FRM.SKUValueId=CV.Id
                             where FRM.InventoryReceiveDetailId='" + inventoryReceiveDetailId + "'";
                 List<object> lS = new List<object>();
-                var s = _sqlRepository.GetDataCollection(_sql, null); 
+                var s = _sqlRepository.GetDataCollection(_sql, null);
                 foreach (var item in s)
                 {
                     var dic = item;
                     string b = getBarCodePdf(dic["RollNo"].ToString());
-                    var v = new {
+                    var v = new
+                    {
                         barCode = b,
                         RollNo = dic["RollNo"].ToString(),
                         Party = dic["PartyName"].ToString(),
@@ -657,7 +792,7 @@ namespace Library.Service.Materials
                 //}
 
                 Code128BarcodeDraw barCode128 = BarcodeDrawFactory.Code128WithChecksum;
-                Image  MyBarCodeImage =barCode128.Draw(barcode, 52, 1);
+                Image MyBarCodeImage = barCode128.Draw(barcode, 52, 1);
                 using (Image image = MyBarCodeImage)
                 {
                     using (MemoryStream m = new MemoryStream())

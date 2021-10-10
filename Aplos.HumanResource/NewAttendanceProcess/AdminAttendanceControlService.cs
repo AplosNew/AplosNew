@@ -262,7 +262,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 bplib.clsGenID objId = new bplib.clsGenID();
 
-               
+                //New
+                string RowsEdits = "''";
+                NewAttendanceProcessService ap = new NewAttendanceProcessService();
+                // new End
                 DataSet shiftchange = null ;
                 
                 for (int i = 0; i < data.Count; i++)
@@ -295,6 +298,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["LockedBy"] = DBNull.Value;
                             shiftchange.Tables[0].Rows[0]["IsLock"] = false;
                             shiftchange.Tables[0].Rows[0].EndEdit();
+                            //New
+                            ap.CheckerFunction(ref RowsEdits, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
                         }
                         #endregion change shift
                     }
@@ -323,6 +328,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             }
 
                             dr.EndEdit();
+                            //New
+                            ap.CheckerFunction(ref RowsEdits, dr["RowId"].ToString());
                         }
                     }
 
@@ -379,7 +386,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["LockedDate"] = DBNull.Value;
 
                                 dr.EndEdit();
-
+                                //New
+                                ap.CheckerFunction(ref RowsEdits, dr["RowId"].ToString());
                             }
                         }
                             
@@ -390,6 +398,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(shiftchange);
 
+                    //New
+                    ap.ManualScheduler(data[0].PlantID, RowsEdits);
                 }
             }
             catch (Exception ex)
@@ -547,25 +557,42 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string addedname = identity.Name;
                 string addeddate = System.DateTime.Now.ToString();
                 string TableName = "dbo.AttdnProcessData";
+
+                //Getting the DayStatuses
+                var sttr = @"Select DayType from dbo.DayType";
+                DataTable DSTable = _sqlRepository.GetDataTable(sttr);
+                string DayTypesList = "";
+                for(int i = 0; i< DSTable.Rows.Count;i++)
+                {
+                    DayTypesList = DayTypesList + " " + DSTable.Rows[i]["DayType"].ToString();
+                }
+
+                
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + PlId + @"' "+EmpSel+"", out dsMaster, false, "1");
-                int kk = 0; 
+                int KI = 0; 
+                int KO = 0; 
                 if (data.Count > 0)
                 {
                     for(int i = 0; i < data.Count; i ++)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "RowId='" + data[i]["RowId"].ToString() + "'";
                         int j = dsMaster.Tables[0].DefaultView.Count;
-
+                        KI = 0; KO = 0;
                         dsMaster.Tables[0].DefaultView[0].BeginEdit();
 
                         if (clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["InTime"]).ToString() != clsWebLib.RetValidLen(data[i]["InTime"]).ToString())
                         {
                             if (clsWebLib.RetValidLen(data[i]["InTime"]).ToString() != "")
                             {
-                            //if(Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString()) != Convert.ToDateTime(data[i]["InTime"].ToString()))
-                            //{
+                                //if(Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString()) != Convert.ToDateTime(data[i]["InTime"].ToString()))
+                                //{
+
+
+                                //if (bplib.clsWebLib.IsDateOK(data[i]["InTime"].ToString()) == false)
+                                //    throw new Exception("Invalid in date - "+ i );
+
                                 dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
                                 dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
                                 dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
@@ -575,14 +602,23 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["InTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
                                 dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
                                 dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
-                            //}
-                            
+                                KI = 1;
+
+                                //}
+
                             }
                             else
                             {
                                 dsMaster.Tables[0].DefaultView[0]["InTime"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
+                            }
+                        }
+                        else
+                        {
+                            if (clsWebLib.RetValidLen(data[i]["InTime"]).ToString() != "")
+                            {
+                                KI = 1;
                             }
                         }
 
@@ -592,7 +628,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                             {
                                 //if (Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()) != Convert.ToDateTime(data[i]["OutTime"].ToString()))
                                 //{
-                                    dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
+
+                                //if (bplib.clsWebLib.IsDateOK(data[i]["OutTime"].ToString()) == false)
+                                //    throw new Exception("Invalid Out Time - " + i);
+
+                                dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
                                     dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
                                     dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
                                     dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
@@ -601,6 +641,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dsMaster.Tables[0].DefaultView[0]["OutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
                                     dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
                                     dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
+
+                                KO = 1;
                                 //}
                             }
                             else
@@ -608,6 +650,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["OutTime"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
+                            }
+                        }
+                        else
+                        {
+                            if (clsWebLib.RetValidLen(data[i]["OutTime"]).ToString() != "")
+                            {
+                                KO = 1;
                             }
                         }
 
@@ -633,18 +682,45 @@ namespace Library.HumanResource.NewAttendanceProcess
                         {
                             if (dsMaster.Tables[0].DefaultView[0]["DayStatus"].ToString() != data[i]["DayStatus"].ToString())
                             {
-                                dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
-                                dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
-                                dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
-                                dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
-                                dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
-                                dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
-                                dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"] = data[i]["DayStatus"].ToString();
-                                dsMaster.Tables[0].DefaultView[0]["isManualDayStatus"] = true;
+                                if(DayTypesList.Contains(data[i]["DayStatus"].ToString()))
+                                {
+                                    dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
+                                    dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
+                                    dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
+                                    dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
+                                    dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"] = data[i]["DayStatus"].ToString();
+                                    dsMaster.Tables[0].DefaultView[0]["isManualDayStatus"] = true;
+                                }
+                                else
+                                {
+                                    throw new Exception("Day Status is not Present!!");
+                                }
+                                
                             }
                             
                         }
 
+                        //Checking of the Timing
+                        if(KO == 1 && KI == 1)
+                        {
+                            if (Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString()) > Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()))
+                            {
+                                 throw new Exception( "Out time is earlier than In time - " + i);
+                            }
+
+                            if (Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()) > DateTime.Now)
+                            {
+                                throw new Exception("Out time is greater than Now - " + i);
+                            }
+
+                            TimeSpan ts = Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["InTime"].ToString()).Subtract(Convert.ToDateTime(dsMaster.Tables[0].DefaultView[0]["OutTime"].ToString()));
+                            if (Math.Abs(ts.TotalHours) > 24)
+                            {
+                                throw new Exception("Time span cannot be greater than 24 hours between in and out time - " + i);
+                            }
+                        }
                        
                         dsMaster.Tables[0].DefaultView[0].EndEdit();
                     }

@@ -337,7 +337,7 @@ namespace Library.Accounting.Accounts
                         ,ISNULL(VD.DrAmount,0) DrAmount,ISNULL(VD.CrAmount,0) CrAmount
                         ,CB.Code BooksCurrency
                         ,ISNULL(CC.CompanyCurrencyDrAmount,0) CompanyCurrencyDrAmount,ISNULL(CC.CompanyCurrencyCrAmount,0) CompanyCurrencyCrAmount
-                        ,BCT.UserName BudgetCategory,BSCT.UserName BudgetSubCategory
+                        ,BG.UserName BudgetGroup,BCT.UserName BudgetCategory,BSCT.UserName BudgetSubCategory
                         ,V.AddedBy
                         , Replace(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') EntryDate
                         ,v.Narration,ir.NoteForAccounts,ei.EmployeeName
@@ -349,6 +349,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
                         LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
                         LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                        LEFT JOIN [HKP].BudgetGroup BG ON BG.Id=BM.BudgetGroupId
                         LEFT JOIN [HKP].BudgetCategory BCT ON BCT.Id=BM.BudgetCategoryId
                         LEFT JOIN [HKP].BudgetSubCategory BSCT ON BSCT.Id=BM.BudgetSubCategoryId
                         LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
@@ -5545,6 +5546,12 @@ namespace Library.Accounting.Accounts
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
+            worksheet[ROW, COL].Text = "Budget Group";
+            int colBudgetGroup = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
             worksheet[ROW, COL].Text = "Budget Category";
             int colBudgetCategory = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
@@ -5721,6 +5728,7 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colGLCode].Text = dtDayBookData.Rows[i]["GLCode"].ToString();
                 worksheet[ROW, colUserName].Text = dtDayBookData.Rows[i]["GL"].ToString();
                 worksheet[ROW, colBudget].Text = dtDayBookData.Rows[i]["Budget"].ToString();
+                worksheet[ROW, colBudgetGroup].Text = dtDayBookData.Rows[i]["BudgetGroup"].ToString();
                 worksheet[ROW, colBudgetCategory].Text = dtDayBookData.Rows[i]["BudgetCategory"].ToString();
                 worksheet[ROW, colBudgetSubCategory].Text = dtDayBookData.Rows[i]["BudgetSubCategory"].ToString();
                 worksheet[ROW, colActivity].Text = dtDayBookData.Rows[i]["Activity"].ToString();
