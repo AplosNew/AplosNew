@@ -353,7 +353,7 @@
                                         <div class="input-group">
                                             <input type="text" only-numbers ng-model="fabricRollMasterNew.GRNSplitQty" class="form-control">
                                             <span class="input-group-btn">
-                                                <button name="submit" ng-click="splitGrnRow()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i></button>
+                                                <button name="submit" ng-click="saveRoll()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i></button>
                                                 <button name="submit" ng-click="clearSplitRow()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
                                             </span>
                                         </div>
@@ -379,7 +379,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr ng-repeat="x in fabricRollMasterList track by $index">
+                                    <tr ng-repeat="x in saveRollList track by $index">
                                         <td>{{$index+1}}</td>
                                         <td>{{x.RollNo}}</td>
                                         <td>
