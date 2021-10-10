@@ -39,10 +39,10 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetAllData()
+        public JsonResult GetAllData(string BulletinId)
         {
-            Library.Planning.LineDesign.GenerateLineDiagram _diagram = new Library.Planning.LineDesign.GenerateLineDiagram();
-            _diagram.MakeBulletinList("");
+            Library.Planning.LineDesign.GenerateLineDiagraForLineLayout _diagram = new Library.Planning.LineDesign.GenerateLineDiagraForLineLayout();
+            _diagram.MakeBulletinList(BulletinId);
 
             return Json(_diagram.AllShapesForJson, JsonRequestBehavior.AllowGet);
         }
@@ -89,5 +89,26 @@ namespace Aplos.Areas.IE.Controllers
         {
             return Json(cp.GetProductionOrderData(entityId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetOperationList()
+        {
+            string sql = "";
+            sql = @"SELECT ov.ArticleId,m.MaterialMasterId,mm.UserName AS MachineMaster,M.StandardName MachineName,mm.UserName MaterialMasterDesc
+					,OV.Id OperationVariationId, OV.Code,OV.StandardName OperationVariationDesc, ISNULL(OV.Frequency,0)Frequency,ISNULL(OV.SPI,0)SPI
+					,O.Id OperationId,O.UserName OperationDesc,ps.UserName AS ProductionSystem,
+                    ISNULL(O.PersonalAllowance,0)PersonalAllowance,ISNULL(OV.MachineAllowance,0)MachineAllowance
+					,ISNULL(OV.AdditionalAllowance,0) AdditionalAllowances,
+                    ISNULL(M.RPM,0)RPM,OV.TotalSAM,O.IsMachineRequired
+                    ,M.StandardName AS ArticleDesc
+                    FROM [MST].[OperationVariation] OV
+                    LEFT JOIN [MST].[MaterialMasterArticle] M ON M.Id = OV.ArticleId
+                    LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=m.MaterialMasterId
+                    LEFT JOIN [MST].[Operation] O ON O.Id = OV.OperationId
+                    LEFT JOIN hkp.ProductionSystem AS ps ON ps.Id=o.ProductionSystemId";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
     }
 }
