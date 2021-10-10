@@ -211,9 +211,7 @@
                                 <th>UoM</th>
                                 <th style="width: 10px">Job Work Applicable</th>
                                 <th style="width: 170px;">Job Work Type</th>
-
-                                <th colspan="3">Entity/Vendor</th>
-                                <th colspan="3"></th>
+                                <th>Entity/Vendor</th>
                                 <th>Delete</th>
                             </tr>
                         </thead>
@@ -273,26 +271,24 @@
                                 <td>
                                     <div class="select-style">
                                         <select class="form-control" ng-model="x.JobWorkType" ng-disabled="!x.JobWorkApplicable" ng-change="clearEntityOrVendor(prdProcessSetList, $index);"
-                                               style="width: 135px;" ng-options="item.Value as item.Text for item in jobWorkTypeList">
+                                                style="width: 135px;" ng-options="item.Value as item.Text for item in jobWorkTypeList">
                                             <option value=""></option>
                                         </select>
                                     </div>
                                 </td>
-                                <td colspan="3">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <input type="hidden" ng-model="x.EntityIdWithinCompany">
-                                            <input type="hidden" ng-model="x.EntityIdWithinGroup">
-                                            <input type="hidden" ng-model="x.PartyId">
-                                            <div class="col-sm-8 pdl3 pdr3">
-                                                <input type="text" ng-model="x.EntityOrVendorName" class="form-control" disabled>
-                                            </div>
+                                <td>
+                                    <input type="hidden" ng-model="x.EntityIdWithinCompany">
+                                    <input type="hidden" ng-model="x.EntityIdWithinGroup">
+                                    <input type="hidden" ng-model="x.PartyId">
+
+                                    <div class="input-group">
+                                        <input type="text" name="EntityOrVendorName" ng-model="x.EntityOrVendorName" class="form-control" readonly style="width: 80px;">
+                                        <span class="input-group-btn">
                                             <button style="height: 27px;margin-top: 2px;margin-left: 0px" class="btn" ng-click="popUp($index)" ng-disabled="!x.JobWorkApplicable"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                             <button style="height: 27px;margin-top: 2px;margin-left: 0px" class="btn" ng-click="clearEntityOrVendor(prdProcessSetList, $index);" ng-disabled="!x.JobWorkApplicable"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
-                                        </div>
+                                        </span>
                                     </div>
                                 </td>
-                                <td  colspan="3"></td>
                                 <td>
                                     <ul class="list-inline action-list">
                                         <li>
@@ -313,7 +309,7 @@
         <!--Bulletin-->
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
             <div class="form-horizontal form-elements">
-                <div class="row" ng-form="tabFrom4" >
+                <div class="row" ng-form="tabFrom4">
                     <div class="common-btn" ng-show="bulletintab===false">
                         <ul class="list-inline text-left">
                             <li><button ng-click="getBulletinData('BT');" class="btn"><i class="glyphicon glyphicon-plus"></i> Bulletin Template</button></li>
@@ -334,7 +330,16 @@
                             <li><button ng-click="GetBulletinTamplate2ndIndexReport();" class="btn" title="Report"><i class="glyphicon glyphicon-download"></i> Report</button></li>
                         </ul>
                     </div>
-
+                    <div class="col-xs-12 col-sm-4 col-md-4" ng-show="bulletintab===false" style="font-size:12px">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Upload Picture</label>
+                            <div class="col-sm-9">
+                                <img id="uploadSigsrc" ng-src="{{PicFileName}}" style="border: 1px dashed; height: 150px; width: 140px;" />
+                                <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-xs-12 col-sm-4 col-md-4" ng-show="bulletintab===false" style="font-size:12px">
 
                         <div class="form-group">
@@ -358,11 +363,7 @@
                         </div>
 
 
-                        <div class="common-btn">
-                            <ul class="list-inline text-left">
-                                <li><button ng-click="EditPRB();" ng-disabled="bulletinTemplateNew.Id==null" class="btn"><i class="glyphicon glyphicon-floppy-saved"></i> Update</button></li>
-                            </ul>
-                        </div>
+                        
                     </div>
                     <div class="col-xs-12 col-sm-4 col-md-4" ng-show="bulletintab===false" style="font-size:11px">
                         <div class="form-group">
@@ -383,23 +384,13 @@
                                 <label class="control-label"><b>{{bulletinTemplateNew.ProductMaster}}</b></label>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-4 col-md-4" ng-show="bulletintab===false" style="font-size:12px">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Upload Picture</label>
-                            <div class="col-sm-9">
-                                <img id="uploadSigsrc" ng-src="{{PicFileName}}" style="border: 1px dashed; height: 150px; width: 140px;" />
-                                <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload">
-                                    @*<span id="UploadDefault" e-dialogtext-title="Production Bulletin Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"
-                                        class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Upload Image</i></span>*@
-                                </div>
-                            </div>
-                            @*<div class="col-sm-4">
-                                    <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
-                                </div>*@
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="EditPRB();" ng-disabled="bulletinTemplateNew.Id==null" class="btn"><i class="glyphicon glyphicon-floppy-saved"></i> Update</button></li>
+                            </ul>
                         </div>
-
                     </div>
+
 
 
                     <div class="row" id="processbuyer" ng-show="bulletintab===false">
@@ -547,8 +538,8 @@
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.DelFlag" />
                                     </script>
                                     @*<script type="text/x-jsrender" id="headerDelTemplate">
-                                            <input type="checkbox" id="headchk" />
-                                        </script>*@
+                            <input type="checkbox" id="headchk" />
+                        </script>*@
                                     <script type="text/template" id="Sequence">
                                         <div class="col-sm-10" style="padding:0px; width:70px;">
                                             <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Sequence" e-width="80" />
@@ -561,8 +552,8 @@
                                     </script>
                                     <script type="text/template" id="OperationCategory">
                                         @*<div class="col-sm-10" style="padding:0px; width:90px;margin:-12px;">
-                                                <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                                            </div>*@
+                                <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                            </div>*@
                                         <div class="select-style">
                                             <select class="form-control" ng-model="data.OperationCategoryId" name="Operation Category">
                                                 <option value="">--Select--</option>

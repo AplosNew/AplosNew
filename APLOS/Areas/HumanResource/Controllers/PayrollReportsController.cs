@@ -531,7 +531,31 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
             }
         }
+        [HttpPost, Authorize]
+        public ActionResult GetSalarySheetExtraOTCTCReportOriginal(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string PlantId)
+        {
+            try
+            {
+                // parameters = null;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                WeekOFFandHolidayOTOriginal clsWeekOFFOTReport = new WeekOFFandHolidayOTOriginal();
 
+                var fileName = bplib.clsWebLib.GetMonthName(month) + "-" + year + "SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xlsx";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+
+                var workbook = clsWeekOFFOTReport.GetSalarySheetExtraOTCTCReport(identity.CompanyGroupId, identity.CompanyId, PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, identity.IsSysAdmin, identity.IsControlAdmin, isMaternity, false);
+                workbook.Version = ExcelVersion.Excel2013;
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
         [HttpPost, Authorize]
         public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
         {

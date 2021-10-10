@@ -106,6 +106,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.voucher.IsPark = $scope.modelNew.IsPark;
         $scope.GetSavedGRNListForPostInvoice();
         $scope.getPostableJVList($scope.modelNew.Id, $scope.modelNew.PartyId);
+        $scope.getCboVoucherTypePostInvoiceList();
         $scope.paymentTerm();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -426,6 +427,7 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.InventoryReceiveDetailList = [];
         $scope.postableJVList = [];
         $scope.voucher = {};
+        $scope.voucher.VoucherDate = $filter("dateFiltering")(Date.now());
         $scope.TempList = [];
         $scope.Action = 'Save';
     }
@@ -474,8 +476,6 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-                $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-                $scope.voucher.DocDate = $scope.voucher.PostingDate;
             }
         });
     };

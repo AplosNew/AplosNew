@@ -2181,7 +2181,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 SetHeaderTextTop(ref sheet, ROW, ColValueAddedDateHeader, "Date", 12, ExcelHAlign.HAlignLeft);
                 ColValueAddedDateHeader++;
                 ColValueAddedDateEnd = ColValueAddedDateHeader + 1;
-                sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].Text = data.Rows[0]["ValueAddedDate"].ToString();
+                sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].Text = data.Rows[0]["TransformationDate"].ToString();
                 sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].Merge();
                 sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2192,7 +2192,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 ColVACTimeHeader++;
                 ColVACTimeEnd = ColVACTimeHeader + 1;
                 ColVACTimeName = ColVACTimeHeader;
-                sheet.Range[ROW, ColVACTimeName, ROW, ColVACTimeEnd].Text = data.Rows[0]["VACTime"].ToString();
+                sheet.Range[ROW, ColVACTimeName, ROW, ColVACTimeEnd].Text = data.Rows[0]["TCTime"].ToString();
                 sheet.Range[ROW, ColVACTimeName, ROW, ColVACTimeEnd].Merge();
                 sheet.Range[ROW, ColVACTimeName, ROW, ColVACTimeEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColVACTimeName, ROW, ColVACTimeEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2228,7 +2228,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 ColVAProcessStartDateHeader++;
                 ColVAProcessStartDateEnd = ColVAProcessStartDateHeader + 1;
                 int ColAddress = ColVAProcessStartDateHeader;
-                sheet.Range[ROW, ColVAProcessStartDateHeader, ROW, ColVAProcessStartDateEnd].Text = data.Rows[0]["VAProcessStartDate"].ToString();
+                sheet.Range[ROW, ColVAProcessStartDateHeader, ROW, ColVAProcessStartDateEnd].Text = data.Rows[0]["TCProcessStartDate"].ToString();
                 sheet.Range[ROW, ColVAProcessStartDateHeader, ROW, ColVAProcessStartDateEnd].Merge();
                 sheet.Range[ROW, ColVAProcessStartDateHeader, ROW, ColVAProcessStartDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColVAProcessStartDateHeader, ROW, ColVAProcessStartDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2238,7 +2238,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 ColVAProcessStartDateEnd++;
                 int ColVAProcessEndDate = ColVAProcessStartDateEnd;
                 int ColVAProcessEndDateEnd = ColVAProcessStartDateEnd + 1;
-                sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].Text = data.Rows[0]["VAProcessEndDate"].ToString();
+                sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].Text = data.Rows[0]["TCProcessEndDate"].ToString();
                 sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].Merge();
                 sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColVAProcessEndDate, ROW, ColVAProcessEndDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2249,7 +2249,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 ColVAProcessEndDateEnd++;
                 int ColVAContractClosingDate = ColVAProcessEndDateEnd;
                 int ColVAContractClosingDateEnd = ColVAProcessEndDateEnd + 1;
-                sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].Text = data.Rows[0]["VAContractClosingDate"].ToString();
+                sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].Text = data.Rows[0]["TCContractClosingDate"].ToString();
                 sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].Merge();
                 sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColVAContractClosingDate, ROW, ColVAContractClosingDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2279,20 +2279,118 @@ namespace Aplos.Areas.JobWork.Controllers
             }
 
             #region Headers
+            //report.SetHeaderText(ref sheet, ROW, COL, "Job Work Item", 12, ExcelHAlign.HAlignLeft);
+            //int ColJobWorkItem = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Material Location", 8, ExcelHAlign.HAlignLeft);
+            //int ColMaterialLocation = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Material Type", 8, ExcelHAlign.HAlignLeft);
+            //int ColMaterialType = COL;
+            //COL++;
+
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Final Output Category", 15, ExcelHAlign.HAlignLeft);
+            //int ColFinalOutputCategory = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Material Specification", 15, ExcelHAlign.HAlignLeft);
+            //int ColMaterialSpecification = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Material Reference", 20, ExcelHAlign.HAlignLeft);
+            //int ColMaterialReference = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "UOM", 11, ExcelHAlign.HAlignLeft);
+            //int ColUOM = COL;
+            //COL++;
+
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Quantity", 11, ExcelHAlign.HAlignLeft);
+            //int ColQuantity = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Material", 10, ExcelHAlign.HAlignLeft);
+            //int ColMaterial = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Article", 10, ExcelHAlign.HAlignLeft);
+            //int ColArticleCode = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Order Specific", 10, ExcelHAlign.HAlignLeft);
+            //int ColOrderSpecific = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Required Capacity/ Day", 10, ExcelHAlign.HAlignLeft);
+            //int ColRequiredCapacity = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Rate Applicable", 10, ExcelHAlign.HAlignLeft);
+            //int ColRateApplicable = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Currency", 10, ExcelHAlign.HAlignLeft);
+            //int ColCurrency = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Rate/ Unit", 8, ExcelHAlign.HAlignLeft);
+            //int ColRatePerUnit = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Rejection", 10, ExcelHAlign.HAlignLeft);
+            //int ColRejection = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Value Loss", 10, ExcelHAlign.HAlignLeft);
+            //int ColValueLoss = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 10, ExcelHAlign.HAlignLeft);
+            //int ColEmployeeCode = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person", 8, ExcelHAlign.HAlignLeft);
+            //int ColEmployeeName = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 10, ExcelHAlign.HAlignLeft);
+            //int ColVCCRemarks = COL;
+            //ROW++;
+            //endCol = COL;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Line Item Id", 12, ExcelHAlign.HAlignLeft);
+            int ColLineItemId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Type", 12, ExcelHAlign.HAlignLeft);
+            int ColOutputMaterialType = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Job Work Item", 12, ExcelHAlign.HAlignLeft);
             int ColJobWorkItem = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Material", 8, ExcelHAlign.HAlignLeft);
+            int ColOutputMaterial = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 8, ExcelHAlign.HAlignLeft);
+            int ColArticleCode = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Material Location", 8, ExcelHAlign.HAlignLeft);
             int ColMaterialLocation = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Material Type", 8, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Input Material Category", 8, ExcelHAlign.HAlignLeft);
             int ColMaterialType = COL;
             COL++;
 
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Final Output Category", 15, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Output Material Category", 15, ExcelHAlign.HAlignLeft);
             int ColFinalOutputCategory = COL;
             COL++;
 
@@ -2304,23 +2402,6 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColMaterialReference = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "UOM", 11, ExcelHAlign.HAlignLeft);
-            int ColUOM = COL;
-            COL++;
-
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Quantity", 11, ExcelHAlign.HAlignLeft);
-            int ColQuantity = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Material", 10, ExcelHAlign.HAlignLeft);
-            int ColMaterial = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Article", 10, ExcelHAlign.HAlignLeft);
-            int ColArticleCode = COL;
-            COL++;
-
             report.SetHeaderText(ref sheet, ROW, COL, "Order Specific", 10, ExcelHAlign.HAlignLeft);
             int ColOrderSpecific = COL;
             COL++;
@@ -2328,6 +2409,22 @@ namespace Aplos.Areas.JobWork.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Required Capacity/ Day", 10, ExcelHAlign.HAlignLeft);
             int ColRequiredCapacity = COL;
             COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "By Product Applicable", 10, ExcelHAlign.HAlignLeft);
+            //int ColByProductApplicable = COL;
+            //COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "UOM", 11, ExcelHAlign.HAlignLeft);
+            int ColUOM = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Total Output Quantity", 11, ExcelHAlign.HAlignLeft);
+            int ColQuantity = COL;
+            COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Total Gross Input Quantity", 12, ExcelHAlign.HAlignLeft);
+            //int ColTotalGrossInputQuantity = COL;
+            //COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Rate Applicable", 10, ExcelHAlign.HAlignLeft);
             int ColRateApplicable = COL;
@@ -2339,6 +2436,10 @@ namespace Aplos.Areas.JobWork.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Rate/ Unit", 8, ExcelHAlign.HAlignLeft);
             int ColRatePerUnit = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Amount", 12, ExcelHAlign.HAlignLeft);
+            int ColAmount = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Rejection", 10, ExcelHAlign.HAlignLeft);
@@ -2391,6 +2492,35 @@ namespace Aplos.Areas.JobWork.Controllers
                     RowIndex = ROW;
                 }
 
+                //sheet[ROW, ColMaterialType].Text = data.Rows[i]["MaterialType"].ToString();
+                //sheet[ROW, ColJobWorkItem].Text = data.Rows[i]["JobWorkItem"].ToString();
+                //sheet[ROW, ColMaterialLocation].Text = data.Rows[i]["MaterialLocation"].ToString();
+                //sheet[ROW, ColFinalOutputCategory].Text = data.Rows[i]["FinalOutputCategory"].ToString();
+                //sheet[ROW, ColMaterialSpecification].Text = data.Rows[i]["MaterialSpecification"].ToString();
+                //sheet[ROW, ColMaterialReference].Text = data.Rows[i]["MaterialReference"].ToString();
+
+                //sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
+                //sheet[ROW, ColQuantity].Text = data.Rows[i]["Quantity"].ToString();
+
+                ////sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
+                ////sheet[ROW, ColArticleCode].Text = data.Rows[i]["Article"].ToString();
+
+                //sheet[ROW, ColOutputMaterial].Text = data.Rows[i]["OutputMaterial"].ToString();
+                //sheet[ROW, ColArticleCode].Text = data.Rows[i]["ArticleCode"].ToString();
+
+                //sheet[ROW, ColOrderSpecific].Text = data.Rows[i]["OrderSpecific"].ToString();
+                //sheet[ROW, ColRequiredCapacity].Number = clsStaticInfo.dbl(data.Rows[i]["ReqCapacity"].ToString());
+                //sheet[ROW, ColRateApplicable].Text = data.Rows[i]["RateApplicable"].ToString();
+                //sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+
+                //sheet[ROW, ColRatePerUnit].Number = clsStaticInfo.dbl(data.Rows[i]["RatePerUnit"].ToString());
+                //sheet[ROW, ColRejection].Number = clsStaticInfo.dbl(data.Rows[i]["VccRejection"].ToString());
+                //sheet[ROW, ColValueLoss].Number = clsStaticInfo.dbl(data.Rows[i]["ValueLoss"].ToString());
+                //sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                //sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                //sheet[ROW, ColVCCRemarks].Text = data.Rows[i]["VCCRemarks"].ToString();
+
+                sheet[ROW, ColLineItemId].Text = data.Rows[i]["LineItemId"].ToString();
                 sheet[ROW, ColMaterialType].Text = data.Rows[i]["MaterialType"].ToString();
                 sheet[ROW, ColJobWorkItem].Text = data.Rows[i]["JobWorkItem"].ToString();
                 sheet[ROW, ColMaterialLocation].Text = data.Rows[i]["MaterialLocation"].ToString();
@@ -2400,24 +2530,33 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
                 sheet[ROW, ColQuantity].Text = data.Rows[i]["Quantity"].ToString();
+                //sheet[ROW, ColTotalGrossInputQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["TotalGrossInputQuantity"].ToString());
+             //   sheet[ROW, ColTotalGrossInputQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["TotalGrossConsumptionPerUnit"].ToString());
 
-                sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
-                sheet[ROW, ColArticleCode].Text = data.Rows[i]["Article"].ToString();
+                sheet[ROW, ColOutputMaterial].Text = data.Rows[i]["OutputMaterial"].ToString();
 
-                sheet[ROW, ColOrderSpecific].Text = data.Rows[i]["MOutOrderSpecific"].ToString();
-                sheet[ROW, ColRequiredCapacity].Number = clsStaticInfo.dbl(data.Rows[i]["ReqCapacity"].ToString());
-                sheet[ROW, ColRateApplicable].Text = data.Rows[i]["RateApplicable"].ToString();
+                sheet[ROW, ColArticleCode].Text = data.Rows[i]["ArticleCode"].ToString();
+
+                sheet[ROW, ColOrderSpecific].Text = data.Rows[i]["OrderSpecific"].ToString();
+                sheet[ROW, ColRequiredCapacity].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredCapacity"].ToString());
+          //      sheet[ROW, ColByProductApplicable].Text = data.Rows[i]["ByProductApplicable"].ToString();
+                sheet[ROW, ColRateApplicable].Text = data.Rows[i]["RateApplyId"].ToString();
                 sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
 
-                sheet[ROW, ColRatePerUnit].Number = clsStaticInfo.dbl(data.Rows[i]["RatePerUnit"].ToString());
-                sheet[ROW, ColRejection].Number = clsStaticInfo.dbl(data.Rows[i]["VccRejection"].ToString());
+              //  sheet[ROW, ColRatePerUnit].Number = clsStaticInfo.dbl(data.Rows[i]["RatePerUnit"].ToString());
+                sheet[ROW, ColRatePerUnit].Text = data.Rows[i]["RatePerUnit"].ToString();
+                //sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
+                sheet[ROW, ColAmount].Number = Math.Round(clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString()),2);
+                sheet[ROW, ColRejection].Number = clsStaticInfo.dbl(data.Rows[i]["Rejection"].ToString());
                 sheet[ROW, ColValueLoss].Number = clsStaticInfo.dbl(data.Rows[i]["ValueLoss"].ToString());
                 sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColVCCRemarks].Text = data.Rows[i]["VCCRemarks"].ToString();
+                sheet[ROW, ColVCCRemarks].Text = data.Rows[i]["TCCRemarks"].ToString();
+                sheet[ROW, ColOutputMaterialType].Text = data.Rows[i]["OutputMaterialType"].ToString();
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
                 JobWorkItems = data.Rows[i]["JobWorkItem"].ToString();
 
                 ROW++;
@@ -2535,29 +2674,55 @@ namespace Aplos.Areas.JobWork.Controllers
             sheet.UsedRange.NumberFormat = "#,##0.000";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            report.CompanyPlantHeader(ref sheet, endCol, "Value Added Contract", identity.CompanyId, identity.PlantName, null);
+            report.CompanyPlantHeader(ref sheet, endCol, "Outsource PO (Value Added)", identity.CompanyId, identity.PlantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
         }
 
         private DataTable GetContractReportDataById(string PrintTabId)
         {
-            var sql = @"select vac.*,TabType='Value Added',FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                                    FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-                                    e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,jwi.UserName as JobWorkItem, vcc.MaterialSpecification, vcc.MaterialReference
-									,uom.UserName as UOM, vcc.Quantity,mm.UserName as Material, mma.StandardName as Article, vcc.OrderSpecific as MOutOrderSpecific,isnull(vcc.RequiredCapacity,'0') as ReqCapacity, vcc.RateApplyId as RateApplicable, c.Code as Currency
-									,vcc.RatePerUnit, ISNULL(vcc.Rejection,'0') as VccRejection,vcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,vcc.Remarks as VCCRemarks,jl.UserName as MaterialLocation,vcc.MaterialType,vcc.FinalOutputCategory
-                                    from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
-									left join HKP.Party p on p.Id=vac.PartyId
-									left join dbo.JobWorkTransformationContractChild vcc on vcc.JobWorkTransformationContractMasterId=vac.Id
-									left join HKP.JobWorkItem jwi on jwi.Id=vcc.JobWorkItemMasterId
-									left join SCS.UnitOfMeasurement uom on uom.Id=vcc.OutputMaterialUOMId
-									left join MST.MaterialMasterArticle mma on mma.Id=vcc.ArticleId
-									left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
-									left join SCS.Currency c on c.Id=vcc.CurrencyId
-									left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
-									left join HKP.MaterialStorage jl on jl.Id=vcc.MaterialLocationId
-                                    where vac.Id = '" + PrintTabId + "' ";
+            //   var sql = @"select vac.*,TabType='Value Added',FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+            //                           FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
+            //                           e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,jwi.UserName as JobWorkItem, vcc.MaterialSpecification, vcc.MaterialReference
+            //,uom.UserName as UOM, vcc.Quantity,mm.UserName as Material, mma.StandardName as Article, vcc.OrderSpecific as MOutOrderSpecific,isnull(vcc.RequiredCapacity,'0') as ReqCapacity, vcc.RateApplyId as RateApplicable, c.Code as Currency
+            //,vcc.RatePerUnit, ISNULL(vcc.Rejection,'0') as VccRejection,vcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,vcc.Remarks as VCCRemarks,jl.UserName as MaterialLocation,vcc.MaterialType,vcc.FinalOutputCategory
+            //                           from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
+            //left join HKP.Party p on p.Id=vac.PartyId
+            //left join dbo.JobWorkTransformationContractChild vcc on vcc.JobWorkTransformationContractMasterId=vac.Id
+            //left join HKP.JobWorkItem jwi on jwi.Id=vcc.JobWorkItemMasterId
+            //left join SCS.UnitOfMeasurement uom on uom.Id=vcc.OutputMaterialUOMId
+            //left join MST.MaterialMasterArticle mma on mma.Id=vcc.ArticleId
+            //left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
+            //left join SCS.Currency c on c.Id=vcc.CurrencyId
+            //left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
+            //left join HKP.MaterialStorage jl on jl.Id=vcc.MaterialLocationId
+            //                           where vac.Id = '" + PrintTabId + "' ";
+
+            var sql = @"select tc.*,tcc.Id as LineItemId, TabType='Value Added',OutputMaterialType='Service',FORMAT(tc.PODate,'dd-MMM-yyyy') as TransformationDate,CONVERT(varchar(5),tc.[Time],108)[TCTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as TCProcessStartDate,
+                                    FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as TCProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as TCContractClosingDate,
+                                    Pnt.UserName as Plant,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,jwi.UserName as JobWorkItem, tcc.MaterialSpecification, tcc.MaterialReference
+									--,uom.UserName as UOM
+									,UOM=case when tc.OrderSpecific='Yes' then mmuom.UserName else uom.UserName End, tcc.Quantity,mm.UserName as OutputMaterial
+									, mma.StandardName as ArticleCode, tcc.OrderSpecific as OutputOrderSpecific, tcc.RequiredCapacity,tcc.ByProductApplicable ,tcc.RateApplyId--, c.Code as Currency
+                                    ,Currency=case when tcc.CurrencyId is not null then c.Code else cc.Code End
+									,RatePerUnit=ROUND((tcc.RatePerUnit),4), tcc.Rejection,tcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,tcc.Remarks as TCCRemarks,MS.UserName as MaterialLocation,tcc.MaterialType,tcc.FinalOutputCategory
+								--	, mi.TotalGrossConsumptionPerUnit, TotalGrossInputQuantity=(mi.TotalGrossConsumptionPerUnit * tcc.Quantity)
+									--, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
+                                    , Amount= round((tcc.Quantity * tcc.RatePerUnit),2)
+                                    from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
+									left join ORG.Plant Pnt on Pnt.Id=tc.PlantId
+									left join HKP.Party p on p.Id=tc.PartyId
+									left join dbo.jobworktransformationcontractchild tcc on tcc.JobWorkTransformationContractMasterId=tc.Id
+									left join HKP.JobWorkItem jwi on jwi.Id=tcc.JobWorkItemMasterId
+									left join SCS.UnitOfMeasurement uom on uom.Id=tcc.OutputMaterialUOMId
+									left join MST.MaterialMasterArticle mma on mma.Id=tcc.ArticleId
+									left join MST.MaterialMaster mm on mm.Id=tcc.MaterialMasterId
+									left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
+									left join SCS.Currency c on c.Id=tcc.CurrencyId
+                                    left join SCS.Currency cc on cc.Id=tc.CurrencyId
+									left join dbo.EmployeeInformation emp on emp.SystemId=tcc.ResponsiblePersonId
+									left join HKP.MaterialStorage MS on MS.Id=tcc.MaterialLocationId	
+                                    where tc.Id = '" + PrintTabId + @"' ";
 
             return _sqlRepository.GetDataTable(sql);
         }
@@ -3363,10 +3528,10 @@ namespace Aplos.Areas.JobWork.Controllers
 									--,uom.UserName as UOM
 									,UOM=case when tc.OrderSpecific='Yes' then mmuom.UserName else uom.UserName End, tcc.Quantity,mm.UserName as OutputMaterial
 									, mma.StandardName as ArticleCode, tcc.OrderSpecific as OutputOrderSpecific, tcc.RequiredCapacity,tcc.ByProductApplicable ,tcc.RateApplyId, c.Code as Currency
-									,tcc.RatePerUnit, tcc.Rejection,tcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,tcc.Remarks as TCCRemarks,MS.UserName as MaterialLocation,tcc.MaterialType,tcc.FinalOutputCategory
+									,RatePerUnit=ROUND((tcc.RatePerUnit),4), tcc.Rejection,tcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,tcc.Remarks as TCCRemarks,MS.UserName as MaterialLocation,tcc.MaterialType,tcc.FinalOutputCategory
 									, mi.TotalGrossConsumptionPerUnit, TotalGrossInputQuantity=(mi.TotalGrossConsumptionPerUnit * tcc.Quantity)
 									--, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
-                                    , Amount= (tcc.Quantity * tcc.RatePerUnit)
+                                    , Amount= round((tcc.Quantity * tcc.RatePerUnit),2)
                                     from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join ORG.Plant Pnt on Pnt.Id=tc.PlantId
 									left join HKP.Party p on p.Id=tc.PartyId

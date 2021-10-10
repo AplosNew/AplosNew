@@ -57,8 +57,8 @@
                                     <div e-column e-headertext="Actions" e-width="100">
                                         <ul class="list-inline text-center">
                                             <li>
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab('Grid');" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-file" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-download" title="Excel Report" ng-click="$parent.ConfirmPrintTab('Grid');" style="margin: -6px;"></i></button>
                                             </li>
                                         </ul>
 
@@ -66,24 +66,26 @@
                                     </div>
                                     <div e-column e-field="POType" e-headertext="PO Type" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                                    @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>*@
                                     <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
                                     <div e-column e-field="PODate" e-headertext="PO Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
 
-                                    <div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>
+                                    @*<div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>*@
                                     <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="120"></div>
+                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
                                     <div e-column e-field="TConProcessEndDate" e-headertext="Process End Date" e-width="150"></div>
                                     <div e-column e-field="TConContractClosingDate" e-headertext="Contract Closing Date" e-width="150"></div>
                                     <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="170"></div>
                                     <div e-column e-field="ContractNo" e-headertext="Contact Number" e-width="170"></div>
-                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="170"></div>
-                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
-                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="120"></div>
-                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
-                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
-                                    <div e-column e-field="CtnId" e-headertext="App.No" e-width="100"></div>
+                                    <div e-column e-field="CustomerName" e-headertext="Customer" e-width="170"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="170"></div>
+
+                                    @*<div e-column e-field="CtnId" e-headertext="App.No" e-width="100"></div>*@
                                     <div e-column e-field="CheckedBy" e-headertext="To be Checked By" e-width="180"></div>
                                     <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="180"></div>
                                     <div e-column e-field="ApprovedBy" e-headertext="To be Approved By" e-width="180"></div>
@@ -122,22 +124,24 @@
                                     </div>
                                     <div e-column e-field="POType" e-headertext="PO Type" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                                    @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>*@
                                     <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
                                     <div e-column e-field="PODate" e-headertext="PO Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                                    <div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>
+                                    @*<div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>*@
                                     <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
-                                    <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
-                                    <div e-column e-field="TConProcessEndDate" e-headertext="Process End Date" e-width="150"></div>
-                                    <div e-column e-field="TConContractClosingDate" e-headertext="Contract Closing Date" e-width="150"></div>
-                                    <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="170"></div>
-                                    <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="170"></div>
-                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="170"></div>
                                     <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
                                     <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
+                                    <div e-column e-field="TConProcessEndDate" e-headertext="Process End Date" e-width="150"></div>
+                                    <div e-column e-field="TConContractClosingDate" e-headertext="Contract Closing Date" e-width="150"></div>
+                                    <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="170"></div>
+                                    <div e-column e-field="ContractNo" e-headertext="Contract Number" e-width="170"></div>
+                                    <div e-column e-field="CustomerName" e-headertext="Customer" e-width="170"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="170"></div>
+
                                     <div e-column e-field="CheckedBy" e-headertext=" Checked By" e-width="200"></div>
                                     <div e-column e-field="ApprovedBy" e-headertext=" To Be Approved By" e-width="200"></div>
                                     <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
@@ -185,22 +189,24 @@
                                     </div>
                                     <div e-column e-field="POType" e-headertext="PO Type" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                                    @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>*@
                                     <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
                                     <div e-column e-field="PODate" e-headertext="PO Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                                    <div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>
+                                    @*<div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>*@
                                     <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
-                                    <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
-                                    <div e-column e-field="TConProcessEndDate" e-headertext="Process End Date" e-width="150"></div>
-                                    <div e-column e-field="TConContractClosingDate" e-headertext="Contract Closing Date" e-width="150"></div>
-                                    <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="170"></div>
-                                    <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="170"></div>
-                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="170"></div>
                                     <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
                                     <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="50"></div>
                                     <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="80"></div>
                                     <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
+                                    <div e-column e-field="TConProcessEndDate" e-headertext="Process End Date" e-width="150"></div>
+                                    <div e-column e-field="TConContractClosingDate" e-headertext="Contract Closing Date" e-width="150"></div>
+                                    <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="170"></div>
+                                    <div e-column e-field="ContractNo" e-headertext="Contract Number" e-width="170"></div>
+                                    <div e-column e-field="CustomerName" e-headertext="Customer" e-width="170"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="170"></div>
+
                                     <div e-column e-field="CheckedBy" e-headertext="To be Checked By" e-width="180"></div>
                                     <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="180"></div>
                                     <div e-column e-field="ApprovedBy" e-headertext="To be Approved By" e-width="180"></div>
@@ -251,22 +257,23 @@
                                     <div e-column e-field="POType" e-headertext="PO Type" e-width="150"></div>
                                     <div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                                    @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>*@
                                     <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
                                     <div e-column e-field="PODate" e-headertext="PO Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                                    <div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>
+                                    @*<div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>*@
                                     <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
                                     <div e-column e-field="TConProcessEndDate" e-headertext="Process End Date" e-width="150"></div>
                                     <div e-column e-field="TConContractClosingDate" e-headertext="Contract Closing Date" e-width="150"></div>
                                     <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="170"></div>
                                     <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="170"></div>
                                     <div e-column e-field="Customer" e-headertext="Customer" e-width="170"></div>
-                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
-                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="150"></div>
-                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
-                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+
                                     <div e-column e-field="CheckedBy" e-headertext="To be Checked By" e-width="180"></div>
                                     <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="180"></div>
                                     <div e-column e-field="ApprovedBy" e-headertext="To be Approved By" e-width="180"></div>
@@ -314,22 +321,23 @@
                                     </div>
                                     <div e-column e-field="POType" e-headertext="PO Type" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                                    @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>*@
                                     <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
                                     <div e-column e-field="PODate" e-headertext="PO Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                                    <div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>
+                                    @*<div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>*@
                                     <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
                                     <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
                                     <div e-column e-field="TConProcessEndDate" e-headertext="Process End Date" e-width="150"></div>
                                     <div e-column e-field="TConContractClosingDate" e-headertext="Contract Closing Date" e-width="150"></div>
                                     <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="170"></div>
                                     <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="170"></div>
                                     <div e-column e-field="Customer" e-headertext="Customer" e-width="170"></div>
-                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
-                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="150"></div>
-                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
-                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+
                                     <div e-column e-field="CheckedBy" e-headertext="To be Checked By" e-width="180"></div>
                                     <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="180"></div>
                                     <div e-column e-field="ApprovedBy" e-headertext="To be Approved By" e-width="180"></div>
