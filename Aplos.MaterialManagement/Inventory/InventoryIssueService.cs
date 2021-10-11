@@ -8410,10 +8410,10 @@ namespace Library.MaterialManagement.Inventory
 									//TotalSalesAmount = Math.Round((issue.TransactionQty * issue.SalesRate), 2),
 									//BooksCurrencyTransactionAmount = Math.Round((inventoryIssue.ToCurrencyRate * Math.Round((issue.TransactionQty * issue.SalesRate), 2)), 2),
 
-									SalesRate = Math.Round((stockList.Sum(r => r.SalesRate)), 4),///item.SalesRate,
+									SalesRate = Math.Round(entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId && r.FirstCharacteristicsValueId== invMaterial.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == invMaterial.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == invMaterial.ThirdCharacteristicsValueId).Select(t => t.SalesRate).FirstOrDefault(),4),//Math.Round((stockList.Sum(r => r.SalesRate)), 4),///item.SalesRate,
 
-									TotalSalesAmount = Math.Round((stockList.Sum(r => r.RequisitionQty) * Math.Round((stockList.Sum(r => r.SalesRate)), 4)), 2),
-									BooksCurrencyTransactionAmount = Math.Round(inventoryIssue.ToCurrencyRate * Math.Round((stockList.Sum(r => r.RequisitionQty) * Math.Round((stockList.Sum(r => r.SalesRate)), 4)), 2), 2),
+									TotalSalesAmount = Math.Round(entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId && r.FirstCharacteristicsValueId == invMaterial.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == invMaterial.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == invMaterial.ThirdCharacteristicsValueId).Select(t => t.SalesRate).FirstOrDefault()* stockList.Sum(r => r.RequisitionQty), 2), //Math.Round((stockList.Sum(r => r.RequisitionQty) * Math.Round((stockList.Sum(r => r.SalesRate)), 4)), 2),
+									BooksCurrencyTransactionAmount = Math.Round(inventoryIssue.ToCurrencyRate * (entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId && r.FirstCharacteristicsValueId == invMaterial.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == invMaterial.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == invMaterial.ThirdCharacteristicsValueId).Select(t => t.SalesRate).FirstOrDefault() * stockList.Sum(r => r.RequisitionQty)), 2), //Math.Round(inventoryIssue.ToCurrencyRate * Math.Round((stockList.Sum(r => r.RequisitionQty) * Math.Round((stockList.Sum(r => r.SalesRate)), 4)), 2), 2),
 									ModelState = ModelState.Added
 								};
 								var SalesDetailId = issueDetail.Id;

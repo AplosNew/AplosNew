@@ -33,7 +33,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class AdminAttendanceControlController : BaseController
     {
-        
+
         #region Constructor
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
@@ -49,7 +49,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion Constructor
         #region -- Pages
 
-       
+
         public ActionResult Aplos()
         {
             return View();
@@ -58,7 +58,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion -- Pages
 
         [HttpPost, Authorize]
-        public ActionResult getAllEmployees(string fromdate, string todate,string PlantId)
+        public ActionResult getAllEmployees(string fromdate, string todate, string PlantId)
         {
             TimeSpan ts = Convert.ToDateTime(todate).Subtract(Convert.ToDateTime(fromdate));
             if (Math.Abs(ts.TotalDays) > 31)
@@ -95,11 +95,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
-        [HttpPost]
-        public ActionResult getAttendanceData(string employeeid, string fromdate, string todate,string PlantId)
+        [HttpPost, Authorize]
+        public ActionResult getAttendanceData(string employeeid, string fromdate, string todate, string PlantId)
         {
             AdminAttendanceControlService app = new AdminAttendanceControlService();
-            string sql = app.stringAttendanceData(employeeid, fromdate, todate,PlantId);
+            string sql = app.stringAttendanceData(employeeid, fromdate, todate, PlantId);
 
             string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.PlantID='" + PlantId + @"'";
 
@@ -127,7 +127,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
-      
+
         [HttpPost, Authorize]
         public ActionResult getAttendance(string empsystemid, string WorkDate)
         {
@@ -194,7 +194,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetSampleReport(string PlId , string FD , string TD , string Emps)
+        public ActionResult GetSampleReport(string PlId, string FD, string TD, string Emps)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -202,15 +202,15 @@ namespace Aplos.Areas.HumanResource.Controllers
             var fileName = "ManualUpload" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xlsx";
             string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
-            IWorkbook workbook = GetWorkSheet(PlId, FD, TD , Emps);
+            IWorkbook workbook = GetWorkSheet(PlId, FD, TD, Emps);
             workbook.Version = ExcelVersion.Excel2016;
             workbook.SaveAs(fullPath);
 
             return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-            
+
         }
 
-        private IWorkbook GetWorkSheet( string PlId, string FD, string TD , string Emps)
+        private IWorkbook GetWorkSheet(string PlId, string FD, string TD, string Emps)
         {
             AdminAttendanceControlService mau = new AdminAttendanceControlService();
             var excelEngine = new ExcelEngine();
@@ -222,7 +222,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
             /// Sheet 1 
-            DataTable data = mau.getCurrentFile(  PlId,  FD,  TD , Emps);
+            DataTable data = mau.getCurrentFile(PlId, FD, TD, Emps);
 
             sheet.Name = "Current-Data";
 
@@ -289,12 +289,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             endRow = ROW - 1;
 
 
-            
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
-           
+
             return workbook;
         }
 
@@ -333,7 +333,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 ReadFile(path, out dsExcel);
 
                 data = dsExcel.Tables[0].ToList<DataMod>();
-                
+
 
                 if (data.Count > 0)
                 {
@@ -346,7 +346,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                         {
                             ret.Add(data[i]);
                         }
-                        
+
                     }
 
                 }
@@ -427,13 +427,13 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost, Authorize]
-        public ActionResult SaveFileList(List<Dictionary<string, object>> data, string PlId, string FD, string TD , string Emps)
+        [HttpPost]
+        public ActionResult SaveFileList(List<Dictionary<string, object>> data, string PlId, string FD, string TD, string Emps)
         {
             try
             {
                 AdminAttendanceControlService mau = new AdminAttendanceControlService();
-                mau.SaveFileList(data,  PlId,  FD,  TD , Emps);
+                mau.SaveFileList(data, PlId, FD, TD, Emps);
                 return Json(new { Error = false, Message = AplosMessage.Success });
             }
             catch (Exception ex)

@@ -26,7 +26,7 @@
 </style>
 
 <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
-<div class="form-horizontal" ng-form name="ModelNewForm">
+<div class="form-horizontal" ng-form name="ModelNewForm" id="MainDIV">
     <div class="form-elements" id="Marker">
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group" show-errors>
@@ -49,11 +49,53 @@
                         <span class="input-group-btn">
                             <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
+                        <span class="input-group-btn">
+                            <button ng-click="SaveDiagram();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
+
+    <div class="col-md-12" ng-show="VWCDATA.length>0">
+        <div id="gridprviews" n ej-grid e-datasource="VWCDATA" e-showsummary="true" e-summaryrows="summaryRowsForWorkCenter"
+             e-responsive="true">
+            @*e-recorddoubleclick="workcenterclick"*@
+            <div e-columns>
+                <div e-column e-field="Entity" e-headertext="Entity" e-width="4" e-isprimarykey="true"></div>
+                <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="4" e-isprimarykey="true"></div>
+                <div e-column e-field="FromDate" e-headertext="From Plan Date" e-width="3"></div>
+                <div e-column e-field="ToDate" e-headertext="To Plan Date" e-width="3"></div>
+                <div e-column e-field="LSD" e-headertext="LSD" e-width="3"></div>
+                <div e-column e-field="CommitmentDate" e-headertext="Comm. Dt" e-width="3"></div>
+                <div e-column e-type="number" e-field="DelayedProductionDaysOnCommitmentDate" e-headertext="Delay(On Comm. Dt)" e-width="2"></div>
+
+                <div e-column e-field="PlannedQuantity" e-headertext="Plan Qty" e-width="2"></div>
+                <div e-column e-template="#showGraph" e-headertext="" e-width="3"></div>
+            </div>
+        </div>
+        <script type="text/template" id="showGraph">
+
+            <div class="common-btn">
+                <ul class="list-inline text-right small">
+
+                    <li>
+                        <button ng-click="$parent.showlinegraph(this);" class="btn small" style="height: 20px; width: 20px;padding: 0px;margin: 0px;">
+                            <i class="glyphicon glyphicon-signal small"></i>
+                        </button>
+                    </li>
+                    <li>
+                        <button ng-click="$parent.workcenterclick(this);" class="btn small" style="height: 20px;width: 20px;padding: 0px;margin: 0px;">
+                            <i class="glyphicon glyphicon-list small"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
+    </div>
+    <br />
 </div>
 
 <div id="mainContent"></div>
@@ -127,7 +169,12 @@
             </div>
         </div>
     </div>
+
+
 </script>
+
+
+
 <script id="svgTemplate" type="text/x-jsrender">
     <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="350.000000pt" height="229.000000pt" viewBox="0 0 350.000000 229.000000" preserveAspectRatio="xMidYMid meet">
         <g transform="translate(0.000000,229.000000) scale(0.100000,-0.100000)" fill="#de6ca9" stroke="none">
@@ -273,6 +320,45 @@
         </div>
     </div>
 </div>
+
+<ej-dialog id="graph" title=" Product Plan Quantity Distribution" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="900" e-target="#MainDIV" e-open="enableBtn">
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li> <button ng-click="printChart('chartContainer');" class="btn">Print</button></li>
+        </ul>
+    </div>
+    <div id="graphdiv" style="position:relative;overflow:scroll;width:880px;">
+        <div id="chartContainer" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth}};"
+             e-primaryxaxis-title-text="Day"
+             e-load=onchartload e-size-height="500px" e-size-width="graphmaxwidth"
+             e-legend-visible="true" e-legend-position="bottom"
+             e-title-text="Qty"
+             e-primaryyaxis-title-text="Qty" e-primaryyaxis-range-min="0"
+             e-primaryyaxis-range-max="graphmaxheight"
+             e-commonseriesoptions-type="column"
+             e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+             e-commonseriesoptions-tooltip-format="#point.x# : #point.y# #series.name#">
+
+            <e-series>
+                <e-series e-name="Production Plan" e-marker-dataLabel-visible="true"
+                          e-marker-dataLabel-verticaltextalignment="near"
+                          e-marker-dataLabel-angle="270"
+                          e-marker-dataLabel-font-fontweight="bold"
+                          e-marker-dataLabel-font-color="yellow"
+                          e-marker-dataLabel-enablecontrastcolor="true" e-datasource=dataSourceLineGraph e-xname="PlanDate" e-yname="Quantity" e-fill="VPRDATA.Color">
+                </e-series>
+            </e-series>
+        </div>
+    </div>
+
+</ej-dialog>
+
+<ej-dialog id="dialogWorkCenterParameters" title=" Product Parameters" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDIV" e-minwidth="900" e-open="enableBtn">
+    @*<div class="form-element-ctrl form-horizontal">*@
+    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/workCenterParameters.cshtml")
+    @*</div>*@
+</ej-dialog>
 
 
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
