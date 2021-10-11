@@ -515,10 +515,6 @@ namespace Aplos.Areas.Employees.Controllers
                 string u_AttdnRawData = @"update AttdnRawData set plantid='" + data.PlantId + @"'  where pDate >='" + data.EffectiveDate + "'  and LogDownLoadNum ='" + data.EmpSystemId + @"'";
                 ExecuteRawSQL(u_AttdnRawData);
 
-                ////update Leave Earned Table
-                //string u_LeaveEarned = @"update LeaveEarned set DateUpdated=GETDATE(),PlantID='" + data.PlantId+@"' where WorkDate>='"+data.EffectiveDate+"' and EmpSystemID='"+data.EmpSystemId+ @"'";
-                //ExecuteRawSQL(u_LeaveEarned);
-
                 //update OtProcessDay limit Table
                 string u_DayLimit = @"update OTProcessDayLimit set DateUpdated=GETDATE(),PlantID='" + data.PlantId + @"' where WorkDate>='" + data.EffectiveDate + "' and EmpSystemID='" + data.EmpSystemId + @"'";
                 ExecuteRawSQL(u_DayLimit);

@@ -297,6 +297,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["LockedDate"] = DBNull.Value;
                             shiftchange.Tables[0].Rows[0]["LockedBy"] = DBNull.Value;
                             shiftchange.Tables[0].Rows[0]["IsLock"] = false;
+                            shiftchange.Tables[0].Rows[0]["OTComfirmBy"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["DateOTComfirm"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["IsOTComfirm"] = false;
                             shiftchange.Tables[0].Rows[0].EndEdit();
                             //New
                             ap.CheckerFunction(ref RowsEdits, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
@@ -325,6 +328,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["IsLock"] = false;
                                 dr["LockedBy"] = DBNull.Value;
                                 dr["LockedDate"] = DBNull.Value;
+                                dr["OTComfirmBy"] = DBNull.Value;
+                                dr["DateOTComfirm"] = DBNull.Value;
+                                dr["IsOTComfirm"] = false;
                             }
 
                             dr.EndEdit();
@@ -357,11 +363,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 if (data[i].InDate + data[i].InTime != data[i].InDateOriginal + data[i].InTimeOriginal)
                                 {
                                     dr["InTime"] = DBNull.Value;
-                                    dr["ManualInTime"] = DBNull.Value;
+                                    dr["ManualInTime"] = DBNull.Value; 
+                                    dr["OriginalManualInTime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].InTime) == false)
                                     {
                                         dr["InTime"] = data[i].InDate + " " + data[i].InTime;
                                         dr["ManualInTime"] = data[i].InDate + " " + data[i].InTime;
+                                        dr["OriginalManualInTime"] = data[i].InDate + " " + data[i].InTime;
                                         dr["IsManualInTime"] = true;
                                     }
                                 }
@@ -370,10 +378,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 {
                                     dr["OutTime"] = DBNull.Value;
                                     dr["ManualOutTime"] = DBNull.Value;
+                                    dr["OriginalManualOutTime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].OutTime) == false)
                                     {
                                         dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
                                         dr["ManualOutTime"] = data[i].OutDate + " " + data[i].OutTime;
+                                        dr["OriginalManualOutTime"] = data[i].OutDate + " " + data[i].OutTime;
                                         dr["IsManualOutTime"] = true;
                                     }
                                 }
@@ -383,7 +393,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["ManualFlag"] = true;
                                 dr["IsLock"] = false;
                                 dr["LockedBy"] = DBNull.Value;
-                                dr["LockedDate"] = DBNull.Value;
+                                dr["LockedDate"] = DBNull.Value; 
+                                dr["OTComfirmBy"] = DBNull.Value;
+                                dr["DateOTComfirm"] = DBNull.Value;
+                                dr["IsOTComfirm"] = false;
 
                                 dr.EndEdit();
                                 //New
@@ -555,7 +568,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string addedname = identity.Name;
-                string addeddate = System.DateTime.Now.ToString();
+                string addeddate = DateTime.Now.ToString();
                 string TableName = "dbo.AttdnProcessData";
 
                 //Getting the DayStatuses
@@ -593,15 +606,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 //if (bplib.clsWebLib.IsDateOK(data[i]["InTime"].ToString()) == false)
                                 //    throw new Exception("Invalid in date - "+ i );
 
-                                dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
-                                dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
-                                dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
-                                dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
-                                dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
-                                dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["InTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
                                 dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
                                 dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
+                                dsMaster.Tables[0].DefaultView[0]["OriginalManualInTime"] = Convert.ToDateTime(data[i]["InTime"].ToString());
+
                                 KI = 1;
 
                                 //}
@@ -611,8 +620,20 @@ namespace Library.HumanResource.NewAttendanceProcess
                             {
                                 dsMaster.Tables[0].DefaultView[0]["InTime"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["ManualInTime"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["OriginalManualInTime"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["IsManualInTime"] = true;
                             }
+                            // Fixed Values in Both If/Else Blocks
+                            dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
+                            dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
+                            dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
+                            dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
+                            dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
+                            dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
+                            dsMaster.Tables[0].DefaultView[0]["OTComfirmBy"] = DBNull.Value;
+                            dsMaster.Tables[0].DefaultView[0]["DateOTComfirm"] = DBNull.Value;
+                            dsMaster.Tables[0].DefaultView[0]["IsOTComfirm"] = false;
+
                         }
                         else
                         {
@@ -632,15 +653,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 //if (bplib.clsWebLib.IsDateOK(data[i]["OutTime"].ToString()) == false)
                                 //    throw new Exception("Invalid Out Time - " + i);
 
-                                dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
-                                    dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
-                                    dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
-                                    dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
-                                    dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
-                                    dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
                                     dsMaster.Tables[0].DefaultView[0]["OutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
                                     dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString());
                                     dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
+                                    dsMaster.Tables[0].DefaultView[0]["OriginalManualOutTime"] = Convert.ToDateTime(data[i]["OutTime"].ToString()); 
 
                                 KO = 1;
                                 //}
@@ -650,7 +666,22 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["OutTime"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["ManualOutTime"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["IsManualOutTime"] = true;
+                                dsMaster.Tables[0].DefaultView[0]["OriginalManualOutTime"] = DBNull.Value;
+
                             }
+
+                            // Fixed Values in both Sections
+                            dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
+                            dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
+                            dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
+                            dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
+                            dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
+                            dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
+                            dsMaster.Tables[0].DefaultView[0]["OTComfirmBy"] = DBNull.Value;
+                            dsMaster.Tables[0].DefaultView[0]["DateOTComfirm"] = DBNull.Value;
+                            dsMaster.Tables[0].DefaultView[0]["IsOTComfirm"] = false;
+
+
                         }
                         else
                         {
@@ -671,7 +702,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dsMaster.Tables[0].DefaultView[0]["isLock"] = false;
                                 dsMaster.Tables[0].DefaultView[0]["LockedBy"] = DBNull.Value;
                                 dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
-
+                                dsMaster.Tables[0].DefaultView[0]["OTComfirmBy"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["DateOTComfirm"] = DBNull.Value;
+                                dsMaster.Tables[0].DefaultView[0]["IsOTComfirm"] = false;
+                              
                                 dsMaster.Tables[0].DefaultView[0]["ShiftSystemID"] = data[i]["ShiftSystemID"].ToString();
 
                             }
@@ -692,6 +726,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dsMaster.Tables[0].DefaultView[0]["LockedDate"] = DBNull.Value;
                                     dsMaster.Tables[0].DefaultView[0]["ManualDayStatus"] = data[i]["DayStatus"].ToString();
                                     dsMaster.Tables[0].DefaultView[0]["isManualDayStatus"] = true;
+                                    dsMaster.Tables[0].DefaultView[0]["OTComfirmBy"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["DateOTComfirm"] = DBNull.Value;
+                                    dsMaster.Tables[0].DefaultView[0]["IsOTComfirm"] = false;
                                 }
                                 else
                                 {
