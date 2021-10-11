@@ -12,6 +12,7 @@ using System.Threading;
 using System.Web.Mvc;
 using Library.Data.Sql;
 using System.Web.Script.Serialization;
+using System;
 
 #endregion using
 
@@ -63,28 +64,39 @@ namespace Aplos.Areas.Materials.Controllers
 
 
 		[HttpPost]
-		public JsonResult Update(List<Dictionary<string, object>> FabricRollData)
+		public JsonResult Update(List<Dictionary<string, object>> FabricRollData, string PackingForm)
 		{
-			_fabricRollMasterService.UpdateFabricRoll(FabricRollData);
-			return Json(new { Message = AplosMessage.Insert });
+			_fabricRollMasterService.UpdateFabricRoll(FabricRollData,PackingForm);
+			return Json(new { Message = AplosMessage.Updated });
 		}
+
+	
 
 		[HttpPost, Authorize]
-		public JsonResult GetRoll( int NoofRolls,Dictionary<string, object> SelectedRow,int Width)
+		public JsonResult GetRoll( int NoofRolls,Dictionary<string, object> SelectedRow,double Width,string PackingForm)
 		{
-			_fabricRollMasterService.CreateRoll( NoofRolls, SelectedRow, Width);
+			_fabricRollMasterService.CreateRoll( NoofRolls, SelectedRow, Width, PackingForm);
 			return Json(new { Message = AplosMessage.Insert });
 		}
 
-
-
-		[HttpPost]
-        public JsonResult Delete(string id)
-        {
-            _fabricRollMasterService.DeleteGraph(id);
-            return Json(new { Message = AplosMessage.Deleted });
-        }
-        [HttpGet, Authorize]
+		public ActionResult Delete(string id)
+		{
+			try
+			{
+				if (string.IsNullOrEmpty(id))
+					throw new Exception("Select entry first");
+				ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+				con.BeginTransaction();
+				con.executeQuery("delete from TRN.FabricRollMaster where id='" + id + "'");
+				con.CommitTransaction();
+				return Json(new { Error = false,/* Sequence = GetSequence(),*/ Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+			}
+		}
+		[HttpGet, Authorize]
         public JsonResult GetGRNList(GridParameter parameters)
         {
             return Json(_fabricRollMasterService.GetGRNList(parameters, BusinessProcessEnum.FabricRollManagement.ToString()), JsonRequestBehavior.AllowGet);

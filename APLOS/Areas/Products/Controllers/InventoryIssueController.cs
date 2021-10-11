@@ -1382,7 +1382,7 @@ namespace Aplos.Areas.Products.Controllers
 			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpPost]
-		public JsonResult GetStockSales(InventoryMaterialViewModel entity, string issueDate)
+		public JsonResult GetStockSales(InventoryMaterialViewModel entity, string issueDate)//dgsdg
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			entity.CompanyGroupId = identity.CompanyGroupId;
@@ -7516,10 +7516,10 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			try
 			{
 				string sql = @"SELECT  A.InventorySalesHistoryId,A.InventorySalesId,a.InventorySalesDetailId,A.TaxCategoryId,A.HSNCodeId
-								,A.[Percentage],A.TaxAmount ,B.Code HSNCode,B.[Description]
+								,A.[Percentage],A.TaxAmount SalesTax,0 TaxAmount,B.Code HSNCode,B.[Description]
                                 FROM trn.InventorySalesTax A
                                 Left JOIN [HKP].[HSNCode] B On A.HSNCodeId=B.Id   
-                                where A.InventorySalesId='"+ InventorySalesId + "' and a.InventorySalesServiceId is null";
+                                where A.InventorySalesId='" + InventorySalesId + "' and a.InventorySalesServiceId is null";
 				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
 			}

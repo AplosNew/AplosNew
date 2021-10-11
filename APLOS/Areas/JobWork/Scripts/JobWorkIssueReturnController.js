@@ -399,6 +399,15 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		return $scope.tab === tabNum;
 	};
 
+	$scope.Issuetab = 1;
+	$scope.setTabGRNList = function (newTab2) {
+		$scope.Issuetab = newTab2;
+	};
+
+	$scope.isSetGRNList = function (tabNum2) {
+		return $scope.Issuetab === tabNum2;
+	};
+
 
 
 	$scope.IssueChildModelTemp = {
