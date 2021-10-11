@@ -39,10 +39,18 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetSalesDetailByIssueId(string issueId)
+        public JsonResult GetSalesDetailDataBySales(string inventorySalesId)
         {
             AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
-            return Json(accountsInventorySalesService.GetSalesDetailDataByIssueId(issueId), JsonRequestBehavior.AllowGet);
+            return Json(accountsInventorySalesService.GetSalesDetailDataBySales(inventorySalesId), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetTaxInfo(string inventorySalesId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            return Json(accountsInventorySalesService.GetTaxInfo(inventorySalesId), JsonRequestBehavior.AllowGet);
 
         }
         [Authorize, HttpGet]
