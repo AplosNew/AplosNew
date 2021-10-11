@@ -79,25 +79,29 @@
             <input type="button" value="{{this.items[0].addInfo.AllotedWorkstation}}" style="color: #ffffff; width:100%; background-color: #009400; border-color: #f89b1c" />
         </div>
     </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" ng-click="$parent.employeeButtonClick(this);" src="POPResources/EmployeeProfiles/EmpPic/{{this.items[0].addInfo.EmpPicPath}}"
-                 style="height:70px;width:70px;border:2px solid #efefef; border-radius:50%;" />
-        </div>
-        <div class="col-xs-12 col-sm-8 col-md-8" style="vertical-align:central;">
-            {{this.items[0].addInfo.EmployeeName}} <br />
-            {{this.items[0].addInfo.Designation}}
+    @*<div class="row">
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" ng-click="$parent.employeeButtonClick(this);" src="POPResources/EmployeeProfiles/EmpPic/{{this.items[0].addInfo.EmpPicPath}}"
+                     style="height:70px;width:70px;border:2px solid #efefef; border-radius:50%;" />
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8" style="vertical-align:central;">
+                {{this.items[0].addInfo.EmployeeName}} <br />
+                {{this.items[0].addInfo.Designation}}
 
-        </div>
-    </div>
+            </div>
+        </div>*@
 
-    <div class="row">
-        <div class="col-xs-12 col-sm-9 col-md-9">{{this.items[0].addInfo.OperationDesc?this.items[0].addInfo.OperationDesc:'[select operation]'}}</div>
-        <div class="col-xs-12 col-sm-3 col-md-3">
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-xs-12 col-sm-7 col-md-7" style="white-space: nowrap; overflow: hidden; font-size:10px">
+            <span title="{{this.items[0].addInfo.OperationDesc?this.items[0].addInfo.OperationDesc:'[select operation]'}}">
+                {{this.items[0].addInfo.OperationDesc?this.items[0].addInfo.OperationDesc:'[select operation]'}}
+            </span>
+        </div>
+        <div class="col-xs-12 col-sm-5 col-md-5">
             <div class="common-btn">
                 <ul class="list-inline text-right small">
                     <li>
-                        <button ng-click="$parent.operationButtonClick(this);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                        <button ng-click="$parent.operationButtonClick(this);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
                             <i class="glyphicon glyphicon-search"></i>
                         </button>
                     </li>
@@ -106,12 +110,16 @@
         </div>
     </div>
     <div class="row" style="padding-top:4px;">
-        <div class="col-xs-12 col-sm-9 col-md-9">{{this.items[0].addInfo.MachineDesc?this.items[0].addInfo.MachineDesc:'[select machine]'}}</div>
-        <div class="col-xs-12 col-sm-3 col-md-3">
+        <div class="col-xs-12 col-sm-7 col-md-7" style="white-space: nowrap; overflow: hidden; font-size: 10px">
+            <span title=" {{this.items[0].addInfo.ArticleId?this.items[0].addInfo.ArticleDesc:'[select machine]'}}">
+                {{this.items[0].addInfo.ArticleId?this.items[0].addInfo.ArticleDesc:'[select machine]'}}
+            </span>
+        </div>
+        <div class="col-xs-12 col-sm-5 col-md-5">
             <div class="common-btn">
                 <ul class="list-inline text-right small">
                     <li>
-                        <button ng-click="$parent.machineButtonClick(this);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                        <button ng-click="$parent.machineButtonClick(this);" class="btn small" style="height: 20px; width: 20px; padding: 0px; margin: 0px;">
                             <i class="glyphicon glyphicon-search"></i>
                         </button>
                     </li>
@@ -194,10 +202,12 @@
                 <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
                 <div class="modal-body text-center">
                     <div style="color:black;" id="Grid" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true" e-allowResizing="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SelectPOItem"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="LineLayout"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-field="POId" e-headertext="ProductionOrderNo" e-width="80"></div>
+                            <div e-column e-field="ProductionBulletinTemplateMasterId" e-headertext="ProductionBulletinTemplateMasterId" e-width="80"></div>
+                            <div e-column e-field="BaseProcess" e-headertext="Base Process" e-width="80"></div>
                             <div e-column e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
                             <div e-column e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
                             <div e-column e-field="SONo" e-headertext="SONo" e-width="80"></div>
@@ -223,3 +233,46 @@
         </div>
     </div>
 </div>
+
+<div class="modal site-modal" id="modalOperationList" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
+        <div class="modal-content">
+            <div class="modal-header">Operations<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div id="GridOperation" ej-grid e-datasource="operationList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
+                             e-allowfiltering="true" e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Search]"
+                             e-allowpaging="true"
+                             e-allowsorting="true"
+                             e-allowTextWrap="true"
+                             e-allowResizing="true" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel"
+                             e-enabletouch="true" e-responsive="true"
+                             e-recorddoubleclick="recordoperationdoubleclick">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="65"></div>
+                                <div e-column e-type="string" e-field="OperationVariationDesc" e-headertext="Variation Name" e-width="120"></div>
+                                <div e-column e-type="string" e-field="OperationDesc" e-headertext="Operation Name" e-width="120"></div>
+                                <div e-column e-type="string" e-field="MachineName" e-headertext="Machine Name" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ProductionSystem" e-headertext="Pdn. System" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Frequency" e-headertext="Frequency" e-width="50" e-allowfiltering="true" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="SPI" e-headertext="SPI" e-width="50" e-allowfiltering="true" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="PersonalAllowance" e-headertext="Personal" textAlign='center' e-width="80" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="MachineAllowance" e-headertext="Machine" textAlign='center' e-width="80" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="AdditionalAllowances" e-headertext="Additional" textAlign='center' e-width="80" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="RPM" e-headertext="RPM" textAlign='center' e-width="50" e-allowfiltering="true" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="TotalSAM" e-headertext="Total SPT" textAlign='center' e-width="50" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="TotalVersion" e-headertext="Total Version" textAlign='center' e-width="50" e-allowfiltering="true"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")

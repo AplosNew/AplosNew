@@ -61,7 +61,24 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
-        [HttpPost]
+
+		[HttpPost]
+		public JsonResult Update(List<Dictionary<string, object>> FabricRollData)
+		{
+			_fabricRollMasterService.UpdateFabricRoll(FabricRollData);
+			return Json(new { Message = AplosMessage.Insert });
+		}
+
+		[HttpPost, Authorize]
+		public JsonResult GetRoll( int NoofRolls,Dictionary<string, object> SelectedRow,int Width)
+		{
+			_fabricRollMasterService.CreateRoll( NoofRolls, SelectedRow, Width);
+			return Json(new { Message = AplosMessage.Insert });
+		}
+
+
+
+		[HttpPost]
         public JsonResult Delete(string id)
         {
             _fabricRollMasterService.DeleteGraph(id);
@@ -283,6 +300,17 @@ FROM [TRN].[InventoryReceiveDetail] IRD
 WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='" + inventoryReceiveId + @"'";
 
 			            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+
+		}
+
+		[HttpPost, Authorize]
+		public ActionResult FabricRollList(string inventoryReceiveDetailId)
+		{
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			string sql = @"select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + inventoryReceiveDetailId + @"'";
+
+			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
 
 		}
 

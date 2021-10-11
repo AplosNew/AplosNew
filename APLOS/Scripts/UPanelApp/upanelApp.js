@@ -854,6 +854,7 @@ var upanelApp = angular
     .controller("MovementItemsController", MovementItemsController)
     .controller("MovementMaterialMasterController", MovementMaterialMasterController)
     .controller("salaryProcessedReportExtraOTCTCController", salaryProcessedReportExtraOTCTCController)
+    .controller("salaryProcessedReportExtraOTCTCOriginalController", salaryProcessedReportExtraOTCTCOriginalController)
     .controller("FarmingDashboardController", FarmingDashboardController)
     .controller("BOQPurchaseOrderController", BOQPurchaseOrderController)
    

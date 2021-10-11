@@ -60,7 +60,7 @@
                 <label class="col-sm-4 control-label">Upload Picture</label>
                 <div class="col-sm-8">
                     <img id="uploadSigsrc" ng-src="{{PicFileName}}" style="border: 1px dashed; height: 150px; width: 140px;" />
-                    <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
+                    <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection="false"  e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
                 </div>
             </div>
 

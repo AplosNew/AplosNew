@@ -1,6 +1,6 @@
 ﻿'use strict';
-LineLayoutForProductionBulletinController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function LineLayoutForProductionBulletinController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+LineLayoutForProductionBulletinController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
+function LineLayoutForProductionBulletinController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $scope.path = 'IE/LineLayoutForProductionBulletin/'
     $rootScope.title = 'Line Layout For Production Bulletin';
     //$scope.nodes = [
@@ -12,12 +12,18 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
 
     //];
     $scope.nodes = [];
+    $scope.operationList = [];
     $scope.operationButtonClick = function (args) {
-         $scope.selectednode = args;
+        $scope.selectednode = args;
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetOperationList'
+        }).then(function successCallback(response) {
+            $scope.operationList = response.data;
+            angular.element(document.querySelector("#modalOperationList")).modal("toggle");
+        });
     }
-    $scope.machineButtonClick = function (args) {
-           $scope.selectednode = args;
-    }
+   
     $scope.employeeButtonClick = function (args) {
       
         $scope.selectednode = args;
@@ -179,39 +185,48 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
         diagram.update({ tool: tool | ej.datavisualization.Diagram.Tool.DrawOnce })
     }
 
-    $http({
-        method: "GET",
-        dataType: 'JSON',
-        //url: $scope.getSearchListUrl,
-        url: $scope.path + 'GetAllData',
-    }).then(function successCallback(response) {
-        for (var i = 0; i < response.data.length; i++) {
-            try {
+    $scope.LineLayout = function (args) {
+        try {
+            $scope.modelNew.ProductionOrderId = args.data.POId;
+            $http({
+                method: "GET",
+                dataType: 'JSON',
+                url: $scope.path + 'GetAllData?BulletinId=' + args.data.ProductionBulletinTemplateMasterId,
+            }).then(function successCallback(response) {
+                angular.element(document.querySelector('#POItemPopup')).modal('hide');
+                for (var i = 0; i < response.data.length; i++) {
+                    try {
 
 
-                response.data[i].type = ej.datavisualization.Diagram.Shapes[response.data[i].type];
+                        response.data[i].type = ej.datavisualization.Diagram.Shapes[response.data[i].type];
 
-                try {
-                    for (var l = 0; l < response.data[i].labels.length; i++) {
-                        response.data[i].labels[k].textAlign = ej.datavisualization.Diagram.TextAlign[response.data[i].labels[k].textAlign];
+                        try {
+                            for (var l = 0; l < response.data[i].labels.length; i++) {
+                                response.data[i].labels[k].textAlign = ej.datavisualization.Diagram.TextAlign[response.data[i].labels[k].textAlign];
+                            }
+                        } catch (e) {
+
+                        }
+
+
+                    } catch (e) {
+
                     }
-                } catch (e) {
 
                 }
 
-
-            } catch (e) {
-
-            }
-
+                $scope.nodes = response.data;
+                var diagram = $("#diagram").ejDiagram("instance");
+                //diagram.load($scope.nodes);
+                diagram.add(response.data);
+                //entrydata = copy(searchdata);
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
+    };
 
-        $scope.nodes = response.data;
-        var diagram = $("#diagram").ejDiagram("instance");
-        //diagram.load($scope.nodes);
-        diagram.add(response.data);
-        //entrydata = copy(searchdata);
-    });
+   
 
    
     $scope.OpenEmployeeSearchBox = function () {
@@ -268,6 +283,36 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
         }
     }
 
+    $scope.recordoperationdoubleclick = function (args) {
+
+        try {
+
+            //$scope.selectednode = args;
+            $scope.selectednode.items[0].addInfo.MaterialMasterId = args.data.MaterialMasterId;
+            $scope.selectednode.items[0].addInfo.MaterialMasterDesc = args.data.MaterialMasterDesc;
+            $scope.selectednode.items[0].addInfo.ArticleId = args.data.ArticleId;
+            $scope.selectednode.items[0].addInfo.ArticleDesc = args.data.ArticleDesc;
+            $scope.selectednode.items[0].addInfo.OperationId = args.data.OperationId;
+            $scope.selectednode.items[0].addInfo.OperationDesc = args.data.OperationDesc;
+            $scope.selectednode.items[0].addInfo.OperationVariationId = args.data.OperationVariationId;
+            $scope.selectednode.items[0].addInfo.OperationVariationDesc = args.data.OperationVariationDesc;
+
+            angular.element(document.querySelector("#modalOperationList")).modal("hide");
+        } catch (e) {
+
+        }
+    }
+
+    $scope.selectarticle = function (args) {
+        try {            
+            $scope.selectednode.items[0].addInfo.ArticleId = args.Id;
+            $scope.selectednode.items[0].addInfo.ArticleDesc = args.StandardName;
+            angular.element(document.querySelector('#articleSearchPop')).modal('hide');
+        } catch (e) {
+
+        }
+    }
+
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
@@ -303,4 +348,11 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
         angular.element(document.querySelector('#POItemPopup')).modal('show');
     };
 
+    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
+    $scope.machineButtonClick = function (args) {
+        $scope.selectednode = args;
+        if (baseService.isUndefinedOrNull($scope.selectednode.items[0].addInfo.MaterialMasterId))
+            return ShowResult('This material has no attribute', 'failure');
+        $scope.getArticleSearchList($scope.selectednode.items[0].addInfo.MaterialMasterId);
+    };
 }

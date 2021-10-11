@@ -13,6 +13,9 @@ namespace Library.Service.Materials
     public interface IFabricRollMasterService : IService<FabricRollMaster>
     {
         void InsertOrUpdateGraph(IEnumerable<FabricRollMaster> entities);
+        void UpdateFabricRoll(List<Dictionary<string, object>> FabricRollData);
+        void CreateRoll(int NoofRolls, Dictionary<string, object> SelectedRow,int Width);
+        
         int InsertOrUpdateGraphIncrement();
         IEnumerable<object> QueryList(string value);
 

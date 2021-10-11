@@ -507,6 +507,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportExtraOTCTC',
             controller: 'salaryProcessedReportExtraOTCTCController'
         })
+        .when('/salary-proc-extctc-original', {
+            templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportExtraOTCTC',
+            controller: 'salaryProcessedReportExtraOTCTCOriginalController'
+        })
         .when('/yearly-salarystatement-report', {
             templateUrl: 'humanresource/PayrollReports/YearlySalaryProcessedReport',
             controller: 'yearlySalaryProcessedReportController'
