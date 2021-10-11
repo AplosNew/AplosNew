@@ -1139,12 +1139,17 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		//debugger;
 		// $scope.SavePOPUpConfirm();
 		$scope.productNew.ToCurrencyRate = $scope.productNew.ToCurrencyRate;
-		var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
-		$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
-		if (sumOfmaterialStockList < $scope.selectedRowQty1) {
-			ShowResult("Please select specific GRN", 'failure');
-			return false;
+		for (var i = 0; i < $scope.detailList.length; i++) {
+			if (baseService.isUndefinedOrNull($scope.detailList[i].Id)) {
+				var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+				$scope.selectedRowQty1 = $scope.detailList[i].TransactionQty; //$filter('sumByKey')($filter('filter')($scope.detailList[i]), 'TransactionQty');
+				if (sumOfmaterialStockList < $scope.selectedRowQty1) {
+					ShowResult("Please select specific GRN", 'failure');
+					return false;
+				}
+			}
 		}
+		
 		if ($scope.detailList.length === 0) {
 			ShowResult('Please select Atlest one material');
 			return false;

@@ -241,7 +241,7 @@ function inventoryTransferJournalController(cboService, commonMessage, $scope, $
             .then(function (response) {
                 $scope.ToPlantInventoryTransferPayableList = [];
                 $scope.ToPlantInventoryTransferPayableList = response.data;
-                getVendorPayableGLBudgetActivity(inveReveiveId, $scope.PartyId);
+                //getVendorPayableGLBudgetActivity(inveReveiveId, $scope.PartyId);
             });
     }
 

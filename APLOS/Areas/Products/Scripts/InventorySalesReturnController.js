@@ -76,6 +76,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
         $scope.materialStockList = [];
         $scope.specificStockList = [];
         getIssueDetailList();
+        getInvTaxList();
         $scope.GettaxAfterSave($scope.product.InventorySalesId);
         getServiceChargeList($scope.product.InventorySalesId);
 
@@ -1023,7 +1024,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 
         $scope.LoadTaxButtonClick();
 
-        var getRownewData = $filter("filter")(data.TaxList, { "InventorySalesHistoryId": data.HistotyId, "InventorySalesId": data.InventoryIssueId });
+        var getRownewData = data.TaxList;// $filter("filter")(data.TaxList, { "InventorySalesDetailId": data.InventorySalesDetailId});
         for (var K = 0; K < getRownewData.length; K++) {
             $scope.materialtaxCategoryListResFinal.push(getRownewData[K]);
         }
@@ -1861,28 +1862,26 @@ function InventorySalesReturnController(accountService, $window, cboService, com
         $http.get('Products/InventorySalesReturn/GetSalesDetailByIssueId?issueId=' + $scope.productNew.InventorySalesId)
             .then(function (response) {
                 $scope.detailList = response.data;
-                //$scope.detailModel.IssueId = $scope.detailList[0].InventoryIssueId;
-                for (var i = 0; i < $scope.detailList.length; i++) {
-                    getInvTaxList($scope.detailList[i].InventoryIssueId, $scope.detailList[i].HistotyId);
-                }
-
             });
 
     }
 
-    function getInvTaxList(InventoryIssueId, HistotyId) {
+    function getInvTaxList() {
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/InventoryIssue/GetTaxInfoRowWise?InventorySalesId=' + InventoryIssueId + ' &InventorySalesHistoryId=' + HistotyId
+            url: 'Products/InventoryIssue/GetTaxInfoRowWise?InventorySalesId=' + $scope.productNew.InventorySalesId
         }).then(function successCallback(response) {
             $scope.materialtaxCategoryListSavedData = response.data;
             if (baseService.arrayLength($scope.materialtaxCategoryListSavedData) > 0) {
-                for (var i = 0; i < $scope.detailList.length; i++) {
-                    if ($scope.detailList[i].InventoryIssueId = $scope.productNew.InventorySalesId) {
-                        $scope.detailList[i].TaxList = $scope.materialtaxCategoryListSavedData;
+                for (var j = 0; j < $scope.materialtaxCategoryListSavedData.length; j++) {
+                    for (var i = 0; i < $scope.detailList.length; i++) {
+                        if ($scope.detailList[i].InventorySalesDetailId = $scope.materialtaxCategoryListSavedData[j].InventorySalesDetailId) {
+                            $scope.detailList[i].TaxList = $scope.materialtaxCategoryListSavedData[j];
+                        }
                     }
                 }
+                
             }
 
         });

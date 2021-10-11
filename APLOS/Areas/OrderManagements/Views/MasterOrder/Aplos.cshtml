@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div class="col-xs-2 col-sm-2 col-md-2">
-          
+
             </div>
         </div>
         <div class="clearfix"></div>
@@ -103,8 +103,8 @@
                                     <div class="input-group">
                                         <input type="text" name="Customer" ng-model="fileNew.CustomerName" class="form-control" readonly required>
                                         <span class="input-group-btn">
-                                        <button ng-click="ShowCustomerPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
-                                        @*<button ng-click="showPartyPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>*@
+                                            <button ng-click="ShowCustomerPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                            @*<button ng-click="showPartyPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>*@
                                             <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                                         </span>
                                     </div>
@@ -421,7 +421,7 @@
                                         <th>Product Library</th>
                                         <th>Product</th>
                                         <th class="col-sm-1">Action</th>
-                                        @*<th>Copy SO</th>*@
+                                        <th>Copy SO</th>
                                         <th>Contract No</th>
                                         <th>MasterLC No</th>
                                         <th style="width: 170px;">JW/OS Type</th>
@@ -521,8 +521,8 @@
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 @*
-                <li>
-                <button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
+                                                    <li>
+                                                    <button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
                                                 <li>
                                                     <button ng-click="AddDescription(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Description"><i class="glyphicon glyphicon-th-list"></i></button>
                                                 </li>
@@ -537,18 +537,19 @@
                                                 </li>
                                             </ul>
                                         </td>
-                                        @*<td>
+                                        <td>
                                             <div class="input-group">
                                                 <div class="select-style">
-                                                    <select name="SO Copy" class="form-control" ng-model="MasterOrderItemId" ng-options="item.MasterOrderItemId as item.MasterOrderItemId for item in x.TempList" tabindex="9" style="width: 82px;">
+                                                    <select name="SO Copy" class="form-control" ng-model="MasterOrderItemId" ng-options="item.MasterOrderItemId as item.MasterOrderItemId for item in x.TempList" tabindex="9" style="width: 82px;" ng-disabled="x.SONo!=0">
                                                         <option value="">--Select--</option>
                                                     </select>
                                                 </div>
                                                 <span class="input-group-btn">
-                                                    <button ng-click="CopySObyMOI(x.Id,MasterOrderItemId);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>
+                                                    @*<button ng-click="CopySObyMOI(x.Id,MasterOrderItemId);" ng-disabled="x.SONo!=0" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>*@
+                                                    @*<button ng-click="ShowSKUMapPopUp(x,MasterOrderItemId);" ng-disabled="x.SONo!=0" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>*@
                                                 </span>
                                             </div>
-                                        </td>*@
+                                        </td>
                                         <td>{{x.ContractNo}}</td>
                                         <td>{{x.LCRef}}</td>
                                         <td>
@@ -577,15 +578,15 @@
                                         </td>
                                         <td>
                                             @*<div class="form-group">
-                <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
-                <div class="col-sm-8">
-                    <div class="inputBtnSection common-btn">
-                        <label class="fileUpload" style="height: 30px;">
-                            <span class="uploadBtn" id="UploadDefault" e-dialogtext-title="Document" e-data="x.Id" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10971520" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf" e-error="errorPicUpload" e-complete="getMasterItemList" style="width: 100px; height: 17px;margin:10px"><i class="fa fa-paperclip" aria-hidden="true"> Upload</i></span>
-                        </label>
-                    </div>
-                </div>
-            </div>*@
+                                                    <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
+                                                    <div class="col-sm-8">
+                                                        <div class="inputBtnSection common-btn">
+                                                            <label class="fileUpload" style="height: 30px;">
+                                                                <span class="uploadBtn" id="UploadDefault" e-dialogtext-title="Document" e-data="x.Id" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10971520" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf" e-error="errorPicUpload" e-complete="getMasterItemList" style="width: 100px; height: 17px;margin:10px"><i class="fa fa-paperclip" aria-hidden="true"> Upload</i></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>*@
 
                                             <div class="col-md-12">
                                                 <div class="col-md-7">
@@ -3396,3 +3397,49 @@
         </div>
     </div>
 </ej-dialog>
+
+
+<div class="modal fade site-modal in" id="SKUsPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> SKU<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="form-element-ctrl form-horizontal">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet3(1) }"><a ng-click="setTab3(1)" href="" data-toggle="tab">SKU1</a></li>
+                            <li role="presentation" ng-class="{ active: isSet3(2) }"><a ng-click="setTab3(2)" href="" data-toggle="tab">SKU2</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(1), active: isSet3(1) }">
+                            <div class="row">
+                                <div style="color:black;" id="FromSKU1" ej-grid e-datasource="FromSKU1List"
+                                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="Value" e-headertext="Id" e-width="20"></div>
+                                        <div e-column e-type="Text" e-field="Text" e-headertext="Colour" e-width="60"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(2), active: isSet3(2) }">
+                            <div class="row">
+                                <div style="color:black;" id="FromSKU2" ej-grid e-datasource="FromSKU2List"
+                                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="Value" e-headertext="Id" e-width="20"></div>
+                                        <div e-column e-type="Text" e-field="Text" e-headertext="Size" e-width="60"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
