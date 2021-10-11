@@ -355,4 +355,10 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
             return ShowResult('This material has no attribute', 'failure');
         $scope.getArticleSearchList($scope.selectednode.items[0].addInfo.MaterialMasterId);
     };
+
+
+    $scope.SaveDiagram = function () {
+        var diagram = $("#diagram").ejDiagram("instance");
+        var savedDiagram = diagram.save();
+    }
 }
