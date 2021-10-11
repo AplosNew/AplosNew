@@ -772,6 +772,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.TotalMP = 0;
         $scope.MCtotalMP = 0;
         $scope.NonMCtotalMP = 0;
+        $scope.PicFileName = virtualPath.ProductionBulletinImage + '';
     }
     $scope.Clear();
 
@@ -3734,7 +3735,23 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         else
             ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
     }
-
+    $scope.getFileList = function () {
+        $http({
+            method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
+            data: { Id: $scope.bulletinTemplateNew.Id }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                var str = response.data[0].PicFileName;
+                var extention = str.substr(str.indexOf('.'));
+                $scope.PicFileName = virtualPath.ProductionBulletinImage + '/' + $scope.bulletinTemplateNew.Id + extention;
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
     //#endregion Production Bulletin Picture upload
 
     //#region MultiOperationCode
