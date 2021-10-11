@@ -1044,15 +1044,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
 
         }
-        public void OTEligibleEmp(string Date, out DataSet ds, string PlantId,string empMaster=null)
+        public void OTEligibleEmp(string Date, out DataSet ds, string PlantId)
         {
-            string EmpData = clsWebLib.RetValidLen(empMaster).ToString();
-            string strkey = "1=1";
-            if(EmpData!="")
-            {
-                strkey = "e.SystemId in(" + EmpData + @")";
-            }
-
             ConnectionManager.DAL.ConManager objCon;
             try
             {
@@ -1070,7 +1063,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				e.PlantId='" + PlantId + @"' 
                 and E.DOJ <= '" + Date + @"' 
 				AND (E.DOS >= '" + Date + @"' OR ISNULL(E.DOS,'') = '' 
-				OR E.DOS = '01/01/1901')and dc.IsOTEntitled=1 and "+strkey+@"
+				OR E.DOS = '01/01/1901') and dc.IsOTEntitled=1 
 				and e.SystemId not in (select final.EmpSystemId from 
 				(select distinct o.empsystemId,
 				(select top 1 Exclude from NonEligibleOT m where 
@@ -6559,6 +6552,48 @@ namespace Library.HumanResource.NewAttendanceProcess {
             }
         }
 
+        public void OTEligibleEmpDOJ(string FromDate,string ToDate, out DataSet ds, string PlantId, string empMaster)
+        {
+            string EmpData = clsWebLib.RetValidLen(empMaster).ToString();
+            string strkey = "1=1";
+            if (EmpData != "")
+            {
+                strkey = "e.SystemId in(" + EmpData + @")";
+            }
+
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+
+                var sql = @"select distinct e.SystemId as EmpId,dc.IsOTEntitled,
+				Format(p.WorkDate,'yyyy-MMM-dd')WorkDate,(Format(p.WorkDate,'yyyyMMdd')+e.SystemId)
+				as RowId
+                from AttdnProcessData p join
+                EmployeeInformation e on e.SystemId=p.EmpSystemID    
+				left join mst.DesignationMasterLegalDesignation ddm on 
+                ddm.LegalDesignationId = e.LegalDesignationId
+                left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+				left join scs.DesignationMasterConfiguration dc on dc.DesignationMasterId=dm.Id
+                and dc.PlantId=e.PlantId
+                where p.WorkDate between '"+FromDate+@"' and '"+ToDate+@"' and
+				e.PlantId='" + PlantId + @"' 
+                and E.DOJ <= '" +ToDate  + @"' 
+				AND (E.DOS >= '" + ToDate + @"' OR ISNULL(E.DOS,'') = '' 
+				OR E.DOS = '01/01/1901')and dc.IsOTEntitled=1 and " + strkey + @"
+				and e.SystemId not in (select final.EmpSystemId from 
+				(select distinct o.empsystemId,
+				(select top 1 Exclude from NonEligibleOT m where 
+				m.EmpSystemId=o.EmpSystemId order by EffectiveDate desc)as x 
+				from NonEligibleOT o) final where final.x=1)";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         #endregion
 
@@ -6593,13 +6628,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string EmpId = MissingDOJ.Tables[0].Rows[i][@"EmpId"].ToString();
                             CheckerFunction(ref EmpMaster, EmpId); // loop in and Adding distinct Employees
                         }
-                         
+
 
                         if (StartDate != "")
                         {
+                            #region RowCreation Logic
                             ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                            objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate between '"+StartDate+"' and '"+ToDate+"' and PlantID = '"+PlantValue+"' and EmpSystemID in ("+EmpMaster+")", out DataSet dsRef, false, false, "", "1");
-                           
+                            objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate between '" + StartDate + "' and '" + ToDate + "' and PlantID = '" + PlantValue + "' and EmpSystemID in (" + EmpMaster + ")", out DataSet dsRef, false, false, "", "1");
+
                             DateTime frmdate = Convert.ToDateTime(StartDate);
                             DateTime Todate = Convert.ToDateTime(ToDate);
                             int days = 0;
@@ -6620,7 +6656,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         string PlantId = RowCreationData.Tables[0].Rows[i][@"PlantId"].ToString();
                                         string RowId = RowCreationData.Tables[0].Rows[i][@"RowId"].ToString();
                                         string HoliDay = RowCreationData.Tables[0].Rows[i][@"HolidayStatus"].ToString();
-                                        string WeekOfftype= clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"WeekOfftype"]).ToString();
+                                        string WeekOfftype = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"WeekOfftype"]).ToString();
                                         string WeeklyStatus = clsWebLib.RetValidLen(RowCreationData.Tables[0].Rows[i][@"WeeklyStatus"]).ToString();
 
                                         // Set Budgeted Shift as Default Shift  
@@ -6679,7 +6715,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             dr["IsLock"] = 0;
                                             dr["IsOTEntitled"] = 0;
                                             dr["IsLWP"] = 0;
-                                            dr["IsOD"] = 0;                                          
+                                            dr["IsOD"] = 0;
                                             dr["IsHalfDayLeave"] = 0;
                                             dr["OTIntime"] = "0";
                                             dr["OTOuttime"] = "0";
@@ -6705,7 +6741,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             CheckerFunction(ref CreatedEmpIds, RowId); // loop in and Adding distinct RowIds
                                         }
 
-                                    }                                   
+                                    }
                                 }
 
                                 days += 1; // Increment Day Counter
@@ -6713,10 +6749,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             SaveDataSets(dsRef); // Rows Saved
 
+                            #endregion
+
                             #region Individual WeekOff Setting
                             // New Entry of Employees and Fetching from Range
                             IndividualWeekOffDataSet(out IndividualWeekOfDOJ, StartDate, ToDate, EmpMaster);
-                            if(IndividualWeekOfDOJ.Tables[0].Rows.Count>0)
+                            if (IndividualWeekOfDOJ.Tables[0].Rows.Count > 0)
                             {
                                 ConnectionManager.DAL.ConManager conx = new ConnectionManager.DAL.ConManager("1");
                                 conx.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId in (" + CreatedEmpIds + ")", out DataSet dsMaster, false, false, "", "1");
@@ -6743,11 +6781,42 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             }
 
                             #endregion
+
+                            #region OTEligibleData Flagging
+                            DataSet OTElgbEmp;
+                            OTEligibleEmpDOJ(StartDate,ToDate, out OTElgbEmp, PlantValue, EmpMaster); // OT Eligible DataSet Generation
+                            if (OTElgbEmp.Tables[0].Rows.Count > 0)
+                            {
+                                // Chosen From & ToDate to get RowIds 
+                                ConnectionManager.DAL.ConManager newcon = new ConnectionManager.DAL.ConManager("1");
+                                newcon.OpenDataSetThroughAdapter("select * from AttdnProcessData where RowId in (" + CreatedEmpIds + ")", out DataSet dsOt, false, false, "", "1");
+
+                                for (int i = 0; i < OTElgbEmp.Tables[0].Rows.Count; i++)
+                                {
+                                    string RowId = OTElgbEmp.Tables[0].Rows[i][@"RowId"].ToString();
+                                    string IsOTEntitled = OTElgbEmp.Tables[0].Rows[i][@"IsOTEntitled"].ToString();
+
+                                    // Only RowIds that exist will come
+                                    dsOt.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
+                                    if (dsOt.Tables[0].DefaultView.Count > 0)
+                                    {
+                                        // Updation in APD Table for OT Entitled Employees
+                                        DataRow dr = dsOt.Tables[0].DefaultView[0].Row;
+                                        dr.BeginEdit();
+
+                                        dr["IsOTEntitled"] = clsWebLib.GetBoolData(IsOTEntitled);
+                                        dr["UpdatedBy"] = "Schedule";
+                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                        dr.EndEdit();
+                                    }
+                                }
+                                SaveDataSets(dsOt);
+                            }
+                            #endregion
+
                         }
                     }
                     #endregion
-
-
                 }
             }
             catch(Exception ex)
@@ -6948,6 +7017,9 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
         public void DOJProcessGroupWise(string Date, string GroupId)
         {
+            // Log Check
+            SaveLog("Group Call", "DOJProcess", false);
+
             DataSet PlantList;
             GetPlant(GroupId, out PlantList);           
           
