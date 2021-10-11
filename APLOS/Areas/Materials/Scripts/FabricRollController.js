@@ -43,18 +43,31 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     $scope.fabDistributeQty = 0;
     $scope.fabricEdit = false;
     $scope.showFabricPop = function (data) {
-      
+
         $scope.fabricRollSplitOb.VendorWidth = null;
-        //$scope.fabricEdit = isEdit;
+        // $scope.fabricEdit = isEdit;
         $scope.fabricRollMasterNew.GRNSplitQty = null;
         $scope.fabricRollMasterList = [];
         $scope.selectedGRNRow = data;
         $scope.fabDistributeQty = data.TotalDistributeQty;
-        if ($scope.fabricEdit) {
-            $scope.getSavedPayRollGroupData();
-        }
+        $scope.LoadFabricRollList();
+
         angular.element(document.querySelector('#fabricRollPopUp')).modal('show');
     };
+    $scope.showSingleFabricRollPop = function (data) {
+
+        $scope.fabricRollSplitOb.VendorWidth = null;
+        // $scope.fabricEdit = isEdit;
+        $scope.fabricRollMasterNew.GRNSplitQty = null;
+        $scope.fabricRollMasterList = [];
+        $scope.selectedGRNRow = data;
+        $scope.fabDistributeQty = data.TotalDistributeQty;
+        $scope.LoadFabricRollList();
+
+        angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
+    };
+    
+
     $scope.splitGrnRow = function () {
         debugger;
         if (!baseService.isUndefinedOrNull($scope.fabricRollMasterNew.GRNSplitQty)) {
@@ -108,66 +121,29 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         }
     }
     $scope.saveRollList = [];
+
     $scope.saveRoll = function () {
-  
+
         if (!baseService.isUndefinedOrNull($scope.fabricRollMasterNew.GRNSplitQty)) {
-      
+
             $http({
                 method: 'POST',
                 url: $scope.path + "GetRoll",
-                data: { 'InventoryReceiveDetailId': $scope.selectedGRNRow.Id, 'NoofRolls': $scope.fabricRollMasterNew.GRNSplitQty, 'Qty': $scope.selectedGRNRow.TransactionQty},
+                data: { 'NoofRolls': $scope.fabricRollMasterNew.GRNSplitQty, 'SelectedRow': $scope.selectedGRNRow, 'Width': $scope.fabricRollSplitOb.VendorWidth, 'PackingForm': $scope.PackingformSearchBy },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
-                $scope.saveRollList = [];
-                $scope.saveRollList = response.data;
-               
-           
+                $scope.LoadFabricRollList();
+
+
             });
         }
     }
+
     $scope.clearSplitRow = function () {
         $scope.fabricRollMasterNew.GRNSplitQty = null;
         $scope.fabricRollMasterList = [];
     }
-    //#region GRN Load
-    //$scope.grnList = [];
-    //$scope.getGRNDataList = function () {
-    //    try {
-    //        $scope.grnParameters = {
-    //            limit: 10,
-    //            offset: 0,
-    //            order: 'asc',
-    //            sort: 'GRNDate',
-    //            searchBy: 'GRNDate',
-    //            pageSize: 10,
-    //            total_count: 0,
-    //            search: null,
-    //            serverPagination: true
-    //        };
-          
-
-    //        $scope.popUpUrl = '';
-    //        $scope.popUpUrl = 'Materials/FabricRollMaster/GetGRNList';
-    //        $scope.getGRNData = function (pageno) {
-    //            baseService.paginationBase($scope.popUpUrl, pageno, $scope.grnParameters)
-    //                .then(function (result) {
-    //                    $scope.grnList = result.Rows;
-    //                    $scope.grnParameters.total_count = result.Total;
-    //                }, function () {
-    //                    ShowResult(commonMessage.NetworkError, 'failure', '#grnPopUp');
-    //                }).finally(function () {
-    //                });
-    //        };
-
-    //        $scope.fieldName = name;
-    //        $scope.getGRNData();
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //};
-    //$scope.getGRNDataList();
-   // #endregion GRN Load
 
     $scope.searchGRNByList = [
         {
@@ -186,25 +162,25 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     $scope.GRNsearchBy = "GRNNo";
     $scope.GRNsearch = "";
     $scope.GRNGridList = [];
-    $scope.LoadGRNSearchList = function () {             
+    $scope.LoadGRNSearchList = function () {
         $scope.GRNGridList = [];
-                try {
-                    //if ($scope.GRNsearch == '')
-                    //    throw "Please insert search value.";
-                    $http({
-                        method: 'POST',
-                        url: $scope.path + "GRNList",
-                        data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
-                        dataType: 'JSON'
+        try {
+            //if ($scope.GRNsearch == '')
+            //    throw "Please insert search value.";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GRNList",
+                data: { 'column': $scope.GRNsearchBy, 'value': $scope.GRNsearch },
+                dataType: 'JSON'
 
-                    }).then(function successCallback(response) {
-                        $scope.GRNGridList = [];
-                        $scope.GRNGridList = response.data;
-                    });
-                }
-                catch (e) {
-                    ShowResult(e, 'failure');
-                }
+            }).then(function successCallback(response) {
+                $scope.GRNGridList = [];
+                $scope.GRNGridList = response.data;
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
     $scope.LoadGRNSearchList();
 
@@ -224,7 +200,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         $scope.fabricRollMaster = Object.assign({}, args.data);
         $scope.getGRNDetail();
     };
-     //#endregion Material
+    //#endregion Material
     //#region grnDetail
     $scope.grnDetailList = [];
     $scope.getGRNDetail = function () {
@@ -256,7 +232,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     $scope.LoadMaterialSearchList = function () {
         $scope.MaterialGridList = [];
         try {
-         
+
             $http({
                 method: 'POST',
                 url: $scope.path + "MaterialList",
@@ -275,8 +251,27 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     //$scope.LoadGRNSearchList();
 
 
+    $scope.GetFabricRollList = [];
+    $scope.LoadFabricRollList = function () {
+        $scope.GetFabricRollList = [];
+        try {
 
+            $http({
+                method: 'POST',
+                url: $scope.path + "FabricRollList",
+                data: { 'inventoryReceiveDetailId': $scope.selectedGRNRow.Id },
+                dataType: 'JSON'
 
+            }).then(function successCallback(response) {
+                $scope.GetFabricRollList = [];
+                $scope.GetFabricRollList = response.data;
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.LoadFabricRollList();
     //#endregion
 
 
@@ -294,20 +289,20 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         if (!baseService.isUndefinedOrNull($scope.selectedGRNRow.Id)) {
             $http.get("Materials/FabricRollMaster/GetFABRollList?inventoryReceiveDetailId=" + $scope.selectedGRNRow.Id)
                 .then(
-                function successCallback(response) {
-                    $scope.fabricRollMasterList = response.data.Rows;
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
+                    function successCallback(response) {
+                        $scope.fabricRollMasterList = response.data.Rows;
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
         }
     };
     //#end region
 
-    
 
 
-    
+
+
     function checkExisting(id) {
         for (var i = 0; i < $scope.selectedGRNList.length; i++) {
             var ob = $scope.selectedGRNList[i];
@@ -317,9 +312,9 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         }
         return false;
     }
-   
+
     //#end region
-    
+
     function validFabric() {
         angular.forEach($scope.fabricRollMasterList, function (item) {
             if (duplicateVendorLotNo($scope.fabricRollMasterList, item.VendorRollNo) === true) {
@@ -333,15 +328,15 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             }
         });
     }
-   function duplicateVendorLotNo (list, value) {
-       for (var i = 0; i < list.length; i++) {
-           if (baseService.isUndefinedOrNull(value)) {
-               for (var x = i + 1; x < list.length; x++) {
-                   if (!baseService.isUndefinedOrNull(list[i].VendorRollNo)&& list[i].VendorRollNo === list[x].VendorRollNo) {
-                       return true;
-                   }
-               }
-           }
+    function duplicateVendorLotNo(list, value) {
+        for (var i = 0; i < list.length; i++) {
+            if (baseService.isUndefinedOrNull(value)) {
+                for (var x = i + 1; x < list.length; x++) {
+                    if (!baseService.isUndefinedOrNull(list[i].VendorRollNo) && list[i].VendorRollNo === list[x].VendorRollNo) {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     };
@@ -352,45 +347,65 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         });
         return tvalue;
     }
-    $scope.Save = function () {
+    $scope.Update = function () {
         try {
             $scope.$broadcast('show-errors-check-validity');
             /*if ($scope.fabricRollMasterNewForm.$valid) {*/
-                validFabric();
+            validFabric();
             $http({
                 method: 'POST',
-                url: 'Materials/FabricRoll/Save',
-                data: { 'FabricRollData' : $scope.fabricRollMasterList },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        //$scope.getGRNDetail();
-                        angular.element(document.querySelector('#fabricRollPopUp')).modal('hide');
-                    }
-                }), function errorCallBack(response) {
+                url: 'Materials/FabricRoll/Update',
+                data: { 'FabricRollData': $scope.GetFabricRollList, 'PackingForm': $scope.PackingformSearchBy},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
-                };
-           /* }*/
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.getGRNDetail();
+                    angular.element(document.querySelector('#fabricRollPopUp')).modal('hide');
+                    $scope.LoadFabricRollList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+            /* }*/
         } catch (e) {
-            ShowResult(e, 'failure','fabricRollPopUp');
+            ShowResult(e, 'failure', 'fabricRollPopUp');
         }
     };
     //Deleting Rows from RetentionAllowanceList
-    $scope.valuePassInDelModal = function (index, data) {
-        $scope.tempFabOb = data;
-        $scope.tempFabIndex = index;
-        $scope.message_confirmation = 'Are you sure want to delete';
-        angular.element(document.querySelector('#confirm_PopUp')).modal('show');
-    };
-    $scope.removeRow = function () {
-        $scope.fabricRollMasterList.splice($scope.tempFabIndex, 1);
-        $scope.tempFabIndex = -1;
-        $scope.tempFabOb.Id = null;
-        angular.element(document.querySelector('#confirm_PopUp')).modal('hide');
+    $scope.message_detailconfirmation = null;
+    $scope.removeRoll = function (obj) {
+
+        $scope.Id = obj.data.Id;
+        if (!baseService.isUndefinedOrNull($scope.Id))
+            $scope.message_detailconfirmation = 'Are you sure you want to delete this Roll: [ ' + obj.data.RollNo + ' ] permanently?';
+        angular.element(document.querySelector('#confirmRollDeletePopUp')).modal('show');
+    }
+
+    $scope.Delete = function () {
+       
+
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //Clear(response.data.Sequence);
+                    $scope.LoadFabricRollList();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+       
     };
     //$scope.removeFromDb = function (id, index) {
     //    try {
@@ -435,45 +450,45 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
     function getPdf(inventoryReceiveDetailId) {
         $http.get("Materials/FabricRollMaster/GetBarCideList?inventoryReceiveDetailId=" + inventoryReceiveDetailId)
             .then(
-            function successCallback(response) {
-                var tttt = response.data;
-                var imgData = tttt;
-                var doc = new jsPDF();
-                var y = 10;
-                var th = 10;
-                var h = 12;
-                angular.forEach(imgData, function (item, i) {
-                    //if ((i + 1) % 6 === 0) {
-                    //    doc.addPage('1', 'a6');
-                    //}
-                    doc.setFontSize(15);
-                    doc.text(item.GRNNo, y, th);
-                    doc.text(item.RollNo, y, th+10);
-                    doc.addImage(item.barCode, 'JPEG', y, th+12, 50, 10);
-                    doc.setFontSize(10);
-                    doc.text(item.MaterialName, y, th+26);
-                    doc.text(item.ArticleName, y, th+30);
-                    doc.setFontSize(12);
-                    doc.text("Vendor:" + item.Party, y, th + 36);
-                    doc.text("Vendor Lot:" + item.VendorLotNo, y, th + 40);
-                    doc.text("Vendor Qty:" + item.VendorQty, y + 40, th + 40);
-                    doc.text("Shrinkage:" + item.ShrinkagePercentageWidth, y, th + 45);
-                    doc.setLineWidth(0.5);
-                    doc.line(10, th + 50, y, th + 50); // horizontal line
-                    y += 80;
-                    if ((i + 1) % 2 === 0 && i !== 0) {
-                        var tth = th;
-                        th += (th + 10 + 8 + 10 + 30) - tth;
-                        y = 10;
+                function successCallback(response) {
+                    var tttt = response.data;
+                    var imgData = tttt;
+                    var doc = new jsPDF();
+                    var y = 10;
+                    var th = 10;
+                    var h = 12;
+                    angular.forEach(imgData, function (item, i) {
+                        //if ((i + 1) % 6 === 0) {
+                        //    doc.addPage('1', 'a6');
+                        //}
+                        doc.setFontSize(15);
+                        doc.text(item.GRNNo, y, th);
+                        doc.text(item.RollNo, y, th + 10);
+                        doc.addImage(item.barCode, 'JPEG', y, th + 12, 50, 10);
+                        doc.setFontSize(10);
+                        doc.text(item.MaterialName, y, th + 26);
+                        doc.text(item.ArticleName, y, th + 30);
+                        doc.setFontSize(12);
+                        doc.text("Vendor:" + item.Party, y, th + 36);
+                        doc.text("Vendor Lot:" + item.VendorLotNo, y, th + 40);
+                        doc.text("Vendor Qty:" + item.VendorQty, y + 40, th + 40);
+                        doc.text("Shrinkage:" + item.ShrinkagePercentageWidth, y, th + 45);
+                        doc.setLineWidth(0.5);
+                        doc.line(10, th + 50, y, th + 50); // horizontal line
+                        y += 80;
+                        if ((i + 1) % 2 === 0 && i !== 0) {
+                            var tth = th;
+                            th += (th + 10 + 8 + 10 + 30) - tth;
+                            y = 10;
 
-                    }
+                        }
 
+                    });
+                    pdf_test_harness_init(doc, null);
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
                 });
-                pdf_test_harness_init(doc, null);
-            },
-            function errorCallback(response) {
-                ShowResult(response, 'failure');
-            });
     }
 
     $scope.grnDetailParameters = {
@@ -497,5 +512,19 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             value: 'PartyName'
         }
     ];
+
+    $scope.PackingformSearchBy = "";
+    $scope.Packingformsearch = "";
+    $scope.PackingformList = [
+        {
+            name: 'Roll',
+            value: 'Roll'
+        },
+        {
+            name: 'Bale',
+            value: 'Bale'
+        }
+    ];
+
 
 }

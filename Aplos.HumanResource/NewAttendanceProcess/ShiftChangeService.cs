@@ -199,6 +199,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                         shiftchange.Tables[0].Rows[0]["ManualByWhom"] = data[0].AddedBy;
                         shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
                         shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
+                        shiftchange.Tables[0].Rows[0]["OTComfirmBy"] = DBNull.Value;
+                        shiftchange.Tables[0].Rows[0]["DateOTComfirm"] = DBNull.Value;
+                        shiftchange.Tables[0].Rows[0]["IsOTComfirm"] = false;
                         shiftchange.Tables[0].Rows[0].EndEdit();
                         i = 1;
                     
@@ -633,9 +636,13 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                         drx.BeginEdit();
                                         drx["ManualInTime"] = DateTime.Now;
+                                        drx["OriginalManualInTime"] = DateTime.Now;
                                         drx["IsManualInTime"] = true; 
                                         drx["ManualByWhom"] = item.AddedBy;
                                         drx["ManualEntryTime"] = DateTime.Now.ToString();
+                                        drx["OTComfirmBy"] = DBNull.Value;
+                                        drx["DateOTComfirm"] = DBNull.Value;
+                                        drx["IsOTComfirm"] = false;
                                         drx.EndEdit();
 
                                     }
@@ -648,9 +655,13 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                         drx.BeginEdit();
                                         drx["ManualOutTime"] = DateTime.Now;
+                                        drx["OriginalManualOutTime"] = DateTime.Now;
                                         drx["IsManualOutTime"] = true;
                                         drx["ManualByWhom"] = item.AddedBy;
                                         drx["ManualEntryTime"] = DateTime.Now.ToString();
+                                        drx["OTComfirmBy"] = DBNull.Value;
+                                        drx["DateOTComfirm"] = DBNull.Value;
+                                        drx["IsOTComfirm"] = false;
                                         drx.EndEdit();
 
                                     }
@@ -663,7 +674,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         if (ManualOTAllowed != "" && ManualOTAllowed == "True")
                                         {
                                             drx.BeginEdit();
-                                            drx["ManualOt"] = item.ManualOt;
+                                            drx["ManualOt"] = item.ManualOt;                                         
                                             drx.EndEdit();
                                         }
                                     }

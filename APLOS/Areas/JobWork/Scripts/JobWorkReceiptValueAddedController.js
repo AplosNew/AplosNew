@@ -189,7 +189,9 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				//	$scope.GetJWGRNDataChecking();
 					$scope.GRNListDetails();
 					$scope.GetTransformationReceiptCurrency();
-					$scope.GetJWGRNDataChecking();
+				//	$scope.GetJWGRNDataChecking();
+					$scope.setStatus = 'Selected';
+					$scope.setTabGRNList(1);
 				}
 
 			});
@@ -2756,8 +2758,9 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				}
 				else {
 					$scope.ShowHomeList = false;
-					$scope.setTabGRNList(1);
-					$scope.setTab(2);
+			//		$scope.setTabGRNList(1);
+			//		$scope.setStatus = 'Selected';
+			//		$scope.setTab(2);
 				}
 
 			});

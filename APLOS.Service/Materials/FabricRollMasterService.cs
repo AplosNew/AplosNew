@@ -149,14 +149,14 @@ namespace Library.Service.Materials
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FabricRollMaster", out sID);
             return sID;
         }
-        public void SaveFabricRoll(List<Dictionary<string, object>> FabricRollData)
+        public void UpdateFabricRoll(List<Dictionary<string, object>> FabricRollData,string PackingForm)
         {
             DataSet dsFabricRoll;
             string _Id = GetFabricRollMasterPK();
 
-            ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
-            conBin.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where Invervid='" + _Id + "'", out dsFabricRoll, false, "1");
-
+            ConnectionManager.DAL.ConManager conFabricRoll = new ConnectionManager.DAL.ConManager("1");
+            conFabricRoll.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + FabricRollData[0]["InventoryReceiveDetailId"] + "'", out dsFabricRoll, false, "1");
+            conFabricRoll.OpenDataSetThroughAdapter("select * from TRN.InventoryReceiveDetail where id='" + FabricRollData[0]["InventoryReceiveDetailId"] + @"'", out DataSet dsPackingForm, false, "1");
             int count = 0;
             if (FabricRollData != null)
             {
@@ -164,52 +164,65 @@ namespace Library.Service.Materials
                 {
                     count++;
                     DataView dv = new DataView(dsFabricRoll.Tables[0]);
-                    dv.RowFilter = "RollNo='" + item["RollNo"] + "'";
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                    if (dv.Count == 0)
-                    {
-                        item["Id"] = _Id + "-" + count;
-
-                        AddNewRow(dsFabricRoll.Tables[0], item);
-                    }
-                    else
+                    if (dv.Count > 0)
                     {
                         DataRow drmo = dv[0].Row;
-                        EditRow(drmo, item);
+                        drmo.BeginEdit();
+                        drmo["RollNo"] = item["RollNo"];
+                        drmo["VendorRollNo"] = item["VendorRollNo"];
+                        drmo["VendorWidth"] = item["VendorWidth"];
+                        drmo["VendorLotNo"] = item["VendorLotNo"];
+                        drmo["VendorQty"] = item["VendorQty"];
+                        drmo.EndEdit();
+                    }
+                }
+            }
+            if (dsPackingForm.Tables[0].Rows.Count > 0)
+            {
+                for (int j = 0; j < dsPackingForm.Tables[0].Rows.Count; j++)
+                {
+                    dsPackingForm.Tables[0].DefaultView.RowFilter = "Id='" + dsPackingForm.Tables[0].Rows[j]["Id"].ToString() + "'";
+
+                    if (dsPackingForm.Tables[0].DefaultView.Count > 0)
+                    {
+                        //edit
+                        DataRow drPf = dsPackingForm.Tables[0].DefaultView[0].Row;
+                        drPf.BeginEdit();
+                        drPf["PackingForm"] = PackingForm;
+                        drPf.EndEdit();
                     }
                 }
             }
 
+
             clsStaticInfo _info = new clsStaticInfo();
-            _info.SaveDataSets(dsFabricRoll);
+            _info.SaveDataSets(dsFabricRoll, dsPackingForm);
 
 
 
         }
-        public void CreateRoll(string InventoryReceiveDetailId, int NoofRolls, int Qty)
+        public void CreateRoll(int NoofRolls, Dictionary<string, object> SelectedRow, double Width, string PackingForm)
         {
             DataSet dsFabricRoll;
             string _Id = GetFabricRollMasterPK();
             string Plantid = "";
             string RollPrefix = "";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
-            conBin.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + InventoryReceiveDetailId + "'", out dsFabricRoll, false, "1");
-            conBin.OpenDataSetThroughAdapter("select * from scs.PlantConfig where PlantId='" + identity.PlantId + @"'", out DataSet dsPlant, false, "1");
+            ConnectionManager.DAL.ConManager conRoll = new ConnectionManager.DAL.ConManager("1");
+            conRoll.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + SelectedRow["Id"] + "'", out dsFabricRoll, false, "1");
+            conRoll.OpenDataSetThroughAdapter("select * from scs.PlantConfig where PlantId='" + SelectedRow["PlantId"] + @"'", out DataSet dsPlant, false, "1");
+            conRoll.OpenDataSetThroughAdapter("select * from TRN.InventoryReceiveDetail where id='" + SelectedRow["Id"] + @"'", out DataSet dsPackingForm, false, "1");
             if (dsPlant.Tables[0].Rows.Count > 0)
                 RollPrefix = dsPlant.Tables[0].Rows[0]["FabRollPrefix"].ToString();
-
-
             string sID = "";
             bplib.clsGenID objGenID = new bplib.clsGenID();
             objGenID.GenIDDaily(DateTime.Now.ToShortDateString().ToString(), "FabricRollMaster" + Plantid, out sID);
 
-
-
             for (int i = 1; i <= NoofRolls; i++)
             {
-                DataRow dr = dsFabricRoll.Tables[0].NewRow();
-
+                DataRow dr = dsFabricRoll.Tables[0].NewRow();               
 
                 string RollNo = RollPrefix;
                 RollNo += System.DateTime.Now.ToString("yyyy");
@@ -220,14 +233,35 @@ namespace Library.Service.Materials
 
                 dr["Id"] = "R" + sID + "-" + i;
                 dr["RollNo"] = RollNo;
-                dr["VendorQty"] = Qty / NoofRolls;
+                dr["VendorQty"] = Convert.ToInt32( SelectedRow["TransactionQty"].ToString()) / NoofRolls;
+                dr["MaterialMasterId"] = SelectedRow["MaterialMasterId"]; 
+                dr["ArticleId"] = SelectedRow["ArticleId"];
+                dr["PlantId"] = SelectedRow["PlantId"];
+                dr["InventoryReceiveDetailId"] = SelectedRow["Id"];
+                dr["VendorWidth"] = Width;
 
 
                 dsFabricRoll.Tables[0].Rows.Add(dr);
-            }
 
+            }
+            if (dsPackingForm.Tables[0].Rows.Count > 0)
+            {
+                for (int j = 0; j < dsPackingForm.Tables[0].Rows.Count; j++)
+                {
+                    dsPackingForm.Tables[0].DefaultView.RowFilter = "Id='" + dsPackingForm.Tables[0].Rows[j]["Id"].ToString()+"'";
+
+                    if (dsPackingForm.Tables[0].DefaultView.Count > 0)
+                    {
+                        //edit
+                        DataRow drPf = dsPackingForm.Tables[0].DefaultView[0].Row;
+                        drPf.BeginEdit();
+                        drPf["PackingForm"] = PackingForm;
+                        drPf.EndEdit();
+                    }
+                }
+            }
             clsStaticInfo _info = new clsStaticInfo();
-            _info.SaveDataSets(dsFabricRoll);
+            _info.SaveDataSets(dsFabricRoll, dsPackingForm);
         }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)

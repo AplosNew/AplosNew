@@ -1382,7 +1382,7 @@ namespace Aplos.Areas.Products.Controllers
 			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpPost]
-		public JsonResult GetStockSales(InventoryMaterialViewModel entity, string issueDate)
+		public JsonResult GetStockSales(InventoryMaterialViewModel entity, string issueDate)//dgsdg
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			entity.CompanyGroupId = identity.CompanyGroupId;
@@ -7511,16 +7511,15 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			}
 		}
 		[Authorize, HttpGet]
-		public JsonResult GetTaxInfoRowWise(string InventorySalesId, string InventorySalesHistoryId)
+		public JsonResult GetTaxInfoRowWise(string InventorySalesId)
 		{
 			try
 			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				string sql = @"SELECT distinct A.InventorySalesHistoryId,A.InventorySalesId,A.TaxCategoryId,A.HSNCodeId,A.Percentage,A.TaxAmount ,B.Code HSNCode,B.Description
+				string sql = @"SELECT  A.InventorySalesHistoryId,A.InventorySalesId,a.InventorySalesDetailId,A.TaxCategoryId,A.HSNCodeId
+								,A.[Percentage],A.TaxAmount SalesTax,0 TaxAmount,B.Code HSNCode,B.[Description]
                                 FROM trn.InventorySalesTax A
                                 Left JOIN [HKP].[HSNCode] B On A.HSNCodeId=B.Id   
-                                where A.InventorySalesId='" + InventorySalesId + @"' 
-                                AND A.InventorySalesHistoryId = '" + InventorySalesHistoryId + @"'";
+                                where A.InventorySalesId='" + InventorySalesId + "' and a.InventorySalesServiceId is null";
 				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
 			}
@@ -9013,6 +9012,13 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.ToPlantId = inventoryIssue.PlantId;
 			inventoryIssue.PlantId = identity.PlantId;
+			if(string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+			{
+				CheckedByStatusForNoti = "False";
+				ApprovedByStatusForNoti = "False";
+
+			}
+
 
 			if (specificStockList == null)
 			{

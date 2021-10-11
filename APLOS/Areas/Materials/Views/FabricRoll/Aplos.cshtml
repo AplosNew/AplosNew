@@ -76,19 +76,37 @@
                         <div e-column e-type="string" e-field="UoM" e-headertext="UOM" e-width="120"></div>
                         <div e-column e-type="number" e-field="SplitCount" e-textalign="right" e-format="{0:N2}" e-headertext="Split Count" e-width="80"></div>
                         <div e-column e-type="number" e-field="TotalDistributeQty" e-textalign="right" e-format="{0:N2}" e-headertext="TotalDistribute Qty" e-width="100"></div>
-                        <div e-column e-headertext=" Distribute " e-template="#distributeBTN" e-width="120"></div>
+                        <div e-column e-headertext=" Distribute " e-template="#distributeBTN" e-width="150"></div>
 
                     </div>
                     <script id="distributeBTN" type="text/template">
                         <div class="common-btn">
                             <ul class="common-btn list-inline text-center">
 
-                                <li><button ng-click="$parent.showFabricPop(data)" class="btn btn-action tooltip-here" ng-disabled="data.SplitCount>0" data-placement="top" title="Add New"><i class="glyphicon glyphicon-list"></i></button></li>
-                                <li><button ng-click="$parent.showFabricPop(data)" class="btn btn-action tooltip-here" ng-disabled="data.SplitCount<1" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
+                                <li>
+                                    <button ng-click="$parent.showFabricPop(data);" class="btn small tooltip-here "ng-disabled="data.SplitCount>0" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Edit">
+                                        <i class="glyphicon glyphicon-list" style="color:white;"></i>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button ng-click="$parent.showFabricPop(data);" class="btn small tooltip-here"ng-disabled="data.SplitCount<1" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Edit">
+                                        <i class="glyphicon glyphicon-edit" style="color: white;"></i>
+                                    </button>
+                                </li>
+
+
+                                @*<li><button ng-click="$parent.showFabricPop(data)" class="btn btn-action tooltip-here" ng-disabled="data.SplitCount>0" data-placement="top" title="Add New"><i class="glyphicon glyphicon-list"></i></button></li>
+
+        <li><button ng-click="$parent.showFabricPop(data)" class="btn btn-action tooltip-here" ng-disabled="data.SplitCount<1" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>*@
 
                                 <li>
-                                    <button ng-click="$parent.getpdff(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Edit">
+                                    <button ng-click="$parent.getpdff(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
                                         <i class="glyphicon glyphicon-eye-open" style="color:orangered;"></i>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button ng-click="$parent.showSingleFabricRollPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Edit">
+                                        <i class="glyphicon glyphicon-pencil" style="color:greenyellow;"></i>
                                     </button>
                                 </li>
                             </ul>
@@ -126,8 +144,10 @@
             </div>
         </div>
     </div>
-    <label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated. </span></label>
-    <br /><label class="control-label" style="color: blue; padding-left: 17px; font-size: 12px; margin-top: -6px;">Only <span style="text-transform: lowercase;">pending distribution is listed below. </span></label>
+    @*<label class="control-label" style="color:blue;padding-left: 17px;font-size:12px;margin-top: -6px;">Fabric <span style="text-transform: lowercase;">roll management should be activated.</span></label>*@
+    @*<label class="control-label" style="color: blue; padding-left: 17px; font-size: 12px; margin-top: -6px;">Only<span style="text-transform: lowercase;">pending distribution is listed below. </span></label>*@
+    <b>**Fabric roll management should be activated.</b>
+    <i>**Only pending distribution is listed below.</i>
     <div class="table-responsive aplos-grid-toggle">
         <div style="color:black;" id="GridfabricRoll" ej-grid e-datasource="GRNGridList" e-recorddoubleclick="Get"
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
@@ -285,6 +305,153 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade site-modal in" id="SinglefabricRollPopUpargegrfd" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Fabric Roll
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row" @*style="background-color:lightgray;"*@>
+                    <div class="form-element-ctrl form-horizontal">
+                        <div class="col-xs-12">
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label"><span style="font-weight:bold;">Material Group :</span></label>
+                                    <label class="col-sm-8 control-label">{{selectedGRNRow.MaterialGroup}}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label"><span style="font-weight:bold">SKU1 :</span></label>
+                                    <label class="col-sm-8 control-label">{{selectedGRNRow.SKU1}}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label"><span style="font-weight:bold">PL Qty :</span></label>
+                                    <label class="col-sm-8 control-label">{{selectedGRNRow.TransactionQty}}&nbsp;{{selectedGRNRow.UOM}}</label>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><span style="font-weight:bold;">Material :</span></label>
+                                    <label class="col-sm-9 control-label">{{selectedGRNRow.MaterialMasterName}}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label"><span style="font-weight:bold">SKU2 :</span></label>
+                                    <label class="col-sm-8 control-label">{{selectedGRNRow.SKU2}}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label"><span style="font-weight:bold">Base UoM :</span></label>
+                                    <label class="col-sm-8 control-label">{{selectedGRNRow.BaseUoM}}</label>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><span style="font-weight:bold;">Article :</span></label>
+                                    <label class="col-sm-9 control-label">{{selectedGRNRow.ArticleName}}</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label"><span style="font-weight:bold">SKU3 :</span></label>
+                                    <label class="col-sm-8 control-label">{{selectedGRNRow.SKU3}}</label>
+                                </div>
+                                <div class="row">
+                                    <label class="col-sm-4 control-label"><span style="font-weight:bold">Packing Form :</span></label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select ng-model="PackingformSearchBy">
+                                                <option ng-repeat="option in PackingformList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12" ng-hide="GetFabricRollList.length>0">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label"><span style="font-weight:bold;">Vendor Width</span></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" n-decimals="4" name="ShortName" ng-model="fabricRollSplitOb.VendorWidth" class="form-control" tabindex="6">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">No Of Rolls<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" only-numbers ng-model="fabricRollMasterNew.GRNSplitQty" class="form-control">
+                                            <span class="input-group-btn">
+                                                <button name="submit" ng-click="saveRoll()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i></button>
+                                                <button name="submit" ng-click="clearSplitRow()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-element-ctrl form-horizontal">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table">
+                            <div style="color:black;" id="GridRollEdit" ej-grid e-datasource="GetFabricRollList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="none" e-allowscrolling="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
+                                 e-allowselection="false">
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="RollNo" e-headertext="Roll No." e-width="100"></div>
+                                    <div e-column e-headertext=" Vendor Roll No. " e-template="#VendorRollNo" e-width="100"></div>
+                                    <div e-column e-headertext=" Vendor Lot No. " e-template="#VendorLotNo" e-width="100"></div>
+                                    <div e-column e-headertext="Vendor Width" e-template="#VendorWidth" e-width="100"></div>
+                                    <div e-column e-headertext=" Vendor Qty " e-template="#VendorQty" e-width="80"></div>
+                                    <div e-column e-headertext="" e-template="#DeleteRollBTN" e-width="20"></div>
+                                </div>
+                                <script type="text/template" id="DeleteRollBTN">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right small">
+                                            <li>
+                                                <button ng-click="$parent.removeRoll(this);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                    <i class="glyphicon glyphicon-trash" style="color: red;"></i>
+                                                </button>
+                                            </li>
+                                            @*<li>
+                                                    <button ng-click="" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                        <i class="glyphicon glyphicon-edit" style="color:olive"></i>
+                                                    </button>
+                                                </li>*@
+                                        </ul>
+
+                                    </div>
+                                </script>
+                                <script type="text/template" id="VendorRollNo">
+                                    <input type="text" class="form-control" ng-model="data.VendorRollNo" e-width="100%" />
+                                </script>
+
+                                <script type="text/template" id="VendorQty">
+                                    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" ng-model="data.VendorQty" e-width="100%" />
+                                </script>
+                                <script type="text/template" id="VendorLotNo">
+                                    <input type="text" class="form-control" e-enablertl="false" ng-model="data.VendorLotNo" e-width="100%" />
+                                </script>
+                                <script type="text/template" id="VendorWidth">
+                                    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" ng-model="data.VendorWidth" e-width="100%" />
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer common-btn">
+                    <button ng-click="Update();" class="btn"><i class=""></i> Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade site-modal in" id="fabricRollPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -333,11 +500,22 @@
                                     <label class="col-sm-4 control-label"><span style="font-weight:bold">SKU3 :</span></label>
                                     <label class="col-sm-8 control-label">{{selectedGRNRow.SKU3}}</label>
                                 </div>
+                                <div class="row">
+                                    <label class="col-sm-4 control-label"><span style="font-weight:bold">Packing Form :</span></label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select ng-model="PackingformSearchBy">
+                                                <option ng-repeat="option in PackingformList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
 
                             </div>
                         </div>
 
-                        <div class="col-xs-12">
+                        <div class="col-xs-12" ng-hide="GetFabricRollList.length>0">
                             <div class="col-xs-12 col-sm-6 col-md-6">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label"><span style="font-weight:bold;">Vendor Width</span></label>
@@ -366,52 +544,54 @@
                 <div class="row form-element-ctrl form-horizontal">
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="table-responsive modal-table">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>SR#</th>
-                                        <th>RollNo</th>
-                                        <th>Vendor Roll No</th>
-                                        <th>Vendor Lot No</th>
-                                        <th>Vendor Width</th>
-                                        <th>Vendor Qty</th>
-                                        <th>Remove</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in saveRollList track by $index">
-                                        <td>{{$index+1}}</td>
-                                        <td>{{x.RollNo}}</td>
-                                        <td>
-                                            <input type="text" name="User Name" ng-model="x.VendorRollNo" class="form-control" n-numbers>
-                                        </td>
-                                        <td>
-                                            <input type="text" name="User Name" ng-model="x.VendorLotNo" class="form-control" n-numbers>
-                                        </td>
-                                        <td>
-                                            <input type="text" name="User Name" ng-model="x.VendorWidth" class="form-control" n-numbers>
-                                        </td>
-                                        <td class="text-right">
-                                            <input type="text" name="User Name" n-decimals="2" ng-model="x.VendorQty" class="form-control text-right" n-numbers>
-                                        </td>
-                                        <td>
-                                            <ul class="list-inline action-list">
-                                                <li><button ng-click="valuePassInDelModal($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Add New"><i class="glyphicon glyphicon-trash"></i></button></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
+                            <div style="color:black;" id="GridRollEdit" ej-grid e-datasource="GetFabricRollList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="none" e-allowscrolling="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
+                                 e-allowselection="false">
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="RollNo" e-headertext="Roll No." e-width="100"></div>
+                                    <div e-column e-headertext=" Vendor Roll No. " e-template="#VendorRollNo" e-width="100"></div>
+                                    <div e-column e-headertext=" Vendor Lot No. " e-template="#VendorLotNo" e-width="100"></div>
+                                    <div e-column e-headertext="Vendor Width" e-template="#VendorWidth" e-width="100"></div>
+                                    <div e-column e-headertext=" Vendor Qty " e-template="#VendorQty" e-width="80"></div>
+                                    <div e-column e-headertext="" e-template="#DeleteRollBTN" e-width="20"></div>
+                                </div>
+                                <script type="text/template" id="DeleteRollBTN">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right small">
+                                            <li>
+                                                <button ng-click="$parent.removeRoll(this);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                    <i class="glyphicon glyphicon-trash" style="color: red;"></i>
+                                                </button>
+                                            </li>
+                                            @*<li>
+                                                <button ng-click="" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                                    <i class="glyphicon glyphicon-edit" style="color:olive"></i>
+                                                </button>
+                                            </li>*@
+                                        </ul>           
 
-                                        <td colspan="6" class="text-right"><span style="font-weight:bold;">Total:</span><strong>{{fabricRollMasterList | sumByKey : 'VendorQty' }}</strong></td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    </div>
+                                </script>
+                                <script type="text/template" id="VendorRollNo">
+                                    <input type="text" class="form-control" ng-model="data.VendorRollNo" e-width="100%" />
+                                </script>
+
+                                <script type="text/template" id="VendorQty">
+                                    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" ng-model="data.VendorQty" e-width="100%" />
+                                </script>
+                                <script type="text/template" id="VendorLotNo">
+                                    <input type="text" class="form-control" e-enablertl="false" ng-model="data.VendorLotNo" e-width="100%" />
+                                </script>
+                                <script type="text/template" id="VendorWidth">
+                                    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" ng-model="data.VendorWidth" e-width="100%" />
+                                </script>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer common-btn">
-                    <button ng-click="Save();" class="btn"><i class=""></i> Save</button>
+                    <button ng-click="Update();" class="btn"><i class=""></i> Update</button>
                 </div>
             </div>
         </div>
@@ -435,4 +615,5 @@
     </div>
 </div>
 <confirm-modal></confirm-modal>
-<confirm-archive-generic modalid="confirm_PopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmRollDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
+

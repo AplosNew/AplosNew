@@ -151,8 +151,6 @@ namespace Library.Accounting.Accounts
                             DrAmount = voucherDetailVM.BaseDrAmount
                         }, ref _drvDetailCurrencyData);
 
-
-
                     }
                     else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.Amount > 0)
                     {

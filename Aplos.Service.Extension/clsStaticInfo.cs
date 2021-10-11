@@ -1415,7 +1415,8 @@ namespace Library.Service.Extension
                 }
                 catch (Exception exp)
                 {
-                    throw exp;
+                    
+                    throw ex;
                 }
             }
             finally
