@@ -23,9 +23,7 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
             angular.element(document.querySelector("#modalOperationList")).modal("toggle");
         });
     }
-    $scope.machineButtonClick = function (args) {
-           $scope.selectednode = args;
-    }
+   
     $scope.employeeButtonClick = function (args) {
       
         $scope.selectednode = args;
@@ -305,6 +303,16 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
         }
     }
 
+    $scope.selectarticle = function (args) {
+        try {            
+            $scope.selectednode.items[0].addInfo.ArticleId = args.Id;
+            $scope.selectednode.items[0].addInfo.ArticleDesc = args.StandardName;
+            angular.element(document.querySelector('#articleSearchPop')).modal('hide');
+        } catch (e) {
+
+        }
+    }
+
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
@@ -341,9 +349,10 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
     };
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
-    $scope.machineButtonClick = function () {
-        if (baseService.isUndefinedOrNull($scope.selectednode.items[0].addInfo.ArticleId))
+    $scope.machineButtonClick = function (args) {
+        $scope.selectednode = args;
+        if (baseService.isUndefinedOrNull($scope.selectednode.items[0].addInfo.MaterialMasterId))
             return ShowResult('This material has no attribute', 'failure');
-        $scope.getArticleSearchList($scope.selectednode.items[0].addInfo.ArticleId);
+        $scope.getArticleSearchList($scope.selectednode.items[0].addInfo.MaterialMasterId);
     };
 }
