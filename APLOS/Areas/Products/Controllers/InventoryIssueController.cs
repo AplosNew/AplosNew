@@ -1382,7 +1382,7 @@ namespace Aplos.Areas.Products.Controllers
 			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpPost]
-		public JsonResult GetStockSales(InventoryMaterialViewModel entity, string issueDate)
+		public JsonResult GetStockSales(InventoryMaterialViewModel entity, string issueDate)//dgsdg
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			entity.CompanyGroupId = identity.CompanyGroupId;
