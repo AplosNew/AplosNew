@@ -4405,26 +4405,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     };
 
-    $scope.CopySObyMOI = function (Id, MasterOrderItemId) {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'CopySOByMOI?MasterId=' + Id + '&masterItemId=' + MasterOrderItemId,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                getSalesOrderList();
-                $scope.getMasterItemList();
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    };
-
     $scope.ModelSKU = {
         FromSKU1Id: null,
         ToSKU1Id: null,
@@ -4481,8 +4461,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     }
 
-   
-
     $scope.ToSKU2List = [];
     $scope.GetToItemMaterialSKU2 = function (materialId) {
         $http({
@@ -4493,6 +4471,28 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     }
 
+    $scope.CopySObyMOI = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CopySOByMOI',
+            data: { 'MasterId': $scope.ToMasterOrderItemId, 'masterItemId': $scope.FromMasterOrderItemId, 'SKU1List': $scope.FromSKU1List, 'SKU2List': $scope.FromSKU2List},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                angular.element(document.querySelector('#SKUsPopUp')).modal('hide');
+                getSalesOrderList();
+                $scope.getMasterItemList();
+
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
 
     //#endregion
 }

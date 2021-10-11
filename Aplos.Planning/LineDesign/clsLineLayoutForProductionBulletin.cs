@@ -124,12 +124,13 @@ namespace Library.Planning.LineDesign
         SqlRepository _sqlRepository = new SqlRepository();
         List<DiagramShapes> AllShapes = new List<DiagramShapes>();
         public List<object> AllShapesForJson = new List<object>();
-        public void MakeBulletinList(string BulletinId)
+        public enum DrawType { Linear, TwoLines }
+        public void MakeBulletinList(string BulletinId, DrawType drawType)
         {
 
             try
             {
-                DataTable dtBulletin = _sqlRepository.GetDataTable(@"SELECT d.Id,ov.Id AS OperationVariationId,ov.UserName AS OperationVariation,
+                DataTable dtBulletin = _sqlRepository.GetDataTable(@"SELECT  ROW_NUMBER() OVER(ORDER BY D.Sequence,d.id) AS SQ,d.Id,ov.Id AS OperationVariationId,ov.UserName AS OperationVariation,
                                             d.AllotedManpower,MM.Id MaterialMasterId,MM.UserName AS MaterialMasterDesc
 											,M.StandardName AS ArticleDesc,o.Id as OperationId,o.UserName as OperationDesc
                                                 ,M.Id ArticleId    ,d.Sequence,NULL AS Designation,
@@ -144,9 +145,43 @@ namespace Library.Planning.LineDesign
                                             
                                             WHERE d.ProductionBulletinTemplateMasterId='" + BulletinId + "' ORDER BY D.Sequence");
 
-                int halfBulletinCount = dtBulletin.Rows.Count / 2;
-                int Width = 100; int Height = 100; int PaddingTop = 10; int paddingLeft = 5;
-                int offsetX = 0; int offsetY = 0;
+                int ItemWidth = 100; int ItemHeight = 100;
+
+                if (drawType == DrawType.Linear)
+                    makeShapesLinear(dtBulletin, 0, 0, ItemWidth, ItemHeight);
+
+                if (drawType == DrawType.TwoLines)
+                {
+                    int TotalRows = dtBulletin.Rows.Count;
+                    if (TotalRows <= 10)
+                        makeShapesLinear(dtBulletin, 0, 0, ItemWidth, ItemHeight);
+                    else
+                    {
+                        int Half = (int)TotalRows / 2;
+                        dtBulletin.DefaultView.RowFilter = "SQ<=" + Half;
+                        makeShapesLinear(dtBulletin.DefaultView.ToTable(), 0, 0, ItemWidth, ItemHeight);
+
+
+                        dtBulletin.DefaultView.RowFilter = "SQ>" + Half;
+                        makeShapesLinear(dtBulletin.DefaultView.ToTable(), 0, ItemWidth * 2, ItemWidth, ItemHeight);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        private void makeShapesLinear(DataTable dtBulletin, int offsetX = 0, int offsetY = 0, int Width = 100, int Height = 100)
+        {
+            try
+            {
+
+                int PaddingTop = 10; int paddingLeft = 5;
 
                 int ItemIndex = 0;
                 for (int i = 0; i < dtBulletin.Rows.Count; i++)
@@ -158,7 +193,7 @@ namespace Library.Planning.LineDesign
                         GroupingData group = new GroupingData();
                         group.id = "group" + dtBulletin.Rows[i]["Id"].ToString();
 
-                        offsetY = 0;
+                        //offsetY = 0;
                         #region Employee Image
                         Html emp = new Html();
                         AllShapes.Add(emp);
@@ -167,7 +202,7 @@ namespace Library.Planning.LineDesign
                         emp.offsetX = offsetX + (emp.width / 2);
                         emp.offsetY = offsetY + (emp.height / 2);
 
-                        emp.id = "E" + dtBulletin.Rows[i]["Id"].ToString() + System.DateTime.Now.Ticks.ToString()+ ItemIndex;
+                        emp.id = "E" + dtBulletin.Rows[i]["Id"].ToString() + System.DateTime.Now.Ticks.ToString() + ItemIndex;
                         emp.name = "E" + dtBulletin.Rows[i]["Id"].ToString() + System.DateTime.Now.Ticks.ToString() + ItemIndex;
 
                         emp.labels.Add(new labels { text = "" });
@@ -221,12 +256,11 @@ namespace Library.Planning.LineDesign
             catch (Exception ex)
             {
 
-                throw ex;
             }
 
         }
-
-
-
     }
+
+
+
 }

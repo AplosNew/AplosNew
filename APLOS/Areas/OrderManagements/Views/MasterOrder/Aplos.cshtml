@@ -545,8 +545,7 @@
                                                     </select>
                                                 </div>
                                                 <span class="input-group-btn">
-                                                    @*<button ng-click="CopySObyMOI(x.Id,MasterOrderItemId);" ng-disabled="x.SONo!=0" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>*@
-                                                    @*<button ng-click="ShowSKUMapPopUp(x,MasterOrderItemId);" ng-disabled="x.SONo!=0" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>*@
+                                                    <button ng-click="ShowSKUMapPopUp(x,MasterOrderItemId);" ng-disabled="x.SONo!=0" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>
                                                 </span>
                                             </div>
                                         </td>
@@ -3414,30 +3413,55 @@
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(1), active: isSet3(1) }">
                             <div class="row">
-                                <div style="color:black;" id="FromSKU1" ej-grid e-datasource="FromSKU1List"
-                                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
-                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                <div style="color:black;" id="FromSKU1" e-showstackedheader="true" ej-grid e-datasource="FromSKU1List" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                    <div e-stackedheaderrows>
+                                        <div e-stackedheaderrow>
+                                            <div e-stackedheadercolumns>
+                                                <div e-stackedheadercolumn e-headertext="Source" e-text-align="center" e-column="CharacteristicsValueId,CharacteristicsValueName"></div>
+                                                <div e-stackedheadercolumn e-headertext="Destination" e-text-align="center" e-column="SKUC1"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div e-columns>
-                                        <div e-column e-type="string" e-field="Value" e-headertext="Id" e-width="20"></div>
-                                        <div e-column e-type="Text" e-field="Text" e-headertext="Colour" e-width="60"></div>
+                                        <div e-column e-type="string" e-field="CharacteristicsValueId" e-headertext="Id" e-width="20" e-visible="false"></div>
+                                        <div e-column e-type="Text" e-field="CharacteristicsValueName" e-headertext="Colour" e-width="60"></div>
+                                        <div e-column e-field="SKUC1" e-template="#SKU1" e-headertext="Colour" e-width="80" style="height: 20px;"></div>
                                     </div>
                                 </div>
-
+                                <script type="text/template" id="SKU1">
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="$parent.ToSKU1List" ng-model="data.ToSKU1Id" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                </script>
                             </div>
                         </div>
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(2), active: isSet3(2) }">
                             <div class="row">
-                                <div style="color:black;" id="FromSKU2" ej-grid e-datasource="FromSKU2List"
-                                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
-                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                <div style="color:black;" id="FromSKU2" e-showstackedheader="true" ej-grid e-datasource="FromSKU2List" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                    <div e-stackedheaderrows>
+                                        <div e-stackedheaderrow>
+                                            <div e-stackedheadercolumns>
+                                                <div e-stackedheadercolumn e-headertext="Source" e-text-align="center" e-column="CharacteristicsValueId,CharacteristicsValueName"></div>
+                                                <div e-stackedheadercolumn e-headertext="Destination" e-text-align="center" e-column="SKUC2"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div e-columns>
-                                        <div e-column e-type="string" e-field="Value" e-headertext="Id" e-width="20"></div>
-                                        <div e-column e-type="Text" e-field="Text" e-headertext="Size" e-width="60"></div>
+                                        <div e-column e-type="string" e-field="CharacteristicsValueId" e-headertext="Id" e-width="20" e-visible="false"></div>
+                                        <div e-column e-type="Text" e-field="CharacteristicsValueName" e-headertext="Size" e-width="60"></div>
+                                        <div e-column e-field="SKUC2" e-template="#SKU2" e-headertext="Size" e-width="60" style="height: 20px;"></div>
                                     </div>
                                 </div>
+                                <script type="text/template" id="SKU2">
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="$parent.ToSKU2List" ng-model="data.ToSKU2Id" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                </script>
+
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="CopySObyMOI();" class="btn" tabindex="9"><i class="glyphicon glyphicon-save-file"></i>Copy SO</button></li>
+                    </ul>
                 </div>
             </div>
         </div>

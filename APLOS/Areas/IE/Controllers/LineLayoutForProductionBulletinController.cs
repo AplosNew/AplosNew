@@ -42,7 +42,7 @@ namespace Aplos.Areas.IE.Controllers
         public JsonResult GetAllData(string BulletinId)
         {
             Library.Planning.LineDesign.GenerateLineDiagraForLineLayout _diagram = new Library.Planning.LineDesign.GenerateLineDiagraForLineLayout();
-            _diagram.MakeBulletinList(BulletinId);
+            _diagram.MakeBulletinList(BulletinId,GenerateLineDiagraForLineLayout.DrawType.TwoLines);
 
             return Json(_diagram.AllShapesForJson, JsonRequestBehavior.AllowGet);
         }

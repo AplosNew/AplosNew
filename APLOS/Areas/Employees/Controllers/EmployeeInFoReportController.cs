@@ -39,7 +39,7 @@ namespace Aplos.Areas.Employees.Controllers
 
         #region -- Pages
 
-      
+
         public ActionResult Aplos()
         {
             return View();
@@ -48,15 +48,15 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion -- Pages
 
         #region -----------------------------------Excel Report--------------------------------------------------
-       
+
 
         [HttpGet, Authorize]
-        public ActionResult EmployeeInFoIndexReport(ReportFormat reportFormat, string radioValue, bool IsCheck)
+        public ActionResult EmployeeInFoIndexReport(ReportFormat reportFormat, string radioValue, bool IsCheck,string currentStatus)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var reportFileName = "EmployeeInformation";
-            var workbook = EmployeeInFoIndexReportWorkSheet(radioValue, IsCheck);
+            var workbook = EmployeeInFoIndexReportWorkSheet(radioValue, IsCheck, currentStatus);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -74,7 +74,7 @@ namespace Aplos.Areas.Employees.Controllers
             return null;
         }
 
-        private IWorkbook EmployeeInFoIndexReportWorkSheet(string radioValue, bool IsCheck)
+        private IWorkbook EmployeeInFoIndexReportWorkSheet(string radioValue, bool IsCheck, string currentStatus)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var excelEngine = new ExcelEngine();
@@ -110,7 +110,7 @@ namespace Aplos.Areas.Employees.Controllers
             objRpt = new clsReport();
             oRU = new ReportUtility();
 
-            GetEmployeesData(identity.CompanyId, radioValue.ToString(), IsCheck, out dsEmpInfo);
+            GetEmployeesData(identity.CompanyId, radioValue.ToString(), IsCheck, currentStatus, out dsEmpInfo);
             objRpt.GetEntityPositionInfo(identity.CompanyId, out dsEntityPosition);
             objRpt.GetEmployeesTodaysShift(out dsTodayShift);
             objRpt.GetEmployeesShiftAndEffectiveDate(out dsShiftAndEffectiveDate);
@@ -248,6 +248,7 @@ namespace Aplos.Areas.Employees.Controllers
                 int cContractor = 0;
                 int cMultipleOperation = 0;
                 int cSingleOperation = 0;
+                int cTenureMonth = 0;
                 //int cCTC = 0;
                 #endregion variable
 
@@ -294,15 +295,16 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "NID"); cNID = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Tenure(Month)", 14); cTenureMonth = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOS"); cDOS = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "P.Period", 8); cProbPeriod = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOC"); cDOC = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Status"); cES = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Current Status"); cEmployeeCurrentStatus = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Current Status",19); cEmployeeCurrentStatus = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Today's Shift"); ColSFT = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift Effective Date"); cEDate = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Roster Shift Name"); cRoster = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Assign Shift Name",30); cShift = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Assign Shift Name", 30); cShift = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Week Off Effective Date"); cWEDate = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Align With Company", 11); cAlignWithCC = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Individual Week Off", 9); cIndv = xlsCol; xlsCol++;
@@ -319,6 +321,7 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Operation Code", 15); cSingleOperation = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Multiple Operation Code", 15); cMultipleOperation = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Salary Rule", 25); cSalaryRule = xlsCol; xlsCol++;
+
                 //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Salary Rule (GD)", 25); cGivenSalaryRule = xlsCol; xlsCol++;
 
                 if (IsBudgetCodeApplicable)
@@ -362,7 +365,7 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation OT Entitlement"); cDOT = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Paid Hours"); cPH = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Payment Mode"); cPM = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name",25); cBN = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", 25); cBN = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account No"); cB = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PF", 6); colPF = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PF No"); cPF = xlsCol; xlsCol++;
@@ -489,6 +492,7 @@ namespace Aplos.Areas.Employees.Controllers
                     oRU.SetText(ref sheet1, xlsRow, cSalaryRule, dsEmpInfo.Tables[0].Rows[i]["SalaryRuleName"].ToString());
 
                     oRU.SetText(ref sheet1, xlsRow, cG, dsEmpInfo.Tables[0].Rows[i]["Grade"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, cTenureMonth, dsEmpInfo.Tables[0].Rows[i]["TenureMonth"].ToString());
 
                     // from Other DataSet
 
@@ -605,7 +609,7 @@ namespace Aplos.Areas.Employees.Controllers
                 xlsCol = 1;
                 string FactoryAddress = string.Empty;
 
-                
+
                 sheet1.Range[xlsRow, 3].Text = CmpName;
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
@@ -686,9 +690,9 @@ namespace Aplos.Areas.Employees.Controllers
             int RowIndex = ROW;
             startRow = ROW;
             ROW++;
-           
 
-           
+
+
             //sheet1.UsedRange.NumberFormat = "#,##0.000";
             //sheet1.UsedRange.WrapText = true;
             //sheet1.UsedRange.CellStyle.Font.Size = 8;
@@ -697,12 +701,13 @@ namespace Aplos.Areas.Employees.Controllers
             return workbook;
         }
 
-        public void GetEmployeesData(string CompanyId, string radioValue, bool IsCheck, out DataSet dsRef)
+        public void GetEmployeesData(string CompanyId, string radioValue, bool IsCheck, string currentStatus, out DataSet dsRef)
         {
             string strSQL;
             string wc = string.Empty;
             string c = string.Empty;
             string plant = string.Empty;
+            string CS = string.Empty;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             ConnectionManager.DAL.ConManager objCon;
@@ -731,6 +736,10 @@ namespace Aplos.Areas.Employees.Controllers
                     wc = "";
                 }
 
+                if (!string.IsNullOrEmpty(currentStatus))
+                {
+                    CS = currentStatus;
+                }
 
                 strSQL = @"SELECT E.SystemId, E.EmployeeId, E.EmployeeCode,E.EmployeeName,E.FatherName,E.MotherName,E.SpouseName,E.PresentAddress1,E.PresentAddress2, PRPS.UserName PresThana
                             ,PRCT.UserName PresCity, PRD.UserName PresDistrict, PRST.UserName PresState, PRC.UserName PresCountry,E.ParmanentAddress1,E.ParmanentAddress2,PPS.UserName ParmThana
@@ -756,6 +765,7 @@ namespace Aplos.Areas.Employees.Controllers
                                         WHERE E.SystemId=BTP.EmpSystemId order by BTP.Sequence for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                         , PF.DocNumber PFNumber, ESIC.DocNumber ESICNumber, PF = CASE WHEN PFE.EmpSystemID IS NULL THEN '' WHEN PFE.IsEligible = 1 THEN 'YES' ELSE 'NO' END
                         , ESIC = CASE WHEN ESICE.EmpSystemID IS NULL THEN 'NO' WHEN ESICE.IsEligible = 1 THEN 'YES' ELSE 'NO' END,  IsPositionCodeApplicable=1
+                        ,TenureMonth=DATEDIFF(month, FORMAT(DOJ,'dd-MMM-yyyy'), FORMAT(GETDATE(),'dd-MMM-yyyy'))
                             FROM EmployeeInformation e
 							LEFT JOIN MST.ManpowerBudget mpb ON mpb.Id = e.BudgetCode
                             LEFT JOIN ORG.Company C ON C.Id = E.CompanyId
@@ -884,7 +894,7 @@ namespace Aplos.Areas.Employees.Controllers
 	                            WHERE SalaryHeadEnum = 'ESIC' AND IsEligible = 1
 	                            ) ESICE ON ESICE.EmpSystemID = E.SystemId
                             LEFT JOIN PlantWiseHRMSSetting hs ON hs.PlantID = e.PlantId
-                            WHERE E.EmpType <> 'Guest' " + wc + @" " + plant + @"
+                            WHERE E.EmpType <> 'Guest' " + wc + @" " + CS + @" " + plant + @"
                             ORDER BY ISNULL(e.EmployeeCodePreFix,''), e.EmployeeCodeNumeric";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

@@ -481,7 +481,7 @@ namespace Library.Accounting.Accounts
 		}
 
         #region InventorySalesReturn
-        public IEnumerable<object> GetSalesDetailDataByIssueId(string inventorySalesId)
+        public IEnumerable<object> GetSalesDetailDataBySales(string inventorySalesId)
         {
             try
             {
@@ -490,9 +490,9 @@ namespace Library.Accounting.Accounts
 		                        , IM.FirstCharacteristicsId, CH1.UserName AS FirstCharacteristics, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicText--FirstCharacteristicsValue
 		                        , IM.SecondCharacteristicsId, CH2.UserName AS SecondCharacteristics, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicText--SecondCharacteristicsValue
 		                        , IM.ThirdCharacteristicsId, CH3.UserName AS ThirdCharacteristics, IM.ThirdCharacteristicsValueId, CHV3.UserName AS ThirdCharacteristicText--ThirdCharacteristicsValue
-		                        ,ISH.TotalBaseAmount InventoryAmount, IID.TransactionQty,IRD.TransactionQty GRNQty,IRDUM.UserName GRNUoM, IID.TransactionUoMId, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.AvgRate, IID.AvgAmount, IID.PolicyRate, IID.PolicyAmount, IID.[Policy]
+		                        ,IRDUM.UserName GRNUoM, IID.TransactionUoMId, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.AvgRate, IID.AvgAmount, IID.PolicyRate, IID.PolicyAmount, IID.[Policy]
                                 ,CC.UserName CostCenter,C.UserName CountryName,c.Id CountryId,II.ToCurrencyRate, II.DocRefNo, II.DocDate , II.NoteForAccounts
-                                 ,ISD.SalesRate,ISD.TotalAmount,IST.TaxAmount,NULL TaxList
+                                ,IRD.TransactionQty GRNQty,ISH.TotalBaseAmount InventoryAmount,ISD.SalesRate, IID.TransactionQty,ISR.OtherQty,(IID.TransactionQty-isnull(ISR.OtherQty,0)) BalanceQty,ISD.TotalAmount,IST.TaxAmount SalesTaxAmount,0 ReturnAmount,0 TaxAmount,NULL TaxList
                         FROM [TRN].[InventorySalesDetail] AS IID
                         LEFT JOIN [TRN].[InventorySales] AS II ON IID.InventorySalesId=II.Id
                         LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IID.InventoryMaterialId=IM.Id
@@ -512,8 +512,9 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS IRDUM ON IRD.BaseUOMId=IRDUM.Id
                         JOIN (select InventorySalesHistoryId,Sum(TaxAmount) TaxAmount from trn.inventorySalesTax group by InventorySalesHistoryId) IST ON IST.InventorySalesHistoryId =ISH.Id
                         LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IID.Id
-
-                        WHERE IID.InventorySalesId='" + inventorySalesId + "'";
+						LEFT JOIN (SELECT SR.InventorySalesId,SRD.InventoryMaterialId,sum(SRD.TransactionQty) OtherQty FROM TRN.InventorySalesReturnDetail SRD 
+									JOIN TRN.InventorySalesReturn SR ON SR.Id=SRD.InventorySalesReturnId WHERE SR.InventorySalesId='" + inventorySalesId + @"' group by SR.InventorySalesId,SRD.InventoryMaterialId) ISR ON ISR.InventorySalesId=II.Id and ISR.InventoryMaterialId=IID.InventoryMaterialId
+						WHERE IID.InventorySalesId='"+ inventorySalesId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -541,8 +542,35 @@ namespace Library.Accounting.Accounts
             {
                 throw ex;
             }
-        } 
+        }
 
-        #endregion
-    }
+		public IEnumerable<object> GetTaxInfo(string Id)
+		{
+			try
+			{
+				string sql = @"select A.Id,A.InventorySalesDetailId
+							, A.InventorySalesHistoryId
+							, A.InventoryReceiveDetailId
+							, A.TaxCategoryId
+							, A.HSnCodeId
+							, HC.Code HSNCode
+							, A.Percentage
+							, A.TaxAmount
+							FROM  TRN.InventorySalesTax A
+							LEFT JOIN TRN.InventorySalesHistory B ON B.Id= A.InventorySalesHistoryId
+							LEFT JOIN TRN.InventorySalesDetail C ON C.Id= B.InventorySalesDetailId
+							LEFT JOIN [TRN].[InventorySales] D ON D.Id= C.InventorySalesId
+							LEFT JOIN [HKP].[HSNCode] HC ON HC.Id= A.HSnCodeId
+							where D.Id= '" + Id + "'";
+				return _sqlRepository.GetDataCollection(sql);
+
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		#endregion
+	}
 }

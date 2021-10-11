@@ -54,6 +54,20 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
 
         angular.element(document.querySelector('#fabricRollPopUp')).modal('show');
     };
+    $scope.showSingleFabricRollPop = function (data) {
+
+        $scope.fabricRollSplitOb.VendorWidth = null;
+        // $scope.fabricEdit = isEdit;
+        $scope.fabricRollMasterNew.GRNSplitQty = null;
+        $scope.fabricRollMasterList = [];
+        $scope.selectedGRNRow = data;
+        $scope.fabDistributeQty = data.TotalDistributeQty;
+        $scope.LoadFabricRollList();
+
+        angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
+    };
+    
+
     $scope.splitGrnRow = function () {
         debugger;
         if (!baseService.isUndefinedOrNull($scope.fabricRollMasterNew.GRNSplitQty)) {
@@ -115,7 +129,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             $http({
                 method: 'POST',
                 url: $scope.path + "GetRoll",
-                data: { 'NoofRolls': $scope.fabricRollMasterNew.GRNSplitQty, 'SelectedRow': $scope.selectedGRNRow, 'Width': $scope.fabricRollSplitOb.VendorWidth },
+                data: { 'NoofRolls': $scope.fabricRollMasterNew.GRNSplitQty, 'SelectedRow': $scope.selectedGRNRow, 'Width': $scope.fabricRollSplitOb.VendorWidth, 'PackingForm': $scope.PackingformSearchBy },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -341,7 +355,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             $http({
                 method: 'POST',
                 url: 'Materials/FabricRoll/Update',
-                data: { 'FabricRollData': $scope.GetFabricRollList },
+                data: { 'FabricRollData': $scope.GetFabricRollList, 'PackingForm': $scope.PackingformSearchBy},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -351,6 +365,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
                     ShowResult(response.data.Message, 'success');
                     //$scope.getGRNDetail();
                     angular.element(document.querySelector('#fabricRollPopUp')).modal('hide');
+                    $scope.LoadFabricRollList();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -361,17 +376,36 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         }
     };
     //Deleting Rows from RetentionAllowanceList
-    $scope.valuePassInDelModal = function (index, data) {
-        $scope.tempFabOb = data;
-        $scope.tempFabIndex = index;
-        $scope.message_confirmation = 'Are you sure want to delete';
-        angular.element(document.querySelector('#confirm_PopUp')).modal('show');
-    };
-    $scope.removeRow = function () {
-        $scope.fabricRollMasterList.splice($scope.tempFabIndex, 1);
-        $scope.tempFabIndex = -1;
-        $scope.tempFabOb.Id = null;
-        angular.element(document.querySelector('#confirm_PopUp')).modal('hide');
+    $scope.message_detailconfirmation = null;
+    $scope.removeRoll = function (obj) {
+
+        $scope.Id = obj.data.Id;
+        if (!baseService.isUndefinedOrNull($scope.Id))
+            $scope.message_detailconfirmation = 'Are you sure you want to delete this Roll: [ ' + obj.data.RollNo + ' ] permanently?';
+        angular.element(document.querySelector('#confirmRollDeletePopUp')).modal('show');
+    }
+
+    $scope.Delete = function () {
+       
+
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //Clear(response.data.Sequence);
+                    $scope.LoadFabricRollList();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+       
     };
     //$scope.removeFromDb = function (id, index) {
     //    try {
@@ -479,7 +513,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         }
     ];
 
-    $scope.PackingformSearchBy = "Roll";
+    $scope.PackingformSearchBy = "";
     $scope.Packingformsearch = "";
     $scope.PackingformList = [
         {

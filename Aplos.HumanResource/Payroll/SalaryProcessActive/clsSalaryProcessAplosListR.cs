@@ -7781,7 +7781,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 }
 
                 drLocal["SlrProcMstSystemID"] = bplib.clsWebLib.RetValidLen(fpara.lblSalaryProcSystemId.Trim());
-
+                
                 drLocal["MonthNo"] = (int)Convert.ToDateTime(fpara.FromDate.Trim()).Month;
                 drLocal["YearNo"] = (int)Convert.ToDateTime(fpara.FromDate.Trim()).Year;
                 drLocal["GroupID"] = bplib.clsWebLib.RetValidLen(fpara.GroupId.ToString().Trim());
@@ -7813,6 +7813,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 drLocal["TotalNonPayDay"] = dicMMDSSI_Sub.TotalNonPayDay;
                 drLocal["TotalWorkingDay"] = dicMMDSSI_Sub.TotalWorkingDay;
                 drLocal["ActualWorkingDay"] = dicMMDSSI_Sub.TotalActualWorkingDay;
+
+                drLocal["WeekoffDays"] = dicMMDSSI_Sub.WeekoffDays;
 
                 drLocal["TotalOTHr"] = OTHDay;
                 drLocal["TotalNormalOTHr"] = NorOTHDay;
