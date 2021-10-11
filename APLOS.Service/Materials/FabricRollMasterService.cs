@@ -149,13 +149,13 @@ namespace Library.Service.Materials
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FabricRollMaster", out sID);
             return sID;
         }
-        public void SaveFabricRoll(List<Dictionary<string, object>> FabricRollData)
+        public void UpdateFabricRoll(List<Dictionary<string, object>> FabricRollData)
         {
             DataSet dsFabricRoll;
             string _Id = GetFabricRollMasterPK();
 
-            ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
-            conBin.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where Invervid='" + _Id + "'", out dsFabricRoll, false, "1");
+            ConnectionManager.DAL.ConManager conFabricRoll = new ConnectionManager.DAL.ConManager("1");
+            conFabricRoll.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + FabricRollData[0]["InventoryReceiveDetailId"] + "'", out dsFabricRoll, false, "1");
 
             int count = 0;
             if (FabricRollData != null)
@@ -164,29 +164,29 @@ namespace Library.Service.Materials
                 {
                     count++;
                     DataView dv = new DataView(dsFabricRoll.Tables[0]);
-                    dv.RowFilter = "RollNo='" + item["RollNo"] + "'";
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                    if (dv.Count == 0)
-                    {
-                        item["Id"] = _Id + "-" + count;
-
-                        AddNewRow(dsFabricRoll.Tables[0], item);
-                    }
-                    else
+                    if (dv.Count > 0)
                     {
                         DataRow drmo = dv[0].Row;
-                        EditRow(drmo, item);
+                        drmo.BeginEdit();
+                        drmo["RollNo"] = item["RollNo"];
+                        drmo["VendorRollNo"] = item["VendorRollNo"];
+                        drmo["VendorWidth"] = item["VendorWidth"];
+                        drmo["VendorLotNo"] = item["VendorLotNo"];
+                        drmo["VendorQty"] = item["VendorQty"];
+                        drmo.EndEdit();
                     }
                 }
             }
 
-            clsStaticInfo _info = new clsStaticInfo();
-            _info.SaveDataSets(dsFabricRoll);
+            //clsStaticInfo _info = new clsStaticInfo();
+            //_info.SaveDataSets(dsFabricRoll);
 
 
 
         }
-        public void CreateRoll(string InventoryReceiveDetailId, int NoofRolls, int Qty)
+        public void CreateRoll(int NoofRolls, Dictionary<string, object> SelectedRow, int Width)
         {
             DataSet dsFabricRoll;
             string _Id = GetFabricRollMasterPK();
@@ -194,8 +194,8 @@ namespace Library.Service.Materials
             string RollPrefix = "";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
-            conBin.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + InventoryReceiveDetailId + "'", out dsFabricRoll, false, "1");
-            conBin.OpenDataSetThroughAdapter("select * from scs.PlantConfig where PlantId='" + identity.PlantId + @"'", out DataSet dsPlant, false, "1");
+            conBin.OpenDataSetThroughAdapter("select * from TRN.FabricRollMaster where InventoryReceiveDetailId='" + SelectedRow["Id"] + "'", out dsFabricRoll, false, "1");
+            conBin.OpenDataSetThroughAdapter("select * from scs.PlantConfig where PlantId='" + SelectedRow["PlantId"] + @"'", out DataSet dsPlant, false, "1");
             if (dsPlant.Tables[0].Rows.Count > 0)
                 RollPrefix = dsPlant.Tables[0].Rows[0]["FabRollPrefix"].ToString();
 
@@ -220,10 +220,16 @@ namespace Library.Service.Materials
 
                 dr["Id"] = "R" + sID + "-" + i;
                 dr["RollNo"] = RollNo;
-                dr["VendorQty"] = Qty / NoofRolls;
+                dr["VendorQty"] = Convert.ToInt32( SelectedRow["TransactionQty"].ToString()) / NoofRolls;
+                dr["MaterialMasterId"] = SelectedRow["MaterialMasterId"]; 
+                dr["ArticleId"] = SelectedRow["ArticleId"];
+                dr["PlantId"] = SelectedRow["PlantId"];
+                dr["InventoryReceiveDetailId"] = SelectedRow["Id"];
+                dr["VendorWidth"] = Width;              
 
 
                 dsFabricRoll.Tables[0].Rows.Add(dr);
+
             }
 
             clsStaticInfo _info = new clsStaticInfo();

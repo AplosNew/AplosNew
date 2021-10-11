@@ -333,11 +333,26 @@
                                     <label class="col-sm-4 control-label"><span style="font-weight:bold">SKU3 :</span></label>
                                     <label class="col-sm-8 control-label">{{selectedGRNRow.SKU3}}</label>
                                 </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="select-style">
+                                            <select ng-model="PackingformSearchBy">
+                                                <option ng-repeat="option in PackingformList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    @*<div class="col-xs-12 col-sm-7 col-md-7">
+                                            <input type="text" class="form-control" placeholder="Search" ng-model="GRNsearch" ng-enter="LoadGRNSearchList()">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2">
+                                            <button type="button" ng-click="LoadGRNSearchList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                        </div>*@
+                                </div>
 
                             </div>
                         </div>
 
-                        <div class="col-xs-12">
+                        <div class="col-xs-12" ng-hide="GetFabricRollList.length>0">
                             <div class="col-xs-12 col-sm-6 col-md-6">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label"><span style="font-weight:bold;">Vendor Width</span></label>
@@ -366,52 +381,106 @@
                 <div class="row form-element-ctrl form-horizontal">
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="table-responsive modal-table">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>SR#</th>
-                                        <th>RollNo</th>
-                                        <th>Vendor Roll No</th>
-                                        <th>Vendor Lot No</th>
-                                        <th>Vendor Width</th>
-                                        <th>Vendor Qty</th>
-                                        <th>Remove</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in saveRollList track by $index">
-                                        <td>{{$index+1}}</td>
-                                        <td>{{x.RollNo}}</td>
-                                        <td>
-                                            <input type="text" name="User Name" ng-model="x.VendorRollNo" class="form-control" n-numbers>
-                                        </td>
-                                        <td>
-                                            <input type="text" name="User Name" ng-model="x.VendorLotNo" class="form-control" n-numbers>
-                                        </td>
-                                        <td>
-                                            <input type="text" name="User Name" ng-model="x.VendorWidth" class="form-control" n-numbers>
-                                        </td>
-                                        <td class="text-right">
-                                            <input type="text" name="User Name" n-decimals="2" ng-model="x.VendorQty" class="form-control text-right" n-numbers>
-                                        </td>
-                                        <td>
-                                            <ul class="list-inline action-list">
-                                                <li><button ng-click="valuePassInDelModal($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Add New"><i class="glyphicon glyphicon-trash"></i></button></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
+                            @*<table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>SR#</th>
+                                            <th>RollNo</th>
+                                            <th>Vendor Roll No</th>
+                                            <th>Vendor Lot No</th>
+                                            <th>Vendor Width</th>
+                                            <th>Vendor Qty</th>
+                                            <th>Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in saveRollList track by $index">
+                                            <td>{{$index+1}}</td>
+                                            <td>{{x.RollNo}}</td>
+                                            <td>
+                                                <input type="text" name="User Name" ng-model="x.VendorRollNo" class="form-control" n-numbers>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="User Name" ng-model="x.VendorLotNo" class="form-control" n-numbers>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="User Name" ng-model="x.VendorWidth" class="form-control" n-numbers>
+                                            </td>
+                                            <td class="text-right">
+                                                <input type="text" name="User Name" n-decimals="2" ng-model="x.VendorQty" class="form-control text-right" n-numbers>
+                                            </td>
+                                            <td>
+                                                <ul class="list-inline action-list">
+                                                    <li><button ng-click="valuePassInDelModal($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Add New"><i class="glyphicon glyphicon-trash"></i></button></li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
 
-                                        <td colspan="6" class="text-right"><span style="font-weight:bold;">Total:</span><strong>{{fabricRollMasterList | sumByKey : 'VendorQty' }}</strong></td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                            <td colspan="6" class="text-right"><span style="font-weight:bold;">Total:</span><strong>{{fabricRollMasterList | sumByKey : 'VendorQty' }}</strong></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>*@
+                            <div style="color:black;" id="GridRollEdit" ej-grid e-datasource="GetFabricRollList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="none" e-allowscrolling="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
+                                 e-allowselection="false">
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="RollNo" e-headertext="Roll No." e-width="100"></div>
+                                    <div e-column e-headertext=" Vendor Roll No. " e-template="#VendorRollNo" e-width="100"></div>
+                                    <div e-column e-headertext=" Vendor Lot No. " e-template="#VendorLotNo" e-width="100"></div>
+                                    <div e-column e-headertext="Vendor Width" e-template="#VendorWidth" e-width="100"></div>
+                                    <div e-column e-headertext=" Vendor Qty " e-template="#VendorQty" e-width="80"></div>
+                                    <div e-column e-headertext=" Remove " e-template="#Remove" e-width="60"></div>
+
+                                </div>
+                                <script id="Remove" type="text/template">
+                                    <div class="common-btn">
+                                        <ul class="common-btn list-inline text-center">
+                                            <li><button ng-click="valuePassInDelModal($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Add New"><i class="glyphicon glyphicon-trash"></i></button></li>
+
+                                        </ul>
+                                    </div>
+                                </script>
+                                <script type="text/template" id="VendorRollNo">
+                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                        <input type="text" ng-model="data.VendorRollNo" ng-maxlength="150" style="color:black;" class="form-control" />
+                                    </div>
+                                </script>
+                                @*<script type="text/template" id="VendorRollNo">
+                                        <input type="text" class="form-control" e-value="data.VendorRollNo" e-width="100%" />
+                                    </script>*@
+                                <script type="text/template" id="VendorQty">
+                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                        <input type="text" ng-model="data.VendorQty" ng-maxlength="150" style="color:black;" class="form-control" />
+                                    </div>
+                                </script>
+                                <script type="text/template" id="VendorLotNo">
+                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                        <input type="text" ng-model="data.VendorLotNo" ng-maxlength="150" style="color:black;" class="form-control" />
+                                    </div>
+                                </script>
+                                <script type="text/template" id="VendorWidth">
+                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                        <input type="text" ng-model="data.VendorWidth" ng-maxlength="150" style="color:black;" class="form-control" />
+                                    </div>
+                                </script>
+                                @*<script type="text/template" id="VendorQty">
+                                        <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.VendorQty" e-width="100%" />
+                                    </script>
+                                    <script type="text/template" id="VendorLotNo">
+                                        <input type="text" class="form-control" e-enablertl="false" e-value="data.VendorLotNo" e-width="100%" />
+                                    </script>
+                                    <script type="text/template" id="VendorWidth">
+                                        <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.VendorWidth" e-width="100%" />
+                                    </script>*@
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer common-btn">
-                    <button ng-click="Save();" class="btn"><i class=""></i> Save</button>
+                    <button ng-click="Update();" class="btn"><i class=""></i> Update</button>
                 </div>
             </div>
         </div>

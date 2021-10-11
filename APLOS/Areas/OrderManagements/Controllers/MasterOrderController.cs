@@ -1617,6 +1617,43 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #endregion
 
         #region Copy SO
+
+        [HttpGet, Authorize]
+        public ActionResult GetItemMaterialSKUData(string materialMasterId, string sequence)
+        {
+            string sql = @" SELECT CV.Id AS [Value], CV.UserName AS [Text], CV.CharacteristicsId FROM [HKP].[Characteristics] C
+                             LEFT JOIN hkp.CharacteristicsValue CV ON CV.CharacteristicsId=C.Id
+                             Where CV.MaterialMasterId='"+ materialMasterId + @"' AND CV.CharacteristicsId 
+							 IN (SELECT MMC.CharacteristicsId  FROM [MST].[MaterialMasterCharacteristics] MMC  Where MaterialMasterId='"+ materialMasterId + @"' AND MMC.Sequence="+ sequence + @"
+							 ) AND C.ValueAssignmentLevel='Specific' Order by CV.UserName";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFromItemMaterialSKU1Data(string ItemId)
+        {
+            string sql = @"SELECT distinct FCH.CharacteristicsValueId, CHV.UserName AS CharacteristicsValueName	                        
+                        FROM [TRN].[FirstCharacteristics] AS FCH
+                        JOIN [HKP].[Characteristics] AS CH ON FCH.CharacteristicsId=CH.Id
+                        LEFT JOIN [HKP].[CharacteristicsValue] AS CHV ON FCH.CharacteristicsValueId=CHV.Id
+                        JOIN [TRN].[SalesOrder] AS SO ON FCH.SalesOrderId=SO.Id
+                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                        WHERE MOI.Id='" + ItemId + @"'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetFromItemMaterialSKU2Data(string ItemId)
+        {
+            string sql = @"SELECT distinct FCH.CharacteristicsValueId, CHV.UserName AS CharacteristicsValueName
+                        FROM [TRN].[SecondCharacteristics] AS FCH
+                        JOIN [HKP].[Characteristics] AS CH ON FCH.CharacteristicsId=CH.Id
+						LEFT JOIN [HKP].[CharacteristicsValue] AS CHV ON FCH.CharacteristicsValueId=CHV.Id
+                        JOIN [TRN].[SalesOrder] AS SO ON FCH.SalesOrderId=SO.Id
+                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       WHERE MOI.Id='"+ ItemId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public JsonResult CopySOByMOI(string MasterId, string masterItemId)
         {
