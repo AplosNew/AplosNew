@@ -220,6 +220,8 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
                 //diagram.load($scope.nodes);
                 diagram.add(response.data);
                 //entrydata = copy(searchdata);
+
+                $scope.GetProductionPlanningData('', $scope.modelNew.ProductionOrderId, args.data.BaseProcess);
             });
         } catch (e) {
             ShowResult(e, 'failure');
@@ -349,16 +351,31 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
     };
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
+    
     $scope.machineButtonClick = function (args) {
         $scope.selectednode = args;
         if (baseService.isUndefinedOrNull($scope.selectednode.items[0].addInfo.MaterialMasterId))
             return ShowResult('This material has no attribute', 'failure');
         $scope.getArticleSearchList($scope.selectednode.items[0].addInfo.MaterialMasterId);
     };
+    $scope.VWCDATA = [];
+    $scope.GetProductionPlanningData = function (id, PRID,BaseProcess) {
+        try {
+            $http({
+                method: 'POST',
+                url: "OrderManagements/productionOrderSchedulingParametersType1/GetProductionPlanningData?planrowid=" + id + "&ProductionOrderId=" + PRID + "&processid=" + BaseProcess
+            }).then(function successCallback(res) {
 
+                $scope.VWCDATA = res.data.WCDATA;
+                //getAllDisplayParameters();
+            });
+        } catch (e) {
 
-    $scope.SaveDiagram = function () {
-        var diagram = $("#diagram").ejDiagram("instance");
-        var savedDiagram = diagram.save();
+        }        
     }
+    $scope.summaryRowsForWorkCenter = [{
+        title: "Total Planned Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PlannedQuantity", dataMember: "PlannedQuantity", format: "{0:N0}" }],
+        showCaptionSummary: true
+
+    }];
 }

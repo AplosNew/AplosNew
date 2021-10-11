@@ -9012,6 +9012,13 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.ToPlantId = inventoryIssue.PlantId;
 			inventoryIssue.PlantId = identity.PlantId;
+			if(string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+			{
+				CheckedByStatusForNoti = "False";
+				ApprovedByStatusForNoti = "False";
+
+			}
+
 
 			if (specificStockList == null)
 			{
