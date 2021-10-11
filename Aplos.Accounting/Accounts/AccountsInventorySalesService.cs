@@ -481,11 +481,11 @@ namespace Library.Accounting.Accounts
 		}
 
         #region InventorySalesReturn
-        public IEnumerable<object> GetSalesDetailDataByIssueId(string issueId)
+        public IEnumerable<object> GetSalesDetailDataByIssueId(string inventorySalesId)
         {
             try
             {
-                string sql = @"SELECT ISH.Id HistotyId,''Id, IID.InventorySalesId InventoryIssueId, IID.InventoryMaterialId, II.MaterialStorageId
+                string sql = @"SELECT ISH.Id HistotyId,''Id,IID.Id InventorySalesDetailId, IID.InventorySalesId InventoryIssueId, IID.InventoryMaterialId, II.MaterialStorageId
 		                        , IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
 		                        , IM.FirstCharacteristicsId, CH1.UserName AS FirstCharacteristics, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicText--FirstCharacteristicsValue
 		                        , IM.SecondCharacteristicsId, CH2.UserName AS SecondCharacteristics, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicText--SecondCharacteristicsValue
@@ -513,7 +513,7 @@ namespace Library.Accounting.Accounts
                         JOIN (select InventorySalesHistoryId,Sum(TaxAmount) TaxAmount from trn.inventorySalesTax group by InventorySalesHistoryId) IST ON IST.InventorySalesHistoryId =ISH.Id
                         LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IID.Id
 
-                        WHERE IID.InventorySalesId='" + issueId + "'";
+                        WHERE IID.InventorySalesId='" + inventorySalesId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
