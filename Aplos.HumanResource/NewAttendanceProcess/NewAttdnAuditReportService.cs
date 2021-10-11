@@ -391,6 +391,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var iShiftName = 0;
                 var iFinalOt = 0;
                 var iOverStay = 0;
+                var iProcessedOT = 0;
                 var iComfirmedOT = 0;
                 var iPunchOutTime = 0;
                 var iOutTimeDifference = 0;
@@ -7384,6 +7385,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet25.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet25.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Red;
 
+                    xlsCol += 1;
+                    iProcessedOT = xlsCol;
+                    sheet25.Range[xlsRow, iProcessedOT].Text = "ProcessedOT";
+                    sheet25.Range[xlsRow, iProcessedOT].ColumnWidth = 14;
+                    sheet25.Range[xlsRow, iProcessedOT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet25.Range[xlsRow, iProcessedOT].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet25.Range[xlsRow, iProcessedOT].CellStyle.Font.Color = ExcelKnownColors.Red;
+
+
+
                     sheet25.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
                     sheet25.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
                     sheet25.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -7431,6 +7442,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet25.Range[xlsRow, iShiftOutTime].Text = dtOffdayWithPunch.Rows[i]["ShiftOutTime"].ToString();
                             sheet25.Range[xlsRow, iShiftOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet25.Range[xlsRow, iShiftOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            string xprocessot = string.Empty;
+                            if (dtOffdayWithPunch.Rows[i]["ProcessedOT"].ToString() != "")
+                            {
+                                oru.GetOT(OTConsiderOn, dtOffdayWithPunch.Rows[i]["ProcessedOT"].ToString().Trim(), out xprocessot);
+                            }
+                            sheet25.Range[xlsRow, iProcessedOT].Text = xprocessot;
+                            sheet25.Range[xlsRow, iProcessedOT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet25.Range[xlsRow, iProcessedOT].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             if (dtOffdayWithPunch.Rows[i]["InTime"].ToString() != "")
                             {
@@ -8386,7 +8406,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 strSql += columnName();
                 strSql += @" ,AP.DayStatus
                             ,AP.OTHr OverStay
-                            ,OTF.TotalOTHr
+                            ,OTF.TotalOTHr,AP.ProcessedOT
 							,(isnull(AP.OTHr,0) - isnull(OTF.TotalOTHr,0)) OTDifference
                             ,AP.IsManualDayStatus, AP.IsManualInTime, AP.IsManualOutTime
                         	,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ
