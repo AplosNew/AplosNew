@@ -599,7 +599,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
-                                        dr["HolidayStatus"] = "NH";
+                                        dr["HolidayStatus"] = "NH"; // On Holiday Employee is Working
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                     }
@@ -613,7 +613,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
-                                        dr["WeeklyStatus"] = "WW";
+                                        dr["WeeklyStatus"] = "WW"; // On WeekOff Employee is Working
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                     }
@@ -715,7 +715,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
-                                        dr["ManualDayStatus"] = "AH";
+                                        dr["ManualDayStatus"] = "AH"; // On Holiday Compensatory Given
                                         dr["IsManualDayStatus"] = 1;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
@@ -731,7 +731,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
                                         dr["IsManualDayStatus"] = 1;
-                                        dr["ManualDayStatus"] = "CW";
+                                        dr["ManualDayStatus"] = "CW"; // On WeekOff Compensatory Given
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                     }
@@ -1174,6 +1174,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+                // Holiday or Weekoff But Employee is Working (Compensatory Logic)
+
                 var sql = @"select Format(co.OriginalDate,'yyyy-MMM-dd')WkDate,
                 co.CompensatoryDateTreatmentType as Type,co.PlantId,
 				co.ForEntirePlant,coel.EmpSystemId
@@ -1194,6 +1196,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+
+                // Date of Normal Working Day but taken Compensatory
                 var sql = @"select Format(co.CompensatoryDate,'yyyy-MMM-dd')WkDate,
 				co.CompensatoryDateTreatmentType as Type,co.PlantId,
 				co.ForEntirePlant,coel.EmpSystemId
@@ -3113,7 +3117,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
 						where WorkDate='"+PreDay+ @"' 
-						and dt.DayType=ISNULL(ISNULL(p.SandwichStatus,p.ManualDayStatus),p.ProcessDayStatus)
+						and dt.DayType=ISNULL(ISNULL(p.ManualDayStatus,p.SandwichStatus),p.ProcessDayStatus)
 						and ei.PlantId='" + Plant+"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -3129,7 +3133,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
             try
             {
-                var sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
+                var sql = @"UPDATE 	AttdnProcessData Set DayStatus= ISNULL(ISNULL(ManualDayStatus,SandwichStatus),ProcessDayStatus)
 				,UpdatedBy='Schedule',DateUpdated=GETDATE()
 								WHERE PlantID='" + Plant + @"'
 								AND WorkDate='" + PreDay + "'";
@@ -5009,8 +5013,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
 						where ManualFlag=1 						
-						and dt.DayType=ISNULL(ISNULL(p.SandwichStatus,p.ManualDayStatus),p.ProcessDayStatus)
-						and ei.PlantId='"+Plant+"'";
+						and dt.DayType=ISNULL(ISNULL(p.ManualDayStatus,p.SandwichStatus),p.ProcessDayStatus)
+						and ei.PlantId='" + Plant+"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -5057,14 +5061,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
                 if (empMaster1 == "")
                 {
-                    sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
+                    sql = @"UPDATE 	AttdnProcessData Set DayStatus=ISNULL(ISNULL(ManualDayStatus,SandwichStatus),ProcessDayStatus)
 				,UpdatedBy='Schedule',DateUpdated=GETDATE()
 								WHERE PlantID='" + Plant + @"'
 								AND ManualFlag=1";
                 }
                 else
                 {
-                    sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
+                    sql = @"UPDATE 	AttdnProcessData Set DayStatus=ISNULL(ISNULL(ManualDayStatus,SandwichStatus),ProcessDayStatus) 
 				,UpdatedBy='Schedule',DateUpdated=GETDATE()
 								WHERE PlantID='" + Plant + @"' and RowId in ("+empMaster+@")
 								AND ManualFlag=1";
