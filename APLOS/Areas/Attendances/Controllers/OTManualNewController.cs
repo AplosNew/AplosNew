@@ -210,21 +210,15 @@ namespace Aplos.Areas.Attendances.Controllers
 
                             dr.BeginEdit();
 
-                            //dr["WorkDate"] = item.APDEmpWorkDate;
-
                             dr["ManualOt"] = data["OThour"];
-
-                            //dr["EmpSystemId"] = item.EmployeeSystemId;
-
-                            //dr["Remarks"] = data["Remarks"];
-                            //dr["IsConfirmed"] = data["IsConfirmed"];
 
                             dr["ManualByWhom"] = identity.Name;
                             dr["ManualEntryTime"] = System.DateTime.Now.ToString();
                             dr["ManualFlag"] = ManFlag;
 
-                            //dr["AddedBy"] = identity.Name;
-                            //dr["AddedDate"] = System.DateTime.Now.ToString();
+                            dr["OTComfirmBy"] = DBNull.Value;
+                            dr["DateOTComfirm"] = DBNull.Value;
+                            dr["IsOTComfirm"] = false;
 
                             dr["UpdatedBy"] = identity.Name;
                             dr["DateUpdated"] = System.DateTime.Now.ToString();
@@ -235,8 +229,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
                         else
                         {
-                    //        EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "'";
-                            EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and RowId='" + newformat + item.EmployeeSystemId + "' ";
+                            EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "'";
+                    //        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and RowId='" + newformat + item.EmployeeSystemId + "' ";
 
                             if (EmpExistOrNot.Tables[0].DefaultView.Count == 0)
                             {
@@ -259,7 +253,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
                                 EmpExistOrNot.Tables[0].Rows.Add(dr);
-                                RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
+                        //        RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
                             }
                             else
                             {
@@ -284,7 +278,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                 dr["UpdatedDate"] = System.DateTime.Now.ToString();
 
                                 dr.EndEdit();
-                                RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
+                         //       RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
                             }
                         }
 

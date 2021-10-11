@@ -177,6 +177,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["ManualByWhom"] = identity.Name;
                             shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
                             shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
+                            shiftchange.Tables[0].Rows[0]["OTComfirmBy"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["DateOTComfirm"] = DBNull.Value;
+                            shiftchange.Tables[0].Rows[0]["IsOTComfirm"] = false;
                             shiftchange.Tables[0].Rows[0].EndEdit();
                             ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
                         }
@@ -457,10 +460,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 {
                                     dr["InTime"] = DBNull.Value;
                                     dr["ManualInTime"] = DBNull.Value;
+                                    dr["OriginalManualInTime"] = DBNull.Value;                                   
                                     if (string.IsNullOrEmpty(data[i].InTime) == false)
                                     {
                                         dr["InTime"] = data[i].InDate + " " + data[i].InTime;
                                         dr["ManualInTime"]= data[i].InDate + " " + data[i].InTime;
+                                        dr["OriginalManualInTime"] = data[i].InDate + " " + data[i].InTime;
                                         dr["IsManualInTime"] = true;
                                     }
                                 }
@@ -469,10 +474,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 {
                                     dr["OutTime"] = DBNull.Value;
                                     dr["ManualOutTime"] = DBNull.Value;
+                                    dr["OriginalManualOutTime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].OutTime) == false)
                                     {
                                         dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
                                         dr["ManualOutTime"] = data[i].OutDate + " " + data[i].OutTime;
+                                        dr["OriginalManualOutTime"] = data[i].OutDate + " " + data[i].OutTime;
                                         dr["IsManualOutTime"] = true;
                                     }
                                 }
@@ -480,7 +487,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr["ManualByWhom"] = identity.Name;
                                 dr["ManualEntryTime"] = DateTime.Now;
                                 dr["ManualFlag"] = true;
-                                
+                                dr["OTComfirmBy"] = DBNull.Value;
+                                dr["DateOTComfirm"] = DBNull.Value;
+                                dr["IsOTComfirm"] = false;
+
                                 dr.EndEdit();
 
                                 ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());

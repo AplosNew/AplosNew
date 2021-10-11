@@ -1382,7 +1382,7 @@ namespace Aplos.Areas.Products.Controllers
 			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpPost]
-		public JsonResult GetStockSales(InventoryMaterialViewModel entity, string issueDate)
+		public JsonResult GetStockSales(InventoryMaterialViewModel entity, string issueDate)//dgsdg
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			entity.CompanyGroupId = identity.CompanyGroupId;
@@ -9012,6 +9012,13 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.ToPlantId = inventoryIssue.PlantId;
 			inventoryIssue.PlantId = identity.PlantId;
+			if(string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+			{
+				CheckedByStatusForNoti = "False";
+				ApprovedByStatusForNoti = "False";
+
+			}
+
 
 			if (specificStockList == null)
 			{

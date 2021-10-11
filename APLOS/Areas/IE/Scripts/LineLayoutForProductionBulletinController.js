@@ -220,6 +220,8 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
                 //diagram.load($scope.nodes);
                 diagram.add(response.data);
                 //entrydata = copy(searchdata);
+
+                $scope.GetProductionPlanningData('', $scope.modelNew.ProductionOrderId, args.data.BaseProcess);
             });
         } catch (e) {
             ShowResult(e, 'failure');
@@ -349,10 +351,89 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
     };
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
+    
     $scope.machineButtonClick = function (args) {
         $scope.selectednode = args;
         if (baseService.isUndefinedOrNull($scope.selectednode.items[0].addInfo.MaterialMasterId))
             return ShowResult('This material has no attribute', 'failure');
         $scope.getArticleSearchList($scope.selectednode.items[0].addInfo.MaterialMasterId);
     };
+    $scope.VWCDATA = [];
+    $scope.GetProductionPlanningData = function (id, PRID,BaseProcess) {
+        try {
+            $http({
+                method: 'POST',
+                url: "OrderManagements/productionOrderSchedulingParametersType1/GetProductionPlanningData?planrowid=" + id + "&ProductionOrderId=" + PRID + "&processid=" + BaseProcess
+            }).then(function successCallback(res) {
+
+                $scope.VWCDATA = res.data.WCDATA;
+                //getAllDisplayParameters();
+            });
+        } catch (e) {
+
+        }        
+    }
+    $scope.summaryRowsForWorkCenter = [{
+        title: "Total Planned Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PlannedQuantity", dataMember: "PlannedQuantity", format: "{0:N0}" }],
+        showCaptionSummary: true
+
+    }];
+
+    $scope.graphmaxheight = 10;
+    $scope.graphmaxwidth = '200px';
+    $scope.dataSourceLineGraph = [];
+    $scope.showlinegraph = function (args) {
+
+        try {
+            $scope.graphmaxwidth = '200px';
+            $http({
+                method: 'GET',
+                url: "OrderManagements/productionOrderSchedulingParametersType1/GetProductionPlanGraph?orderid=" + args.data.ProductionOrderID + "&workcentrid=" + args.data.WorkCenterMasterId
+            }).then(function successCallback(res) {
+                $scope.graphmaxheight = 10;
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].Quantity > $scope.graphmaxheight)
+                        $scope.graphmaxheight = res.data[i].Quantity;
+                }
+
+                $scope.graphmaxwidth = ((res.data.length * 30) + 200) + 'px';
+                $scope.graphmaxheight = $scope.graphmaxheight + ($scope.graphmaxheight * .10);
+
+                $scope.dataSourceLineGraph = res.data;
+
+                $("#graph").ejDialog("setTitle", "Production Plan for Workcenter [" + args.data.WorkCenter + "], Production Order#" + args.data.ProductionOrderID);
+                var eDialog = $("#graph").data("ejDialog");
+                eDialog.open();
+            });
+
+
+
+        } catch (e) {
+
+        }
+    }
+    $scope.WORKCENTERPARAMS = {};
+    $scope.WORKCENTERProductList = [];
+    $scope.workcenterclick = function (args) {
+        try {
+            $http({
+                method: 'GET',
+                url: "OrderManagements/productionOrderSchedulingParametersType1/getWorkcenterParametersDisplay?WorkCenterMasterId=" + args.data.WorkCenterMasterId
+            }).then(function successCallback(res) {
+
+                $scope.WORKCENTERPARAMS = res.data.WORKCENTERPARAMS[0];
+                $scope.WORKCENTERProductList = res.data.WORKCENTERProductList;
+
+                $("#dialogWorkCenterParameters").ejDialog("setTitle", "Configurations for Work Center [" + $scope.WORKCENTERPARAMS.WorkCenter + "]");
+                var eDialog = $("#dialogWorkCenterParameters").data("ejDialog");
+                eDialog.open();
+            });
+        } catch (e) {
+
+        }
+    }
+    $scope.printChart = function (chartname) {
+        var chartObj = $('#' + chartname).ejChart("instance");
+        chartObj.print(chartname);
+    }
 }
