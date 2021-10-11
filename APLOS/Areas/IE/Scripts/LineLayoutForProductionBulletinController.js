@@ -217,10 +217,11 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
 
                 $scope.nodes = response.data;
                 var diagram = $("#diagram").ejDiagram("instance");
+                diagram.clear();
+
                 //diagram.load($scope.nodes);
                 diagram.add(response.data);
                 //entrydata = copy(searchdata);
-
                 $scope.GetProductionPlanningData('', $scope.modelNew.ProductionOrderId, args.data.BaseProcess);
             });
         } catch (e) {
@@ -378,4 +379,12 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
         showCaptionSummary: true
 
     }];
+
+    $scope.SaveDiagram = function () {
+
+        var diagram = $("#diagram").ejDiagram("instance");
+        var savedDiagram = diagram.save();
+        var nodes = savedDiagram.nodes;
+       // diagram.exportDiagram();
+    }
 }
