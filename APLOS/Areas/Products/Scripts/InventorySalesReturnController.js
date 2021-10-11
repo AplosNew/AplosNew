@@ -1024,7 +1024,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 
         $scope.LoadTaxButtonClick();
 
-        var getRownewData = $filter("filter")(data.TaxList, { "InventorySalesHistoryId": data.HistotyId, "InventorySalesId": data.InventoryIssueId });
+        var getRownewData = data.TaxList;// $filter("filter")(data.TaxList, { "InventorySalesDetailId": data.InventorySalesDetailId});
         for (var K = 0; K < getRownewData.length; K++) {
             $scope.materialtaxCategoryListResFinal.push(getRownewData[K]);
         }

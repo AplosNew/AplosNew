@@ -506,7 +506,7 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 														join trn.MasterOrderItem MOIX ON MOIX.Id=soX.MasterOrderItemId
 														join trn.MasterOrder XMO on Xmo.Id=MOIX.MasterOrderId
 														join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-														where tx.TargetDate>'"+Date+ @"'
+														where tx.TargetDate>'" + Date + @"'
 														and tx.WorkCenterMasterID=wcm.Id  
 														and XB.Id<>MO.BuyerId
 												      )
@@ -571,7 +571,7 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 
             return @"select ORD.CM,wc.Id as WorkCenterMasterId,
   wc.UserName AS  [LineNo],  ps.ProcessId ,ps.ProductionOrderId ,ps.Quantity,''WorkHour ,dr.DaysRun,
-  CASE WHEN ex.MachineCostPerHour*tr.TotalHour <ex.MinFixedCost THEN ex.MinFixedCost ELSE CASE WHEN ex.MachineCostPerHour*tr.TotalHour>EX.MaxFixedCost THEN ex.MaxFixedCost ELSE ex.MachineCostPerHour*tr.TotalHour END END AS MachineCostPerDay,
+  CASE WHEN ISNULL(ex.MachineCostPerHour,0)*ISNULL(tr.TotalHour,0) <ex.MinFixedCost THEN ex.MinFixedCost ELSE CASE WHEN ISNULL(ex.MachineCostPerHour,0)*ISNULL(tr.TotalHour,0)>EX.MaxFixedCost THEN ex.MaxFixedCost ELSE ISNULL(ex.MachineCostPerHour,0)*ISNULL(tr.TotalHour,0) END END AS MachineCostPerDay,
   buyer=STUFF((select distinct ','+XB.UserName from 
 	                               trn.SalesOrder XSO 
 		                               JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -604,7 +604,11 @@ Item=STUFF((select distinct ','+XMM.UserName from
 									  TR.Manpower AllotedWorkstation,
 									 TR.Quantity AS TargetPerDay,
 									 TR.Quantity/tr.TotalHour AS  RequiredStdTarget
-            from(
+           FROM
+         trn.DailyProductionTarget AS TR 
+                left join scs.WorkCenterMaster as wc on wc.id=TR.WorkCenterMasterId 
+                left JOIN trn.ProductionOrderProcessSet AS PROCC ON PROCC.ProductionOrderId=TR.ProductionOrderId  AND PROCC.IsBaseProcess=1 and PROCC.ProcessId=WC.ProcessId
+        LEFT JOIN (
             select 
             p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,sum(p.Quantity) Quantity
              from  TRN.ProductionSummary as p 
@@ -612,7 +616,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
             where p.ProductionDate='" + Date + @"' 
             and p.ProductionGrade='A'
             group by p.WorkCenterMasterId,p.ProcessId,p.ProductionOrderId
-            ) ps
+            ) ps  ON tr.ProductionOrderId=ps.ProductionOrderId AND tr.WorkCenterMasterID=ps.WorkCenterMasterId AND ps.ProcessId=wc.ProcessId
             LEFT JOIN (SELECT p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,COUNT(DISTINCT p.ProductionDate) AS DaysRun  
                        from  TRN.ProductionSummary as p 
                        JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
@@ -621,7 +625,6 @@ Item=STUFF((select distinct ','+XMM.UserName from
 
             ) AS DR ON dr.ProcessId=ps.ProcessId
                        AND dr.ProductionOrderId=ps.ProductionOrderId AND dr.WorkCenterMasterId=ps.WorkCenterMasterId
-            LEFT JOIN trn.DailyProductionTarget AS TR ON tr.ProductionOrderId=ps.ProductionOrderId AND tr.WorkCenterMasterID=ps.WorkCenterMasterId AND tr.TargetDate='" + Date + @"'
            left outer join (
                                                         select POD.ProductionOrderId,
                                                         SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlannedQty,
@@ -647,7 +650,6 @@ Item=STUFF((select distinct ','+XMM.UserName from
                                                         group by POD.ProductionOrderId
                                                         ) AS ORD on ord.ProductionOrderID=ps.ProductionOrderId 
 
-            left join scs.WorkCenterMaster as wc on wc.id=ps.WorkCenterMasterId 
             LEFT JOIN (SELECT ec.EntityId,ec.GeneralWorkingHourPerDay,
 			            (CASE WHEN same.FromCurrencyId=ec.CurrencyId THEN ec.MachineCostPerHour ELSE ec.MachineCostPerHour*rer.ExchangeRate END) AS MachineCostPerHour,
 			            CASE WHEN same.FromCurrencyId=ec.CurrencyId THEN ec.MinFixedCost ELSE ec.MinFixedCost*rer.ExchangeRate END AS MinFixedCost,
@@ -659,7 +661,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
 			            LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=e.PlantId
 			            WHERE ec.EntityId IN (" + entityid + @") ) AS EX ON ex.EntityId=wc.EntityId
             left join hkp.Process p on p.id=ps.ProcessId
-            where wc.EntityId IN (" + entityid + @") 
+            where tr.TargetDate='" + Date + @"' AND wc.EntityId IN (" + entityid + @") 
             order by wc.Sequence
 
 
@@ -711,7 +713,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 IWorkbook workbook = application.Workbooks.Create(2);
                 IWorksheet sheet = workbook.Worksheets[0];
 
-                sheet.Name = "Production Information Report";
+                sheet.Name = "Production Information Report (" + Convert.ToDateTime(Date).ToString("dd-MMM-yyyy") + @")";
 
 
                 int ROW = 6;
@@ -1252,7 +1254,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                                 sheet[ROW, colPrvsdauQCPass].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PreviousDayQCpass"].ToString());
                                 sheet[ROW, colTodayTGT].Formula = "IF(" + clsStaticInfo.GetxlsCol(colSPT2) + ROW.ToString() + ">0," + (clsStaticInfo.GetxlsCol(colATotal) + ROW.ToString() + "*" + 60 + "*" + clsStaticInfo.GetxlsCol(colExpcEffi) + ROW.ToString() + "*" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString()) + "/" + clsStaticInfo.GetxlsCol(colSPT2) + ROW.ToString() + ",0)";
                                 sheet[ROW, colHourlyTarget].Formula = "IF(" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colTodayTGT) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colTodayWorkHour) + ROW.ToString() + ",0)";
-                                
+
                                 sheet[ROW, colWIP].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["WIP"].ToString());
                                 sheet[ROW, colExpcEffi].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["PlanEfficiency"].ToString());
                                 sheet[ROW, colTodayWorkHour].Number = clsStaticInfo.dbl(dtDailyProduction.Rows[j]["TotalHour"].ToString());
@@ -1319,13 +1321,13 @@ Item=STUFF((select distinct ','+XMM.UserName from
                         sheet.Range[StartRow, colRunningDayNo, ROW, colRunningDayNo].NumberFormat = clsStaticInfo.NumberFormat();
                         sheet.Range[StartRow, colTodayTGT, ROW, colTodayTGT].NumberFormat = clsStaticInfo.NumberFormat();
                         sheet.Range[StartRow, colExpcEffi, ROW, colExpcEffi].NumberFormat = clsStaticInfo.NumberFormat(2);
-                        
+
                     }
                     ROW++;
                     ROW++;
                     ROW++;
-                }                
-               
+                }
+
                 DataTable dtBuyerSummary = dtDailyProduction.AsEnumerable().GroupBy(x => new
                 {
                     Buyer = x["Buyer"]
@@ -1335,7 +1337,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                                          DataRow row = dtDailyProduction.NewRow();
                                          row["Buyer"] = x.Key.Buyer;
                                          row["TodayTGT"] = x.Sum(r => clsStaticInfo.dbl(r["TodayTGT"].ToString()));
-                                         return row;                                      
+                                         return row;
                                      }
                 ).CopyToDataTable();
 
@@ -1367,11 +1369,11 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet[ROW, COL].CellStyle.Font.Bold = true;
                 int colBSTarget = COL;
                 endCol = COL;
-            
-                sheet.Range[ROW,1, ROW, endCol].CellStyle.Font.Bold = true;
-                sheet.Range[ROW,1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
-                sheet.Range[ROW,1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW,1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
                 ROW++;
                 int BSStartRow = ROW;
@@ -1380,11 +1382,11 @@ Item=STUFF((select distinct ','+XMM.UserName from
                     dtDailyProduction.DefaultView.RowFilter = "Buyer='" + dtBuyerSummary.Rows[i]["Buyer"].ToString() + "'";
 
                     sheet[ROW, colBSBuyer].Text = dtBuyerSummary.Rows[i]["Buyer"].ToString();
-                    sheet[ROW, colBSRunningLine].Number =  dtDailyProduction.DefaultView.ToTable(true, "WorkCenterMasterId").Rows.Count;
-                    sheet[ROW, colBSTarget].Number =OTSBD.clsStaticInfo.dbl(dtBuyerSummary.Rows[i]["TodayTGT"].ToString());
-                    sheet.Range[ROW,1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet.Range[ROW,1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                  
+                    sheet[ROW, colBSRunningLine].Number = dtDailyProduction.DefaultView.ToTable(true, "WorkCenterMasterId").Rows.Count;
+                    sheet[ROW, colBSTarget].Number = OTSBD.clsStaticInfo.dbl(dtBuyerSummary.Rows[i]["TodayTGT"].ToString());
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
                     ROW++;
                 }
                 sheet[ROW, 1].Text = "Total";
@@ -1398,7 +1400,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 sheet[ROW, colBSTarget].NumberFormat = "#,##0.00;(#,##0.)";
                 sheet.Range[BSStartRow, colBSRunningLine, ROW, colBSRunningLine].NumberFormat = clsStaticInfo.NumberFormat();
                 sheet.Range[BSStartRow, colBSTarget, ROW, colBSTarget].NumberFormat = clsStaticInfo.NumberFormat();
-             
+
                 //second summary report
 
                 ROW = StartOfSummaryRow;
@@ -1417,15 +1419,15 @@ Item=STUFF((select distinct ','+XMM.UserName from
                           row["TotalHour"] = y.Average(r => clsStaticInfo.dbl(r["TotalHour"].ToString()));
                           row["ManPowerWithHand"] = y.Sum(r => clsStaticInfo.dbl(r["ManPowerWithHand"].ToString()));
                           row["ManPowerWithMachine"] = y.Sum(r => clsStaticInfo.dbl(r["ManPowerWithMachine"].ToString()));
-                    
+
                           return row;
                       }
  ).CopyToDataTable();
 
 
                 //column
-                COL = endCol+2;
-                int StartCOl= endCol + 2;
+                COL = endCol + 2;
+                int StartCOl = endCol + 2;
                 sheet[ROW, COL].Text = "SUMMARY";
                 int colSUMMARY = COL;
                 sheet.Range[ROW, colSUMMARY, ROW, colSUMMARY + 6].Merge();
@@ -1495,7 +1497,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                     sheet[ROW, colSWorkingHour].Number = OTSBD.clsStaticInfo.dbl(dtEntitySummary.Rows[i]["TotalHour"].ToString());
                     sheet[ROW, colSOP].Number = OTSBD.clsStaticInfo.dbl(dtEntitySummary.Rows[i]["ManPowerWithHand"].ToString());
                     sheet[ROW, colSHP].Number = OTSBD.clsStaticInfo.dbl(dtEntitySummary.Rows[i]["ManPowerWithMachine"].ToString());
-                   
+
                     sheet.Range[ROW, StartCOl, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, StartCOl, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
