@@ -43,15 +43,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     UnProcessedEmp(Date, out UnProcessed, PlantValue); //DataSet of Employees For Row Creation
                     if (UnProcessed.Tables[0].Rows.Count > 0)
                     {
-                        int counter = 0;
                         var WkDate = UnProcessed.Tables[0].Rows[0][@"WorkDate"].ToString();
                         var GpId = UnProcessed.Tables[0].Rows[0][@"GroupID"].ToString();
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                         objCon.OpenDataSetThroughAdapter("select * from AttdnProcessData where WorkDate='" + WkDate + "'and PlantID='" + PlantValue + "'", out DataSet dsRef, false, false, "", "1");
-
-                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'", out DataSet dsEarnedLeave, false, false, "", "1");
-                        objCon.OpenDataSetThroughAdapter("select * from LeaveEarned where 1=2", out DataSet dsEarnedNewLeave, false, false, "", "1");
 
                         for (int i = 0; i < UnProcessed.Tables[0].Rows.Count; i++)
                         {
@@ -259,30 +255,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.EndEdit();
 
                             }
-                            // Earned Leave Logic Row Creation                           
-                            dsEarnedLeave.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
-                            if (dsEarnedLeave.Tables[0].DefaultView.Count == 0)
-                            {
-                                DataRow drx = dsEarnedNewLeave.Tables[0].NewRow();
-                                drx["EmpSystemID"] = EmpId;
-                                drx["RowId"] = RowId;
-                                drx["WorkDate"] = WkDate;
-                                drx["GroupID"] = GpId;
-                                drx["DayStatus"] = DBNull.Value;
-                                drx["EarnedPriviledgeLeave"] = 0;
-                                drx["EarnedCasualLeave"] = 0;
-                                drx["PlantID"] = PlantId;
-                                drx["AddedBy"] = "Schedule";
-                                drx["DateAdded"] = Convert.ToDateTime(DateTime.Now);
-                                dsEarnedNewLeave.Tables[0].Rows.Add(drx);
-                                counter++;
-                            }
+                          
                         }
                         SaveDataSets(dsRef);
-                        if (counter > 0)
-                        {
-                            SaveDataSets(dsEarnedNewLeave);
-                        }
+                       
                     }
                     #endregion
 
@@ -599,7 +575,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
-                                        dr["HolidayStatus"] = "NH";
+                                        dr["HolidayStatus"] = "NH"; // On Holiday Employee is Working
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                     }
@@ -613,7 +589,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
-                                        dr["WeeklyStatus"] = "WW";
+                                        dr["WeeklyStatus"] = "WW"; // On WeekOff Employee is Working
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                     }
@@ -715,7 +691,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
-                                        dr["ManualDayStatus"] = "AH";
+                                        dr["ManualDayStatus"] = "AH"; // On Holiday Compensatory Given
                                         dr["IsManualDayStatus"] = 1;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
@@ -731,7 +707,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
                                         dr["IsManualDayStatus"] = 1;
-                                        dr["ManualDayStatus"] = "CW";
+                                        dr["ManualDayStatus"] = "CW"; // On WeekOff Compensatory Given
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                     }
@@ -1174,6 +1150,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+                // Holiday or Weekoff But Employee is Working (Compensatory Logic)
+
                 var sql = @"select Format(co.OriginalDate,'yyyy-MMM-dd')WkDate,
                 co.CompensatoryDateTreatmentType as Type,co.PlantId,
 				co.ForEntirePlant,coel.EmpSystemId
@@ -1194,6 +1172,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
+
+                // Date of Normal Working Day but taken Compensatory
                 var sql = @"select Format(co.CompensatoryDate,'yyyy-MMM-dd')WkDate,
 				co.CompensatoryDateTreatmentType as Type,co.PlantId,
 				co.ForEntirePlant,coel.EmpSystemId
@@ -3113,7 +3093,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
 						where WorkDate='"+PreDay+ @"' 
-						and dt.DayType=ISNULL(ISNULL(p.SandwichStatus,p.ManualDayStatus),p.ProcessDayStatus)
+						and dt.DayType=ISNULL(ISNULL(p.ManualDayStatus,p.SandwichStatus),p.ProcessDayStatus)
 						and ei.PlantId='" + Plant+"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -3129,7 +3109,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
             try
             {
-                var sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
+                var sql = @"UPDATE 	AttdnProcessData Set DayStatus= ISNULL(ISNULL(ManualDayStatus,SandwichStatus),ProcessDayStatus)
 				,UpdatedBy='Schedule',DateUpdated=GETDATE()
 								WHERE PlantID='" + Plant + @"'
 								AND WorkDate='" + PreDay + "'";
@@ -4189,53 +4169,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-                    #region PrevDay EarnedLeave Processing 
-                    DataSet PrevEarnedLeave;
-                    EarnedLeaveCalculation(PreviousDay, out PrevEarnedLeave, PlantValue);
-                    if (PrevEarnedLeave.Tables[0].Rows.Count > 0)
-                    {
-                        // Earned Leave Value from DayType With Values Plant & Emptype Category
-                        var WkDate = PrevEarnedLeave.Tables[0].Rows[0][@"WorkDate"].ToString();
-
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                        var sqlx = @"select * from LeaveEarned where WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
-
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-
-                        for (int i = 0; i < PrevEarnedLeave.Tables[0].Rows.Count; i++)
-                        {
-                            // Value from Source
-                            string RowId = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"RowId"]).ToString();
-                            string DayType = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"DayType"]).ToString();
-                            string EarnedPL = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"EarnedPL"]).ToString();
-                            string EarnedCL = clsWebLib.RetValidLen(PrevEarnedLeave.Tables[0].Rows[i][@"EarnedCL"]).ToString();
-
-                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
-                            {
-                                // Updation in LeaveEarned
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                dr["DayStatus"] = DayType;
-                                if (EarnedCL != "")
-                                {
-                                    dr["EarnedCasualLeave"] = EarnedCL;
-                                }
-                                if (EarnedPL != "")
-                                {
-                                    dr["EarnedPriviledgeLeave"] = EarnedPL;
-                                }
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr["UpdatedBy"] = "DayStatusProcess";
-                                dr.EndEdit();
-                            }
-                        }
-                        SaveDataSets(dsRef);
-
-                    }
-                    #endregion
-
                     #region Future ManualOT
                     DataSet PrevManualOT;
                     ManualOT(PreviousDay, out PrevManualOT, PlantValue);
@@ -5009,8 +4942,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
 						left join DayStatus ds on ds.headerId=dh.Id
 						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
 						where ManualFlag=1 						
-						and dt.DayType=ISNULL(ISNULL(p.SandwichStatus,p.ManualDayStatus),p.ProcessDayStatus)
-						and ei.PlantId='"+Plant+"'";
+						and dt.DayType=ISNULL(ISNULL(p.ManualDayStatus,p.SandwichStatus),p.ProcessDayStatus)
+						and ei.PlantId='" + Plant+"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -5057,14 +4990,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 string empMaster1 = (clsWebLib.RetValidLen(empMaster).ToString());
                 if (empMaster1 == "")
                 {
-                    sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
+                    sql = @"UPDATE 	AttdnProcessData Set DayStatus=ISNULL(ISNULL(ManualDayStatus,SandwichStatus),ProcessDayStatus)
 				,UpdatedBy='Schedule',DateUpdated=GETDATE()
 								WHERE PlantID='" + Plant + @"'
 								AND ManualFlag=1";
                 }
                 else
                 {
-                    sql = @"UPDATE 	AttdnProcessData Set DayStatus= isnull(Sandwichstatus,ProcessFinalDayStatus)
+                    sql = @"UPDATE 	AttdnProcessData Set DayStatus=ISNULL(ISNULL(ManualDayStatus,SandwichStatus),ProcessDayStatus) 
 				,UpdatedBy='Schedule',DateUpdated=GETDATE()
 								WHERE PlantID='" + Plant + @"' and RowId in ("+empMaster+@")
 								AND ManualFlag=1";
@@ -6041,72 +5974,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         }
                     }
                     SaveDataSets(dsRef);
-
-                }
-                #endregion
-
-                #region Manual EarnedLeave Processing 
-                DataSet ManualEarnedLeaveData;
-                ManualEarnedLeave(out ManualEarnedLeaveData, PlantValue);
-                if (ManualEarnedLeaveData.Tables[0].Rows.Count > 0)
-                {
-                    // Earned Leave Value from DayType With Values Plant & Emptype Category
-                    string RowIdDataSet = "''";
-                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = "";
-                    if(empMaster == "")
-                    {
-                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
-                    }
-                    else
-                    {
-                        sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "' and RowId in ("+ empList + ")";
-                    }
-                    
-                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet RowIdSet, false, false, "", "1");
-                    
-                    if(RowIdSet.Tables[0].Rows.Count > 0)
-                    {
-                        for (int i = 0; i < RowIdSet.Tables[0].Rows.Count; i++)
-                        {
-                            RowIdDataSet += ",'" + RowIdSet.Tables[0].Rows[i][@"RowId"].ToString() + "'";
-                        }
-                        var sql = @"select * from LeaveEarned where RowId In("+RowIdDataSet+") ";
-
-                        objCon.OpenDataSetThroughAdapter(sql, out DataSet dsRef, false, false, "", "1");
-
-                        for (int i = 0; i < ManualEarnedLeaveData.Tables[0].Rows.Count; i++)                            
-                        {
-                                // Value from Source                           
-                                string RowId = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"RowId"]).ToString();
-                                string DayType = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"DayType"]).ToString();
-                                string EarnedPL = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"EarnedPL"]).ToString();
-                                string EarnedCL = clsWebLib.RetValidLen(ManualEarnedLeaveData.Tables[0].Rows[i][@"EarnedCL"]).ToString();
-
-                                dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowId + "' ";
-                                if (dsRef.Tables[0].DefaultView.Count > 0)
-                                {
-                                    // Updation in LeaveEarned
-                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                    dr.BeginEdit();
-                                    dr["DayStatus"] = DayType;
-                                    if (EarnedCL != "")
-                                    {
-                                        dr["EarnedCasualLeave"] = EarnedCL;
-                                    }
-                                    if (EarnedPL != "")
-                                    {
-                                        dr["EarnedPriviledgeLeave"] = EarnedPL;
-                                    }
-                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                    dr["UpdatedBy"] = "ManualProcess";
-                                    dr.EndEdit();
-                                }                            
-                        }
-                           
-                        SaveDataSets(dsRef);
-                        
-                    }
 
                 }
                 #endregion
