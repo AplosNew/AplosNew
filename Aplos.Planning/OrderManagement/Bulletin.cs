@@ -604,11 +604,9 @@ Item=STUFF((select distinct ','+XMM.UserName from
 									  TR.Manpower AllotedWorkstation,
 									 TR.Quantity AS TargetPerDay,
 									 TR.Quantity/tr.TotalHour AS  RequiredStdTarget
-           FROM
-         trn.DailyProductionTarget AS TR 
-                left join scs.WorkCenterMaster as wc on wc.id=TR.WorkCenterMasterId 
-                left JOIN trn.ProductionOrderProcessSet AS PROCC ON PROCC.ProductionOrderId=TR.ProductionOrderId  AND PROCC.IsBaseProcess=1 and PROCC.ProcessId=WC.ProcessId
-        LEFT JOIN (
+     FROM scs.WorkCenterMaster as wc 
+                left join    trn.DailyProductionTarget AS TR on wc.id=TR.WorkCenterMasterId 
+                left JOIN trn.ProductionOrderProcessSet AS PROCC ON PROCC.ProductionOrderId=TR.ProductionOrderId  AND PROCC.IsBaseProcess=1 and PROCC.ProcessId=WC.ProcessId     LEFT JOIN (
             select 
             p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,sum(p.Quantity) Quantity
              from  TRN.ProductionSummary as p 

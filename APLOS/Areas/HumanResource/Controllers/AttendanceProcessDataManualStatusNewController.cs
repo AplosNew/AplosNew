@@ -205,7 +205,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                bplib.clsGenID objId = new bplib.clsGenID();
+                clsGenID objId = new clsGenID();
 
                 string man = "''";
                 NewAttendanceProcessService ap = new NewAttendanceProcessService();
@@ -246,6 +246,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                             dr["ManualByWhom"] = identity.Name;
                             dr["ManualEntryTime"] = DateTime.Now;
                             dr["ManualFlag"] = true;
+                            dr["OTComfirmBy"] = DBNull.Value;
+                            dr["DateOTComfirm"] = DBNull.Value;
+                            dr["IsOTComfirm"] = false;
                             dr.EndEdit();
                             ap.CheckerFunction(ref man, dsManualAttendance.Tables[0].Rows[0]["RowId"].ToString());
 
