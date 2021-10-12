@@ -72,6 +72,7 @@ namespace Library.Model.Inventory
 
         //public InventoryIssue InventoryIssue { get; set; }
         public string InventorySalesReturnId { get; set; } 
+        public string InventorySalesDetailId { get; set; } 
 
         public string InventoryMaterialId { get; set; }
         public string BaseUOMId { get; set; }
