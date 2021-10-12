@@ -65,7 +65,7 @@ function employeeInFoReportController(commonMessage, $scope, $rootScope, baseSer
     //    }
     //};
 
-    $scope.currentStatus = null;
+    $scope.currentStatus = '';
     $scope.GetEmployeeInFoReport = function () {
         var reportFormat = "Excel";
         try {
