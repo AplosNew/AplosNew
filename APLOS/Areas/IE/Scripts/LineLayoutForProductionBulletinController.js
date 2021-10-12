@@ -166,6 +166,7 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
                     response.data = JSON.parse(response.data[0].Layout);
                     $scope.nodes = response.data;
                     var diagram = $("#diagram").ejDiagram("instance");
+                    diagram.clear();
                     diagram.add(response.data);
 
                     $scope.GetProductionPlanningData('', $scope.modelNew.ProductionOrderId, $scope.modelNew.BaseProcess);
@@ -236,6 +237,7 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
 
                 $scope.nodes = response.data;
                 var diagram = $("#diagram").ejDiagram("instance");
+                diagram.clear();
                 diagram.add(response.data);
                 $scope.GetProductionPlanningData('', $scope.modelNew.ProductionOrderId, $scope.modelNew.BaseProcess);
             });

@@ -203,6 +203,7 @@ namespace Library.Planning.LineDesign
                 dr["ProductionOrderId"] = ProductionOrderId;
                 dr["ProcessId"] = ProcessId;
                 dr["ProductionBulletinTemplateMasterId"] = ProductionBulletinTemplateMasterId;
+                dr["Layout"] = Design;
                 dr["UpdatedBy"] = identity.Name;
                 dr["UpdatedDate"] = DateTime.Now;
                 dr["UpdatedFromIP"] = identity.IPAddress;
