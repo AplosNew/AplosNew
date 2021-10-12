@@ -1702,7 +1702,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 {
                     SCount++;
                     DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
-                    CopyRow(dtFromMaster.Rows[0], ref drSalesOrder);
+                    CopyRow(dtFromMaster.Rows[m], ref drSalesOrder);
                     drSalesOrder["Id"] = MasterId+ Convert.ToInt32(NewId) + SCount;
                     NewSoId= drSalesOrder["Id"].ToString();
                     drSalesOrder["MasterOrderItemId"] = MasterId;
@@ -1723,7 +1723,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             {
                                 drFirstCharacteristics["CharacteristicsValueId"] = item["ToSKU1Id"].ToString();
                             }
-                             break;
+                            // break;
                         }
 
                         dsToFirstCharacteristics.Tables[0].Rows.Add(drFirstCharacteristics);
@@ -1743,7 +1743,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                                 {
                                     drSecondCharacteristics["CharacteristicsValueId"] = item["ToSKU2Id"].ToString();
                                 }
-                                break;
+                               // break;
                             }
                             dsToSecondCharacteristics.Tables[0].Rows.Add(drSecondCharacteristics);
 

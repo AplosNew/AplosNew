@@ -3194,33 +3194,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
-        public void EarnedLeaveCalculation(string PreDay, out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct p.RowId,dt.DayType, dt.EarnedPL,dt.EarnedCL,
-                        format(p.WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData p
-                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on 
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-						left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-						and dc.PlantId=ei.PlantId
-						left join DayStatusHeader dh on dh.Id=dc.headerId
-						left join DayStatus ds on ds.headerId=dh.Id
-						left join DayTypeWithValues dt on dt.Id=ds.DayTypeWithValuesId									       
-						where WorkDate='"+PreDay+ @"' 
-						and dt.DayType=p.DayStatus and (dt.EarnedCL>0 or dt.EarnedPL>0)
-						and ei.PlantId='" + Plant+"'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
         public void TodayDurationStatusCal(string Today, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -6425,7 +6398,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             string strkey = "1=1";
             if (EmpData != "")
             {
-                strkey = "e.SystemId in(" + EmpData + @")";
+                strkey = "e.SystemId in(" + empMaster + @")";
             }
 
             ConnectionManager.DAL.ConManager objCon;

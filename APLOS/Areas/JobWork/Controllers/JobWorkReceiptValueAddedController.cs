@@ -245,6 +245,7 @@ namespace Aplos.Areas.JobWork.Controllers
 									,ISNULL(Cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
+                                     ,isnull(PLC.LCRef,'') as PurchaseLC
 									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -281,6 +282,7 @@ namespace Aplos.Areas.JobWork.Controllers
                         LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
 
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+                        left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
@@ -326,6 +328,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									,ISNULL(cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
+                                     ,isnull(PLC.LCRef,'') as PurchaseLC
 									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -361,6 +364,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
                         LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+                        left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
@@ -408,6 +412,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									,ISNULL(cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
+                                    ,isnull(PLC.LCRef,'') as PurchaseLC
 									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -442,6 +447,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
                         LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+                        left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
@@ -500,6 +506,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									,ISNULL(Cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
+                                    ,isnull(PLC.LCRef,'') as PurchaseLC
 									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -536,6 +543,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
 
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+                        left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
@@ -581,6 +589,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									,ISNULL(cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
+                                    ,isnull(PLC.LCRef,'') as PurchaseLC
 									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -616,6 +625,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
                         LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+                        left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
@@ -663,6 +673,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									,ISNULL(cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
+                                     ,isnull(PLC.LCRef,'') as PurchaseLC
 									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -697,6 +708,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [dbo].[Contract] AS Cn ON IR.ContractId=Cn.Id
                         LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
+                        left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
