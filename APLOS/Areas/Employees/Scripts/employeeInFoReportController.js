@@ -65,21 +65,11 @@ function employeeInFoReportController(commonMessage, $scope, $rootScope, baseSer
     //    }
     //};
 
-    $scope.currentStatus = null;
+    
     $scope.GetEmployeeInFoReport = function () {
         var reportFormat = "Excel";
         try {
-            if ($scope.EmployeeInFoReport.LONGABSENTEEISM) {
-                $scope.currentStatus = "AND ISNULL(e.EmployeeCurrentStatus,'') IN('LONG ABSENTEEISM')";
-            }
-            if ($scope.EmployeeInFoReport.TBS) {
-                $scope.currentStatus = "AND ISNULL(e.EmployeeCurrentStatus,'') IN('TBS')";
-            }
-            if ($scope.EmployeeInFoReport.LONGABSENTEEISM==true && $scope.EmployeeInFoReport.TBS==true) {
-                $scope.currentStatus = "AND ISNULL(e.EmployeeCurrentStatus,'') IN('TBS','LONG ABSENTEEISM')";
-            }
-
-            var file_src = 'employees/EmployeeInFoReport/EmployeeInFoIndexReport?reportFormat=' + reportFormat + '&radioValue=' + $scope.EmployeeInFoReport.EmployeeCatagory + '&IsCheck=' + $scope.EmployeeInFoReport.CheckBox + '&currentStatus=' + $scope.currentStatus 
+            var file_src = 'employees/EmployeeInFoReport/EmployeeInFoIndexReport?reportFormat=' + reportFormat + '&radioValue=' + $scope.EmployeeInFoReport.EmployeeCatagory + '&IsCheck=' + $scope.EmployeeInFoReport.CheckBox + '&LA=' + $scope.EmployeeInFoReport.LONGABSENTEEISM + '&TBS=' + $scope.EmployeeInFoReport.TBS 
             $rootScope.report(file_src);
 
         } catch (e) {

@@ -51,12 +51,12 @@ namespace Aplos.Areas.Employees.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult EmployeeInFoIndexReport(ReportFormat reportFormat, string radioValue, bool IsCheck,string currentStatus)
+        public ActionResult EmployeeInFoIndexReport(ReportFormat reportFormat, string radioValue, bool IsCheck, bool LA, bool TBS)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var reportFileName = "EmployeeInformation";
-            var workbook = EmployeeInFoIndexReportWorkSheet(radioValue, IsCheck, currentStatus);
+            var workbook = EmployeeInFoIndexReportWorkSheet(radioValue, IsCheck, LA, TBS);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -74,7 +74,7 @@ namespace Aplos.Areas.Employees.Controllers
             return null;
         }
 
-        private IWorkbook EmployeeInFoIndexReportWorkSheet(string radioValue, bool IsCheck, string currentStatus)
+        private IWorkbook EmployeeInFoIndexReportWorkSheet(string radioValue, bool IsCheck, bool LA, bool TBS)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var excelEngine = new ExcelEngine();
@@ -110,7 +110,7 @@ namespace Aplos.Areas.Employees.Controllers
             objRpt = new clsReport();
             oRU = new ReportUtility();
 
-            GetEmployeesData(identity.CompanyId, radioValue.ToString(), IsCheck, currentStatus, out dsEmpInfo);
+            GetEmployeesData(identity.CompanyId, radioValue.ToString(), IsCheck, LA, TBS, out dsEmpInfo);
             objRpt.GetEntityPositionInfo(identity.CompanyId, out dsEntityPosition);
             objRpt.GetEmployeesTodaysShift(out dsTodayShift);
             objRpt.GetEmployeesShiftAndEffectiveDate(out dsShiftAndEffectiveDate);
@@ -300,7 +300,7 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "P.Period", 8); cProbPeriod = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOC"); cDOC = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Status"); cES = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Current Status",19); cEmployeeCurrentStatus = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Current Status", 19); cEmployeeCurrentStatus = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Today's Shift"); ColSFT = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift Effective Date"); cEDate = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Roster Shift Name"); cRoster = xlsCol; xlsCol++;
@@ -701,7 +701,7 @@ namespace Aplos.Areas.Employees.Controllers
             return workbook;
         }
 
-        public void GetEmployeesData(string CompanyId, string radioValue, bool IsCheck, string currentStatus, out DataSet dsRef)
+        public void GetEmployeesData(string CompanyId, string radioValue, bool IsCheck, bool LA, bool TBS, out DataSet dsRef)
         {
             string strSQL;
             string wc = string.Empty;
@@ -720,8 +720,6 @@ namespace Aplos.Areas.Employees.Controllers
                 else
                 {
                     plant = " and e.PlantId='" + identity.PlantId + @"' ";
-
-
                 }
                 if (radioValue == "Active")
                 {
@@ -736,9 +734,17 @@ namespace Aplos.Areas.Employees.Controllers
                     wc = "";
                 }
 
-                if (!string.IsNullOrEmpty(currentStatus))
+                if (TBS == false && LA == false)
                 {
-                    CS = currentStatus;
+                    CS = "AND ISNULL(e.EmployeeCurrentStatus,'') NOT IN('TBS','LONG ABSENTEEISM')";
+                }
+                else if (LA == true && TBS == false)
+                {
+                    CS = "AND ISNULL(e.EmployeeCurrentStatus, '') NOT IN('TBS')";
+                }
+                else if (LA == false && TBS == true)
+                {
+                    CS = "AND ISNULL(e.EmployeeCurrentStatus, '') NOT IN('LONG ABSENTEEISM')";
                 }
 
                 strSQL = @"SELECT E.SystemId, E.EmployeeId, E.EmployeeCode,E.EmployeeName,E.FatherName,E.MotherName,E.SpouseName,E.PresentAddress1,E.PresentAddress2, PRPS.UserName PresThana

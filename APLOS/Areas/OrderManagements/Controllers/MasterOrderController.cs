@@ -1702,7 +1702,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 {
                     SCount++;
                     DataRow drSalesOrder = dsToSalesOrder.Tables[0].NewRow();
-                    CopyRow(dtFromMaster.Rows[0], ref drSalesOrder);
+                    CopyRow(dtFromMaster.Rows[m], ref drSalesOrder);
                     drSalesOrder["Id"] = MasterId+ Convert.ToInt32(NewId) + SCount;
                     NewSoId= drSalesOrder["Id"].ToString();
                     drSalesOrder["MasterOrderItemId"] = MasterId;
