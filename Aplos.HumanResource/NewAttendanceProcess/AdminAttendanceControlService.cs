@@ -595,13 +595,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 else
                 {
-                    EmpSel = "and EmpSystemID in (" + Emps + ")";
+                    EmpSel = "and ap.EmpSystemID in (" + Emps + ")";
                 }
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string addedname = identity.Name;
                 string addeddate = DateTime.Now.ToString();
-                string TableName = "dbo.AttdnProcessData";
+                string TableName = "dbo.AttdnProcessData ap";
 
                 //Getting the DayStatuses
                 var sttr = @"Select DayType from dbo.DayType";
@@ -615,7 +615,19 @@ namespace Library.HumanResource.NewAttendanceProcess
                 
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + PlId + @"' "+EmpSel+"", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter(@"select  * , 
+                            (
+                            select SandwichFlag from AttdnProcessData where WorkDate = DATEADD(day, -1, ap.WorkDate)
+                            and EmpSystemID = ap.EmpSystemID
+                            and PlantID = ap.PlantID
+                            )PrevDayFlag,
+                            (
+                            select SandwichFlag from AttdnProcessData where WorkDate = DATEADD(day, +1, ap.WorkDate)
+                            and EmpSystemID = ap.EmpSystemID
+                            and PlantID = ap.PlantID
+                            )FutureDayFlag from " + TableName + " where ap.WorkDate between '" + FD + @"' and '" + TD + @"'AND ap.PlantID='" + PlId + @"' "+EmpSel+"", out dsMaster, false, "1");
+
+
                 int KI = 0; 
                 int KO = 0; 
                 if (data.Count > 0)
@@ -750,6 +762,22 @@ namespace Library.HumanResource.NewAttendanceProcess
                             {
                                 if(DayTypesList.Contains(data[i]["DayStatus"].ToString()))
                                 {
+
+                                    string TodaySandwich = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["SandwichFlag"]).ToString();
+                                    string PastSandwich = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["PrevDayFlag"]).ToString();
+                                    string FutureSandwich = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["FutureDayFlag"]).ToString();
+
+                                    if (TodaySandwich == "1" && PastSandwich == "2" && FutureSandwich == "2")
+                                    {
+                                        throw new Exception("It is a Sandwich Case Please check ... - " + dsMaster.Tables[0].DefaultView[0]["WorkDate"].ToString());
+                                    }
+
+                                    if (dsMaster.Tables[0].DefaultView[0]["SandwichFlag"].ToString() == "2")
+                                    {
+                                        dsMaster.Tables[0].DefaultView[0]["SandwichFlag"] = 0;
+                                        dsMaster.Tables[0].DefaultView[0]["SandwichStatus"] = DBNull.Value;
+                                    }
+
                                     dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
                                     dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
                                     dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;
