@@ -101,11 +101,11 @@ namespace Aplos.Areas.Employees.Controllers
             DataTable dtEMPBudgetCode = _sqlRepository.GetDataTable(@"SELECT * FROM EmployeeInformation EEI  where SystemId = '" + identity.EmployeeId + @"'");
             DataTable dtRPBudgetCode = _sqlRepository.GetDataTable(@"SELECT * FROM MST.ManpowerBudget WHERE Id = '" + dtEMPBudgetCode.Rows[0]["BudgetCode"].ToString() + @"' ");
 
-            string strSql = @"SELECT * FROM EmployeeInformation EEI 
-                    --LEFT JOIN MST.ManpowerBudget MB ON EEI.BudgetCode = MB.ROBudgetCode
-                    WHERE  EEI.EmployeeStatus = 'Active' AND EEI.BudgetCode = (select Id from MST.ManpowerBudget where Code ='" + dtRPBudgetCode.Rows[0]["ROBudgetCode"].ToString() + @"')   AND
-                    EEI.DOJ = (SELECT MIN(DOJ) FROM EmployeeInformation WHERE BudgetCode = (select Id from MST.ManpowerBudget where Code ='" + dtRPBudgetCode.Rows[0]["ROBudgetCode"].ToString() + @"'))";
-
+            //string strSql = @"SELECT * FROM EmployeeInformation EEI 
+            //        --LEFT JOIN MST.ManpowerBudget MB ON EEI.BudgetCode = MB.ROBudgetCode
+            //        WHERE  EEI.EmployeeStatus = 'Active' AND EEI.BudgetCode = (select Id from MST.ManpowerBudget where Code ='" + dtRPBudgetCode.Rows[0]["ROBudgetCode"].ToString() + @"')   AND
+            //        EEI.DOJ = (SELECT MIN(DOJ) FROM EmployeeInformation WHERE BudgetCode = (select Id from MST.ManpowerBudget where Code ='" + dtRPBudgetCode.Rows[0]["ROBudgetCode"].ToString() + @"'))";
+            string strSql = @"SELECT TOP 1 * FROM EmployeeInformation WHERE BudgetCode = '"+ dtRPBudgetCode.Rows[0]["ROBudgetCode"].ToString() + "' AND EmployeeStatus = 'Active'  ORDER BY DOJ DESC";
             var dtRPEEI = _sqlRepository.GetDataCollection(strSql);
 
             JsonResult json = Json(dtRPEEI, JsonRequestBehavior.AllowGet);

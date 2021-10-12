@@ -1281,6 +1281,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet4.Range[xlsRow, iEmployeeName].ColumnWidth = 20;
 
                     xlsCol += 1;
+                    iTelephoneNo = xlsCol;
+                    sheet4.Range[xlsRow, iTelephoneNo].Text = "Telephone No.";
+                    sheet4.Range[xlsRow, iTelephoneNo].ColumnWidth = 20;
+
+                    xlsCol += 1;
                     iDesignation = xlsCol;
                     sheet4.Range[xlsRow, iDesignation].Text = "Designation";
                     sheet4.Range[xlsRow, iDesignation].ColumnWidth = 18;
@@ -1382,6 +1387,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet4.Range[xlsRow, iEmployeeName].Text = dtInPunchMissing.Rows[i]["EmployeeName"].ToString();
 
                             sheet4.Range[xlsRow, iEmployeeCurrentStatus].Text = dtInPunchMissing.Rows[i]["EmployeeCurrentStatus"].ToString();
+                            sheet4.Range[xlsRow, iTelephoneNo].Text = dtInPunchMissing.Rows[i]["TelePhnNo"].ToString();
+
 
                             sheet4.Range[xlsRow, iDayStatus].Text = dtInPunchMissing.Rows[i]["DayStatus"].ToString();
                             sheet4.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -7303,6 +7310,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet25.Range[xlsRow, iEmployeeName].Text = "Name";
                     sheet25.Range[xlsRow, iEmployeeName].ColumnWidth = 20;
 
+
+                    xlsCol += 1;
+                    iTelephoneNo = xlsCol;
+                    sheet25.Range[xlsRow, iTelephoneNo].Text = "Telephone No.";
+                    sheet25.Range[xlsRow, iTelephoneNo].ColumnWidth = 20;
+
+
+
                     xlsCol += 1;
                     iDepartment = xlsCol;
                     sheet25.Range[xlsRow, iDepartment].Text = "Department";
@@ -7418,6 +7433,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet25.Range[xlsRow, iDesignation].Text = dtOffdayWithPunch.Rows[i]["LegalDesignation"].ToString();
 
                             sheet25.Range[xlsRow, iDepartment].Text = dtOffdayWithPunch.Rows[i]["Department"].ToString();
+
+                            sheet25.Range[xlsRow, iTelephoneNo].Text = dtOffdayWithPunch.Rows[i]["TelePhnNo"].ToString();
 
                             sheet25.Range[xlsRow, iSection].Text = dtOffdayWithPunch.Rows[i]["Section"].ToString();
 

@@ -2036,6 +2036,7 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("Grade", sheet1, xlsRow, ref xlsCol, out cGrade, 25);
                 //SetCellValue("Direct Manpower", sheet1, xlsRow, ref xlsCol, out ColDMP, 25);
                 SetCellValue("Direct Manpower Cost", sheet1, xlsRow, ref xlsCol, out ColDMPCost, 25);
+                SetCellValue("Weekoff Days", sheet1, xlsRow, ref xlsCol, out int colWeekoffDays, 15);
                 SetCellValue("Total Days", sheet1, xlsRow, ref xlsCol, out colTotalWorkingDay, 8);
                 SetCellValue("Working Days", sheet1, xlsRow, ref xlsCol, out colActualWorkingDay, 8);
                 SetCellValue("Pay Days", sheet1, xlsRow, ref xlsCol, out colPayDays, 8);
@@ -2371,6 +2372,8 @@ namespace Library.HumanResource.Payroll
                     sheet1.Range[xlsRow, ColDMPCost].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, ColDMPCost].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                    sheet1.Range[xlsRow, colWeekoffDays].Text = dtEmployees.Rows[i]["WeekoffDays"].ToString();
+                  
                     //5 "Section", "SubSection", 
 
                     #endregion
@@ -2392,7 +2395,7 @@ namespace Library.HumanResource.Payroll
                     SetCellTextAttdn(sheet1, xlsRow, ColWkOf, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString()));
                     SetCellTextAttdn(sheet1, xlsRow, ColLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLv"].ToString()));
                     SetCellTextAttdn(sheet1, xlsRow, ColMLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalMLv"].ToString()));
-
+                    
                     SetCellTextDR(sheet1, xlsRow, ColTotalOtHr, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
 
                     //}
@@ -5142,6 +5145,7 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("Grade", sheet1, xlsRow, ref xlsCol, out cGrade, 25);
                 //SetCellValue("Direct Manpower", sheet1, xlsRow, ref xlsCol, out cDMP, 25);
                 SetCellValue("Direct Manpower Cost", sheet1, xlsRow, ref xlsCol, out colDirectManpowerCost, 25);
+                SetCellValue("Weekoff Days", sheet1, xlsRow, ref xlsCol, out int colWeekoffDays, 15);
 
                 SetCellValue("Total Days", sheet1, xlsRow, ref xlsCol, out ColTotalWorkingDay, 8);
                 SetCellValue("Working Days", sheet1, xlsRow, ref xlsCol, out ColActualWorkingDay, 8);
@@ -5449,7 +5453,8 @@ namespace Library.HumanResource.Payroll
                         sheet1.Range[xlsRow, colDirectManpowerCost].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, colDirectManpowerCost].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-
+                        sheet1.Range[xlsRow, colWeekoffDays].Text = dtEmployees.Rows[i]["WeekoffDays"].ToString();
+                       
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Gender"].ToString()) == false)
                             sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
                         sheet1.Range[xlsRow, cGender].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -13474,7 +13479,7 @@ INNER JOIN
 													) MW ON MW.SystemId = EmpBasic.EmpSystemId
                                     INNER JOIN
 		                                    (
-											SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalWorkingDay,0) TotalWorkingDay,ISNULL(TotalPayDay,0)TotalPayDay,ISNULL(TotalNonPayDay,0)TotalNonPayDay,ISNULL(ActualWorkingDay,0)ActualWorkingDay,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
+											SELECT EmpSystemID,WeekoffDays,MonthNo,YearNo, ISNULL(TotalWorkingDay,0) TotalWorkingDay,ISNULL(TotalPayDay,0)TotalPayDay,ISNULL(TotalNonPayDay,0)TotalNonPayDay,ISNULL(ActualWorkingDay,0)ActualWorkingDay,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
 										,ISNULL(TotalLv,0) TotalLv
 										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr

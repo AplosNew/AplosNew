@@ -6398,7 +6398,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
             string strkey = "1=1";
             if (EmpData != "")
             {
-                strkey = "e.SystemId in(" + EmpData + @")";
+                strkey = "e.SystemId in(" + empMaster + @")";
             }
 
             ConnectionManager.DAL.ConManager objCon;

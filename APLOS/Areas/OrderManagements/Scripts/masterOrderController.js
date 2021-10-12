@@ -4414,18 +4414,22 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.ShowSKUMapPopUp = function (data, MasterOrderItemId) {
         try {
-          
-            $scope.setTab3(1);
-            $scope.ToMasterOrderItemId = data.Id;
-            $scope.FromMasterOrderItemId = MasterOrderItemId;
-            $scope.ToMaterialMasterId = data.MaterialMasterId;
+            if (!baseService.isUndefinedOrNull(MasterOrderItemId)) {
+                $scope.setTab3(1);
+                $scope.ToMasterOrderItemId = data.Id;
+                $scope.FromMasterOrderItemId = MasterOrderItemId;
+                $scope.ToMaterialMasterId = data.MaterialMasterId;
 
-            $scope.GetFromItemMaterialSKU1Data($scope.FromMasterOrderItemId);
-            $scope.GetFromItemMaterialSKU2Data($scope.FromMasterOrderItemId);
+                $scope.GetFromItemMaterialSKU1Data($scope.FromMasterOrderItemId);
+                $scope.GetFromItemMaterialSKU2Data($scope.FromMasterOrderItemId);
 
-            $scope.GetToItemMaterialSKU1($scope.ToMaterialMasterId);
-            $scope.GetToItemMaterialSKU2($scope.ToMaterialMasterId);
-            angular.element(document.querySelector('#SKUsPopUp')).modal('show');
+                $scope.GetToItemMaterialSKU1($scope.ToMaterialMasterId);
+                $scope.GetToItemMaterialSKU2($scope.ToMaterialMasterId);
+                angular.element(document.querySelector('#SKUsPopUp')).modal('show');
+            }
+            else {
+                throw "Select Master Order line item.";
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -4475,7 +4479,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $http({
             method: 'POST',
             url: $scope.path + 'CopySOByMOI',
-            data: { 'MasterId': $scope.ToMasterOrderItemId, 'masterItemId': $scope.FromMasterOrderItemId, 'SKU1List': $scope.FromSKU1List, 'SKU2List': $scope.FromSKU2List},
+            data: { 'MasterId': $scope.ToMasterOrderItemId, 'masterItemId': $scope.FromMasterOrderItemId, 'SKU1List': $scope.FromSKU1List, 'SKU2List': $scope.FromSKU2List },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
