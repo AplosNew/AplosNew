@@ -4500,7 +4500,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     //#endregion
 
-    //#region
+    //#region Create New SKU
 
     $scope.characteristicsValueList = [];
     $scope.SKU = null;
