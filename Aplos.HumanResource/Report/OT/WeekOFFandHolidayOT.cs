@@ -1302,7 +1302,7 @@ namespace Library.HumanResource.Report.OT
                             HolidayOT = clsStaticInfo.dbl(dicHourlyOTH[x]["Duration"].ToString());
                             if (dicH.ContainsKey(x))
                             {
-                                ExtraOTH = clsStaticInfo.dbl(dicHourlyOTH[x]["DurationH"].ToString());
+                                //ExtraOTH = clsStaticInfo.dbl(dicHourlyOTH[x]["DurationH"].ToString());
                                 sheet1.Range[xlsRow, colHolidayOT].Number = clsStaticInfo.dbl(dicH[x]) * (clsStaticInfo.dbl(dicHourlyOTH[x]["DurationH"].ToString()));
 
                                 sheet1.Range[xlsRow, colHolidayOT].NumberFormat = NumberFormatTwoDecimal;

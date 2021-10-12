@@ -238,8 +238,8 @@ namespace Library.MaterialManagement.Inventory
 							   );
 						if (im.IsNotNull())
 						{
-
-							if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
+							
+							if (im.TotalQty < item.BaseQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
 							item.InventoryIssueId = _pk;
 							item.InventoryMaterialId = im.Id;
 							item.CompanyGroupId = im.CompanyGroupId;

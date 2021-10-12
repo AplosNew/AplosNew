@@ -184,13 +184,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                     }
 
+
                         if (string.IsNullOrEmpty(item.InDate) == false)
-                        if (bplib.clsWebLib.IsDateOK(item.InDate) == false)
+                        if (clsWebLib.IsDateOK(item.InDate) == false)
                             item.ErrorMessage = "Invalid in date";
 
 
                     if (string.IsNullOrEmpty(item.OutDate) == false)
-                        if (bplib.clsWebLib.IsDateOK(item.OutDate) == false)
+                        if (clsWebLib.IsDateOK(item.OutDate) == false)
                             item.ErrorMessage = "Invalid out date";
 
                     NewShiftStandardTime.DefaultView.RowFilter = "SystemID='" + item.ShiftSystemID + "' AND WorkDate=#" + item.WorkDate + "#";
@@ -232,7 +233,21 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     }
 
-                }
+                    if (item.DayStatus != item.DayStatusNew)
+                    {
+                        string TodaySandwich = clsWebLib.RetValidLen(item.SandwichFlag).ToString();
+                        string PastSandwich = clsWebLib.RetValidLen(item.PrevDayFlag).ToString();
+                        string FutureSandwich = clsWebLib.RetValidLen(item.FutureDayFlag).ToString();
+
+                        if (TodaySandwich == "1" && PastSandwich == "2" && FutureSandwich == "2")
+                        {
+                            item.IsError = true;
+                            item.ErrorMessage = "It is a Sandwich Case Please check ...";
+                        }
+                    }
+
+
+                 }
 
                 if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
                 {
@@ -260,7 +275,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                bplib.clsGenID objId = new bplib.clsGenID();
+                clsGenID objId = new clsGenID();
 
                 //New
                 string RowsEdits = "''";
@@ -319,6 +334,12 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             if (string.IsNullOrEmpty(data[i].DayStatusNew) == false)
                             {
+                                if (dr["SandwichFlag"].ToString() == "2")
+                                {
+                                    dr["SandwichFlag"] = 0;
+                                    dr["SandwichStatus"] = DBNull.Value;
+                                }
+
                                 dr["ManualDayStatus"] = data[i].DayStatusNew;
                                 dr["DayStatus"] = data[i].DayStatusNew;
                                 dr["IsManualDayStatus"] = true;
@@ -476,7 +497,18 @@ namespace Library.HumanResource.NewAttendanceProcess
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
 
                             KK.DayStatus, KK.OTHr,KK.plantid AS PlantID,
-                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,convert(bit,isnull(KK.IsLock,0)) AS IsLock
+                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,convert(bit,isnull(KK.IsLock,0)) AS IsLock,
+
+                           (
+				            select SandwichFlag from AttdnProcessData where WorkDate=DATEADD(day,-1,kk.WorkDate) 
+				            and EmpSystemID=kk.EmpSystemID
+				            and PlantID='" + PlantId + @"'
+				            )PrevDayFlag,KK.SandwichFlag,
+				            (
+				            select SandwichFlag from AttdnProcessData where WorkDate=DATEADD(day,+1,kk.WorkDate) 
+				            and EmpSystemID=kk.EmpSystemID
+				            and PlantID='" + PlantId + @"'
+				            )FutureDayFlag
 
                              FROM (
 								
@@ -486,9 +518,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 		                            O.InTime, O.IsManualInTime,
 		                            O.OutTime, O.IsManualOutTime, O.IsManualDayStatus,O.IsLock,
        
-		                            O.PunchInTime,O.PunchOutTime,
+		                            O.PunchInTime,O.PunchOutTime,o.EmpSystemID,
 		                            O.DayStatus, O.OTHr, O.IsOTComfirm,O.DayStatusCode,
-		                            O.IsOTEntitled,emp.plantid
+		                            O.IsOTEntitled,emp.plantid,o.SandwichFlag
 
 		                            FROM EmployeeInformation EMP
 		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
@@ -563,13 +595,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 else
                 {
-                    EmpSel = "and EmpSystemID in (" + Emps + ")";
+                    EmpSel = "and ap.EmpSystemID in (" + Emps + ")";
                 }
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string addedname = identity.Name;
                 string addeddate = DateTime.Now.ToString();
-                string TableName = "dbo.AttdnProcessData";
+                string TableName = "dbo.AttdnProcessData ap";
 
                 //Getting the DayStatuses
                 var sttr = @"Select DayType from dbo.DayType";
@@ -583,7 +615,19 @@ namespace Library.HumanResource.NewAttendanceProcess
                 
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate between '" + FD + @"' and '" + TD + @"'AND PlantID='" + PlId + @"' "+EmpSel+"", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter(@"select  * , 
+                            (
+                            select SandwichFlag from AttdnProcessData where WorkDate = DATEADD(day, -1, ap.WorkDate)
+                            and EmpSystemID = ap.EmpSystemID
+                            and PlantID = ap.PlantID
+                            )PrevDayFlag,
+                            (
+                            select SandwichFlag from AttdnProcessData where WorkDate = DATEADD(day, +1, ap.WorkDate)
+                            and EmpSystemID = ap.EmpSystemID
+                            and PlantID = ap.PlantID
+                            )FutureDayFlag from " + TableName + " where ap.WorkDate between '" + FD + @"' and '" + TD + @"'AND ap.PlantID='" + PlId + @"' "+EmpSel+"", out dsMaster, false, "1");
+
+
                 int KI = 0; 
                 int KO = 0; 
                 if (data.Count > 0)
@@ -718,6 +762,22 @@ namespace Library.HumanResource.NewAttendanceProcess
                             {
                                 if(DayTypesList.Contains(data[i]["DayStatus"].ToString()))
                                 {
+
+                                    string TodaySandwich = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["SandwichFlag"]).ToString();
+                                    string PastSandwich = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["PrevDayFlag"]).ToString();
+                                    string FutureSandwich = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0]["FutureDayFlag"]).ToString();
+
+                                    if (TodaySandwich == "1" && PastSandwich == "2" && FutureSandwich == "2")
+                                    {
+                                        throw new Exception("It is a Sandwich Case Please check ... - " + dsMaster.Tables[0].DefaultView[0]["WorkDate"].ToString());
+                                    }
+
+                                    if (dsMaster.Tables[0].DefaultView[0]["SandwichFlag"].ToString() == "2")
+                                    {
+                                        dsMaster.Tables[0].DefaultView[0]["SandwichFlag"] = 0;
+                                        dsMaster.Tables[0].DefaultView[0]["SandwichStatus"] = DBNull.Value;
+                                    }
+
                                     dsMaster.Tables[0].DefaultView[0]["ManualEntryTime"] = DateTime.Now;
                                     dsMaster.Tables[0].DefaultView[0]["ManualByWhom"] = identity.Name;
                                     dsMaster.Tables[0].DefaultView[0]["ManualFlag"] = true;

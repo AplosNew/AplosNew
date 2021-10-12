@@ -973,7 +973,11 @@ order by  Assigned, ProductCode , PO
                             LEFT JOIN org.Entity en on en.Id = pk.EntityId
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
-                            WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)";
+                            WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)
+                            AND pk.PackingId IN(Select distinct pli.PackingId from trn.PackingLineItem pli
+                            left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+                            left join ItemScanChild sc on sc.PackingId = pol.Id
+                            where ISNULL(sc.RefNo,'')<>'')";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
