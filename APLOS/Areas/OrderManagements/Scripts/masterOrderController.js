@@ -4499,6 +4499,155 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
 
     //#endregion
+
+    //#region
+
+    $scope.characteristicsValueList = [];
+    $scope.SKU = null;
+    $scope.SKULevel = null;
+    $scope.name = null;
+    $scope.state = null;
+
+    $scope.AddSKU = function (state, name) {
+        $scope.SKU = null;
+        $scope.SKULevel = null;
+
+        $scope.name = name;
+        $scope.state = state;
+
+        if ($scope.state == '1st') {
+            $scope.charId = $scope.rmchar1.CharacteristicsId;
+            $scope.SKU = $scope.rmchar1.Name;
+            $scope.SKULevel = $scope.rmchar1.ValueAssignmentLevel;
+        }
+        if ($scope.state == '2nd') {
+            $scope.charId = $scope.rmchar2.CharacteristicsId;
+            $scope.SKU = $scope.rmchar2.Name;
+            $scope.SKULevel = $scope.rmchar2.ValueAssignmentLevel;
+        }
+        if ($scope.state == '3rd') {
+            $scope.charId = $scope.rmchar3.CharacteristicsId;
+            $scope.SKU = $scope.rmchar3.Name;
+            $scope.SKULevel = $scope.rmchar3.ValueAssignmentLevel;
+        }
+        $scope.characteristicsValue = {
+            Id: baseService.pk()
+            , MaterialMasterId: $scope.bomDetailNew.RMMaterialMasterId
+            , CharacteristicsId: $scope.charId
+            , Sequence: null
+            , Code: null
+            , ShortName: null
+            , StandardName: null
+            , UserName: null
+            , SourceType: $scope.SKULevel
+            , Description: null
+            , Remarks: null
+            , IsDefault: false
+            , Active: true
+        };
+        $scope.characteristicsvalueNew = angular.copy($scope.characteristicsValue);
+        $scope.GetMaterialMasterCharacteristicsValueSequence();
+        angular.element(document.querySelector('#SKUpopup')).modal('show');
+    }
+
+    $scope.GetMaterialMasterCharacteristicsValueSequence = function () {
+        $http.get('Materials/characteristicsvalue/getautosequence?characteristicsId=' + $scope.charId + '&materialId=' + $scope.bomDetailNew.RMMaterialMasterId)
+            .then(function (response) {
+                $scope.characteristicsvalueNew.Sequence = response.data;
+            });
+    };
+
+
+    $scope.SaveBOMSKUState = function () {
+        if ($scope.state == '1st') {
+            $scope.characteristicsvalueNew.SourceType = $scope.rmchar1.ValueAssignmentLevel;
+        }
+        if ($scope.state == '2nd') {
+            $scope.characteristicsvalueNew.SourceType = $scope.rmchar2.ValueAssignmentLevel;
+        }
+        if ($scope.characteristicsvalueNew.SourceType === 'General') {
+            $scope.characteristicsvalueNew.MaterialMasterId = null;
+        }
+        if (baseService.isUndefinedOrNull($scope.name)) {
+            $scope.SaveBOMSKU();
+        }
+        if ($scope.name == 'mat') {
+
+            $scope.SaveBOMSKUMatrix();
+        }
+    }
+
+    $scope.SaveBOMSKU = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.skuForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: 'OrderManagements/BOMMaster/CreateCharacteristicsValue',
+                    data: { 'entity': $scope.characteristicsvalueNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure', 'SKUpopup');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success', 'SKUpopup');
+
+                        if ($scope.state == '1st') {
+                            $scope.bomDetailNew.FirstCharacteristicsId = $scope.charId;
+                            $scope.rmchar1.FreeText = response.data.CharacteristicsValue.UserName;
+                            $scope.bomDetailNew.FirstCharacteristicsValueId = response.data.CharacteristicsValue.Id;
+
+                            $scope.rmchar1.CharacteristicsId = $scope.bomDetailNew.FirstCharacteristicsId;
+                            $scope.rmchar1.CharacteristicsValueId = $scope.bomDetailNew.FirstCharacteristicsValueId;
+                        }
+                        if ($scope.state == '2nd') {
+                            $scope.bomDetailNew.SecondCharacteristicsId = $scope.charId;
+                            $scope.rmchar2.FreeText = response.data.CharacteristicsValue.UserName;
+                            $scope.bomDetailNew.SecondCharacteristicsValueId = response.data.CharacteristicsValue.Id;
+
+                            $scope.rmchar2.CharacteristicsId = $scope.bomDetailNew.SecondCharacteristicsId;
+                            $scope.rmchar2.CharacteristicsValueId = $scope.bomDetailNew.SecondCharacteristicsValueId;
+                        }
+                        if ($scope.state == '3rd') {
+                            $scope.bomDetailNew.ThirdCharacteristicsId = $scope.charId;
+                            $scope.rmchar3.FreeText = response.data.CharacteristicsValue.UserName;
+                            $scope.bomDetailNew.ThirdCharacteristicsValueId = response.data.CharacteristicsValue.Id;
+
+                            $scope.rmchar3.CharacteristicsId = $scope.bomDetailNew.ThirdCharacteristicsId;
+                            $scope.rmchar3.CharacteristicsValueId = $scope.bomDetailNew.ThirdCharacteristicsValueId;
+                        }
+
+
+                        $scope.clearMasterCharacteristicsValue();
+                        angular.element(document.querySelector('#SKUpopup')).modal('hide');
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure', 'SKUpopup');
+                }
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure', 'SKUpopup');
+        }
+    };
+
+    $scope.CloseCharacteristicsValuePopUp = function () {
+        angular.element(document.querySelector('#SKUpopup')).modal('hide');
+    }
+    $scope.clearMasterCharacteristicsValue = function () {
+        $scope.characteristicsValue = {};
+        $scope.characteristicsvalueNew = {
+            Id: baseService.pk()
+            , MaterialMasterId: $scope.bomDetailNew.RMMaterialMasterId
+            , CharacteristicsId: $scope.charId
+            , Sequence: 0, Active: true, IsDefault: false
+        };
+        $scope.GetMaterialMasterCharacteristicsValueSequence();
+    }
+
+    //#endregion 
+
 }
 
 
