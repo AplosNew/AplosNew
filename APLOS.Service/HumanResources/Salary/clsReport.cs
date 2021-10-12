@@ -211,12 +211,14 @@ namespace OTSBD
             {
                 obs = new clsStaticInfo();
                 strSql = @"select (E.SystemId+''+LT.Code)EmpLTCode, E.SystemId EmpSystemID ,LT.Code,LT.LeaveType
-						 ,ISNULL(sum(LTD.LeaveDuration),0) AS AvailedLeave from employeeInformation E
+						 ,CASE WHEN ISNULL(lb.Id,'')='' THEN  ISNULL(sum(LTD.LeaveDuration),0) ELSE lb.Balance END AS AvailedLeave
+						 from employeeInformation E
 						 left join LeaveType LT ON 1=1
+						 left JOIN LeaveBalance AS lb ON lb.EmpSystemId=e.SystemId AND lb.LTSystemId=lt.Id
 						 LEFT join LeaveTransaction LTR  ON E.SystemId = LTR.EmpSystemID and LTR.LTSystemID=LT.Id  and LTR.IsApproved=1
 						 Left join LeaveTransactionDetails LTD on LTD.LvTrnsSystemID =LTR.SystemID AND LTd.WorkDate BETWEEN   '" + leavePara.FromDate + @"' AND  '" + leavePara.ToDate + @"'  AND  LTD.IsAvailed = 1
 						 where e.PlantId='" + leavePara.PlantId + @"' --e.SystemId='2010626'
-						group by E.SystemId,LT.Id,LT.Code,LT.LeaveType order by E.SystemId";
+						group BY lb.Id,lb.Balance, E.SystemId,LT.Id,LT.Code,LT.LeaveType order by E.SystemId";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
