@@ -315,7 +315,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                             dr["LockedBy"] = DBNull.Value;
                             dr["ManualFlag"] = true;
                             dr["isLock"] = false;
-
+                            dr["OTComfirmBy"] = DBNull.Value;
+                            dr["DateOTComfirm"] = DBNull.Value;
+                            dr["IsOTComfirm"] = false;
                             dr.EndEdit();
                         }
 
