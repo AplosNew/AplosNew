@@ -378,4 +378,62 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
         showCaptionSummary: true
 
     }];
+
+    $scope.graphmaxheight = 10;
+    $scope.graphmaxwidth = '200px';
+    $scope.dataSourceLineGraph = [];
+    $scope.showlinegraph = function (args) {
+
+        try {
+            $scope.graphmaxwidth = '200px';
+            $http({
+                method: 'GET',
+                url: "OrderManagements/productionOrderSchedulingParametersType1/GetProductionPlanGraph?orderid=" + args.data.ProductionOrderID + "&workcentrid=" + args.data.WorkCenterMasterId
+            }).then(function successCallback(res) {
+                $scope.graphmaxheight = 10;
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].Quantity > $scope.graphmaxheight)
+                        $scope.graphmaxheight = res.data[i].Quantity;
+                }
+
+                $scope.graphmaxwidth = ((res.data.length * 30) + 200) + 'px';
+                $scope.graphmaxheight = $scope.graphmaxheight + ($scope.graphmaxheight * .10);
+
+                $scope.dataSourceLineGraph = res.data;
+
+                $("#graph").ejDialog("setTitle", "Production Plan for Workcenter [" + args.data.WorkCenter + "], Production Order#" + args.data.ProductionOrderID);
+                var eDialog = $("#graph").data("ejDialog");
+                eDialog.open();
+            });
+
+
+
+        } catch (e) {
+
+        }
+    }
+    $scope.WORKCENTERPARAMS = {};
+    $scope.WORKCENTERProductList = [];
+    $scope.workcenterclick = function (args) {
+        try {
+            $http({
+                method: 'GET',
+                url: "OrderManagements/productionOrderSchedulingParametersType1/getWorkcenterParametersDisplay?WorkCenterMasterId=" + args.data.WorkCenterMasterId
+            }).then(function successCallback(res) {
+
+                $scope.WORKCENTERPARAMS = res.data.WORKCENTERPARAMS[0];
+                $scope.WORKCENTERProductList = res.data.WORKCENTERProductList;
+
+                $("#dialogWorkCenterParameters").ejDialog("setTitle", "Configurations for Work Center [" + $scope.WORKCENTERPARAMS.WorkCenter + "]");
+                var eDialog = $("#dialogWorkCenterParameters").data("ejDialog");
+                eDialog.open();
+            });
+        } catch (e) {
+
+        }
+    }
+    $scope.printChart = function (chartname) {
+        var chartObj = $('#' + chartname).ejChart("instance");
+        chartObj.print(chartname);
+    }
 }

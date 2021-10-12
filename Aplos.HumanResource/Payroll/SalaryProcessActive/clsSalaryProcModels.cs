@@ -88,6 +88,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
     public class dicMMDSSI
     {
         public string EmpSystemID { get; set; } = "";
+        public string WeekoffDays { get; set; } = "";
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
         public decimal TotalProcDate { get; set; } = 0;

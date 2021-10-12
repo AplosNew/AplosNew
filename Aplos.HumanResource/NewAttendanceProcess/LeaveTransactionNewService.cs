@@ -2343,7 +2343,10 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                             dr["ManualFlag"] = true;
                             dr["IsLock"] = false;
                             dr["LockedBy"] = DBNull.Value; 
-                            dr["LockedDate"] = DBNull.Value; 
+                            dr["LockedDate"] = DBNull.Value;
+                            dr["OTComfirmBy"] = DBNull.Value;
+                            dr["DateOTComfirm"] = DBNull.Value;
+                            dr["IsOTComfirm"] = false;
                             dr.EndEdit();
                             RowsEdit = RowsEdit + ",'" + dr["RowId"].ToString() + "'";
                         }

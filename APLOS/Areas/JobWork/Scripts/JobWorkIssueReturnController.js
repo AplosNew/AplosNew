@@ -239,48 +239,60 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.GridInventoryIssuedata = [];
 	$scope.getdataInventoryIssue = function () {
 		if ($scope.ModelNew.TabType == "Transformation") {
+			if ($scope.GRNbyPOCheckStatus === "ForChecked") {
+				$scope.GRNbyPOCheckStatus = "ForChecked";
+			}
 			$scope.GridInventoryIssuedata = [];
 			$http({
 				method: "GET",
-				url: $scope.path + 'GetDataByInventoryIssue?Id=' + $scope.Transformation.Id,
+				url: $scope.path + 'GetDataByInventoryIssue?Id=' + $scope.Transformation.Id + '&GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus,
 			}).then(function successCallback(response) {
 				$scope.GridInventoryIssuedata = response.data;
-				if ($scope.GridInventoryIssuedata.length == 0) {
-					$scope.ShowHomeList = true;
-					$scope.ShowReport = false;
-					$scope.setTab(2);
-					if (!$rootScope.isCollapsed) {
-						$rootScope.toggle();
-					}
-				}
-				else {
 					$scope.ShowHomeList = false;
 					$scope.ShowReport = true;
 					$scope.setTab(2);
-				}
+				//if ($scope.GridInventoryIssuedata.length == 0) {
+				//	$scope.ShowHomeList = true;
+				//	$scope.ShowReport = false;
+				//	$scope.setTab(2);
+				//	if (!$rootScope.isCollapsed) {
+				//		$rootScope.toggle();
+				//	}
+				//}
+				//else {
+				//	$scope.ShowHomeList = false;
+				//	$scope.ShowReport = true;
+				//	$scope.setTab(2);
+				//}
 
 			});
 		}
 		else {
 			$scope.GridInventoryIssuedata = [];
+			if ($scope.GRNbyPOCheckStatus === "ForChecked") {
+				$scope.GRNbyPOCheckStatus = "ForChecked";
+			}
 			$http({
 				method: "GET",
-				url: $scope.path + 'GetDataByInventoryIssue?Id=' + $scope.ModelNew.Id,
+				url: $scope.path + 'GetDataByInventoryIssue?Id=' + $scope.ModelNew.Id + '&GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus,
 			}).then(function successCallback(response) {
 				$scope.GridInventoryIssuedata = response.data;
-				if ($scope.GridInventoryIssuedata.length == 0) {
-					$scope.ShowHomeList = true;
-					$scope.ShowReport = false;
-					$scope.setTab(1);
-					if (!$rootScope.isCollapsed) {
-						$rootScope.toggle();
-					}
-				}
-				else {
-					$scope.ShowHomeList = false;
-					$scope.ShowReport = true;
-					$scope.setTab(1);
-				}
+				$scope.ShowHomeList = false;
+				$scope.ShowReport = true;
+				$scope.setTab(1);
+				//if ($scope.GridInventoryIssuedata.length == 0) {
+				//	$scope.ShowHomeList = true;
+				//	$scope.ShowReport = false;
+				//	$scope.setTab(1);
+				//	if (!$rootScope.isCollapsed) {
+				//		$rootScope.toggle();
+				//	}
+				//}
+				//else {
+				//	$scope.ShowHomeList = false;
+				//	$scope.ShowReport = true;
+				//	$scope.setTab(1);
+				//}
 
 			});
         }
@@ -389,6 +401,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	//  ISSUE CHILD DATA
 
 	$scope.IssueChildList = [];
+	$scope.GRNbyPOCheckStatus = "ForChecked";
 
 	$scope.tab = 1;
 	$scope.setTab = function (newTab) {
@@ -397,6 +410,33 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 
 	$scope.isSet = function (tabNum) {
 		return $scope.tab === tabNum;
+	};
+
+	$scope.Issuetab = 1;
+	$scope.setTabGRNList = function (newTab2) {
+		$scope.GRNbyPOCheckStatus = "ForChecked";
+		$scope.Issuetab = newTab2;
+		$scope.getdataInventoryIssue();
+	};
+
+	$scope.isSetGRNList = function (tabNum2) {
+		return $scope.Issuetab === tabNum2;
+	};
+
+	// For Posted
+	$scope.GRN = "";
+//	$scope.Ptab = 6;
+	$scope.setTabPosted = function (PostedTab) {
+	//	$scope.Ptab = PostedTab;
+		$scope.Issuetab = PostedTab;
+		$scope.GRNbyPOCheckStatus = "Posted";
+		$scope.getdataInventoryIssue();
+
+	};
+	$scope.isSetPosted = function (tabNumPst) {
+	//	return $scope.Ptab === tabNumPst;
+		return $scope.Issuetab === tabNumPst;
+//		$scope.GRN = 6;
 	};
 
 

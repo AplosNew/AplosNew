@@ -584,20 +584,24 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 
     $scope.returnAmountCalculation = function (data) {
         try {
-            if (data.ReturnQty > data.TransactionQty) {
+            if (data.ReturnQty > data.BalanceQty) {
+                data.ReturnQty = data.BalanceQty;
+                data.ReturnAmount = (parseFloat(data.ReturnQty) * (data.SalesRate)).toFixed(2);
                 throw "Return Qty can't greater than Sales Qty";
             }
-
-            data.TotalAmount = (parseFloat(data.ReturnQty) * (data.SalesRate)).toFixed(2);
-            data.TotalTaxAmount = 0;
-            var tQty = baseService.isUndefinedOrNull(data.ReturnQty) ? 0 : parseFloat(data.ReturnQty);
-            var tAmount = baseService.isUndefinedOrNull(data.TotalAmount) ? 0 : parseFloat(data.TotalAmount);
-
-            for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryList); i++) {
-                $scope.materialtaxCategoryList[i].TaxAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * tAmount) / 100).toFixed(2);
-                data.TotalTaxAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * tAmount) / 100).toFixed(2);
-                data.TaxAmount = (parseFloat(data.TotalTaxAmount) + parseFloat($scope.materialtaxCategoryList[i].TaxAmount)).toFixed(2);
+            data.ReturnAmount = (parseFloat(data.ReturnQty) * (data.SalesRate)).toFixed(2);
+            data.TaxAmount = 0;
+            for (var i = 0; i < $scope.materialtaxCategoryListSavedData.length; i++) {
+                if ($scope.materialtaxCategoryListSavedData[i].InventorySalesDetailId == data.InventorySalesDetailId) {
+                    $scope.materialtaxCategoryListSavedData[i].TaxAmount = ($scope.materialtaxCategoryListSavedData[i].SalesTax / data.TransactionQty) * data.ReturnQty
+                    data.TaxAmount += Math.round((($scope.materialtaxCategoryListSavedData[i].SalesTax / data.TransactionQty) * data.ReturnQty) * 100 + Number.EPSILON) / 100;
+                }
             }
+            //for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryList); i++) {
+            //    $scope.materialtaxCategoryList[i].TaxAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * tAmount) / 100).toFixed(2);
+            //    data.TotalTaxAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * tAmount) / 100).toFixed(2);
+            //    data.TaxAmount = (parseFloat(data.TotalTaxAmount) + parseFloat($scope.materialtaxCategoryList[i].TaxAmount)).toFixed(2);
+            //}
             if (isNaN(data.TotalTaxAmount)) data.TotalTaxAmount = 0;
         } catch (e) {
             ShowResult(e, "failure");
@@ -955,25 +959,6 @@ function InventorySalesReturnController(accountService, $window, cboService, com
                 ShowResult('Select To Date', 'failure');
                 return false;
             }
-
-
-            //if ($scope.productNew.Qty) {
-            //	$scope.choice1 = 'Qty';
-            //	$scope.choice2 = '';
-            //}
-            //if ($scope.productNew.Amount) {
-            //	$scope.choice1 = '';
-            //	$scope.choice2 = 'Amount';
-            //}
-            //if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-            //	$scope.choice1 = 'Qty';
-            //	$scope.choice2 = 'Amount';
-            //}
-            //if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-            //	ShowResult('Select Qty OR Amount', 'failure');
-            //	return false;
-            //}
-
         }
         else {
 
@@ -985,26 +970,6 @@ function InventorySalesReturnController(accountService, $window, cboService, com
                 ShowResult('Select To Date', 'failure');
                 return false;
             }
-            //if ($scope.productNew.RcptIssue != true) {
-            //    ShowResult('Select With Receipts & Issue', 'failure');
-            //    return false;
-            //}
-            //if ($scope.productNew.Qty) {
-            //	$scope.choice1 = 'Qty';
-            //	$scope.choice2 = '';
-            //}
-            //if ($scope.productNew.Amount) {
-            //	$scope.choice2 = 'Amount';
-            //	$scope.choice1 = '';
-            //}
-            //if ($scope.productNew.Qty === true && $scope.productNew.Amount === true) {
-            //	$scope.choice1 = 'Qty';
-            //	$scope.choice2 = 'Amount';
-            //}
-            //if (!$scope.productNew.Qty && !$scope.productNew.Amount) {
-            //	ShowResult('Select Qty OR Amount', 'failure');
-            //	return false;
-            //}
         }
 
 
@@ -1023,26 +988,20 @@ function InventorySalesReturnController(accountService, $window, cboService, com
         $scope.total = 0;
 
         $scope.LoadTaxButtonClick();
-
-        var getRownewData = data.TaxList;// $filter("filter")(data.TaxList, { "InventorySalesDetailId": data.InventorySalesDetailId});
-        for (var K = 0; K < getRownewData.length; K++) {
-            $scope.materialtaxCategoryListResFinal.push(getRownewData[K]);
-        }
+        $scope.filterInventorySalesDetailId = data.InventorySalesDetailId;
 
         $scope.taxAbleAmnt = $scope.detailList[index].TotalAmount;
         $scope.indexRow = index;
         $scope.index = index;
-        $scope.HSNCode = getRownewData.HSNCode;
-        $scope.total = $scope.total + getRownewData.TaxAmount;
+        $scope.HSNCode = $scope.materialtaxCategoryListSavedData[0].HSNCode;
+        //$scope.total = $scope.total + $scope.materialtaxCategoryListForDisplay.TaxAmount;
 
-        for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryListResFinal); i++) {
-            $scope.materialtaxCategoryListResFinal[i].TaxAmount = ((parseFloat($scope.materialtaxCategoryListResFinal[i].Percentage) * $scope.taxAbleAmnt) / 100).toFixed(2);
-            data.TotalTaxAmount = ((parseFloat($scope.materialtaxCategoryListResFinal[i].Percentage) * $scope.taxAbleAmnt) / 100).toFixed(2);
-            data.TaxAmount = (parseFloat(data.TotalTaxAmount) + parseFloat($scope.materialtaxCategoryListResFinal[i].TaxAmount)).toFixed(2);
-        }
+        //for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryListResFinal); i++) {
+        //    $scope.materialtaxCategoryListResFinal[i].TaxAmount = ((parseFloat($scope.materialtaxCategoryListResFinal[i].Percentage) * $scope.taxAbleAmnt) / 100).toFixed(2);
+        //    data.TotalTaxAmount = ((parseFloat($scope.materialtaxCategoryListResFinal[i].Percentage) * $scope.taxAbleAmnt) / 100).toFixed(2);
+        //    data.TaxAmount = (parseFloat(data.TotalTaxAmount) + parseFloat($scope.materialtaxCategoryListResFinal[i].TaxAmount)).toFixed(2);
+        //}
 
-
-        
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
     };
 
@@ -1090,10 +1049,9 @@ function InventorySalesReturnController(accountService, $window, cboService, com
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/InventoryIssue/GetTaxInfo?Id=' + Id,
+            url: 'Products/InventorySalesReturn/GetTaxInfo?Id=' + Id,
         }).then(function successCallback(response) {
             $scope.materialtaxCategoryList = response.data;
-
         });
     }
     //#endregion 
@@ -1859,7 +1817,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
     };
 
     function getIssueDetailList() {
-        $http.get('Products/InventorySalesReturn/GetSalesDetailByIssueId?issueId=' + $scope.productNew.InventorySalesId)
+        $http.get('Products/InventorySalesReturn/GetSalesDetailDataBySales?inventorySalesId=' + $scope.productNew.InventorySalesId)
             .then(function (response) {
                 $scope.detailList = response.data;
             });
@@ -1873,16 +1831,16 @@ function InventorySalesReturnController(accountService, $window, cboService, com
             url: 'Products/InventoryIssue/GetTaxInfoRowWise?InventorySalesId=' + $scope.productNew.InventorySalesId
         }).then(function successCallback(response) {
             $scope.materialtaxCategoryListSavedData = response.data;
-            if (baseService.arrayLength($scope.materialtaxCategoryListSavedData) > 0) {
-                for (var j = 0; j < $scope.materialtaxCategoryListSavedData.length; j++) {
-                    for (var i = 0; i < $scope.detailList.length; i++) {
-                        if ($scope.detailList[i].InventorySalesDetailId = $scope.materialtaxCategoryListSavedData[j].InventorySalesDetailId) {
-                            $scope.detailList[i].TaxList = $scope.materialtaxCategoryListSavedData[j];
-                        }
-                    }
-                }
+            //if (baseService.arrayLength($scope.materialtaxCategoryListSavedData) > 0) {
+            //    for (var j = 0; j < $scope.materialtaxCategoryListSavedData.length; j++) {
+            //        for (var i = 0; i < $scope.detailList.length; i++) {
+            //            if ($scope.detailList[i].InventorySalesDetailId = $scope.materialtaxCategoryListSavedData[j].InventorySalesDetailId) {
+            //                $scope.detailList[i].TaxList = $scope.materialtaxCategoryListSavedData[j];
+            //            }
+            //        }
+            //    }
                 
-            }
+            //}
 
         });
     }

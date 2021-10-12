@@ -26,7 +26,7 @@
 </style>
 
 <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
-<div class="form-horizontal" ng-form name="ModelNewForm">
+<div class="form-horizontal" ng-form name="ModelNewForm" id="MainDIV">
     <div class="form-elements" id="Marker">
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group" show-errors>
@@ -58,8 +58,8 @@
         </div>
 
     </div>
-       
-    <div class="col-md-12">
+
+    <div class="col-md-12" ng-show="VWCDATA.length>0">
         <div id="gridprviews" n ej-grid e-datasource="VWCDATA" e-showsummary="true" e-summaryrows="summaryRowsForWorkCenter"
              e-responsive="true">
             @*e-recorddoubleclick="workcenterclick"*@
@@ -321,7 +321,44 @@
     </div>
 </div>
 
+<ej-dialog id="graph" title=" Product Plan Quantity Distribution" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="900" e-target="#MainDIV" e-open="enableBtn">
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li> <button ng-click="printChart('chartContainer');" class="btn">Print</button></li>
+        </ul>
+    </div>
+    <div id="graphdiv" style="position:relative;overflow:scroll;width:880px;">
+        <div id="chartContainer" ej-chart e-isresponsive="true" style="width:{{graphmaxwidth}};"
+             e-primaryxaxis-title-text="Day"
+             e-load=onchartload e-size-height="500px" e-size-width="graphmaxwidth"
+             e-legend-visible="true" e-legend-position="bottom"
+             e-title-text="Qty"
+             e-primaryyaxis-title-text="Qty" e-primaryyaxis-range-min="0"
+             e-primaryyaxis-range-max="graphmaxheight"
+             e-commonseriesoptions-type="column"
+             e-commonseriesoptions-enableanimation="true" e-commonseriesoptions-tooltip-visible="true"
+             e-commonseriesoptions-tooltip-format="#point.x# : #point.y# #series.name#">
 
+            <e-series>
+                <e-series e-name="Production Plan" e-marker-dataLabel-visible="true"
+                          e-marker-dataLabel-verticaltextalignment="near"
+                          e-marker-dataLabel-angle="270"
+                          e-marker-dataLabel-font-fontweight="bold"
+                          e-marker-dataLabel-font-color="yellow"
+                          e-marker-dataLabel-enablecontrastcolor="true" e-datasource=dataSourceLineGraph e-xname="PlanDate" e-yname="Quantity" e-fill="VPRDATA.Color">
+                </e-series>
+            </e-series>
+        </div>
+    </div>
+
+</ej-dialog>
+
+<ej-dialog id="dialogWorkCenterParameters" title=" Product Parameters" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#MainDIV" e-minwidth="900" e-open="enableBtn">
+    @*<div class="form-element-ctrl form-horizontal">*@
+    @Html.Partial("~/Areas/OrderManagements/Views/productionOrderSchedulingParametersType1/workCenterParameters.cshtml")
+    @*</div>*@
+</ej-dialog>
 
 
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")

@@ -8,7 +8,10 @@ function employeeInFoReportController(commonMessage, $scope, $rootScope, baseSer
     $scope.EmployeeInFoReport = {
         EmployeeCatagory: 'Active',
         ReportFormat: 'Excel',
-        CheckBox: false
+        CheckBox: false,
+        LONGABSENTEEISM: false,
+        TBS: false,
+        EmployeeCurrentStatus:null
     };
     $scope.GetdailyattendanceReport = function (reportType) {
         try {                 
@@ -62,10 +65,11 @@ function employeeInFoReportController(commonMessage, $scope, $rootScope, baseSer
     //    }
     //};
 
+    
     $scope.GetEmployeeInFoReport = function () {
         var reportFormat = "Excel";
         try {
-            var file_src = 'employees/EmployeeInFoReport/EmployeeInFoIndexReport?reportFormat=' + reportFormat+'&radioValue=' + $scope.EmployeeInFoReport.EmployeeCatagory + '&IsCheck=' + $scope.EmployeeInFoReport.CheckBox
+            var file_src = 'employees/EmployeeInFoReport/EmployeeInFoIndexReport?reportFormat=' + reportFormat + '&radioValue=' + $scope.EmployeeInFoReport.EmployeeCatagory + '&IsCheck=' + $scope.EmployeeInFoReport.CheckBox + '&LA=' + $scope.EmployeeInFoReport.LONGABSENTEEISM + '&TBS=' + $scope.EmployeeInFoReport.TBS 
             $rootScope.report(file_src);
 
         } catch (e) {

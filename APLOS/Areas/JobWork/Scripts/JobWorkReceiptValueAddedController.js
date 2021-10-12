@@ -189,7 +189,9 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				//	$scope.GetJWGRNDataChecking();
 					$scope.GRNListDetails();
 					$scope.GetTransformationReceiptCurrency();
-					$scope.GetJWGRNDataChecking();
+				//	$scope.GetJWGRNDataChecking();
+					$scope.setStatus = 'Selected';
+					$scope.setTabGRNList(1);
 				}
 
 			});
@@ -197,7 +199,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			$scope.ModelNew.Type = $scope.TabTypeNew;
 			//$scope.setStatus = 'Selected';
 	  //  	$scope.setTabGRNList(1);
-			$scope.setTab(2);
+	//		$scope.setTab(2);
 		}
 		else {
 
@@ -490,13 +492,13 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 	$scope.ReceiptVAChildList = [];
 
-	$scope.tab = 1;
-	$scope.setTab = function (newTab) {
-		$scope.tab = newTab;
+	$scope.Maintab = 1;
+	$scope.setTab = function (MainnewTab) {
+		$scope.Maintab = MainnewTab;
 	};
 
-	$scope.isSet = function (tabNum) {
-		return $scope.tab === tabNum;
+	$scope.isSet = function (MaintabNum) {
+		return $scope.Maintab === MaintabNum;
 	};
 
 	$scope.subtab = 1;
@@ -2746,19 +2748,20 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			}).then(function successCallback(response) {
 				$scope.GriddataMaster = response.data;
 				//entrydata = copy(searchdata);
+				$scope.ShowHomeList = false;
+				$scope.setTab(2);
 
-				if ($scope.GriddataMaster.length == 0) {
-					$scope.ShowHomeList = true;
-					$scope.setTab(2);
-					if (!$rootScope.isCollapsed) {
-						$rootScope.toggle();
-					}
-				}
-				else {
-					$scope.ShowHomeList = false;
-					$scope.setTabGRNList(1);
-					$scope.setTab(2);
-				}
+				//if ($scope.GriddataMaster.length == 0) {
+				//	$scope.ShowHomeList = true;
+				//	$scope.setTab(2);
+				//	if (!$rootScope.isCollapsed) {
+				//		$rootScope.toggle();
+				//	}
+				//}
+				//else {
+				//	$scope.ShowHomeList = false;
+				//	$scope.setTab(2);
+				//}
 
 			});
 		}
