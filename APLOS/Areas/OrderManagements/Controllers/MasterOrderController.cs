@@ -1723,7 +1723,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             {
                                 drFirstCharacteristics["CharacteristicsValueId"] = item["ToSKU1Id"].ToString();
                             }
-                             break;
+                            // break;
                         }
 
                         dsToFirstCharacteristics.Tables[0].Rows.Add(drFirstCharacteristics);
@@ -1743,7 +1743,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                                 {
                                     drSecondCharacteristics["CharacteristicsValueId"] = item["ToSKU2Id"].ToString();
                                 }
-                                break;
+                               // break;
                             }
                             dsToSecondCharacteristics.Tables[0].Rows.Add(drSecondCharacteristics);
 
