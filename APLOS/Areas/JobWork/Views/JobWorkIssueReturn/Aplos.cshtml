@@ -1070,8 +1070,8 @@
                 <div e-column e-headertext="Actions" e-width="100">
                     <ul class="list-inline text-center">
                         <li>
-                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
-                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
                         </li>
                     </ul>
                 </div>
@@ -1140,7 +1140,7 @@
                 <li role="presentation" ng-class="{ active: isSetGRNList(3) }"><a ng-click="setTabGRNList(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Not Approved (Checked)</a></li>
                 <li role="presentation" ng-class="{ active: isSetGRNList(4) }"><a ng-click="setTabGRNList(4)" href="" aria-controls="general" role="tab" data-toggle="tab">Approved (Hold / Reject)</a></li>
                 <li role="presentation" ng-class="{ active: isSetGRNList(5) }"><a ng-click="setTabGRNList(5)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved (Not Posted)</a></li>
-                <li role="presentation" ng-class="{ active: isSetGRNList(6) }"><a ng-click="setTabGRNList(6)" href="" aria-controls="address" role="tab" data-toggle="tab">Posted</a></li>
+                <li role="presentation" ng-class="{ active: isSetPosted(6) }"><a ng-click="setTabPosted(6)" href="" aria-controls="address" role="tab" data-toggle="tab">Posted</a></li>
             </ul>
 
 
@@ -1174,9 +1174,9 @@
                                     <div e-column e-headertext="Actions" e-width="100">
                                         <ul class="list-inline text-left">
                                             <li>
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
                                                 @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>*@
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
                                             </li>
                                         </ul>
 
@@ -1327,9 +1327,9 @@
                                     <div e-column e-headertext="Actions" e-width="100">
                                         <ul class="list-inline text-left">
                                             <li>
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
                                                 @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>*@
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
                                             </li>
                                         </ul>
 
@@ -1468,9 +1468,9 @@
                                     <div e-column e-headertext="Actions" e-width="100">
                                         <ul class="list-inline text-left">
                                             <li>
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
                                                 @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>*@
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
                                             </li>
                                         </ul>
 
@@ -1609,9 +1609,9 @@
                                     <div e-column e-headertext="Actions" e-width="100">
                                         <ul class="list-inline text-left">
                                             <li>
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
                                                 @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>*@
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
                                             </li>
                                         </ul>
 
@@ -1762,9 +1762,9 @@
                                     <div e-column e-headertext="Actions" e-width="100">
                                         <ul class="list-inline text-left">
                                             <li>
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
                                                 @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>*@
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
                                             </li>
                                         </ul>
 
@@ -1888,7 +1888,7 @@
             </div>
 
 
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNList(6), active: isSetGRNList(6) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPosted(6), active: isSetPosted(6) }">
                 <fieldset class="scheduler-border">
                     <div>
                         <div class="content-container-fluid" style="color:black;overflow:scroll">
@@ -1916,9 +1916,9 @@
                                     <div e-column e-headertext="Actions" e-width="100">
                                         <ul class="list-inline text-left">
                                             <li>
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.PrintIssueTemplateReport(data);" style="margin: -6px;"></i></button>
                                                 @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>*@
-                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Issue Excel Report" ng-click="$parent.ConfirmIssueReportPrint(data);" style="margin: -6px;"></i></button>
                                             </li>
                                         </ul>
 

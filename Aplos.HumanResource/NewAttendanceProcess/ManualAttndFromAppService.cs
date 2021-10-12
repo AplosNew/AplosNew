@@ -576,6 +576,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         public string ErrorMessage { get; set; } = "";
         public string AddedFromIP { get; set; }
         public string BudgetCode { get; set; }
+        public string FutureDayFlag { get; set; }
+        public string PrevDayFlag { get; set; }
+        public string SandwichFlag { get; set; }
     }
 
     public class RTx

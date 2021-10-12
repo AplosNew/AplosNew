@@ -1757,13 +1757,15 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             }
         }
 
-        public IEnumerable<object> GetDataByInventoryIssue(string Id, string plantId)
+        public IEnumerable<object> GetDataByInventoryIssue(string Id, string GRNbyPOCheckStatus, string plantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-
-                var sql = @"SELECT E.UserName AS Entity 
+                var sql = "";
+                if(GRNbyPOCheckStatus == "ForChecked")
+                {
+                     sql = @"SELECT E.UserName AS Entity 
 							,isnull(II.IssueType,'') issuetype
 							, II.Id, II.CompanyGroupId
 							, II.CompanyId, II.PlantId
@@ -1786,12 +1788,48 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
 							left JOIN SCS.Country c ON C.Id=IR.CountryId
 							left join dbo.Contract Con On Con.Id=II.ContractId
-						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='"+ Id + @"'
+						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
 						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId
 						Order BY II.IssueDate DESC";
+                }
+
+                if(GRNbyPOCheckStatus == "Posted")
+                {
+                    sql = @"SELECT E.UserName AS Entity 
+							,isnull(II.IssueType,'') issuetype
+							, II.Id, II.CompanyGroupId
+							, II.CompanyId, II.PlantId
+							, II.EntityId, II.MaterialStorageId
+							,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate
+							, MS.UserName AS MaterialStorage 
+							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
+							,SUM(IIH.qty) Qty
+							,SUM(Round(IIH.qty*IIH.Rate,2)) Amount
+							,II.Remarks,II.Id AS IssueId
+							,II.OrderRefNo
+							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
+                            ,II.Types, II.JWContractId
+							FROM[TRN].[InventoryIssue] AS II
+							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
+							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
+							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
+							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
+							left join (Select InventoryIssueDetailId,IssueRequestDetailId,qty, Rate from trn.InventoryIssueHistory ) IIH ON IIH.InventoryIssueDetailId=IID.Id
+							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
+							left JOIN SCS.Country c ON C.Id=IR.CountryId
+							left join dbo.Contract Con On Con.Id=II.ContractId
+						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
+						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
+						,II.IssueDate, MS.UserName
+						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
+						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId
+						Order BY II.IssueDate DESC";
+                }
+
+              
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
