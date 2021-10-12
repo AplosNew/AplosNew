@@ -4881,12 +4881,12 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetDataByInventoryIssue(string Id)
+        public JsonResult GetDataByInventoryIssue(string Id, string GRNbyPOCheckStatus)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(JWTIR.GetDataByInventoryIssue(Id, identity.PlantId), JsonRequestBehavior.AllowGet);
+                return Json(JWTIR.GetDataByInventoryIssue(Id, GRNbyPOCheckStatus, identity.PlantId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
