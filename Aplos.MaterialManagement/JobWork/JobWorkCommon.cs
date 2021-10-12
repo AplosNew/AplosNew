@@ -124,7 +124,7 @@ namespace Library.MaterialManagement.JobWork
 									,ISNULL(Cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
-									,PLC.LCRef as PurchaseLC
+									,isnull(PLC.LCRef,'') as PurchaseLC
 									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -205,7 +205,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									,ISNULL(cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
-									,PLC.LCRef as PurchaseLC
+									,isnull(PLC.LCRef,'') as PurchaseLC
 									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -288,7 +288,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									,ISNULL(cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
-									,PLC.LCRef as PurchaseLC
+									,isnull(PLC.LCRef,'') as PurchaseLC
 									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -374,7 +374,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,ISNULL(Cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
-									,PLC.LCRef as PurchaseLC
+									,isnull(PLC.LCRef,'') as PurchaseLC
 									,Par.UserName CustomerName
                                     ,IR.CheckedByStatus AS CheckedByStatus
 			                        ,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -461,7 +461,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--,Par.UserName Customer
 
 									,ISNULL(Cn.ContractNo,'') ContractNo
-									,PLC.LCRef as PurchaseLC
+									,isnull(PLC.LCRef,'') as PurchaseLC
 									,Par.UserName CustomerName
 
                                     ,eI.EmployeeName CheckedBy

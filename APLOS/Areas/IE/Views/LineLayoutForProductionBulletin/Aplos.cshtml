@@ -49,9 +49,7 @@
                         <span class="input-group-btn">
                             <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
-                        <span class="input-group-btn">
-                            <button ng-click="SaveDiagram();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </span>
+                        
                     </div>
                 </div>
             </div>
@@ -107,6 +105,12 @@
 <div>
     <ej-diagram id="diagram" e-height="350px" e-itemclick="itemClick" e-width="100%" e-nodes="nodes">
     </ej-diagram>
+</div>
+
+<div class="common-btn">
+    <ul class="list-inline text-right">
+        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>       
+    </ul>
 </div>
 
 <script id="htmlTemplate" type="text/template">
