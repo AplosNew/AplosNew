@@ -3,14 +3,7 @@ LineLayoutForProductionBulletinController.$inject = ['cboService', 'commonMessag
 function LineLayoutForProductionBulletinController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $scope.path = 'IE/LineLayoutForProductionBulletin/'
     $rootScope.title = 'Line Layout For Production Bulletin';
-    //$scope.nodes = [
-    //    {
-    //        addInfo: { OperationId: "001", OperationDesc: "Operation Desc", MachineId: 'MACH001', MachineDesc: 'Machine desc', EmployeeId: '001', EmployeeName: 'Tarek', Designation: 'Operator', EmpPicPath:'1800001.jpg' },
 
-    //        name: "Html", width: 210, height: 180, offsetX: 0, offsetY: 0, fillColor: "#68a3d6", borderColor: "#3382c4", labels: [{ "text": "", fontColor: "white" }], type: ej.datavisualization.Diagram.Shapes.Html, templateId: "htmlTemplate"
-    //    },
-
-    //];
     $scope.nodes = [];
     $scope.operationList = [];
     $scope.operationButtonClick = function (args) {
@@ -23,9 +16,9 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
             angular.element(document.querySelector("#modalOperationList")).modal("toggle");
         });
     }
-   
+
     $scope.employeeButtonClick = function (args) {
-      
+
         $scope.selectednode = args;
         $scope.OpenEmployeeSearchBox();
     }
@@ -72,10 +65,6 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
             id: "LeftArrow", tooltiptext: "LeftArrow",
             spriteCss: "glyphicon glyphicon-arrow-left",
         },
-        //, {
-        //    id: "Polygon_Tool", tooltiptext: "Polygon",
-        //    spriteCss: "icon-Polygon toolBarIconStyle",
-        //},
         {
             id: "Textbox_Tool", tooltiptext: "Textbox",
             spriteCss: "icon-Textbox toolBarIconStyle",
@@ -92,35 +81,15 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
             id: "Html_Tool", tooltiptext: "Html",
             spriteCss: "glyphicon glyphicon-list-alt",
         },
-        //{
-        //    id: "Native_Tool", tooltiptext: "Native",
-        //    spriteCss: "icon-Native toolBarIconStyle",
-        //}
     ];
 
     $scope.width = "100%";
     $scope.height = "300px";
-    //$scope.nodes = nodes;
+
     $scope.pageSettings = { scrollLimit: "diagram", boundaryConstraints: ej.datavisualization.Diagram.BoundaryConstraints.Diagram };
-    //$scope.drawingToolsList = drawingToolsList;
+
 
     $scope.selectednode = null;
-    //$scope.itemClick = function (args) {
-
-    //    if ($scope.selectednode != null) {
-    //        $scope.selectednode.fillColor = "#ff0000";
-    //        try {
-
-    //            var diagram = $("#diagram").ejDiagram("instance");
-    //            diagram.refresh();
-    //        } catch (e) {
-
-    //        }
-    //        $scope.selectednode = args.element;
-    //    }
-
-    //    var l = 0;
-    //}
 
     $scope.onItemclick = function (args) {
         var diagram = $("#diagram").ejDiagram("instance");
@@ -176,9 +145,6 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
                     type: "html", templateId: "htmlTemplate"
                 };
                 break;
-            //case "Native_Tool":
-            //    diagram.model.drawType = { type: "native", templateId: "svgTemplate" };
-            //    break;
         }
 
         var tool = diagram.tool();
@@ -188,10 +154,67 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
     $scope.LineLayout = function (args) {
         try {
             $scope.modelNew.ProductionOrderId = args.data.POId;
+            $scope.modelNew.ProductionBulletinTemplateMasterId = args.data.ProductionBulletinTemplateMasterId;
+            $scope.modelNew.BaseProcess = args.data.BaseProcess;
             $http({
                 method: "GET",
                 dataType: 'JSON',
-                url: $scope.path + 'GetAllData?BulletinId=' + args.data.ProductionBulletinTemplateMasterId,
+                url: $scope.path + 'GetSaveData?BulletinId=' + args.data.ProductionBulletinTemplateMasterId,
+            }).then(function successCallback(response) {
+                if (response.data.length > 0) {
+                    angular.element(document.querySelector('#POItemPopup')).modal('hide');
+                    response.data = JSON.parse(response.data[0].Layout);
+                    $scope.nodes = response.data;
+                    var diagram = $("#diagram").ejDiagram("instance");
+                    diagram.clear();
+                    diagram.add(response.data);
+
+                    $scope.GetProductionPlanningData('', $scope.modelNew.ProductionOrderId, $scope.modelNew.BaseProcess);
+                }
+                else {
+                    $scope.GetData();
+                }
+            });
+            //$http({
+            //    method: "GET",
+            //    dataType: 'JSON',
+            //    url: $scope.path + 'GetAllData?BulletinId=' + args.data.ProductionBulletinTemplateMasterId,
+            //}).then(function successCallback(response) {
+            //    angular.element(document.querySelector('#POItemPopup')).modal('hide');
+            //    for (var i = 0; i < response.data.length; i++) {
+            //        try {
+
+
+            //            response.data[i].type = ej.datavisualization.Diagram.Shapes[response.data[i].type];
+
+            //            try {
+            //                for (var l = 0; l < response.data[i].labels.length; i++) {
+            //                    response.data[i].labels[k].textAlign = ej.datavisualization.Diagram.TextAlign[response.data[i].labels[k].textAlign];
+            //                }
+            //            } catch (e) {
+
+            //            }
+            //        } catch (e) {
+
+            //        }
+            //    }
+
+            //    $scope.nodes = response.data;
+            //    var diagram = $("#diagram").ejDiagram("instance");               
+            //    diagram.add(response.data);
+            //    $scope.GetProductionPlanningData('', $scope.modelNew.ProductionOrderId, args.data.BaseProcess);
+            //});
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.GetData = function () {
+        try {
+            $http({
+                method: "GET",
+                dataType: 'JSON',
+                url: $scope.path + 'GetAllData?BulletinId=' + $scope.modelNew.ProductionBulletinTemplateMasterId,
             }).then(function successCallback(response) {
                 angular.element(document.querySelector('#POItemPopup')).modal('hide');
                 for (var i = 0; i < response.data.length; i++) {
@@ -207,30 +230,23 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
                         } catch (e) {
 
                         }
-
-
                     } catch (e) {
 
                     }
-
                 }
 
                 $scope.nodes = response.data;
                 var diagram = $("#diagram").ejDiagram("instance");
-                //diagram.load($scope.nodes);
+                diagram.clear();
                 diagram.add(response.data);
-                //entrydata = copy(searchdata);
-
-                $scope.GetProductionPlanningData('', $scope.modelNew.ProductionOrderId, args.data.BaseProcess);
+                $scope.GetProductionPlanningData('', $scope.modelNew.ProductionOrderId, $scope.modelNew.BaseProcess);
             });
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
 
-   
 
-   
     $scope.OpenEmployeeSearchBox = function () {
         var eDialog = $("#dialogSearchEmployee").data("ejDialog");
         eDialog.open();
@@ -272,7 +288,7 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
 
         try {
 
-            //$scope.selectednode = args;
+
             $scope.selectednode.items[0].addInfo.EmployeeId = args.data.Id;
             $scope.selectednode.items[0].addInfo.EmployeeName = args.data.EmployeeName;
             $scope.selectednode.items[0].addInfo.EmpPicPath = args.data.EmpPicPath;
@@ -288,8 +304,6 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
     $scope.recordoperationdoubleclick = function (args) {
 
         try {
-
-            //$scope.selectednode = args;
             $scope.selectednode.items[0].addInfo.MaterialMasterId = args.data.MaterialMasterId;
             $scope.selectednode.items[0].addInfo.MaterialMasterDesc = args.data.MaterialMasterDesc;
             $scope.selectednode.items[0].addInfo.ArticleId = args.data.ArticleId;
@@ -306,7 +320,7 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
     }
 
     $scope.selectarticle = function (args) {
-        try {            
+        try {
             $scope.selectednode.items[0].addInfo.ArticleId = args.Id;
             $scope.selectednode.items[0].addInfo.ArticleDesc = args.StandardName;
             angular.element(document.querySelector('#articleSearchPop')).modal('hide');
@@ -333,7 +347,6 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
     $scope.ProductionOrderList = [];
     $scope.getProductionOrderPopUp = function () {
         if ($scope.modelNew.ProductionEntityId == null) {
-            //throw "Select Production Entity.."
             ShowResult("Select Production Entity..", 'failure');
         }
         $scope.ProductionOrderList = [];
@@ -351,7 +364,7 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
     };
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
-    
+
     $scope.machineButtonClick = function (args) {
         $scope.selectednode = args;
         if (baseService.isUndefinedOrNull($scope.selectednode.items[0].addInfo.MaterialMasterId))
@@ -359,7 +372,7 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
         $scope.getArticleSearchList($scope.selectednode.items[0].addInfo.MaterialMasterId);
     };
     $scope.VWCDATA = [];
-    $scope.GetProductionPlanningData = function (id, PRID,BaseProcess) {
+    $scope.GetProductionPlanningData = function (id, PRID, BaseProcess) {
         try {
             $http({
                 method: 'POST',
@@ -371,7 +384,7 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
             });
         } catch (e) {
 
-        }        
+        }
     }
     $scope.summaryRowsForWorkCenter = [{
         title: "Total Planned Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PlannedQuantity", dataMember: "PlannedQuantity", format: "{0:N0}" }],
@@ -436,4 +449,35 @@ function LineLayoutForProductionBulletinController(cboService, commonMessage, $s
         var chartObj = $('#' + chartname).ejChart("instance");
         chartObj.print(chartname);
     }
+    $scope.Save = function () {
+        try {
+            var diagram = $("#diagram").ejDiagram("instance");
+            var diagramModel = diagram.save();
+            var diagramData = diagramModel.nodes;
+            $http({
+                method: 'POST',
+                url: $scope.path + "Save",
+                data: {
+                    'Nodes': diagramData, Design: JSON.stringify(diagramData),
+                    ProductionBulletinTemplateMasterId: $scope.modelNew.ProductionBulletinTemplateMasterId,
+                    EntityId: $scope.modelNew.ProductionEntityId, ProductionOrderId: $scope.modelNew.ProductionOrderId
+                    , ProcessId: $scope.modelNew.BaseProcess
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 }
