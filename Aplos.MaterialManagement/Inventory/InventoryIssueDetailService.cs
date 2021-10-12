@@ -1162,7 +1162,7 @@ namespace Library.MaterialManagement.Inventory
                             AND ISNULL(IR.[Status],'')<>'Posting' 
                             AND IR.OpeningBalanceId IS NULL 
                             AND IR.EmployeeId IS NULL 
-                            And IR.IsApproved = 0 
+                            And IR.IsApproved = 1 
                             ANd IR.POId is null 
                             AND IR.GRNType='MaterialTransfer' 
                             AND IR.CheckedByStatus='ForChecked' 
@@ -1210,7 +1210,7 @@ namespace Library.MaterialManagement.Inventory
                             AND ISNULL(IR.[Status],'')<>'Posting' 
                             AND IR.OpeningBalanceId IS NULL 
                             AND IR.EmployeeId IS NULL 
-                            And IR.IsApproved = 0 
+                            And IR.IsApproved = 1
                             ANd IR.POId is null 
                             AND IR.GRNType='MaterialTransfer' 
                             AND IR.CheckedByStatus IS NULL 
@@ -1259,7 +1259,7 @@ namespace Library.MaterialManagement.Inventory
                             AND ISNULL(IR.[Status],'')<>'Posting' 
                             AND IR.OpeningBalanceId IS NULL 
                             AND IR.EmployeeId IS NULL 
-                            And IR.IsApproved = 0 
+                            And IR.IsApproved = 1
                             ANd IR.POId is null 
                             AND IR.GRNType='MaterialTransfer' 
                             AND IR.CheckedByStatus IS NULL 
@@ -1551,8 +1551,8 @@ namespace Library.MaterialManagement.Inventory
                         And IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')='Posting' 
                         AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL 
                         --And IR.IsApproved = 1 
-                        And IR.IsApproved = 0
-                        ANd IR.POId is null AND IR.GRNType='MaterialTransfer' 
+                        And IR.IsApproved = 1
+                        ANd IR.POId is null AND IR.GRNType='MaterialTransfer'
                         --Order by Ir.GRNDate1 ASC
                         ";
 
