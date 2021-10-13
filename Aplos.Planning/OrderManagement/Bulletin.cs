@@ -723,7 +723,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 IWorkbook workbook = application.Workbooks.Create(2);
                 IWorksheet sheet = workbook.Worksheets[0];
 
-                sheet.Name = "Production Information Report (" + Convert.ToDateTime(Date).ToString("dd-MMM-yyyy") + @")";
+                sheet.Name = "Production Information";
 
 
                 int ROW = 6;
@@ -1031,7 +1031,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Production Information Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Production Information Report(" + Convert.ToDateTime(Date).ToString("dd-MMM-yyyy") + @")", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -1048,7 +1048,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 if (dtProductionInfo.Rows.Count == 0)
                     throw new Exception("No data found");
 
-                sheet.Name = "Daily Production Report";
+                sheet.Name = "Daily Production";
 
                 ROW = 7;
                 COL = 1;
@@ -1546,7 +1546,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                 //sheet["A" + StartRow.ToString()].FreezePanes();
                 identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Daily Production Info. Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Daily Production Info (" + Convert.ToDateTime(Date).ToString("dd-MMM-yyyy") + @")", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
