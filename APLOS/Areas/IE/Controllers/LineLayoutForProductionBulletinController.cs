@@ -9,6 +9,7 @@ using Library.Model.Setups;
 using Library.Planning.LineDesign;
 using Library.Service.IE;
 using Library.Service.Setups;
+using System.Collections.Generic;
 using System.Web.Mvc;
 
 #endregion Using
@@ -42,7 +43,7 @@ namespace Aplos.Areas.IE.Controllers
         public JsonResult GetAllData(string BulletinId)
         {
             Library.Planning.LineDesign.GenerateLineDiagraForLineLayout _diagram = new Library.Planning.LineDesign.GenerateLineDiagraForLineLayout();
-            _diagram.MakeBulletinList(BulletinId);
+            _diagram.MakeBulletinList(BulletinId,GenerateLineDiagraForLineLayout.DrawType.TwoLines);
 
             return Json(_diagram.AllShapesForJson, JsonRequestBehavior.AllowGet);
         }
@@ -76,11 +77,6 @@ namespace Aplos.Areas.IE.Controllers
    
                         WHERE emp.EmployeeStatus='Active' 
                 ) AS TEMP where " + strkey + " Order By Id";
-
-
-
-
-
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -108,6 +104,19 @@ namespace Aplos.Areas.IE.Controllers
                     LEFT JOIN hkp.ProductionSystem AS ps ON ps.Id=o.ProductionSystemId";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSaveData(string BulletinId)
+        {
+            return Json(cp.GetDesign(BulletinId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult Save(List<Html> Nodes,string Design, string ProductionBulletinTemplateMasterId, string EntityId, string ProductionOrderId,string ProcessId)
+        {
+            cp.SaveData(Nodes, Design, ProductionBulletinTemplateMasterId, EntityId, ProductionOrderId, ProcessId);
+            return Json(new {  Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
 
     }

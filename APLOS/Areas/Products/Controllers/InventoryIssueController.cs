@@ -9023,7 +9023,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			{
 				inventoryIssue.CheckedByStatus = null;
 				inventoryIssue.AuthorizedByStatus = null;
-				inventoryIssue.CheckedBy = null;
+				//inventoryIssue.CheckedBy = null;
+				inventoryIssue.CheckedByStatus = "ForChecked";
 				inventoryIssue.AuthorizedBy = null;
 				inventoryIssue.IsApproved = true;
 			}

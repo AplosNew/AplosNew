@@ -376,6 +376,9 @@ namespace Library.Service.Extension.Payroll.Tax
                                     else
                                     {
                                         dr["DisbusmentAmount"] =Convert.ToDecimal(dr["DisbusmentAmount"]) - item.EarnedAmount;
+
+                                        if (clsStaticInfo.dbl(dr["DisbusmentAmount"].ToString()) < 0)
+                                            dr["DisbusmentAmount"] = 0;
                                     }
 
                                     dr["UpdatedBy"] = _userName;
@@ -979,12 +982,34 @@ namespace Library.Service.Extension.Payroll.Tax
                 objCon = null;
             }
         }//End Function
-        void _getAllPTPolicy(string pDate, string plantid, out System.Data.DataSet dsRef)        {            string strSQL = string.Empty;            ConnectionManager.DAL.ConManager objCon;            try            {
+        void _getAllPTPolicy(string pDate, string plantid, out System.Data.DataSet dsRef)
+        {
+            string strSQL = string.Empty;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
                 //strSQL = @"SELECT m.*,pc.companyid  FROM [dbo].[TaxPolicyMaster] m 
                 //                        left join TaxPolicyPlantWise p on m.SystemID=p.taxpolicyid
                 //                        left join org.plant pc on pc.id=p.plantid
                 //                        where p.plantid='" + plantid + "'";
-                strSQL = @"SELECT m.*,pc.companyid  FROM [dbo].[TaxPolicyMaster] m                                         left join TaxPolicyPlantWise p on m.SystemID=p.taxpolicyid                                        left join org.plant pc on pc.id=p.plantid										left join scs.TaxYear t on t.id=m.TaxYearID                                        where p.plantid='" + plantid + @"'										and '" + pDate + "' between t.StartDate and t.EndDate";                objCon = new ConnectionManager.DAL.ConManager("1");                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");            }            catch (Exception ex)            {                throw (ex);            }            finally            {                objCon = null;            }        }//End Function
+                strSQL = @"SELECT m.*,pc.companyid  FROM [dbo].[TaxPolicyMaster] m 
+                                        left join TaxPolicyPlantWise p on m.SystemID=p.taxpolicyid
+                                        left join org.plant pc on pc.id=p.plantid
+										left join scs.TaxYear t on t.id=m.TaxYearID
+                                        where p.plantid='" + plantid + @"'
+										and '" + pDate + "' between t.StartDate and t.EndDate";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
 
         void x_getAllPTPolicy(string plantid,out System.Data.DataSet dsRef)
         {

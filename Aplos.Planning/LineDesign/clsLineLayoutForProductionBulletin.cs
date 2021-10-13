@@ -1,9 +1,11 @@
-﻿using Library.Data.Sql;
+﻿using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Library.Planning.LineDesign
@@ -118,18 +120,148 @@ namespace Library.Planning.LineDesign
                 throw ex;
             }
         }
+
+
+        public List<Dictionary<string, object>> GetDesign(string BulletinId)
+        {
+
+            try
+            {
+                string sql = @"select * from LineLayoutByProductionBulletin where ProductionBulletinTemplateMasterId = '" + BulletinId + "' ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void SaveData(List<Html> Nodes, string Design, string ProductionBulletinTemplateMasterId, string EntityId, string ProductionOrderId, string ProcessId)
+        {
+            bplib.clsGenID objGenID = null;
+            string idFromDB = "";
+            string idFromDBC = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            List<addInfo> HtmlsInfo = new List<addInfo>();
+            for (int i = 0; i < Nodes.Count; i++)
+            {
+                try
+                {
+                    Html TempHtml = Nodes[i];
+                    if (TempHtml == null)
+                        continue;
+
+                    if (TempHtml.addInfo == null)
+                        continue;
+
+                    if (string.IsNullOrEmpty( TempHtml.addInfo.OperationVariationId))
+                        continue;
+
+                    HtmlsInfo.Add(TempHtml.addInfo);
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+
+            DataSet dsMaster, dsChild;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter("select * from LineLayoutByProductionBulletin where ProductionBulletinTemplateMasterId='" + ProductionBulletinTemplateMasterId + "'", out dsMaster, false, "1");
+            con.OpenDataSetThroughAdapter("select * from LineLayoutByProductionBulletinData where ProductionBulletinTemplateMasterId='" + ProductionBulletinTemplateMasterId + "'", out dsChild, false, "1");
+
+            string PrimaryKey = "";
+            if (dsMaster.Tables[0].Rows.Count == 0)
+            {
+                //create PK
+               
+                objGenID = new bplib.clsGenID();
+                objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "LineLayoutByProductionBulletin", out idFromDB);
+                DataRow dr = dsMaster.Tables[0].NewRow();
+                PrimaryKey = "LM-" + idFromDB;
+                dr["Id"] = PrimaryKey;
+                dr["ProductionOrderId"] = ProductionOrderId;
+                dr["Layout"] = Design;
+                dr["ProcessId"] = ProcessId;
+                dr["EntityId"] = EntityId;
+                dr["ProductionBulletinTemplateMasterId"] = ProductionBulletinTemplateMasterId;
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = DateTime.Now;
+                dr["AddedFromIP"] = identity.IPAddress;
+
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dsMaster.Tables[0].Rows.Add(dr);
+            }
+            else
+            {
+                DataRow dr = dsMaster.Tables[0].Rows[0];
+                PrimaryKey = dr["Id"].ToString();
+                dr.BeginEdit();
+                dr["ProductionOrderId"] = ProductionOrderId;
+                dr["ProcessId"] = ProcessId;
+                dr["ProductionBulletinTemplateMasterId"] = ProductionBulletinTemplateMasterId;
+                dr["Layout"] = Design;
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dr.EndEdit();
+            }
+
+            //delete missing items from db
+            while (dsChild.Tables[0].DefaultView.Count > 0)
+                dsChild.Tables[0].DefaultView[0].Delete();
+
+            string ChildPK = "";
+            for (int i = 0; i < HtmlsInfo.Count; i++)
+            {
+                if (ChildPK == "")
+                {
+                    objGenID = new bplib.clsGenID();
+                    objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "LineLayoutByProductionBulletinData", out idFromDBC);
+                    ChildPK = "LD-" + idFromDBC;
+                }
+                DataRow dr = dsChild.Tables[0].NewRow();
+                dr["Id"] = ChildPK +"-"+ (i+1);
+                dr["LineLayoutByProductionBulletinId"] = PrimaryKey;
+                dr["OperationId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].OperationId));
+                dr["MaterialMasterId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].MaterialMasterId));
+                dr["ArticleId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].ArticleId));
+                dr["OperationVariationId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].OperationVariationId));
+                dr["OperationId"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].OperationId));
+                dr["ProductionBulletinTemplateMasterId"] = ProductionBulletinTemplateMasterId;
+                dr["Sequence"] = bplib.clsWebLib.RetValidLen(OTSBD.clsStaticInfo.nullrecorder(HtmlsInfo[i].Sequence));
+
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = DateTime.Now;
+                dr["AddedFromIP"] = identity.IPAddress;
+
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = DateTime.Now;
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dsChild.Tables[0].Rows.Add(dr);
+            }
+
+            OTSBD.clsStaticInfo SaveInfo = new OTSBD.clsStaticInfo();
+            SaveInfo.SaveDataSets(dsMaster, dsChild);
+        }
+
+
     }
     public class GenerateLineDiagraForLineLayout
     {
         SqlRepository _sqlRepository = new SqlRepository();
         List<DiagramShapes> AllShapes = new List<DiagramShapes>();
         public List<object> AllShapesForJson = new List<object>();
-        public void MakeBulletinList(string BulletinId)
+        public enum DrawType { Linear, TwoLines }
+        public void MakeBulletinList(string BulletinId, DrawType drawType)
         {
 
             try
             {
-                DataTable dtBulletin = _sqlRepository.GetDataTable(@"SELECT d.Id,ov.Id AS OperationVariationId,ov.UserName AS OperationVariation,
+                DataTable dtBulletin = _sqlRepository.GetDataTable(@"SELECT  ROW_NUMBER() OVER(ORDER BY D.Sequence,d.id) AS SQ,d.Id,ov.Id AS OperationVariationId,ov.UserName AS OperationVariation,
                                             d.AllotedManpower,MM.Id MaterialMasterId,MM.UserName AS MaterialMasterDesc
 											,M.StandardName AS ArticleDesc,o.Id as OperationId,o.UserName as OperationDesc
                                                 ,M.Id ArticleId    ,d.Sequence,NULL AS Designation,
@@ -144,9 +276,43 @@ namespace Library.Planning.LineDesign
                                             
                                             WHERE d.ProductionBulletinTemplateMasterId='" + BulletinId + "' ORDER BY D.Sequence");
 
-                int halfBulletinCount = dtBulletin.Rows.Count / 2;
-                int Width = 100; int Height = 100; int PaddingTop = 10; int paddingLeft = 5;
-                int offsetX = 0; int offsetY = 0;
+                int ItemWidth = 100; int ItemHeight = 100;
+
+                if (drawType == DrawType.Linear)
+                    makeShapesLinear(dtBulletin, 0, 0, ItemWidth, ItemHeight);
+
+                if (drawType == DrawType.TwoLines)
+                {
+                    int TotalRows = dtBulletin.Rows.Count;
+                    if (TotalRows <= 10)
+                        makeShapesLinear(dtBulletin, 0, 0, ItemWidth, ItemHeight);
+                    else
+                    {
+                        int Half = (int)TotalRows / 2;
+                        dtBulletin.DefaultView.RowFilter = "SQ<=" + Half;
+                        makeShapesLinear(dtBulletin.DefaultView.ToTable(), 0, 0, ItemWidth, ItemHeight);
+
+
+                        dtBulletin.DefaultView.RowFilter = "SQ>" + Half;
+                        makeShapesLinear(dtBulletin.DefaultView.ToTable(), 0, ItemWidth * 2, ItemWidth, ItemHeight);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        private void makeShapesLinear(DataTable dtBulletin, int offsetX = 0, int offsetY = 0, int Width = 100, int Height = 100)
+        {
+            try
+            {
+
+                int PaddingTop = 10; int paddingLeft = 5;
 
                 int ItemIndex = 0;
                 for (int i = 0; i < dtBulletin.Rows.Count; i++)
@@ -158,7 +324,7 @@ namespace Library.Planning.LineDesign
                         GroupingData group = new GroupingData();
                         group.id = "group" + dtBulletin.Rows[i]["Id"].ToString();
 
-                        offsetY = 0;
+                        //offsetY = 0;
                         #region Employee Image
                         Html emp = new Html();
                         AllShapes.Add(emp);
@@ -167,7 +333,7 @@ namespace Library.Planning.LineDesign
                         emp.offsetX = offsetX + (emp.width / 2);
                         emp.offsetY = offsetY + (emp.height / 2);
 
-                        emp.id = "E" + dtBulletin.Rows[i]["Id"].ToString() + System.DateTime.Now.Ticks.ToString()+ ItemIndex;
+                        emp.id = "E" + dtBulletin.Rows[i]["Id"].ToString() + System.DateTime.Now.Ticks.ToString() + ItemIndex;
                         emp.name = "E" + dtBulletin.Rows[i]["Id"].ToString() + System.DateTime.Now.Ticks.ToString() + ItemIndex;
 
                         emp.labels.Add(new labels { text = "" });
@@ -221,12 +387,11 @@ namespace Library.Planning.LineDesign
             catch (Exception ex)
             {
 
-                throw ex;
             }
 
         }
-
-
-
     }
+
+
+
 }
