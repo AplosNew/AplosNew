@@ -22949,7 +22949,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 	                          ,TC.Id ThirdCharId
 	                          ,TC.UserName ThirdChar
 	                           ,ROUND(IIH.Qty, 2) POTransactionQty
-	                          ,ROUND(IIH.Rate, 2) TransactionRate
+	                           --,ROUND(IIH.Rate, 2) TransactionRate
+							  ,ROUND(IIH.Rate, 4) TransactionRate
 	                          ,ROUND((IIH.Qty* IIH.Rate), 2) AS TrnAmount
 							 --,ROUND((IIH.Qty*IRD.PolicyRate), 2) AS TrnAmount
 	                          ,null BaseAmount
@@ -23241,9 +23242,10 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+           //     TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+				TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
 
-                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
+				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
 
                 totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
 
@@ -23911,7 +23913,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 	                          ,TC.Id ThirdCharId
 	                          ,TC.UserName ThirdChar
 	                           ,ROUND(IIH.Qty, 2) POTransactionQty
-	                          ,ROUND(IIH.Rate, 2) TransactionRate
+	                           --,ROUND(IIH.Rate, 2) TransactionRate
+							  ,ROUND(IIH.Rate, 4) TransactionRate
 	                          ,ROUND((IIH.Qty* IIH.Rate), 2) AS TrnAmount
 							 --,ROUND((IIH.Qty*IRD.PolicyRate), 2) AS TrnAmount
 	                          ,null BaseAmount
@@ -24204,7 +24207,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
 				TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
 				TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-				TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+			//	TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+				TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
 
 				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
 
