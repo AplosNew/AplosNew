@@ -1273,5 +1273,149 @@ namespace Aplos.Areas.Productions.Controllers
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetFinishedStocksReport(string Loc)
+        {
+
+            try
+            {
+                var workbook = GetFinishedStocksReportForm(Loc);
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "FinishedStockReport.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        private IWorkbook GetFinishedStocksReportForm(string Loc)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var data = det.getGroupFinishedStocksReport(Loc);
+
+
+            var sheet = workbook.Worksheets[0];
+            var sheet1 = workbook.Worksheets[1];
+            sheet.Name = "Finished Stock Report";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+            //sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
+            //sheet.Range[ROW, COL].ColumnWidth = 13;
+            //sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
+            //sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //ROW += 2;
+
+            #region Grid Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 40, ExcelHAlign.HAlignCenter );
+            int ColArt = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Lot No", 13, ExcelHAlign.HAlignCenter);
+            int ColLot = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Bag Size", 13, ExcelHAlign.HAlignCenter);
+            int ColBagSize = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Bags", 13, ExcelHAlign.HAlignCenter);
+            int ColBags = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Net Weight", 13, ExcelHAlign.HAlignCenter);
+            int ColNtWt = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Gross Weight", 13, ExcelHAlign.HAlignCenter);
+            int ColGWt = COL;
+            COL++;
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            string Article = "";
+            string LotNum = "";
+            int ArtRow = 0;
+            int LotRow = 0;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                if(Article != data.Rows[i]["StandardName"].ToString())
+                {
+                    
+                    Article = data.Rows[i]["StandardName"].ToString();
+                    sheet[ROW, ColArt].Text = data.Rows[i]["StandardName"].ToString();
+                    
+                    if(i!=0 && ArtRow != (ROW - 1))
+                    {
+                        sheet.Range[ArtRow, ColArt, ROW-1, ColArt].Merge();
+                        sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    }
+                    ArtRow = ROW;
+                }
+
+                if (LotNum != data.Rows[i]["LotNo"].ToString())
+                {
+                    
+                    LotNum = data.Rows[i]["LotNo"].ToString();
+                    sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
+                    if (i != 0 && LotRow != (ROW-1))
+                    {
+                        sheet.Range[LotRow, ColLot, ROW - 1, ColLot].Merge();
+                        sheet.Range[LotRow, ColLot, ROW - 1, ColLot].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    }
+                    LotRow = ROW;
+                }
+
+
+                sheet[ROW, ColBagSize].Text = data.Rows[i]["BagSize"].ToString();
+                sheet[ROW, ColBags].Text = data.Rows[i]["Bags"].ToString();
+                sheet[ROW, ColNtWt].Text = data.Rows[i]["NtWt"].ToString();
+                sheet[ROW, ColGWt].Text = data.Rows[i]["GtWt"].ToString();
+
+                sheet.Range[ROW, ColBagSize, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, ColBagSize, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            ROW++;
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "Finished Stock Report", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
     }   
 }
