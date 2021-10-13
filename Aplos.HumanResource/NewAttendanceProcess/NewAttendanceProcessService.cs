@@ -3951,7 +3951,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                             from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=2 (starting point)
                                             and EmpSystemID='" + EmpId + @"' 
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1)";
+                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
                                             var RowData = _sqlRepository.GetDataTable(sqly);
                                             if (RowData.Rows.Count > 0)
@@ -3976,7 +3976,60 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                              from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=2 (starting point)
                                             and EmpSystemID='" + EmpId + @"' 
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1)";
+                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
+
+                                        var RowData = _sqlRepository.GetDataTable(sqly);
+                                        if (RowData.Rows.Count > 0)
+                                        {
+                                            for (int x = 0; x < RowData.Rows.Count; x++)
+                                            {
+                                                // Changing SandwichFlag
+                                                var RowxId = RowData.Rows[x]["RowId"].ToString();
+                                                SandwichFlagRowId += ",'" + RowxId + "'";
+                                            }
+                                        }
+                                    }
+                                }
+
+                                else if (PrevDaySandwich == "3")
+                                {
+                                    if (ToDaySandwich == "1")
+                                    {
+                                        if (FinalStatus != "")
+                                        {
+                                            // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
+
+                                            var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
+                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
+                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
+                                            from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=3 (starting point)
+                                            and EmpSystemID='" + EmpId + @"' 
+                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
+
+                                            var RowData = _sqlRepository.GetDataTable(sqly);
+                                            if (RowData.Rows.Count > 0)
+                                            {
+                                                for (int x = 0; x < RowData.Rows.Count; x++)
+                                                {
+                                                    // Changing DayStatus
+                                                    var RowxId = RowData.Rows[x]["RowId"].ToString();
+                                                    DataRow drx = SandwichDataSet.Tables[0].NewRow();
+                                                    drx["DayStatus"] = "W"; // Set HardCoded W in Case of WeekOff Holiday
+                                                    drx["RowId"] = RowxId;
+                                                    SandwichDataSet.Tables[0].Rows.Add(drx);
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                    else if (ToDaySandwich == "0")
+                                    {
+                                        var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
+                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
+                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
+                                             from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=3 (starting point)
+                                            and EmpSystemID='" + EmpId + @"' 
+                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
 
                                         var RowData = _sqlRepository.GetDataTable(sqly);
                                         if (RowData.Rows.Count > 0)
@@ -5733,6 +5786,18 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
                                 dr["SandwichFlag"] = "2"; //Today
                             }
+
+                            else if (PrevDaySandwich == "0" && TodaySandwich == "3")
+                            {
+                                dr["SandwichFlag"] = "0"; //Today Change
+                            }
+
+                            else if (PrevDaySandwich == "1" && TodaySandwich == "3")
+                            {
+                                dr["SandwichFlag"] = "3"; //Today Change
+                            }
+
+
                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                             dr.EndEdit();
                             CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -5750,7 +5815,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                             from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=2 (starting point)
                                             and EmpSystemID='" + EmpId + @"' 
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1)";
+                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
                                         var RowData = _sqlRepository.GetDataTable(sqly);
                                         if (RowData.Rows.Count > 0)
@@ -5777,7 +5842,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                             from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=2 (starting point)
                                             and EmpSystemID='" + EmpId + @"' 
-                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1)";
+                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
                                     var RowData = _sqlRepository.GetDataTable(sqly);
                                     if (RowData.Rows.Count > 0)
@@ -5789,6 +5854,61 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             SandwichFlagRowId += ",'" + RowxId + "'";
                                         }                                        
                                     }                                  
+                                }
+                            }
+
+                            else if (PrevDaySandwich == "3")
+                            {
+                                if (TodaySandwich == "1" && PrevWkDate != "")
+                                {
+                                    if (FinalStatus != "")
+                                    {
+                                        // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
+
+                                        var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
+                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
+                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
+                                            from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=3 (starting point)
+                                            and EmpSystemID='" + EmpId + @"' 
+                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
+
+                                        var RowData = _sqlRepository.GetDataTable(sqly);
+                                        if (RowData.Rows.Count > 0)
+                                        {
+                                            for (int x = 0; x < RowData.Rows.Count; x++)
+                                            {
+                                                // Changing DayStatus
+                                                var RowxId = RowData.Rows[x]["RowId"].ToString();
+                                                DataRow drx = SandwichDataSet.Tables[0].NewRow();
+                                                drx["DayStatus"] = "W";
+                                                drx["RowId"] = RowxId;
+                                                SandwichDataSet.Tables[0].Rows.Add(drx);
+                                            }
+
+                                        }
+                                    }
+                                }
+                                else if (TodaySandwich == "0" && PrevWkDate != "")
+                                {
+                                    // RowId Fetching for In Range b/w previous sandwichflags 2 _ _ _ _ _ _ _ 2
+
+                                    var sqly = @"SELECT * FROM (select RowId,EmpSystemID,SandwichFlag,WorkDate,
+                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
+                                            DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
+                                            from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=3 (starting point)
+                                            and EmpSystemID='" + EmpId + @"' 
+                                            ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
+
+                                    var RowData = _sqlRepository.GetDataTable(sqly);
+                                    if (RowData.Rows.Count > 0)
+                                    {
+                                        // Changing SandwichFlag
+                                        for (int x = 0; x < RowData.Rows.Count; x++)
+                                        {
+                                            var RowxId = RowData.Rows[x]["RowId"].ToString();
+                                            SandwichFlagRowId += ",'" + RowxId + "'";
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -6573,7 +6693,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             dr["OTOuttime"] = "0";
                                             dr["LeaveDuration"] = "0";
                                             dr["ToReprocess"] = "No";
-                                            dr["AddedBy"] = "Schedule";
+                                            dr["AddedBy"] = "DOJProcess";
                                             dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
 
                                             #endregion
