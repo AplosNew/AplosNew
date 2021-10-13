@@ -468,6 +468,7 @@ var upanelApp = angular
     .controller('cashReceiptPaymentReportController', cashReceiptPaymentReportController)
     .controller('CNFExpenseBockingController', CNFExpenseBockingController)
     .controller('CompensatoryOffController', CompensatoryOffController)
+    .controller('CompensatoryOffNewController', CompensatoryOffNewController)
     .controller('complianceAttendanceSettingController', complianceAttendanceSettingController)
     .controller('complianceRawDataDownloadController', complianceRawDataDownloadController)
     .controller('ConfirmationController', ConfirmationController)
