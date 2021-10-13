@@ -722,35 +722,6 @@ namespace Aplos.Areas.Employees.Controllers
         }
     }
 
-    public class CompensatoryOff : BaseModel
-    {
-        public string Id { get; set; } = "";
-        public string PlantId { get; set; } = "";
-        public string OriginalDate { get; set; } = "";
-        public string CompensatoryDate { get; set; } = "";
-        public string CompensatoryDateTreatmentType { get; set; } = "";
-        public string HolidayCategoryId { get; set; } = "";
-        public bool IsOriginalDateOTApplicable { get; set; } = false;
-        public bool ForEntirePlant { get; set; } = false;
-        //public string AddedBy { get; set; } = "";
-        //public string AddedDate { get; set; } = "";
-        //public string AddedFromIP { get; set; } = "";
-        //public string UpdatedBy { get; set; } = "";
-        //public string UpdatedDate { get; set; } = "";
-        //public string UpdatedFromIP { get; set; } = "";
-    }
-    public class CompensatoryOffEmpList : BaseModel
-    {
-        public string Id { get; set; } = "";
-        public string CompensatoryOffId { get; set; } = "";
-        public string EmpSystemId { get; set; } = "";
-        //public string AddedBy { get; set; } = "";
-        //public string AddedDate { get; set; } = "";
-        //public string AddedFromIP { get; set; } = "";
-        //public string UpdatedBy { get; set; } = "";
-        //public string UpdatedDate { get; set; } = "";
-        //public string UpdatedFromIP { get; set; } = "";
-    }
-
+   
 
 }
