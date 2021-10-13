@@ -490,6 +490,7 @@
     <Compile Include="Areas\EmployeeServices\EmployeeServicesAreaRegistration.cs" />
     <Compile Include="Areas\Employees\Controllers\AccountsGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\AllowanceDailyController.cs" />
+    <Compile Include="Areas\Employees\Controllers\CompensatoryOffNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeInFoReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\CompanyWiseEmployeePlantTransferController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeePlantTransferNewController.cs" />
@@ -1745,6 +1746,7 @@
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServicesRateController.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServiceTypeController.js" />
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
+    <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
     <Content Include="Areas\Employees\Scripts\employeeBaseMultipleController.js" />
     <Content Include="Areas\Employees\Scripts\CompanyWiseEmployeePlantTransferController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeePlantTransferNewController.js" />
@@ -3756,6 +3758,7 @@
     <Content Include="Areas\Materials\Views\FabricRoll\Aplos.cshtml" />
     <Content Include="Areas\IE\Views\LineLayoutForProductionBulletin\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\WeekOffUpdates\EWeekUpdate.cshtml" />
+    <Content Include="Areas\Employees\Views\CompensatoryOffNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
