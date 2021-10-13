@@ -570,7 +570,7 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 
 
             return @"select ORD.CM,wc.Id as WorkCenterMasterId,
-  wc.UserName AS  [LineNo],  ps.ProcessId ,ps.ProductionOrderId ,ps.Quantity,''WorkHour ,dr.DaysRun,
+  wc.UserName AS  [LineNo],  wc.ProcessId ,tr.ProductionOrderId ,ps.Quantity,''WorkHour ,dr.DaysRun,
   CASE WHEN ISNULL(ex.MachineCostPerHour,0)*ISNULL(tr.TotalHour,0) <ex.MinFixedCost THEN ex.MinFixedCost ELSE CASE WHEN ISNULL(ex.MachineCostPerHour,0)*ISNULL(tr.TotalHour,0)>EX.MaxFixedCost THEN ex.MaxFixedCost ELSE ISNULL(ex.MachineCostPerHour,0)*ISNULL(tr.TotalHour,0) END END AS MachineCostPerDay,
   buyer=STUFF((select distinct ','+XB.UserName from 
 	                               trn.SalesOrder XSO 
@@ -578,19 +578,19 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 		                               left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 		                               left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                               left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-			                           where ps.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+			                           where prod.ProductionOrderId =Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 Item=STUFF((select distinct ','+XMM.UserName from 
 	                               trn.SalesOrder XSO 
 		                               JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 		                               left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 		                               left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                               left outer join MST.MaterialMaster XMM on XMM.Id=XMOI.MaterialMasterId
-			                           where ps.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+			                           where prod.ProductionOrderId =Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 	BuyerItemNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
                                    trn.MasterOrderItem XMOI 	  
 								        INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
 								        INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id 
-										where ps.ProductionOrderId=podx.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+										where prod.ProductionOrderId =podx.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
   
   
 									   
@@ -605,24 +605,36 @@ Item=STUFF((select distinct ','+XMM.UserName from
 									 TR.Quantity AS TargetPerDay,
 									 TR.Quantity/tr.TotalHour AS  RequiredStdTarget
      FROM scs.WorkCenterMaster as wc 
-                left join    trn.DailyProductionTarget AS TR on wc.id=TR.WorkCenterMasterId 
-                left JOIN trn.ProductionOrderProcessSet AS PROCC ON PROCC.ProductionOrderId=TR.ProductionOrderId  AND PROCC.IsBaseProcess=1 and PROCC.ProcessId=WC.ProcessId     LEFT JOIN (
-            select 
-            p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,sum(p.Quantity) Quantity
-             from  TRN.ProductionSummary as p 
-              JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
-            where p.ProductionDate='" + Date + @"' 
+      JOIN (
+     	SELECT p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId
+     	  FROM trn.ProductionSummary AS p   
+     	 JOIN trn.ProductionOrderProcessSet AS PROCC ON PROCC.ProductionOrderId=p.ProductionOrderId  AND PROCC.IsBaseProcess=1 and PROCC.ProcessId=p.ProcessId     
+      where p.ProductionDate='" + Date + @"' 
+		UNION 
+		 SELECT  wcm.ProcessId,p.ProductionOrderId,WCM.Id FROM trn.DailyProductionTarget AS P
+		 JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=P.WorkCenterMasterID
+     	 JOIN trn.ProductionOrderProcessSet AS PROCC ON PROCC.ProductionOrderId=p.ProductionOrderId  AND PROCC.IsBaseProcess=1 and PROCC.ProcessId=wcm.ProcessId     
+        where p.TargetDate='" + Date + @"' 
+     ) AS PROD ON prod.ProcessId=wc.ProcessId AND wc.Id=prod.WorkCenterMasterId
+                left join    trn.DailyProductionTarget AS TR on wc.id=TR.WorkCenterMasterId AND tr.ProductionOrderId=PROD.ProductionOrderId AND TR.TargetDate='" + Date + @"'
+                left JOIN trn.ProductionOrderProcessSet AS PROCC ON PROCC.ProductionOrderId=PROD.ProductionOrderId  AND PROCC.IsBaseProcess=1 and PROCC.ProcessId=WC.ProcessId     
+             LEFT JOIN (
+                            select 
+                            p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,sum(p.Quantity) Quantity
+                            from  TRN.ProductionSummary as p 
+                            JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
+                            where p.ProductionDate='" + Date + @"' 
             and p.ProductionGrade='A'
             group by p.WorkCenterMasterId,p.ProcessId,p.ProductionOrderId
-            ) ps  ON tr.ProductionOrderId=ps.ProductionOrderId AND tr.WorkCenterMasterID=ps.WorkCenterMasterId AND ps.ProcessId=wc.ProcessId
+            ) ps  ON PROD.ProductionOrderId=ps.ProductionOrderId AND wc.Id=ps.WorkCenterMasterId AND ps.ProcessId=wc.ProcessId
             LEFT JOIN (SELECT p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,COUNT(DISTINCT p.ProductionDate) AS DaysRun  
                        from  TRN.ProductionSummary as p 
                        JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
                        WHERE p.ProductionDate<='" + Date + @"'
                        GROUP BY  p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId
 
-            ) AS DR ON dr.ProcessId=ps.ProcessId
-                       AND dr.ProductionOrderId=ps.ProductionOrderId AND dr.WorkCenterMasterId=ps.WorkCenterMasterId
+            ) AS DR ON dr.ProcessId=wc.ProcessId
+                         AND dr.ProductionOrderId=PROD.ProductionOrderId AND dr.WorkCenterMasterId=wc.Id
            left outer join (
                                                         select POD.ProductionOrderId,
                                                         SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlannedQty,
@@ -646,20 +658,20 @@ Item=STUFF((select distinct ','+XMM.UserName from
 														 WHERE (isnull(s.StandardName,'')<>'Closed' OR convert(date,po.ClosingDate)>CONVERT(DATE,'" + Date + @"')) 
                                                   
                                                         group by POD.ProductionOrderId
-                                                        ) AS ORD on ord.ProductionOrderID=ps.ProductionOrderId 
+                                                        ) AS ORD on ord.ProductionOrderID=PROD.ProductionOrderId
 
             LEFT JOIN (SELECT ec.EntityId,ec.GeneralWorkingHourPerDay,
 			            (CASE WHEN same.FromCurrencyId=ec.CurrencyId THEN ec.MachineCostPerHour ELSE ec.MachineCostPerHour*rer.ExchangeRate END) AS MachineCostPerHour,
-			            CASE WHEN same.FromCurrencyId=ec.CurrencyId THEN ec.MinFixedCost ELSE ec.MinFixedCost*rer.ExchangeRate END AS MinFixedCost,
-			            CASE WHEN same.FromCurrencyId=ec.CurrencyId THEN ec.MaxFixedCost ELSE ec.MaxFixedCost*rer.ExchangeRate END AS MaxFixedCost
-			              FROM EntityConfig AS ec 
+			            CASE WHEN same.FromCurrencyId=ec.CurrencyId THEN (CASE WHEN ISNULL(ec.MinFixedCost,0)=0 AND ISNULL(ec.MaxFixedCost,0)>0 THEN ec.MaxFixedCost ELSE ec.MinFixedCost END)  ELSE (CASE WHEN ISNULL(ec.MinFixedCost,0)=0 AND ISNULL(ec.MaxFixedCost,0)>0 THEN ec.MaxFixedCost ELSE ec.MinFixedCost END) *rer.ExchangeRate END AS MinFixedCost,
+			            CASE WHEN same.FromCurrencyId=ec.CurrencyId THEN (CASE WHEN ISNULL(ec.MinFixedCost,0)>0 AND ISNULL(ec.MaxFixedCost,0)=0 THEN ec.MinFixedCost ELSE ec.MaxFixedCost END)  ELSE (CASE WHEN ISNULL(ec.MinFixedCost,0)>0 AND ISNULL(ec.MaxFixedCost,0)=0 THEN ec.MinFixedCost ELSE ec.MaxFixedCost END)*rer.ExchangeRate END AS MaxFixedCost
+			           FROM EntityConfig AS ec 
 			            LEFT JOIN org.Entity AS e ON e.Id=ec.EntityId
 			            JOIN EntityConfig AS X ON ec.Id=x.Id and x.Id=(SELECT TOP 1 Id FROM EntityConfig AS ecx WHERE ecx.EntityId=ec.EntityId)
 			            LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=EC.CurrencyId AND rer.PlantId=e.PlantId
 			            LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=e.PlantId
 			            WHERE ec.EntityId IN (" + entityid + @") ) AS EX ON ex.EntityId=wc.EntityId
-            left join hkp.Process p on p.id=ps.ProcessId
-            where tr.TargetDate='" + Date + @"' AND wc.EntityId IN (" + entityid + @") 
+            left join hkp.Process p on p.id=wc.ProcessId
+            where wc.EntityId IN (" + entityid + @") 
             order by wc.Sequence
 
 
@@ -952,6 +964,7 @@ Item=STUFF((select distinct ','+XMM.UserName from
                     // sheet[ROW, colOThour].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["MaxNoOfWS"].ToString());
                     //// sheet[ROW, colOThour].NumberFormat = "#,##0.00;(#,##0.00)";
                     sheet[ROW, colAvgHr].Formula = "IF(" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colTotalP) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + ",0)";
+                     sheet[ROW, colAvgHr].NumberFormat = "#,##0.00;(#,##0.00)";
                     // sheet[ROW, colTargetAchievement].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["Sequence"].ToString());
 
                     sheet[ROW, colTargetAchievement].Formula = "IF(" + clsStaticInfo.GetxlsCol(colTGTDAY) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colTotalP) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colTGTDAY) + ROW.ToString() + "*" + 100 + ",0)";
