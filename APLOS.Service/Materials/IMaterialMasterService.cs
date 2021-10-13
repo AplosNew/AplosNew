@@ -54,7 +54,7 @@ namespace Library.Service.Materials
         IWorkbook MaterialMasterStatus(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory); 
 
         
-        IWorkbook CreateMaterialStoreLedger(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId);
+        IWorkbook CreateMaterialStoreLedger(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId,string SKUId);
         //IWorkbook CreateMaterialStoreLedgerAll(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId);
 
 

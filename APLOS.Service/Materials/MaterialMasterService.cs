@@ -8492,7 +8492,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
 
-		public IWorkbook CreateMaterialStoreLedger(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId)
+		public IWorkbook CreateMaterialStoreLedger(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId,string SKUId)
 		{
 			try
 			{
@@ -8503,7 +8503,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 				var sheet2 = workbook.Worksheets[1];
 				var Head = "";
 				Head = "Material Store Ledger ";//Material Store Ledger as on"+ " " + toDate;
-				CreateMaterialStoreLedger(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, MaterialId, ArticleId);
+				CreateMaterialStoreLedger(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, MaterialId, ArticleId, SKUId);
 				workbook.Version = ExcelVersion.Excel2016;
 				return workbook;
 			}
@@ -8513,7 +8513,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 			}
 		}
 
-		private void CreateMaterialStoreLedger(ref IWorksheet sheet1, ref IWorksheet sheet2, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId)
+		private void CreateMaterialStoreLedger(ref IWorksheet sheet1, ref IWorksheet sheet2, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId,string SKUId)
 		{
 
 			var cmdText = "";
