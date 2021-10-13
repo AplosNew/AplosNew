@@ -5029,7 +5029,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 			////wTable.Rows[ROW].Cells[sheet1headreColIndex].Width = 60;
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, COL].Text = "GRN No";
+			sheet1.Range[_rowL, COL].Text = "FG Ref No";
 			int colGRNId = COL;
 			sheet1.Range[_rowL, COL].ColumnWidth = 10;
 			sheet1.Range[_rowL, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -5038,7 +5038,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 			//sheet1headreColIndex++;
 			COL++;
 		
-			sheet1.Range[_rowL, COL].Text = "GRN Date";
+			sheet1.Range[_rowL, COL].Text = "Date";
 			int colGRNDate = COL;
 			sheet1.Range[_rowL, COL].ColumnWidth = 10;
 			sheet1.Range[_rowL, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -5046,21 +5046,21 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 			sheet1.Range[_rowL, COL].CellStyle.Font.Bold = true;
 			COL++;
 
-			sheet1.Range[_rowL, COL].Text = "Gate Entry No";
-			int colGateEntryNo = COL;
-			sheet1.Range[_rowL, COL].ColumnWidth = 15;
-			sheet1.Range[_rowL, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, COL].CellStyle.Font.Bold = true;
-			COL++;
+			//sheet1.Range[_rowL, COL].Text = "Gate Entry No";
+			//int colGateEntryNo = COL;
+			//sheet1.Range[_rowL, COL].ColumnWidth = 15;
+			//sheet1.Range[_rowL, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1.Range[_rowL, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet1.Range[_rowL, COL].CellStyle.Font.Bold = true;
+			//COL++;
 
-			sheet1.Range[_rowL, COL].Text = "Gate Name";
-			int colGateName = COL;
-			sheet1.Range[_rowL, COL].ColumnWidth = 15;
-			sheet1.Range[_rowL, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, COL].CellStyle.Font.Bold = true;
-			COL++;
+			//sheet1.Range[_rowL, COL].Text = "Gate Name";
+			//int colGateName = COL;
+			//sheet1.Range[_rowL, COL].ColumnWidth = 15;
+			//sheet1.Range[_rowL, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1.Range[_rowL, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet1.Range[_rowL, COL].CellStyle.Font.Bold = true;
+			//COL++;
 
 
 			sheet1.Range[_rowL, COL].Text = "Production Id";
@@ -5469,7 +5469,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
             sheet1.Range[_rowL, COL].CellStyle.Font.Bold = true;
 			COL++;
 
-            sheet1.Range[_rowL, COL].Text = "LCRef";
+            sheet1.Range[_rowL, COL].Text = "LC Ref";
 			int colLCRef = COL;
 			sheet1.Range[_rowL, COL].ColumnWidth = 15;
 			sheet1.Range[_rowL, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -5583,8 +5583,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
 				//report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["GSTINNo"].ToString());
 				report.SetText(ref sheet1, _rowL, colProductionId, inventoryMaterialList.Rows[n]["ProductionOrderId"].ToString());
-				report.SetText(ref sheet1, _rowL, colGateEntryNo, inventoryMaterialList.Rows[n]["GateEntryNo"].ToString());
-				report.SetText(ref sheet1, _rowL, colGateName, inventoryMaterialList.Rows[n]["GateName"].ToString());
+				//report.SetText(ref sheet1, _rowL, colGateEntryNo, inventoryMaterialList.Rows[n]["GateEntryNo"].ToString());
+				//report.SetText(ref sheet1, _rowL, colGateName, inventoryMaterialList.Rows[n]["GateName"].ToString());
 				report.SetText(ref sheet1, _rowL, colDocRefNo, inventoryMaterialList.Rows[n]["DocRefNo"].ToString());
 				report.SetText(ref sheet1, _rowL, colDocRefDate, inventoryMaterialList.Rows[n]["DocDate"].ToString());
 				report.SetText(ref sheet1, _rowL, colGRnDocDateDifference, inventoryMaterialList.Rows[n]["GrnInvoiceDateDifference"].ToString());
