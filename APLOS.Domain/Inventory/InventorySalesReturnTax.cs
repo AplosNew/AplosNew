@@ -21,8 +21,9 @@ namespace Library.Model.Inventory
         public string InventorySalesReturnId { get; set; }
         public string InventorySalesReturnDetailId { get; set; }
 
+        public string InventorySalesTaxId { get; set; }
         public string InventorySalesReturnServiceId { get; set; }
-        public decimal BooksCurrencyTaxAmount { get; set; } 
+        public decimal BooksCurrencyTaxAmount { get; set; }
         
         #endregion Scalar Properties
 

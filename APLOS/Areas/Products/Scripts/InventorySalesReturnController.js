@@ -880,11 +880,13 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 
     $scope.calculateServiceAmount = function (data) {
         try {
-            if (data.ReturnAmount > data.Amount) {
-                throw "Return Amount can't greater than original Amount";
-            }
+           
             if (data.ReturnAmount == 'NaN')
                 data.ReturnAmount = 0;
+            if (data.ReturnAmount > data.BalanceAmount) {
+                data.ReturnAmount = data.BalanceAmount;
+                throw "Return Amount can't greater than Balance Amount";
+            }
             data.TaxAmount = 0;
             data.TotalTaxAmount = 0;
             angular.forEach(data.ChargeTaxList, function (item) {

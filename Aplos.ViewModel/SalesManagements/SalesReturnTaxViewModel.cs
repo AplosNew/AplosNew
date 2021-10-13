@@ -17,6 +17,7 @@
         public string InventorySalesDetailId { get; set; }
         public string InventoryReceiveDetailId { get; set; }
         public string InventorySalesReturnServiceId { get; set; }
+        public string InventorySalesTaxId { get; set; }
         public decimal BooksCurrencyTransactionAmount { get; set; }
 
     }

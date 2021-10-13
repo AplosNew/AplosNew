@@ -9,6 +9,8 @@ namespace Library.ViewModel.SalesManagements
         public decimal TotalTaxAmount { get; set; }
         public decimal NetAmount { get; set; }
         public string InventorySalesReturnId { get; set; }
+        public string InventorySalesServiceId { get; set; }
+
         public string ServiceMasterId { get; set; }
         public string GLGeneralInfoId { get; set; }
         public string GLGeneralInfoCode { get; set; }
