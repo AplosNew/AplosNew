@@ -2836,7 +2836,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                 earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
                 SandwichFlag=NULL,DayTypeOtApplicable=null,SandwichStatus=null,ProcessFinalDayStatus=null,
-                DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,DayTypeGoodWorkApplicable=null
+                DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,DayTypeGoodWorkApplicable=null,IsLock=0,LockedBy=null,
+                LockedDate=null 
                 where PlantID='" + Plant+"' and WorkDate='"+PreDay+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
@@ -5110,7 +5111,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 {                   
                     var sql = @"update AttdnProcessData set Duration=null,earlyin=null,latein=null,LateOut=null,
                     earlyout=null,OverStay=null,UnderStay=null,DurationStatus=null,EarlyLateIn=null,EarlyLateOut=null,
-                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0
+                    DayStatusCode=null,ProcessDayStatus=null,ProcessedOT=0,IsLock=0,ProcessFinalDayStatus=null,LockedBy=null,
+                    LockedDate=null 
                     where PlantID='" + Plant+@"'
                     and ManualFlag=1 and RowId IN(" + empMaster + @")";
                   
