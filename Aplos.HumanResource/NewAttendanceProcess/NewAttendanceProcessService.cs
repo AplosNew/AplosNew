@@ -2899,7 +2899,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where workdate='" + PreDay + @"' and ap.PlantID='" + Plant + @"' 
                 and isnull(ap.InTime,'')!='' and isnull(ap.OutTime,'')!='') as dd
-				where dd.CalDuration>0";
+				where dd.CalDuration>=0";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -3917,12 +3917,22 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.BeginEdit();
                                 if (PrevDaySandwich == "0" && ToDaySandwich == "2")
                                 {
-                                    dr["SandwichFlag"] = "0"; //Today 
+                                    dr["SandwichFlag"] = "0"; //Today Change
                                 }
 
                                 else if (PrevDaySandwich == "1" && ToDaySandwich == "2")
                                 {
-                                    dr["SandwichFlag"] = "2"; //Today
+                                    dr["SandwichFlag"] = "2"; //Today Change
+                                }
+
+                                else if (PrevDaySandwich == "0" && ToDaySandwich == "3")
+                                {
+                                    dr["SandwichFlag"] = "0"; //Today Change
+                                }
+
+                                else if (PrevDaySandwich == "1" && ToDaySandwich == "3")
+                                {
+                                    dr["SandwichFlag"] = "3"; //Today Change
                                 }
                                 dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                 dr.EndEdit();
@@ -4774,7 +4784,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
                 where ap.ManualFlag=1 and ap.PlantID='" + Plant + @"' and isnull(ap.InTime,'')!='' 
 				and isnull(ap.OutTime,'')!='') as dd
-				where dd.CalDuration>0";
+				where dd.CalDuration>=0";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
