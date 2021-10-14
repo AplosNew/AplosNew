@@ -463,7 +463,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			dataSource: data,
 			/*columns: ["MaterialGroupName", "MaterialName", "Article", "SKU1", "SKU2", "SKU3", "MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount", "MaterialFor"]*/
 
-			columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoMId", "TransactionUoM"]
+			columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoMId", "TransactionUoM", "BaseCurrency", "BaseRate", "Amount"]
 		});
 		e.detailsElement.find(".tabcontrol").ejTab();
 

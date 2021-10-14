@@ -13,6 +13,7 @@ namespace Library.Model.Configurations.Inventory
             Property(t => t.AvgAmount).HasPrecision(18, 10);
             Property(t => t.PolicyRate).HasPrecision(18, 10);
             Property(t => t.PolicyAmount).HasPrecision(18, 10);
+            Property(t => t.SalesRate).HasPrecision(18, 10);
             ToTable(nameof(InventorySalesDetail), DbSchema.Transaction);
             Ignore(r => r.ModelState);
         }

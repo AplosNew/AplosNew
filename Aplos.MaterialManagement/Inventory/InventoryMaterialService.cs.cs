@@ -2043,14 +2043,16 @@ namespace Library.MaterialManagement.Inventory
 				var sql = "";
 				if (string.IsNullOrEmpty(entity.SalesOrderId))
 				{
-					sql = @"SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
+					sql = @"select * from(SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
 						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor
-                        , round(IRD.MaterialTranRate,4) MaterialTranRate, IRD.BooksCurrencyBaseRate, TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
-                        , BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
+                        , round(IRD.MaterialTranRate,4) MaterialTranRate,  TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
+                        --, BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
+						, IRD.TrnCurrencyBaseRate BaseRate
                         , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, 0 AS RequisitionQty
-                        ,Round((IRD.MaterialTranRate * IR.ToCurrencyRate),4) BaseCurrencyRate
+                        --,Round((IRD.MaterialTranRate * IR.ToCurrencyRate),4) 
+						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BaseCurrencyRate
 						, IRD.TransactionQty, IRD.BaseQty
 						,ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0) StockQty
 						, ISNULL(IRD.IssueQty,0) IssueQty, ISNULL(IRD.BaseIssueQty,0) BaseIssueQty, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
@@ -2068,7 +2070,7 @@ namespace Library.MaterialManagement.Inventory
 						,IM.FirstCharacteristicsValueId
 						,IM.SecondCharacteristicsValueId
 						,IM.ThirdCharacteristicsValueId
-						,IM.CountryId
+						
 						,IM.FirstCharacteristicsId
 						,IM.SecondCharacteristicsId
 						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
@@ -2098,10 +2100,10 @@ namespace Library.MaterialManagement.Inventory
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
 						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor
-                        , round(IRD.MaterialTranRate,4) MaterialTranRate, IRD.BooksCurrencyBaseRate, TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
-                        , BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
+                        , round(IRD.MaterialTranRate,4) MaterialTranRate,  TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
+                        ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) BaseRate
                         , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, 0 AS RequisitionQty
-                        ,Round((IRD.MaterialTranRate * IR.ToCurrencyRate),4) BaseCurrencyRate
+                       ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BaseCurrencyRate
 						, IRD.TransactionQty, IRD.BaseQty
 						,ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0) StockQty
 						, ISNULL(IRD.IssueQty,0) IssueQty, ISNULL(IRD.BaseIssueQty,0) BaseIssueQty, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
@@ -2119,7 +2121,7 @@ namespace Library.MaterialManagement.Inventory
 						,IM.FirstCharacteristicsValueId
 						,IM.SecondCharacteristicsValueId
 						,IM.ThirdCharacteristicsValueId
-						,IM.CountryId
+						
 						,IM.FirstCharacteristicsId
 						,IM.SecondCharacteristicsId
 						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
@@ -2150,10 +2152,10 @@ namespace Library.MaterialManagement.Inventory
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
 						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor
-                        , round(IRD.MaterialTranRate,4) MaterialTranRate, IRD.BooksCurrencyBaseRate, TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
-                        , BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
+                        , round(IRD.MaterialTranRate,4) MaterialTranRate,  TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
+                        ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) BaseRate
                         , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, 0 AS RequisitionQty
-                        ,Round((IRD.MaterialTranRate * IR.ToCurrencyRate),4) BaseCurrencyRate
+                         ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BaseCurrencyRate
 						, IRD.TransactionQty, IRD.BaseQty
 						,ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0) StockQty
 						, ISNULL(IRD.IssueQty,0) IssueQty, ISNULL(IRD.BaseIssueQty,0) BaseIssueQty, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
@@ -2171,7 +2173,7 @@ namespace Library.MaterialManagement.Inventory
 						,IM.FirstCharacteristicsValueId
 						,IM.SecondCharacteristicsValueId
 						,IM.ThirdCharacteristicsValueId
-						,IM.CountryId
+						
 						,IM.FirstCharacteristicsId
 						,IM.SecondCharacteristicsId
 						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
@@ -2195,7 +2197,7 @@ namespace Library.MaterialManagement.Inventory
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND ISNULL(IM.CountryId,'')='" + entity.CountryId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
 					AND IRD.BaseQty !=IRD.BaseIssueQty
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) 
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + @"' AS DATE) )x WHERE x.BalanceStock>0 
 					";
 				}
 				else

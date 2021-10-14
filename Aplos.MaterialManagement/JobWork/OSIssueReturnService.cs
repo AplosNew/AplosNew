@@ -1523,6 +1523,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                                 ,FC.UserName AS FirstChaName,IM.FirstCharacteristicsValueId,FCV.UserName AS SKU1
                                 ,IM.SecondCharacteristicsId,SC.UserName AS SecondChaName,IM.SecondCharacteristicsValueId,SCV.UserName AS SKU2
                                 ,IM.ThirdCharacteristicsId,TC.UserName AS ThirdChaName,IM.ThirdCharacteristicsValueId,TCV.UserName AS SKU3
+                                ,c.Code as BaseCurrency,BaseRate=round((IRD.MaterialTranRate * IR.ToCurrencyRate),4)
+								,Amount=isnull(round((IRD.MaterialTranRate * IR.ToCurrencyRate) * isnull(IIH.Qty,'0'),2),'0')
                                 from TRN.InventoryIssue II left join TRN.InventoryIssueDetail IID on IID.InventoryIssueId=II.Id
                                 left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
                                 left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
@@ -1534,6 +1536,10 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                                 LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
                                 LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
                                 left join SCS.UnitOfMeasurement Tuom on Tuom.Id=IID.TransactionUoMId
+                                left join SCS.Currency C on C.Id=II.CurrencyId
+								left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+								left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
+        						left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
                                 where II.Types='InventoryJWIssue'";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -1804,26 +1810,35 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							, MS.UserName AS MaterialStorage 
 							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
 							,SUM(IIH.qty) Qty
-							,SUM(Round(IIH.qty*IIH.Rate,2)) Amount
+							--,SUM(Round(IIH.qty*IIH.Rate,2)) Amount
+							,Amount=isnull(round( Sum((IRD.MaterialTranRate * IR.ToCurrencyRate) * isnull(IIH.Qty,'0')),2),'0')
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
-							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
+							--,C.Id CountryId,c.UserName CountryName
+							,II.ContractId,II.ProductionOrderId,Con.ContractNo
                             ,II.Types, II.JWContractId,Tuom.UserName as TransactionUoM
 							FROM[TRN].[InventoryIssue] AS II
 							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-							left join (Select InventoryIssueDetailId,IssueRequestDetailId,qty, Rate from trn.InventoryIssueHistory ) IIH ON IIH.InventoryIssueDetailId=IID.Id
-							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
-							left JOIN SCS.Country c ON C.Id=IR.CountryId
+							--left join (Select InventoryIssueDetailId,IssueRequestDetailId,qty, Rate from trn.InventoryIssueHistory ) 
+							--IIH ON IIH.InventoryIssueDetailId=IID.Id
+						--	left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
+						--	left JOIN SCS.Country c ON C.Id=IR.CountryId
 							left join dbo.Contract Con On Con.Id=II.ContractId
                             left join SCS.UnitOfMeasurement Tuom on Tuom.Id=IID.TransactionUoMId
+
+							left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+							left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
+        					left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
 						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
-						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId,Tuom.UserName
+						--,C.Id ,c.UserName 
+                        ,II.ContractId 
+                        ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId,Tuom.UserName
 						Order BY II.IssueDate DESC";
                 }
 
@@ -1838,26 +1853,34 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							, MS.UserName AS MaterialStorage 
 							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
 							,SUM(IIH.qty) Qty
-							,SUM(Round(IIH.qty*IIH.Rate,2)) Amount
+							--,SUM(Round(IIH.qty*IIH.Rate,2)) Amount
+							,Amount=isnull(round( Sum((IRD.MaterialTranRate * IR.ToCurrencyRate) * isnull(IIH.Qty,'0')),2),'0')
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
-							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
+							--,C.Id CountryId,c.UserName CountryName
+							,II.ContractId,II.ProductionOrderId,Con.ContractNo
                             ,II.Types, II.JWContractId,Tuom.UserName as TransactionUoM
 							FROM[TRN].[InventoryIssue] AS II
 							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-							left join (Select InventoryIssueDetailId,IssueRequestDetailId,qty, Rate from trn.InventoryIssueHistory ) IIH ON IIH.InventoryIssueDetailId=IID.Id
-							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
-							left JOIN SCS.Country c ON C.Id=IR.CountryId
+							--left join (Select InventoryIssueDetailId,IssueRequestDetailId,qty, Rate from trn.InventoryIssueHistory ) 
+							--IIH ON IIH.InventoryIssueDetailId=IID.Id
+						--	left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
+						--	left JOIN SCS.Country c ON C.Id=IR.CountryId
 							left join dbo.Contract Con On Con.Id=II.ContractId
                             left join SCS.UnitOfMeasurement Tuom on Tuom.Id=IID.TransactionUoMId
+
+							left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+							left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
+        					left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
 						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
-						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId,Tuom.UserName
+						--,C.Id ,c.UserName 
+                        ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId,Tuom.UserName
 						Order BY II.IssueDate DESC";
                 }
 

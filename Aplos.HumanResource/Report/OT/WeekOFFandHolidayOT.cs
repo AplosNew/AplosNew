@@ -1035,6 +1035,7 @@ namespace Library.HumanResource.Report.OT
                 SetCellValue("Bank Acc No.", sheet1, xlsRow, ref xlsCol, out colBankAccountNo, 25);
                 SetCellValue("Grade", sheet1, xlsRow, ref xlsCol, out cGrade, 25);
                 SetCellValue("Direct Manpower Cost", sheet1, xlsRow, ref xlsCol, out colDirectManpowerCost, 25);
+                SetCellValue("Weekoff Days", sheet1, xlsRow, ref xlsCol, out int colWeekoffDays, 25);
 
                 SetCellValue("Total Days", sheet1, xlsRow, ref xlsCol, out ColTotalWorkingDay, 8);
                 SetCellValue("Working Days", sheet1, xlsRow, ref xlsCol, out ColActualWorkingDay, 8);
@@ -1448,6 +1449,7 @@ namespace Library.HumanResource.Report.OT
                         sheet1.Range[xlsRow, colDirectManpowerCost].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, colDirectManpowerCost].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                        sheet1.Range[xlsRow, colWeekoffDays].Text = dtEmployees.Rows[i]["WeekoffDays"].ToString();
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Gender"].ToString()) == false)
                             sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
@@ -4366,7 +4368,7 @@ namespace Library.HumanResource.Report.OT
                                     INNER JOIN
 		                                    (
 													SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalWorkingDay,0) TotalWorkingDay,ISNULL(TotalPayDay,0)TotalPayDay,ISNULL(TotalNonPayDay,0)TotalNonPayDay,ISNULL(ActualWorkingDay,0)ActualWorkingDay,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
-										,ISNULL(TotalLv,0) TotalLv
+										,ISNULL(TotalLv,0) TotalLv,WeekoffDays
 										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
 										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
