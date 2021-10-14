@@ -199,6 +199,16 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		location.href = "Products/InventoryIssue/inventorySalesReportPrint?grnId=" + data.Id;
 
 	};
+
+	$scope.InventoryPreSalesPrint = function (z) {
+		//debugger;
+		var x = "#" + z;
+		var gridObj = $(x).data("ejGrid");
+		var data = gridObj.getSelectedRecords()[0];
+		location.href = "Products/InventoryIssue/inventoryPreSalesReportPrint?grnId=" + data.Id;
+
+	};
+
 	$http({
 		method: 'GET',
 		url: 'Materials/MaterialStorage/getcbo'
