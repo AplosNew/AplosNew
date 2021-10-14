@@ -371,6 +371,10 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/CompensatoryOff/aplos',
             controller: 'CompensatoryOffController'
         })
+        .when('/compensatory-off-new', {
+            templateUrl: 'Employees/CompensatoryOffNew/aplos',
+            controller: 'CompensatoryOffNewController'
+        })
         .when('/exception-for-holiday', {
             templateUrl: 'Employees/ExceptionForHoliday/aplos',
             controller: 'ExceptionForHolidayController'

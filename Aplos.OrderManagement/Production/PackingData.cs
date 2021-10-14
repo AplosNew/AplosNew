@@ -567,7 +567,7 @@ namespace Library.OrderManagement.Production
                  left join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
 				 left join hkp.ProductCategory pc on pc.Id = pm.ProductCategoryId
 				 left join scs.UnitOfMeasurement uom on uom.Id = mo.TotalQtyUOMId
-				 left join hkp.OrderStatus os on os.Id = mo.OrderStatusId
+				 left join hkp.OrderStatus os on os.Id = so.OrderStatusId
                 left join hkp.Party par on par.Id=mo.PartyId
                 left join dbo.ScanItem si on si.Id=pa.ScanItemId     
                 left join hkp.Product prod on prod.Id = pm.ProductId
@@ -579,7 +579,7 @@ namespace Library.OrderManagement.Production
 				group by so.Id
 				) as sos on sos.Id = so.Id
                 where 
-				mo.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold') 
+				mo.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold') and so.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold')
 				 and pl.Code !='null'
 				) as req
 
@@ -1118,9 +1118,65 @@ order by  Assigned, ProductCode , PO
             }
 
         }
-    }
 
-   
+        public DataTable getGroupFinishedStocksReport(string Loc)
+        {
+            try
+            {
+                string loc = "";
+                if (Loc == "All")
+                {
+                    loc = "";
+                }
+                else
+                {
+                    loc = "AND R.ToStorageLocId = '" + Loc + "'";
+                }
+                var str = @"Select M.StandardName ,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , Sum(S.NetWeight) as NtWt, Sum(S.GWeight) as GtWt
+                            from ItemScanChild S 
+                            LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+                            LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+                            LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
+                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' "+loc+ @"
+                            group by  M.StandardName , S.LotNo, S.NetWeight 
+                            order by M.StandardName , S.LotNo";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public DataTable getAllFinishedStocksReport(string Loc)
+        {
+            try
+            {
+                string loc = "";
+                if (Loc == "All")
+                {
+                    loc = "";
+                }
+                else
+                {
+                    loc = "AND R.ToStorageLocId = '" + Loc + "'";
+                }
+                var str = @"Select M.StandardName ,  S.LotNo, S.RefNo as Cartons, S.NetWeight ,S.NetWeight, S.GWeight as GtWt
+                            from ItemScanChild S 
+                            LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+                            LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+                            LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
+                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING'  " + loc + @"
+                                                        ";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+    } 
 
 }
 
