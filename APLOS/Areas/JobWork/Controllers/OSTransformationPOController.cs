@@ -34,18 +34,18 @@ using System.Web.Script.Serialization;
 
 namespace Aplos.Areas.JobWork.Controllers
 {
-    public class JWTransformationPurchaseOrderController : BaseController
+    public class OSTransformationPOController : BaseController
     {
         string TableName = "JWTransformationPurchaseOrder";
         //authentication for
         //GetList Create Delete
-        Library.MaterialManagement.JobWork.JobWorkCommon JobWorkCommon = null;
+        Library.MaterialManagement.JobWork.OSCommon JobWorkCommon = null;
         Library.General.Conversions.UOMConversion conversion = new Library.General.Conversions.UOMConversion();
         #region Constructor
         private readonly IPurchaseOrderService _inventoryReveiveService;
         private readonly ISqlRepository _sqlRepository;
         private readonly IRepositoryAsync<POService> _inventoryServiceRepository;
-        public JWTransformationPurchaseOrderController(ISqlRepository R, IPurchaseOrderService inventoryReveiveService, IRepositoryAsync<POService> inventoryServiceRepository)
+        public OSTransformationPOController(ISqlRepository R, IPurchaseOrderService inventoryReveiveService, IRepositoryAsync<POService> inventoryServiceRepository)
         {
             _inventoryServiceRepository = inventoryServiceRepository;
             _sqlRepository = R;
@@ -62,7 +62,7 @@ namespace Aplos.Areas.JobWork.Controllers
         [Authorize, HttpGet]
         public JsonResult GetPOTypeList(string POTypeStatus)
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(JobWorkCommon.GetPOTypeList(identity.PlantId, POTypeStatus), JsonRequestBehavior.AllowGet);
         }
@@ -70,7 +70,7 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult GetTaxCategoryList(string receiveId, string hsnCodeId, string PODate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
 
             return Json(JobWorkCommon.GetJWServiceTaxCategoryList(identity.CompanyGroupId, receiveId, identity.PlantId, hsnCodeId, PODate), JsonRequestBehavior.AllowGet);
         }
@@ -104,7 +104,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
 
 
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
 
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetList(column, value), null), JsonRequestBehavior.AllowGet);
         }
@@ -112,14 +112,14 @@ namespace Aplos.Areas.JobWork.Controllers
         [Authorize, HttpGet]
         public ActionResult GetJWPOChildList(string jwpoId)
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
 
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJWPOChildList(jwpoId), null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public ActionResult GetJwPoDetailByProduct(string jwpoDetailId)
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
 
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJwPoDetailByProduct(jwpoDetailId), null), JsonRequestBehavior.AllowGet);
         }
@@ -127,14 +127,14 @@ namespace Aplos.Areas.JobWork.Controllers
         [Authorize, HttpGet]
         public ActionResult GetJwTransPoDetailInputMaterial(string jwpoDetailId)
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
 
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJwTransPoDetailInputMaterial(jwpoDetailId), null), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
 
             return Json(JobWorkCommon.GetSequence(), JsonRequestBehavior.AllowGet);
         }
@@ -157,7 +157,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 data = JobWorkCommon.Create(data, CheckedByStatusForNoti, ApprovedByStatusForNoti);
                 return Json(new { Data = data, Message = AplosMessage.Success + " PO no <b>" + data["Id"] + "</b>" });
             }
@@ -175,7 +175,7 @@ namespace Aplos.Areas.JobWork.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 data = JobWorkCommon.detailcreate(data,  JWPurchaseOrderId, JWActivityId,identity.Name,identity.IPAddress,OrderSpecific,type, taxCategoryList, JWPOToCurrencyRate, JWPOIsNonCreditable, JWPODate, JWPOType);
                 return Json(new { Data = data, Message = AplosMessage.Success });
             }
@@ -191,7 +191,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 data = JobWorkCommon.SaveTaxList(data, TaxList, identity.Name, identity.IPAddress);
                 return Json(new { Data = data, Message = AplosMessage.Success });
             }
@@ -208,10 +208,10 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                if (Convert.ToBoolean(_inventoryServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM JWTransformationPurchaseOrderService WHERE JWTransformationPurchaseOrderId='" + data["JWTransformationPurchaseOrderId"] + "' AND ServiceMasterId='" + data["ServiceMasterId"] + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
+                if (Convert.ToBoolean(_inventoryServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM OSTransformationPOService WHERE OSTransformationPOId='" + data["OSTransformationPOId"] + "' AND ServiceMasterId='" + data["ServiceMasterId"] + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
                     throw new CustomException("This service already taken."); ;
 
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 data = JobWorkCommon.ServiceChargeCreate(data, TaxList);
                 return Json(new { Data = data, Message = AplosMessage.Success });
             }
@@ -223,14 +223,14 @@ namespace Aplos.Areas.JobWork.Controllers
         [Authorize, HttpGet]
         public ActionResult GetJWTransformationPurchaseOrderServiceList(string jwpoId)
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
            
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJWTransformationPurchaseOrderServiceList(jwpoId), null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
         public ActionResult GetJWItemMAList(string ActivityId)
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
 
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJWItemMAList(ActivityId), null), JsonRequestBehavior.AllowGet);
         }
@@ -245,7 +245,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 JobWorkCommon.Delete(id);
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -270,7 +270,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
                 
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 JobWorkCommon.DeleteDetail(id, OrderSpecific);
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
@@ -287,14 +287,14 @@ namespace Aplos.Areas.JobWork.Controllers
         [Authorize, HttpPost]
         public ActionResult GetJWItemList(string column, string value)
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJWItemList(column, value), null), JsonRequestBehavior.AllowGet);
         }
         
         [Authorize, HttpGet]
         public JsonResult GetServiceChargeList(string jwpoId)
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetServiceChargeList(jwpoId), null), JsonRequestBehavior.AllowGet);
 
         }
@@ -302,7 +302,7 @@ namespace Aplos.Areas.JobWork.Controllers
         [Authorize, HttpGet]
         public JsonResult GetPODetailServiceChargeList(string jwpoId, string jwpodId)
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetPODetailServiceChargeList(jwpoId, jwpodId), null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
@@ -310,7 +310,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return _sqlRepository.GetDataCollection(JobWorkCommon.GetServiceTaxList(serviceId));
             }
             catch (Exception ex)
@@ -325,7 +325,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetPODetailTaxList(jwPOId, jwPoDetailId)), JsonRequestBehavior.AllowGet);
 
             }
@@ -344,7 +344,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.GetBOQItems(ContractId, VendorId, IsOwnVendor, JWPOId, JWPODId, jwActivityId, POType), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -359,7 +359,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.GetBOQItemsForUpdate(ContractId, VendorId, IsOwnVendor, JWPOId, JWPODId, jwActivityId, MaterialId, ArticleId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -384,7 +384,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.GetJWPODTChildMaterials(data), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -398,7 +398,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.GetJWPODTChildMaterialsSummary(JWPODId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -409,7 +409,7 @@ namespace Aplos.Areas.JobWork.Controllers
         [Authorize, HttpGet]
         public ActionResult GetJWPOChildListAll()
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
 
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJWPOChildListAll(), null), JsonRequestBehavior.AllowGet);
         }
@@ -419,7 +419,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.GetJWPOActivityService(JWPODId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -472,7 +472,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.GetAllEntity(PlantId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -504,7 +504,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.GetMaterialfromJW(JobWorkItemId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -520,7 +520,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.GetListForHoldRejectApproved(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -536,7 +536,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.LoadInputArticle(MaterialMstId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -552,7 +552,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.GetJWMaterialStorage(JWLocId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -569,7 +569,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
             //    return Json(JobWorkCommon.GePurchaseOrderReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId), JsonRequestBehavior.AllowGet);
 
             JobWorkCommon.GePurchaseOrderReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId);
@@ -602,7 +602,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
 
             //_inventoryReveiveService.InsertPODocMap(PODocumentMap, POId, out string Id);
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
             JobWorkCommon.InsertPODocMap(PODocumentMap, POId, out string Id);
 
             var file = Request.Files["file"];
@@ -622,7 +622,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.PODocumentMapData(POID), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -657,7 +657,7 @@ namespace Aplos.Areas.JobWork.Controllers
             {
                 //   Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
 
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
 
                 var directory = ResourcesPathReader.GetJobWorkPurchaseOrderPath();
                 var path = Path.Combine(directory);
@@ -715,7 +715,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.PODocumentMapDataAll(POID), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -731,7 +731,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.getMatInputListBOQData(Id), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -751,7 +751,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 if (string.IsNullOrEmpty(Id))
                     throw new Exception("Select entry first");
 
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 JobWorkCommon.DelMaterialInputBOQ(Id);
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
@@ -767,7 +767,7 @@ namespace Aplos.Areas.JobWork.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
                 return Json(JobWorkCommon.GetSalesOrderData(Id), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

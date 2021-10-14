@@ -44,23 +44,23 @@ namespace Library.MaterialManagement.JobWork
         //        string sql = "";
         //        if (!string.IsNullOrEmpty(MPId))
         //        {
-        //            sql = @"select distinct NULL AS LotNumberList, mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem ,mm.Id as MaterialMasterId, mm.UserName as Material
+        //            sql = @"select distinct NULL AS LotNumberList, mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem ,mm.Id as MaterialMasterId, mm.UserName as Material
         //                    ,mma.Id as MaterialArticleId, mma.StandardName as Article, InvDetail.InventoryMaterialId
         //                    ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
         //                    ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
         //                    ,SUM(tirc.Quantity) as TIRCQty
         //                    ,(InvDetail.Rate) as Rate
         //                    ,Sum(kk.TotalQuantity) as TIRCTotalQty
-        //                     from dbo.JobWorkTransformationContractChild3 mi
+        //                     from dbo.OSTransformationPOInputMaterial mi
         //                     left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
         //                     left join MST.MaterialMaster mm on mm.Id=mi.MaterialMasterId
-        //                     left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+        //                     left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
         //left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
         //                     left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
         //                     left join(select SUM(Quantity) as TotalQuantity,MaterialInputId FROM dbo.JobWorkTransformationIssueReturnChild group by MaterialInputId) kk on kk.MaterialInputId=mi.id
         //                     left join TRN.InventoryMaterial inm on inm.MaterialMasterId=mm.Id and inm.ArticleId=mma.Id
         //                     left join (Select InventoryMaterialId,(sum( MaterialTranAmount)/sum(TransactionQty)) as Rate from TRN.InventoryReceiveDetail group by InventoryMaterialId) InvDetail on InvDetail.InventoryMaterialId=inm.Id
-        //                     where mi.JobWorkTransformationContractChildMasterId IN ("+ MPId + ") group by mi.Id, mm.Id, mm.UserName,InvDetail.Rate ,mma.Id, mma.StandardName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity, InvDetail.InventoryMaterialId,mi.JobWorkTransformationContractChildMasterId,jwi.UserName ";
+        //                     where mi.OSTransformationPODetailId IN ("+ MPId + ") group by mi.Id, mm.Id, mm.UserName,InvDetail.Rate ,mma.Id, mma.StandardName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity, InvDetail.InventoryMaterialId,mi.OSTransformationPODetailId,jwi.UserName ";
         //        }
         //            var SqlData = _sqlRepository.GetDataCollection(sql);
         //            StringCollection strCol = new StringCollection();
@@ -113,7 +113,7 @@ namespace Library.MaterialManagement.JobWork
 
                 if (OrderSpecific == "Yes")
                 {
-                    //             sql = @"select mi.Id,mi.JobWorkTransformationContractChildMasterId
+                    //             sql = @"select mi.Id,mi.OSTransformationPODetailId
                     //                     ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit
                     //                     ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //                     ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -125,18 +125,18 @@ namespace Library.MaterialManagement.JobWork
                     //,0 PostingQuantity
                     //,0 ApprovedQty
                     //,0 UnApprovedQty,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
-                    //                      from dbo.JobWorkTransformationContractChild3 mi
+                    //                      from dbo.OSTransformationPOInputMaterial mi
                     //left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                     // left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //                      left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //                      left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //                      left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
-                    //                      on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
-                    //                      where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
-                    // group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId
+                    //                      on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.OSTransformationPOId
+                    //                      where mi.OSTransformationPODetailId IN (" + MPId + @")
+                    // group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId
                     // ,uom.UserName,mm.Code ,mma.StandardName ,mma.Id";
                     //         sql = @"SELECT -- t.Id,
-                    //                 t.JobWorkTransformationContractChildMasterId
+                    //                 t.OSTransformationPODetailId
                     //                 ,t.InputMaterialId,t.MaterialMasterId,t.MaterialMaster,t.InputMaterialCode,t.ArticleName,t.ArticleId ,t.MMUnit
                     //                 ,t.RequiredQuantity RequiredQuantity,t.BalanceToIssue,t.TIRCTotalQty,sum(t.PlannedQty) PlannedQty,t.IssuedQty,t.BalanceQty,t.MaterialStorageId,t.TransactionUoMid TransactionUoMId,t.BaseUoMid BaseUoMId
                     //                 ,t.TotalQty TotalQty
@@ -146,7 +146,7 @@ namespace Library.MaterialManagement.JobWork
                     //                 ,t.UnApprovedQty UnApprovedQty
                     //                 ,t.BaseUoMFactor,t.TransactionUoM   
                     //                 FROM(
-                    //                 SELECT mi.Id,mi.JobWorkTransformationContractChildMasterId,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit,
+                    //                 SELECT mi.Id,mi.OSTransformationPODetailId,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit,
                     //                 IRD.MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid,Sum(kk.TotalQuantity) as TIRCTotalQty,RequiredQuantity=Sum(ISNULL((mp.Quantity * mi.GrossConsumption),0))
                     //                 ,BalanceToIssue=Sum(ISNULL((mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0')),0))
                     //                 ,0 PlannedQty,0 IssuedQty,0 BalanceQty,IRD.BaseUoMFactor,uom.UserName as TransactionUoM  
@@ -159,7 +159,7 @@ namespace Library.MaterialManagement.JobWork
                     //                 JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     //                 JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 
-                    //                 JOIN dbo.JobWorkTransformationContractChild3 mi ON mi.ArticleId=IM.ArticleId
+                    //                 JOIN dbo.OSTransformationPOInputMaterial mi ON mi.ArticleId=IM.ArticleId
                     //                 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //                 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                     //                 left join MST.MaterialMaster mm1 on mm1.Id=IM.MaterialMasterId
@@ -171,23 +171,23 @@ namespace Library.MaterialManagement.JobWork
                     //                 LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
                     //                 LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
                     //                 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //                 left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //                 left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //                 left join(select iid.InventoryMaterialId, iid.Id,SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId 
                     //FROM TRN.InventoryIssueDetail iid 
                     //left join TRN.InventoryIssue II
                     //                    on iid.InventoryIssueId=II.Id group by II.JWContractId,iid.Id,iid.InventoryMaterialId
-                    //                    ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId and kk.InventoryMaterialId=IM.Id
+                    //                    ) kk on kk.JWContractId=mp.OSTransformationPOId and kk.InventoryMaterialId=IM.Id
 
 
                     //                 WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE) 
-                    //                 AND mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
+                    //                 AND mi.OSTransformationPODetailId IN (" + MPId + @")
                     //                 AND IRD.MaterialStorageId='"+ MaterialStorageIdInventory + @"' AND IM.CompanyGroupId='"+ identity.CompanyGroupId+ @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-                    //                 GROUP By mi.Id,mi.JobWorkTransformationContractChildMasterId
+                    //                 GROUP By mi.Id,mi.OSTransformationPODetailId
                     //                 ,mm.Id  ,mm.Id ,mm.UserName  ,mm.Code  ,mma.StandardName ,mma.Id,uom.UserName 
                     //                 ,IRD.MaterialStorageId,uom.Id  ,uom.Id  ,IRD.BaseUoMFactor,uom.UserName  
 
                     //                 UNION ALL
-                    //                 SELECT mi.Id,mi.JobWorkTransformationContractChildMasterId
+                    //                 SELECT mi.Id,mi.OSTransformationPODetailId
                     //                 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit,
                     //                 IRD.MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //                 ,Sum(kk.TotalQuantity) as TIRCTotalQty,RequiredQuantity=Sum(ISNULL((mp.Quantity * mi.GrossConsumption),0))
@@ -202,7 +202,7 @@ namespace Library.MaterialManagement.JobWork
                     //                 left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     //                 left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 
-                    //                 JOIN dbo.JobWorkTransformationContractChild3 mi ON mi.ArticleId=IM.ArticleId
+                    //                 JOIN dbo.OSTransformationPOInputMaterial mi ON mi.ArticleId=IM.ArticleId
                     //                 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //                 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                     //                 left join MST.MaterialMaster mm1 on mm1.Id=IM.MaterialMasterId
@@ -215,23 +215,23 @@ namespace Library.MaterialManagement.JobWork
                     //                 LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 
                     //                 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //                 left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //                 left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //                left join(select iid.InventoryMaterialId, iid.Id,SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId 
                     //FROM TRN.InventoryIssueDetail iid 
                     //left join TRN.InventoryIssue II
                     //                    on iid.InventoryIssueId=II.Id group by II.JWContractId,iid.Id,iid.InventoryMaterialId
-                    //                    ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId and kk.InventoryMaterialId=IM.Id
+                    //                    ) kk on kk.JWContractId=mp.OSTransformationPOId and kk.InventoryMaterialId=IM.Id
 
 
                     //                 WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE) 
-                    //                 AND mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
+                    //                 AND mi.OSTransformationPODetailId IN (" + MPId + @")
                     //                 AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
                     //                 AND IR.Status is not NULL
-                    //                 GROUP By mi.Id,mi.JobWorkTransformationContractChildMasterId
+                    //                 GROUP By mi.Id,mi.OSTransformationPODetailId
                     //                 ,mm.Id  ,mm.Id ,mm.UserName  ,mm.Code  ,mma.StandardName ,mma.Id,uom.UserName 
                     //                 ,IRD.MaterialStorageId,uom.Id  ,uom.Id ,IRD.BaseUoMFactor ,uom.UserName 
                     //                 UNION ALL
-                    //                 SELECT mi.Id,mi.JobWorkTransformationContractChildMasterId
+                    //                 SELECT mi.Id,mi.OSTransformationPODetailId
                     //                 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit,
                     //                 IRD.MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //                 ,Sum(kk.TotalQuantity) as TIRCTotalQty,RequiredQuantity=Sum(ISNULL((mp.Quantity * mi.GrossConsumption),0))
@@ -247,7 +247,7 @@ namespace Library.MaterialManagement.JobWork
                     //                 left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 
 
-                    //                 JOIN dbo.JobWorkTransformationContractChild3 mi ON mi.ArticleId=IM.ArticleId
+                    //                 JOIN dbo.OSTransformationPOInputMaterial mi ON mi.ArticleId=IM.ArticleId
                     //                 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //                 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                     //                 left join MST.MaterialMaster mm1 on mm1.Id=IM.MaterialMasterId
@@ -259,23 +259,23 @@ namespace Library.MaterialManagement.JobWork
                     //                 LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
                     //                 LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
                     //                 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //                 left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //                 left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //                 left join(select iid.InventoryMaterialId, iid.Id,SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId 
                     //FROM TRN.InventoryIssueDetail iid 
                     //left join TRN.InventoryIssue II
                     //                    on iid.InventoryIssueId=II.Id group by II.JWContractId,iid.Id,iid.InventoryMaterialId
-                    //                    ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId and kk.InventoryMaterialId=IM.Id
+                    //                    ) kk on kk.JWContractId=mp.OSTransformationPOId and kk.InventoryMaterialId=IM.Id
 
 
                     //                 WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE) 
-                    //                 AND mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
+                    //                 AND mi.OSTransformationPODetailId IN (" + MPId + @")
                     //                 AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'  
                     //                 AND IR.IsApproved=1
-                    //                 GROUP By mi.Id,mi.JobWorkTransformationContractChildMasterId
+                    //                 GROUP By mi.Id,mi.OSTransformationPODetailId
                     //                 ,mm.Id  ,mm.Id ,mm.UserName  ,mm.Code  ,mma.StandardName ,mma.Id,uom.UserName 
                     //                 ,IRD.MaterialStorageId,uom.Id  ,uom.Id  ,IRD.BaseUoMFactor,uom.UserName 
                     //                 UNION ALL
-                    //                 SELECT mi.Id,mi.JobWorkTransformationContractChildMasterId
+                    //                 SELECT mi.Id,mi.OSTransformationPODetailId
                     //                 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit,
                     //                 IRD.MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //                 ,Sum(kk.TotalQuantity) as TIRCTotalQty,RequiredQuantity=Sum(ISNULL((mp.Quantity * mi.GrossConsumption),0))
@@ -290,7 +290,7 @@ namespace Library.MaterialManagement.JobWork
                     //                 left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
                     //                 left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 
-                    //                 JOIN dbo.JobWorkTransformationContractChild3 mi ON mi.ArticleId=IM.ArticleId
+                    //                 JOIN dbo.OSTransformationPOInputMaterial mi ON mi.ArticleId=IM.ArticleId
                     //                 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //                 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                     //                 left join MST.MaterialMaster mm1 on mm1.Id=IM.MaterialMasterId
@@ -302,22 +302,22 @@ namespace Library.MaterialManagement.JobWork
                     //                 LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
                     //                 LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
                     //                 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //                 left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //                 left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //                 left join(select iid.InventoryMaterialId, iid.Id,SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId 
                     //FROM TRN.InventoryIssueDetail iid 
                     //left join TRN.InventoryIssue II
                     //                    on iid.InventoryIssueId=II.Id group by II.JWContractId,iid.Id,iid.InventoryMaterialId
-                    //                    ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId and kk.InventoryMaterialId=IM.Id
+                    //                    ) kk on kk.JWContractId=mp.OSTransformationPOId and kk.InventoryMaterialId=IM.Id
 
                     //                 WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE) 
-                    //                 AND mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
+                    //                 AND mi.OSTransformationPODetailId IN (" + MPId + @")
                     //                 AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IR.IsApproved=0 AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-                    //                 GROUP By mi.Id,mi.JobWorkTransformationContractChildMasterId
+                    //                 GROUP By mi.Id,mi.OSTransformationPODetailId
                     //                 ,mm.Id  ,mm.Id ,mm.UserName  ,mm.Code  ,mma.StandardName ,mma.Id,uom.UserName 
                     //                 ,IRD.MaterialStorageId,uom.Id  ,uom.Id ,IRD.BaseUoMFactor ,uom.UserName 
                     //                 ) AS t	where  t.PostingQty<>0 		
                     //                 Group By --t.Id,
-                    //                 t.JobWorkTransformationContractChildMasterId
+                    //                 t.OSTransformationPODetailId
                     //                 ,t.InputMaterialId,t.MaterialMasterId,t.MaterialMaster,t.InputMaterialCode,t.ArticleName,t.ArticleId ,t.MMUnit
                     //                 ,t.RequiredQuantity,t.BalanceToIssue,t.TIRCTotalQty,t.IssuedQty,t.BalanceQty,t.MaterialStorageId,t.TransactionUoMid,t.BaseUoMid,t.BaseUoMFactor,t.TransactionUoM  
                     //                 ,t.TotalQty 
@@ -327,7 +327,7 @@ namespace Library.MaterialManagement.JobWork
                     //                 ,t.BaseUoMFactor, t.ApprovedQty";
 
                     sql = @"select --mi.Id,
-                            mi.JobWorkTransformationContractChildMasterId JWTCMId
+                            mi.OSTransformationPODetailId OSTransformationPOId
 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit
 ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -337,23 +337,23 @@ namespace Library.MaterialManagement.JobWork
 ,Isnull(ab.TotalQty,0) TotalQty, Isnull(cd.PostingQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
 ,Isnull(cd.PostingQty,0) PostingQuantity--,IRD.BaseUoMFactor
 
-from dbo.JobWorkTransformationContractChild3 mi
+from dbo.OSTransformationPOInputMaterial mi
 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 left join TRN.InventoryMaterial IM on  IM.ArticleId=mi.ArticleId
 left join TRN.InventoryReceiveDetail IRD on IRD.InventoryMaterialId=IM.Id
-left join(select iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId,iid.JWTCMId 
+left join(select iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId,iid.OSTransformationPOId 
 			FROM TRN.InventoryIssueDetail iid 
 			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
 			left join TRN.InventoryMaterial IM ON IM.Id=iid.InventoryMaterialId
-			where iid.JWTCMId in (" + MPId + @")
-			group by II.JWContractId,iid.InventoryMaterialId, iid.JWTCMId
+			where iid.OSTransformationPOId in (" + MPId + @")
+			group by II.JWContractId,iid.InventoryMaterialId, iid.OSTransformationPOId
 			
-) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId  and kk.InventoryMaterialId=Im.Id
+) kk on kk.JWContractId=mp.OSTransformationPOId  and kk.InventoryMaterialId=Im.Id
 
-Left join(select mi.Id,mi.JobWorkTransformationContractChildMasterId
+Left join(select mi.Id,mi.OSTransformationPODetailId
 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
 ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -362,14 +362,14 @@ Left join(select mi.Id,mi.JobWorkTransformationContractChildMasterId
 ,0 PostingQuantity
 ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
 ,TotalQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
-from dbo.JobWorkTransformationContractChild3 mi
+from dbo.OSTransformationPOInputMaterial mi
 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 on iid.InventoryIssueId=II.Id group by II.JWContractId
-) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+) kk on kk.JWContractId=mp.OSTransformationPOId
 left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
 left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
 left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -379,15 +379,15 @@ left JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
 left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 
 WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE) AND IR.IsApproved=0
-AND mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
+AND mi.OSTransformationPODetailId IN (" + MPId + @")
 AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId
+group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId
 ,uom.UserName,mm.Code,mma.StandardName ,mma.Id
 
  )ab on ab.MaterialMasterId=mma.MaterialMasterId and 
  ab.ArticleId=mi.ArticleId
 
- Left JOIN (select mi.Id,mi.JobWorkTransformationContractChildMasterId
+ Left JOIN (select mi.Id,mi.OSTransformationPODetailId
                         ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, mma.StandardName ArticleName,mma.Id ArticleId,uom.UserName as MMUnit
                         ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                         ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -396,14 +396,14 @@ group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.To
                         ,0 PostingQuantity
                         ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                         ,0 TotalQty,  PostingQty =(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 ApprovedQty, 0 UnApprovedQty
-                        from dbo.JobWorkTransformationContractChild3 mi
+                        from dbo.OSTransformationPOInputMaterial mi
                         left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 						left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                         left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                         left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 		                        on iid.InventoryIssueId=II.Id group by II.JWContractId
-                        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                        ) kk on kk.JWContractId=mp.OSTransformationPOId
                         left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                         left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                         left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -415,14 +415,14 @@ group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.To
 
                         WHERE  IR.IsApproved=1
 						 AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    
-                         AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @") AND IR.Status='Posting'
+                         AND mi.OSTransformationPODetailId IN  (" + MPId + @") AND IR.Status='Posting'
                          AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'  
-                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId
+                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId
 						,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
 )cd on  cd.MaterialMasterId=mma.MaterialMasterId and 
 cd.ArticleId=mi.ArticleId
 
-Left join (select mi.Id,mi.JobWorkTransformationContractChildMasterId
+Left join (select mi.Id,mi.OSTransformationPODetailId
             ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
             ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
             ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -431,14 +431,14 @@ Left join (select mi.Id,mi.JobWorkTransformationContractChildMasterId
             ,0 PostingQuantity
             ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
             ,0TotalQty, 0 PostingQty,  ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
-            from dbo.JobWorkTransformationContractChild3 mi
+            from dbo.OSTransformationPOInputMaterial mi
             left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 			left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
             left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-            left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+            left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
             left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 		                        on iid.InventoryIssueId=II.Id group by II.JWContractId
-                        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                        ) kk on kk.JWContractId=mp.OSTransformationPOId
             left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
             left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
             left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -450,16 +450,16 @@ Left join (select mi.Id,mi.JobWorkTransformationContractChildMasterId
 
             WHERE  IR.IsApproved=1 and IR.Status is null
 			    AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    
-                AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @") 
+                AND mi.OSTransformationPODetailId IN  (" + MPId + @") 
                 AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'
-               group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId
+               group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId
 			   ,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
             ---End Of Approved
 )ef ON ef.MaterialMasterId=mma.MaterialMasterId and 
 ef.ArticleId=mi.ArticleId
 
 left JOIn(
-                        select mi.Id,mi.JobWorkTransformationContractChildMasterId
+                        select mi.Id,mi.OSTransformationPODetailId
                         ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
                         ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                         ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -468,14 +468,14 @@ left JOIn(
                         ,0 PostingQuantity
                         ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                         ,0 TotalQty, 0 PostingQty, 0 ApprovedQty,  UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
-                        from dbo.JobWorkTransformationContractChild3 mi
+                        from dbo.OSTransformationPOInputMaterial mi
                         left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 						left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                         left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                         left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 		                        on iid.InventoryIssueId=II.Id group by II.JWContractId
-                        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                        ) kk on kk.JWContractId=mp.OSTransformationPOId
                         left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                         left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                         left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -486,24 +486,24 @@ left JOIn(
 
 
                          WHERE  IR.IsApproved=0 --and IR.Status is null
-                         AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @") 
+                         AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND mi.OSTransformationPODetailId IN  (" + MPId + @") 
                          AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId
+                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId
 						,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
                         )gh on gh.MaterialMasterId=mma.MaterialMasterId and 
 						gh.ArticleId=mi.ArticleId
 
-where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
+where mi.OSTransformationPODetailId IN (" + MPId + @")
 group by uom.Id --,mi.Id
 , mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity
-,mi.JobWorkTransformationContractChildMasterId
+,mi.OSTransformationPODetailId
 ,uom.UserName,mm.Code ,mma.StandardName ,mma.Id
 ,ab.TotalQty,cd.PostingQty,ef.ApprovedQty,gh.UnApprovedQty--,IRD.BaseUoMFactor";
 
                 }
                 else
                 {
-                    //             sql = @"select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //             sql = @"select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //                     ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
                     //                     ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //                     ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -515,19 +515,19 @@ group by uom.Id --,mi.Id
                     //,0 PostingQuantity
                     //,0 ApprovedQty
                     //,0 UnApprovedQty,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
-                    //                      from dbo.JobWorkTransformationContractChild3 mi
+                    //                      from dbo.OSTransformationPOInputMaterial mi
                     //                      --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     // left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     // left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
                     // left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //                      left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //                      left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     // left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //                      left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
-                    //                      on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
-                    //                      where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
-                    // group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code  ";
+                    //                      on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.OSTransformationPOId
+                    //                      where mi.OSTransformationPODetailId IN (" + MPId + @")
+                    // group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code  ";
 
-                    //sql = @"select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //sql = @"select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //        ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
                     //        ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //        ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -540,21 +540,21 @@ group by uom.Id --,mi.Id
                     //        ,0 ApprovedQty
                     //        ,0 UnApprovedQty,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //        ,0 TotalQty, 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
-                    //        from dbo.JobWorkTransformationContractChild3 mi
+                    //        from dbo.OSTransformationPOInputMaterial mi
                     //        --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     //        left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     //        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
                     //        left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //        left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //        left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
-                    //        on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
-                    //        where mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @")
-                    //        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code  
+                    //        on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.OSTransformationPOId
+                    //        where mi.OSTransformationPODetailId IN  (" + MPId + @")
+                    //        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code  
 
                     //        UNION ALL
 
-                    //        select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //        select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //        ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
                     //        ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //        ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -569,18 +569,18 @@ group by uom.Id --,mi.Id
                     //        ,TotalQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
 
 
-                    //        from dbo.JobWorkTransformationContractChild3 mi
+                    //        from dbo.OSTransformationPOInputMaterial mi
                     //        --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     //        left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     //        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
                     //        left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //        left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //        left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //        left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
                     //          on iid.InventoryIssueId=II.Id group by II.JWContractId
-                    //        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                    //        ) kk on kk.JWContractId=mp.OSTransformationPOId
                     //        left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                     //        left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                     //        left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -591,15 +591,15 @@ group by uom.Id --,mi.Id
 
 
                     //        WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND
-                    //         mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @")
+                    //         mi.OSTransformationPODetailId IN  (" + MPId + @")
                     //        AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IR.IsApproved=0 AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'
-                    //        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+                    //        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
 
                     //        ---End Of Total
 
                     //        UNION ALL
 
-                    //        select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //        select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //        ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
                     //        ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //        ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -613,18 +613,18 @@ group by uom.Id --,mi.Id
                     //        ,0 UnApprovedQty,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //        ,0 TotalQty,  PostingQty =(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 ApprovedQty, 0 UnApprovedQty
 
-                    //        from dbo.JobWorkTransformationContractChild3 mi
+                    //        from dbo.OSTransformationPOInputMaterial mi
                     //        --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     //        left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     //        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
                     //        left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //        left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //        left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //        left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
                     //          on iid.InventoryIssueId=II.Id group by II.JWContractId
-                    //        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                    //        ) kk on kk.JWContractId=mp.OSTransformationPOId
                     //        left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                     //        left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                     //        left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -635,15 +635,15 @@ group by uom.Id --,mi.Id
 
 
                     //        WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)   AND
-                    //         mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @") AND IR.Status='Posting'
+                    //         mi.OSTransformationPODetailId IN  (" + MPId + @") AND IR.Status='Posting'
                     //        AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IR.IsApproved=0 AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'
-                    //        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+                    //        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
 
                     //        ---End Of Posting
 
                     //        UNION ALL
 
-                    //        select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //        select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //        ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
                     //        ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //        ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -657,18 +657,18 @@ group by uom.Id --,mi.Id
                     //        ,0 UnApprovedQty,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //        ,0 TotalQty, 0 PostingQty,  ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
 
-                    //        from dbo.JobWorkTransformationContractChild3 mi
+                    //        from dbo.OSTransformationPOInputMaterial mi
                     //        --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     //        left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     //        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
                     //        left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //        left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //        left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //        left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
                     //          on iid.InventoryIssueId=II.Id group by II.JWContractId
-                    //        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                    //        ) kk on kk.JWContractId=mp.OSTransformationPOId
                     //        left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                     //        left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                     //        left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -679,14 +679,14 @@ group by uom.Id --,mi.Id
 
 
                     //        WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND
-                    //         mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @") AND IR.IsApproved=1
+                    //         mi.OSTransformationPODetailId IN  (" + MPId + @") AND IR.IsApproved=1
                     //        AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IR.IsApproved=0 AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-                    //        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+                    //        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
                     //        ---End Of Approved
 
                     //        UNION ALL
 
-                    //        select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //        select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //        ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
                     //        ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //        ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -700,18 +700,18 @@ group by uom.Id --,mi.Id
                     //        ,0 UnApprovedQty,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //        ,0 TotalQty, 0 PostingQty, 0 ApprovedQty,  UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
 
-                    //        from dbo.JobWorkTransformationContractChild3 mi
+                    //        from dbo.OSTransformationPOInputMaterial mi
                     //        --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     //        left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     //        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
                     //        left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //        left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //        left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //        left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
                     //          on iid.InventoryIssueId=II.Id group by II.JWContractId
-                    //        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                    //        ) kk on kk.JWContractId=mp.OSTransformationPOId
                     //        left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                     //        left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                     //        left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -722,11 +722,11 @@ group by uom.Id --,mi.Id
 
 
                     //        WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND
-                    //         mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @") AND IR.IsApproved=0
+                    //         mi.OSTransformationPODetailId IN  (" + MPId + @") AND IR.IsApproved=0
                     //        AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IR.IsApproved=0 AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'
-                    //        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id";
+                    //        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id";
                     //sql = @"select --t.Id,
-                    //    t.JobWorkTransformationContractChildMasterId
+                    //    t.OSTransformationPODetailId
                     //    , t.JWOutputItem,t.JWInputItem
                     //    ,t.InputMaterialId,t.MaterialMasterId,t.MaterialMaster
                     //    ,t.InputMaterialCode,t.ArticleName
@@ -744,7 +744,7 @@ group by uom.Id --,mi.Id
                     //    ,t.TotalQty, t.PostingQty, t.ApprovedQty, t.UnApprovedQty
                     //    ,sum(t.PlannedQty) PlannedQty
                     //    from(
-                    //    select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //    select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //    ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
                     //    ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //    ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -758,22 +758,22 @@ group by uom.Id --,mi.Id
                     //    --,0 UnApprovedQty
                     //    ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //    ,0 TotalQty, 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
-                    //    from dbo.JobWorkTransformationContractChild3 mi
+                    //    from dbo.OSTransformationPOInputMaterial mi
                     //    --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     //    left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     //    left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
                     //    left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //    left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //    left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //    left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //    left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //    left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
-                    //    on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
-                    //    where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
-                    //    group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id  
+                    //    on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.OSTransformationPOId
+                    //    where mi.OSTransformationPODetailId IN (" + MPId + @")
+                    //    group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id  
 
                     //    UNION ALL
 
-                    //    select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //    select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //    ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
                     //    ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //    ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -787,18 +787,18 @@ group by uom.Id --,mi.Id
                     //    --,0 UnApprovedQty
                     //    ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //    ,TotalQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
-                    //    from dbo.JobWorkTransformationContractChild3 mi
+                    //    from dbo.OSTransformationPOInputMaterial mi
                     //    --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     //    left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     //    left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
                     //    left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //    left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //    left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //    left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //    left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //    left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
                     //      on iid.InventoryIssueId=II.Id group by II.JWContractId
-                    //    ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                    //    ) kk on kk.JWContractId=mp.OSTransformationPOId
                     //    left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                     //    left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                     //    left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -809,15 +809,15 @@ group by uom.Id --,mi.Id
 
 
                     //    WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND
-                    //     mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @")
+                    //     mi.OSTransformationPODetailId IN  (" + MPId + @")
                     //     AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IR.IsApproved=0 AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'  
-                    //    group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+                    //    group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
 
                     //    ---End Of Total
 
                     //    UNION ALL
 
-                    //    select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //    select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //    ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, mma.StandardName ArticleName,mma.Id ArticleId,uom.UserName as MMUnit
                     //    ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //    ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -831,18 +831,18 @@ group by uom.Id --,mi.Id
                     //    --,0 UnApprovedQty
                     //    ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //    ,0 TotalQty,  PostingQty =(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 ApprovedQty, 0 UnApprovedQty
-                    //    from dbo.JobWorkTransformationContractChild3 mi
+                    //    from dbo.OSTransformationPOInputMaterial mi
                     //    --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     //    left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     //    left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
                     //    left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //    left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //    left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //    left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //    left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //    left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
                     //      on iid.InventoryIssueId=II.Id group by II.JWContractId
-                    //    ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                    //    ) kk on kk.JWContractId=mp.OSTransformationPOId
                     //    left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                     //    left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                     //    left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -853,15 +853,15 @@ group by uom.Id --,mi.Id
 
 
                     //    WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND
-                    //     mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @")
+                    //     mi.OSTransformationPODetailId IN  (" + MPId + @")
                     //     AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IR.IsApproved=1 and IR.Status='Posting' AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-                    //    group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+                    //    group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
 
                     //    ---End Of Posting
 
                     //    UNION ALL
 
-                    //    select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //    select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //    ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
                     //    ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //    ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -875,18 +875,18 @@ group by uom.Id --,mi.Id
                     //    --,0 UnApprovedQty
                     //    ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //    ,0TotalQty, 0 PostingQty,  ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
-                    //    from dbo.JobWorkTransformationContractChild3 mi
+                    //    from dbo.OSTransformationPOInputMaterial mi
                     //    --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     //    left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     //    left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
                     //    left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //    left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //    left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //    left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //    left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //    left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
                     //      on iid.InventoryIssueId=II.Id group by II.JWContractId
-                    //    ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                    //    ) kk on kk.JWContractId=mp.OSTransformationPOId
                     //    left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                     //    left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                     //    left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -897,14 +897,14 @@ group by uom.Id --,mi.Id
 
 
                     //    WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND
-                    //     mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @")
+                    //     mi.OSTransformationPODetailId IN  (" + MPId + @")
                     //     AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IR.IsApproved=1 and IR.Status is null AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-                    //    group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+                    //    group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
                     //    ---End Of Approved
 
                     //    UNION ALL
 
-                    //    select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                    //    select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                     //    ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
                     //    ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                     //    ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -918,18 +918,18 @@ group by uom.Id --,mi.Id
                     //    --,0 UnApprovedQty
                     //    ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                     //    ,0 TotalQty, 0 PostingQty, 0 ApprovedQty,  UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
-                    //    from dbo.JobWorkTransformationContractChild3 mi
+                    //    from dbo.OSTransformationPOInputMaterial mi
                     //    --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
                     //    left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                     //    left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
                     //    left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                     //    left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                    //    left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                    //    left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                     //    left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     //    left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
                     //      on iid.InventoryIssueId=II.Id group by II.JWContractId
-                    //    ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                    //    ) kk on kk.JWContractId=mp.OSTransformationPOId
                     //    left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                     //    left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
                     //    left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -940,17 +940,17 @@ group by uom.Id --,mi.Id
 
 
                     //     WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND
-                    //     mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @")
+                    //     mi.OSTransformationPODetailId IN  (" + MPId + @")
                     //     AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"' AND IR.IsApproved=0 AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-                    //    group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+                    //    group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
                     //    )t
                     //     where t.ApprovedQty>0 OR t.PostingQty>0 OR t.UnApprovedQty>0 OR t.TotalQty>0
                     //    Group BY --t.Id,
-                    //    t.JobWorkTransformationContractChildMasterId, t.JWOutputItem,t.JWInputItem,t.InputMaterialId,t.MaterialMasterId,t.MaterialMaster,t.InputMaterialCode,t.ArticleName,t.ArticleId, t.MMUnit,t.RequiredQuantity,t.BalanceToIssue
+                    //    t.OSTransformationPODetailId, t.JWOutputItem,t.JWInputItem,t.InputMaterialId,t.MaterialMasterId,t.MaterialMaster,t.InputMaterialCode,t.ArticleName,t.ArticleId, t.MMUnit,t.RequiredQuantity,t.BalanceToIssue
                     //    ,t.TIRCTotalQty,t.IssuedQty,t.BalanceQty,t.PostingQuantity,t.TransactionUoMid,t.BaseUoMid, t.PostingQty, t.ApprovedQty, t.UnApprovedQty,t.TotalQty 
                     //    ";
 
-//                    sql = @"select mi.JobWorkTransformationContractChildMasterId JWTCMId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+//                    sql = @"select mi.OSTransformationPODetailId OSTransformationPOId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
 //,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
 //,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 //,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -959,22 +959,22 @@ group by uom.Id --,mi.Id
 //,0 PostingQuantity
 //,null MaterialStorageId,uom.Id as TransactionUoMId,uom.Id as BaseUoMId,uom.UserName as TransactionUoM
 //,Isnull(ab.TotalQty,0) TotalQty, Isnull(cd.PostingQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
-//from dbo.JobWorkTransformationContractChild3 mi
+//from dbo.OSTransformationPOInputMaterial mi
 //left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 //left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 //left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 //left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-//left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+//left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 //left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 //left join trn.InventoryMaterial IM ON IM.MaterialMasterId=jwii.MaterialMasterId and IM.ArticleId=mi.ArticleId
 //left join trn.InventoryReceiveDetail IRD ON IRD.InventoryMaterialId=IM.Id
-//left join(select iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId, iid.JWTCMId
+//left join(select iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId, iid.OSTransformationPOId
 //			FROM TRN.InventoryIssueDetail iid 
 //			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
-//			where iid.JWTCMId in (" + MPId + @")
-//			group by II.JWContractId,iid.InventoryMaterialId, iid.JWTCMId
-//			) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId and kk.InventoryMaterialId=Im.Id
-//Left join(select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+//			where iid.OSTransformationPOId in (" + MPId + @")
+//			group by II.JWContractId,iid.InventoryMaterialId, iid.OSTransformationPOId
+//			) kk on kk.JWContractId=mp.OSTransformationPOId and kk.InventoryMaterialId=Im.Id
+//Left join(select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
 //        ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
 //        ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 //        ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -983,17 +983,17 @@ group by uom.Id --,mi.Id
 //        ,0 PostingQuantity
 //        ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
 //        ,TotalQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
-//        from dbo.JobWorkTransformationContractChild3 mi
+//        from dbo.OSTransformationPOInputMaterial mi
 //        left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 //        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
 //        left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 //        left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-//        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+//        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 //        left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 //        left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 //		        on iid.InventoryIssueId=II.Id group by II.JWContractId
-//        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+//        ) kk on kk.JWContractId=mp.OSTransformationPOId
 //        left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
 //        left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
 //        left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -1004,13 +1004,13 @@ group by uom.Id --,mi.Id
 
 
 //        WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE) AND  IR.IsApproved=0
-//            AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @") 
+//            AND mi.OSTransformationPODetailId IN  (" + MPId + @") 
 //            AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'  
-//        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+//        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
 
 //		)ab on ab.MaterialMasterId=jwii.MaterialMasterId and ab.ArticleId=mi.ArticleId
 
-//Left JOIN (select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+//Left JOIN (select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
 //                        ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, mma.StandardName ArticleName,mma.Id ArticleId,uom.UserName as MMUnit
 //                        ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 //                        ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -1019,17 +1019,17 @@ group by uom.Id --,mi.Id
 //                        ,0 PostingQuantity
 //                        ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
 //                        ,0 TotalQty,  PostingQty =(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 ApprovedQty, 0 UnApprovedQty
-//                        from dbo.JobWorkTransformationContractChild3 mi
+//                        from dbo.OSTransformationPOInputMaterial mi
 //                        left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 //                        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
 //                        left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 //                        left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-//                        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+//                        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 //                        left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 //                        left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 //		                        on iid.InventoryIssueId=II.Id group by II.JWContractId
-//                        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+//                        ) kk on kk.JWContractId=mp.OSTransformationPOId
 //                        left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
 //                        left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
 //                        left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -1041,12 +1041,12 @@ group by uom.Id --,mi.Id
 
 //                        WHERE  IR.IsApproved=1
 //						 AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    
-//                         AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @") AND IR.Status='Posting'
+//                         AND mi.OSTransformationPODetailId IN  (" + MPId + @") AND IR.Status='Posting'
 //                         AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-//                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+//                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
 //)cd on  cd.MaterialMasterId=jwii.MaterialMasterId and cd.ArticleId=mi.ArticleId
 
-//Left join (select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+//Left join (select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
 //            ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
 //            ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 //            ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -1055,17 +1055,17 @@ group by uom.Id --,mi.Id
 //            ,0 PostingQuantity
 //            ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
 //            ,0TotalQty, 0 PostingQty,  ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
-//            from dbo.JobWorkTransformationContractChild3 mi
+//            from dbo.OSTransformationPOInputMaterial mi
 //            left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 //            left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
 //            left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 //            left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-//            left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+//            left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 //            left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 //            left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 //		            on iid.InventoryIssueId=II.Id group by II.JWContractId
-//            ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+//            ) kk on kk.JWContractId=mp.OSTransformationPOId
 //            left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
 //            left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
 //            left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -1077,14 +1077,14 @@ group by uom.Id --,mi.Id
 
 //            WHERE  IR.IsApproved=1 and IR.Status is null
 //			    AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    
-//                AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @")  
+//                AND mi.OSTransformationPODetailId IN  (" + MPId + @")  
 //                AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-//               group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+//               group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
 //            ---End Of Approved
 //)ef ON ef.MaterialMasterId=jwii.MaterialMasterId and ef.ArticleId=mi.ArticleId
 
 //left JOIn(
-//                        select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+//                        select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
 //                        ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
 //                        ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 //                        ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -1093,17 +1093,17 @@ group by uom.Id --,mi.Id
 //                        ,0 PostingQuantity
 //                        ,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
 //                        ,0 TotalQty, 0 PostingQty, 0 ApprovedQty,  UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
-//                        from dbo.JobWorkTransformationContractChild3 mi
+//                        from dbo.OSTransformationPOInputMaterial mi
 //                        left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 //                        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
 //                        left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 //                        left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-//                        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+//                        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 //                        left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 //                        left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 //		                        on iid.InventoryIssueId=II.Id group by II.JWContractId
-//                        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+//                        ) kk on kk.JWContractId=mp.OSTransformationPOId
 //                        left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
 //                        left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
 //                        left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -1114,17 +1114,17 @@ group by uom.Id --,mi.Id
 
 
 //                         WHERE  IR.IsApproved=0 and IR.Status is null
-//                         AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @")
+//                         AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND mi.OSTransformationPODetailId IN  (" + MPId + @")
 //                         AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-//                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
+//                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id   
 //                        )gh on gh.MaterialMasterId=jwii.MaterialMasterId and gh.ArticleId=mi.ArticleId
 
-//where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
-//group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.TotalQty,uom.Id ,mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id  
+//where mi.OSTransformationPODetailId IN (" + MPId + @")
+//group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.TotalQty,uom.Id ,mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id  
 // ";
 
 
-                    sql = @"select mi.JobWorkTransformationContractChildMasterId JWTCMId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
+                    sql = @"select mi.OSTransformationPODetailId OSTransformationPOId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
 ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 --,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -1142,30 +1142,30 @@ group by uom.Id --,mi.Id
 --,uom.UserName as TransactionUoM
 ,TransactionUoM=case when mi.ArticleId is not null then uom.UserName else uomm.UserName End
 ,Isnull(ab.TotalQty,0) TotalQty, Isnull(cd.PostingQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
-from dbo.JobWorkTransformationContractChild3 mi
+from dbo.OSTransformationPOInputMaterial mi
 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 left join scs.UnitOfMeasurement uomm on uomm.Id=jwii.UOMId
-left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
 left join trn.InventoryMaterial IM ON IM.MaterialMasterId=jwii.MaterialMasterId and IM.ArticleId=mi.ArticleId
 left join trn.InventoryReceiveDetail IRD ON IRD.InventoryMaterialId=IM.Id
-left join(select iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId, iid.JWTCMId
+left join(select iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId, iid.OSTransformationPOId
 			FROM TRN.InventoryIssueDetail iid 
 			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
-			where iid.JWTCMId in (" + MPId + @")
-			group by II.JWContractId,iid.InventoryMaterialId, iid.JWTCMId
-			) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId and kk.InventoryMaterialId=Im.Id
-left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.JWTCMId,iid.JWTCInputId
+			where iid.OSTransformationPOId in (" + MPId + @")
+			group by II.JWContractId,iid.InventoryMaterialId, iid.OSTransformationPOId
+			) kk on kk.JWContractId=mp.OSTransformationPOId and kk.InventoryMaterialId=Im.Id
+left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.OSTransformationPOId,iid.JWTCInputId
 			FROM TRN.InventoryIssueDetail iid 
 			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
-			where iid.JWTCMId in (" + MPId + @")
-			group by II.JWContractId, iid.JWTCMId,iid.JWTCInputId
-			) BB on BB.JWContractId=mp.JobWorkTransformationContractMasterId and BB.JWTCMID=mp.Id and BB.JWTCInputId=mi.JobWorkItemId
+			where iid.OSTransformationPOId in (" + MPId + @")
+			group by II.JWContractId, iid.OSTransformationPOId,iid.JWTCInputId
+			) BB on BB.JWContractId=mp.OSTransformationPOId and BB.OSTransformationPOId=mp.Id and BB.JWTCInputId=mi.JobWorkItemId
 
-Left join(select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
+Left join(select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
         ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
         ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
         --,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -1182,25 +1182,25 @@ Left join(select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserNa
 ,BaseUoMId=case when mi.ArticleId is not null then uom.Id else uomm.Id End
 --,uom.UserName as TransactionUoM
         ,TotalQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
-        from dbo.JobWorkTransformationContractChild3 mi
+        from dbo.OSTransformationPOInputMaterial mi
         left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
         left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
         left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
         left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
         left join scs.UnitOfMeasurement uomm on uomm.Id=jwii.UOMId
-        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
         left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
         left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 		        on iid.InventoryIssueId=II.Id group by II.JWContractId
-        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+        ) kk on kk.JWContractId=mp.OSTransformationPOId
 
-left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.JWTCMId,iid.JWTCInputId
+left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.OSTransformationPOId,iid.JWTCInputId
 			FROM TRN.InventoryIssueDetail iid 
 			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
-			where iid.JWTCMId in (" + MPId + @")
-			group by II.JWContractId, iid.JWTCMId,iid.JWTCInputId
-			) BB on BB.JWContractId=mp.JobWorkTransformationContractMasterId and BB.JWTCMID=mp.Id and BB.JWTCInputId=mi.JobWorkItemId
+			where iid.OSTransformationPOId in (" + MPId + @")
+			group by II.JWContractId, iid.OSTransformationPOId,iid.JWTCInputId
+			) BB on BB.JWContractId=mp.OSTransformationPOId and BB.OSTransformationPOId=mp.Id and BB.JWTCInputId=mi.JobWorkItemId
 
         left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
         left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
@@ -1212,14 +1212,14 @@ left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.JWTCM
 
 
         WHERE CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE) AND  IR.IsApproved=0
-            AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @") 
+            AND mi.OSTransformationPODetailId IN  (" + MPId + @") 
             AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"'  
-        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName
+        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId,jwi.UserName
                     ,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty
 
 		)ab on ab.MaterialMasterId=jwii.MaterialMasterId and ab.ArticleId=mi.ArticleId
 
-Left JOIN (select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
+Left JOIN (select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
                         ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, mma.StandardName ArticleName,mma.Id ArticleId,uom.UserName as MMUnit
                         ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                         --,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -1235,25 +1235,25 @@ Left JOIN (select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserN
 --,uom.Id as BaseUoMId
 ,BaseUoMId=case when mi.ArticleId is not null then uom.Id else uomm.Id End
                         ,0 TotalQty,  PostingQty =(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 ApprovedQty, 0 UnApprovedQty
-                        from dbo.JobWorkTransformationContractChild3 mi
+                        from dbo.OSTransformationPOInputMaterial mi
                         left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                         left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
                         left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                         left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
                         left join scs.UnitOfMeasurement uomm on uomm.Id=jwii.UOMId
-                        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                         left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                         left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 		                        on iid.InventoryIssueId=II.Id group by II.JWContractId
-                        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                        ) kk on kk.JWContractId=mp.OSTransformationPOId
 
-left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.JWTCMId,iid.JWTCInputId
+left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.OSTransformationPOId,iid.JWTCInputId
 			FROM TRN.InventoryIssueDetail iid 
 			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
-			where iid.JWTCMId in (" + MPId + @")
-			group by II.JWContractId, iid.JWTCMId,iid.JWTCInputId
-			) BB on BB.JWContractId=mp.JobWorkTransformationContractMasterId and BB.JWTCMID=mp.Id and BB.JWTCInputId=mi.JobWorkItemId
+			where iid.OSTransformationPOId in (" + MPId + @")
+			group by II.JWContractId, iid.OSTransformationPOId,iid.JWTCInputId
+			) BB on BB.JWContractId=mp.OSTransformationPOId and BB.OSTransformationPOId=mp.Id and BB.JWTCInputId=mi.JobWorkItemId
 
                         left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                         left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
@@ -1266,13 +1266,13 @@ left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.JWTCM
 
                         WHERE  IR.IsApproved=1
 						 AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    
-                         AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @") AND IR.Status='Posting'
+                         AND mi.OSTransformationPODetailId IN  (" + MPId + @") AND IR.Status='Posting'
                          AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId
+                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId
 ,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty
 )cd on  cd.MaterialMasterId=jwii.MaterialMasterId and cd.ArticleId=mi.ArticleId
 
-Left join (select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
+Left join (select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
             ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
             ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
             --,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -1288,24 +1288,24 @@ Left join (select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserN
 --,uom.Id as BaseUoMId
 ,BaseUoMId=case when mi.ArticleId is not null then uom.Id else uomm.Id End
             ,0TotalQty, 0 PostingQty,  ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
-            from dbo.JobWorkTransformationContractChild3 mi
+            from dbo.OSTransformationPOInputMaterial mi
             left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
             left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
             left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
             left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 left join scs.UnitOfMeasurement uomm on uomm.Id=jwii.UOMId
-            left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+            left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
             left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
             left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 		            on iid.InventoryIssueId=II.Id group by II.JWContractId
-            ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
-left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.JWTCMId,iid.JWTCInputId
+            ) kk on kk.JWContractId=mp.OSTransformationPOId
+left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.OSTransformationPOId,iid.JWTCInputId
 			FROM TRN.InventoryIssueDetail iid 
 			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
-			where iid.JWTCMId in (" + MPId + @")
-			group by II.JWContractId, iid.JWTCMId,iid.JWTCInputId
-			) BB on BB.JWContractId=mp.JobWorkTransformationContractMasterId and BB.JWTCMID=mp.Id and BB.JWTCInputId=mi.JobWorkItemId
+			where iid.OSTransformationPOId in (" + MPId + @")
+			group by II.JWContractId, iid.OSTransformationPOId,iid.JWTCInputId
+			) BB on BB.JWContractId=mp.OSTransformationPOId and BB.OSTransformationPOId=mp.Id and BB.JWTCInputId=mi.JobWorkItemId
 
             left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
             left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
@@ -1318,15 +1318,15 @@ left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.JWTCM
 
             WHERE  IR.IsApproved=1 and IR.Status is null
 			    AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    
-                AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @")  
+                AND mi.OSTransformationPODetailId IN  (" + MPId + @")  
                 AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-               group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId
+               group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId
 ,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty
             ---End Of Approved
 )ef ON ef.MaterialMasterId=jwii.MaterialMasterId and ef.ArticleId=mi.ArticleId
 
 left JOIn(
-                        select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
+                        select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
                         ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
                         ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                         --,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
@@ -1342,25 +1342,25 @@ left JOIn(
 --,uom.Id as BaseUoMId
 ,BaseUoMId=case when mi.ArticleId is not null then uom.Id else uomm.Id End
                         ,0 TotalQty, 0 PostingQty, 0 ApprovedQty,  UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
-                        from dbo.JobWorkTransformationContractChild3 mi
+                        from dbo.OSTransformationPOInputMaterial mi
                         left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
                         left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 
                         left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                         left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
                         left join scs.UnitOfMeasurement uomm on uomm.Id=jwii.UOMId
-                        left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                        left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
                         left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                         left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
 		                        on iid.InventoryIssueId=II.Id group by II.JWContractId
-                        ) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
+                        ) kk on kk.JWContractId=mp.OSTransformationPOId
 
-left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.JWTCMId,iid.JWTCInputId
+left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.OSTransformationPOId,iid.JWTCInputId
 			FROM TRN.InventoryIssueDetail iid 
 			left join TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
-			where iid.JWTCMId in (" + MPId + @")
-			group by II.JWContractId, iid.JWTCMId,iid.JWTCInputId
-			) BB on BB.JWContractId=mp.JobWorkTransformationContractMasterId and BB.JWTCMID=mp.Id and BB.JWTCInputId=mi.JobWorkItemId
+			where iid.OSTransformationPOId in (" + MPId + @")
+			group by II.JWContractId, iid.OSTransformationPOId,iid.JWTCInputId
+			) BB on BB.JWContractId=mp.OSTransformationPOId and BB.OSTransformationPOId=mp.Id and BB.JWTCInputId=mi.JobWorkItemId
 
                         left JOIN [TRN].[InventoryMaterial] AS IM ON IM.MaterialMasterId=mm.Id AND IM.ArticleId=mi.ArticleId
                         left join [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
@@ -1372,15 +1372,15 @@ left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.JWTCM
 
 
                          WHERE  IR.IsApproved=0 and IR.Status is null
-                         AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND mi.JobWorkTransformationContractChildMasterId IN  (" + MPId + @")
+                         AND CAST(IR.GRNDate AS DATE)<=CAST('" + IssueDate + @"' AS DATE)    AND mi.OSTransformationPODetailId IN  (" + MPId + @")
                          AND IRD.MaterialStorageId='" + MaterialStorageIdInventory + @"'  AND IM.CompanyGroupId='" + identity.CompanyGroupId + @"' AND IM.CompanyId='" + identity.CompanyId + @"' AND IM.PlantId='" + identity.PlantId + @"' 
-                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId
+                        group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.OSTransformationPODetailId
 ,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty
                         )gh on gh.MaterialMasterId=jwii.MaterialMasterId and gh.ArticleId=mi.ArticleId
 
-where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
+where mi.OSTransformationPODetailId IN (" + MPId + @")
 group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.TotalQty,uom.Id ,mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity
-,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id
+,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id
 ,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty ";
                 }
 
@@ -1399,17 +1399,17 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
         {
             try
             {
-                string sql = @"select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                string sql = @"select mi.Id,mi.OSTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
                             ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
                             ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
 							 ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(KK.TotalIssuedQty,'0'))
                             ,Sum(KK.TotalIssuedQty) as TIRCTotalQty
 							,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
-                             from dbo.JobWorkTransformationContractChild3 mi
+                             from dbo.OSTransformationPOInputMaterial mi
 							 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 							 left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 							 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                             left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+                             left join dbo.OSTransformationPODetail mp on mp.Id=mi.OSTransformationPODetailId
 							 left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                              left join (select Sum(IID.TransactionQty) as TotalIssuedQty,IID.InventoryMaterialId, IM.MaterialMasterId,IM.ArticleId from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
                                         left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
@@ -1418,9 +1418,9 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 										where II.JWContractId='"+ ContractId + @"'
 										group by IID.InventoryMaterialId,IM.MaterialMasterId,IM.ArticleId)
 										KK on KK.MaterialMasterId=mm.Id
-							 where mp.JobWorkTransformationContractMasterId='"+ ContractId + @"' and 
+							 where mp.OSTransformationPOId='"+ ContractId + @"' and 
 							 KK.MaterialMasterId='"+ MaterialId + @"' and KK.ArticleId='"+ ArticleId + @"' and mi.Id='"+ MaterialInputId + @"'
-							 group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,KK.TotalIssuedQty,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code   ";
+							 group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,KK.TotalIssuedQty,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code   ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1468,9 +1468,9 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string sql = @"select MS.Id as Value, JL.LocationName as Text, MS.UserName as StorageLocation 
                                from HKP.JobWorkLocation JL
-                               left join dbo.JobWorkTransformationContractChild mp on mp.MaterialLocationId=JL.Id
+                               left join dbo.OSTransformationPODetail mp on mp.MaterialLocationId=JL.Id
 							   left join HKP.MaterialStorage MS on MS.Id=JL.StoreLocationId
-                               where mp.JobWorkTransformationContractMasterId='" + TId + @"' order by JL.LocationName ";
+                               where mp.OSTransformationPOId='" + TId + @"' order by JL.LocationName ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1518,7 +1518,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
         {
             try
             {
-                string sql = @"select II.Id,IID.JWTCMID,IID.InventoryMaterialId,IM.MaterialMasterId,mm.UserName as MaterialName, IM.ArticleId,mma.StandardName as Article,Tuom.UserName as TransactionUoM
+                string sql = @"select II.Id,IID.OSTransformationPOId,IID.InventoryMaterialId,IM.MaterialMasterId,mm.UserName as MaterialName, IM.ArticleId,mma.StandardName as Article,Tuom.UserName as TransactionUoM
                                 ,IID.TransactionUoMId,IID.TransactionQty,IM.FirstCharacteristicsId
                                 ,FC.UserName AS FirstChaName,IM.FirstCharacteristicsValueId,FCV.UserName AS SKU1
                                 ,IM.SecondCharacteristicsId,SC.UserName AS SecondChaName,IM.SecondCharacteristicsValueId,SCV.UserName AS SKU2
@@ -1667,15 +1667,15 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 foreach (var empitem in SelectedQuantityData)
                 {
                     JWItemId += ",'" + empitem.JWInputItemId + "' ";
-                    OtMatId += ",'" + empitem.JWTCMId + "' ";
+                    OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
 
                 }
-                con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTCMID IN ( " + OtMatId + ") and JWTCInputId IN ("+ JWItemId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where OSTransformationPOId IN ( " + OtMatId + ") and JWTCInputId IN ("+ JWItemId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
 
                 foreach (var item in SelectedQuantityData)
                 {
 
-                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
+                    ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPOId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
 
                     if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                     {
@@ -1691,7 +1691,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                         dr["TransactionUoMId"] = item.TransactionUoMId;
                         dr["BaseUOMId"] = item.BaseUoMId;
                         dr["CostCenterId"] = item.CostCenterId;
-                        dr["JWTCMID"] = item.JWTCMId;
+                        dr["OSTransformationPOId"] = item.OSTransformationPOId;
                         dr["JWTCInputId"] = item.JWInputItemId;
 
                         dr["AddedBy"] = identity.Name;
@@ -1706,7 +1706,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                     }
                     else
                     {
-                        ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
+                        ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPOId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
 
                         if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                         {
@@ -1718,7 +1718,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                             dr["TransactionUoMId"] = item.TransactionUoMId;
                             dr["BaseUOMId"] = item.BaseUoMId;
                             dr["CostCenterId"] = item.CostCenterId;
-                            dr["JWTCMID"] = item.JWTCMId;
+                            dr["OSTransformationPOId"] = item.OSTransformationPOId;
                             dr["JWTCInputId"] = item.JWInputItemId;
 
                             dr["AddedBy"] = identity.Name;
@@ -1740,7 +1740,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                             dr["TransactionUoMId"] = item.TransactionUoMId;
                             dr["BaseUOMId"] = item.BaseUoMId;
                             dr["CostCenterId"] = item.CostCenterId;
-                            dr["JWTCMID"] = item.JWTCMId;
+                            dr["OSTransformationPOId"] = item.OSTransformationPOId;
                             dr["JWTCInputId"] = item.JWInputItemId;
 
                             dr["UpdatedBy"] = identity.Name;
@@ -2003,7 +2003,7 @@ public class JobWorkTransformationIssueReturnChild
 
     public string Id { get; set; }
     public string CostCenterId { get; set; }
-    public string JWTCMId { get; set; }
+    public string OSTransformationPOId { get; set; }
     public string JWInputItem { get; set; }
     public string JWInputItemId { get; set; }
     public string TransactionUoM { get; set; }

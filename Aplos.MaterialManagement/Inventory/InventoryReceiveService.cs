@@ -12885,7 +12885,7 @@ ORDER BY tg.[Sequence]";
 							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
 							)PO ON PO.GRNId = IR.Id
-						 where  IR.PlantId='" + identity.PlantId + "'  AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW' AND IR.GRNType<>'InventorySalesReturn'
+						 where  IR.PlantId='" + identity.PlantId + "'  AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 
 							UNION ALL
 
@@ -13097,7 +13097,7 @@ ORDER BY tg.[Sequence]";
 			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 			--AND IRT.InventoryServiceId is not null
-			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW' AND IR.GRNType<>'InventorySalesReturn'
+			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 			)x
 			Order By X.GRNEntryDate ASC";
 
@@ -22053,7 +22053,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYJW' AND (IR.AuthorizedByStatus='Hold' OR IR.AuthorizedByStatus='Reject') AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 order by IR.GRNDate ASC";
+                        WHERE IR.GRNType='GRNBYPO' AND (IR.AuthorizedByStatus='Hold' OR IR.AuthorizedByStatus='Reject') AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 order by IR.GRNDate ASC";
 				}
 
 				else if (GRNbyPOApprovedStatus == "Approved")
@@ -22185,7 +22185,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYJW'  AND (IR.AuthorizedByStatus IS Null  AND IR.CheckedByStatus IS Null)
+                        WHERE IR.GRNType='GRNBYPO'  AND (IR.AuthorizedByStatus IS Null  AND IR.CheckedByStatus IS Null)
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
                         AND IR.OpeningBalanceId IS NULL 
@@ -22318,7 +22318,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYJW' AND (IR.CheckedByStatus Is Null  AND IR.AuthorizedByStatus='Approved')
+                        WHERE IR.GRNType='GRNBYPO' AND (IR.CheckedByStatus Is Null  AND IR.AuthorizedByStatus='Approved')
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
                         AND IR.OpeningBalanceId IS NULL 
@@ -22451,7 +22451,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYJW' AND (IR.CheckedByStatus ='Checked'  AND IR.AuthorizedByStatus='Approved') 
+                        WHERE IR.GRNType='GRNBYPO' AND (IR.CheckedByStatus ='Checked'  AND IR.AuthorizedByStatus='Approved') 
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
                         AND IR.OpeningBalanceId IS NULL 
@@ -22593,7 +22593,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYJW' AND IR.Status='Posting'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 1 order by IR.GRNDate ASC";
+                        WHERE IR.GRNType='GRNBYPO' AND IR.Status='Posting'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 1 order by IR.GRNDate ASC";
 				}
 
 
@@ -22994,7 +22994,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                          JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
 						 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
 						 left join dbo.Contract Con On Con.Id=IR.ContractId
-						 left join dbo.JWTransformationPurchaseOrder tcon on tcon.Id=IR.JWContractId
+						 left join dbo.OSTransformationPO tcon on tcon.Id=IR.JWContractId
 						 left join ORG.Entity Ety on Ety.Id=tcon.EntityId
 					     left join HKP.Party p on p.Id=tcon.PartyId
 						 left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId
@@ -23957,7 +23957,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						 LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 						 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
 						 left join dbo.Contract Con On Con.Id=IR.ContractId
-						 left join dbo.JWTransformationPurchaseOrder tcon on tcon.Id=IR.JWContractId
+						 left join dbo.OSTransformationPO tcon on tcon.Id=IR.JWContractId
 						 left join ORG.Entity Ety on Ety.Id=tcon.EntityId
 					     left join HKP.Party p on p.Id=tcon.PartyId
 						 left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId
