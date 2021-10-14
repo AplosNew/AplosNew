@@ -836,7 +836,7 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IVS.MaterialStorageId
 					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
 					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
-                    WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')='Posting'  
+                    WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')!='Posting'  
 					) AS TEMP WHERE " + strkey + " order by SalesDate DESC";
 				return _sqlRepository.GetDataCollection(sql);
 			}
