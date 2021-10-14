@@ -502,7 +502,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	}
 	$scope.AmountCalculation = function () {
 		//debugger;
-		$scope.detailModel.TotalAmount = (parseFloat($scope.detailModel.TransactionQty) * ($scope.detailModel.SalesRate)).toFixed(2);
+		$scope.detailModel.TotalAmount = (parseFloat($scope.detailModel.TransactionQty) * ($scope.detailModel.SalesRate)).toFixed(4);
 		$scope.calculateTaxCategory();
 	}
 	$scope.RateCalculation = function () {
@@ -1346,7 +1346,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	function ClearFields() {
 		$scope.Action = "Save";
 		$scope.product = {};
-		$scope.productNew = { FixedAssetOrInventory: 'Inventory', PODepended: false, AlongwithInvoice: false, IssueType: 'Revenue', InvoicingPartyPlantId: $scope.productNew.InvoicingPartyPlantId };
+		$scope.productNew = { FixedAssetOrInventory: 'Inventory', PODepended: false, AlongwithInvoice: false, IssueType: 'Revenue', InvoicingPartyPlantId: $scope.productNew.InvoicingPartyPlantId, BaseCurrencyId: $scope.baseCurrencyId };
 		//$scope.productNew.InvoicingPartyPlantId=$scope.productNew.InvoicingPartyPlantId;
 		$scope.detailModel = {};
 		$scope.clearCharNames();
