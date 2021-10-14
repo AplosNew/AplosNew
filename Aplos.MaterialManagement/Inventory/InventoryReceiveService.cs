@@ -20205,7 +20205,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 ,TC.UserName ThirdChar
                 ,ISD.Qty POTransactionQty
                 ,ISD.TotalAmount AS TotalAmount
-                ,(ISD.TotalAmount/ISD.Qty) TransactionRate
+                ,IRD.SalesRate TransactionRate
                 ,null BaseAmount
                 ,null AS BaseTaxAmount
                 ,TaxAmount = (
@@ -20256,7 +20256,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 							--from  TRN.InventorySalesHistory 
 							--group by InventorySalesDetailId
 							--)  ISH ON ISH.InventorySalesDetailId=IRD.Id
-				LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IRD.Id
+				LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 4) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 4)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IRD.Id
 
                 LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
                 INNER JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
@@ -20412,7 +20412,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 LEFT JOIN HKP.CharacteristicsValue AS FCV ON IOM.FirstCharacteristicsValueId = FCV.Id
                 LEFT JOIN HKP.CharacteristicsValue AS SCV ON IOM.SecondCharacteristicsValueId = SCV.Id
                 LEFT JOIN HKP.CharacteristicsValue AS TCV ON IOM.ThirdCharacteristicsValueId = TCV.Id
-                LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id=IR.CurrencyId
+                LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id=Cmp.BaseCurrencyId
                 Left JOIN [ORG].[Entity] E On E.id=IR.EntityId
                 LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
                 LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.ApprovedBy
@@ -20637,10 +20637,10 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
 				//TROW.Cells[colHSNNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
 				TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
-				TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
-				TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+				TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
+				TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
 				TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalAmount"].ToString()).ToString("F2"));
+				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalAmount"].ToString()).ToString("#,##0.00"));
 
 				totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalAmount"].ToString());
 
@@ -20688,7 +20688,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						value += clsStdLib.dbl(item.Text);
 					}
 				}
-				_TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.000")).ApplyCharacterFormat(FontBold);
+				_TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
 
 			}
 			#endregion Total
