@@ -1401,8 +1401,16 @@ namespace Aplos.Areas.Products.Controllers
 
 			return null;
 		}
+		[Authorize, HttpGet]
+		public ActionResult inventoryPreSalesReportPrint(string grnId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-		
+			_inventoryReveiveService.InventoryPreSalesReportPrint(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+
+			return null;
+		}
+
 		[Authorize, HttpGet]
 		public JsonResult GetInventoryMaterialReceivableList(GridParameter parameters, string inveReveiveId)
 		{

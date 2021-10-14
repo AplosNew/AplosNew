@@ -167,6 +167,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                 dvMonthlyAttnSumm = new DataView();
                 dvMonthlyAttnSumm.Table = dsMonthlyAttnSumm.Tables[0];
 
+                //GetLeaveData(empParameters,objm, out DataSet LeaveData);
+
+
                 string _FLAG = "DAYSTATUS";
 
                 if (DayStatus == "DAYSTATUS")
@@ -1360,6 +1363,28 @@ namespace Library.HumanResource.NewAttendanceProcess
                 objCon = null;
             }
         }//End Function
+
+        public void GetLeaveData(Dictionary<string, string> empParameters, ParaMontlyAttendance objm, out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {  
+                var sql = @"select p.EmpSystemID,p.LeaveStatus,Count(p.LeaveStatus) as Count
+                from LeaveType l join AttdnProcessData p  
+                on l.Id=p.LTSystemID left join EmployeeInformation e on e.SystemId=p.EmpSystemID
+                where isnull(DayStatus,'')!='' and isnull(LeaveStatus,'')!='' and
+                E.SystemId IN("+empParameters["EmpSystemId"] + ") and (E.DOS IS NULL  OR E.DOS >= '"+objm.FDate+@"') 
+				AND E.DOJ <= '"+objm.TDate+@"' and 
+                WorkDate between '"+objm.FDate+@"' and '"+objm.TDate+@"'
+                group by p.EmpSystemID,p.LeaveStatus";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
 
     }

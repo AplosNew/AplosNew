@@ -7999,14 +7999,14 @@ namespace Library.MaterialManagement.Inventory
                                     BaseQty = issue.BaseQty,
                                     BaseUOMId = issue.BaseUOMId,
                                     TransactionUoMId = issue.TransactionUoMId,
-                                    AvgRate = issue.AvgRate,
-                                    AvgAmount = issue.TransactionQty * issue.AvgRate,
+                                    AvgRate = Math.Round(issue.AvgRate,4),
+                                    AvgAmount = Math.Round(issue.TransactionQty * issue.AvgRate,2),
                                     Policy = receiveDetailRow.Policy,
                                     //PolicyAmount = issue.TransactionQty*(detailtrnAmount / totalGRNQty),
                                     //PolicyRate = detailtrnAmount / totalGRNQty,
 
                                     PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
-                                    PolicyAmount = detailtrnAmount,
+                                    PolicyAmount = Math.Round(detailtrnAmount,2),
 
                                     BudgetMasterId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
                                     ActivityId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
@@ -8394,10 +8394,10 @@ namespace Library.MaterialManagement.Inventory
                                                                                 //PolicyAmount = detailtrnAmount,
                                                                                 //PolicyRate = detailtrnAmount / totalGRNQty,
                                     PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
-                                    PolicyAmount = detailtrnAmount,//Math.Round((detailtrnAmount / totalGRNQty) * stockList.Sum(r => r.RequisitionQty), 2),
+                                    PolicyAmount = Math.Round(detailtrnAmount,2),//Math.Round((detailtrnAmount / totalGRNQty) * stockList.Sum(r => r.RequisitionQty), 2),
                                     BaseQty = Math.Round(totalGRNQty, 2),//stockList.Sum(r => r.RequisitionQty),
                                     AvgRate = Math.Round(invMaterial.AvgRate, 4),
-                                    AvgAmount = totalGRNQty * invMaterial.AvgRate,
+                                    AvgAmount = Math.Round(totalGRNQty * invMaterial.AvgRate,2),
 
 
                                     BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
