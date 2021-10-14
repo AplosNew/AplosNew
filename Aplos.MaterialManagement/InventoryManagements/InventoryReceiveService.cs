@@ -17869,7 +17869,8 @@ namespace Library.MaterialManagement.InventoryManagements
 									,IRD.TransactionUoMId
 									,TUoM.UserName AS TransactionUoM
 									,IRD.MaterialTranRate AS TransactionRate
-									,CU.Code AS CurrencyName
+									--	,CU.Code AS CurrencyName
+									,CUR.Code as CurrencyName
 									,IR.ToCurrencyRate
 									,(IRD.TransactionQty * IRD.MaterialTranRate) AS TrnAmount
 									,IRD.TotalMaterialBooksCurrencyAmount AS BaseAmount
@@ -17928,7 +17929,8 @@ namespace Library.MaterialManagement.InventoryManagements
 									) AS Pre ON pre.PODetailsId = IRD.PODetailsId
 								LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
 								LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-								LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+								--	LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+								LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id=IR.BaseCurrencyId
 								LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.ID = PID.RequisitionDetailId
                                 Left Join SCS.Country C ON C.Id=IM.CountryId
 								 LEFT JOIN [TRN].[MasterOrderItem] MOI ON IRD.MasterOrderItemId=MOI.Id
@@ -17963,7 +17965,8 @@ namespace Library.MaterialManagement.InventoryManagements
 									,IRD.TransactionUoMId
 									,TUoM.UserName AS TransactionUoM
 									,IRD.MaterialTranRate AS TransactionRate
-									,CU.Code AS CurrencyName
+									--	,CU.Code AS CurrencyName
+									,CUR.Code as CurrencyName
 									,IR.ToCurrencyRate
 									,(IRD.TransactionQty * IRD.MaterialTranRate) AS TrnAmount
 									,IRD.TotalMaterialBooksCurrencyAmount AS BaseAmount
@@ -18019,7 +18022,8 @@ namespace Library.MaterialManagement.InventoryManagements
 									) AS Pre ON pre.PODetailsId = IRD.PODetailsId
 								LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
 								LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id
-								LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+								--	LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+								LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id=IR.BaseCurrencyId
 								LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.ID = PID.RequisitionDetailId
                                 Left Join SCS.Country C ON C.Id=IM.CountryId
 								 LEFT JOIN [TRN].[MasterOrderItem] MOI ON IRD.MasterOrderItemId=MOI.Id
