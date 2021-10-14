@@ -3845,7 +3845,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["NonPayDayValue"] = DBNull.Value;
                                 dr["WorkingDayValue"] = DBNull.Value;
                                 dr["ActualWorkingDayValue"] = DBNull.Value;
-                               
+
                                 #endregion
 
                                 dr["ProcessFinalDayStatus"] = Result;
@@ -4110,10 +4110,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         var sqly = @"select * from PlantWiseHRMSSetting where PlantID='" + PlantValue + "'";
                         objCon.OpenDataSetThroughAdapter(sqly, out DataSet OTMode, false, false, "", "1");
-                       
+
                         // Settings of Modes from PlantWiseHRMSSetting
                         string OTModeValue = clsWebLib.RetValidLen(OTMode.Tables[0].Rows[0][@"ResultendOT"]).ToString();
-                       
+
                         // 0 means Punched Based, 1 means Manual, 2 means Mixed
 
                         for (int i = 0; i < PrevOTCalculate.Tables[0].Rows.Count; i++)
@@ -4144,7 +4144,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 }
                                 else if (OTModeValue == "1")
-                                { 
+                                {
                                     // Manual Mode
                                     if (PastManualOT != "")
                                     {
@@ -4278,7 +4278,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     }
                     #endregion
-                   
+
                     #region DayLimitProcess 
 
                     #region DayType Updation
@@ -4374,7 +4374,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string WeekOffOT = FixedOTSetting.Tables[0].Rows[i][@"WeekOffOT"].ToString();
                             string NormalDayOT = FixedOTSetting.Tables[0].Rows[i][@"NormalDayOT"].ToString();
                             string HolidayOT = FixedOTSetting.Tables[0].Rows[i][@"HolidayOT"].ToString();
-                            
+
                             // Checking What DayType it is And Updating the Same Value against his Daytype
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
@@ -4471,7 +4471,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     SlabOTSource(PreviousDay, out SlabOT, PlantValue);
                     if (SlabOT.Tables[0].Rows.Count > 0)
                     {
-                       //  OT Slab Setting against the Plant from OTSlabDefineGeneral
+                        //  OT Slab Setting against the Plant from OTSlabDefineGeneral
                         var WkDate = SlabOT.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
                         var PlantId = SlabOT.Tables[0].Rows[0][@"PlantId"].ToString();
@@ -4521,7 +4521,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         for (int i = 0; i < CreditLimitData.Tables[0].Rows.Count; i++)
                         {
-                            var EmpId = DaytypeLimitOT.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            var EmpId = CreditLimitData.Tables[0].Rows[i][@"EmpSystemID"].ToString();
                             dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemId='" + EmpId + "' ";
 
                             if (dsRef.Tables[0].DefaultView.Count > 0)
