@@ -6662,7 +6662,7 @@ ORDER BY tg.[Sequence]";
 			int colRowId = COL; COL++;
 			//wTable.Rows[ROW].Cells[colRowId].Width = 50;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("ProductionOrderId");
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PrO");
 			range.ApplyCharacterFormat(FontBold);
 			int colProductionOrderId = COL; COL++;
 			wTable.Rows[ROW].Cells[colProductionOrderId].Width = 80;
@@ -6718,36 +6718,38 @@ ORDER BY tg.[Sequence]";
 			//int colGRNMaterialDetail = COL; COL++;
 			//wTable.Rows[ROW].Cells[colGRNMaterialDetail].Width = 40;
 
+			
+			IWParagraphStyle myStyleRightAlignDummy = document.AddParagraphStyle("StyleRightAlign01");
+			//Sets the formatting of the style
+			myStyleRightAlignDummy.CharacterFormat.FontSize = 8f;
+			myStyleRightAlignDummy.CharacterFormat.TextColor = Color.Black;
+			myStyleRightAlignDummy.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
-			range.ApplyCharacterFormat(FontBold);
-			//wTable.Rows[ROW].Cells[COL].align = 40;			
-			//wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty") = HorizontalAlignment.Right;
+            range.ApplyCharacterFormat(FontBold);
 			int colQty = COL; COL++;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
-			range.ApplyCharacterFormat(FontBold);
-			int colLotNo = COL; COL++;
-
-
+            range.ApplyCharacterFormat(FontBold);
+            int colLotNo = COL; COL++;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
-			range.ApplyCharacterFormat(FontBold);
-			int colRate = COL; //COL++;
-			wTable.Rows[ROW].Cells[colRate].Width = 55;
+            range.ApplyCharacterFormat(FontBold);
+            int colRate = COL; //COL++;
+            wTable.Rows[ROW].Cells[colRate].Width = 55;
 
 
-			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
-			//range.ApplyCharacterFormat(FontBold);
-			//int colUoM = COL; COL++;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colUoM = COL; COL++;
 
-			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
-			//range.ApplyCharacterFormat(FontBold);
-			//int colQualityStatus = COL; COL++;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colQualityStatus = COL; COL++;
 
-			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GrossAmount");
-			//range.ApplyCharacterFormat(FontBold);
-			//int colGrossAmount = COL; COL++;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GrossAmount");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colGrossAmount = COL; COL++;
 
 
             //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("DiscountAmount");
@@ -6978,6 +6980,18 @@ ORDER BY tg.[Sequence]";
 				{
 					foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
 					{
+						if(CE==colQty)
+							item.ApplyStyle("StyleRightAlign01");
+                        else if (CE==colRate)
+                        {
+							item.ApplyStyle("StyleRightAlign01");
+						}
+
+						else if (CE==colTotalTaxableAmount)
+						{
+							item.ApplyStyle("StyleRightAlign01");
+						}
+						else
 						item.ApplyStyle("MyStyle");
 					}
 				}
