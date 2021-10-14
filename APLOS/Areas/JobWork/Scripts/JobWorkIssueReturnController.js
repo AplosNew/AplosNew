@@ -463,7 +463,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			dataSource: data,
 			/*columns: ["MaterialGroupName", "MaterialName", "Article", "SKU1", "SKU2", "SKU3", "MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount", "MaterialFor"]*/
 
-			columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoMId", "TransactionUoM"]
+			columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoMId", "TransactionUoM", "BaseCurrency", "BaseRate", "Amount"]
 		});
 		e.detailsElement.find(".tabcontrol").ejTab();
 
@@ -2419,7 +2419,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		//var data = gridObj.getSelectedRecords()[0];
 
 		location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
-		$scope.getalldata();
+	//	$scope.getalldata();
 	};
 
 	//#region start Reports

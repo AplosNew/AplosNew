@@ -6721,6 +6721,8 @@ ORDER BY tg.[Sequence]";
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
 			range.ApplyCharacterFormat(FontBold);
+			//wTable.Rows[ROW].Cells[COL].align = 40;			
+			//wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty") = HorizontalAlignment.Right;
 			int colQty = COL; COL++;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
@@ -6873,7 +6875,7 @@ ORDER BY tg.[Sequence]";
 				TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
 				TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
                 TROW.Cells[colHSNCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
-    //            TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
+				//TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
 				//TROW.Cells[colGRNMaterialDetail].AddParagraph().AppendText(dsOrderMaster.Rows[i]["GRDDescrition"].ToString());
 				TROW.Cells[colLotNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
 				TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
@@ -6913,7 +6915,7 @@ ORDER BY tg.[Sequence]";
 
 			for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
 			{
-				if (C == colHSNCode || C == colRate /*|| C == colQualityStatus*/ || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate /*|| C == colUoM*/ || dicTaxes.ContainsValue(C))
+				if (C == colHSNCode || C == colRate || C == colProductionOrderId || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate /*|| C == colUoM*/ || dicTaxes.ContainsValue(C))
 					continue;
 
 				double value = 0;
@@ -6964,7 +6966,7 @@ ORDER BY tg.[Sequence]";
 			myStyle.CharacterFormat.FontSize = 8f;
 			//myStyle.CharacterFormat.TextColor = Color.Black;
 			myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
-
+			
 			for (int R = 0; R < wTable.Rows.Count; R++)
 			{
 				WTableRow TROW = wTable.Rows[R];
@@ -6986,8 +6988,8 @@ ORDER BY tg.[Sequence]";
 			//Sets the formatting of the style
 			myStyleRightAlign.CharacterFormat.FontSize = 8f;
 			myStyleRightAlign.CharacterFormat.TextColor = Color.Black;
-			myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
-
+			myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+		
 
 
 			for (int R = 1; R < wTable.Rows.Count; R++)
@@ -7012,9 +7014,13 @@ ORDER BY tg.[Sequence]";
 				{
 					item.ApplyStyle("MyStyleRightAlign");
 				}
+				myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
 
+				//myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
 
 			}
+			//myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
 
 			#endregion paragrpath formats
 			#region merging section
@@ -7027,11 +7033,11 @@ ORDER BY tg.[Sequence]";
 			//primary cells merging (veritcal)
 			ROW++;
 			WTableRow TROWe = wTable.LastRow;
-			for (int i = 0; i <= colTotalTaxableAmount; i++)
-			{
-				TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
-				wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
-			}
+			//for (int i = 0; i <= colTotalTaxableAmount; i++)
+			//{
+			//	TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
+			//	wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+			//}
 			//wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
 
 
@@ -19981,6 +19987,137 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 			}
 			document.Close();
 		}
+
+		public void InventoryPreSalesReportPrint(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId)
+		{
+
+			var fileName = "";
+			var strPath = "";
+
+			var File = "";
+
+			ReportUtility ru = new ReportUtility();
+
+			//tempId = dtLangName.Rows[0]["UserName"].ToString();
+			fileName = "InventoryPreSalesReport" + plantId + ".docx";
+			strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+			File = strPath;
+			if (!System.IO.File.Exists(strPath))
+			{
+				throw new CustomException("File <" + fileName + "> Not Found.");
+			}
+
+			//makeDictionary();
+			////A opens input document.
+			WordDocument document = new WordDocument(File, FormatType.Docx);
+			//Gets the paragraph at index 1
+			try
+			{
+				WSection section = document.Sections[0];
+
+				DataTable dtOrderMaster;
+
+
+				dtOrderMaster = LoadinventoryPreSalesMasterTable(grnId);
+
+				var invoicePartyAddress = ru.GetAddress(dtOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dtOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
+				document.Replace("{InvoicingPartyAddress}", invoicePartyAddress, false, false);
+
+				var vendorPartyAddress = ru.GetAddress(dtOrderMaster.Rows[0]["VendorAddressMasterId"].ToString(), "");
+				document.Replace("{VendorAddress}", vendorPartyAddress, false, false);
+
+				Dictionary<string, string> columns = new Dictionary<string, string>();
+
+				foreach (DataColumn item in dtOrderMaster.Columns)
+					columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+
+				var dsServiceItems = loadinventorySalesServiceMasterTable(grnId);
+				var materialTotal = makeloadinventoryPreSalesDetailsTable(document, dtOrderMaster, grnId);                //Material Details 
+
+				var serviceTotal = 0.00;
+				if (dsServiceItems.Rows.Count > 0)
+				{
+					//serviceTotal = makeinventorySalesServiceTable(document, dsServiceItems, grnId);                //Service Details 
+					//document.Replace("{ServiceDetails}", "Service Details", true, true);
+				}
+				var dsInventorySalesAdditionalTax = loadInventorySalesAdditionalTax(grnId);
+				var InventorySalesAdditionalTax = 0.00;
+				if (dsInventorySalesAdditionalTax.Rows.Count > 0)
+
+				{
+					InventorySalesAdditionalTax = makeInventorySalesAdditionalTaxTable(document, dsInventorySalesAdditionalTax, grnId);//Service Details 
+																																	   //document.Replace("{ServiceDetails}", "Service Details", true, true);
+
+					//{TotalInWords}
+				}
+				//{ TotalInWords}
+
+				document.Replace("{GrandTotal}", (materialTotal ).ToString("#,##0.000") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+				document.Replace("{TotalInWords}", ru.InWord((materialTotal ), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+
+				Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+
+				TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+
+				//creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+				List<string> strReplace = new List<string>();
+
+				StringCollection strColDistinct = new StringCollection();
+
+				for (int i = 0; i < allresult.Length; i++)
+					strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+
+				for (int i = 0; i < strReplace.Count; i++)
+				{
+					if (strColDistinct.Contains(strReplace[i].ToUpper()))
+						continue;
+
+					strColDistinct.Add(strReplace[i].ToUpper());             //For Same Name Use
+					string text = strReplace[i].ToUpper();
+
+					ReplaceInfo.Add(text, 0);
+					if (columns.ContainsKey(text.ToUpper()))
+					{
+						ReplaceInfo[text] = document.Replace(text, dtOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+					}
+				}
+
+				document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+
+				//removing any unused place holder
+				foreach (var item in ReplaceInfo.Keys)
+				{
+					if (ReplaceInfo[item.ToString()] == 0)
+						document.Replace(item.ToString(), "", false, false);
+
+				}
+
+				//document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+				//document.Close();
+				//Converts Word document into PDF document
+				DocToPDFConverter converter = new DocToPDFConverter();
+				PdfDocument pdfDocument = converter.ConvertToPDF(document);
+				//pdfDocument.PageSettings.Width = 1200;  
+				pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+				//Releases all resources used by DocToPDFConverter
+				converter.Dispose();
+				document.Close();
+				string Prefix = "Inventory Pre-Sales Report " + grnId;
+				//Saves the PDF file 
+				pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+				//Closes the instance of document objects
+				pdfDocument.Close(true);
+				document.Close();
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+
+			}
+			document.Close();
+		}
+
 		public DataTable loadInventorySalesAdditionalTax(string grnId)
 		{
 			string strSQL;
@@ -20122,6 +20259,149 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IRD.Id
 
                 LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
+                INNER JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
+				LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+                INNER JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
+                INNER JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId
+                LEFT JOIN HKP.Characteristics AS FC ON IOM.FirstCharacteristicsId = FC.Id
+                LEFT JOIN HKP.Characteristics AS SC ON IOM.SecondCharacteristicsId = SC.Id
+                LEFT JOIN HKP.Characteristics AS TC ON IOM.ThirdCharacteristicsId = TC.Id
+                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IOM.FirstCharacteristicsValueId = FCV.Id
+                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IOM.SecondCharacteristicsValueId = SCV.Id
+                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IOM.ThirdCharacteristicsValueId = TCV.Id
+                LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id=IR.CurrencyId
+                Left JOIN [ORG].[Entity] E On E.id=IR.EntityId
+                LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
+                LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.ApprovedBy
+                left join [SEC].[User] U on U.UserId=IR.AddedBy
+                LEFT JOIN dbo.EmployeeInformation E3 ON E3.SystemId=U.EmployeeId
+                LEFT JOIN dbo.EmployeeInformation E4 ON E4.SystemId=IR.EmployeeId
+                JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
+                LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
+                LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=IR.InvoicingPartyPlantId
+                LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=IR.DeliveryPartyPlantId
+                LEFT JOIN [HKP].[Party] AS Pr ON Pr.Id=IR.CustomerId
+
+                         WHERE IR.Id ='" + OrderMasterID + "'";
+
+				return _sqlRepository.GetDataTable(strSQL);
+
+			}
+			catch (System.Exception ex)
+			{
+				throw (ex);
+			}
+			finally
+			{
+
+			}
+		}
+
+		public DataTable LoadinventoryPreSalesMasterTable(string OrderMasterID)
+		{
+			string strSQL;
+			try
+			{
+				strSQL = @"SELECT IR.Id IssueNo
+                ,IR.CompanyGroupId
+				,HSNC.Code HSNCode
+                ,IR.CompanyId
+                ,Plant.GSTIN
+                ,null PODepended
+                ,IR.Id PONumber
+                ,IR.IssueRequestMasterId
+                ,REPLACE(Convert(VARCHAR(11), IR.SalesDate, 106), ' ', '-') AS PODate
+                ,null BaseOnDueDate
+                ,NULL AS MatureDate
+                ,null InvoicingPartyPlantId
+                ,null InvoicingPartyName
+                ,null InvoicePartyAddressMasterId
+                ,null InvoicingPartyGSTIN
+                ,null InvoicingByAddress
+                ,null DeliveryByAddress
+                ,null DeliveryParty
+                ,null DeliveryPartyPlantId
+                ,IOM.MaterialMasterId
+                ,null DocRefNo
+                ,null DocDate
+                --,IR.AddedBy
+                ,IR.AddedDate
+                ,IR.UpdatedBy
+                ,IR.UpdatedDate
+                ,null IsApproved
+                ,null PartyType
+                ,null VendorName
+                ,null VendorAddressMasterId
+                ,null VendorGSTIN
+                --,Case When null IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
+                ,null IsNonCreditable
+                -- ,'' CurrencyId
+                ,IR.CurrencyId
+                --,null AS CurrencyName
+                ,CUR.Code CurrencyName
+                ,null as ToCurrencyRate
+                ,null AS BaseCurrencyName
+                ,NULL PaymentTerm
+                ,MM.UserName MaterialMaster
+                ,MM.MaterialGroupMasterId
+                ,MGM.UserName MaterialGroupMaster
+                ,IOM.ArticleId
+                ,MMA.StandardName Article
+                ,FC.Id FirstCharId
+                ,FC.UserName FirstChar
+                ,IOM.FirstCharacteristicsValueId
+                ,FCV.UserName AS FirstCharacteristicsValue
+                ,IOM.SecondCharacteristicsValueId
+                ,SCV.UserName AS SecondCharacteristicsValue
+                ,IOM.ThirdCharacteristicsValueId
+                ,TCV.UserName AS ThirdCharacteristicsValue
+                ,SC.Id SecondCharId
+                ,SC.UserName SecondChar
+                ,TC.Id ThirdCharId
+                ,TC.UserName ThirdChar
+                ,IRD.TransactionQty POTransactionQty
+                ,IRD.PolicyAmount AS TotalAmount
+                ,(IRD.PolicyRate) TransactionRate
+                ,null BaseAmount
+                ,null AS BaseTaxAmount
+                ,TaxAmount = (
+                SELECT SUM(TaxAmount)
+                FROM [TRN].[InventorySalesTax]
+                WHERE InventoryReceiveDetailId = IRD.Id
+                )
+                ,ServiceTaxAmount = (
+                SELECT SUM(TotalTaxAmount)
+                FROM [TRN].[POService]
+                WHERE InventoryReceiveId = IOM.Id
+                )
+                ,null ChargesTranAmount
+                ,null CountryId
+                ,IRD.BaseUOMId
+                ,TUoM.UserName AS TransactionUoM
+                ,IRD.Id InventoryReceiveDetailId
+                ,IR.IssueType,E.UserName AS Entity
+                --,eI.EmployeeName CheckedBy
+                --,eI1.EmployeeName AuthorizedBy
+                --,AddedBy=CASE When U.EmployeeId IS NULL then U.UserId else E3.EmployeeName END
+                ,E4.EmployeeName ReceivedBy
+                ,CC.UserName CostCenter
+                ,IRD.Comments
+                ,PPI.UserName BillTo
+                ,PPI1.UserName ShipTo
+                ,IRD.InventorySalesId
+                ,Pr.UserName CustomerName
+				,IR.AddedBy
+				,IRD.Id InventorySalesDetailid
+				,CheckedBy=CASE WHEN IR.CheckedByStatus='Checked' Then eI.EmployeeName else '' END 
+                ,AuthorizedBy=CASE When IR.ApprovedByStatus='Approved'then eI1.EmployeeName else '' END
+               --,AddedBy=CASE When IR.CheckedByStatus='For Checking' OR IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' OR IR.CheckedByStatus='Checked'then U.FullName else IR.AddedBy  END 
+                FROM TRN.InventorySales IR
+                LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
+                LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
+                LEFT JOIN trn.InventorySalesDetail IRD ON IR.Id = IRD.InventorySalesId
+								
+				LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
                 INNER JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
 				LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
                 INNER JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
@@ -20500,6 +20780,242 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 			style.CharacterFormat.Bold = true;
 			style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
 			//Adds new paragraph to the section
+
+			#endregion merging section
+
+			TextBodyPart textBodyPart = new TextBodyPart(document);
+			textBodyPart.BodyItems.Add(wTable);
+			document.Replace(replaceString, textBodyPart, true, true);
+			return total;
+		}
+
+		public double makeloadinventoryPreSalesDetailsTable(WordDocument document, DataTable dsOrderMaster, string grnId)
+		{
+			string replaceString = "{materialItems}";
+
+			DataTable dsOrderItems, dsTax;
+
+			dsOrderItems = loadinventorySalesServiceMasterTable(grnId);
+			dsTax = loadinventorySalesMasterPartTex(grnId);
+
+			int LasColumnIndex = 8;
+			Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
+			DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
+
+			//LasColumnIndex++;
+			//dicTaxes.Add("totaltax", LasColumnIndex);
+			//if (dv.Count > 0)
+			//{
+			//	for (int i = 0; i < dv.Count; i++)
+			//	{
+			//		LasColumnIndex++;
+			//		dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
+			//		LasColumnIndex++;
+			//	}
+			//}
+			WTable wTable = new WTable(document);
+			wTable.TableFormat.Borders.LineWidth = 1;
+			wTable.TableFormat.Borders.BorderType = BorderStyle.Single;
+			int ROW = 0; int COL = 0;
+			wTable.ResetCells(1, LasColumnIndex + 1);
+
+			WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+			#region column headers
+			document.EnsureMinimal();
+
+			WCharacterFormat FontBold = new WCharacterFormat(document);
+			FontBold.Bold = true;
+			IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
+			range.ApplyCharacterFormat(FontBold);
+			int colMaterialGroup = COL; COL++;
+			wTable.Rows[ROW].Cells[colMaterialGroup].Width = 180;
+
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article ");
+			range.ApplyCharacterFormat(FontBold);
+			int colArticle = COL; COL++;
+			wTable.Rows[ROW].Cells[colArticle].Width = 180;
+
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
+			range.ApplyCharacterFormat(FontBold);
+			int colChar1 = COL; COL++;
+			wTable.Rows[ROW].Cells[colChar1].Width = 65;
+
+
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU2");
+			range.ApplyCharacterFormat(FontBold);
+			int colChar2 = COL; COL++;
+			wTable.Rows[ROW].Cells[colChar2].Width = 65;
+
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
+			range.ApplyCharacterFormat(FontBold);
+			int colChar3 = COL; COL++;
+			wTable.Rows[ROW].Cells[colChar3].Width = 47;
+			
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+			range.ApplyCharacterFormat(FontBold);
+			int colUoM = COL; COL++;
+			wTable.Rows[ROW].Cells[colUoM].Width = 80;
+
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+			range.ApplyCharacterFormat(FontBold);
+			int colQty = COL; COL++;
+			wTable.Rows[ROW].Cells[colQty].Width = 85;
+
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+			range.ApplyCharacterFormat(FontBold);
+			int colRate = COL;
+			wTable.Rows[ROW].Cells[colRate].Width = 85;
+			//COL++;
+
+			int colTotalTaxableAmount = COL;
+			if (dv.Count > 0)
+			{
+				COL++;
+				colTotalTaxableAmount = COL;
+				range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount");
+				range.ApplyCharacterFormat(FontBold);				
+			}
+			else
+			{
+				COL++;
+				colTotalTaxableAmount = COL;
+				range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
+				range.ApplyCharacterFormat(FontBold);
+
+			}
+
+
+			wTable.Rows.Add(TemplateRow);
+			ROW++;
+			if (dv.Count > 0)
+			{
+				WTableRow TROW = wTable.LastRow;
+				for (int CE = 0; CE < TROW.Cells.Count; CE++)
+				{
+					foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+					{
+						item.Text = "";
+					}
+					TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+				}
+				
+			}
+			#endregion column headers
+			double totalValue = 0;
+			int startRow = ROW + 1;
+			for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
+			{
+				ROW++;
+				wTable.AddRow();
+				WTableRow TROW = wTable.LastRow;
+
+				for (int CE = 0; CE < TROW.Cells.Count; CE++)
+				{
+					foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+					{
+						item.Text = "";
+					}
+					TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+				}
+				
+				TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
+				TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
+				TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
+				TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
+				TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
+				
+				TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
+				TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+				TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
+				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalAmount"].ToString()).ToString("F2"));
+
+				totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalAmount"].ToString());
+				
+			}
+
+			ROW++;
+			#region Total
+			int TotalRow = ROW;
+			wTable.AddRow();
+			WTableRow _TROW = wTable.LastRow;
+			_TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
+
+
+			for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
+			{
+				if (C == colRate || /*C == colHSNNo ||*/ C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 ||  C == colRate || C == colUoM || C == colMaterialGroup /*|| dicTaxes.ContainsValue(C)*/)
+					continue;
+
+				double value = 0;
+				for (int i = startRow; i < TotalRow; i++)
+				{
+
+					foreach (WParagraph item in wTable.Rows[i].Cells[C].Paragraphs)
+					{
+						value += clsStdLib.dbl(item.Text);
+					}
+				}
+				_TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.000")).ApplyCharacterFormat(FontBold);
+
+			}
+			#endregion Total
+
+
+			ROW++;
+			#region Sub Total
+			
+			double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(TotalAmount)", "").ToString());
+
+			#endregion Total
+
+			ROW++;
+		
+
+			ROW++;
+
+
+			#region paragrpath formats
+			
+			IWParagraphStyle myStyle = document.AddParagraphStyle("MyStyle");
+			
+			myStyle.CharacterFormat.FontSize = 8f;
+			
+			myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+			for (int R = 0; R < wTable.Rows.Count; R++)
+			{
+				WTableRow TROW = wTable.Rows[R];
+				
+				for (int CE = 0; CE < TROW.Cells.Count; CE++)
+				{
+					foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+					{
+						item.ApplyStyle("MyStyle");
+					}
+				}
+			}
+
+
+			#endregion paragrpath formats
+
+
+			#region merging section
+
+			
+			ROW = 0;
+			
+			ROW++;
+			WTableRow TROWe = wTable.LastRow;
+			for (int i = 0; i <= colTotalTaxableAmount; i++)
+			{
+				TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
+				wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+			}
+			
+			IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+			style.CharacterFormat.Bold = true;
+			style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
 
 			#endregion merging section
 
@@ -20978,8 +21494,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
 				//{ TotalInWords}
 
-				document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
-				document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+				document.Replace("{GrandTotal}", (materialTotal ).ToString("F2") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+				document.Replace("{TotalInWords}", ru.InWord((materialTotal ), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
 				Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -22943,7 +23459,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 	                          ,TC.Id ThirdCharId
 	                          ,TC.UserName ThirdChar
 	                           ,ROUND(IIH.Qty, 2) POTransactionQty
-	                          ,ROUND(IIH.Rate, 2) TransactionRate
+	                           --,ROUND(IIH.Rate, 2) TransactionRate
+							  ,ROUND(IIH.Rate, 4) TransactionRate
 	                          ,ROUND((IIH.Qty* IIH.Rate), 2) AS TrnAmount
 							 --,ROUND((IIH.Qty*IRD.PolicyRate), 2) AS TrnAmount
 	                          ,null BaseAmount
@@ -23235,9 +23752,10 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+           //     TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+				TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
 
-                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
+				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
 
                 totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
 
@@ -23905,7 +24423,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 	                          ,TC.Id ThirdCharId
 	                          ,TC.UserName ThirdChar
 	                           ,ROUND(IIH.Qty, 2) POTransactionQty
-	                          ,ROUND(IIH.Rate, 2) TransactionRate
+	                           --,ROUND(IIH.Rate, 2) TransactionRate
+							  ,ROUND(IIH.Rate, 4) TransactionRate
 	                          ,ROUND((IIH.Qty* IIH.Rate), 2) AS TrnAmount
 							 --,ROUND((IIH.Qty*IRD.PolicyRate), 2) AS TrnAmount
 	                          ,null BaseAmount
@@ -24198,7 +24717,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
 				TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
 				TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-				TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+			//	TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+				TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
 
 				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
 
@@ -24691,7 +25211,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
 			//tempId = dtLangName.Rows[0]["UserName"].ToString();
 			fileName = "FGGRNRegisterReport" + plantId + ".docx";
-			strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+			strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  
 			File = strPath;
 			if (!System.IO.File.Exists(strPath))
 			{
@@ -24741,7 +25261,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				if (dsServiceItems.Rows.Count > 0)
 
 				{
-					serviceTotal = makeOrderServiceTable(document, dsServiceItems, grnId);//Service Details 
+					serviceTotal = makeOrderServiceTable(document, dsServiceItems, grnId);
 					document.Replace("{ServiceDetails}", "Service Details", true, true);
 
 					//{TotalInWords}
