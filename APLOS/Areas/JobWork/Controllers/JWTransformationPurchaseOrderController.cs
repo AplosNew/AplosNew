@@ -565,14 +565,14 @@ namespace Aplos.Areas.JobWork.Controllers
 
         #region Job Work Purchase Order Report 
         [HttpGet, Authorize]
-        public ActionResult GePurchaseOrderReport(string purchaseOrderId)
+        public ActionResult GePurchaseOrderReport(string purchaseOrderId, string POType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
             //    return Json(JobWorkCommon.GePurchaseOrderReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId), JsonRequestBehavior.AllowGet);
 
-            JobWorkCommon.GePurchaseOrderReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId);
+            JobWorkCommon.GePurchaseOrderReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId, POType);
 
             return null;
 

@@ -4383,7 +4383,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+        location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id + '&POType=' + data.POType;
         $scope.getalldata();
     };
 

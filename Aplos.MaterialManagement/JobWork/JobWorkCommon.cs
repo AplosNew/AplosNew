@@ -5559,13 +5559,21 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             }
         }
 
-        public void GePurchaseOrderReport(string companyGroupId, string companyId, string plantId, string userId, string purchaseOrderId)
+        public void GePurchaseOrderReport(string companyGroupId, string companyId, string plantId, string userId, string purchaseOrderId, string POType)
         {
             ReportUtility ru = new ReportUtility();
             var fileName = "";
             var strPath = "";
             var File = "";
-            fileName = "JWPurchaseOrder" + plantId + ".docx";
+            if (POType == "OSTransformationPO")
+            {
+                fileName = "JWPurchaseOrder" + plantId + ".docx";
+            }
+            else
+            {
+                fileName = "JWValAddedPurchaseOrder" + plantId + ".docx";
+            }
+          
             strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
             File = strPath;
             if (!System.IO.File.Exists(strPath))

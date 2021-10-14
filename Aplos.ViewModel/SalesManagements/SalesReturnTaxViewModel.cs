@@ -12,8 +12,12 @@
         public decimal Amount { get; set; }
         public string Id { get; set; }
         public string InventorySalesReturnId { get; set; }
+        public string InventorySalesReturnDetailId { get; set; }
+        public string InventorySalesId { get; set; }
+        public string InventorySalesDetailId { get; set; }
         public string InventoryReceiveDetailId { get; set; }
         public string InventorySalesReturnServiceId { get; set; }
+        public string InventorySalesTaxId { get; set; }
         public decimal BooksCurrencyTransactionAmount { get; set; }
 
     }
