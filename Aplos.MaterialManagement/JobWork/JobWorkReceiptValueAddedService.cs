@@ -2491,9 +2491,11 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                             ,TC.Id ThirdCharId
                             ,TC.UserName ThirdChar
                             ,ROUND(IRD.TransactionQty, 2) POTransactionQty
-                            ,ROUND(IRD.MaterialTranRate, 2) TransactionRate
+                             -- ,ROUND(IRD.MaterialTranRate, 2) TransactionRate
+						    ,ROUND(IRD.MaterialTranRate * IR.ToCurrencyRate, 4) TransactionRate
                             --,ROUND((IRD.TransactionQty * IRD.MaterialTranRate), 2) AS TrnAmount
-							,TrnAmount=(IRD.GrossAmount-IRD.DiscountAmount)
+							--,TrnAmount=(IRD.GrossAmount-IRD.DiscountAmount)
+							,TrnAmount=((IRD.GrossAmount-IRD.DiscountAmount) * IR.ToCurrencyRate)
                             ,IRD.TotalMaterialTranAmount BaseAmount
                             ,IRD.TotalTaxAmount AS BaseTaxAmount
                             ,TaxAmount = (
@@ -2538,7 +2540,8 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 								when IR.CheckedByStatus Is null and IR.AuthorizedByStatus Is null Then 'Approved'
                             else ''
                             END
-							,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount
+							,IRD.LotNo , IRD.QualityStatus --, IRD.GrossAmount ,IRD.DiscountAmount
+							,GrossAmount=(IRD.GrossAmount * IR.ToCurrencyRate) ,DiscountAmount=(IRD.DiscountAmount * IR.ToCurrencyRate)
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -2665,8 +2668,10 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                             ,'' ThirdCharId
                             ,'' ThirdChar
                             ,ROUND(IRD.TransactionQty, 2) POTransactionQty
-                            ,ROUND(IRD.MaterialTranRate, 2) TransactionRate
-                           ,TrnAmount=(IRD.GrossAmount-IRD.DiscountAmount)
+                             -- ,ROUND(IRD.MaterialTranRate, 2) TransactionRate
+						    ,ROUND(IRD.MaterialTranRate * IR.ToCurrencyRate, 4) TransactionRate
+                           --,TrnAmount=(IRD.GrossAmount-IRD.DiscountAmount)
+							,TrnAmount=((IRD.GrossAmount-IRD.DiscountAmount) * IR.ToCurrencyRate)
                             ,IRD.TotalMaterialTranAmount BaseAmount
                             ,IRD.TotalTaxAmount AS BaseTaxAmount
                             ,TaxAmount = (
@@ -2894,7 +2899,8 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 
 
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+           // range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["BaseCurrencyName"].ToString() + ")");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL; COL++;
             wTable.Rows[ROW].Cells[colRate].Width = 55;
@@ -3044,7 +3050,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                 //TROW.Cells[colGRNMaterialDetail].AddParagraph().AppendText(dsOrderMaster.Rows[i]["GRDDescrition"].ToString());
                 TROW.Cells[colLotNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+                TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
                 TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
                 TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("F2"));
