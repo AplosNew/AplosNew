@@ -864,32 +864,31 @@ namespace Library.MaterialManagement.Inventory
                                     item.IssueRequest = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.IssueRequest).FirstOrDefault();
                                 }
 
-                                currentId++;
-                                var issueDetail = new InventoryIssueDetail
-                                {
-                                    Id = MakePK(inventoryIssue.Id, currentId, 2),
-                                    InventoryIssueId = inventoryIssue.Id,
-                                    IsAsset = FlagIsAsset,//false,
-                                                          //InventoryIssue = inventoryIssue,
-                                    InventoryMaterialId = invMaterialId,
-                                    BaseUOMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BaseUOMId).FirstOrDefault(),
-                                    TransactionUoMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.TransactionUoMId).FirstOrDefault(),
-                                    AvgRate = Math.Round(invMaterial.AvgRate, 4),
-                                    Policy = "N/A",
+								currentId++;
+								var issueDetail = new InventoryIssueDetail
+								{
+									Id = MakePK(inventoryIssue.Id, currentId, 2),
+									InventoryIssueId = inventoryIssue.Id,
+									IsAsset = FlagIsAsset,//false,
+														  //InventoryIssue = inventoryIssue,
+									InventoryMaterialId = invMaterialId,
+									BaseUOMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BaseUOMId).FirstOrDefault(),
+									TransactionUoMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.TransactionUoMId).FirstOrDefault(),
+									AvgRate = Math.Round(Convert.ToDecimal(invMaterial.AvgRate), 4),
+									Policy = "N/A",
 
-                                    TransactionQty = Math.Round(totalGRNQty, 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
+									TransactionQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
 
-                                    PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
-                                    PolicyAmount = Math.Round(detailtrnAmount, 2),
-                                    BaseQty = Math.Round(totalGRNQty, 2),//stockList.Sum(r => r.RequisitionQty),
-                                    AvgAmount = Math.Round((totalGRNQty * invMaterial.AvgRate), 2),
-                                    BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
-                                    ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
-                                    CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
-                                    Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
-
-                                    ModelState = ModelState.Added
-                                };
+									PolicyRate = Math.Round((Convert.ToDecimal(detailtrnAmount / totalGRNQty)), 4),
+									PolicyAmount = Math.Round(Convert.ToDecimal(detailtrnAmount), 2),
+									BaseQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2),//stockList.Sum(r => r.RequisitionQty),
+									AvgAmount = Math.Round((Convert.ToDecimal(totalGRNQty * invMaterial.AvgRate)), 2),
+									BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
+									ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
+									CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
+									Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
+									ModelState = ModelState.Added
+								};
 
                                 var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
                                 foreach (var item in stockList)

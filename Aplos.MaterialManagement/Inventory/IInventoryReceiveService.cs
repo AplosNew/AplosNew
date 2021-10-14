@@ -114,6 +114,7 @@ namespace Library.MaterialManagement.Inventory
         void JWValAddedIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
 
         void InventorySalesReportPrint(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
+        void InventoryPreSalesReportPrint(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
 
         void InventoryScrapReportPrint(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
 
