@@ -2373,7 +2373,7 @@ namespace Library.HumanResource.Payroll
                     sheet1.Range[xlsRow, ColDMPCost].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                     sheet1.Range[xlsRow, colWeekoffDays].Text = dtEmployees.Rows[i]["WeekoffDays"].ToString();
-                  
+
                     //5 "Section", "SubSection", 
 
                     #endregion
@@ -2395,7 +2395,7 @@ namespace Library.HumanResource.Payroll
                     SetCellTextAttdn(sheet1, xlsRow, ColWkOf, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalWeekOff"].ToString()));
                     SetCellTextAttdn(sheet1, xlsRow, ColLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLv"].ToString()));
                     SetCellTextAttdn(sheet1, xlsRow, ColMLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalMLv"].ToString()));
-                    
+
                     SetCellTextDR(sheet1, xlsRow, ColTotalOtHr, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
 
                     //}
@@ -5454,7 +5454,7 @@ namespace Library.HumanResource.Payroll
                         sheet1.Range[xlsRow, colDirectManpowerCost].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                         sheet1.Range[xlsRow, colWeekoffDays].Text = dtEmployees.Rows[i]["WeekoffDays"].ToString();
-                       
+
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["Gender"].ToString()) == false)
                             sheet1.Range[xlsRow, cGender].Text = dtEmployees.Rows[i]["Gender"].ToString();
                         sheet1.Range[xlsRow, cGender].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -9252,6 +9252,20 @@ namespace Library.HumanResource.Payroll
 
                                     sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, item["Code"].ToString(), item["Code"].ToString()); //"Casual Leave";
                                     sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(item["AvailedLeave"].ToString());
+                                    k++;
+                                }
+                                k++;
+                                foreach (var item in drLeaveEmp)
+                                {
+
+                                    if (string.IsNullOrEmpty(item["BalanceId"].ToString()) == true)
+                                        continue;
+
+                                    sheet1[1, xlsCol].ColumnWidth = 16;
+                                    sheet1[1, xlsCol + 1].ColumnWidth = 6;
+
+                                    sheet1.Range[xlsRow + k, xlsCol].Text = ru.GetLabelname(labelList, item["Code"].ToString(), "B" + item["Code"].ToString()); //"Casual Leave";
+                                    sheet1.Range[xlsRow + k, xlsCol + 1].Number = clsStaticInfo.dbl(item["BalanceLeave"].ToString());
                                     k++;
                                 }
                             }

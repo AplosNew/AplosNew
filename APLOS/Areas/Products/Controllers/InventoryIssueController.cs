@@ -6922,8 +6922,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             , B.UserName AS ServiceMasterName
                             , A.Amount
                             --, A.TotalTaxAmount
-                            ,POT.TaxAmount As TotalTaxAmount
-                            --,TaxAmount
+                            ,POT.TaxAmount As SalesServiceTaxAmount,0Amount,0 TotalTaxAmount
                             ,null ChargeTaxList
                             ,A.Description 
                             FROM 
@@ -7510,26 +7509,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
 			}
 		}
-		[Authorize, HttpGet]
-		public JsonResult GetTaxInfoRowWise(string InventorySalesId)
-		{
-			try
-			{
-				string sql = @"SELECT  A.InventorySalesHistoryId,A.InventorySalesId,a.InventorySalesDetailId,A.TaxCategoryId,A.HSNCodeId
-								,A.[Percentage],A.TaxAmount SalesTax,0 TaxAmount,B.Code HSNCode,B.[Description]
-                                FROM trn.InventorySalesTax A
-                                Left JOIN [HKP].[HSNCode] B On A.HSNCodeId=B.Id   
-                                where A.InventorySalesId='" + InventorySalesId + "' and a.InventorySalesServiceId is null";
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-			}
-		}
+		
 
 
 

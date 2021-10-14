@@ -1514,6 +1514,42 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             }
         }
 
+        public IEnumerable<object> JWDetailsData()
+        {
+            try
+            {
+                string sql = @"select II.Id,IID.JWTCMID,IID.InventoryMaterialId,IM.MaterialMasterId,mm.UserName as MaterialName, IM.ArticleId,mma.StandardName as Article,Tuom.UserName as TransactionUoM
+                                ,IID.TransactionUoMId,IID.TransactionQty,IM.FirstCharacteristicsId
+                                ,FC.UserName AS FirstChaName,IM.FirstCharacteristicsValueId,FCV.UserName AS SKU1
+                                ,IM.SecondCharacteristicsId,SC.UserName AS SecondChaName,IM.SecondCharacteristicsValueId,SCV.UserName AS SKU2
+                                ,IM.ThirdCharacteristicsId,TC.UserName AS ThirdChaName,IM.ThirdCharacteristicsValueId,TCV.UserName AS SKU3
+                                ,c.Code as BaseCurrency,BaseRate=round((IRD.MaterialTranRate * IR.ToCurrencyRate),4)
+								,Amount=isnull(round((IRD.MaterialTranRate * IR.ToCurrencyRate) * isnull(IIH.Qty,'0'),2),'0')
+                                from TRN.InventoryIssue II left join TRN.InventoryIssueDetail IID on IID.InventoryIssueId=II.Id
+                                left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+                                left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
+                                left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
+                                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+                                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+                                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+                                left join SCS.UnitOfMeasurement Tuom on Tuom.Id=IID.TransactionUoMId
+                                left join SCS.Currency C on C.Id=II.CurrencyId
+								left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+								left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
+        						left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
+                                where II.Types='InventoryJWIssue'";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         private string GetTransformationPK()
         {
             string sID = string.Empty;
@@ -1778,7 +1814,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
 							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
-                            ,II.Types, II.JWContractId
+                            ,II.Types, II.JWContractId,Tuom.UserName as TransactionUoM
 							FROM[TRN].[InventoryIssue] AS II
 							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
@@ -1788,11 +1824,12 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
 							left JOIN SCS.Country c ON C.Id=IR.CountryId
 							left join dbo.Contract Con On Con.Id=II.ContractId
+                            left join SCS.UnitOfMeasurement Tuom on Tuom.Id=IID.TransactionUoMId
 						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
-						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId
+						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId,Tuom.UserName
 						Order BY II.IssueDate DESC";
                 }
 
@@ -1811,7 +1848,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
 							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
-                            ,II.Types, II.JWContractId
+                            ,II.Types, II.JWContractId,Tuom.UserName as TransactionUoM
 							FROM[TRN].[InventoryIssue] AS II
 							left JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId= II.Id AND IID.IsAsset= 0
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
@@ -1821,11 +1858,12 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
 							left JOIN SCS.Country c ON C.Id=IR.CountryId
 							left join dbo.Contract Con On Con.Id=II.ContractId
+                            left join SCS.UnitOfMeasurement Tuom on Tuom.Id=IID.TransactionUoMId
 						WHERE II.PlantId= '" + plantId + @"' AND ISNULL(II.[Status],'')='Posting' AND IID.IsAsset= 0 and II.Types='InventoryJWIssue' and II.JWContractId='" + Id + @"'
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
-						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId
+						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId,Tuom.UserName
 						Order BY II.IssueDate DESC";
                 }
 

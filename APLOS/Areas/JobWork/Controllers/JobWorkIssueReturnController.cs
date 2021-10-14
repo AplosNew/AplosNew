@@ -2301,6 +2301,22 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult JWDetailsData()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(JWTIR.JWDetailsData(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
         [Authorize, HttpPost]
         public JsonResult GetMaterialInputData(IEnumerable<MaterialPlanning> SelectedMaterialPlanningData, string OrderSpecific,string MaterialStorageIdInventory, string IssueDate)
         {
@@ -4456,15 +4472,15 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet[MPChildROW, ColArticle].Text = TransformationIssueReturnChilddata.Rows[i]["Article"].ToString();
                 sheet[MPChildROW, ColBalanceToIssue].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BalanceToIssue"].ToString());
                 sheet[MPChildROW, ColRequiredQuantity].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["RequiredQuantity"].ToString());
-                sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TotalIssuedQty"].ToString());
-                sheet[MPChildROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TransactionQty"].ToString());
+                sheet[MPChildROW, ColTIRCTotalQty].Number =Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TotalIssuedQty"].ToString()).ToString("F2"));
+                sheet[MPChildROW, ColTIRCQty].Number =Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
 
-                sheet[MPChildROW, ColAvgRate].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AveRateeee"].ToString());
+                sheet[MPChildROW, ColAvgRate].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AveRateeee"].ToString()).ToString("F4"));
               //  sheet[MPChildROW, ColAvgRate].Text = TransformationIssueReturnChilddata.Rows[i]["AveRateeee"].ToString();
 
                 //      sheet[MPChildROW, ColBaseRateeee].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BaseRateeee"].ToString());
 
-                sheet[MPChildROW, ColAvgAmount].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AverageAmount"].ToString());
+                sheet[MPChildROW, ColAvgAmount].Number =Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["AverageAmount"].ToString()).ToString("F2"));
 
                 sheet[MPChildROW, ColJWIssueUoM].Text = TransformationIssueReturnChilddata.Rows[i]["IssueUoM"].ToString();
 
@@ -4608,18 +4624,18 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet[GRNROW, ColJWInputMat].Text = TransformationIssueGRNdata.Rows[i]["JWInputMaterial"].ToString();
                 sheet[GRNROW, ColJWInputArticle].Text = TransformationIssueGRNdata.Rows[i]["JWInputArticle"].ToString();
 
-                sheet[GRNROW, ColGRNIssueQty].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["GRNIssueQty"].ToString());
+                sheet[GRNROW, ColGRNIssueQty].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["GRNIssueQty"].ToString()).ToString("F2"));
                 sheet[GRNROW, ColIssueUoM].Text = TransformationIssueGRNdata.Rows[i]["IssueUoM"].ToString();
 
                 sheet[GRNROW, ColTransactionCurrency].Text = TransformationIssueGRNdata.Rows[i]["TransactionCurrency"].ToString();
-                sheet[GRNROW, ColTransactionRate].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TransactionRate"].ToString());
+                sheet[GRNROW, ColTransactionRate].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
 
                 //    sheet[GRNROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TransactionQty"].ToString());
 
                 sheet[GRNROW, ColBaseCurrency].Text = TransformationIssueGRNdata.Rows[i]["BaseCurrency"].ToString();
-                sheet[GRNROW, ColBaseRate].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["BaseRate"].ToString());
+                sheet[GRNROW, ColBaseRate].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["BaseRate"].ToString()).ToString("F4"));
 
-                sheet[GRNROW, ColTotalAmount].Number = clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TotalAmount"].ToString());
+                sheet[GRNROW, ColTotalAmount].Number = Convert.ToDouble(clsStaticInfo.dbl(TransformationIssueGRNdata.Rows[i]["TotalAmount"].ToString()).ToString("F2"));
 
                 sheet.Range[GRNROW, 1, GRNROW, GRNendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[GRNROW, 1, GRNROW, GRNendCol].BorderAround(ExcelLineStyle.Hair);
@@ -4791,8 +4807,10 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 						 ,IssueUoM=case when IID.TransactionUoMId is not null then uom.UserName else uomm.UserName End
 						 --,isnull(BB.TotalAmt,'0') as AverageAmount
 						 --,AveRateeee=isnull((BB.TotalAmt/IID.TransactionQty),'0')
-						 ,isnull(round(IID.PolicyAmount,2),'0') as AverageAmount
-						 ,isnull(round(IID.PolicyRate,4),'0') as AveRateeee
+						  --,isnull(round(IID.PolicyAmount,2),'0') as AverageAmount
+						 --,isnull(round(IID.PolicyRate,4),'0') as AveRateeee
+						 ,AverageAmount=ROUND(XX.TAmt,2)
+						 ,AveRateeee= round((XX.TAmt / IID.TransactionQty),4)
                         from TRN.InventoryIssueDetail IID left
                         join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
                         left
@@ -4828,6 +4846,13 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 						--)
 						--BB on BB.Id=mp.Id and BB.InventoryMaterialId=IM.Id
 
+                         left join (Select round(SUM(IRD.MaterialTranRate * IR.ToCurrencyRate * Qty),2) as TAmt
+						,InventoryIssueDetailId 
+						from TRN.InventoryIssueHistory IIH left join TRN.InventoryIssueDetail IID on IIH.InventoryIssueDetailId=IID.Id
+						left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
+						left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
+						group by IIH.InventoryIssueDetailId) XX on XX.InventoryIssueDetailId=IID.Id
+
                                         left join SCS.UnitOfMeasurement uom on uom.Id=IID.TransactionUoMId
 										left join SCS.UnitOfMeasurement uomm on uomm.Id=mp.TransactionUoMId
 
@@ -4840,7 +4865,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                                         ,uom.UserName
 										--,BB.TotalAmt
 										,uomm.UserName,IID.TransactionUoMId
-										,IID.PolicyAmount,IID.PolicyRate
+										--,IID.PolicyAmount,IID.PolicyRate
+										,XX.TAmt
                                         order by mp.Id";
 
             return _sqlRepository.GetDataTable(sql);
@@ -4857,7 +4883,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 						--,isnull(round(IIH.BooksCurrencyBaseRate,4),'0') as BaseRate
 						,Round((IRD.MaterialTranRate * IR.ToCurrencyRate),4) BaseRate
 						--,isnull(ROUND(IIH.TotalMaterialBooksCurrencyAmount,2),'0') as TotalAmount
-						,isnull(ROUND(IIH.TotalAmount,2),'0') as TotalAmount
+						--,isnull(ROUND(IIH.TotalAmount,2),'0') as TotalAmount
+                         ,TotalAmount=isnull(round((IRD.MaterialTranRate * IR.ToCurrencyRate) * isnull(IIH.Qty,'0'),2),'0')
                         from dbo.JobWorkTransformationContractChild om left join TRN.InventoryIssueDetail IID on om.Id=IID.JWTCMID
                         left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
                         left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId

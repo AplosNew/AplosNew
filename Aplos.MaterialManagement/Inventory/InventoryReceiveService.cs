@@ -6721,6 +6721,8 @@ ORDER BY tg.[Sequence]";
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
 			range.ApplyCharacterFormat(FontBold);
+			//wTable.Rows[ROW].Cells[COL].align = 40;			
+			//wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty") = HorizontalAlignment.Right;
 			int colQty = COL; COL++;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
@@ -6873,7 +6875,7 @@ ORDER BY tg.[Sequence]";
 				TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
 				TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
                 TROW.Cells[colHSNCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
-    //            TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
+				//TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
 				//TROW.Cells[colGRNMaterialDetail].AddParagraph().AppendText(dsOrderMaster.Rows[i]["GRDDescrition"].ToString());
 				TROW.Cells[colLotNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
 				TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
@@ -6913,7 +6915,7 @@ ORDER BY tg.[Sequence]";
 
 			for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
 			{
-				if (C == colHSNCode || C == colRate /*|| C == colQualityStatus*/ || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate /*|| C == colUoM*/ || dicTaxes.ContainsValue(C))
+				if (C == colHSNCode || C == colRate || C == colProductionOrderId || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate /*|| C == colUoM*/ || dicTaxes.ContainsValue(C))
 					continue;
 
 				double value = 0;
@@ -6964,7 +6966,7 @@ ORDER BY tg.[Sequence]";
 			myStyle.CharacterFormat.FontSize = 8f;
 			//myStyle.CharacterFormat.TextColor = Color.Black;
 			myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
-
+			
 			for (int R = 0; R < wTable.Rows.Count; R++)
 			{
 				WTableRow TROW = wTable.Rows[R];
@@ -6986,8 +6988,8 @@ ORDER BY tg.[Sequence]";
 			//Sets the formatting of the style
 			myStyleRightAlign.CharacterFormat.FontSize = 8f;
 			myStyleRightAlign.CharacterFormat.TextColor = Color.Black;
-			myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
-
+			myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+		
 
 
 			for (int R = 1; R < wTable.Rows.Count; R++)
@@ -7012,9 +7014,13 @@ ORDER BY tg.[Sequence]";
 				{
 					item.ApplyStyle("MyStyleRightAlign");
 				}
+				myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
 
+				//myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
 
 			}
+			//myStyleRightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
 
 			#endregion paragrpath formats
 			#region merging section
@@ -7027,11 +7033,11 @@ ORDER BY tg.[Sequence]";
 			//primary cells merging (veritcal)
 			ROW++;
 			WTableRow TROWe = wTable.LastRow;
-			for (int i = 0; i <= colTotalTaxableAmount; i++)
-			{
-				TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
-				wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
-			}
+			//for (int i = 0; i <= colTotalTaxableAmount; i++)
+			//{
+			//	TROWe.Cells[i].Width = wTable.Rows[0].Cells[i].Width;
+			//	wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
+			//}
 			//wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
 
 
@@ -22943,7 +22949,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 	                          ,TC.Id ThirdCharId
 	                          ,TC.UserName ThirdChar
 	                           ,ROUND(IIH.Qty, 2) POTransactionQty
-	                          ,ROUND(IIH.Rate, 2) TransactionRate
+	                           --,ROUND(IIH.Rate, 2) TransactionRate
+							  ,ROUND(IIH.Rate, 4) TransactionRate
 	                          ,ROUND((IIH.Qty* IIH.Rate), 2) AS TrnAmount
 							 --,ROUND((IIH.Qty*IRD.PolicyRate), 2) AS TrnAmount
 	                          ,null BaseAmount
@@ -23235,9 +23242,10 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+           //     TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+				TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
 
-                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
+				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
 
                 totalValue += clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
 
@@ -23905,7 +23913,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 	                          ,TC.Id ThirdCharId
 	                          ,TC.UserName ThirdChar
 	                           ,ROUND(IIH.Qty, 2) POTransactionQty
-	                          ,ROUND(IIH.Rate, 2) TransactionRate
+	                           --,ROUND(IIH.Rate, 2) TransactionRate
+							  ,ROUND(IIH.Rate, 4) TransactionRate
 	                          ,ROUND((IIH.Qty* IIH.Rate), 2) AS TrnAmount
 							 --,ROUND((IIH.Qty*IRD.PolicyRate), 2) AS TrnAmount
 	                          ,null BaseAmount
@@ -24198,7 +24207,8 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
 				TROW.Cells[colQty].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
 				TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-				TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+			//	TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+				TROW.Cells[colRate].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F4"));
 
 				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStaticInfo.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
 
@@ -24691,7 +24701,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 
 			//tempId = dtLangName.Rows[0]["UserName"].ToString();
 			fileName = "FGGRNRegisterReport" + plantId + ".docx";
-			strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+			strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  
 			File = strPath;
 			if (!System.IO.File.Exists(strPath))
 			{
@@ -24741,7 +24751,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				if (dsServiceItems.Rows.Count > 0)
 
 				{
-					serviceTotal = makeOrderServiceTable(document, dsServiceItems, grnId);//Service Details 
+					serviceTotal = makeOrderServiceTable(document, dsServiceItems, grnId);
 					document.Replace("{ServiceDetails}", "Service Details", true, true);
 
 					//{TotalInWords}

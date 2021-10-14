@@ -3413,7 +3413,7 @@
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(1), active: isSet3(1) }">
                             <div class="row">
-                                <div style="color:black;" id="FromSKU1" e-showstackedheader="true" ej-grid e-datasource="FromSKU1List" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                <div style="color:black;" id="FromSKU1" e-showstackedheader="true" ej-grid e-datasource="FromSKU1List" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                                     <div e-stackedheaderrows>
                                         <div e-stackedheaderrow>
                                             <div e-stackedheadercolumns>
@@ -3435,7 +3435,7 @@
                         </div>
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(2), active: isSet3(2) }">
                             <div class="row">
-                                <div style="color:black;" id="FromSKU2" e-showstackedheader="true" ej-grid e-datasource="FromSKU2List" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                <div style="color:black;" id="FromSKU2" e-showstackedheader="true" ej-grid e-datasource="FromSKU2List" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                                     <div e-stackedheaderrows>
                                         <div e-stackedheaderrow>
                                             <div e-stackedheadercolumns>
@@ -3463,6 +3463,92 @@
                         <li><button ng-click="CopySObyMOI();" class="btn" tabindex="9"><i class="glyphicon glyphicon-save-file"></i>Copy SO</button></li>
                     </ul>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="SKUpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> {{SKU}} - {{SKULevel}}<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="form-horizontal form-elements" ng-form="skuForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" n-decimals="2" name="Sequence" ng-model="characteristicsvalueNew.Sequence" class="form-control text-right" required tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Short Name" maxlength="15" ng-model="characteristicsvalueNew.ShortName" class="form-control" required tabindex="4">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">User Define Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="User Name" maxlength="50" ng-model="characteristicsvalueNew.UserName" class="form-control" required tabindex="6">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="characteristicsvalueNew.Remarks" name="Remarks" maxlength="250" tabindex="8" ng-trim="false"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Code" maxlength="10" ng-model="characteristicsvalueNew.Code" class="form-control" required tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Standard Name" maxlength="50" ng-model="characteristicsvalueNew.StandardName" class="form-control" tabindex="5" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Description</label>
+                            <div class="col-sm-8">
+                                <textarea type="text" maxlength="250" rows="2" ng-model="characteristicsvalueNew.Description" class="form-control" tabindex="7"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Is Default</label>
+                            <div class="col-sm-2">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="characteristicsvalueNew.IsDefault">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-3 control-label">Active</label>
+                            <div class="col-sm-2">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="characteristicsvalueNew.Active">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="SaveBOMSKUState();" class="btn" tabindex="38"><i class="glyphicon glyphicon-plus"></i> Save</button></li>
+                            <li><button ng-click="clearMasterCharacteristicsValue();" class="btn" tabindex="39"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            <li><button ng-click="CloseCharacteristicsValuePopUp();" class="btn" tabindex="40"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

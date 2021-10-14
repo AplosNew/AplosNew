@@ -237,7 +237,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                     throw new Exception("Plant is missing [Emp]" + sEmployeeSysID);
                 }
 
-                if (sSlrHD == "SHD202056")
+                if (sSlrHD == "SHD202062")
                 {
 
                 }
@@ -1840,7 +1840,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                                     var ss = dicLocal_Sub[i].SalaryHeadID;
 
-                                                    if (ss == "SHD20214")//SHD202023 SHD202065
+                                                    if (ss == "SHD202062")//SHD202023 SHD202065
                                                     {
 
                                                     }

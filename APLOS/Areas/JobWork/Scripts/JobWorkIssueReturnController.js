@@ -439,6 +439,37 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 //		$scope.GRN = 6;
 	};
 
+	$scope.Detaillst = [];
+	$scope.GRNListDetails = function () {
+		//debugger;
+		$http({
+			method: 'GET',
+			url: $scope.path + 'JWDetailsData'
+		}).then(function successCallback(response) {
+			$scope.Detaillst = response.data;
+			window.Detaillst = response.data;
+
+		});
+	}
+	$scope.GRNListDetails();
+
+	$scope.detailTemp = "#tabGridContents";
+	$scope.detailgrid = function detailGridData(e) {
+		//debugger;
+
+		var filteredData = e.data["Id"];
+		var data = ej.DataManager(window.Detaillst).executeLocal(ej.Query().where("Id", "equal", parseInt(filteredData), true).take(100));
+		e.detailsElement.find("#detailGrid").ejGrid({
+			dataSource: data,
+			/*columns: ["MaterialGroupName", "MaterialName", "Article", "SKU1", "SKU2", "SKU3", "MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount", "MaterialFor"]*/
+
+			columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoMId", "TransactionUoM", "BaseCurrency", "BaseRate", "Amount"]
+		});
+		e.detailsElement.find(".tabcontrol").ejTab();
+
+
+	}
+
 
 
 	$scope.IssueChildModelTemp = {
@@ -2388,7 +2419,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		//var data = gridObj.getSelectedRecords()[0];
 
 		location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
-		$scope.getalldata();
+	//	$scope.getalldata();
 	};
 
 	//#region start Reports
