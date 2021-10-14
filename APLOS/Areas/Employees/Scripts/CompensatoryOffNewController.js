@@ -18,10 +18,35 @@ function CompensatoryOffNewController(cboService, commonMessage, $scope, $rootSc
     $scope.plantSave = false;
     $scope.employeeSave = true;
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
 
+    };
     $scope.HolidayType = [{ 'type': 'Week-Off', 'Id': 'W' }, { 'type': 'Holiday', 'Id': 'H' }];
+    $scope.TreatmentTypeCaption = 'Work on ';
+    $scope.DayLegendWorkCaption = 'Work against holiday=WAH,  Work against holiday with OT=WAHOT, Work against weekoff=WAW,  Work against weekoff with OT=WAWOT';
+    $scope.DayLegendCompensateCaption = 'Compensate against holiday=CH, Compensate against weekoff=CW';
+    $scope.treatmentType = function () {
+
+     
+        $scope.compensatoryOff.IsOriginalDateOTApplicable = null;
+        $scope.compensatoryOff.HolidayCategoryId = null;
+        $scope.compensatoryOff.DayCode = null;
+        $scope.compensatoryOff.IsAlignedWithHoliday = false;
+        $scope.compensatoryOff.CompensatoryDateTreatmentType = null;
+       
+
+        $scope.TreatmentTypeCaption = 'Work on ';
+        if ($scope.compensatoryOff.DayType == 'COMPENSATE')
+            $scope.TreatmentTypeCaption = 'Compensate against ';
+    }
+
     $scope.HolidayCategorycbo = [];
-    $scope.compensatoryOff = {
+    $scope.compensatoryOffMain = {
         Id: null,
         PlantId: null,
         OriginalDate: null,
@@ -30,7 +55,11 @@ function CompensatoryOffNewController(cboService, commonMessage, $scope, $rootSc
         HolidayCategoryId: null,
         IsOriginalDateOTApplicable: false,
         ForEntirePlant: false,
+        DayType: 'WORK',
+        DayCode: '',
+        IsAlignedWithHoliday: false
     };
+    $scope.compensatoryOff = Object.assign({}, $scope.compensatoryOffMain);
     $scope.compensatoryOffEmployee = [];
 
     $scope.loadCompensatoryOff = function () {
@@ -90,6 +119,10 @@ function CompensatoryOffNewController(cboService, commonMessage, $scope, $rootSc
                 $scope.employeeSave = false;
             }
         }
+
+        $scope.TreatmentTypeCaption = 'Work on ';
+        if ($scope.compensatoryOff.DayType == 'COMPENSATE')
+            $scope.TreatmentTypeCaption = 'Compensate against ';
     }
     $scope.actionCompleteSelected = function (args) {
         //if (args.requestType == "filtering") {
@@ -273,10 +306,10 @@ function CompensatoryOffNewController(cboService, commonMessage, $scope, $rootSc
         try {
 
             if (angular.isUndefinedOrNull($scope.compensatoryOff.OriginalDate) == true)
-                throw "Please select General Working Date";
-            if (angular.isUndefinedOrNull($scope.compensatoryOff.CompensatoryDate) == true)
-                throw "Please select compensatory date";
+                throw "Please select Date";
 
+
+            //compensatoryOff.DayType == 'COMPENSATE' && compensatoryOff.IsAlignedWithHoliday == true
             if (angular.isUndefinedOrNull($scope.compensatoryOff.CompensatoryDateTreatmentType) == true)
                 throw "Please select holiday treatment type";
 
@@ -315,7 +348,7 @@ function CompensatoryOffNewController(cboService, commonMessage, $scope, $rootSc
                             }
                         }
                     }
-                        
+
                 }
 
             }
@@ -407,7 +440,8 @@ function CompensatoryOffNewController(cboService, commonMessage, $scope, $rootSc
     }
 
     ////edit screen
-    $scope.editdata = [];
+    $scope.editdataWork = [];
+    $scope.editdataCompensate = [];
     $scope.editListCompensatoryOff = function () {
 
         $http({
@@ -419,7 +453,8 @@ function CompensatoryOffNewController(cboService, commonMessage, $scope, $rootSc
 
             }
             else {
-                $scope.editdata = response.data;
+                $scope.editdataWork = response.data.Work;
+                $scope.editdataCompensate = response.data.Compensate;
 
             }
         }), function errorCallBack(response) {
@@ -463,7 +498,11 @@ function CompensatoryOffNewController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.Clear = function () {
-        $scope.compensatoryOff = {};
+        $scope.compensatoryOff = Object.assign({}, $scope.compensatoryOffMain);
+        $scope.TreatmentTypeCaption = 'Work on ';
+        if ($scope.compensatoryOff.DayType == 'COMPENSATE')
+            $scope.TreatmentTypeCaption = 'Compensate against ';
+
         $scope.compensatoryOffEmployee = [];
         $scope.selectedemployees = [];
         $scope.editListCompensatoryOff();

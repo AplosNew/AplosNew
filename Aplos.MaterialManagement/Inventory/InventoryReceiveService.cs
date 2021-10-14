@@ -20052,7 +20052,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				}
 				//{ TotalInWords}
 
-				document.Replace("{GrandTotal}", (materialTotal ).ToString("#,##0.000") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+				document.Replace("{GrandTotal}", (materialTotal ).ToString("#,##0.00") + " " + dtOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
 				document.Replace("{TotalInWords}", ru.InWord((materialTotal ), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
 				Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
@@ -20360,7 +20360,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 ,TC.Id ThirdCharId
                 ,TC.UserName ThirdChar
                 ,IRD.TransactionQty POTransactionQty
-                ,IRD.PolicyAmount AS TotalAmount
+                ,round(IRD.PolicyAmount,2) AS TotalAmount
                 ,(IRD.PolicyRate) TransactionRate
                 ,null BaseAmount
                 ,null AS BaseTaxAmount
@@ -20925,10 +20925,10 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 				TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
 				TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
 				
-				TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
-				TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+				TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
+				TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
 				TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalAmount"].ToString()).ToString("F2"));
+				TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalAmount"].ToString()).ToString("#,##0.00"));
 
 				totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalAmount"].ToString());
 				
@@ -20956,7 +20956,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						value += clsStdLib.dbl(item.Text);
 					}
 				}
-				_TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.000")).ApplyCharacterFormat(FontBold);
+				_TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
 
 			}
 			#endregion Total

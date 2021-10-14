@@ -1774,6 +1774,8 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 						else {
 							ShowResult(response.data.Message, 'success');
 							$scope.ReceiptTransformation.Id = response.data.entity.Id;
+							$scope.GRNListDetails();
+							$scope.detailgrid();
 							//$scope.SaveButtonDisable = true;
 							//$scope.setTabGRNList(1);
 							//$scope.getDataList();
@@ -2385,7 +2387,8 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				debugger;
 				if ($scope.Action === 'Save') {
 					//	data.TransactionRate = (data.GrossConsumption * data.TransactionQty) / data.TransactionQty;
-					var MatTranRate = ((data.GrossConsumption) / data.PlanQuantity) / (parseFloat($scope.ReceiptTransformation.ToCurrencyRate));
+					/*var MatTranRate = ((data.GrossConsumption) / data.PlanQuantity) / (parseFloat($scope.ReceiptTransformation.ToCurrencyRate));*/
+					var MatTranRate = (data.GrossConsumption) / (data.PlanQuantity);
 					data.TransactionRate = MatTranRate.toFixed(4);
 				}
 

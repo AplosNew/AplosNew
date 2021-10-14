@@ -80,8 +80,8 @@
 								<td>{{x.InventorySalesQty}} {{x.BUoM}}</td>
 
 								@*<td>{{x.BalanceStock}} {{x.BUoM}}</td>*@
-								<td>{{x.BaseRate|setDecimal:2}} {{x.TCurrency}}</td>
-								<td>{{x.BaseCurrencyRate|setDecimal:2}} {{x.BCurrency}}</td>
+								<td>{{x.BaseRate|setDecimal:4}} {{x.TCurrency}}</td>
+								<td>{{x.BaseCurrencyRate|setDecimal:4}} {{x.BCurrency}}</td>
 
 								@*<td>{{x.SalesRate|setDecimal:4}} {{x.TCurrency}}</td>
 								<td>{{x.TotalAmount|setDecimal:4}} {{x.TCurrency}}</td>*@
@@ -115,7 +115,7 @@
 
 								@*<td class="text-left"><strong>{{materialStockList | sumByKey : 'BalanceStock' }}</strong></td>*@
 								<td class="text-left"><strong>&nbsp;@*{{materialStockList | sumByKey : 'BaseQty' }}*@</strong></td>
-								<td colspan="2"></td>
+								<td colspan="3"></td>
 								@*<td class="text-left"><strong>{{materialStockList | sumByKey : 'RequisitionQty' }}</strong></td>
 									<td></td>*@
 							</tr>

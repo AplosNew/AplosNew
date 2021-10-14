@@ -165,6 +165,7 @@ namespace Aplos.Areas.JobWork.Controllers
 						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
+                        ,TotalQuantity= ISNULL(TT.TotalQty,'0'), TotalAmount= ISNULL(TT.TotalAmt,'0')
 						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -198,6 +199,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
+                        left join (select SUM(IID.TransactionQty) as TotalQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) as TotalAmt ,II.JWContractId
+						from TRN.InventoryIssue II left join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+						left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+						--where II.JWContractId='JWP98'
+						group by II.JWContractId) TT on TT.JWContractId=IR.Id
 						WHERE " + strkey + @" and  IR.PlantId='" + identity.PlantId + @"' 
                         --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
@@ -248,6 +254,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
+                        ,TotalQuantity= ISNULL(TT.TotalQty,'0'), TotalAmount= ISNULL(TT.TotalAmt,'0')
 						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -280,6 +287,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
+                        left join (select SUM(IID.TransactionQty) as TotalQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) as TotalAmt ,II.JWContractId
+						from TRN.InventoryIssue II left join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+						left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+						--where II.JWContractId='JWP98'
+						group by II.JWContractId) TT on TT.JWContractId=IR.Id
 						Where " + strkey + @" and IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
@@ -332,6 +344,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
+                        ,TotalQuantity= ISNULL(TT.TotalQty,'0'), TotalAmount= ISNULL(TT.TotalAmt,'0')
 						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -363,6 +376,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
+                        left join (select SUM(IID.TransactionQty) as TotalQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) as TotalAmt ,II.JWContractId
+						from TRN.InventoryIssue II left join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+						left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+						--where II.JWContractId='JWP98'
+						group by II.JWContractId) TT on TT.JWContractId=IR.Id
 						Where " + strkey + @" and IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
 						And IR.PlantId='" + identity.PlantId + @"' 
@@ -425,6 +443,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
+                        ,TotalQuantity= ISNULL(TT.TotalQty,'0'), TotalAmount= ISNULL(TT.TotalAmt,'0')
 						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -458,6 +477,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
+                        left join (select SUM(IID.TransactionQty) as TotalQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) as TotalAmt ,II.JWContractId
+						from TRN.InventoryIssue II left join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+						left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+						--where II.JWContractId='JWP98'
+						group by II.JWContractId) TT on TT.JWContractId=IR.Id
 						WHERE " + strkey + @" and  IR.PlantId='" + identity.PlantId + @"' 
                         --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
@@ -508,6 +532,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
+                        ,TotalQuantity= ISNULL(TT.TotalQty,'0'), TotalAmount= ISNULL(TT.TotalAmt,'0')
 						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -540,6 +565,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
+                        left join (select SUM(IID.TransactionQty) as TotalQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) as TotalAmt ,II.JWContractId
+						from TRN.InventoryIssue II left join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+						left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+						--where II.JWContractId='JWP98'
+						group by II.JWContractId) TT on TT.JWContractId=IR.Id
 						Where " + strkey + @" and IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
@@ -592,6 +622,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
+                        ,TotalQuantity= ISNULL(TT.TotalQty,'0'), TotalAmount= ISNULL(TT.TotalAmt,'0')
 						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -623,6 +654,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
+                        left join (select SUM(IID.TransactionQty) as TotalQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) as TotalAmt ,II.JWContractId
+						from TRN.InventoryIssue II left join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+						left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+						--where II.JWContractId='JWP98'
+						group by II.JWContractId) TT on TT.JWContractId=IR.Id
 						Where " + strkey + @" and IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
 						And IR.PlantId='" + identity.PlantId + @"' 

@@ -50,7 +50,7 @@ namespace Aplos.Areas.Employees.Controllers
 
 
         [HttpPost]
-        public JsonResult Save(CompensatoryOff masterdata, List<CompensatoryOffEmpList> employeedata)
+        public JsonResult Save(CompensatoryOffNew masterdata, List<CompensatoryOffEmpList> employeedata)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace Aplos.Areas.Employees.Controllers
 
 
 
-                return Json(new { Message = "Data saved successfully", Error = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { Message = "Data saved successfully. Day Code:" + masterdata.DayCode, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -212,7 +212,7 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         #endregion Actions
-        private void saveData(CompensatoryOff masterdata, List<CompensatoryOffEmpList> employeedata)
+        private void saveData(CompensatoryOffNew masterdata, List<CompensatoryOffEmpList> employeedata)
         {
             string EmpIdLoop = "''";
             if (employeedata != null)
@@ -248,13 +248,8 @@ namespace Aplos.Areas.Employees.Controllers
 
 
                 if (bplib.clsWebLib.IsDateOK(masterdata.OriginalDate) == false)
-                    throw new Exception("Invalid original date");
+                    throw new Exception("Invalid date");
 
-                if (bplib.clsWebLib.IsDateOK(masterdata.CompensatoryDate) == false)
-                    throw new Exception("Invalid compensatory date");
-
-                if (Convert.ToDateTime(masterdata.CompensatoryDate) == Convert.ToDateTime(masterdata.OriginalDate))
-                    throw new Exception("Compensatory Date cannot be same as General Working Date");
 
                 string sql = "SELECT * FROM [MST].[CompensatoryOff] where OriginalDate='" + masterdata.OriginalDate + "' and plantid='" + identity.PlantId + "' and id<>'" + masterdata.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -286,20 +281,10 @@ namespace Aplos.Areas.Employees.Controllers
 
                 if (masterdata.ForEntirePlant == true)
                 {
-                    //cannot have same start date and transfer date (plant level)
+                   
+                    //cannot have same start date and transfer date(plant level)
                     sql = @"SELECT * FROM [MST].[CompensatoryOff] M
-                            WHERE m.CompensatoryDate='" + masterdata.CompensatoryDate + @"' AND M.PlantId='" + identity.PlantId + @"' AND m.Id<>'" + masterdata.Id + @"'";
-
-                    objCon = new ConnectionManager.DAL.ConManager("1");
-                    objCon.OpenDataSetThroughAdapter(sql, out dsTemp, false, "1");
-
-
-                    if (dsTemp.Tables[0].Rows.Count > 0)
-                        throw new Exception("Plant has already been tagged with compensatory date: " + masterdata.CompensatoryDate + "\r\n");
-
-                    //cannot have same start date and transfer date (plant level)
-                    sql = @"SELECT * FROM [MST].[CompensatoryOff] M
-                            WHERE m.OriginalDate='" + masterdata.OriginalDate + @"' AND M.PlantId='" + identity.PlantId + @"' AND m.Id<>'" + masterdata.Id + @"'";
+                            WHERE daytype='" + masterdata.DayType + @"' AND m.OriginalDate='" + masterdata.OriginalDate + @"' AND M.PlantId='" + identity.PlantId + @"' AND m.Id<>'" + masterdata.Id + @"'";
 
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsTemp, false, "1");
@@ -313,17 +298,7 @@ namespace Aplos.Areas.Employees.Controllers
                 //check whether employees exists that day or not
                 if (masterdata.ForEntirePlant == false)
                 {
-                    //cannot have same start date and transfer date (plant level)
-                    sql = @"SELECT * FROM [MST].[CompensatoryOff] M
-                            WHERE ISNULL(ForEntirePlant,0)=1 AND m.CompensatoryDate='" + masterdata.CompensatoryDate + @"' AND M.PlantId='" + identity.PlantId + @"' AND m.Id<>'" + masterdata.Id + @"'";
-
-                    objCon = new ConnectionManager.DAL.ConManager("1");
-                    objCon.OpenDataSetThroughAdapter(sql, out dsTemp, false, "1");
-
-
-                    if (dsTemp.Tables[0].Rows.Count > 0)
-                        throw new Exception("Plant has already been tagged with compensatory date: " + masterdata.CompensatoryDate + "\r\n");
-
+                   
                     //cannot have same start date and transfer date (plant level)
                     sql = @"SELECT * FROM [MST].[CompensatoryOff] M
                             WHERE ISNULL(ForEntirePlant,0)=1 AND m.OriginalDate='" + masterdata.OriginalDate + @"' AND M.PlantId='" + identity.PlantId + @"' AND m.Id<>'" + masterdata.Id + @"'";
@@ -337,28 +312,8 @@ namespace Aplos.Areas.Employees.Controllers
 
 
 
-                    //cannot have same start date and transfer date (employee)
-                    sql = @"SELECT c.EmpSystemId,EI.EmployeeCode FROM [MST].[CompensatoryOff] M
-                            INNER JOIN [MST].[CompensatoryOffEmpList] C ON m.Id=c.CompensatoryOffId
-                            INNER JOIN EmployeeInformation EI ON EI.SystemID= c.EmpSystemId
-                            WHERE m.CompensatoryDate='" + masterdata.CompensatoryDate + @"' AND M.PlantId='" + identity.PlantId + @"' AND m.Id<>'" + masterdata.Id + @"'";
-
-                    objCon = new ConnectionManager.DAL.ConManager("1");
-                    objCon.OpenDataSetThroughAdapter(sql, out dsTemp, false, "1");
-
-
                     string faulty = "";
-                    for (int i = 0; i < dsTemp.Tables[0].Rows.Count; i++)
-                    {
-                        IEnumerable<CompensatoryOffEmpList> duplicate = employeedata.Where(ee => ee.Id == dsTemp.Tables[0].Rows[i]["EmpSystemId"].ToString());
-                        if (duplicate != null)
-                            foreach (CompensatoryOffEmpList item in duplicate)
-                                faulty += "[" + dsTemp.Tables[0].Rows[i]["EmployeeCode"].ToString() + "]";
-                    }
-                    if (faulty != "")
-                        throw new Exception("Following employees have already been tagged with compensatory date: " + masterdata.CompensatoryDate + "\r\n" + faulty);
-
-
+                
                     //cannot have same start date and transfer date (employee)
                     sql = @"SELECT c.EmpSystemId,EI.EmployeeCode FROM [MST].[CompensatoryOff] M
                             INNER JOIN [MST].[CompensatoryOffEmpList] C ON m.Id=c.CompensatoryOffId
@@ -387,10 +342,25 @@ namespace Aplos.Areas.Employees.Controllers
                 if (masterdata.ForEntirePlant == true)
                     employeedata = new List<CompensatoryOffEmpList>();
 
+                //get day code
+                masterdata.DayCode = "";
+                if (masterdata.DayType.ToUpper() == "WORK")
+                {
+                    masterdata.DayCode += "WA" + masterdata.CompensatoryDateTreatmentType;
+                    if (masterdata.IsOriginalDateOTApplicable)
+                        masterdata.DayCode += "OT";
+                }
+                else
+                {
+                    masterdata.DayCode += "C" + masterdata.CompensatoryDateTreatmentType;
+                }
+
+
 
                 sql = "SELECT * FROM [MST].[CompensatoryOff] where id='" + masterdata.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
 
                 string MasterID = "";
                 if (dsMaster.Tables[0].Rows.Count == 0)
@@ -404,11 +374,14 @@ namespace Aplos.Areas.Employees.Controllers
                     dr["id"] = id;
                     dr["PlantId"] = identity.PlantId;
                     dr["OriginalDate"] = masterdata.OriginalDate;
-                    dr["CompensatoryDate"] = masterdata.CompensatoryDate;
+                    dr["CompensatoryDate"] = masterdata.OriginalDate;
                     dr["CompensatoryDateTreatmentType"] = bplib.clsWebLib.RetValidLen(masterdata.CompensatoryDateTreatmentType);
                     dr["HolidayCategoryId"] = bplib.clsWebLib.RetValidLen(masterdata.HolidayCategoryId);
                     dr["IsOriginalDateOTApplicable"] = masterdata.IsOriginalDateOTApplicable;
                     dr["ForEntirePlant"] = masterdata.ForEntirePlant;
+                    dr["DayType"] = masterdata.DayType;
+                    dr["DayCode"] = masterdata.DayCode;
+                    dr["IsAlignedWithHoliday"] = masterdata.IsAlignedWithHoliday;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -429,11 +402,15 @@ namespace Aplos.Areas.Employees.Controllers
                     dr.BeginEdit();
 
                     dr["OriginalDate"] = masterdata.OriginalDate;
-                    dr["CompensatoryDate"] = masterdata.CompensatoryDate;
+                    dr["CompensatoryDate"] = masterdata.OriginalDate;
                     dr["CompensatoryDateTreatmentType"] = bplib.clsWebLib.RetValidLen(masterdata.CompensatoryDateTreatmentType);
                     dr["HolidayCategoryId"] = bplib.clsWebLib.RetValidLen(masterdata.HolidayCategoryId);
                     dr["IsOriginalDateOTApplicable"] = masterdata.IsOriginalDateOTApplicable;
                     dr["ForEntirePlant"] = masterdata.ForEntirePlant;
+                    dr["DayType"] = masterdata.DayType;
+                    dr["DayCode"] = masterdata.DayCode;
+                    dr["IsAlignedWithHoliday"] = masterdata.IsAlignedWithHoliday;
+
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -515,7 +492,7 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpPost]
-        public JsonResult deleteemployee(CompensatoryOff masterdata, string employeedata)
+        public JsonResult deleteemployee(CompensatoryOffNew masterdata, string employeedata)
         {
             try
             {
@@ -547,9 +524,9 @@ namespace Aplos.Areas.Employees.Controllers
             try
             {
                 string sql = @"SELECT Id, FORMAT( OriginalDate,'dd-MMM-yyyy') AS OriginalDate,FORMAT( CompensatoryDate,'dd-MMM-yyyy') AS CompensatoryDate, CompensatoryDateTreatmentType,
-                                HolidayCategoryId, IsOriginalDateOTApplicable, ForEntirePlant FROM [MST].[CompensatoryOff] where ID='" + ID + "'";
+                                HolidayCategoryId,DayType,	DayCode,convert(bit,isnull(IsAlignedWithHoliday,0)) AS IsAlignedWithHoliday, IsOriginalDateOTApplicable, ForEntirePlant FROM [MST].[CompensatoryOff] where ID='" + ID + "'";
 
-                var masterData = _sqlRepository.GetModelCollection<CompensatoryOff>(sql);
+                var masterData = _sqlRepository.GetModelCollection<CompensatoryOffNew>(sql);
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -624,11 +601,11 @@ namespace Aplos.Areas.Employees.Controllers
 
 
             DateTime maxDate = Convert.ToDateTime(offdate);
-            if (Convert.ToDateTime(CompensatoryDate) > maxDate)
-                maxDate = Convert.ToDateTime(CompensatoryDate);
+            //if (Convert.ToDateTime(CompensatoryDate) > maxDate)
+            //    maxDate = Convert.ToDateTime(CompensatoryDate);
 
-            if (Convert.ToDateTime(CompensatoryDate) < Convert.ToDateTime(offdate))
-                offdate = CompensatoryDate;
+            //if (Convert.ToDateTime(CompensatoryDate) < Convert.ToDateTime(offdate))
+            //    offdate = CompensatoryDate;
 
 
             string normalDate = " EMP.EmployeeStatus='Active' ";
@@ -696,15 +673,22 @@ namespace Aplos.Areas.Employees.Controllers
 
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT 
-                            o.Id,FORMAT( o.OriginalDate,'dd-MMM-yyyy') AS OriginalDate,
-                            FORMAT( o.CompensatoryDate,'dd-MMM-yyyy') AS CompensatoryDate,
+            string sqlWork = @"SELECT   o.Id,FORMAT( o.OriginalDate,'dd-MMM-yyyy') AS OriginalDate,DayType,DayCode,O.IsAlignedWithHoliday,
                              o.CompensatoryDateTreatmentType,c.UserName AS HolidayCategory,
                             o.IsOriginalDateOTApplicable, o.ForEntirePlant
                              FROM [MST].[CompensatoryOff] O
                             LEFT OUTER JOIN [SCS].[HolidayCategory] C ON c.Id=o.HolidayCategoryId
 
-                            WHERE  O.PlantId='" + identity.PlantId + @"'
+                            WHERE  O.PlantId='" + identity.PlantId + @"' and DayType='Work'
+                            ORDER BY O.OriginalDate DESC";
+
+            string sqlCompensate = @"SELECT   o.Id,FORMAT( o.OriginalDate,'dd-MMM-yyyy') AS OriginalDate,DayType,DayCode,O.IsAlignedWithHoliday,
+                             o.CompensatoryDateTreatmentType,c.UserName AS HolidayCategory,
+                            o.IsOriginalDateOTApplicable, o.ForEntirePlant
+                             FROM [MST].[CompensatoryOff] O
+                            LEFT OUTER JOIN [SCS].[HolidayCategory] C ON c.Id=o.HolidayCategoryId
+
+                            WHERE  O.PlantId='" + identity.PlantId + @"' and DayType='Compensate'
                             ORDER BY O.OriginalDate DESC";
 
 
@@ -712,7 +696,7 @@ namespace Aplos.Areas.Employees.Controllers
             {
 
 
-                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                return Json(new { Work = _sqlRepository.GetDataCollection(sqlWork, null), Compensate = _sqlRepository.GetDataCollection(sqlCompensate, null) }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -722,6 +706,19 @@ namespace Aplos.Areas.Employees.Controllers
         }
     }
 
-   
+    public class CompensatoryOffNew : BaseModel
+    {
+        public string Id { get; set; } = "";
+        public string PlantId { get; set; } = "";
+        public string OriginalDate { get; set; } = "";
+        public string CompensatoryDate { get; set; } = "";
+        public string CompensatoryDateTreatmentType { get; set; } = "";
+        public string HolidayCategoryId { get; set; } = "";
+        public bool IsOriginalDateOTApplicable { get; set; } = false;
+        public bool ForEntirePlant { get; set; } = false;
+        public string DayType { get; set; } = "WORK";//COMPENSATE
+        public string DayCode { get; set; } = "";
+        public bool IsAlignedWithHoliday { get; set; } = false;
+    }
 
 }
