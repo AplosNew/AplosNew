@@ -1086,23 +1086,23 @@ function InOutGatePassController(accountService, addressService, $location, $win
 			//$scope.productNew.PurchaseReturnId = data.ComId;
 			$scope.getPurchaseReturnDataDetails(data.ComId);
 		}
-		else if ($scope.productNew.GatePassType === 'MaterialTransfer') {
+		else if (data.GatePassFor === 'MaterialTransfer') {
 			$scope.SelectType = 'Select Material Transfer';
 			$scope.getMaterialTransferData();
 		}
-		else if ($scope.productNew.GatePassType === 'InventorySales') {
+		else if (data.GatePassFor === 'InventorySales') {
 			$scope.SelectType = 'Select Inventory Sales';
 			$scope.getInventorySalesData();
 		}
-		else if ($scope.productNew.GatePassType === 'InventoryScrap') {
+		else if (data.GatePassFor === 'InventoryScrap') {
 			$scope.SelectType = 'Select Inventory Scrap';
 			$scope.getInventoryScrapData();
 		}
-		else if ($scope.productNew.GatePassType === 'FixedAssetSales') {
+		else if (data.GatePassFor === 'FixedAssetSales') {
 			$scope.SelectType = 'Select FixedAsset Sales';
 			$scope.getFixedAssetSalesData();
 		}
-		else if ($scope.productNew.GatePassType === 'FixedAssetScrap') {
+		else if (data.GatePassFor === 'FixedAssetScrap') {
 			$scope.SelectType = 'Select FixedAsset Scrap';
 			$scope.getFixedAssetScrapData();
 		}

@@ -874,20 +874,19 @@ namespace Library.MaterialManagement.Inventory
 									InventoryMaterialId = invMaterialId,
 									BaseUOMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BaseUOMId).FirstOrDefault(),
 									TransactionUoMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.TransactionUoMId).FirstOrDefault(),
-									AvgRate = Math.Round(invMaterial.AvgRate, 4),
+									AvgRate = Math.Round(Convert.ToDecimal(invMaterial.AvgRate), 4),
 									Policy = "N/A",
 
-									TransactionQty = Math.Round(totalGRNQty, 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
+									TransactionQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
 
-									PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
-									PolicyAmount = Math.Round(detailtrnAmount, 2),
-									BaseQty = Math.Round(totalGRNQty, 2),//stockList.Sum(r => r.RequisitionQty),
-									AvgAmount = Math.Round((totalGRNQty * invMaterial.AvgRate), 2),
+									PolicyRate = Math.Round((Convert.ToDecimal(detailtrnAmount / totalGRNQty)), 4),
+									PolicyAmount = Math.Round(Convert.ToDecimal(detailtrnAmount), 2),
+									BaseQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2),//stockList.Sum(r => r.RequisitionQty),
+									AvgAmount = Math.Round((Convert.ToDecimal(totalGRNQty * invMaterial.AvgRate)), 2),
 									BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
 									ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
 									CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
 									Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
-
 									ModelState = ModelState.Added
 								};
 
