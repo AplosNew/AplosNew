@@ -86,8 +86,8 @@
                                             <div e-column e-headertext="Actions" e-width="100">
                                                 <ul class="list-inline text-center">
                                                     <li>
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -503,8 +503,8 @@
                                             <div e-column e-headertext="Actions" e-width="100">
                                                 <ul class="list-inline text-center">
                                                     <li>
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -1084,8 +1084,11 @@
                 <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
                 <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
                 <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="120"></div>
-                <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
-                <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+                @*<div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
+                <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>*@
+                <div e-column e-field="TotalQuantity" e-headertext="Issued Quantity" textAlign='Right' e-width="120"></div>
+                <div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+
                 <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
                 <div e-column e-field="TConProcessEndDate" e-headertext="Process End Date" e-width="150"></div>
                 <div e-column e-field="TConContractClosingDate" e-headertext="Contract Closing Date" e-width="150"></div>
