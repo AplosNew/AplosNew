@@ -41,6 +41,8 @@ namespace Library.ViewModel.SalesManagements
         public decimal? AfterInvoiceRate { get; set; }
         public decimal? TransactionAmount { get; set; }
         public decimal? BaseAmount { get; set; }
+        public string InventorySalesDetailId { get; set; }
+        public string InventorySalesId { get; set; }
         public string InventoryReceiveId { get; set; }
         public string InventoryReceiveDetailId { get; set; }
         public string InventoryMaterialId { get; set; }
@@ -188,7 +190,6 @@ namespace Library.ViewModel.SalesManagements
         public string Diameter { get; set; }
         public string Type { get; set; }
 
-        public string InventorySalesId { get; set; }
 
         public string RefferenceNo { get; set; }
         public decimal InventoryTransferQty { get; set; }

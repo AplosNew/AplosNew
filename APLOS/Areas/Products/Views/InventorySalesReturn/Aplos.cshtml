@@ -209,6 +209,7 @@
                                     <th>Sales Tax </th>
                                     <th>Balance Qty</th>
                                     <th>Return Qty</th>
+                                    <th>Current Balance Qty</th>
                                     <th>Return Amount</th>
                                     <th>Return Tax</th>
                                     <th></th>
@@ -233,6 +234,7 @@
                                     <td class="text-right">
                                         <input type="text" n-decimals="2" ng-model=" x.ReturnQty" ng-change="returnAmountCalculation(x);" class="form-control text-right">
                                     </td>
+                                    <td class="text-right">{{x.CurrentBalanceQty}}</td>
                                     <td class="text-right">{{x.ReturnAmount}}</td>
                                     <td class="text-right">{{x.TaxAmount}}</td>
                                     <td class="text-right table-td">
@@ -254,6 +256,7 @@
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'SalesTaxAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'BalanceQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnQty'| setDecimal:2| number }}</strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'CurrentBalanceQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
@@ -282,44 +285,41 @@
                             <tr>
                                 <th>Service</th>
                                 <th>Description</th>
-                                <th>Amount (TRN)</th>
-                                <th>Total Tax Amount</th>
+                                <th>Sale Amount (TRN)</th>
+                                <th> Tax </th>
+                                <th> Other Sales </th>
+                                <th> Balance  </th>
                                 <th>Return Amount</th>
+                                <th>Return Tax </th>
                                 <th class="col-sm-1"></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="x in chargesList">
                                 <td>{{x.ServiceMasterName}}</td>
-                                <td>
-                                    @*<div class="show-message">
-                                            <input type="text" class="form-control text-right" ng-model="x.Description" ng-disabled="true">
-                                        </div>*@
-                                    {{x.Description}}
-                                </td>
+                                <td> {{x.Description}}</td>
                                 <td ng-hide="true">{{x.Id}}</td>
-                                <td class="text-right">
-                                    @*<input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.Amount" ng-disabled="true">*@
-                                    {{x.Amount}}
-                                </td>
-
-                                <td class="text-right">
-                                    @*<input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalTaxAmount" ng-disabled="true">*@
-                                    {{x.TotalTaxAmount}}
-                                </td>
+                                <td class="text-right"> {{x.Amount}}</td>
+                                <td class="text-right">{{x.SalesServiceTaxAmount}}</td>
+                                <td class="text-right">{{x.OtherServiceAmount}}</td>
+                                <td class="text-right">{{x.BalanceAmount}}</td>
                                 <td class="text-right">
                                     <input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.ReturnAmount" ng-keyup="calculateServiceAmount(x);">
                                 </td>
+                                <td class="text-right">{{x.TotalTaxAmount}}</td>
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
                                         <li><button ng-click="getServiceTaxList(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        @*<li><button ng-click="delModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
                                     </ul>
                                 </td>
                             </tr>
                             <tr>
                                 <td colspan="2" class="text-right"><strong>Total : </strong></td>
                                 <td class="text-right"><strong>{{chargesList | sumByKey : 'Amount'| setDecimal:2| number }}</strong></td>
+                                <td class="text-right"><strong>{{chargesList | sumByKey : 'SalesServiceTaxAmount'| setDecimal:2| number }}</strong></td>
+                                <td class="text-right"><strong>{{chargesList | sumByKey : 'OtherServiceAmount'| setDecimal:2| number }}</strong></td>
+                                <td class="text-right"><strong>{{chargesList | sumByKey : 'BalanceAmount'| setDecimal:2| number }}</strong></td>
+                                <td class="text-right"><strong>{{chargesList | sumByKey : 'ReturnAmount'| setDecimal:2| number }}</strong></td>
                                 <td class="text-right"><strong>{{chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:2| number }}</strong></td>
                                 <td class="text-right"></td>
                             </tr>
@@ -344,12 +344,12 @@
 
 <div class="aplos-grid-toggle">
     <div class="content-container-fluid" style="color:black;overflow:scroll">
-        <div style="color:black;" id="GridMaster" ej-grid e-datasource="SalesdataList" @*e-recorddoubleclick="Get"*@
+        <div style="color:black;" id="GridMaster" ej-grid e-datasource="SalesdataList" e-recorddoubleclick="getUpdateData"
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
-                <div e-column e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
-                <div e-column e-field="InventorySalesId" e-headertext="Inventory SalesId" e-width="30"></div>
+                <div e-column e-field="Id" e-headertext="Sales Return" e-width="20" ></div>
+                <div e-column e-field="InventorySalesId" e-headertext="Sales No" e-width="30"></div>
                 <div e-column e-field="Entity" e-headertext="Entity" e-width="40"></div>
                 <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="20"></div>
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="30"></div>
@@ -789,7 +789,6 @@
                 <div class="clearfix"></div>
                 <div>
                     <p class="col-md-11"></p>
-                    @*<button type="button" class="btn" ng-click="addTax();">Add Tax</button>*@
                     <button type="button" class="btn btn-action" disabled ng-click="addTax();">Add Tax</button>
                 </div>
                 <div class="table-responsive modal-table">
@@ -841,7 +840,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="3" class="text-right"><strong>{{materialtaxCategoryListSavedData | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong></td>
+                                <td colspan="3" class="text-right"><strong>{{materialtaxCategoryListSavedData| filter:{ InventorySalesDetailId: filterInventorySalesDetailId } | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong></td>
                                 <td></td>
                             </tr>
                         </tbody>
@@ -1052,7 +1051,7 @@
                             </tr>
                             <tr>
                                 @*<td colspan="3" class="text-right"><label class="control-label"><b>Total : {{total}}</b><b>&nbsp;{{Currency}}</b></label></td>*@
-                                <td colspan="3" class="text-right"><strong>{{receiveTaxList | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong></td>
+                                <td colspan="3" class="text-right"><strong>{{receiveTaxList|filter:{ InventorySalesDetailId: filterInventorySalesDetailId }  | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong></td>
                                 <td></td>
                             </tr>
                         </tbody>

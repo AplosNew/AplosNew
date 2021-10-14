@@ -20,7 +20,7 @@
 								<th>GRN Date</th>
 								<th>GRN No</th>
 								<th>Balance Qty</th>
-								<th class="col-md-2">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th class="col-md-2">Sales Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 								<th></th>
 								<th></th>
 								<th>Receive Qty</th>
@@ -34,8 +34,8 @@
 								@*<th>Balance Qty</th>*@
 								<th>Rate</th>
 								<th>Base Rate</th>
-								<th>Sales Rate</th>
-								<th>Amount</th>
+								@*<th>Sales Rate</th>
+								<th>Amount</th>*@
 								<th>Approved</th>
 								<th>Posting</th>
 
@@ -80,11 +80,11 @@
 								<td>{{x.InventorySalesQty}} {{x.BUoM}}</td>
 
 								@*<td>{{x.BalanceStock}} {{x.BUoM}}</td>*@
-								<td>{{x.BaseRate|setDecimal:2}} {{x.TCurrency}}</td>
-								<td>{{x.BaseCurrencyRate|setDecimal:2}} {{x.BCurrency}}</td>
+								<td>{{x.BaseRate|setDecimal:4}} {{x.TCurrency}}</td>
+								<td>{{x.BaseCurrencyRate|setDecimal:4}} {{x.BCurrency}}</td>
 
-								<td>{{x.SalesRate|setDecimal:2}} {{x.TCurrency}}</td>
-								<td>{{x.TotalAmount|setDecimal:2}} {{x.TCurrency}}</td>
+								@*<td>{{x.SalesRate|setDecimal:4}} {{x.TCurrency}}</td>
+								<td>{{x.TotalAmount|setDecimal:4}} {{x.TCurrency}}</td>*@
 								<td>{{x.IsApproved}}</td>
 								<td>{{x.IsPosting}}</td>
 
@@ -115,7 +115,7 @@
 
 								@*<td class="text-left"><strong>{{materialStockList | sumByKey : 'BalanceStock' }}</strong></td>*@
 								<td class="text-left"><strong>&nbsp;@*{{materialStockList | sumByKey : 'BaseQty' }}*@</strong></td>
-								<td colspan="4"></td>
+								<td colspan="3"></td>
 								@*<td class="text-left"><strong>{{materialStockList | sumByKey : 'RequisitionQty' }}</strong></td>
 									<td></td>*@
 							</tr>

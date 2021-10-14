@@ -523,7 +523,94 @@ namespace Library.Accounting.Accounts
             }
         }
 
-        public IEnumerable<object> GetInventorySalesReturnData(string plantId)
+		public IEnumerable<object> GetTaxInfoRowWise(string InventorySalesId)
+		{
+			try
+			{
+				string sql = @"SELECT  A.InventorySalesHistoryId,A.Id InventorySalesTaxId,A.InventorySalesId,a.InventorySalesDetailId,A.TaxCategoryId,A.HSNCodeId
+								,A.[Percentage],A.TaxAmount SalesTax,0 TaxAmount,B.Code HSNCode,B.[Description]
+                                FROM trn.InventorySalesTax A
+                                Left JOIN [HKP].[HSNCode] B On A.HSNCodeId=B.Id   
+                                where A.InventorySalesId='" + InventorySalesId + "' and a.InventorySalesServiceId is null";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetTaxForUpdateSalesReturn(string salesReturnId, string InventorySalesId)
+		{
+			try
+			{
+				string sql = @"SELECT  NULL InventorySalesHistoryId,SRT.Id,ISR.InventorySalesId,SRT.InventorySalesTaxId,ISRD.InventorySalesDetailId,SRT.TaxCategoryId,SRT.HSNCodeId
+								,SRT.[Percentage],IST.TaxAmount SalesTax,SRT.TaxAmount,B.Code HSNCode,B.[Description]
+                               FROM trn.InventorySalesReturnTax SRT
+								left join trn.InventorySalesReturnDetail ISRD ON ISRD.Id=SRT.InventorySalesReturnDetailId
+								LEFT JOIN TRN.InventorySalesReturn ISR ON ISR.Id=SRT.InventorySalesReturnId
+								LEFT JOIN TRN.InventorySalesTax IST ON IST.Id=SRT.InventorySalesTaxId
+                                Left JOIN [HKP].[HSNCode] B On SRT.HSNCodeId=B.Id   
+                                WHERE ISR.InventorySalesId='"+ InventorySalesId + "' AND SRT.InventorySalesReturnId='"+ salesReturnId + "' AND SRT.InventorySalesReturnServiceId IS NULL";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+
+		public IEnumerable<object> GetSalesDetailDataForUpdateReturn(string salesReturnId,string inventorySalesId)
+		{
+			try
+			{
+				string sql = @"SELECT NULL HistotyId,ISRD.Id,IID.Id InventorySalesDetailId, IID.InventorySalesId InventoryIssueId, IID.InventoryMaterialId, II.MaterialStorageId
+		                        , IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
+		                        , IM.FirstCharacteristicsId, CH1.UserName AS FirstCharacteristics, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicText--FirstCharacteristicsValue
+		                        , IM.SecondCharacteristicsId, CH2.UserName AS SecondCharacteristics, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicText--SecondCharacteristicsValue
+		                        , IM.ThirdCharacteristicsId, CH3.UserName AS ThirdCharacteristics, IM.ThirdCharacteristicsValueId, CHV3.UserName AS ThirdCharacteristicText--ThirdCharacteristicsValue
+		                        ,IRDUM.UserName GRNUoM, IID.TransactionUoMId, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.AvgRate, IID.AvgAmount, IID.PolicyRate, IID.PolicyAmount, IID.[Policy]
+                                ,CC.UserName CostCenter,C.UserName CountryName,c.Id CountryId,II.ToCurrencyRate, II.DocRefNo, II.DocDate , II.NoteForAccounts
+                                ,IRD.TransactionQty GRNQty,ISH.TotalBaseAmount InventoryAmount,ISD.SalesRate, IID.TransactionQty
+								,(ISR.OtherQty-ISRD.TransactionQty) OtherQty
+								,(IID.TransactionQty-isnull(ISR.OtherQty,0)) BalanceQty,(IID.TransactionQty-isnull(ISR.OtherQty,0)) CurrentBalanceQty
+								,ISD.TotalAmount,IST.TaxAmount SalesTaxAmount
+								,ISRD.TransactionQty ReturnQty,ISRD.TotalSalesAmount ReturnAmount,ISRT.TaxAmount TaxAmount,NULL TaxList
+                        
+						FROM [TRN].InventorySalesReturnDetail ISRD
+						LEFT JOIN ( SELECT InventorySalesReturnDetailId,SUM(TaxAmount) TaxAmount FROM TRN.InventorySalesReturnTax GROUP BY InventorySalesReturnDetailId ) ISRT ON ISRT.InventorySalesReturnDetailId=ISRD.Id
+						LEFT JOIN [TRN].[InventorySalesDetail] AS IID ON IID.Id=ISRD.InventorySalesDetailId
+                        LEFT JOIN [TRN].[InventorySales] AS II ON IID.InventorySalesId=II.Id
+                        LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IID.InventoryMaterialId=IM.Id
+                        LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+                        LEFT JOIN [MST].[MaterialMasterArticle] AS AR ON IM.ArticleId=AR.Id
+                        LEFT JOIN [HKP].[Characteristics] AS CH1 ON IM.FirstCharacteristicsId=CH1.Id
+                        LEFT JOIN [HKP].[CharacteristicsValue] AS CHV1 ON IM.FirstCharacteristicsValueId=CHV1.Id
+                        LEFT JOIN [HKP].[Characteristics] AS CH2 ON IM.SecondCharacteristicsId=CH2.Id
+                        LEFT JOIN [HKP].[CharacteristicsValue] AS CHV2 ON IM.SecondCharacteristicsValueId=CHV2.Id
+                        LEFT JOIN [HKP].[Characteristics] AS CH3 ON IM.ThirdCharacteristicsId=CH3.Id
+                        LEFT JOIN [HKP].[CharacteristicsValue] AS CHV3 ON IM.ThirdCharacteristicsValueId=CHV3.Id
+						LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IID.CostCenterId
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON IID.BaseUOMId=UoM.Id
+                        LEFT JOIN scs.country C On C.Id=IM.CountryId
+                        LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=IID.Id
+						LEFT JOIN [TRN].[InventoryReceiveDetail] IRD ON IRD.Id=ISH.InventoryReceiveDetailId
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS IRDUM ON IRD.BaseUOMId=IRDUM.Id
+                        JOIN (select InventorySalesHistoryId,Sum(TaxAmount) TaxAmount from trn.inventorySalesTax group by InventorySalesHistoryId) IST ON IST.InventorySalesHistoryId =ISH.Id
+                        LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IID.Id
+						LEFT JOIN (SELECT SR.InventorySalesId,SRD.InventoryMaterialId,sum(SRD.TransactionQty) OtherQty FROM TRN.InventorySalesReturnDetail SRD 
+									JOIN TRN.InventorySalesReturn SR ON SR.Id=SRD.InventorySalesReturnId WHERE SR.InventorySalesId='" + inventorySalesId + @"' group by SR.InventorySalesId,SRD.InventoryMaterialId) ISR ON ISR.InventorySalesId=II.Id and ISR.InventoryMaterialId=IID.InventoryMaterialId
+						WHERE IID.InventorySalesId='" + inventorySalesId + "' AND ISRD.InventorySalesReturnId='"+ salesReturnId + "'";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetInventorySalesReturnData(string plantId)
         {
             try
             {
@@ -562,6 +649,98 @@ namespace Library.Accounting.Accounts
 							LEFT JOIN [TRN].[InventorySales] D ON D.Id= C.InventorySalesId
 							LEFT JOIN [HKP].[HSNCode] HC ON HC.Id= A.HSnCodeId
 							where D.Id= '" + Id + "'";
+				return _sqlRepository.GetDataCollection(sql);
+
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		public IEnumerable<object> GetServiceChargeList(string inventorySalesId)
+		{
+			try
+			{
+				var sql = @"SELECT A.Id, A.Id InventorySalesServiceId, A.InventorySalesId
+                            , A.ServiceMasterId
+                            , B.UserName AS ServiceMasterName
+                            , A.Amount
+                            ,POT.TaxAmount As SalesServiceTaxAmount,ISNULL(OISRS.OtherServiceAmount,0) OtherServiceAmount,A.Amount-ISNULL(OISRS.OtherServiceAmount,0) BalanceAmount
+							,0Amount,0 TotalTaxAmount
+                            ,null ChargeTaxList
+                            ,A.Description 
+                            FROM  [TRN].[InventorySalesService] AS A 
+                            INner JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
+                            left JOIN (select InventorySalesServiceId,Sum(TaxAmount) as TaxAmount  from TRN.InventorySalesTax group by InventorySalesServiceId) AS POT on A.id=POT.InventorySalesServiceId
+                            LEFT JOIN (SELECT INS.InventorySalesId,SUM(ISRS.Amount) OtherServiceAmount FROM TRN.InventorySalesReturnService ISRS 
+											JOIN TRN.InventorySalesReturn INS ON INS.Id=ISRS.InventorySalesReturnId group by INS.InventorySalesId) OISRS ON OISRS.InventorySalesId=A.InventorySalesId
+							WHERE A.InventorySalesId='"+ inventorySalesId + "'";
+				return _sqlRepository.GetDataCollection(sql);
+
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		public IEnumerable<object> GetServiceChargeForUpdateList(string salesReturnId, string inventorySalesId)
+		{
+			try
+			{
+				var sql = @"SELECT A.Id, A.Id InventorySalesServiceId, A.InventorySalesId
+                            , A.ServiceMasterId
+                            , B.UserName AS ServiceMasterName
+                            , A.Amount
+                            ,POT.TaxAmount As SalesServiceTaxAmount,ISNULL(OISRS.OtherServiceAmount,0) OtherServiceAmount
+							,A.Amount-ISNULL(OISRS.OtherServiceAmount,0) BalanceAmount,A.Amount-ISNULL(OISRS.OtherServiceAmount,0) CurrentBalanceAmount
+							,ISRS.Amount ReturnAmount,ISRS.TotalTaxAmount
+                            ,null ChargeTaxList
+                            ,A.Description 
+                            FROM  TRN.InventorySalesReturnService ISRS 
+							LEFT JOIN [TRN].[InventorySalesService] AS A ON A.Id=ISRS.InventorySalesServiceId
+                             JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
+                            left JOIN (select InventorySalesServiceId,Sum(TaxAmount) as TaxAmount  from TRN.InventorySalesTax group by InventorySalesServiceId) AS POT on A.id=POT.InventorySalesServiceId
+                            LEFT JOIN (SELECT INS.InventorySalesId,SUM(ISRS.Amount) OtherServiceAmount FROM TRN.InventorySalesReturnService ISRS 
+											JOIN TRN.InventorySalesReturn INS ON INS.Id=ISRS.InventorySalesReturnId group by INS.InventorySalesId) OISRS ON OISRS.InventorySalesId=A.InventorySalesId
+							WHERE A.InventorySalesId='" + inventorySalesId + "' AND ISRS.InventorySalesReturnId='"+ salesReturnId + @"'
+							select * FROM  TRN.InventorySalesReturnService";
+				return _sqlRepository.GetDataCollection(sql);
+
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		public IEnumerable<object> GetServiceTaxList(string Id)
+		{
+			try
+			{
+				var sql = @"SELECT A.Id, A.Id InventorySalesTaxId, A.InventorySalesServiceId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount
+                            FROM [TRN].[InventorySalesTax] AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
+                            LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
+                            WHERE A.InventorySalesId='" + Id + "' AND A.InventoryReceiveDetailId IS NULL ORDER BY TC.[Sequence]";
+				return _sqlRepository.GetDataCollection(sql);
+
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetServiceTaxForUpdate(string salesReturnId, string inventorySalesId)
+		{
+			try
+			{
+				var sql = @"SELECT ISRT.Id,ISRT.InventorySalesTaxId,A.InventorySalesServiceId, ISRT.TaxCategoryId, TC.UserName AS TaxCategory, ISRT.HSNCodeId, HN.Code AS HSNCode, A.[Percentage]
+						,A.TaxAmount SalesTaxAmount, ISRT.TaxAmount
+                            FROM TRN.InventorySalesReturnTax ISRT 
+							LEFT JOIN  [TRN].[InventorySalesTax] AS A ON A.Id=ISRT.InventorySalesTaxId
+							JOIN [MST].[TaxCategory] AS TC ON ISRT.TaxCategoryId=TC.Id
+                            LEFT JOIN [HKP].[HSNCode] AS HN ON ISRT.HSNCodeId=HN.Id
+                            WHERE A.InventorySalesId='"+ inventorySalesId + "' AND ISRT.InventorySalesReturnId='"+ salesReturnId + @"' and ISRT.InventorySalesReturnDetailId is null
+							ORDER BY TC.[Sequence]";
 				return _sqlRepository.GetDataCollection(sql);
 
 			}

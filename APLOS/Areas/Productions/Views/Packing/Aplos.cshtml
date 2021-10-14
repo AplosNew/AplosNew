@@ -111,12 +111,27 @@
 
     </div>
     <p><b>Stock Status</b></p>
-    <div class="common-btn" style="margin-top:20px;" id="reportBtn">
+    <div class="common-btn" style="margin-top:10px;">
         <ul class="list-inline text-right">
-            <li> <button ng-click="getStocksReport();" class="btn">Export To Excel</button></li>
+            <li> <button ng-click="getFinishedStocksReport();" class="btn"><i class="glyphicon glyphicon-save"></i> Finished Goods Stock Report </button></li>
+            <li> <button ng-click="getStocksReport();" class="btn"><i class="glyphicon glyphicon-save"></i> Export To Excel </button></li>
+
         </ul>
     </div>
-    
+    @*<div class="row">
+        <div class="col-lg-12">
+            <div class="common-btn col-lg-3 col-lg-offset-1" style="margin-top:20px;" id="reportStkBtn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="getFinishedStocksReport();" class="btn">Finished Goods Stock Report</button></li>
+                </ul>
+            </div>
+            <div class="common-btn col-lg-3 col-lg-offset-1" style="margin-top:20px;" id="reportBtn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="getStocksReport();" class="btn">Export To Excel</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>*@
     <br>
     <div class="row" style="margin-top:10px;">
         <div id="GridData"></div>

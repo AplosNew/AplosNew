@@ -506,11 +506,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 foreach (AttendanceProcessNewProcess item in data)
                 {
-                    EmpId += ",'" + item.EmpSystemID + "'";
-                    if (clsWebLib.RetValidLen(item.PlantID).ToString() != "")
-                    {
-                        CheckerFunction(ref PlantData, item.PlantID);
-                    }
+                    EmpId += ",'" + item.EmpSystemID + "'";                   
                 }
 
                 string ReturnLockedEmp = "''";
@@ -521,6 +517,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var sqly = @"select * from dbo.AttdnProcessData where WorkDate='" + items[0].WorkDate + "' and " +
                     "EmpSystemId IN(" + EmpId + ")";
                 con.OpenDataSetThroughAdapter(sqly, out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    for (int j = 0; j < dsMaster.Tables[0].Rows.Count; j++)
+                    {
+                        var PlantIdx = clsWebLib.RetValidLen(dsMaster.Tables[0].Rows[j][@"PlantId"]).ToString();
+                        CheckerFunction(ref PlantData, PlantIdx);
+                    }
+                }
 
                 var sqlz = @"select * from dbo.PhysicalVerification where WorkDate='" + items[0].WorkDate + " ' and EmpSystemID IN(" + EmpId + ")";
                 con.OpenDataSetThroughAdapter(sqlz, out dsref, false, "1");
