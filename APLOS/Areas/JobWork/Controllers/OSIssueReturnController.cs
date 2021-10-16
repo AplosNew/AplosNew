@@ -5403,7 +5403,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
             report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "GRN Details", 12, ExcelHAlign.HAlignLeft);
             int StartCol = GRNCOL;
-            //sheet[GRNROW, StartCol++, ROW - 1, ColGRNIssueQty - 1].Merge();
+            int StartRow = GRNROW;
             GRNROW++;
 
             report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Inventory Issue Detail Id", 12, ExcelHAlign.HAlignLeft);
@@ -5497,14 +5497,14 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
             sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseAmtBDT].Merge();
             sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseAmtBDT].Text = "GRN";
-            sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseAmtBDT].CellStyle.Font.Size = 20;
+            
             sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseAmtBDT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseAmtBDT].BorderAround(ExcelLineStyle.Thin);
             sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseAmtBDT].CellStyle.Font.Bold = true;
 
             sheet.Range[GRNROW - 1, ColBaseAmtBDT + 1, GRNROW - 1, ColAmtBDT].Merge();
             sheet.Range[GRNROW - 1, ColBaseAmtBDT + 1, GRNROW - 1, ColAmtBDT].Text = "Issue";
-            sheet.Range[GRNROW - 1, ColBaseAmtBDT + 1, GRNROW - 1, ColAmtBDT].CellStyle.Font.Size = 20;
+            
             sheet.Range[GRNROW - 1, ColBaseAmtBDT + 1, GRNROW - 1, ColAmtBDT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet.Range[GRNROW - 1, ColBaseAmtBDT + 1, GRNROW - 1, ColAmtBDT].BorderAround(ExcelLineStyle.Thin);
             sheet.Range[GRNROW - 1, ColBaseAmtBDT + 1, GRNROW - 1, ColAmtBDT].CellStyle.Font.Bold = true;
@@ -5691,6 +5691,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             sheet.UsedRange.NumberFormat = "#,##0.000";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
+            sheet.Range[StartRow - 1, StartCol + 1, StartRow - 1, ColBaseAmtBDT].CellStyle.Font.Size = 12;
+            sheet.Range[StartRow - 1, ColBaseAmtBDT + 1, StartRow - 1, ColAmtBDT].CellStyle.Font.Size = 12;
             report.CompanyPlantHeader(ref sheet, MPChildendCol + 6, "Inventory Issue Report", identity.CompanyId, identity.PlantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
