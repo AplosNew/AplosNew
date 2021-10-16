@@ -66,7 +66,7 @@ namespace Library.OrderManagement.Sales
 										when FCH.CharacteristicsValueId<>'' then FCH.Qty 
 										else SO.Qty end
                             ,0 SalesQty
-							, PlanQty	=(	SELECT isnull(case when SCH.CharacteristicsValueId<>''  then SCH.Qty
+							, PlanQty	=(SELECT isnull(case when SCH.CharacteristicsValueId<>''  then SCH.Qty
 										when FCH.CharacteristicsValueId<>'' then FCH.Qty 
 										else 
 										SO.Qty 

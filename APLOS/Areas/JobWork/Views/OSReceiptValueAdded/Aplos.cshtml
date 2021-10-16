@@ -370,8 +370,8 @@
                                                         </label>
                                                     </div>
                                                 </td>
-                                                <td>{{x.JWTCMId}}</td>
-                                                <td>{{x.JWTCMDId}}</td>
+                                                <td>{{x.OSTransformationPOId}}</td>
+                                                <td>{{x.OSTransformationPODetailId}}</td>
                                                 <td>{{x.JWOutputItem}}</td>
                                                 <td>{{x.JobWorkActivity}}</td>
 
@@ -628,15 +628,7 @@
 										 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
 										 e-allowselection="false" e-filtersettings-filterType="excel" e-allowscrolling="true">
                                         <div e-columns>
-                                            @*<div e-column e-field="Id" e-headertext="Id" e-width="20"></div>
-        <div e-column e-field="TabType" e-headertext="Type" e-width="20"></div>
-        <div e-column e-field="ValueAddedDate" e-headertext="Date" e-width="30"></div>
-        <div e-column e-field="VACTime" e-headertext="Time" e-width="30"></div>
-        <div e-column e-field="Entity" e-headertext="Entity" e-width="30"></div>
-        <div e-column e-field="PartyName" e-headertext="Party" e-width="40"></div>
-        <div e-column e-field="VAProcessStartDate" e-headertext="Process Start Date" e-width="30"></div>
-        <div e-column e-field="VAProcessEndDate" e-headertext="Process End Date" e-width="30"></div>
-        <div e-column e-field="VAContractClosingDate" e-headertext="Contract Closing Date" e-width="30"></div>*@
+                                            
 
                                             <div e-column e-headertext="Actions" e-width="100">
                                                 <ul class="list-inline text-center">
@@ -652,7 +644,6 @@
                                             <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
                                             <div e-column e-field="PODate" e-headertext="PO Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
 
-                                            <div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>
                                             <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
                                             <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
                                             <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
@@ -825,7 +816,7 @@
 								<div class="tab-design" id="tab_show">
 									<div class="site-tab">
 										<ul class="nav nav-tabs" role="tablist">
-											<li role="presentation" ng-class="{ active: Set(1) }"><a ng-click="settheTab(1)" href="" aria-controls="JWOutput" role="tab" data-toggle="tab">JW Output</a></li>
+											<li role="presentation" ng-class="{ active: Set(1) }"><a ng-click="settheTab(1)" href="" aria-controls="OSOutput" role="tab" data-toggle="tab">OS Output</a></li>
 											<li role="presentation" ng-class="{ active: Set(2) }"><a ng-click="settheTab(2)" href="" aria-controls="ByProduct" role="tab" data-toggle="tab">By Product</a></li>
 										</ul>
 									</div>
@@ -844,10 +835,10 @@
 																		</label>
 																	</div>*@
 															</th>
-															<th>JWTMasterId</th>
-															<th>JWTDetailId</th>
-															<th>JWOutputItem</th>
-															<th>JobWorkActivity</th>
+															<th>OSTMasterId</th>
+															<th>OSTDetailId</th>
+															<th>OSOutputItem</th>
+															<th>Activity</th>
 															<th>MaterialGroup</th>
 															<th>MaterialMaster</th>
 															<th>Article</th>
@@ -898,8 +889,8 @@
                                                                     </label>
                                                                 </div>
                                                             </td>
-                                                            <td>{{x.JWTCMId}}</td>
-                                                            <td>{{x.JWTCMDId}}</td>
+                                                            <td>{{x.OSTransformationPOId}}</td>
+                                                            <td>{{x.OSTransformationPODetailId}}</td>
                                                             <td>{{x.JWOutputItem}}</td>
                                                             <td>{{x.JobWorkActivity}}</td>
 
@@ -1231,8 +1222,8 @@
                                                                     </label>
                                                                 </div>
                                                             </td>
-                                                            <td>{{x.JWTCMByProductId}}</td>
-                                                            <td>{{x.JWTCMDByProductId}}</td>
+                                                            <td>{{x.OSTransformationPOInputMaterialId}}</td>
+                                                            <td>{{x.OSTransformationPOByProductId}}</td>
                                                             <td>{{x.JWOutputItem}}</td>
                                                             <td>{{x.ByProductItem}}</td>
 
@@ -1529,7 +1520,7 @@
 </div>*@
 
 <div class="table-responsive aplos-grid-toggle">
-    <div class="content-container-fluid" style="color:black;overflow:scroll">
+    <div class="content-container-fluid" style="color:black;">
         <div style="color:black;" id="Grid" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" ng-show="ShowHomeList"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -1632,71 +1623,72 @@
 				<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNList(1), active: isSetGRNList(1) }">
 					<fieldset class="scheduler-border">
 						<div>
-							<div class="content-container-fluid" style="color:black;overflow:scroll">
+							<div class="content-container-fluid" style="color:black;">
 								<div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GriddataMaster" e-templaterefresh="refreshTemplateMasterOrderOperation"
 									 e-recorddoubleclick="recorddoubleclickFromMasterGrid"
 									 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
 									 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
 									 e-detailstemplate="detailTemp"
 									 e-detailsdatabound="detailgrid">
-									<div e-columns>
+                                    <div e-columns>
                                         <div e-column e-headertext="Actions" e-width="100">
                                             @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>*@
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="fa fa-file-pdf-o" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="fa fa-file-excel-o" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
                                         </div>
-										<div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
-										<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
-										<div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-										<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
-										<div e-column e-field="Id" e-headertext="GRN No" e-width="150"></div>
-										<div e-column e-field="GRNDate1" e-headertext="GRN Date" e-width="150"></div>
-										<div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
-										<div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
-										<div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
-										@*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-											<div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
-										<div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
-										<div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
-										<div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
-										<div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
-										<div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
-										<div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
-										@*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
+                                        <div e-column e-field="TransformationContractId" e-headertext="PO No" e-width="150"></div>
+                                        <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
+                                        <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
+                                        <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
+                                        <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                                        <div e-column e-field="Id" e-headertext="GRN No" e-width="150"></div>
+                                        <div e-column e-field="GRNDate1" e-headertext="GRN Date" e-width="150"></div>
+                                        <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
+                                        @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
+        <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
+                                        <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
+                                        @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
 
-										<div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
-										@*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>*@
-										@*<div e-column e-field="LCANo" e-headertext="PurchaseLCNo" e-width="150"></div>*@
-										@*<div e-column e-field="ContractId" e-headertext="ContractId" e-width="150"></div>*@
+                                        @*<div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>*@
+                                        @*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>*@
+                                        @*<div e-column e-field="LCANo" e-headertext="PurchaseLCNo" e-width="150"></div>*@
+                                        @*<div e-column e-field="ContractId" e-headertext="ContractId" e-width="150"></div>*@
 
-										<div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
-										<div e-column e-field="LCANo" e-headertext="LC Ref No" e-width="150"></div>
-										<div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="80"></div>
-										<div e-column e-field="UDNo" e-headertext="UD" e-width="80"></div>
-										<div e-column e-field="OpeningBank" e-headertext="OpeningBank" e-width="80"></div>
+                                        <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
+                                        <div e-column e-field="LCANo" e-headertext="LC Ref No" e-width="150"></div>
+                                        <div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="80"></div>
+                                        <div e-column e-field="UDNo" e-headertext="UD" e-width="80"></div>
+                                        <div e-column e-field="OpeningBank" e-headertext="OpeningBank" e-width="80"></div>
 
-										<div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
-										<div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>
+                                        <div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
+                                        <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>
 
-										<div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
-										<div e-column e-field="DocDate" e-headertext="Doc Date" e-width="150"></div>
-										<div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
-										<div e-column e-field="CheckedBy" e-headertext=" Checked By" e-width="150"></div>
-										<div e-column e-field="ApprovedBy" e-headertext=" To Be Approved By" e-width="150"></div>
-										<div e-column e-field="GRNType" e-headertext="GRNType" e-width="100"></div>
-										<div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
-										<div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
-										<div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
-										<div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" textAlign='Right' e-width="150"></div>
-
-
-
-										@*<div e-column e-headertext="ExportTOExcel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="50"></div>
-											<div e-column e-headertext="ExportTOPdf" e-commands="commandPdf" e-isunbound=true e-textalign="left" e-width="50"></div>*@
-										@*  <div e-column e-headertext="ExportTOWord" e-commands="commandWord" e-isunbound=true e-textalign="left" e-width="50"></div>*@
+                                        <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
+                                        <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="150"></div>
+                                        <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="CheckedBy" e-headertext=" Checked By" e-width="150"></div>
+                                        <div e-column e-field="ApprovedBy" e-headertext=" To Be Approved By" e-width="150"></div>
+                                        <div e-column e-field="GRNType" e-headertext="GRNType" e-width="100"></div>
+                                        <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
+                                        <div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" textAlign='Right' e-width="150"></div>
 
 
-									</div>
+
+                                        @*<div e-column e-headertext="ExportTOExcel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="50"></div>
+        <div e-column e-headertext="ExportTOPdf" e-commands="commandPdf" e-isunbound=true e-textalign="left" e-width="50"></div>*@
+                                        @*  <div e-column e-headertext="ExportTOWord" e-commands="commandWord" e-isunbound=true e-textalign="left" e-width="50"></div>*@
+
+
+                                    </div>
 								</div>
 							</div>
 
@@ -1805,7 +1797,7 @@
 					<fieldset class="scheduler-border">
 						@*<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>*@
 						<div>
-							<div class="content-container-fluid" style="color:black;overflow:scroll">
+							<div class="content-container-fluid" style="color:black;">
 								<div style="color:black;" id="GriddataCheckedHR" ej-grid e-datasource="GriddataMaster" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
 									 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
 									 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
@@ -1818,6 +1810,7 @@
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="fa fa-file-excel-o" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
                                         </div>
                                         @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                        <div e-column e-field="TransformationContractId" e-headertext="PO No" e-width="150"></div>
                                         <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
                                         <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
                                         <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -1838,7 +1831,7 @@
                                         @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
                                         @*<div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
         <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
-                                        <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
+                                        @*<div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>*@
                                         @*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>*@
                                         <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
                                         <div e-column e-field="LCANo" e-headertext="LC Ref No" e-width="150"></div>
@@ -1957,7 +1950,7 @@
 					<fieldset class="scheduler-border">
 						@*<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>*@
 						<div>
-							<div class="content-container-fluid" style="color:black;overflow:scroll">
+							<div class="content-container-fluid" style="color:black;">
 								<div style="color:black;" id="GriddataApprovedChecked" ej-grid e-datasource="GriddataMaster"
 									 e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
 									 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -1970,6 +1963,7 @@
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="fa fa-file-pdf-o" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="fa fa-file-excel-o" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
                                         </div>
+                                        <div e-column e-field="TransformationContractId" e-headertext="PO No" e-width="150"></div>
                                         <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
                                         <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
                                         <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -1990,7 +1984,7 @@
                                         @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>
         <div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
         <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
-                                        <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
+                                        @*<div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>*@
                                         @*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>*@
                                         <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
                                         <div e-column e-field="LCANo" e-headertext="LC Ref No" e-width="150"></div>
@@ -2113,7 +2107,7 @@
 						<div>
 
 
-							<div class="content-container-fluid" style="color:black;overflow:scroll">
+							<div class="content-container-fluid" style="color:black;">
 								<div style="color:black;" id="GriddataApprovedHR" ej-grid e-datasource="GriddataMaster2"
 									 e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
 									 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -2126,6 +2120,7 @@
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="fa fa-file-pdf-o" title="Template Report" ng-click="$parent.AllTabPrintTemplate(data);" style="margin: -6px;"></i></button>
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="fa fa-file-excel-o" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
                                         </div>
+                                        <div e-column e-field="TransformationContractId" e-headertext="PO No" e-width="150"></div>
                                         <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
                                         <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
                                         <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -2146,7 +2141,7 @@
                                         @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
                                         @*<div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
         <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
-                                        <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
+                                        @*<div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>*@
                                         @*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>
         <div e-column e-field="LCANo" e-headertext="PurchaseLCNo" e-width="150"></div>*@
                                         <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
@@ -2281,7 +2276,7 @@
 						<div>
 
 
-							<div class="content-container-fluid" style="color:black;overflow:scroll">
+							<div class="content-container-fluid" style="color:black;">
 								<div style="color:black;" id="GriddataMaster2" ej-grid e-datasource="GriddataMaster2"
 									 e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
 									 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -2295,6 +2290,7 @@
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="fa fa-file-excel-o" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
                                         </div>
                                         @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                        <div e-column e-field="TransformationContractId" e-headertext="PO No" e-width="150"></div>
                                         <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
                                         <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
                                         <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -2315,7 +2311,7 @@
                                         @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
                                         @*<div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
         <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
-                                        <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
+                                        @*<div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>*@
                                         @*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>*@
                                         @*<div e-column e-field="LCANo" e-headertext="PurchaseLCNo" e-width="150"></div>*@
                                         <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
@@ -2451,7 +2447,7 @@
 						<div>
 
 
-							<div class="content-container-fluid" style="color:black;overflow:scroll">
+							<div class="content-container-fluid" style="color:black;">
 								<div style="color:black;" id="GriddataPosted" ej-grid e-datasource="GriddataMaster2"
 									 e-templaterefresh="refreshTemplateMasterOrderOperation" @*e-recorddoubleclick="recorddoubleclickFromMasterGrid"*@
 									 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -2465,6 +2461,7 @@
                                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="fa fa-file-excel-o" title="Receipt Report" ng-click="$parent.PrintReceiptReport(data);" style="margin: -6px;"></i></button>
                                         </div>
                                         @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                        <div e-column e-field="TransformationContractId" e-headertext="PO No" e-width="150"></div>
                                         <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
                                         <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
                                         <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
@@ -2485,7 +2482,7 @@
                                         @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
                                         @*<div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
         <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
-                                        <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
+                                        @*<div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>*@
                                         <div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>
                                         @*<div e-column e-field="LCANo" e-headertext="PurchaseLCNo" e-width="150"></div>*@
                                         <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
@@ -2622,7 +2619,7 @@
 			<div class="modal-header"> By Whom List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
 			<div class="modal-body form-elements form-horizontal">
 				<div class="col-md-12">
-					<div class="content-container-fluid" style="color:black;overflow:scroll">
+					<div class="content-container-fluid" style="color:black;">
 						<div style="color:black;" id="GridEmployeeResPerson" ej-grid e-datasource="EmpResPersonList"
 							 e-allowfiltering="true" e-recorddoubleclick="setEmpData" e-allowpaging="true"
 							 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -2656,7 +2653,7 @@
 			<div class="modal-header"> Grade Wise Quantity <button type="button" class="close" data-dismiss="modal">&times;</button></div>
 			<div class="modal-body form-elements form-horizontal">
 				<div class="col-md-12">
-					<div class="content-container-fluid" style="color:black;overflow:scroll">
+					<div class="content-container-fluid" style="color:black;">
 						<div style="color:black;" id="GridGradeWise" ej-grid e-datasource="GradeWiseList"
 							 e-allowfiltering="true" e-recorddoubleclick="setGradeWiseData" e-allowpaging="true"
 							 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -2712,7 +2709,7 @@
 			<div class="modal-header"> By Whom List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
 			<div class="modal-body form-elements form-horizontal">
 				<div class="col-md-12">
-					<div class="content-container-fluid" style="color:black;overflow:scroll">
+					<div class="content-container-fluid" style="color:black;">
 						<div style="color:black;" id="GridByWhom" ej-grid e-datasource="ByWhomPersonList"
 							 e-allowfiltering="true" e-recorddoubleclick="setByWhomdata" e-allowpaging="true"
 							 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -2746,7 +2743,7 @@
 			<div class="modal-header"> Grade Wise Quantity <button type="button" class="close" data-dismiss="modal">&times;</button></div>
 			<div class="modal-body form-elements form-horizontal">
 				<div class="col-md-12">
-					<div class="content-container-fluid" style="color:black;overflow:scroll">
+					<div class="content-container-fluid" style="color:black;">
 						<div style="color:black;" id="GridGrade" ej-grid e-datasource="GradeList"
 							 e-allowfiltering="true" e-recorddoubleclick="setGradeData" e-allowpaging="true"
 							 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">

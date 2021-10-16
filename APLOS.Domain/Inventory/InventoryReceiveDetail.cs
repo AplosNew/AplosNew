@@ -41,10 +41,10 @@ namespace Library.Model.Inventory
 
 
 
-        public string JWTCMId { get; set; }
-        public string JWTCMDId { get; set; }
-        public string JWTCMByProductId { get; set; }
-        public string JWTCMDByProductId { get; set; }
+        public string OSTransformationPOId { get; set; }
+        public string OSTransformationPODetailId { get; set; }
+        public string OSTransformationPOInputMaterialId { get; set; }
+        public string OSTransformationPOByProductId { get; set; }
         public string MaterialFor { get; set; } 
 
         #endregion Scalar Properties

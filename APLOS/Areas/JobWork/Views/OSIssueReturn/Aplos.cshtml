@@ -86,8 +86,8 @@
                                             <div e-column e-headertext="Actions" e-width="100">
                                                 <ul class="list-inline text-center">
                                                     <li>
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -332,7 +332,7 @@
                                                     </td>*@
                                                 @*<td>{{x.Material}}</td>*@
                                                 @*<td>{{x.ArticleName}}</td>*@
-                                                <td>{{x.JWTCMId}}</td>
+                                                <td>{{x.OSTransformationPOId}}</td>
                                                 @*<td>{{x.Id}}</td>*@
 
 
@@ -490,21 +490,12 @@
                                          e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                          e-allowselection="false" e-filtersettings-filterType="excel" e-allowscrolling="true">
                                         <div e-columns>
-                                            @*<div e-column e-field="Id" e-headertext="ContractId" e-width="20"></div>
-                                                <div e-column e-field="TabType" e-headertext="Type" e-width="20"></div>
-                                                <div e-column e-field="ValueAddedDate" e-headertext="Date" e-width="30"></div>
-                                                <div e-column e-field="VACTime" e-headertext="Time" e-width="30"></div>
-                                                <div e-column e-field="Entity" e-headertext="Entity" e-width="30"></div>
-                                                <div e-column e-field="PartyName" e-headertext="Party" e-width="40"></div>
-                                                <div e-column e-field="VAProcessStartDate" e-headertext="Process Start Date" e-width="30"></div>
-                                                <div e-column e-field="VAProcessEndDate" e-headertext="Process End Date" e-width="30"></div>
-                                                <div e-column e-field="VAContractClosingDate" e-headertext="Contract Closing Date" e-width="30"></div>*@
 
                                             <div e-column e-headertext="Actions" e-width="100">
                                                 <ul class="list-inline text-center">
                                                     <li>
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-pdf-o" title="Print Report" ng-click="$parent.AllTabPrint(data);" style="margin: -6px;"></i></button>
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="fa fa-file-excel-o" title="Excel Report" ng-click="$parent.ConfirmPrintTab(data);" style="margin: -6px;"></i></button>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -514,7 +505,6 @@
                                             <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
                                             <div e-column e-field="PODate" e-headertext="PO Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
 
-                                            <div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>
                                             <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
                                             <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
                                             <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
@@ -658,13 +648,13 @@
                                     </div>*@
                             </div>
 
-                            <div class="col-xs-12 content-container-fluid" style="color:black;overflow:scroll">
-                                <div style="color:black;overflow:scroll" id="GridIssueTransformationChildTab" ej-grid e-datasource="IssueTransformationChildList"
+                            <div class="col-xs-12 content-container-fluid" style="color:black;">
+                                <div style="color:black;" id="GridIssueTransformationChildTab" ej-grid e-datasource="IssueTransformationChildList"
                                      e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="GetIssueTransformationChildData"
                                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowscrolling="true">
                                     <div e-columns>
                                         <div e-column e-template="#checkedPBSChildTabItem" e-width="15"></div>
-                                        <div e-column e-type="string" e-field="Id" e-headertext="JWTCMID" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="Id" e-headertext="OSTransformationPOId" e-width="50"></div>
                                         <div e-column e-type="string" e-field="JobWorkItem" e-headertext="JW Output Item" e-width="50"></div>
                                         <div e-column e-type="string" e-field="JobWorkActivity" e-headertext="Job Work Activity" e-width="50"></div>
                                         <div e-column e-type="string" e-field="MaterialType" e-headertext="Material Type" e-width="50"></div>
@@ -762,7 +752,7 @@
                                                     </td>*@
                                                 @*<td>{{x.Material}}</td>*@
                                                 @*<td>{{x.ArticleName}}</td>*@
-                                                <td>{{x.JWTCMId}}</td>
+                                                <td>{{x.OSTransformationPOId}}</td>
                                                 <td>{{x.Id}}</td>
 
 
@@ -1062,7 +1052,7 @@
     </div>*@
 
 <div class="table-responsive aplos-grid-toggle">
-    <div class="content-container-fluid" style="color:black;overflow:scroll">
+    <div class="content-container-fluid" style="color:black;">
         <div style="color:black;" id="Grid" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" ng-show="ShowHomeList"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -1084,8 +1074,11 @@
                 <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
                 <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
                 <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="120"></div>
-                <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
-                <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+                @*<div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
+                <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>*@
+                <div e-column e-field="TotalQuantity" e-headertext="Issued Quantity" textAlign='Right' e-width="120"></div>
+                <div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+
                 <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
                 <div e-column e-field="TConProcessEndDate" e-headertext="Process End Date" e-width="150"></div>
                 <div e-column e-field="TConContractClosingDate" e-headertext="Contract Closing Date" e-width="150"></div>
@@ -1107,7 +1100,7 @@
 </div>
 
 @*<div class="table-responsive aplos-grid-toggle">
-        <div class="content-container-fluid" style="color:black;overflow:scroll">
+        <div class="content-container-fluid" style="color:black;">
             <div style="color:black;" id="GridIndividualReport" ej-grid e-datasource="IndividualReportList"
                  e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" ng-show="ShowReport"
                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -1150,7 +1143,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNList(1), active: isSetGRNList(1) }">
                 <fieldset class="scheduler-border">
                     <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div class="content-container-fluid" style="color:black;">
                             <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GridInventoryIssuedata" e-templaterefresh="refreshTemplateMasterOrderOperation"
                                  e-recorddoubleclick="recorddoubleclickFromMasterGrid"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -1304,7 +1297,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNList(2), active: isSetGRNList(2) }">
                 <fieldset class="scheduler-border">
                     <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div class="content-container-fluid" style="color:black;">
                             <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GridInventoryIssuedata" e-templaterefresh="refreshTemplateMasterOrderOperation"
                                  e-recorddoubleclick="recorddoubleclickFromMasterGrid"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -1446,7 +1439,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNList(3), active: isSetGRNList(3) }">
                 <fieldset class="scheduler-border">
                     <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div class="content-container-fluid" style="color:black;">
                             <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GridInventoryIssuedata" e-templaterefresh="refreshTemplateMasterOrderOperation"
                                  e-recorddoubleclick="recorddoubleclickFromMasterGrid"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -1588,7 +1581,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNList(4), active: isSetGRNList(4) }">
                 <fieldset class="scheduler-border">
                     <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div class="content-container-fluid" style="color:black;">
                             <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GridInventoryIssuedata" e-templaterefresh="refreshTemplateMasterOrderOperation"
                                  e-recorddoubleclick="recorddoubleclickFromMasterGrid"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -1742,7 +1735,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNList(5), active: isSetGRNList(5) }">
                 <fieldset class="scheduler-border">
                     <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div class="content-container-fluid" style="color:black;">
                             <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GridInventoryIssuedata" e-templaterefresh="refreshTemplateMasterOrderOperation"
                                  e-recorddoubleclick="recorddoubleclickFromMasterGrid"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -1897,7 +1890,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPosted(6), active: isSetPosted(6) }">
                 <fieldset class="scheduler-border">
                     <div>
-                        <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div class="content-container-fluid" style="color:black;">
                             <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GridInventoryIssuedata" e-templaterefresh="refreshTemplateMasterOrderOperation"
                                  e-recorddoubleclick="recorddoubleclickFromMasterGrid"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
@@ -2114,7 +2107,7 @@
             <div class="modal-header"> Responsible Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                    <div class="content-container-fluid" style="color:black;">
                         <div style="color:black;" id="GridEmployeeResPerson" ej-grid e-datasource="EmpResPersonList"
                              e-allowfiltering="true" e-recorddoubleclick="setEmpData" e-allowpaging="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -2148,7 +2141,7 @@
             <div class="modal-header"> By Whom List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                    <div class="content-container-fluid" style="color:black;">
                         <div style="color:black;" id="GridEmpResPerson" ej-grid e-datasource="EmployeeResPersonList"
                              e-allowfiltering="true" e-recorddoubleclick="setEmployeeData" e-allowpaging="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -2182,7 +2175,7 @@
             <div class="modal-header"> Article List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                    <div class="content-container-fluid" style="color:black;">
                         <div style="color:black;" id="GridMaterialArticle" ej-grid e-datasource="MaterialArticleMstList"
                              e-allowfiltering="true" e-recorddoubleclick="setMaterialArticleData" e-allowpaging="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -2216,7 +2209,7 @@
             <div class="modal-header"> Material Master List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                    <div class="content-container-fluid" style="color:black;">
                         <div style="color:black;" id="GridMaterial" ej-grid e-datasource="MaterialMstList"
                              e-allowfiltering="true" e-recorddoubleclick="setMaterialMstData" e-allowpaging="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -2285,7 +2278,7 @@
             <div class="modal-header">Master Order <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                    <div class="content-container-fluid" style="color:black;">
                         <div style="color:black;" id="GridMasterOrder" ej-grid e-datasource="masterOrderCustomerList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="SelectedOrder"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">

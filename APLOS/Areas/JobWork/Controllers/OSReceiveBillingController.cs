@@ -17,13 +17,13 @@ using System.Globalization;
 
 namespace Aplos.Areas.JobWork.Controllers
 {
-    public class JobWorkReceiveBillingController : BaseController
+    public class OSReceiveBillingController : BaseController
     {
         JobWorkReceiptValueAdded R = new JobWorkReceiptValueAdded();
 
         #region Constructor
         private readonly SqlRepository _sqlRepository;
-        public JobWorkReceiveBillingController(SqlRepository Repository)
+        public OSReceiveBillingController(SqlRepository Repository)
         {
             _sqlRepository = Repository;
             R = new JobWorkReceiptValueAdded();
@@ -70,10 +70,10 @@ namespace Aplos.Areas.JobWork.Controllers
             {
 
                 sql = @"SELECT '' Id,tc.Id JWTransformationPurchaseOrderId,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate
-			            ,FORMAT(tc.[Time],'hh:mm tt')[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+			            ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
 			            FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
 			            e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency,TC.PurchaseLCId,ISNULL(LC.LCRef,'')LCRef,PT.PaymentMode,ISNULL(CN.ContractNo,'')ContractNo
-			            from [dbo].[JWTransformationPurchaseOrder] tc
+			            from [dbo].[OSTransformationPO] tc
 			            left join ORG.Entity e on e.Id=tc.EntityId
 			            left join HKP.Party p on p.Id=tc.PartyId
 			            LEFT JOIN [SCS].[Currency] AS CU ON tc.CurrencyId=CU.Id
@@ -112,14 +112,14 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                string sql = @"SELECT B.Id,CTC.Id JWTransformationContractChildId,IM.MaterialMasterId,MM.UserName MaterialName,IM.ArticleId
+                string sql = @"SELECT B.Id,CTC.Id OSTransformationPODetailId,IM.MaterialMasterId,MM.UserName MaterialName,IM.ArticleId
                             ,ART.StandardName Article,IM.FirstCharacteristicsId,FC.UserName AS SKU1,IM.FirstCharacteristicsValueId
                             ,FCV.UserName AS FirstCharacteristicsValue,IM.SecondCharacteristicsId,SC.UserName AS SKU2,IM.SecondCharacteristicsValueId
                             ,SCV.UserName AS SecondCharacteristicsValue,CTC.ThirdCharacteristicsId,TC.UserName AS SKU3
                             ,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue
                             ,CTC.Quantity OrderQty,SUM(IRD.TransactionQty) ReceiveQty,OB.OtherBillingQty,B.BillingQty,(SUM(IRD.TransactionQty)-OB.OtherBillingQty) BalanceQty, CTC.RatePerUnit MaterialTranRate,B.Amount
-                            from [dbo].[JobWorkTransformationContractChild] CTC
-                            JOIN TRN.InventoryReceiveDetail IRD ON CTC.Id=IRD.JWTCMDId AND CTC.JobWorkTransformationContractMasterId=IRD.JWTCMId
+                            from [dbo].[OSTransformationPODetail] CTC
+                            JOIN TRN.InventoryReceiveDetail IRD ON CTC.Id=IRD.OSTransformationPODetailId AND CTC.OSTransformationPOId=IRD.OSTransformationPOId
                             JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
                             JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
                             JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
@@ -129,10 +129,10 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-                            LEFT JOIN dbo.JWReceiveBillingDetail B ON B.JWTransformationContractChildId=CTC.Id AND B.JWReceiveBillingId='" + masterId + @"'
-                            LEFT JOIN (SELECT JWTransformationContractChildId,ISNULL(SUM(BillingQty),0) OtherBillingQty FROM dbo.JWReceiveBillingDetail WHERE JWReceiveBillingId<> '" + masterId + @"'
-                            GROUP BY JWTransformationContractChildId) OB ON OB.JWTransformationContractChildId=CTC.Id
-                            WHERE CTC.JobWorkTransformationContractMasterId = '" + contractId + @"' AND IRD.InventoryReceiveId " + inventoryReceiveIds + @" AND IRD.MaterialFor = 'JWOUTPUTMaterial'
+                            LEFT JOIN dbo.OSReceiveBillingDetail B ON B.OSTransformationPODetailId=CTC.Id AND B.OSReceiveBillingId='" + masterId + @"'
+                            LEFT JOIN (SELECT OSTransformationPODetailId,ISNULL(SUM(BillingQty),0) OtherBillingQty FROM dbo.OSReceiveBillingDetail WHERE OSReceiveBillingId<> '" + masterId + @"'
+                            GROUP BY OSTransformationPODetailId) OB ON OB.OSTransformationPODetailId=CTC.Id
+                            WHERE CTC.OSTransformationPOId = '" + contractId + @"' AND IRD.InventoryReceiveId " + inventoryReceiveIds + @" AND IRD.MaterialFor = 'JWOUTPUTMaterial'
                             GROUP BY IM.MaterialMasterId,CTC.Quantity, CTC.RatePerUnit,B.Id,CTC.Id,MM.UserName
                             ,IM.ArticleId,ART.StandardName,IM.FirstCharacteristicsId,FC.UserName,IM.FirstCharacteristicsValueId
                             ,FCV.UserName,IM.SecondCharacteristicsId,SC.UserName,IM.SecondCharacteristicsValueId
@@ -159,9 +159,9 @@ namespace Aplos.Areas.JobWork.Controllers
                             ,SCV.UserName AS SecondCharacteristicsValue,IM.ThirdCharacteristicsId,TC.UserName AS SKU3
                             ,IM.ThirdCharacteristicsValueId,TCV.UserName AS ThirdCharacteristicsValue
                             FROM TRN.InventoryReceiveDetail IRD
-                            LEFT JOIN [dbo].[JWTransformationPurchaseOrder] JWPO ON IRD.JWTCMId = JWPO.Id
-                            JOIN (SELECT SUM(Quantity)Quantity,JobWorkTransformationContractMasterId from [dbo].[JobWorkTransformationContractChild] 
-                            GROUP BY JobWorkTransformationContractMasterId) CTC ON JWPO.Id = CTC.JobWorkTransformationContractMasterId
+                            LEFT JOIN [dbo].[OSTransformationPO] JWPO ON IRD.OSTransformationPOId = JWPO.Id
+                            JOIN (SELECT SUM(Quantity)Quantity,OSTransformationPOId from [dbo].[OSTransformationPODetail] 
+                            GROUP BY OSTransformationPOId) CTC ON JWPO.Id = CTC.OSTransformationPOId
                             LEFT JOIN TRN.InventoryMaterial IM ON IM.Id = IRD.InventoryMaterialId
                             LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
                             LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
@@ -171,12 +171,12 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-                            LEFT JOIN dbo.JWReceiveBillingDetail B ON B.JWTransformationContractChildId = IRD.JWTCMDId AND B.JWReceiveBillingId='" + masterId + @"'
+                            LEFT JOIN dbo.OSReceiveBillingDetail B ON B.OSTransformationPODetailId = IRD.OSTransformationPODetailId AND B.OSReceiveBillingId='" + masterId + @"'
                             LEFT JOIN (
-                            SELECT JWTransformationContractChildId,Sum(BillingQty) OtherBillQty FROM dbo.JWReceiveBillingDetail 
-                            WHERE JWReceiveBillingId<>'" + masterId + @"' GROUP BY JWTransformationContractChildId
-                            ) BIL ON BIL.JWTransformationContractChildId=IRD.JWTCMDId
-                            where IRD.InventoryReceiveId " + inventoryReceiveIds + @" AND IRD.JWTCMId='" + contractId + @"' AND IRD.MaterialFor = 'JWOUTPUTMaterial'
+                            SELECT OSTransformationPODetailId,Sum(BillingQty) OtherBillQty FROM dbo.OSReceiveBillingDetail 
+                            WHERE OSReceiveBillingId<>'" + masterId + @"' GROUP BY OSTransformationPODetailId
+                            ) BIL ON BIL.OSTransformationPODetailId=IRD.OSTransformationPODetailId
+                            where IRD.InventoryReceiveId " + inventoryReceiveIds + @" AND IRD.OSTransformationPOId='" + contractId + @"' AND IRD.MaterialFor = 'JWOUTPUTMaterial'
                             GROUP BY CTC.Quantity,IRD.InventoryMaterialId,IM.MaterialMasterId,MM.UserName,ART.Id
                             ,ART.StandardName,IM.FirstCharacteristicsId,FC.UserName,IM.FirstCharacteristicsValueId
                             ,FCV.UserName,IM.SecondCharacteristicsId,SC.UserName,IM.SecondCharacteristicsValueId
@@ -200,12 +200,12 @@ namespace Aplos.Areas.JobWork.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string sql = @"SELECT RB.*,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate
-			                ,FORMAT(tc.[Time],'hh:mm tt')[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+			                ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
 			                FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
 			                e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency
                             ,TC.PurchaseLCId,ISNULL(LC.LCRef,'')LCRef,ISNULL(CN.ContractNo,'')ContractNo
-			                from [dbo].[JWReceiveBilling] RB
-			                LEFT JOIN [dbo].[JWTransformationPurchaseOrder] tc ON tc.Id=RB.JWTransformationPurchaseOrderId
+			                from [dbo].[OSReceiveBilling] RB
+			                LEFT JOIN [dbo].[OSTransformationPO] tc ON tc.Id=RB.OSTransformationPOId
 			                LEFT JOIN ORG.Entity e on e.Id=tc.EntityId
 			                LEFT JOIN HKP.Party p on p.Id=tc.PartyId
                             LEFT JOIN [SCS].[Currency] AS CU ON tc.CurrencyId=CU.Id
@@ -228,7 +228,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
-                string sql = @"SELECT * FROM JWReceiveBillingGRN WHERE JWReceiveBillingId='" + masterId + "'";
+                string sql = @"SELECT * FROM OSReceiveBillingGRN WHERE OSReceiveBillingId='" + masterId + "'";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -260,14 +260,14 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWReceiveBillingDetail", out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSReceiveBillingDetail", out sID);
             return sID;
         }
         private string GetGRNPK()
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWReceiveBillingGRN", out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSReceiveBillingGRN", out sID);
             return sID;
         }
 
@@ -281,16 +281,16 @@ namespace Aplos.Areas.JobWork.Controllers
             {
                 string _Id = "";
                 string masterId = "";
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.JWReceiveBilling Where Id='" + master["Id"] + "'", out dsMaster, false, "1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.JWReceiveBillingGRN Where JWReceiveBillingId='" + master["Id"] + "'", out dsGRNBills, false, "1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.JWReceiveBillingDetail Where JWReceiveBillingId='" + master["Id"] + "'", out dsBills, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.OSReceiveBilling Where Id='" + master["Id"] + "'", out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.OSReceiveBillingGRN Where OSReceiveBillingId='" + master["Id"] + "'", out dsGRNBills, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.OSReceiveBillingDetail Where OSReceiveBillingId='" + master["Id"] + "'", out dsBills, false, "1");
 
                 if (master != null)
                 {
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWReceiveBilling", out _Id);
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSReceiveBilling", out _Id);
 
                         master["Id"] = _Id;
                         master["PlantId"] = identity.PlantId;
@@ -313,7 +313,7 @@ namespace Aplos.Areas.JobWork.Controllers
                             if (dv.Count == 0)
                             {
                                 item["Id"] = GetGRNPK();
-                                item["JWReceiveBillingId"] = masterId;
+                                item["OSReceiveBillingId"] = masterId;
                                 AddNewRow(dsGRNBills.Tables[0], item);
                             }
                             else
@@ -334,7 +334,7 @@ namespace Aplos.Areas.JobWork.Controllers
                             if (dv.Count == 0)
                             {
                                 item["Id"] = GetPK();
-                                item["JWReceiveBillingId"] = masterId;
+                                item["OSReceiveBillingId"] = masterId;
                                 AddNewRow(dsBills.Tables[0], item);
                             }
                             else
@@ -415,8 +415,8 @@ namespace Aplos.Areas.JobWork.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strCSQL = "DELETE FROM [dbo].[JWReceiveBillingDetail] WHERE JWReceiveBillingId='" + Id + "'";
-                strSQL = "DELETE FROM [dbo].[JWReceiveBilling] WHERE Id = '" + Id + "'";
+                strCSQL = "DELETE FROM [dbo].[OSReceiveBillingDetail] WHERE OSReceiveBillingId='" + Id + "'";
+                strSQL = "DELETE FROM [dbo].[OSReceiveBilling] WHERE Id = '" + Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();

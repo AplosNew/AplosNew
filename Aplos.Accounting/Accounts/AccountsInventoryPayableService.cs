@@ -3840,7 +3840,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                     LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                     WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0 AND IR.PlantId='" + plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
 					--AND IR.IsApproved=1 AND IR.RequiredPosting=1 
-					AND IR.GRNType='GRNBYJW'
+					AND IR.GRNType='GRNBYPO'
                     order by IR.GRNDate desc";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -4122,8 +4122,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Amount
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
-						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.JWTCMDId
+						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.OSTransformationPOId
+						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.OSTransformationPODetailId
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
 						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id
@@ -4152,8 +4152,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Amount
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
-						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.JWTCMDId
+						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.OSTransformationPOId
+						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.OSTransformationPODetailId
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
 						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id

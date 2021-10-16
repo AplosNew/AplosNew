@@ -3060,9 +3060,9 @@ namespace Library.MaterialManagement.Inventory
                                   , @plantId varchar(30)='" + plantId + @"'
                                   , @hsnCodeId varchar(30)='" + hsnCodeId + @"'
                     SET @partyCountry =(SELECT AM.CountryId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
-                                                    JOIN JWTransformationPurchaseOrder AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+                                                    JOIN OSTransformationPO AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
                     SET @partyState =(SELECT AM.StateId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
-                                    JOIN JWTransformationPurchaseOrder AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+                                    JOIN OSTransformationPO AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
 
                     SET @plantState =(SELECT AD.StateId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
                     SET @plantCountry =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
@@ -8053,12 +8053,11 @@ ORDER BY IR.ID DESC";
                                 WHERE PO.PlantId='" + plantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')<>'' AND PO.IsClosed=0
 
                             UNION
-                            SELECT 
-                                distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
+                            SELECT distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                                 InvPP.StandardName,ISNULL(PO.OrderSpecific,'') OrderSpec,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
                                 ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='OutSourcePO',PLC.LCRef,ISNULL(C.ContractNo,'')ContractNo,ISNULL(PO.DocRefNo,'')DocRefNo
-                                FROM [dbo].[JWTransformationPurchaseOrder] PO
-                                INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, JobWorkTransformationContractMasterId FROM [dbo].[JobWorkTransformationContractChild] GROUP BY JobWorkTransformationContractMasterId) POD ON POD.JobWorkTransformationContractMasterId=PO.Id
+                                FROM [dbo].[OSTransformationPO] PO
+                                INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, OSTransformationPOId FROM [dbo].[OSTransformationPODetail] GROUP BY OSTransformationPOId) POD ON POD.OSTransformationPOId=PO.Id
                                 LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
                                 LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
                                 LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId 
@@ -8116,9 +8115,9 @@ ORDER BY IR.ID DESC";
                             ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,ISNULL(C.ContractNo,'')ContractNo,Flag='OutSourcePO',ISNULL(PO.DocRefNo,'')DocRefNo
                             --,IsFirst=case when GRN.GRNId>0 then 0 else 1 end
 	                        ,0 IsFirst
-                            FROM [dbo].[JWTransformationPurchaseOrder] PO
-                            INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, JobWorkTransformationContractMasterId 
-	                        FROM [dbo].[JobWorkTransformationContractChild] GROUP BY JobWorkTransformationContractMasterId) POD ON POD.JobWorkTransformationContractMasterId=PO.Id
+                            FROM [dbo].[OSTransformationPO] PO
+                            INNER JOIN (SELECT SUM(ISNULL(TransactionAmount,0)) TransactionAmount, OSTransformationPOId 
+	                        FROM [dbo].[OSTransformationPODetail] GROUP BY OSTransformationPOId) POD ON POD.OSTransformationPOId=PO.Id
                             LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
                             LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
                             LEFT JOIN [dbo].[Contract] C ON C.Id=PO.ContractId
@@ -8206,7 +8205,7 @@ ORDER BY IR.ID DESC";
                 }
                 else
                 {
-                    var Sql = @"Update [dbo].[JWTransformationPurchaseOrder] set PurchaseLCId='" + PurchaseLCId + "'  WHERE Id='" + POId + "'";
+                    var Sql = @"Update [dbo].[OSTransformationPO] set PurchaseLCId='" + PurchaseLCId + "'  WHERE Id='" + POId + "'";
                     return _sqlRepository.GetDataCollection(Sql);
                 }
             }
