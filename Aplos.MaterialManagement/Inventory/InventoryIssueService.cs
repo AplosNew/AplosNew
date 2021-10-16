@@ -2351,7 +2351,7 @@ namespace Library.MaterialManagement.Inventory
 							        JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId=II.Id
 								    left join dbo.EmployeeInformation AS EI ON EI.SystemId=II.EmployeeId
                                     left join org.Entity E ON E.Id=II.EntityId
-									LEFT JOIN [dbo].[JWTransformationPurchaseOrder] JW ON JW.Id=II.JWContractId
+									LEFT JOIN [dbo].[OSTransformationPO] JW ON JW.Id=II.JWContractId
 									left join dbo.[Contract] CN ON CN.Id=JW.ContractId
 									LEFT JOIN dbo.MasterLC LC ON LC.Id=CN.MasterLCId
 									LEFT JOIN HKP.Party P ON P.Id=LC.CustomerId

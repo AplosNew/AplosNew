@@ -617,7 +617,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
             data.TaxAmount = 0;
             for (var i = 0; i < $scope.materialtaxCategoryListSavedData.length; i++) {
                 if ($scope.materialtaxCategoryListSavedData[i].InventorySalesDetailId == data.InventorySalesDetailId) {
-                    $scope.materialtaxCategoryListSavedData[i].TaxAmount = ($scope.materialtaxCategoryListSavedData[i].SalesTax / data.TransactionQty) * data.ReturnQty
+                    $scope.materialtaxCategoryListSavedData[i].TaxAmount = Math.round((($scope.materialtaxCategoryListSavedData[i].SalesTax / data.TransactionQty) * data.ReturnQty) * 100 + Number.EPSILON) / 100;
                     data.TaxAmount += Math.round((($scope.materialtaxCategoryListSavedData[i].SalesTax / data.TransactionQty) * data.ReturnQty) * 100 + Number.EPSILON) / 100;
                 }
             }
