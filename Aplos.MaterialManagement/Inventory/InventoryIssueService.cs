@@ -897,9 +897,9 @@ namespace Library.MaterialManagement.Inventory
                                     if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
 
                                     if (item.TransactionUoMId != item.BaseUOMId)
-                                        totalReqQty = Convert.ToInt32(item.RequisitionQty * item.BaseUoMFactor);
+                                        totalReqQty = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BaseUoMFactor),4);
                                     else
-                                        totalReqQty = item.RequisitionQty;
+                                        totalReqQty = Math.Round(item.RequisitionQty,4);
                                     historyId++;
                                     var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
                                     var history = new InventoryIssueHistory
@@ -907,7 +907,7 @@ namespace Library.MaterialManagement.Inventory
                                         Id = MakePK(issueDetail.Id, historyId, 2),
                                         InventoryIssueDetailId = issueDetail.Id,
                                         InventoryReceiveDetailId = item.InventoryReceiveDetailId,
-                                        Qty = totalReqQty, //item.RequisitionQty,
+                                        Qty = Math.Round(totalReqQty,4), //item.RequisitionQty,
                                                            //Rate = Convert.ToDecimal(item.BaseRate),
                                         Rate = Math.Round((SelectedGRN.TotalAmount / totalReqQty), 4),//totalGRNQty
                                         TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),

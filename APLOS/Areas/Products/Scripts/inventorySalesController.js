@@ -507,7 +507,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	}
 	$scope.RateCalculation = function () {
 		//debugger;
-		$scope.detailModel.SalesRate = (parseFloat(($scope.detailModel.TotalAmount)/$scope.detailModel.TransactionQty)).toFixed(4);
+		$scope.detailModel.SalesRate = (parseFloat(($scope.detailModel.TotalAmount) / $scope.detailModel.TransactionQty)).toFixed(4);
 		$scope.calculateTaxCategory();
 	}
 	$scope.calculateTaxCategory = function () {
@@ -1159,7 +1159,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				}
 			}
 		}
-		
+
 		if ($scope.detailList.length === 0) {
 			ShowResult('Please select Atlest one material');
 			return false;
@@ -1182,7 +1182,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		}
 
 		var UIStatus = $("#SlipAssetIssueUI").val();
-		$scope.productNew.IssueRequestMasterId = $scope.issueId;	
+		$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		$scope.productNew.CustomerId = $scope.productNew.PartyId;
 		if ($scope.Action === "Save") {
 			$http({
@@ -1346,14 +1346,15 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	function ClearFields() {
 		$scope.Action = "Save";
 		$scope.product = {};
-		$scope.productNew = { FixedAssetOrInventory: 'Inventory', PODepended: false, AlongwithInvoice: false, IssueType: 'Revenue', InvoicingPartyPlantId: $scope.productNew.InvoicingPartyPlantId };
-		//$scope.productNew.InvoicingPartyPlantId=$scope.productNew.InvoicingPartyPlantId;
+		$scope.detailList = [];
 		$scope.detailModel = {};
 		$scope.clearCharNames();
-		$scope.detailList = [];
 		$scope.specificStockList = [];
 		$scope.materialtaxCategoryListRes = [];
+		$scope.productNew = { FixedAssetOrInventory: 'Inventory', PODepended: false, AlongwithInvoice: false, IssueType: 'Revenue', InvoicingPartyPlantId: $scope.productNew.InvoicingPartyPlantId };
+		//$scope.productNew.InvoicingPartyPlantId=$scope.productNew.InvoicingPartyPlantId;		
 		$scope.IssueType = 'Revenue';
+
 	}
 	$scope.setCharData = function (data) {
 		$scope[$scope.charValueSearchFor].CharacteristicsValueId = data.CharacteristicsValueId;
@@ -1408,6 +1409,18 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$scope.detailAdd = function () {
 		//debugger;
 		try {
+			if (baseService.isUndefinedOrNull($scope.detailModel.TransactionQty)) {
+				ShowResult('Enter the Transaction Qty', 'failure', 'detailPopUp');
+				return false;
+			}
+			if (baseService.isUndefinedOrNull($scope.detailModel.SalesRate)) {
+				ShowResult('Enter the Sales Rate', 'failure', 'detailPopUp');
+				return false;
+			}
+			if (baseService.isUndefinedOrNull($scope.detailModel.TotalAmount)) {
+				ShowResult('Enter the Total Amount', 'failure', 'detailPopUp');
+				return false;
+			}
 			//$scope.validation();
 			//if ($scope.detailModel.BudgetMasterId === '' || $scope.detailModel.BudgetMasterId === null || $scope.detailModel.BudgetMasterId === undefined) {
 			//	ShowResult('Budget is required', 'failure', 'detailPopUp');
@@ -1568,7 +1581,10 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		}
 
 		$scope.materialtaxCategoryList = [];
-		angular.element(document.querySelector('#detailPopUp')).modal('hide');
+
+		if (!baseService.isUndefinedOrNull($scope.detailModel.TotalAmount)) {
+			angular.element(document.querySelector('#detailPopUp')).modal('hide');
+		}
 		//$scope.detailModel.MaterialMasterId = '';
 		//$scope.detailModel.MaterialMasterName = '';
 		//$scope.detailModel.ArticleId = '';
@@ -1655,7 +1671,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				, IsSpecific: false
 				, Comments: null
 				, TaxAmount: null
-				, ToCurrencyRate : $scope.productNew.ToCurrencyRate
+				, ToCurrencyRate: $scope.productNew.ToCurrencyRate
 			};
 			$scope.clearCharNames();
 			$scope.detailModel.CostCenterId = $scope.CostCenterIdTemp;
@@ -2153,7 +2169,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 			FromDate: $filter('dateFiltering')(new Date(firstDay.getFullYear(), firstDay.getMonth(), 1)),
 				//$scope.report.FromDate = $filter("dateFiltering")(Date.now());
 
-		    $scope.report.FromDate = $filter('dateFiltering')(new Date(firstDay.getFullYear(), firstDay.getMonth(), 1));
+				$scope.report.FromDate = $filter('dateFiltering')(new Date(firstDay.getFullYear(), firstDay.getMonth(), 1));
 			$scope.report.ToDate = $filter("dateFiltering")(Date.now());
 			$scope.productNew.ForThePeriod = 'ForThePeriod';
 			//$scope.productNew.Qty = true;
@@ -2185,7 +2201,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 			//$scope.report.ToDate = $filter("dateFiltering")(Date.now());
 			$scope.productNew.Details = 'Details';
 			$scope.productNew.Summery = 'Details';
-		} 
+		}
 		if ($scope.statusSumOrDel === 'Summery') {
 
 			//$scope.productNew.RcptIssue = '';
