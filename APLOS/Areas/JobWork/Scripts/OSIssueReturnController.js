@@ -1,9 +1,9 @@
 ﻿'use strict';
-JobWorkIssueReturnController.$inject = ['$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function JobWorkIssueReturnController($window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+OSIssueReturnController.$inject = ['$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function OSIssueReturnController($window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
 	$scope.ToDoFilePath = virtualPath.JobWorkValueAddedContract;
 	$scope.ToDownloadFilePath = virtualPath.JobWorkTransformationContract;
-	$rootScope.title = 'Job Work Issue/ Return';
+	$rootScope.title = 'Out Source Issue/ Return';
 	$scope.Action = 'Save';
 	$scope.ModelList = [];
 	$scope.IndividualReportList = [];
@@ -12,7 +12,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.TransformationTypeList = [];
 	$scope.EntityList = [];
 	$scope.MaterialLocationList = [];
-	$scope.path = 'JobWork/JobWorkIssueReturn/';
+	$scope.path = 'JobWork/OSIssueReturn/';
 	$scope.getListUrl = $scope.path + 'getlist';
 	$scope.saveUrl = $scope.path + 'create';
 	$scope.deleteUrl = $scope.path + 'delete/';
@@ -48,7 +48,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		else {
 			$http({
 				method: 'GET',
-				url: 'JobWork/JobWorkIssueReturn/gejobworklocation?TId=' + $scope.ModelNew.Id,
+				url: 'JobWork/OSIssueReturn/gejobworklocation?TId=' + $scope.ModelNew.Id,
 			}).then(function successCallback(response) {
 				$scope.ValAddedJobWorkLocList = response.data;
 				if ($scope.ValAddedJobWorkLocList.length > 0) {
@@ -66,7 +66,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.SelectedValAddedEntity = function () {
 		$http({
 			method: 'GET',
-			url: 'JobWork/JobWorkIssueReturn/getentitylist/',
+			url: 'JobWork/OSIssueReturn/getentitylist/',
 		}).then(function successCallback(response) {
 			$scope.ValEntityList = response.data;
 			if ($scope.IssueTypeList.length > 0) {
@@ -463,7 +463,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			dataSource: data,
 			/*columns: ["MaterialGroupName", "MaterialName", "Article", "SKU1", "SKU2", "SKU3", "MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount", "MaterialFor"]*/
 
-			columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoMId", "TransactionUoM"]
+			columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoMId", "TransactionUoM", "BaseCurrency", "BaseRate", "Amount"]
 		});
 		e.detailsElement.find(".tabcontrol").ejTab();
 
@@ -573,7 +573,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			var TabType = $scope.ModelNew.TabType;
 			if (TabType == "Value Added") {
 				var reportFormat = "Excel";
-				window.open('JobWork/JobWorkIssueReturn/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+				window.open('JobWork/OSIssueReturn/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
 				$scope.getData();
 			}
 
@@ -594,7 +594,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		if ($scope.Transformation.OrderSpecific == "Yes") {
 			$http({
 				method: 'GET',
-				url: 'JobWork/JobWorkIssueReturn/getalljobworklocation/',
+				url: 'JobWork/OSIssueReturn/getalljobworklocation/',
 			}).then(function successCallback(response) {
 				$scope.JobWorkLocList = response.data;
 				//if ($scope.JobWorkLocList.length > 0) {
@@ -606,7 +606,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		else {
 			$http({
 				method: 'GET',
-				url: 'JobWork/JobWorkIssueReturn/gejobworklocation?TId=' + $scope.Transformation.Id,
+				url: 'JobWork/OSIssueReturn/gejobworklocation?TId=' + $scope.Transformation.Id,
 			}).then(function successCallback(response) {
 				$scope.JobWorkLocList = response.data;
 				if ($scope.JobWorkLocList.length > 0) {
@@ -623,7 +623,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		if ($scope.ModelNew.TabType == "Transformation") {
 			$http({
 				method: 'GET',
-				url: 'JobWork/JobWorkIssueReturn/getStoragloc?JLId=' + $scope.IssueTransformation.MaterialStorageId,
+				url: 'JobWork/OSIssueReturn/getStoragloc?JLId=' + $scope.IssueTransformation.MaterialStorageId,
 			}).then(function successCallback(response) {
 				$scope.SelectedMaterialStorage = response.data;
 				if ($scope.SelectedMaterialStorage.length > 0) {
@@ -640,7 +640,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			if ($scope.ModelNew.OrderSpecific == "Yes") {
 				$http({
 					method: 'GET',
-					url: 'JobWork/JobWorkIssueReturn/getStoragloc?JLId=' + $scope.Issue.MaterialStorageId,
+					url: 'JobWork/OSIssueReturn/getStoragloc?JLId=' + $scope.Issue.MaterialStorageId,
 				}).then(function successCallback(response) {
 					$scope.SelectedMaterialStorage = response.data;
 					if ($scope.SelectedMaterialStorage.length > 0) {
@@ -662,7 +662,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 	$scope.SelectedTConEntity = function () {
 		$http({
 			method: 'GET',
-			url: 'JobWork/JobWorkIssueReturn/getentitylist/',
+			url: 'JobWork/OSIssueReturn/getentitylist/',
 		}).then(function successCallback(response) {
 			$scope.EntityList = response.data;
 			if ($scope.TransformationTypeList.length > 0) {
@@ -877,11 +877,11 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			$scope.MatInputListLocal = response.data;
 			if ($scope.MaterialInputList.length > 0) {
 				for (var a = 0; a < $scope.MaterialInputList.length; a++) {
-					var Id = $scope.MaterialInputList[a].JWTCMId;
+					var Id = $scope.MaterialInputList[a].OSTransformationPOId;
 					var ArticleId = $scope.MaterialInputList[a].ArticleId;
 
 					for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
-						if ($scope.MatInputListLocal[b].JWTCMId != Id) {
+						if ($scope.MatInputListLocal[b].OSTransformationPOId != Id) {
 							if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
 								ShowResult("Common Input Material is there");
 								return false;
@@ -910,7 +910,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		$scope.LotNum = RowData.LotNumber;
 		$http({
 			method: 'GET',
-			url: 'JobWork/JobWorkIssueReturn/GetLotNoRate?LotNumber=' + $scope.LotNum,
+			url: 'JobWork/OSIssueReturn/GetLotNoRate?LotNumber=' + $scope.LotNum,
 		}).then(function successCallback(response) {
 			$scope.GetRate = response.data;
 			for (var i = 0; i < $scope.MaterialInputList.length > 0; i++) {
@@ -1236,7 +1236,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			$scope.PrintTabId = $scope.Transformation.Id;
 			$scope.IssueId = $scope.IssueTransformation.Id;
 			var reportFormat = "Excel";
-			window.open('JobWork/JobWorkIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+			window.open('JobWork/OSIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
 			//       $scope.getData();
 
 		} catch (e) {
@@ -1252,7 +1252,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		debugger
 		$http({
 			method: "GET",
-			url: 'JobWork/JobWorkIssueReturn/GetCostCenterLoadNewFun?EntityId=' + $scope.ModelNew.EntityId
+			url: 'JobWork/OSIssueReturn/GetCostCenterLoadNewFun?EntityId=' + $scope.ModelNew.EntityId
 		}).then(function successCallback(response) {
 			$scope.costCenterAllList = response.data;
 		});
@@ -1264,7 +1264,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		debugger
 		$http({
 			method: "GET",
-			url: 'JobWork/JobWorkIssueReturn/GetCostCenterLoadNewFun?EntityId=' + $scope.IssueTransformation.EntityId
+			url: 'JobWork/OSIssueReturn/GetCostCenterLoadNewFun?EntityId=' + $scope.IssueTransformation.EntityId
 		}).then(function successCallback(response) {
 			$scope.costCenterList = response.data;
 		});
@@ -2341,7 +2341,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 				$scope.PrintTabId = data.JWContractId;
 				$scope.IssueId = data.Id;
 				var reportFormat = "Excel";
-				window.open('JobWork/JobWorkIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+				window.open('JobWork/OSIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
 				//   $scope.getData();
 			}
 			else {
@@ -2349,7 +2349,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 				$scope.PrintTabId = data.JWContractId;
 				$scope.IssueId = data.Id;
 				var reportFormat = "Excel";
-				window.open('JobWork/JobWorkIssueReturn/GetValueAddedReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+				window.open('JobWork/OSIssueReturn/GetValueAddedReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
             }
 
 
@@ -2388,7 +2388,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 			angular.element(document.querySelector("#ShowLOcationWiseStock")).modal("show");
 
 			for (var i = 0; i < $scope.IssueChildList.length > 0; i++) {
-				if ($scope.IssueChildList[i].JWTCMId === RowData.JWTCMId && $scope.IssueChildList[i].ArticleId === RowData.ArticleId) {
+				if ($scope.IssueChildList[i].OSTransformationPOId === RowData.OSTransformationPOId && $scope.IssueChildList[i].ArticleId === RowData.ArticleId) {
 					$scope.MatMstId = $scope.IssueChildList[i].MaterialMasterId;
 					// $scope.SelectedArticleId = $scope.IssueChildList[i].MaterialMasterArticleId;
 					$scope.SelectedArticleId = $scope.IssueChildList[i].ArticleId;
@@ -2418,7 +2418,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		//var gridObj = $(x).data("ejGrid");
 		//var data = gridObj.getSelectedRecords()[0];
 
-		location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+		location.href = "JobWork/OSTransformationPO/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
 		$scope.getalldata();
 	};
 
@@ -2473,7 +2473,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 					}
 				}
 				else {
-					if (($scope.IssueChildList[index].JWTCMId === $scope.IssueChildList[i].JWTCMId) && ($scope.IssueChildList[index].JWOutputItem === $scope.IssueChildList[i].JWOutputItem)) {
+					if (($scope.IssueChildList[index].OSTransformationPOId === $scope.IssueChildList[i].OSTransformationPOId) && ($scope.IssueChildList[index].JWOutputItem === $scope.IssueChildList[i].JWOutputItem)) {
 
 						if ($scope.IssueChildList[i].TIRCTotalQty == null) {
 							$scope.IssueChildList[i].TIRCTotalQty = 0;
@@ -2567,7 +2567,7 @@ function JobWorkIssueReturnController($window, cboService, commonMessage, $scope
 		var BaltoIssue;
 		for (var i = 0; i < $scope.detailList.length; i++) {
 			if (baseService.isUndefinedOrNull($scope.detailList[index].MaterialMasterId) && baseService.isUndefinedOrNull($scope.detailList[index].ArticleId)) {
-				if (($scope.detailList[index].JWTCMId === $scope.detailList[i].JWTCMId) && ($scope.detailList[index].JWInputItem === $scope.detailList[i].JWInputItem)) {
+				if (($scope.detailList[index].OSTransformationPOId === $scope.detailList[i].OSTransformationPOId) && ($scope.detailList[index].JWInputItem === $scope.detailList[i].JWInputItem)) {
 
 					if ($scope.detailList[i].TIRCTotalQty == null) {
 						$scope.detailList[i].TIRCTotalQty = 0;

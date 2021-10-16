@@ -42,7 +42,7 @@ namespace Library.Accounting.Accounts
 						FROM   dbo.JWReceiveBillingDetail JRBD 
 						LEFT JOIN [dbo].[JWReceiveBilling] JRB ON  JRBD.JWReceiveBillingId=JRB.Id
 						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=JRBD.JWTransformationContractChildId
-						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.JWTCMDId=JWTCC.Id
+						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.OSTransformationPODetailId=JWTCC.Id
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
@@ -78,7 +78,7 @@ namespace Library.Accounting.Accounts
 						FROM   dbo.JWReceiveBillingDetail JRBD 
 						LEFT JOIN [dbo].[JWReceiveBilling] JRB ON  JRBD.JWReceiveBillingId=JRB.Id
 						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=JRBD.JWTransformationContractChildId
-						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.JWTCMDId=JWTCC.Id
+						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.OSTransformationPODetailId=JWTCC.Id
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId

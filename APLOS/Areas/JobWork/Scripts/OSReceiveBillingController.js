@@ -1,12 +1,12 @@
 ﻿'use strict';
-JobWorkReceiveBillingController.$inject = ['$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'factoryService'];
-function JobWorkReceiveBillingController($window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, factoryService) {
+OSReceiveBillingController.$inject = ['$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'factoryService'];
+function OSReceiveBillingController($window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, factoryService) {
     $rootScope.title = 'Receive Billing';
     $scope.Action = 'Save';
     $scope.GriddataMaster = [];
     $scope.masterList = [];
     $scope.ContractList = [];
-    $scope.path = 'JobWork/JobWorkReceiveBilling/';
+    $scope.path = 'JobWork/OSReceiveBilling/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -169,7 +169,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.GetData = function () {
         $http({
             method: 'GET',
-            url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingData'
+            url: 'JobWork/OSReceiveBilling/GetJWReceiveBillingData'
         }).then(function successCallback(response) {
             $scope.masterList = response.data;
 
@@ -180,7 +180,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.GetDetailData = function (masterId, contractId, inventoryReceiveIds) {
         $http({
             method: 'GET',
-            url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingDetailData?masterId=' + masterId + '&contractId=' + contractId + '&inventoryReceiveIds=' + inventoryReceiveIds
+            url: 'JobWork/OSReceiveBilling/GetJWReceiveBillingDetailData?masterId=' + masterId + '&contractId=' + contractId + '&inventoryReceiveIds=' + inventoryReceiveIds
         }).then(function successCallback(response) {
             $scope.JWPOList = response.data;
         });
@@ -232,7 +232,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'JobWork/JobWorkReceiveBilling/GetInventoryReceiveByTransformationContractId?contractId=' + contractId,
+            url: 'JobWork/OSReceiveBilling/GetInventoryReceiveByTransformationContractId?contractId=' + contractId,
         }).then(function successCallback(response) {
             $scope.GriddataMaster = response.data;
 
@@ -246,7 +246,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.GetSavedGRNList = function (masterId) {
         $http({
             method: 'GET',
-            url: 'JobWork/JobWorkReceiveBilling/GetSavedGRNList?masterId=' + masterId
+            url: 'JobWork/OSReceiveBilling/GetSavedGRNList?masterId=' + masterId
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) > 0) {
                 for (var i = 0; i < $scope.GriddataMaster.length; i++) {
@@ -354,7 +354,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'JobWork/JobWorkReceiveBilling/GetInventoryReceiveDetailByOutSourcePO?masterId=' + masterId + '+&contractId=' + contractId + '&inventoryReceiveIds=' + InventoryReceiveIds,
+            url: 'JobWork/OSReceiveBilling/GetInventoryReceiveDetailByOutSourcePO?masterId=' + masterId + '+&contractId=' + contractId + '&inventoryReceiveIds=' + InventoryReceiveIds,
         }).then(function successCallback(response) {
             $scope.JWPOList = response.data;
         });
@@ -432,7 +432,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
-                    url: 'JobWork/JobWorkReceiveBilling/Create',
+                    url: 'JobWork/OSReceiveBilling/Create',
                     data: {
                         'master': $scope.ModelNew, 'grnList': $scope.TempList, 'data': $scope.JWPOList
                     },

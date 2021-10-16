@@ -164,7 +164,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             int iShiftName = 0;
                             int iShiftOuttime = 0;
                             var iDay = 0;
-                            var iOverStay = 0;
+                           // var iOverStay = 0;
 
                             string employeeName = "";
                             object chequeAmount;
@@ -496,12 +496,12 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                     if (chkAdditionInfo == true)
                                     {
-                                        xlsCol += 1;
-                                        iOverStay = xlsCol;
-                                        sheet1.Range[xlsRow, iOverStay].Text = "Over Stay";
-                                        sheet1.Range[xlsRow, iOverStay].ColumnWidth = 9;
-                                        sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                        sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        //xlsCol += 1;
+                                        //iOverStay = xlsCol;
+                                        //sheet1.Range[xlsRow, iOverStay].Text = "Over Stay";
+                                        //sheet1.Range[xlsRow, iOverStay].ColumnWidth = 9;
+                                        //sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                        //sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                         xlsCol += 1;
                                         iTotalOT = xlsCol;
@@ -780,10 +780,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                     }
 
-                                    sheet1.Range[xlsRow, iOverStay].Text = overstay;
+                                    //sheet1.Range[xlsRow, iOverStay].Text = overstay;
 
-                                    sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    //sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    //sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, iTotalOT].Text = yot;
 
@@ -805,14 +805,15 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             if (chkAdditionInfo == true)
                             {
-                                xlsRow++;
-                                string overstay = string.Empty;
-                                oru.GetOT(dsBioDvAC.Tables[0].Rows[0]["OTConsiderOn"].ToString(), OverStay.ToString(), out overstay);
-                                string tost = overstay;
-                                sheet1.Range[xlsRow, iOverStay].Text = overstay;
+                                //xlsRow++;
+                                //string overstay = string.Empty;
+                                //oru.GetOT(dsBioDvAC.Tables[0].Rows[0]["OTConsiderOn"].ToString(), OverStay.ToString(), out overstay);
+                                //string tost = overstay;
+                                //sheet1.Range[xlsRow, iOverStay].Text = overstay;
 
-                                sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                //sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                //sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                                 string TotalOt = string.Empty;//OTConsiderOn
                                 oru.GetOT(dsBioDvAC.Tables[0].Rows[0]["OTConsiderOn"].ToString(), chequeAmount.ToString(), out TotalOt);
                                 string tt = TotalOt;

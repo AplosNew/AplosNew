@@ -27,7 +27,7 @@ namespace Aplos.Areas.JobWork.Controllers
         string TableName = "JWTransformationMaster";
         //authentication for
         //GetList Create Delete
-        Library.MaterialManagement.JobWork.JobWorkCommon JobWorkCommon = null;
+        Library.MaterialManagement.JobWork.OSCommon JobWorkCommon = null;
 
         #region Constructor
 

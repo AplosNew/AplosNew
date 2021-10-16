@@ -45,7 +45,28 @@ namespace Aplos.Areas.Products.Controllers
             return Json(accountsInventorySalesService.GetSalesDetailDataBySales(inventorySalesId), JsonRequestBehavior.AllowGet);
 
         }
+        [Authorize, HttpGet]
+        public JsonResult GetTaxInfoRowWise(string inventorySalesId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            return Json(accountsInventorySalesService.GetTaxInfoRowWise(inventorySalesId), JsonRequestBehavior.AllowGet);
 
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesDetailDataForUpdateReturn(string salesReturnId, string inventorySalesId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            return Json(accountsInventorySalesService.GetSalesDetailDataForUpdateReturn(salesReturnId,inventorySalesId), JsonRequestBehavior.AllowGet);
+
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetTaxForUpdateSalesReturn(string salesReturnId, string inventorySalesId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            return Json(accountsInventorySalesService.GetTaxForUpdateSalesReturn(salesReturnId,inventorySalesId), JsonRequestBehavior.AllowGet);
+
+        }
         [Authorize, HttpGet]
         public JsonResult GetTaxInfo(string inventorySalesId)
         {
@@ -53,6 +74,38 @@ namespace Aplos.Areas.Products.Controllers
             return Json(accountsInventorySalesService.GetTaxInfo(inventorySalesId), JsonRequestBehavior.AllowGet);
 
         }
+        [Authorize, HttpGet]
+        public JsonResult GetServiceChargeList(string inventorySalesId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            return Json(accountsInventorySalesService.GetServiceChargeList(inventorySalesId), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetServiceChargeForUpdateList(string salesReturnId, string inventorySalesId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            return Json(accountsInventorySalesService.GetServiceChargeForUpdateList(salesReturnId,inventorySalesId), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetServiceTaxList(string inventorySalesId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            return Json(accountsInventorySalesService.GetServiceTaxList(inventorySalesId), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetServiceTaxForUpdate(string salesReturnId, string inventorySalesId)
+        {
+            AccountsInventorySalesService accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
+            return Json(accountsInventorySalesService.GetServiceTaxForUpdate(salesReturnId,inventorySalesId), JsonRequestBehavior.AllowGet);
+
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetList()
         {
@@ -62,13 +115,13 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities, IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList)
+        public JsonResult Create(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities,IEnumerable<SalesReturnTaxViewModel> salesReturnTaxList, IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
             inventoryIssue.CompanyId = identity.CompanyId;
             inventoryIssue.PlantId = identity.PlantId;
-            _inventoryIssueService.SalesReturnInsert(inventoryIssue, entities, salesServiceVMList);
+            _inventoryIssueService.SalesReturnInsert(inventoryIssue, entities, salesReturnTaxList, salesServiceVMList);
             return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
         }
 

@@ -472,7 +472,7 @@ namespace Aplos.Areas.Productions.Controllers
         //		}
         //		data["EntryDate"] = System.DateTime.Now.ToString();
         //		data["InvoiceDate"] = null;
-        //		data["GRNType"] = "GRNBYJW";
+        //		data["GRNType"] = "GRNBYPO";
         //		data["ByWhomEmployeeId"] = data["EmpCode"];
         //		R.SaveReceiptTransformation(data);
         //		return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });

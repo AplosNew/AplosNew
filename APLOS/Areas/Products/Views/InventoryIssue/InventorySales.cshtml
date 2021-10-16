@@ -82,7 +82,7 @@
 		<div class="form-group" id="div_rate">
 			<label class="col-sm-4 control-label">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
 			<div class="col-sm-8 show-message ">
-				<input type="text" n-decimals="4" name="Rate" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9" required>
+				<input type="text" n-decimals="4" name="Rate"  ng-model="productNew.ToCurrencyRate" ng-disabled="productNew.BaseCurrencyId==productNew.CurrencyId" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9" required>
 			</div>
 		</div>
 
@@ -620,8 +620,9 @@
 								 e-detailstemplate="detailTemp"
 								 e-detailsdatabound="detailgrid">
 								<div e-columns>
-									<div e-column e-headertext="Actions" e-width="50">
+									<div e-column e-headertext="Actions" e-width="80">
 										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid1');" style="margin: -6px;"></i></button>
+										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.InventoryPreSalesPrint('Grid1');" style="margin: -6px;"></i></button>
 									</div>
 
 									<div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
@@ -668,9 +669,10 @@
 								 e-detailstemplate="detailTemp"
 								 e-detailsdatabound="detailgrid">
 								<div e-columns>
-									<div e-column e-headertext="Actions" e-width="100">
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid2');" style="margin: -6px;"></i></button>
-									</div>
+                                    <div e-column e-headertext="Actions" e-width="100">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid2');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.InventoryPreSalesPrint('Grid2');" style="margin: -6px;"></i></button>
+                                    </div>
 
 									<div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
 									<div e-column e-field="issuetype" e-headertext="Sales Type" e-width="100"></div>
@@ -716,9 +718,10 @@
 								 e-detailstemplate="detailTemp"
 								 e-detailsdatabound="detailgrid">
 								<div e-columns>
-									<div e-column e-headertext="Actions" e-width="100">
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid3');" style="margin: -6px;"></i></button>
-									</div>
+                                    <div e-column e-headertext="Actions" e-width="100">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid3');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.InventoryPreSalesPrint('Grid3');" style="margin: -6px;"></i></button>
+                                    </div>
 
 									<div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
 									<div e-column e-field="issuetype" e-headertext="Sales Type" e-width="100"></div>
@@ -761,9 +764,10 @@
 								 e-detailstemplate="detailTemp"
 								 e-detailsdatabound="detailgrid">
 								<div e-columns>
-									<div e-column e-headertext="Actions" e-width="100">
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid4');" style="margin: -6px;"></i></button>
-									</div>
+                                    <div e-column e-headertext="Actions" e-width="100">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid4');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.InventoryPreSalesPrint('Grid4');" style="margin: -6px;"></i></button>
+                                    </div>
 
 									<div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
 									<div e-column e-field="issuetype" e-headertext="Sales Type" e-width="100"></div>
@@ -808,9 +812,10 @@
 								 e-detailstemplate="detailTemp"
 								 e-detailsdatabound="detailgrid">
 								<div e-columns>
-									<div e-column e-headertext="Actions" e-width="100">
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid5');" style="margin: -6px;"></i></button>
-									</div>
+                                    <div e-column e-headertext="Actions" e-width="100">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid5');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.InventoryPreSalesPrint('Grid5');" style="margin: -6px;"></i></button>
+                                    </div>
 
 									<div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
 									<div e-column e-field="issuetype" e-headertext="Sales Type" e-width="100"></div>
@@ -856,9 +861,10 @@
 								 e-detailstemplate="detailTemp"
 								 e-detailsdatabound="detailgrid">
 								<div e-columns>
-									<div e-column e-headertext="Actions" e-width="50">
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid6');" style="margin: -6px;"></i></button>
-									</div>
+                                    <div e-column e-headertext="Actions" e-width="80">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid6');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Pre Sales" ng-click="$parent.InventoryPreSalesPrint('Grid6');" style="margin: -6px;"></i></button>
+                                    </div>
 
 									<div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
 									<div e-column e-field="issuetype" e-headertext="Sales Type" e-width="100"></div>
