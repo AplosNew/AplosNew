@@ -1156,9 +1156,8 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         //}
         try {
             var Excel;
-            var file_src = 'Materials/MaterialLedger/MaterialStoreLedgerReport?reportFormat=' + reportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&Qty=" + $scope.productNew.Qty + "&Amount=" + $scope.productNew.Amount + "&RcptIssue=" + $scope.productNew.RcptIssue + "&MaterialId=" + $scope.detailModel.MaterialMasterId + "&ArticleId=" + $scope.detailModel.ArticleId + "&SKUId" + $scope[$scope.charValueSearchFor].CharacteristicsValueId ;
+            var file_src = 'Materials/MaterialLedger/MaterialStoreLedgerReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.productNew.Qty + '&Amount=' + $scope.productNew.Amount + '&RcptIssue=' + $scope.productNew.RcptIssue + '&MaterialId=' + $scope.detailModel.MaterialMasterId + '&ArticleId=' + $scope.detailModel.ArticleId + '&Sku1=' + $scope.FirstCharacteristicsValueId + '&Sku2=' + $scope.SecondCharacteristicsValueId + '&Sku3=' + $scope.ThirdCharacteristicsValueId;
             $rootScope.report(file_src);
-
         } catch (e) {
 
         }
@@ -2469,10 +2468,20 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
     };
 
-    $scope.setCharData = function (data) {
+    $scope.setCharData = function (data) {       
         $scope[$scope.charValueSearchFor].CharacteristicsValueId = data.CharacteristicsValueId;
         $scope[$scope.charValueSearchFor].FreeText = data.UserName;
         $scope[$scope.charValueSearchFor].FlagDisable = $scope.isSearch;
+        if ($scope.charValueSearchFor === 'char1') {
+            $scope.FirstCharacteristicsValueId = data.CharacteristicsValueId;
+        }
+        if ($scope.charValueSearchFor === 'char2') {
+            $scope.SecondCharacteristicsValueId = data.CharacteristicsValueId;
+        }
+        if ($scope.charValueSearchFor === 'char3') {
+            $scope.ThirdCharacteristicsValueId = data.CharacteristicsValueId;
+        }
+
         angular.element(document.querySelector('#searchcharactervaluepopup')).modal('hide');
     };
 
