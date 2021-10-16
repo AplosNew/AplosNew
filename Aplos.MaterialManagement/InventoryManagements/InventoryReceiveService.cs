@@ -4065,7 +4065,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					,sum(((((((((isnull(x.OpeningBalance,0)-isnull(x.OpeningIssueQty,0) + isnull(x.ReceivedForThePeriod,0))-isnull(x.IssueForThePeriod,0)) + isnull(x.IssueReturnQtyForThePeriod,0))  - ISNULL(x.PurchaseReturnQtyForThePeriod,0))- isnull(x.AdjustmentQtyForThePeriod,0))-isnull(x.InventorySalesQtyForThePeriod,0))-isnull(x.InventoryScrapQtyForThePeriod,0))-Isnull(InventoryTransferQtyForThePeriod,0))- ISNULL(x.PurchaseReturnOpeningQty,0)) Closing 
 					,sum((((((((isnull(x.OpeningBalanceAmount,0)-isnull(x.PolicyAmount,0) + isnull(x.ReceivedForThePeriodAmount,0))-isnull(x.IssueForThePeriodAmount,0)-isnull(x.AdjustmentForThePeriodAmount,0))-isnull(x.PurchaseReturnForThePeriodAmount,0))+isnull(x.IssueReturnForThePeriodAmount,0)-isnull(x.InventorySalesForThePeriodAmount,0))-isnull(x.InventoryScrapForThePeriodAmount,0))-isnull(x.InventoryTransferForThePeriodAmount,0))-isnull(PurchaseReturnOpeningAmount,0))) ClosingAmount
 
-
+					,x.InventorySalesReturnQtyForThePeriod 
+					,x.InventorySalesReturnForThePeriodAmount
 
 
 					FROM (
@@ -4129,6 +4130,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 							
 
 					from TRN.InventoryMaterial AS IM
@@ -4228,7 +4232,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+											--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4315,7 +4321,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-						
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4404,7 +4412,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+						--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4495,6 +4505,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 							
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4580,7 +4593,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+											--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4668,7 +4683,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4755,7 +4772,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4845,6 +4864,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 							
 
 					from TRN.InventoryMaterial AS IM
@@ -4934,7 +4956,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-						
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -5020,6 +5044,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,InventoryTransferData.InventoryTransferDataQty InventoryTransferQtyForThePeriod	
 					,InventoryTransferData.InventoryTransferAmount InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 							
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -5063,6 +5090,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					--,x.MaterialStorageLocation
 					--,x.InventoryMaterialId
 					--,x.GRNDate
+
+					,x.InventorySalesReturnQtyForThePeriod 
+					,x.InventorySalesReturnForThePeriodAmount
 					";
 				}
 				else if (Asset == "false" && Inventory == "true" && Country == "false")
@@ -9148,7 +9178,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 					, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue --,MS.UserName MaterialStorageLocation	
 					, TUoM.UserName UOM, PurchaseReturnDataOpening.IsAsset--,PurchaseReturnData.InventoryMaterialId,PurchaseReturnData.GRNDate
-							
+						,C.UserName CountryName	
+
 					--Opening Balance
 					,0 As OpeningBalance	
 					,0 AS OpeningBalanceAmount
@@ -9218,7 +9249,8 @@ namespace Library.MaterialManagement.InventoryManagements
                         
 					--left join [HKP].[MaterialStorage] MS on ms.id=PurchaseReturnData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
+					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id	
+					Left JOIN SCS.Country C On C.Id=IM.CountryId
 					where IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					--------------------------Purchase return----------------------------
@@ -9472,7 +9504,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						Left join [TRN].[InventorySales] Ins on Ins.Id=ISD.InventorySalesId
 						Left join trn.InventoryReceiveDetail IRD ON IRD.Id=ISH.InventoryReceiveDetailId
 						LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-						WHERE convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND Ins.PlantId='" + plantId + @"'
+						WHERE convert(Date,Ins.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND Ins.PlantId='" + plantId + @"'
 						GROUP BY ISD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
 					)InventorySalesData ON InventorySalesData.InventoryMaterialId=IM.Id    
                                 
