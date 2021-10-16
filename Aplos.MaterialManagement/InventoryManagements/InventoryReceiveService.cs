@@ -1879,7 +1879,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						 --where  IR.PlantId='20181'  AND convert(Date,IR.GRNDate) BETWEEN  '01-OCT-2020' AND '31-OCT-2020' --ORDER BY IR.GRNDate ASC
 						 where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                          --and IR.Id='20211740'
-						AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW' AND IR.GRNType<>'InventorySalesReturn'
+						AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 
 							UNION ALL
 
@@ -2116,7 +2116,7 @@ namespace Library.MaterialManagement.InventoryManagements
 			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 			where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'  --and IR.Id='20211740'
 			--AND IRT.InventoryServiceId is not null
-			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW' AND IR.GRNType<>'InventorySalesReturn'
+			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 			)x
 			Order By X.GRNEntryDate ASC";
 
@@ -17285,7 +17285,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW' and IR.TransformationContractId='" + POId + @"'
+                        and IR.GRNType='GRNBYPO' and IR.TransformationContractId='" + POId + @"'
                         Union All
                         SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
@@ -17421,7 +17421,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW' and IR.TransformationContractId='" + POId + @"'
+                        and IR.GRNType='GRNBYPO' and IR.TransformationContractId='" + POId + @"'
                          Union All
                         SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
@@ -17557,7 +17557,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 1 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW' and IR.TransformationContractId='" + POId + @"'
+                        and IR.GRNType='GRNBYPO' and IR.TransformationContractId='" + POId + @"'
                         )x
                         --where x.TransformationContractId=' " + POId + @"'
                         order by GRNDate DESC";
@@ -17695,7 +17695,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                         WHERE IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW'
+                        and IR.GRNType='GRNBYPO'
                 order by IR.GRNDate ASC";
 				}
 
@@ -17729,8 +17729,6 @@ namespace Library.MaterialManagement.InventoryManagements
                         ,IRD.GRNQTY,IRD.GRNValue,IRD.Shortageqty,IRD.ShortageRatePercent,IRD.ShortageValue
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
 						,PO.UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank,ISNULL(Pr.UserName ,'') CustomerName
-						,EI2.EmployeeName ByWhomName
-									,EI2.SystemId ByWhomEmployeeId
 						FROM [TRN].[InventoryReceive] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -17832,7 +17830,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                         WHERE  IR.CheckedByStatus='Checked'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 --And IR.POId Is not NULL  
-                         and IR.GRNType='GRNBYJW'  order by IR.GRNDate ASC";
+                         and IR.GRNType='GRNBYPO'  order by IR.GRNDate ASC";
 
 
 				}
@@ -18204,7 +18202,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                         WHERE IR.PlantId='" + plantId + @"'  --AND ISNULL(IR.[Status],'')='Posting' 
-And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='" + contractId + "'";
+And IR.IsApproved = 1 and IR.GRNType='GRNBYPO' AND IR.TransformationContractId='" + contractId + "'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -18449,8 +18447,8 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='
 				,ISNULL(PUoM.Id,'') POUoMId
 				,ISNULL(PUoM.UserName,'') POUoM
 				,ISNULL(Boq.SalesOrderId,'') SalesOrderId
-				,ISNULL(IRD.JWTCMId,'') POId
-				,ISNULL(IRD.JWTCMDId,'') PODetailsId 
+				,ISNULL(IRD.OSTransformationPOId,'') POId
+				,ISNULL(IRD.OSTransformationPODetailId,'') PODetailsId 
 
 				,IM.MaterialMasterId
 				,MM.UserName MaterialMasterName
@@ -18472,7 +18470,7 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='
 				, BaseUOMFactor=CASE WHEN MaA.BaseUOMFactor IS null then 1 else MaA.BaseUOMFactor end
 				FROM trn.InventoryReceive IR
 				Left JOIN TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
-				left join [dbo].[JWPOBOQMAP] POBOQMAP ON POBOQMAP.JWPODetailId =IRD.JWTCMDId
+				left join [dbo].[JWPOBOQMAP] POBOQMAP ON POBOQMAP.JWPODetailId =IRD.OSTransformationPODetailId
 				left join BOQ Boq on Boq.Id=POBOQMAP.BOQDetailId
 				LEFT JOIN SCS.UnitOfMeasurement TUoM ON TUoM.Id=IRD.TransactionUoMId
 				LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=IRD.BaseUOMId
@@ -18492,7 +18490,7 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='
 						  from trn.GRNPORequisitionAllocation 
 						  group by InventoryReceiveDetailId
 						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id
-				WHERE IR.GRNType='GRNBYJW' and Boq.SalesOrderId IS NOT NULL Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
+				WHERE IR.GRNType='GRNBYPO' and Boq.SalesOrderId IS NOT NULL Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
 				return _sqlRepository.GetDataCollection(sql);
 
 			}

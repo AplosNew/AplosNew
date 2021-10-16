@@ -25,9 +25,9 @@ function JobWorkConfig($routeProvider, $locationProvider) {
             templateUrl: 'JobWork/JobWorkValueAddedContract/aplos',
             controller: 'JobWorkValueAddedContractController'
         })
-        .when('/jobwork-issue-return', {
-            templateUrl: 'JobWork/JobWorkIssueReturn/aplos',
-            controller: 'JobWorkIssueReturnController'
+        .when('/os-issue-return', {
+            templateUrl: 'JobWork/OSIssueReturn/aplos',
+            controller: 'OSIssueReturnController'
         })
         .when('/confirm-issue', {
             templateUrl: 'JobWork/JobWorkIssueReturnConfirmation/aplos',
@@ -38,12 +38,12 @@ function JobWorkConfig($routeProvider, $locationProvider) {
             controller: 'MaterialReconcilationReportController'
         })
         .when('/receipt', {
-            templateUrl: 'JobWork/JobWorkReceiptValueAdded/aplos',
-            controller: 'JobWorkReceiptValueAddedController'
+            templateUrl: 'JobWork/OSReceiptValueAdded/aplos',
+            controller: 'OSReceiptValueAddedController'
         })
         .when('/receive-billing', {
-            templateUrl: 'JobWork/JobWorkReceiveBilling/aplos',
-            controller: 'JobWorkReceiveBillingController'
+            templateUrl: 'JobWork/OSReceiveBilling/aplos',
+            controller: 'OSReceiveBillingController'
         })
         .when('/jobwork-register', {
             templateUrl: 'JobWork/JobWorkRegister/aplos',
@@ -67,9 +67,9 @@ function JobWorkConfig($routeProvider, $locationProvider) {
             templateUrl: 'JobWork/JWItem',
             controller: 'jwItemController'
         })
-        .when('/jw-po', {
-            templateUrl: 'JobWork/JWTransformationPurchaseOrder',
-            controller: 'jwTransformationPurchaseOrderController'
+        .when('/os-po', {
+            templateUrl: 'JobWork/OSTransformationPO',
+            controller: 'OSTransformationPOController'
         })
         .when('/jw-po-issue', {
             templateUrl: 'JobWork/JWPOIssue',

@@ -93,19 +93,13 @@
                                         <i class="glyphicon glyphicon-edit" style="color: white;"></i>
                                     </button>
                                 </li>
-
-
-                                @*<li><button ng-click="$parent.showFabricPop(data)" class="btn btn-action tooltip-here" ng-disabled="data.SplitCount>0" data-placement="top" title="Add New"><i class="glyphicon glyphicon-list"></i></button></li>
-
-        <li><button ng-click="$parent.showFabricPop(data)" class="btn btn-action tooltip-here" ng-disabled="data.SplitCount<1" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>*@
-
                                 <li>
                                     <button ng-click="$parent.getpdff(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Show">
                                         <i class="glyphicon glyphicon-eye-open" style="color:orangered;"></i>
                                     </button>
                                 </li>
                                 <li>
-                                    <button ng-click="$parent.showSingleFabricRollPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Edit">
+                                    <button ng-click="$parent.EditSingleFabricRoll(data);" class="btn small tooltip-here"ng-disabled="data.SplitCount<1" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Single Roll Edit">
                                         <i class="glyphicon glyphicon-pencil" style="color:greenyellow;"></i>
                                     </button>
                                 </li>
@@ -395,58 +389,55 @@
                         </div>
                     </div>
                 </div>
-                <div class="row form-element-ctrl form-horizontal">
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div class="table-responsive modal-table">
-                            <div style="color:black;" id="GridRollEdit" ej-grid e-datasource="GetFabricRollList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="none" e-allowscrolling="true"
-                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowTextWrap="true"
-                                 e-allowselection="false">
-                                <div e-columns>
-                                    <div e-column e-type="string" e-field="RollNo" e-headertext="Roll No." e-width="100"></div>
-                                    <div e-column e-headertext=" Vendor Roll No. " e-template="#VendorRollNo" e-width="100"></div>
-                                    <div e-column e-headertext=" Vendor Lot No. " e-template="#VendorLotNo" e-width="100"></div>
-                                    <div e-column e-headertext="Vendor Width" e-template="#VendorWidth" e-width="100"></div>
-                                    <div e-column e-headertext=" Vendor Qty " e-template="#VendorQty" e-width="80"></div>
-                                    <div e-column e-headertext="" e-template="#DeleteRollBTN" e-width="20"></div>
+                <div class="form-elements form-horizontal" ng-form name="SingleFabricRoll">
+                    @*<input type="hidden" ng-model="buyerNew.Id">*@
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Roll No.<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="RollNo" ng-disabled="true" ng-model="GetFabricRollList[Index].RollNo" class="form-control" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Is Applicable</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="GetFabricRollList[Index].IsBlanketCutApplicable">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
                                 </div>
-                                <script type="text/template" id="DeleteRollBTN">
-                                    <div class="common-btn">
-                                        <ul class="list-inline text-right small">
-                                            <li>
-                                                <button ng-click="$parent.removeRoll(this);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                                                    <i class="glyphicon glyphicon-trash" style="color: red;"></i>
-                                                </button>
-                                            </li>
-                                            @*<li>
-                                                    <button ng-click="" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
-                                                        <i class="glyphicon glyphicon-edit" style="color:olive"></i>
-                                                    </button>
-                                                </li>*@
-                                        </ul>
-
-                                    </div>
-                                </script>
-                                <script type="text/template" id="VendorRollNo">
-                                    <input type="text" class="form-control" ng-model="data.VendorRollNo" e-width="100%" />
-                                </script>
-
-                                <script type="text/template" id="VendorQty">
-                                    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" ng-model="data.VendorQty" e-width="100%" />
-                                </script>
-                                <script type="text/template" id="VendorLotNo">
-                                    <input type="text" class="form-control" e-enablertl="false" ng-model="data.VendorLotNo" e-width="100%" />
-                                </script>
-                                <script type="text/template" id="VendorWidth">
-                                    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" ng-model="data.VendorWidth" e-width="100%" />
-                                </script>
                             </div>
                         </div>
                     </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Vendor Roll No.<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="VendorRollNo" ng-model="GetFabricRollList[Index].VendorRollNo" class="form-control"  maxlength="10">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Vendor Lot No.<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="VendorLotNo" ng-model="GetFabricRollList[Index].VendorLotNo" class="form-control"  maxlength="50">
+                            </div>
+                        </div>
+                      
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+
+                            @*<li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="10"></i> {{Action}}</button></li>*@
+                            @*<li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="12"></i> Clear</button></li>*@
+                            <li> <button ng-click="Previous();" class="btn"><i class="glyphicon glyphicon-backward" tabindex="12"></i> Prev</button></li>
+                            <li> <button ng-click="Next();" class="btn"><i class="glyphicon glyphicon-forward" tabindex="12"></i> Next</button></li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="modal-footer common-btn">
+                @*<div class="modal-footer common-btn">
                     <button ng-click="Update();" class="btn"><i class=""></i> Update</button>
-                </div>
+                </div>*@
             </div>
         </div>
     </div>

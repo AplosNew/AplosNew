@@ -10453,14 +10453,14 @@ namespace Library.MaterialManagement.Inventory
                                             PolicyAmount = Math.Round(detailtrnAmount, 2),
                                             PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
 
-                                            //PolicyAmount = issue.TransactionQty*(detailtrnAmount / totalGRNQty),
-                                            //PolicyRate = detailtrnAmount / totalGRNQty,
-                                            BudgetMasterId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
-                                            ActivityId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
-                                            Comments = issue.Comments,
-                                            CostCenterId = issue.CostCenterId,
-                                            JWTCMID = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.JWTCMId).FirstOrDefault(),
-                                            ModelState = ModelState.Added
+											//PolicyAmount = issue.TransactionQty*(detailtrnAmount / totalGRNQty),
+											//PolicyRate = detailtrnAmount / totalGRNQty,
+											BudgetMasterId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
+											ActivityId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
+											Comments = issue.Comments,
+											CostCenterId = issue.CostCenterId,
+											OSTransformationPOId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
+											ModelState = ModelState.Added
 
                                             //InventoryReceiveId= receiveDetailRow.InventoryReceiveId,
                                             //InventoryReceiveDetailId= receiveDetailRow.InventoryReceiveDetailId
@@ -10784,23 +10784,23 @@ namespace Library.MaterialManagement.Inventory
                                         AvgRate = Math.Round(invMaterial.AvgRate, 4),
                                         Policy = "N/A",
 
-                                        TransactionQty = Math.Round(totalGRNQty, 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
-                                        PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
-                                        PolicyAmount = Math.Round(detailtrnAmount, 2),
-                                        BaseQty = Math.Round(totalGRNQty, 2),//stockList.Sum(r => r.RequisitionQty),
-                                        AvgAmount = Math.Round((totalGRNQty * invMaterial.AvgRate), 2),
-                                        BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
-                                        ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
-                                        CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
-                                        Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
-                                        JWTCMID = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.JWTCMId).FirstOrDefault(),
-                                        //JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
-                                        //  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
-                                        ModelState = ModelState.Added
-                                    };
-                                    if (invMaterial.ArticleId.IsNotNull())
-                                    {
-                                        // start
+										TransactionQty = Math.Round(totalGRNQty, 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
+										PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
+										PolicyAmount = Math.Round(detailtrnAmount, 2),
+										BaseQty = Math.Round(totalGRNQty, 2),//stockList.Sum(r => r.RequisitionQty),
+										AvgAmount = Math.Round((totalGRNQty * invMaterial.AvgRate), 2),
+										BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
+										ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
+										CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
+										Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
+										OSTransformationPOId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId && r.ArticleId == invMaterial.ArticleId).Select(t => t.OSTransformationPOId).FirstOrDefault(),
+										//JWTCInputId = entities.Where(r => r.MaterialMasterId != invMaterial.MaterialMasterId && r.ArticleId != invMaterial.ArticleId).Select(t => t.JWInputItemId).FirstOrDefault(),
+										//  JWTCInputId = entities.Where(r => r.MaterialMasterId == null && r.ArticleId == null).Select(t => t.JWInputItemId).FirstOrDefault(),
+										ModelState = ModelState.Added
+									};
+									if (invMaterial.ArticleId.IsNotNull())
+									{
+										// start
 
                                         var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
                                         foreach (var item in stockList)
@@ -11032,37 +11032,37 @@ namespace Library.MaterialManagement.Inventory
                 var JWItemId = "' '";
                 var OtMatId = "' '";
 
-                foreach (var empitem in entities)
-                {
-                    if (empitem.ArticleId.IsNull())
-                    {
-                        JWItemId += ",'" + empitem.JWInputItemId + "' ";
-                        OtMatId += ",'" + empitem.JWTCMId + "' ";
-                    }
+				foreach (var empitem in entities)
+				{
+					if (empitem.ArticleId.IsNull())
+					{
+						JWItemId += ",'" + empitem.JWInputItemId + "' ";
+						OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
+					}
 
 
-                }
-                con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTCMID IN ( " + OtMatId + ") and JWTCInputId IN (" + JWItemId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+				}
+				con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where OSTransformationPOId IN ( " + OtMatId + ") and JWTCInputId IN (" + JWItemId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
 
                 foreach (var item in entities)
                 {
                     if (item.ArticleId.IsNull())
                     {
 
-                        ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
+						ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPOId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
 
                         if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                         {
                             DataRow dr = ExistOrNot.Tables[0].NewRow();
                             dr["Id"] = GetTransformationChildPK();
 
-                            dr["InventoryIssueId"] = MasterId;
-                            dr["TransactionQty"] = item.TransactionQty;
-                            dr["TransactionUoMId"] = item.TransactionUoMId;
-                            dr["BaseUOMId"] = item.BaseUOMId;
-                            dr["CostCenterId"] = item.CostCenterId;
-                            dr["JWTCMID"] = item.JWTCMId;
-                            dr["JWTCInputId"] = item.JWInputItemId;
+							dr["InventoryIssueId"] = MasterId;
+							dr["TransactionQty"] = item.TransactionQty;
+							dr["TransactionUoMId"] = item.TransactionUoMId;
+							dr["BaseUOMId"] = item.BaseUOMId;
+							dr["CostCenterId"] = item.CostCenterId;
+							dr["OSTransformationPOId"] = item.OSTransformationPOId;
+							dr["JWTCInputId"] = item.JWInputItemId;
 
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -11073,23 +11073,23 @@ namespace Library.MaterialManagement.Inventory
 
                             ExistOrNot.Tables[0].Rows.Add(dr);
 
-                        }
-                        else
-                        {
-                            ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
+						}
+						else
+						{
+							ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPOId + "' and JWTCInputId='" + item.JWInputItemId + "' ";
 
                             if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                             {
                                 DataRow dr = ExistOrNot.Tables[0].NewRow();
                                 dr["Id"] = GetTransformationChildPK();
 
-                                dr["InventoryIssueId"] = MasterId;
-                                dr["TransactionQty"] = item.TransactionQty;
-                                dr["TransactionUoMId"] = item.TransactionUoMId;
-                                dr["BaseUOMId"] = item.BaseUOMId;
-                                dr["CostCenterId"] = item.CostCenterId;
-                                dr["JWTCMID"] = item.JWTCMId;
-                                dr["JWTCInputId"] = item.JWInputItemId;
+								dr["InventoryIssueId"] = MasterId;
+								dr["TransactionQty"] = item.TransactionQty;
+								dr["TransactionUoMId"] = item.TransactionUoMId;
+								dr["BaseUOMId"] = item.BaseUOMId;
+								dr["CostCenterId"] = item.CostCenterId;
+								dr["OSTransformationPOId"] = item.OSTransformationPOId;
+								dr["JWTCInputId"] = item.JWInputItemId;
 
                                 dr["AddedBy"] = identity.Name;
                                 dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -11105,13 +11105,13 @@ namespace Library.MaterialManagement.Inventory
 
                                 dr.BeginEdit();
 
-                                dr["InventoryIssueId"] = MasterId;
-                                dr["TransactionQty"] = item.TransactionQty;
-                                dr["TransactionUoMId"] = item.TransactionUoMId;
-                                dr["BaseUOMId"] = item.BaseUOMId;
-                                dr["CostCenterId"] = item.CostCenterId;
-                                dr["JWTCMID"] = item.JWTCMId;
-                                dr["JWTCInputId"] = item.JWInputItemId;
+								dr["InventoryIssueId"] = MasterId;
+								dr["TransactionQty"] = item.TransactionQty;
+								dr["TransactionUoMId"] = item.TransactionUoMId;
+								dr["BaseUOMId"] = item.BaseUOMId;
+								dr["CostCenterId"] = item.CostCenterId;
+								dr["OSTransformationPOId"] = item.OSTransformationPOId;
+								dr["JWTCInputId"] = item.JWInputItemId;
 
                                 dr["UpdatedBy"] = identity.Name;
                                 dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -11148,45 +11148,45 @@ namespace Library.MaterialManagement.Inventory
                 var JWOrderWiseId = "' '";
                 var OtMatId = "' '";
 
-                foreach (var empitem in entities)
-                {
-                    if (empitem.ArticleId.IsNull())
-                    {
-                        if (empitem.JWOrderWiseId.IsNotNull())
-                        {
-                            JWOrderWiseId += ",'" + empitem.JWOrderWiseId + "' ";
-                            OtMatId += ",'" + empitem.JWTCMId + "' ";
-                        }
-                        else
-                        {
-                            OtMatId += ",'" + empitem.JWTCMId + "' ";
-                        }
+				foreach (var empitem in entities)
+				{
+					if (empitem.ArticleId.IsNull())
+					{
+						if (empitem.JWOrderWiseId.IsNotNull())
+						{
+							JWOrderWiseId += ",'" + empitem.JWOrderWiseId + "' ";
+							OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
+						}
+						else
+						{
+							OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
+						}
 
                     }
                 }
 
-                if (JWOrderWiseId.IsNotNull())
-                {
-                    con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTCMID IN ( " + OtMatId + ") and JWOrderWiseId IN (" + JWOrderWiseId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
-                }
-                else
-                {
-                    con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where JWTCMID IN ( " + OtMatId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
-                }
+				if (JWOrderWiseId.IsNotNull())
+				{
+					con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where OSTransformationPOId IN ( " + OtMatId + ") and JWOrderWiseId IN (" + JWOrderWiseId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+				}
+				else
+				{
+					con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where OSTransformationPOId IN ( " + OtMatId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+				}
 
 
-                foreach (var item in entities)
-                {
-                    if (item.ArticleId.IsNull())
-                    {
-                        if (item.JWOrderWiseId.IsNotNull())
-                        {
-                            ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
-                        }
-                        else
-                        {
-                            ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' ";
-                        }
+				foreach (var item in entities)
+				{
+					if (item.ArticleId.IsNull())
+					{
+						if (item.JWOrderWiseId.IsNotNull())
+						{
+							ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPOId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
+						}
+						else
+						{
+							ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPOId + "' ";
+						}
 
 
 
@@ -11195,13 +11195,13 @@ namespace Library.MaterialManagement.Inventory
                             DataRow dr = ExistOrNot.Tables[0].NewRow();
                             dr["Id"] = GetTransformationChildPK();
 
-                            dr["InventoryIssueId"] = MasterId;
-                            dr["TransactionQty"] = item.TransactionQty;
-                            dr["TransactionUoMId"] = item.TransactionUoMId;
-                            dr["BaseUOMId"] = item.BaseUOMId;
-                            dr["CostCenterId"] = item.CostCenterId;
-                            dr["JWTCMID"] = item.JWTCMId;
-                            dr["JWOrderWiseId"] = item.JWOrderWiseId;
+							dr["InventoryIssueId"] = MasterId;
+							dr["TransactionQty"] = item.TransactionQty;
+							dr["TransactionUoMId"] = item.TransactionUoMId;
+							dr["BaseUOMId"] = item.BaseUOMId;
+							dr["CostCenterId"] = item.CostCenterId;
+							dr["OSTransformationPOId"] = item.OSTransformationPOId;
+							dr["JWOrderWiseId"] = item.JWOrderWiseId;
 
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -11212,30 +11212,30 @@ namespace Library.MaterialManagement.Inventory
 
                             ExistOrNot.Tables[0].Rows.Add(dr);
 
-                        }
-                        else
-                        {
-                            if (item.JWOrderWiseId.IsNotNull())
-                            {
-                                ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
-                            }
-                            else
-                            {
-                                ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMID='" + item.JWTCMId + "' ";
-                            }
+						}
+						else
+						{
+							if (item.JWOrderWiseId.IsNotNull())
+							{
+								ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPOId + "' and JWOrderWiseId='" + item.JWOrderWiseId + "' ";
+							}
+							else
+							{
+								ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + item.OSTransformationPOId + "' ";
+							}
 
                             if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                             {
                                 DataRow dr = ExistOrNot.Tables[0].NewRow();
                                 dr["Id"] = GetTransformationChildPK();
 
-                                dr["InventoryIssueId"] = MasterId;
-                                dr["TransactionQty"] = item.TransactionQty;
-                                dr["TransactionUoMId"] = item.TransactionUoMId;
-                                dr["BaseUOMId"] = item.BaseUOMId;
-                                dr["CostCenterId"] = item.CostCenterId;
-                                dr["JWTCMID"] = item.JWTCMId;
-                                dr["JWOrderWiseId"] = item.JWOrderWiseId;
+								dr["InventoryIssueId"] = MasterId;
+								dr["TransactionQty"] = item.TransactionQty;
+								dr["TransactionUoMId"] = item.TransactionUoMId;
+								dr["BaseUOMId"] = item.BaseUOMId;
+								dr["CostCenterId"] = item.CostCenterId;
+								dr["OSTransformationPOId"] = item.OSTransformationPOId;
+								dr["JWOrderWiseId"] = item.JWOrderWiseId;
 
                                 dr["AddedBy"] = identity.Name;
                                 dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -11251,13 +11251,13 @@ namespace Library.MaterialManagement.Inventory
 
                                 dr.BeginEdit();
 
-                                dr["InventoryIssueId"] = MasterId;
-                                dr["TransactionQty"] = item.TransactionQty;
-                                dr["TransactionUoMId"] = item.TransactionUoMId;
-                                dr["BaseUOMId"] = item.BaseUOMId;
-                                dr["CostCenterId"] = item.CostCenterId;
-                                dr["JWTCMID"] = item.JWTCMId;
-                                dr["JWOrderWiseId"] = item.JWOrderWiseId;
+								dr["InventoryIssueId"] = MasterId;
+								dr["TransactionQty"] = item.TransactionQty;
+								dr["TransactionUoMId"] = item.TransactionUoMId;
+								dr["BaseUOMId"] = item.BaseUOMId;
+								dr["CostCenterId"] = item.CostCenterId;
+								dr["OSTransformationPOId"] = item.OSTransformationPOId;
+								dr["JWOrderWiseId"] = item.JWOrderWiseId;
 
                                 dr["UpdatedBy"] = identity.Name;
                                 dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -11483,55 +11483,54 @@ namespace Library.MaterialManagement.Inventory
 
                             //  TotalTaxAmount = 0,
 
-                            TotalMaterialTranAmount = avgRate * totalReturnQty,
-                            TotalMaterialBooksCurrencyAmount = avgRate * totalReturnQty * inventoryIssue.ToCurrencyRate,
-                            ChargesTranAmount = 0,
-                            ChargesTaxTranAmount = 0,
-                            TrnCurrencyBaseRate = 0,
-                            BooksCurrencyBaseRate = 0,
-                            CountryId = null,
-                            BaseIssueQty = 0,
-                            ShortageQty = 0,
-                            RejectionQty = 0,
-                            ApprovedQty = 0,
-                            ShortageRatePercent = 0,
-                            ShortageValue = 0,
-                            RejectRatePercent = 0,
-                            RejectValue = 0,
-                            RejectClamPercent = 0,
-                            Description = null,
-                            ShortRejFlag = false,
-                            PostDrGLGeneralInfoId = null,
-                            PostDrBudgetMasterId = null,
-                            PostDrActivityId = null,
-                            CapitalizeVoucherDetailId = null,
-                            IsAsset = false,
-                            PurchaseDocumentAcceptanceId = null,
-                            PurchaseDocumentAcceptanceDetailId = null,
-                            PurchaseReturnQty = 0,
-                            IssueReturnQty = 0,
-                            MaterialMasterOpeningBalanceDetailId = null,
-                            ReductionByAdjustmentQty = null,
-                            InventorySalesQty = 0,
-                            InventoryScrapQty = 0,
-                            LotNumber = null,
-                            Diameter = null,
-                            Type = null,
-                            InventoryTransferQty = 0,
-                            TransferedFromGrnId = null,
-                            GRNQty = 0,
-                            GRNTotalAmount = 0,
-                            QualityStatus = null,
-                            GrossAmount = avgRate * totalReturnQty,
-                            DiscountAmount = 0,
-                            MasterOrderItemId = null,
-                            JWTCMId = null,
-                            JWTCMDId = null,
-                            JWTCMByProductId = null,
-                            JWTCMDByProductId = null,
-                            MaterialFor = null
-                        };
-                        _receiveDetailRepository.Insert(receiveDetail);
+							TotalMaterialTranAmount = avgRate * totalReturnQty,
+							TotalMaterialBooksCurrencyAmount = avgRate * totalReturnQty * inventoryIssue.ToCurrencyRate,
+							ChargesTranAmount = 0,
+							ChargesTaxTranAmount = 0,
+							TrnCurrencyBaseRate = 0,
+							BooksCurrencyBaseRate = 0,
+							CountryId = null,
+							BaseIssueQty = 0,
+							ShortageQty = 0,
+							RejectionQty = 0,
+							ApprovedQty = 0,
+							ShortageRatePercent = 0,
+							ShortageValue = 0,
+							RejectRatePercent = 0,
+							RejectValue = 0,
+							RejectClamPercent = 0,
+							Description = null,
+							ShortRejFlag = false,
+							PostDrGLGeneralInfoId = null,
+							PostDrBudgetMasterId = null,
+							PostDrActivityId = null,
+							CapitalizeVoucherDetailId = null,
+							IsAsset = false,
+							PurchaseDocumentAcceptanceId = null,
+							PurchaseDocumentAcceptanceDetailId = null,
+							PurchaseReturnQty = 0,
+							IssueReturnQty = 0,
+							MaterialMasterOpeningBalanceDetailId = null,
+							ReductionByAdjustmentQty = null,
+							InventorySalesQty = 0,
+							InventoryScrapQty = 0,
+							LotNumber = null,
+							Diameter = null,
+							Type = null,
+							InventoryTransferQty = 0,
+							TransferedFromGrnId = null,
+							GRNQty = 0,
+							GRNTotalAmount = 0,
+							QualityStatus = null,
+							GrossAmount = avgRate * totalReturnQty,
+							DiscountAmount = 0,
+							MasterOrderItemId = null,
+							OSTransformationPOId = null,
+							OSTransformationPODetailId = null,
+							OSTransformationPOInputMaterialId = null,
+							OSTransformationPOByProductId = null,
+							MaterialFor = null
+						};
 
                         if (salesReturnTaxList != null)
                         {

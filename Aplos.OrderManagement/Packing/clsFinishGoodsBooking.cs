@@ -2185,7 +2185,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 			--AND IRT.InventoryServiceId is not null
 			AND IR.GRNType = 'FG' 
-			--AND IR.GRNType<>'GRNBYJW'
+			--AND IR.GRNType<>'GRNBYPO'
 			)x
 			Order By X.GRNEntryDate ASC";
 
@@ -4951,7 +4951,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 			where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'  --and IR.Id='20211740'
 			--AND IRT.InventoryServiceId is not null
 			AND IR.GRNType = 'FG' 
-			--AND IR.GRNType<>'GRNBYJW'
+			--AND IR.GRNType<>'GRNBYPO'
 			)x
 			Order By X.GRNEntryDate ASC";
 
