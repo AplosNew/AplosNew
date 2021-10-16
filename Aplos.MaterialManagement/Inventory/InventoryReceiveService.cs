@@ -6910,7 +6910,7 @@ ORDER BY tg.[Sequence]";
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colHSNCode || C == colRate || C == colProductionOrderId || C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate /*|| C == colUoM*/ || dicTaxes.ContainsValue(C))
+                if (C == colHSNCode || C == colRate ||  C == colLotNo || C == colMaterialGroup || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || /*C == colMaterialDetail ||*/ /*C == colDescription || C == colGRNMaterialDetail ||*/ C == colRowId || C == colRate /*|| C == colUoM*/ || dicTaxes.ContainsValue(C))
                     continue;
 
                 double value = 0;
