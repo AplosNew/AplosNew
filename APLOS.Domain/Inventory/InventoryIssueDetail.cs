@@ -21,7 +21,7 @@ namespace Library.Model.Inventory
         public string Remarks { get; set; }
 		public string CostCenterId { get; set; }
         public string Comments { get; set; }
-        public string JWTCMID { get; set; } 
+        public string OSTransformationPOId { get; set; } 
         public bool IsAsset { get; set; }
         public string JWTCInputId { get; set; }
 

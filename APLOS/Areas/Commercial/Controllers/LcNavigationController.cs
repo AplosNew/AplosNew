@@ -689,9 +689,9 @@ namespace Aplos.Areas.Commercial.Controllers
 									union 
 									
 									 select  po.PurchaseLCId as LCId,sum(g.TransactionQty*JWTCC.RatePerUnit) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from  [dbo].[JWTransformationPurchaseOrder] as po 
-									inner join TRN.InventoryReceiveDetail as g on g.JWTCMId=po.Id
-									LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=g.JWTCMId
-						            LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=g.JWTCMDId
+									inner join TRN.InventoryReceiveDetail as g on g.OSTransformationPOId=po.Id
+									LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=g.OSTransformationPOId
+						            LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=g.OSTransformationPODetailId
 									group by po.PurchaseLCId
 								    union 
 								    select  po.PurchaseLCId as LCId,sum(g.Amount) as GRNTotalAmount,count(distinct g.ServicePOMasterId) as GRNCount from  trn.ServicePOMaster PO 

@@ -3595,10 +3595,10 @@ namespace Library.MaterialManagement.Inventory
 										GrossAmount = Math.Round(Convert.ToDecimal(itemDetail.TrnAmount), 2) + Math.Round(Convert.ToDecimal(itemDetail.DiscountAmount), 2),
 										DiscountAmount = Math.Round(Convert.ToDecimal(itemDetail.DiscountAmount), 2),
 										QualityStatus = itemDetail.QualityStatus,
-										JWTCMId = itemDetail.JWTCMId,
-										JWTCMDId = itemDetail.JWTCMDId,
-										JWTCMByProductId = null,
-										JWTCMDByProductId = null,
+										OSTransformationPOId = itemDetail.OSTransformationPOId,
+										OSTransformationPODetailId = itemDetail.OSTransformationPODetailId,
+										OSTransformationPOInputMaterialId = null,
+										OSTransformationPOByProductId = null,
 										MaterialFor = "JWOUTPUTMaterial"
 
 
@@ -3871,10 +3871,10 @@ namespace Library.MaterialManagement.Inventory
 										GrossAmount = Math.Round(Convert.ToDecimal(itemDetailNew.TrnAmount), 2) + Math.Round(Convert.ToDecimal(itemDetailNew.DiscountAmount), 2),
 										DiscountAmount = Math.Round(Convert.ToDecimal(itemDetailNew.DiscountAmount), 2),
 										QualityStatus = itemDetailNew.QualityStatus,
-										JWTCMId = null,
-										JWTCMDId = null,
-										JWTCMByProductId = itemDetailNew.JWTCMByProductId,
-										JWTCMDByProductId = itemDetailNew.JWTCMDByProductId,
+										OSTransformationPOId = null,
+										OSTransformationPODetailId = null,
+										OSTransformationPOInputMaterialId = itemDetailNew.OSTransformationPOInputMaterialId,
+										OSTransformationPOByProductId = itemDetailNew.OSTransformationPOByProductId,
 										MaterialFor = "JWBYPRODUCTMaterial"
 
 
@@ -4154,10 +4154,10 @@ namespace Library.MaterialManagement.Inventory
 									GrossAmount = Math.Round(Convert.ToDecimal(itemDetail.TrnAmount), 2) + Math.Round(Convert.ToDecimal(itemDetail.DiscountAmount), 2),
 									DiscountAmount = Math.Round(Convert.ToDecimal(itemDetail.DiscountAmount), 2),
 									QualityStatus = itemDetail.QualityStatus,
-									JWTCMId = itemDetail.JWTCMId,
-									JWTCMDId = itemDetail.JWTCMDId,
-									JWTCMByProductId = null,
-									JWTCMDByProductId = null,
+									OSTransformationPOId = itemDetail.OSTransformationPOId,
+									OSTransformationPODetailId = itemDetail.OSTransformationPODetailId,
+									OSTransformationPOInputMaterialId = null,
+									OSTransformationPOByProductId = null,
 									MaterialFor = "JWOUTPUTMaterial"
 
 
@@ -4414,10 +4414,10 @@ namespace Library.MaterialManagement.Inventory
 									GrossAmount = Math.Round(Convert.ToDecimal(itemDetailNew.TrnAmount), 2) + Math.Round(Convert.ToDecimal(itemDetailNew.DiscountAmount), 2),
 									DiscountAmount = Math.Round(Convert.ToDecimal(itemDetailNew.DiscountAmount), 2),
 									QualityStatus = itemDetailNew.QualityStatus,
-									JWTCMId = null,
-									JWTCMDId = null,
-									JWTCMByProductId = itemDetailNew.JWTCMByProductId,
-									JWTCMDByProductId = itemDetailNew.JWTCMDByProductId,
+									OSTransformationPOId = null,
+									OSTransformationPODetailId = null,
+									OSTransformationPOInputMaterialId = itemDetailNew.OSTransformationPOInputMaterialId,
+									OSTransformationPOByProductId = itemDetailNew.OSTransformationPOByProductId,
 									MaterialFor = "JWBYPRODUCTMaterial"
 
 
@@ -4534,17 +4534,17 @@ namespace Library.MaterialManagement.Inventory
                     if (empitem.ArticleId.IsNull())
                     {
 						//         JWItemId += ",'" + empitem.JWInputItemId + "' ";
-						OtMatId += ",'" + empitem.JWTCMDId + "' ";
+						OtMatId += ",'" + empitem.OSTransformationPODetailId + "' ";
 					}
 				}
-				con.OpenDataSetThroughAdapter("select * from TRN.InventoryReceiveDetail where JWTCMDId IN ( " + OtMatId + ") and InventoryReceiveId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+				con.OpenDataSetThroughAdapter("select * from TRN.InventoryReceiveDetail where OSTransformationPODetailId IN ( " + OtMatId + ") and InventoryReceiveId='" + MasterId + "'  ", out ExistOrNot, false, "1");
 
 				foreach (var item in entityMat)
 				{
 					if (item.ArticleId.IsNull())
 					{
 
-					ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMDId='" + item.JWTCMDId + "' and InventoryReceiveId='" + MasterId + "' ";
+					ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + item.OSTransformationPODetailId + "' and InventoryReceiveId='" + MasterId + "' ";
 
 					if (ExistOrNot.Tables[0].DefaultView.Count == 0)
 					{
@@ -4558,8 +4558,8 @@ namespace Library.MaterialManagement.Inventory
 						dr["BaseUOMId"] = item.TransactionUoMId;
 						dr["BaseQty"] = item.TransactionQty;
 						dr["QualityStatus"] = item.QualityStatus;
-						dr["JWTCMId"] = item.JWTCMId;
-						dr["JWTCMDId"] = item.JWTCMDId;
+						dr["OSTransformationPOId"] = item.OSTransformationPOId;
+						dr["OSTransformationPODetailId"] = item.OSTransformationPODetailId;
 						dr["MaterialFor"] = "JWOUTPUTMaterial";
 
 						dr["AddedBy"] = identity.Name;
@@ -4574,7 +4574,7 @@ namespace Library.MaterialManagement.Inventory
 					}
 					else
 					{
-						ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMDId='" + item.JWTCMDId + "' and InventoryReceiveId='" + MasterId + "' ";
+						ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + item.OSTransformationPODetailId + "' and InventoryReceiveId='" + MasterId + "' ";
 
 						if (ExistOrNot.Tables[0].DefaultView.Count == 0)
 						{
@@ -4587,8 +4587,8 @@ namespace Library.MaterialManagement.Inventory
 							dr["BaseUOMId"] = item.TransactionUoMId;
 							dr["BaseQty"] = item.TransactionQty;
 							dr["QualityStatus"] = item.QualityStatus;
-							dr["JWTCMId"] = item.JWTCMId;
-							dr["JWTCMDId"] = item.JWTCMDId;
+							dr["OSTransformationPOId"] = item.OSTransformationPOId;
+							dr["OSTransformationPODetailId"] = item.OSTransformationPODetailId;
 							dr["MaterialFor"] = "JWOUTPUTMaterial";
 
 							dr["AddedBy"] = identity.Name;
@@ -4611,8 +4611,8 @@ namespace Library.MaterialManagement.Inventory
 							dr["BaseUOMId"] = item.TransactionUoMId;
 							dr["BaseQty"] = item.TransactionQty;
 							dr["QualityStatus"] = item.QualityStatus;
-							dr["JWTCMId"] = item.JWTCMId;
-							dr["JWTCMDId"] = item.JWTCMDId;
+							dr["OSTransformationPOId"] = item.OSTransformationPOId;
+							dr["OSTransformationPODetailId"] = item.OSTransformationPODetailId;
 							dr["MaterialFor"] = "JWOUTPUTMaterial";
 
 							dr["UpdatedBy"] = identity.Name;
@@ -4662,18 +4662,18 @@ namespace Library.MaterialManagement.Inventory
 				{
 					if (empitem.ArticleId.IsNull())
 					{
-						MIId += ",'" + empitem.JWTCMByProductId + "' ";
-						BPId += ",'" + empitem.JWTCMDByProductId + "' ";
+						MIId += ",'" + empitem.OSTransformationPOInputMaterialId + "' ";
+						BPId += ",'" + empitem.OSTransformationPOByProductId + "' ";
 					}
 				}
-				con.OpenDataSetThroughAdapter("select * from TRN.InventoryReceiveDetail where JWTCMByProductId IN ( " + MIId + ") and JWTCMDByProductId IN (" + BPId + ") and InventoryReceiveId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+				con.OpenDataSetThroughAdapter("select * from TRN.InventoryReceiveDetail where OSTransformationPOInputMaterialId IN ( " + MIId + ") and OSTransformationPOByProductId IN (" + BPId + ") and InventoryReceiveId='" + MasterId + "'  ", out ExistOrNot, false, "1");
 
 				foreach (var item in entityMatByProduct)
 				{
 					if (item.ArticleId.IsNull())
 					{
 
-						ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMByProductId='" + item.JWTCMByProductId + "' and JWTCMDByProductId='" + item.JWTCMDByProductId + "' and InventoryReceiveId='" + MasterId + "' ";
+						ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOInputMaterialId='" + item.OSTransformationPOInputMaterialId + "' and OSTransformationPOByProductId='" + item.OSTransformationPOByProductId + "' and InventoryReceiveId='" + MasterId + "' ";
 
 						if (ExistOrNot.Tables[0].DefaultView.Count == 0)
 						{
@@ -4687,8 +4687,8 @@ namespace Library.MaterialManagement.Inventory
 							dr["BaseUOMId"] = item.TransactionUoMId;
 							dr["BaseQty"] = item.TransactionQty;
 							dr["QualityStatus"] = item.QualityStatus;
-							dr["JWTCMByProductId"] = item.JWTCMByProductId;
-							dr["JWTCMDByProductId"] = item.JWTCMDByProductId;
+							dr["OSTransformationPOInputMaterialId"] = item.OSTransformationPOInputMaterialId;
+							dr["OSTransformationPOByProductId"] = item.OSTransformationPOByProductId;
 							dr["MaterialFor"] = "JWBYPRODUCTMaterial";
 
 							dr["AddedBy"] = identity.Name;
@@ -4703,7 +4703,7 @@ namespace Library.MaterialManagement.Inventory
 						}
 						else
 						{
-							ExistOrNot.Tables[0].DefaultView.RowFilter = "JWTCMByProductId='" + item.JWTCMByProductId + "' and JWTCMDByProductId='" + item.JWTCMDByProductId + "' and InventoryReceiveId='" + MasterId + "' ";
+							ExistOrNot.Tables[0].DefaultView.RowFilter = "OSTransformationPOInputMaterialId='" + item.OSTransformationPOInputMaterialId + "' and OSTransformationPOByProductId='" + item.OSTransformationPOByProductId + "' and InventoryReceiveId='" + MasterId + "' ";
 
 							if (ExistOrNot.Tables[0].DefaultView.Count == 0)
 							{
@@ -4716,8 +4716,8 @@ namespace Library.MaterialManagement.Inventory
 								dr["BaseUOMId"] = item.TransactionUoMId;
 								dr["BaseQty"] = item.TransactionQty;
 								dr["QualityStatus"] = item.QualityStatus;
-								dr["JWTCMByProductId"] = item.JWTCMByProductId;
-								dr["JWTCMDByProductId"] = item.JWTCMDByProductId;
+								dr["OSTransformationPOInputMaterialId"] = item.OSTransformationPOInputMaterialId;
+								dr["OSTransformationPOByProductId"] = item.OSTransformationPOByProductId;
 								dr["MaterialFor"] = "JWBYPRODUCTMaterial";
 
 								dr["AddedBy"] = identity.Name;
@@ -4740,8 +4740,8 @@ namespace Library.MaterialManagement.Inventory
 								dr["BaseUOMId"] = item.TransactionUoMId;
 								dr["BaseQty"] = item.TransactionQty;
 								dr["QualityStatus"] = item.QualityStatus;
-								dr["JWTCMByProductId"] = item.JWTCMByProductId;
-								dr["JWTCMDByProductId"] = item.JWTCMDByProductId;
+								dr["OSTransformationPOInputMaterialId"] = item.OSTransformationPOInputMaterialId;
+								dr["OSTransformationPOByProductId"] = item.OSTransformationPOByProductId;
 								dr["MaterialFor"] = "JWBYPRODUCTMaterial";
 
 								dr["UpdatedBy"] = identity.Name;

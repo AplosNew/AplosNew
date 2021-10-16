@@ -6662,7 +6662,7 @@ ORDER BY tg.[Sequence]";
 			int colRowId = COL; COL++;
 			//wTable.Rows[ROW].Cells[colRowId].Width = 50;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("ProductionOrderId");
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PrO");
 			range.ApplyCharacterFormat(FontBold);
 			int colProductionOrderId = COL; COL++;
 			wTable.Rows[ROW].Cells[colProductionOrderId].Width = 80;
@@ -6718,36 +6718,38 @@ ORDER BY tg.[Sequence]";
 			//int colGRNMaterialDetail = COL; COL++;
 			//wTable.Rows[ROW].Cells[colGRNMaterialDetail].Width = 40;
 
+			
+			IWParagraphStyle myStyleRightAlignDummy = document.AddParagraphStyle("StyleRightAlign01");
+			//Sets the formatting of the style
+			myStyleRightAlignDummy.CharacterFormat.FontSize = 8f;
+			myStyleRightAlignDummy.CharacterFormat.TextColor = Color.Black;
+			myStyleRightAlignDummy.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
-			range.ApplyCharacterFormat(FontBold);
-			//wTable.Rows[ROW].Cells[COL].align = 40;			
-			//wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty") = HorizontalAlignment.Right;
+            range.ApplyCharacterFormat(FontBold);
 			int colQty = COL; COL++;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
-			range.ApplyCharacterFormat(FontBold);
-			int colLotNo = COL; COL++;
-
-
+            range.ApplyCharacterFormat(FontBold);
+            int colLotNo = COL; COL++;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
-			range.ApplyCharacterFormat(FontBold);
-			int colRate = COL; //COL++;
-			wTable.Rows[ROW].Cells[colRate].Width = 55;
+            range.ApplyCharacterFormat(FontBold);
+            int colRate = COL; //COL++;
+            wTable.Rows[ROW].Cells[colRate].Width = 55;
 
 
-			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
-			//range.ApplyCharacterFormat(FontBold);
-			//int colUoM = COL; COL++;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colUoM = COL; COL++;
 
-			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
-			//range.ApplyCharacterFormat(FontBold);
-			//int colQualityStatus = COL; COL++;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colQualityStatus = COL; COL++;
 
-			//range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GrossAmount");
-			//range.ApplyCharacterFormat(FontBold);
-			//int colGrossAmount = COL; COL++;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GrossAmount");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colGrossAmount = COL; COL++;
 
 
             //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("DiscountAmount");
@@ -6978,6 +6980,18 @@ ORDER BY tg.[Sequence]";
 				{
 					foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
 					{
+						if(CE==colQty)
+							item.ApplyStyle("StyleRightAlign01");
+                        else if (CE==colRate)
+                        {
+							item.ApplyStyle("StyleRightAlign01");
+						}
+
+						else if (CE==colTotalTaxableAmount)
+						{
+							item.ApplyStyle("StyleRightAlign01");
+						}
+						else
 						item.ApplyStyle("MyStyle");
 					}
 				}
@@ -12891,7 +12905,7 @@ ORDER BY tg.[Sequence]";
 							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
 							)PO ON PO.GRNId = IR.Id
-						 where  IR.PlantId='" + identity.PlantId + "'  AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW' AND IR.GRNType<>'InventorySalesReturn'
+						 where  IR.PlantId='" + identity.PlantId + "'  AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 
 							UNION ALL
 
@@ -13103,7 +13117,7 @@ ORDER BY tg.[Sequence]";
 			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 			--AND IRT.InventoryServiceId is not null
-			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW' AND IR.GRNType<>'InventorySalesReturn'
+			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 			)x
 			Order By X.GRNEntryDate ASC";
 
@@ -22569,7 +22583,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYJW' AND (IR.AuthorizedByStatus='Hold' OR IR.AuthorizedByStatus='Reject') AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 order by IR.GRNDate ASC";
+                        WHERE IR.GRNType='GRNBYPO' AND (IR.AuthorizedByStatus='Hold' OR IR.AuthorizedByStatus='Reject') AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 order by IR.GRNDate ASC";
 				}
 
 				else if (GRNbyPOApprovedStatus == "Approved")
@@ -22701,7 +22715,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYJW'  AND (IR.AuthorizedByStatus IS Null  AND IR.CheckedByStatus IS Null)
+                        WHERE IR.GRNType='GRNBYPO'  AND (IR.AuthorizedByStatus IS Null  AND IR.CheckedByStatus IS Null)
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
                         AND IR.OpeningBalanceId IS NULL 
@@ -22834,7 +22848,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYJW' AND (IR.CheckedByStatus Is Null  AND IR.AuthorizedByStatus='Approved')
+                        WHERE IR.GRNType='GRNBYPO' AND (IR.CheckedByStatus Is Null  AND IR.AuthorizedByStatus='Approved')
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
                         AND IR.OpeningBalanceId IS NULL 
@@ -22967,7 +22981,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYJW' AND (IR.CheckedByStatus ='Checked'  AND IR.AuthorizedByStatus='Approved') 
+                        WHERE IR.GRNType='GRNBYPO' AND (IR.CheckedByStatus ='Checked'  AND IR.AuthorizedByStatus='Approved') 
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
                         AND IR.OpeningBalanceId IS NULL 
@@ -23109,7 +23123,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
-                        WHERE IR.GRNType='GRNBYJW' AND IR.Status='Posting'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 1 order by IR.GRNDate ASC";
+                        WHERE IR.GRNType='GRNBYPO' AND IR.Status='Posting'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')='Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 1 order by IR.GRNDate ASC";
 				}
 
 
@@ -23511,7 +23525,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                          JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
 						 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
 						 left join dbo.Contract Con On Con.Id=IR.ContractId
-						 left join dbo.JWTransformationPurchaseOrder tcon on tcon.Id=IR.JWContractId
+						 left join dbo.OSTransformationPO tcon on tcon.Id=IR.JWContractId
 						 left join ORG.Entity Ety on Ety.Id=tcon.EntityId
 					     left join HKP.Party p on p.Id=tcon.PartyId
 						 left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId
@@ -24476,7 +24490,7 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
 						 LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 						 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
 						 left join dbo.Contract Con On Con.Id=IR.ContractId
-						 left join dbo.JWTransformationPurchaseOrder tcon on tcon.Id=IR.JWContractId
+						 left join dbo.OSTransformationPO tcon on tcon.Id=IR.JWContractId
 						 left join ORG.Entity Ety on Ety.Id=tcon.EntityId
 					     left join HKP.Party p on p.Id=tcon.PartyId
 						 left join HKP.MaterialStorage MS on MS.Id=IR.MaterialStorageId

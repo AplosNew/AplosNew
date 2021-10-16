@@ -1,6 +1,6 @@
 ﻿'use strict';
-JobWorkReceiptValueAddedController.$inject = ['$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'factoryService'];
-function JobWorkReceiptValueAddedController($window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, factoryService) {
+OSReceiptValueAddedController.$inject = ['$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'factoryService'];
+function OSReceiptValueAddedController($window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, factoryService) {
 	//$scope.ToDoFilePath = virtualPath.JobWorkValueAddedContract;
 	//$scope.ToDownloadFilePath = virtualPath.JobWorkTransformationContract;
 	$rootScope.title = 'Receipt';
@@ -13,7 +13,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.TransformationTypeList = [];
 	$scope.EntityList = [];
 	$scope.MaterialLocationList = [];
-	$scope.path = 'JobWork/JobWorkReceiptValueAdded/';
+	$scope.path = 'JobWork/OSReceiptValueAdded/';
 	$scope.getListUrl = $scope.path + 'getlist';
 	$scope.saveUrl = $scope.path + 'create';
 	$scope.deleteUrl = $scope.path + 'delete/';
@@ -352,7 +352,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			url: 'JobWork/JobWorkReceiptValueAdded/GetListOfPOGateEntry?partyCode=' + $scope.PartyId,
+			url: 'JobWork/OSReceiptValueAdded/GetListOfPOGateEntry?partyCode=' + $scope.PartyId,
 		}).then(function successCallback(response) {
 			$scope.GriddataGateEntry = response.data;
 			//entrydata = copy(searchdata);
@@ -395,7 +395,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 		$http({
 			method: "GET",
 			dataType: 'JSON',
-			url: 'JobWork/JobWorkReceiptValueAdded/GetListGateEntry?partyCode=' + $scope.PartyId,
+			url: 'JobWork/OSReceiptValueAdded/GetListGateEntry?partyCode=' + $scope.PartyId,
 		}).then(function successCallback(response) {
 			$scope.GridGateEntry = response.data;
 		});
@@ -1169,7 +1169,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			//var gridObj = $(x).data("ejGrid");
 			//var data = gridObj.getSelectedRecords()[0];
 
-			location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+			location.href = "JobWork/OSTransformationPO/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
 		//	$scope.getalldata();
         }
 
@@ -1209,7 +1209,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				$scope.PrintTabId = $scope.Transformation.Id;
 				$scope.IssueId = data.Id;
 				var reportFormat = "Excel";
-				window.open('JobWork/JobWorkReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+				window.open('JobWork/OSReceiptValueAdded/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
 				//   $scope.getData();
 
 			} catch (e) {
@@ -1221,7 +1221,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				$scope.PrintTabId = data.Id;
 				$scope.IssueId = data.ReceiveId;
 				var reportFormat = "Excel";
-				window.open('JobWork/JobWorkReceiptValueAdded/GetValueAddedPrintReceiptReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+				window.open('JobWork/OSReceiptValueAdded/GetValueAddedPrintReceiptReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
 
 			} catch (e) {
 
@@ -1236,10 +1236,10 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 			//var x = "#" + z;
 			//var gridObj = $(x).data("ejGrid");
 			//var data = gridObj.getSelectedRecords()[0];
-			location.href = "JobWork/JobWorkReceiptValueAdded/GRNReport?grnId=" + data.Id;
+			location.href = "JobWork/OSReceiptValueAdded/GRNReport?grnId=" + data.Id;
 		}
 		else {
-			location.href = "JobWork/JobWorkReceiptValueAdded/ValAddedGRNReport?grnId=" + data.ReceiveId;
+			location.href = "JobWork/OSReceiptValueAdded/ValAddedGRNReport?grnId=" + data.ReceiveId;
         }
 	};
 
@@ -1759,7 +1759,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 							'receiveTaxList': $scope.POMaterialTaxList,
 							'chargesListPO': $scope.chargesListPOnew,
 							'POServiceTaxList': $scope.POServiceTaxList,
-							'GRNType': 'GRNBYJW',
+							'GRNType': 'GRNBYPO',
 							'AcceptanceId': $scope.AcceptanceId,
 							'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
 							'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
@@ -2037,7 +2037,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 							'receiveTaxList': $scope.POMaterialTaxList,
 							'chargesListPO': $scope.chargesListPOnew,
 							'POServiceTaxList': $scope.POServiceTaxList,
-							'GRNType': 'GRNBYJW',
+							'GRNType': 'GRNBYPO',
 							'AcceptanceId': $scope.AcceptanceId,
 							'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
 							'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
@@ -2203,7 +2203,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 							'receiveTaxList': $scope.POMaterialTaxList,
 							'chargesListPO': $scope.chargesListPOnew,
 							'POServiceTaxList': $scope.POServiceTaxList,
-							'GRNType': 'GRNBYJW',
+							'GRNType': 'GRNBYPO',
 							'AcceptanceId': $scope.AcceptanceId,
 							'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
 							'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
@@ -2345,7 +2345,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 							'receiveTaxList': $scope.POMaterialTaxList,
 							'chargesListPO': $scope.chargesListPOnew,
 							'POServiceTaxList': $scope.POServiceTaxList,
-							'GRNType': 'GRNBYJW',
+							'GRNType': 'GRNBYPO',
 							'AcceptanceId': $scope.AcceptanceId,
 							'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
 							'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
@@ -2424,7 +2424,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 						return false;
 					}
 					else {
-						if ($scope.inventoryMaterialList[i].JWTCMDId == data.JWTCMDId) {
+						if ($scope.inventoryMaterialList[i].OSTransformationPODetailId == data.OSTransformationPODetailId) {
 							$scope.inventoryMaterialList[i].TrnAmount = Math.round(data.TrnAmount * 100 + Number.EPSILON) / 100;
 							$scope.inventoryMaterialList[i].Balance = ($scope.inventoryMaterialList[i].PlanQuantity - ($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty));
 							$scope.inventoryMaterialList[i].ApprovedQty = ($scope.inventoryMaterialList[i].TransactionQty - ($scope.inventoryMaterialList[i].ShortageQty + $scope.inventoryMaterialList[i].RejectionQty));
@@ -2446,7 +2446,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 							}
 						}
 						else {
-							if ($scope.inventoryMaterialList[i].JWTCMDId == data.JWTCMDId) {
+							if ($scope.inventoryMaterialList[i].OSTransformationPODetailId == data.OSTransformationPODetailId) {
 								$scope.inventoryMaterialList[i].TrnAmount = Math.round(($scope.inventoryMaterialList[i].NetQty * $scope.inventoryMaterialList[i].TransactionRate) * 100 + Number.EPSILON) / 100;
 								$scope.inventoryMaterialList[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * 100 + Number.EPSILON) / 100;
 						//		$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.ReceiptTransformation.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
@@ -2507,7 +2507,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 							return false;
 						}
 						else {
-							if ($scope.ReceiptVAChildList[i].JWTCMDId == data.JWTCMDId) {
+							if ($scope.ReceiptVAChildList[i].OSTransformationPODetailId == data.OSTransformationPODetailId) {
 								$scope.ReceiptVAChildList[i].TrnAmount = Math.round(data.TrnAmount * 100 + Number.EPSILON) / 100;
 								$scope.ReceiptVAChildList[i].Balance = ($scope.ReceiptVAChildList[i].PlanQuantity - ($scope.ReceiptVAChildList[i].GRNRcvQty + $scope.ReceiptVAChildList[i].TransactionQty));
 								$scope.ReceiptVAChildList[i].ApprovedQty = ($scope.ReceiptVAChildList[i].TransactionQty - ($scope.ReceiptVAChildList[i].ShortageQty + $scope.ReceiptVAChildList[i].RejectionQty));
@@ -2528,7 +2528,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 								}
 							}
 							else {
-								if ($scope.ReceiptVAChildList[i].JWTCMDId == data.JWTCMDId) {
+								if ($scope.ReceiptVAChildList[i].OSTransformationPODetailId == data.OSTransformationPODetailId) {
 									$scope.ReceiptVAChildList[i].TrnAmount = Math.round(($scope.ReceiptVAChildList[i].NetQty * $scope.ReceiptVAChildList[i].TransactionRate) * 100 + Number.EPSILON) / 100;
 									$scope.ReceiptVAChildList[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.ReceiptVAChildList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * 100 + Number.EPSILON) / 100;
 							//		$scope.ReceiptVAChildList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.ReceiptVAChildList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.ReceiptVA.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
@@ -2863,7 +2863,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				ShowResult('Discount Amount  can not grater than Material Amount!', 'failure');
 			}
 			else {
-				if ($scope.inventoryMaterialListPO[i].JWTCMDByProductId == data.JWTCMDByProductId) {
+				if ($scope.inventoryMaterialListPO[i].OSTransformationPOByProductId == data.OSTransformationPOByProductId) {
 					$scope.inventoryMaterialListPO[i].TrnAmount = data.TrnAmount;
 					$scope.inventoryMaterialListPO[i].Balance = ($scope.inventoryMaterialListPO[i].POQty - ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty));
 					$scope.inventoryMaterialListPO[i].ApprovedQty = ($scope.inventoryMaterialListPO[i].TransactionQty - ($scope.inventoryMaterialListPO[i].ShortageQty + $scope.inventoryMaterialListPO[i].RejectionQty));
@@ -2876,7 +2876,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 					$scope.inventoryMaterialListPO[i].NetQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].ShortageQty);
 				}
 				if ($scope.ReceiptTransformation.IsNonCreditable == 1) {
-					if ($scope.inventoryMaterialListPO[i].JWTCMDByProductId == data.JWTCMDByProductId) {
+					if ($scope.inventoryMaterialListPO[i].OSTransformationPOByProductId == data.OSTransformationPOByProductId) {
 						$scope.inventoryMaterialListPO[i].TrnAmount = (($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate) - data.DiscountAmount).toFixed(2);
 						$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat(data.ServiceTax)).toFixed(2);
 						$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.ReceiptTransformation.ToCurrencyRate).toFixed(2);
@@ -2884,7 +2884,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 					}
 				}
 				else {
-					if ($scope.inventoryMaterialListPO[i].JWTCMDByProductId == data.JWTCMDByProductId) {
+					if ($scope.inventoryMaterialListPO[i].OSTransformationPOByProductId == data.OSTransformationPOByProductId) {
 						$scope.inventoryMaterialListPO[i].TrnAmount = (($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate) - data.DiscountAmount).toFixed(2);
 						$scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.ServiceCharge)).toFixed(2);
 						$scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.ReceiptTransformation.ToCurrencyRate).toFixed(2);
@@ -2918,7 +2918,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				ShowResult('Discount Amount  can not grater than Material Amount!', 'failure');
 			}
 			else {
-				if ($scope.inventoryMaterialList[i].JWTCMDId == data.JWTCMDId) {
+				if ($scope.inventoryMaterialList[i].OSTransformationPODetailId == data.OSTransformationPODetailId) {
 					$scope.inventoryMaterialList[i].TrnAmount = data.TrnAmount;
 					$scope.inventoryMaterialList[i].Balance = ($scope.inventoryMaterialList[i].POQty - ($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty));
 					$scope.inventoryMaterialList[i].ApprovedQty = ($scope.inventoryMaterialList[i].TransactionQty - ($scope.inventoryMaterialList[i].ShortageQty + $scope.inventoryMaterialList[i].RejectionQty));
@@ -2931,7 +2931,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 					$scope.inventoryMaterialList[i].NetQty = ($scope.inventoryMaterialList[i].TransactionQty - $scope.inventoryMaterialList[i].ShortageQty);
 				}
 				if ($scope.ReceiptTransformation.IsNonCreditable == 1) {
-					if ($scope.inventoryMaterialList[i].JWTCMDId == data.JWTCMDId) {
+					if ($scope.inventoryMaterialList[i].OSTransformationPODetailId == data.OSTransformationPODetailId) {
 						$scope.inventoryMaterialList[i].TrnAmount = (($scope.inventoryMaterialList[i].NetQty * $scope.inventoryMaterialList[i].TransactionRate) - data.DiscountAmount).toFixed(2);
 						$scope.inventoryMaterialList[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)).toFixed(2);
 						$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.ReceiptTransformation.ToCurrencyRate).toFixed(2);
@@ -2939,7 +2939,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 					}
 				}
 				else {
-					if ($scope.inventoryMaterialList[i].JWTCMDId == data.JWTCMDId) {
+					if ($scope.inventoryMaterialList[i].OSTransformationPODetailId == data.OSTransformationPODetailId) {
 						$scope.inventoryMaterialList[i].TrnAmount = (($scope.inventoryMaterialList[i].NetQty * $scope.inventoryMaterialList[i].TransactionRate) - data.DiscountAmount).toFixed(2);
 						$scope.inventoryMaterialList[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)).toFixed(2);
 						$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.ReceiptTransformation.ToCurrencyRate).toFixed(2);
@@ -3080,8 +3080,8 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 		if ($scope.ModelNew.TabType == "Transformation") {
 		//	if (!baseService.isUndefinedOrNull(x.StandardName)) {
 
-				$scope.JWPOId = x.JWTCMId;
-				$scope.JWOutputId = x.JWTCMDId;
+			$scope.JWPOId = x.OSTransformationPOId;
+			$scope.JWOutputId = x.OSTransformationPODetailId;
 
 				$scope.GetMaterialInputList = [];
 				$http({
@@ -3161,8 +3161,8 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 		else {
 		//	if (!baseService.isUndefinedOrNull(x.StandardName)) {
 
-				$scope.JWPOId = x.JWTCMId;
-				$scope.JWOutputId = x.JWTCMDId;
+			$scope.JWPOId = x.OSTransformationPOId;
+			$scope.JWOutputId = x.OSTransformationPODetailId;
 
 				$scope.GetMaterialInputList = [];
 				$http({

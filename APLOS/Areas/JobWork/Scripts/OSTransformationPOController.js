@@ -1,11 +1,13 @@
 ﻿'use strict';
-jwTransformationPurchaseOrderController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', '$window', 'accountService'];
-function jwTransformationPurchaseOrderController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, $window, accountService) {
-    $rootScope.title = 'Job Work Transformation PO';
+OSTransformationPOController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', '$window', 'accountService'];
+function OSTransformationPOController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, $window, accountService) {
+    $rootScope.title = 'Out Source Transformation PO';
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.products = [];
-    $scope.path = 'JobWork/JWTransformationPurchaseOrder/';
+    $scope.JWPOByProductList = [];
+    
+    $scope.path = 'JobWork/OSTransformationPO/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
@@ -324,7 +326,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         //debugger;
         $http({
             method: 'GET',
-            url: 'JobWork/JWTransformationPurchaseOrder/NotificationSetting',
+            url: 'JobWork/OSTransformationPO/NotificationSetting',
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.NotificationSetting = response.data;
@@ -456,7 +458,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'JobWork/JWTransformationPurchaseOrder/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus
+            url: 'JobWork/OSTransformationPO/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus
         }).then(function successCallback(response) {
             $scope.Griddata = response.data;
             for (var i = 0; i < $scope.Griddata.length; i++) {
@@ -475,7 +477,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'JobWork/JWTransformationPurchaseOrder/GetListForHoldRejectApproved?ApproveRejectHold=' + $scope.ApproveRejectHold,
+            url: 'JobWork/OSTransformationPO/GetListForHoldRejectApproved?ApproveRejectHold=' + $scope.ApproveRejectHold,
         }).then(function successCallback(response) {
             $scope.GriddataPoApp = response.data;
             //entrydata = copy(searchdata);
@@ -645,7 +647,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.serviceModelTemp = {
         Id: null
         , ServiceMasterId: null
-        , JWTransformationPurchaseOrderId: $scope.productNew.Id
+        , OSTransformationPOId: $scope.productNew.Id
         , CurrencyName: angular.element("#currency :selected").text()
         , CurrencyId: $scope.productNew.CurrencyId
         , BaseCurrencyId: $scope.baseCurrencyId
@@ -816,7 +818,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
         //$scope.getJwActivityId($scope.productNew.Id);
         $scope.getPoChilddata();
-        $scope.detailModel.JWTransformationPurchaseOrderId = $scope.productNew.Id;
+        $scope.detailModel.OSTransformationPOId = $scope.productNew.Id;
 
         getPartyPlantEditList($scope.productNew.InvoicingPartyPlantId, $scope.productNew.InvoicingByAddress, $scope.productNew.DeliveryPartyPlantId, $scope.productNew.DeliveryByAddress, $scope.productNew.DeliveryState, $scope.productNew.DeliveryGSTIN);
         getPartyPlantEditList();
@@ -858,8 +860,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     };
 
 
-    //$scope.getJwActivityId = function (JWTransformationPurchaseOrderId) {
-    //    $http.get('JobWork/JWTransformationPurchaseOrder/GetJWTransformationPurchaseOrderId?JWTransformationPurchaseOrderId=' + JWTransformationPurchaseOrderId).then(function (response) {
+    //$scope.getJwActivityId = function (OSTransformationPOId) {
+    //    $http.get('JobWork/JWTransformationPurchaseOrder/GetJWTransformationPurchaseOrderId?OSTransformationPOId=' + OSTransformationPOId).then(function (response) {
     //        var DropDownListObj = $("#ddlActivityList").data("ejDropDownList");
     //        for (var j = 0; j < response.data.length; j++) {
     //            DropDownListObj.selectItemByValue(response.data[j].Id);
@@ -924,9 +926,9 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                 if (baseService.isUndefinedOrNull($scope.taxCategoryList[i].hsnCodeId)) {
                     $scope.taxCategoryList[i].HSNCode = HSNCode;
                     $scope.taxCategoryList[i].HSNCodeId = hsnCodeId;
-                    $scope.taxCategoryList[i].JWTransformationPurchaseOrderId = $scope.productNew.Id;
-                    $scope.taxCategoryList[i].JWTransformationPurchaseOrderDetailId = $scope.detailModel.Id;
-                    //$scope.taxCategoryList[i].JWTransformationPurchaseOrderDetailId = $scope.detailModel.Id;
+                    $scope.taxCategoryList[i].OSTransformationPOId = $scope.productNew.Id;
+                    $scope.taxCategoryList[i].OSTransformationPODetailId = $scope.detailModel.Id;
+                    //$scope.taxCategoryList[i].OSTransformationPODetailId = $scope.detailModel.Id;
                     $scope.taxCategoryList[i].TaxAmount = ($scope.TotalAmount * $scope.taxCategoryList[i].Percentage) / 100;
 
                     //$scope.HSNCode = HSNCode;
@@ -1499,8 +1501,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
 
 
-    //$scope.getJwActivityId = function (JWTransformationPurchaseOrderId) {
-    //    $http.get('JobWork/JWTransformationPurchaseOrder/GetJWTransformationPurchaseOrderId?JWTransformationPurchaseOrderId=' + JWTransformationPurchaseOrderId).then(function (response) {
+    //$scope.getJwActivityId = function (OSTransformationPOId) {
+    //    $http.get('JobWork/JWTransformationPurchaseOrder/GetJWTransformationPurchaseOrderId?OSTransformationPOId=' + OSTransformationPOId).then(function (response) {
     //        var DropDownListObj = $("#ddlActivityList").data("ejDropDownList");
     //        for (var j = 0; j < response.data.length; j++) {
     //            DropDownListObj.selectItemByValue(response.data[j].Id);
@@ -1551,7 +1553,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     });
     $scope.addTax = function () {
         var data = {
-            JWTransformationPurchaseOrderDetailId: $scope.detailModel.Id,
+            OSTransformationPODetailId: $scope.detailModel.Id,
             TaxAmount: 0,
             Id: "",
             HSNCode: $scope.HSNCode,
@@ -1701,7 +1703,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     // #region DetailsisSetIndex2
     $scope.detailTempModel = {
         Id: null
-        , JWTransformationPurchaseOrderId: null
+        , OSTransformationPOId: null
         , JWItemId: null
         , JWItemName: null
         , JWServiceName: null
@@ -2025,7 +2027,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                 $scope.ValidateRate();
 
 
-            $scope.detailModel.JWTransformationPurchaseOrderId = $scope.productNew.Id;
+            $scope.detailModel.OSTransformationPOId = $scope.productNew.Id;
             if (!baseService.isUndefinedOrNull($scope.rmchar1.CharacteristicsId)) {
                 $scope.detailModel.FirstCharacteristicsId = $scope.rmchar1.CharacteristicsId;
                 $scope.detailModel.FirstCharacteristicsValueId = $scope.rmchar1.CharacteristicsValueId;
@@ -2909,7 +2911,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         //$scope.detailSave(true);
         $scope.detailModelList = [];
         $scope.detailModelList.push($scope.detailModel);
-        // $scope.detailModel.JWTransformationPurchaseOrderId = $scope.productNew.Id;
+        // $scope.detailModel.OSTransformationPOId = $scope.productNew.Id;
         if (!baseService.isUndefinedOrNull($scope.rmchar1.CharacteristicsId)) {
             $scope.detailModel.FirstCharacteristicsId = $scope.rmchar1.CharacteristicsId;
             $scope.detailModel.FirstCharacteristicsValueId = $scope.rmchar1.CharacteristicsValueId;
@@ -3026,7 +3028,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         try {
             $scope.manualValidationAddRemove('div_svc', 'serviceModel', 'ServiceMasterId');
             $scope.manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');
-            $scope.serviceModel.JWTransformationPurchaseOrderId = $scope.productNew.Id;
+            $scope.serviceModel.OSTransformationPOId = $scope.productNew.Id;
             $http({
                 method: 'POST',
                 url: $scope.sreviceSaveUrl,
@@ -4383,7 +4385,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id + '&POType=' + data.POType;
+        location.href = "JobWork/OSTransformationPO/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
         $scope.getalldata();
     };
 
@@ -4473,7 +4475,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
             $http({
                 method: "POST",
-                url: 'JobWork/JWTransformationPurchaseOrder/PODocCreate',
+                url: 'JobWork/OSTransformationPO/PODocCreate',
                 headers: { 'Content-Type': undefined },
                 transformRequest: function (data) {
                     formData.append("PODocumentMap", angular.toJson($scope.productDocMap));
@@ -4516,7 +4518,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'JobWork/JWTransformationPurchaseOrder/PODocumentMapData?POID=' + $scope.productNew.Id,
+            url: 'JobWork/OSTransformationPO/PODocumentMapData?POID=' + $scope.productNew.Id,
         }).then(function successCallback(response) { //datagatefun
             $scope.Imagedata = response.data;
 
@@ -4532,7 +4534,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         if (!baseService.isUndefinedOrNull($scope.DocId)) {
             $http({
                 method: 'POST',
-                url: 'JobWork/JWTransformationPurchaseOrder/POImageDelete?Id=' + $scope.DocId,
+                url: 'JobWork/OSTransformationPO/POImageDelete?Id=' + $scope.DocId,
                 dataType: 'JSON'
             }).then(function (response) {
                 if (response.data.Error === true)
@@ -4555,7 +4557,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $http({
             method: 'GET',
             //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
-            url: 'JobWork/JWTransformationPurchaseOrder/PODocumentMapDataAll'
+            url: 'JobWork/OSTransformationPO/PODocumentMapDataAll'
         }).then(function successCallback(response) {
             $scope.lst = response.data;
             //$scope.detailgrid($scope.lst);

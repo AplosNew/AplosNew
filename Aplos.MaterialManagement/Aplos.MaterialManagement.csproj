@@ -173,10 +173,10 @@
     <Compile Include="Inventory\ServiceRequsitionMasterService.cs" />
     <Compile Include="Inventory\SFGInventoryService.cs" />
     <Compile Include="Inventory\SFGMovementService.cs" />
-    <Compile Include="JobWork\JobWorkCommon.cs" />
+    <Compile Include="JobWork\OSCommon.cs" />
     <Compile Include="JobWork\JobWorkIssueReturnConfirmationService.cs" />
-    <Compile Include="JobWork\JobWorkIssueReturnService.cs" />
-    <Compile Include="JobWork\JobWorkReceiptValueAddedService.cs" />
+    <Compile Include="JobWork\OSIssueReturnService.cs" />
+    <Compile Include="JobWork\OSReceiptValueAddedService.cs" />
     <Compile Include="JobWork\JobWorkRegisterService.cs" />
     <Compile Include="JobWork\MaterialReconcilationReportService.cs" />
     <Compile Include="Material\clsMaterial.cs" />

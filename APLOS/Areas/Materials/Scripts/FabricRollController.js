@@ -54,18 +54,7 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
 
         angular.element(document.querySelector('#fabricRollPopUp')).modal('show');
     };
-    $scope.showSingleFabricRollPop = function (data) {
-
-        $scope.fabricRollSplitOb.VendorWidth = null;
-        // $scope.fabricEdit = isEdit;
-        $scope.fabricRollMasterNew.GRNSplitQty = null;
-        $scope.fabricRollMasterList = [];
-        $scope.selectedGRNRow = data;
-        $scope.fabDistributeQty = data.TotalDistributeQty;
-        $scope.LoadFabricRollList();
-
-        angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
-    };
+  
     
 
     $scope.splitGrnRow = function () {
@@ -249,7 +238,9 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
         }
     }
     //$scope.LoadGRNSearchList();
-
+    $scope.showSingleFabricRollPop = function (data) {
+        angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
+    };
 
     $scope.GetFabricRollList = [];
     $scope.LoadFabricRollList = function () {
@@ -271,7 +262,76 @@ function FabricRollController(commonMessage, $controller, $scope, $rootScope, ba
             ShowResult(e, 'failure');
         }
     }
+
+
+
     $scope.LoadFabricRollList();
+    $scope.Index = 0;
+    $scope.EditSingleFabricRoll = function (data) {
+        $scope.GetFabricRollList = [];
+        try {
+            $scope.selectedGRNRow = data;
+            $scope.Index = 0;
+            $http({
+                method: 'POST',
+                url: $scope.path + "FabricRollList",
+                data: { 'inventoryReceiveDetailId': $scope.selectedGRNRow.Id },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+               
+                $scope.GetFabricRollList = [];
+                $scope.GetFabricRollList = response.data;
+                angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
+
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    function updateSingleData() {
+
+        validFabric();
+        var data = [];
+        data.push($scope.GetFabricRollList[$scope.Index]);
+        $http({
+            method: 'POST',
+            url: 'Materials/FabricRoll/Update',
+            data: { 'FabricRollData': data, 'PackingForm': $scope.PackingformSearchBy },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //$scope.getGRNDetail();
+                angular.element(document.querySelector('#SinglefabricRollPopUpargegrfd')).modal('show');
+                $scope.LoadFabricRollList();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    }
+    $scope.Next = function ()
+    {
+        if ($scope.Index == $scope.GetFabricRollList.length-1) {
+            ShowResult("This is the last position", 'failure');
+            return;
+        }
+        updateSingleData();
+        $scope.Index++;
+    }
+    $scope.Previous = function () {
+
+        if ($scope.Index == 0) {
+            ShowResult("This is the first position", 'failure');
+            return;
+        }
+        updateSingleData();
+        $scope.Index--;
+    }
     //#endregion
 
 
