@@ -9654,159 +9654,188 @@ ORDER BY tg.[Sequence]";
             try
             {
                 strSQL = @"SELECT IR.Id IssueNo
-								,HSNC.Code HSNCode
-                                ,IR.CompanyGroupId
-                                ,IR.CompanyId
-                                ,Plant.GSTIN 
-								,null PODepended 
-								,IR.Id PONumber  
-	                            ,IR.IssueRequestMasterId  
-                                ,REPLACE(Convert(VARCHAR(11), IR.IssueDate, 106), ' ', '-') AS PODate
-                                ,null BaseOnDueDate
-                                ,NULL AS MatureDate
-		                        ,null InvoicingPartyPlantId
-		                       
-		                             ,null InvoicingPartyName
-                                                ,null InvoicePartyAddressMasterId
-                                                ,null InvoicingPartyGSTIN
-                                                ,null InvoicingByAddress
-		                        ,null DeliveryByAddress
-		                        ,null DeliveryParty
-		                        ,null DeliveryPartyPlantId		
-		                        ,IOM.MaterialMasterId
-		                        ,null DocRefNo 
-		                        ,null DocDate
-		                        ,IR.AddedBy
-		                        ,IR.AddedDate
-		                        ,IR.UpdatedBy
-		                        ,IR.UpdatedDate
-		                        ,null IsApproved
-		                        ,null PartyType
-		                        ,null VendorName
-                                ,null VendorAddressMasterId
-                                ,null VendorGSTIN
-                                --,Case When null IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-		                        ,null IsNonCreditable
-		                       -- ,'' CurrencyId
-                                ,IR.CurrencyId
-	                            --,null AS CurrencyName
-                                ,CUR.Code CurrencyName
-	                            ,null as ToCurrencyRate
-		                        ,null AS BaseCurrencyName
-		                        ,NULL PaymentTerm
-	                          ,MM.UserName MaterialMaster
-	                          ,MM.MaterialGroupMasterId
-	                          ,MGM.UserName MaterialGroupMaster
-	                          ,IOM.ArticleId
-	                          ,MMA.StandardName Article
-	                          ,FC.Id FirstCharId
-	                          ,FC.UserName FirstChar
-                              ,IOM.FirstCharacteristicsValueId
-	                          ,FCV.UserName AS FirstCharacteristicsValue
-                              ,IOM.SecondCharacteristicsValueId
-	                          ,SCV.UserName AS SecondCharacteristicsValue
-	                          ,IOM.ThirdCharacteristicsValueId
-	                          ,TCV.UserName AS ThirdCharacteristicsValue
-	                          ,SC.Id SecondCharId
-	                          ,SC.UserName SecondChar
-	                          ,TC.Id ThirdCharId
-	                          ,TC.UserName ThirdChar
-	                           ,ROUND(IIH.Qty, 2) POTransactionQty
-	                          ,ROUND(IIH.Rate, 2) TransactionRate
-	                          ,ROUND((IIH.Qty* IIH.Rate), 2) AS TrnAmount
-							 --,ROUND((IIH.Qty*IRD.PolicyRate), 2) AS TrnAmount
-	                          ,null BaseAmount
-	                          ,null AS BaseTaxAmount
-	                          ,TaxAmount = (
-		                            SELECT SUM(TaxAmount)
-		                            FROM [TRN].[PurchaseOrderTax]
-		                            WHERE InventoryReceiveDetailId = IRD.Id
-		                            )
-	                          ,ServiceTaxAmount = (
-		                            SELECT SUM(TotalTaxAmount)
-		                            FROM [TRN].[POService]
-		                            WHERE InventoryReceiveId = IOM.Id
-		                            )
-	                          ,null ChargesTranAmount
-	                          ,null CountryId
-	                          ,IRD.BaseUOMId
-	                          ,TUoM.UserName AS TransactionUoM
-                              ,IRD.Id InventoryReceiveDetailId
-							  ,IR.IssueType,E.UserName AS Entity,IR.Remarks,EI.EmployeeName +'-'+EI.EmployeeCode As EmployeeName,CC.UserName CostCenter,IRD.Comments 
-                              ,IR.ContractId,IR.ProductionOrderId,Con.ContractNo,IR.OrderRefNo,p.UserName ProcessName,PO.ProductionOrder ProductionOrderNo,PO.SalesOrderId
-                         FROM TRN.InventoryIssue IR
-                         LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
-                         LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
-                         LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
-                         LEFT JOIN trn.InventoryIssueDetail IRD ON IR.Id = IRD.InventoryIssueId		
-                         LEFT JOIN (Select InventoryIssueDetailId,Sum(Qty) Qty,sum(qty*rate)/Sum(Qty) Rate, sum(qty*rate) TrnAmount from trn.InventoryIssueHistory group by InventoryIssueDetailId)IIH ON IIH.InventoryIssueDetailId = IRD.Id		
-						 				                                   
-                         LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
-                         LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
-						 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
-                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
-                         LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId
-                         LEFT JOIN HKP.Characteristics AS FC ON IOM.FirstCharacteristicsId = FC.Id
-                         LEFT JOIN HKP.Characteristics AS SC ON IOM.SecondCharacteristicsId = SC.Id
-                         LEFT JOIN HKP.Characteristics AS TC ON IOM.ThirdCharacteristicsId = TC.Id
-                         LEFT JOIN HKP.CharacteristicsValue AS FCV ON IOM.FirstCharacteristicsValueId = FCV.Id
-                         LEFT JOIN HKP.CharacteristicsValue AS SCV ON IOM.SecondCharacteristicsValueId = SCV.Id
-                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IOM.ThirdCharacteristicsValueId = TCV.Id
-                         LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id=IR.CurrencyId
-						 Left JOIN [ORG].[Entity] E On E.id=IR.EntityId
-						 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
-                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
-						 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
-						 left join dbo.Contract Con On Con.Id=IR.ContractId
-						 left JOIN [TRN].[IssueRequestMasterProcessMap] IRMPM ON IRMPM.IssueRequestMasterId=IR.IssueRequestMasterId
-						 left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
-
-						 left join trn.IssueRequestMaster IRM on IRM.Id=IR.IssueRequestMasterId
-						 --left join [TRN].[IssueRequestMasterSalesOrderMap] IRMMAp ON IRMMAp.IssueRequestMasterId=IRM.Id
-						 --left join [TRN].[ProductionOrderDetail] POd On POd.SalesOrderId=IRMMAp.SalesOrderId
-						LEFT JOIN(
-							SELECT distinct PDAMAP.IssueRequestMasterId
-								,SalesOrderId=STUFF((select distinct ','+xPDAMAP.SalesOrderId from
-								trn.IssueRequestMaster xpo
-								INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
-								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								,FGColor1=STUFF((select distinct ','+FCV.UserName from
-								trn.IssueRequestMaster xpo
-								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
-								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
-								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
-								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
-								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-							   ,FGColor2=STUFF((select distinct ','+SCV.UserName from
-								trn.IssueRequestMaster xpo
-								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
-								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
-								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
-								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
-								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								,FGColor3=STUFF((select distinct ','+TCV.UserName from
-								trn.IssueRequestMaster xpo
-								INNER JOin trn.IssueRequestSKUMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
-								LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId=FCV.Id
-								LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId=SCV.Id
-								LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId=TCV.Id
-								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-								,ProductionOrder=STUFF((select distinct ','+PrOrderDetail.ProductionOrderId from
-								trn.IssueRequestMaster xpo
-								INNER JOin trn.IssueRequestMasterSalesOrderMap xPDAMAP on xpo.Id=xPDAMAP.IssueRequestMasterId
-								left join trn.ProductionOrderDetail PrOrderDetail ON PrOrderDetail.SalesOrderId=xPDAMAP.SalesOrderId
-								
-								where xPDAMAP.IssueRequestMasterId=PDAMAP.IssueRequestMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-
-								from  trn.IssueRequestMasterSalesOrderMap PDAMAP 							 
-							  group by  PDAMAP.IssueRequestMasterId
-							)PO ON PO.IssueRequestMasterId = IRM.Id
-                         WHERE IR.Id ='" + OrderMasterID + "'";
+                                	,HSNC.Code HSNCode
+                                	,IR.CompanyGroupId
+                                	,IR.CompanyId
+                                	,Plant.GSTIN
+                                	,NULL PODepended
+                                	,IR.Id PONumber
+                                	,IR.IssueRequestMasterId
+                                	,REPLACE(Convert(VARCHAR(11), IR.IssueDate, 106), ' ', '-') AS PODate
+                                	,NULL BaseOnDueDate
+                                	,NULL AS MatureDate
+                                	,NULL InvoicingPartyPlantId
+                                	,NULL InvoicingPartyName
+                                	,NULL InvoicePartyAddressMasterId
+                                	,NULL InvoicingPartyGSTIN
+                                	,NULL InvoicingByAddress
+                                	,NULL DeliveryByAddress
+                                	,NULL DeliveryParty
+                                	,NULL DeliveryPartyPlantId
+                                	,IOM.MaterialMasterId
+                                	,NULL DocRefNo
+                                	,NULL DocDate
+                                	,IR.AddedBy
+                                	,IR.AddedDate
+                                	,IR.UpdatedBy
+                                	,IR.UpdatedDate
+                                	,NULL IsApproved
+                                	,NULL PartyType
+                                	,NULL VendorName
+                                	,NULL VendorAddressMasterId
+                                	,NULL VendorGSTIN
+                                	--,Case When null IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
+                                	,NULL IsNonCreditable
+                                	-- ,'' CurrencyId
+                                	,IR.CurrencyId
+                                	--,null AS CurrencyName
+                                	,CUR.Code CurrencyName
+                                	,NULL AS ToCurrencyRate
+                                	,NULL AS BaseCurrencyName
+                                	,NULL PaymentTerm
+                                	,MM.UserName MaterialMaster
+                                	,MM.MaterialGroupMasterId
+                                	,MGM.UserName MaterialGroupMaster
+                                	,IOM.ArticleId
+                                	,MMA.StandardName Article
+                                	,FC.Id FirstCharId
+                                	,FC.UserName FirstChar
+                                	,IOM.FirstCharacteristicsValueId
+                                	,FCV.UserName AS FirstCharacteristicsValue
+                                	,IOM.SecondCharacteristicsValueId
+                                	,SCV.UserName AS SecondCharacteristicsValue
+                                	,IOM.ThirdCharacteristicsValueId
+                                	,TCV.UserName AS ThirdCharacteristicsValue
+                                	,SC.Id SecondCharId
+                                	,SC.UserName SecondChar
+                                	,TC.Id ThirdCharId
+                                	,TC.UserName ThirdChar
+                                    ,IRD.TransactionQty
+                                	,ROUND(IIH.Qty, 2) POTransactionQty
+                                	,ROUND(IIH.Rate, 2) TransactionRate
+                                	,ROUND((IIH.Qty * IIH.Rate), 2) AS TrnAmount
+                                	--,ROUND((IIH.Qty*IRD.PolicyRate), 2) AS TrnAmount
+                                	,NULL BaseAmount
+                                	,NULL AS BaseTaxAmount
+                                	,TaxAmount = (
+                                		SELECT SUM(TaxAmount)
+                                		FROM [TRN].[PurchaseOrderTax]
+                                		WHERE InventoryReceiveDetailId = IRD.Id
+                                		)
+                                	,ServiceTaxAmount = (
+                                		SELECT SUM(TotalTaxAmount)
+                                		FROM [TRN].[POService]
+                                		WHERE InventoryReceiveId = IOM.Id
+                                		)
+                                	,NULL ChargesTranAmount
+                                	,NULL CountryId
+                                	,IRD.BaseUOMId
+                                	,TUoM.UserName AS TransactionUoM
+                                	,IRD.Id InventoryReceiveDetailId
+                                	,IR.IssueType
+                                	,E.UserName AS Entity
+                                	,IR.Remarks
+                                	,EI.EmployeeName + '-' + EI.EmployeeCode AS EmployeeName
+                                	,CC.UserName CostCenter
+                                	,IRD.Comments
+                                	,IR.ContractId
+                                	,IR.ProductionOrderId
+                                	,Con.ContractNo
+                                	,IR.OrderRefNo
+                                	,p.UserName ProcessName
+                                	,PO.ProductionOrder ProductionOrderNo
+                                	,PO.SalesOrderId
+                                FROM TRN.InventoryIssue IR
+                                LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
+                                LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+                                LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
+                                LEFT JOIN trn.InventoryIssueDetail IRD ON IR.Id = IRD.InventoryIssueId
+                                LEFT JOIN (
+                                	SELECT InventoryIssueDetailId
+                                		,Sum(Qty) Qty
+                                		,sum(qty * rate) / Sum(Qty) Rate
+                                		,sum(qty * rate) TrnAmount
+                                	FROM trn.InventoryIssueHistory
+                                	GROUP BY InventoryIssueDetailId
+                                	) IIH ON IIH.InventoryIssueDetailId = IRD.Id
+                                LEFT JOIN trn.InventoryMaterial AS IOM ON IRD.InventoryMaterialId = IOM.Id
+                                LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IOM.MaterialMasterId
+                                LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MM.HSNCodeId
+                                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
+                                LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IOM.ArticleId
+                                LEFT JOIN HKP.Characteristics AS FC ON IOM.FirstCharacteristicsId = FC.Id
+                                LEFT JOIN HKP.Characteristics AS SC ON IOM.SecondCharacteristicsId = SC.Id
+                                LEFT JOIN HKP.Characteristics AS TC ON IOM.ThirdCharacteristicsId = TC.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IOM.FirstCharacteristicsValueId = FCV.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IOM.SecondCharacteristicsValueId = SCV.Id
+                                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IOM.ThirdCharacteristicsValueId = TCV.Id
+                                LEFT JOIN [SCS].[Currency] AS CUR ON CUR.Id = IR.CurrencyId
+                                LEFT JOIN [ORG].[Entity] E ON E.id = IR.EntityId
+                                LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId = IR.EmployeeId
+                                LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
+                                LEFT JOIN [ORG].[CostCenter] AS CC ON CC.Id = IRD.CostCenterId
+                                LEFT JOIN dbo.Contract Con ON Con.Id = IR.ContractId
+                                LEFT JOIN [TRN].[IssueRequestMasterProcessMap] IRMPM ON IRMPM.IssueRequestMasterId = IR.IssueRequestMasterId
+                                LEFT JOIN HKP.Process p ON p.Id = IRMPM.ProcessId
+                                LEFT JOIN trn.IssueRequestMaster IRM ON IRM.Id = IR.IssueRequestMasterId
+                                --left join [TRN].[IssueRequestMasterSalesOrderMap] IRMMAp ON IRMMAp.IssueRequestMasterId=IRM.Id
+                                --left join [TRN].[ProductionOrderDetail] POd On POd.SalesOrderId=IRMMAp.SalesOrderId
+                                LEFT JOIN (
+                                	SELECT DISTINCT PDAMAP.IssueRequestMasterId
+                                		,SalesOrderId = STUFF((
+                                				SELECT DISTINCT ',' + xPDAMAP.SalesOrderId
+                                				FROM trn.IssueRequestMaster xpo
+                                				INNER JOIN trn.IssueRequestMasterSalesOrderMap xPDAMAP ON xpo.Id = xPDAMAP.IssueRequestMasterId
+                                				WHERE xPDAMAP.IssueRequestMasterId = PDAMAP.IssueRequestMasterId
+                                				FOR XML path('')
+                                					,TYPE
+                                				).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                		,FGColor1 = STUFF((
+                                				SELECT DISTINCT ',' + FCV.UserName
+                                				FROM trn.IssueRequestMaster xpo
+                                				INNER JOIN trn.IssueRequestSKUMap xPDAMAP ON xpo.Id = xPDAMAP.IssueRequestMasterId
+                                				LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId = FCV.Id
+                                				LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId = SCV.Id
+                                				LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId = TCV.Id
+                                				WHERE xPDAMAP.IssueRequestMasterId = PDAMAP.IssueRequestMasterId
+                                				FOR XML path('')
+                                					,TYPE
+                                				).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                		,FGColor2 = STUFF((
+                                				SELECT DISTINCT ',' + SCV.UserName
+                                				FROM trn.IssueRequestMaster xpo
+                                				INNER JOIN trn.IssueRequestSKUMap xPDAMAP ON xpo.Id = xPDAMAP.IssueRequestMasterId
+                                				LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId = FCV.Id
+                                				LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId = SCV.Id
+                                				LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId = TCV.Id
+                                				WHERE xPDAMAP.IssueRequestMasterId = PDAMAP.IssueRequestMasterId
+                                				FOR XML path('')
+                                					,TYPE
+                                				).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                		,FGColor3 = STUFF((
+                                				SELECT DISTINCT ',' + TCV.UserName
+                                				FROM trn.IssueRequestMaster xpo
+                                				INNER JOIN trn.IssueRequestSKUMap xPDAMAP ON xpo.Id = xPDAMAP.IssueRequestMasterId
+                                				LEFT JOIN HKP.CharacteristicsValue AS FCV ON xPDAMAP.FirstCharacteristicsValueId = FCV.Id
+                                				LEFT JOIN HKP.CharacteristicsValue AS SCV ON xPDAMAP.SecondCharacteristicsValueId = SCV.Id
+                                				LEFT JOIN HKP.CharacteristicsValue AS TCV ON xPDAMAP.ThirdCharacteristicsValueId = TCV.Id
+                                				WHERE xPDAMAP.IssueRequestMasterId = PDAMAP.IssueRequestMasterId
+                                				FOR XML path('')
+                                					,TYPE
+                                				).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                		,ProductionOrder = STUFF((
+                                				SELECT DISTINCT ',' + PrOrderDetail.ProductionOrderId
+                                				FROM trn.IssueRequestMaster xpo
+                                				INNER JOIN trn.IssueRequestMasterSalesOrderMap xPDAMAP ON xpo.Id = xPDAMAP.IssueRequestMasterId
+                                				LEFT JOIN trn.ProductionOrderDetail PrOrderDetail ON PrOrderDetail.SalesOrderId = xPDAMAP.SalesOrderId
+                                				WHERE xPDAMAP.IssueRequestMasterId = PDAMAP.IssueRequestMasterId
+                                				FOR XML path('')
+                                					,TYPE
+                                				).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                	FROM trn.IssueRequestMasterSalesOrderMap PDAMAP
+                                	GROUP BY PDAMAP.IssueRequestMasterId
+                                	) PO ON PO.IssueRequestMasterId = IRM.Id
+                                WHERE IR.Id = '" + OrderMasterID + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
 
@@ -10067,7 +10096,7 @@ ORDER BY tg.[Sequence]";
                 TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
                 //TROW.Cells[colHSNCODE].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
-                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("F2"));
+                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
 
