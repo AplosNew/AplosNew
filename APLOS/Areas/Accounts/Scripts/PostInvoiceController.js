@@ -95,8 +95,9 @@ function PostInvoiceController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.voucher.Id = $scope.modelNew.Id;
         $scope.voucher.CurrencyId = $scope.modelNew.CurrencyId;
         $scope.voucher.DocRefNo = $scope.modelNew.DocRefNo;
-        $scope.voucher.PostingDate = $scope.modelNew.InvoiceDate;
-        $scope.voucher.DocDate = $scope.modelNew.InvoiceDate;
+        $scope.voucher.PostingDate = $scope.modelNew.InvDate;
+        $scope.voucher.DocDate = $scope.modelNew.InvDate;
+        $scope.modelNew.InvoiceDate = $scope.modelNew.InvDate;
         $scope.voucher.PartyId = $scope.modelNew.PartyId;
         $scope.voucher.PartyPlantId = $scope.modelNew.PartyPlantId;
         $scope.voucher.Amount = $scope.modelNew.Amount;

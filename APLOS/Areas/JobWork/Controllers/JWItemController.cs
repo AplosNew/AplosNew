@@ -25,7 +25,7 @@ namespace Aplos.Areas.JobWork.Controllers
         string TableName = "HKP.JobWorkItem";
         //authentication for
         //GetList Create Delete
-        Library.MaterialManagement.JobWork.JobWorkCommon JobWorkCommon = null;
+        Library.MaterialManagement.JobWork.OSCommon JobWorkCommon = null;
 
         #region Constructor
 
@@ -230,7 +230,7 @@ namespace Aplos.Areas.JobWork.Controllers
         [HttpGet, Authorize]
         public JsonResult EmployeeListAll()
         {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var jsondata = Json(JobWorkCommon.EmployeeListAll(), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;

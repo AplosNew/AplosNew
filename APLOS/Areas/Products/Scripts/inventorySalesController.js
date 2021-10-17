@@ -502,7 +502,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	}
 	$scope.AmountCalculation = function () {
 		//debugger;
-		$scope.detailModel.TotalAmount = (parseFloat($scope.detailModel.TransactionQty) * ($scope.detailModel.SalesRate)).toFixed(2);
+		$scope.detailModel.TotalAmount = (parseFloat($scope.detailModel.TransactionQty) * ($scope.detailModel.SalesRate)).toFixed(4);
 		$scope.calculateTaxCategory();
 	}
 	$scope.RateCalculation = function () {
