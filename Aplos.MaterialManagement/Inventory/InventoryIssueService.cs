@@ -239,7 +239,7 @@ namespace Library.MaterialManagement.Inventory
 						if (im.IsNotNull())
 						{
 							
-							if (im.TotalQty < item.BaseQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
+							if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
 							item.InventoryIssueId = _pk;
 							item.InventoryMaterialId = im.Id;
 							item.CompanyGroupId = im.CompanyGroupId;
@@ -877,9 +877,9 @@ namespace Library.MaterialManagement.Inventory
 									AvgRate = Math.Round(Convert.ToDecimal(invMaterial.AvgRate), 4),
 									Policy = "N/A",
 
-									TransactionQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
+									TransactionQty = stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),//Math.Round(Convert.ToDecimal(totalGRNQty), 2), //
 
-									PolicyRate = Math.Round((Convert.ToDecimal(detailtrnAmount / totalGRNQty)), 4),
+                                    PolicyRate = Math.Round((Convert.ToDecimal(detailtrnAmount / totalGRNQty)), 4),
 									PolicyAmount = Math.Round(Convert.ToDecimal(detailtrnAmount), 2),
 									BaseQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2),//stockList.Sum(r => r.RequisitionQty),
 									AvgAmount = Math.Round((Convert.ToDecimal(totalGRNQty * invMaterial.AvgRate)), 2),
