@@ -11593,6 +11593,10 @@ namespace Library.MaterialManagement.Inventory
                         }
 
                         receiveDetail.TotalTaxAmount = totalGRNTax;
+                        
+                        _receiveDetailRepository.Insert(receiveDetail);
+                        detail.InventoryReceiveDetailId = receiveDetail.Id;
+                        detail.InventoryReceiveId = inventoryReceive.Id;
                     }
                 }
 
