@@ -125,7 +125,8 @@ namespace Aplos.Areas.Productions.Controllers
                         dr["Manpower"] = totalManpower;
                         dr["SMV"] = clsStaticInfo.dbl(DailyTargetData[i]["SMV"]);
                         dr["TotalHour"] = clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]);
-                        dr["Quantity"] = clsStaticInfo.dbl(DailyTargetData[i]["Quantity"]);
+                        dr["QuantityPerHour"] = clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]);
+                        dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["Quantity"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
                         dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
                         dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
 
@@ -157,7 +158,8 @@ namespace Aplos.Areas.Productions.Controllers
                             dr["Manpower"] = totalManpower;
                             dr["SMV"] = clsStaticInfo.dbl(DailyTargetData[i]["SMV"]);
                             dr["TotalHour"] = clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]);
-                            dr["Quantity"] = clsStaticInfo.dbl(DailyTargetData[i]["Quantity"]);
+                            dr["QuantityPerHour"] = clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]);
+                            dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["Quantity"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
                             dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
                             dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
 
@@ -190,7 +192,8 @@ namespace Aplos.Areas.Productions.Controllers
                             dr["Manpower"] = totalManpower;
                             dr["SMV"] = clsStaticInfo.dbl(DailyTargetData[i]["SMV"]);
                             dr["TotalHour"] = clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]);
-                            dr["Quantity"] = clsStaticInfo.dbl(DailyTargetData[i]["Quantity"]);
+                            dr["QuantityPerHour"] = clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]);
+                            dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["Quantity"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
                             dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
                             dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
 
@@ -268,9 +271,9 @@ namespace Aplos.Areas.Productions.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select convert(bit,1) AS Active, pod.SalesOrderId,PO.id PRNo,MMA.Id MaterialMasterArticleId,MM.Id MaterialMasterId,WCM.Id WorkCenterMasterId,
-                                MM.UserName AS Material,MMA.StandardName AS Article
+                                MM.UserName AS Material,MMA.StandardName AS Article,convert(bit,isnull(DPT.IsManual,0)) AS IsManual
                                 ,DPT.ID DailyProductionTargetID,WCM.UserName Line ,DPT.ManPowerWithMachine,DPT.ManPowerWithHand,DPT.Manpower
-								,DPT.SMV,DPT.Quantity,DPT.TotalHour,DPT.TargetDate,SO.CustomerPOId,
+								,DPT.SMV,DPT.Quantity,DPT.QuantityPerHour,DPT.TotalHour,DPT.TargetDate,SO.CustomerPOId,
 
 								
 						BuyerItemNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
@@ -348,7 +351,7 @@ namespace Aplos.Areas.Productions.Controllers
 
 
                                 from SCS.WorkCenterMaster WCM 
-                                left outer join  TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='"+ProductionDate+@"'
+                                left outer join  TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='" + ProductionDate + @"'
                                 left outer join  TRN.ProductionOrder PO on PO.Id=DPT.ProductionOrderId  
                                 left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
                                 left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId

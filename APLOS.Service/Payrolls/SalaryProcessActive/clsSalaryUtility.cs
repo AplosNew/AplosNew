@@ -372,7 +372,7 @@ public class clsSalaryUtility
                     dvLocal.Table = dtValue;
 
                     dvLocal.RowFilter = "SalaryHeadID = '" + strTemp.Trim() + "'";
-                    if (dvLocal.Count == 1)
+                    if (dvLocal.Count > 0)
                     {
                         if (dvLocal[0]["EntryCurrencyID"].ToString().Trim() == lblLocalCurrencyID)
                         {

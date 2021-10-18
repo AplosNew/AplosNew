@@ -129,6 +129,12 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetPotalPostedList()
+        {
+            return Json(_expenseBookingService.QueryPoatalPostedList(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetListAdmin(GridParameter parameters, string status)
         {
             return Json(_expenseBookingService.QueryAdmin(parameters, status), JsonRequestBehavior.AllowGet);

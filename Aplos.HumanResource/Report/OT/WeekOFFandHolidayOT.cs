@@ -2858,7 +2858,7 @@ namespace Library.HumanResource.Report.OT
                 {
 
                     string _empid = item.Key;//dtemp.Rows[i]["EmpInfoSystemID"].ToString();
-                    if (_empid == "209740")
+                    if (_empid == "209432")
                     { 
                     
                     
@@ -4986,7 +4986,7 @@ namespace Library.HumanResource.Report.OT
                     yot = "";
                     entryAmount = 0.00;
                     EmpSystemid = dtEmpHourlyOt.Rows[i]["EmpSystemId"].ToString();
-                    if (EmpSystemid == "207091")
+                    if (EmpSystemid == "209432")
                     {
 
                     }
