@@ -66,6 +66,14 @@
                                 <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
                             </div>
                         </div>
+                        
+                        <div class="form-group">
+                             <label class="col-sm-4 control-label" style="margin-top:10px">Remarks</label>
+                             <div class="col-sm-8 show-message" style="margin-top:10px">
+                                <input type="text" name="Remarks" ng-model="RemarksEmps" class="form-control" maxlength="250">
+                             </div>
+                        </div>
+                        
                     </div>
 
                 </div>
@@ -248,56 +256,68 @@
                 </div>
             </div>
             <div class="row">
-                <div id="GridAttendanceControlBySingleDate" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDate"
-                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
-                     e-allowscrolling="true" e-minheight="400" e-gridlines="none" e-querycellinfo="queryCellInfo"
-                     e-actioncomplete="actionCompleteSingleDay" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
-                     e-filtersettings-filterType="excel">
-                    <div e-columns>
-                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100" e-primarykey="true"></div>
-                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
-                        <div e-column e-template="#allShiftSingleDay" e-headertext="Shift" e-width="220"></div>
-
-                        <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
-                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
-                        <div e-column e-field="IsManualInTime" e-headertext="ManualIn" e-width="50"></div>
-                        <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
-                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
-                        <div e-column e-field="IsManualOutTime" e-headertext="ManualOut" e-width="50"></div>
-                        <div e-column e-field="DayStatusCode" e-headertext="DayStatusCode" e-width="70"></div>
-                        <div e-column e-template="#daystatusx" e-headertext="Day Status" e-width="80"></div>
-                        <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
-                        <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
-                        <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
-                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
-                        <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
-
-                        <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
-                        <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
-                        <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
-
-                        <div e-column e-field="Department" e-headertext="Department" e-width="150"></div>
-                        <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
-                        <div e-column e-field="Section" e-headertext="Section" e-width="150"></div>
-                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="150"></div>
-
-
-                        <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
-
-
+                <div class="col-sm-12">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" style="margin-top:10px">Remarks</label>
+                            <div class="col-sm-8 show-message" style="margin-top:10px">
+                                <input type="text" name="Remarks" ng-model="RemarksEmps" class="form-control" maxlength="250">
+                            </div>
+                        </div>
                     </div>
                 </div>
-
             </div>
-            <div class="row">
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>  <button type="button" ng-click="SaveSingleDay()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                    </ul>
+                <div class="row">
+                    <div id="GridAttendanceControlBySingleDate" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDate"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                         e-allowscrolling="true" e-minheight="400" e-gridlines="none" e-querycellinfo="queryCellInfo"
+                         e-actioncomplete="actionCompleteSingleDay" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
+                         e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100" e-primarykey="true"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
+                            <div e-column e-template="#allShiftSingleDay" e-headertext="Shift" e-width="220"></div>
+
+                            <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
+                            <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
+                            <div e-column e-field="IsManualInTime" e-headertext="ManualIn" e-width="50"></div>
+                            <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
+                            <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
+                            <div e-column e-field="IsManualOutTime" e-headertext="ManualOut" e-width="50"></div>
+                            <div e-column e-field="DayStatusCode" e-headertext="DayStatusCode" e-width="70"></div>
+                            <div e-column e-template="#daystatusx" e-headertext="Day Status" e-width="80"></div>
+                            <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
+                            <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
+                            <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
+                            <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
+                            <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
+
+                            <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
+                            <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
+                            <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
+
+                            <div e-column e-field="Department" e-headertext="Department" e-width="150"></div>
+                            <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="150"></div>
+                            <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="150"></div>
+
+
+                            <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
+
+
+                        </div>
+                    </div>
+
                 </div>
+                <div class="row">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li>  <button type="button" ng-click="SaveSingleDay()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        </ul>
+                    </div>
 
+                </div>
             </div>
-        </div>
 
 
         <div id="TabUpdate">
@@ -352,8 +372,14 @@
                                 <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="UpToDate" e-width="100%" />
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" style="margin-top:10px">Remarks</label>
+                            <div class="col-sm-8 show-message" style="margin-top:10px">
+                                <input type="text" name="Remarks" ng-model="RemarksUpload" class="form-control" maxlength="250">
+                            </div>
+                        </div>
 
-                        
+
                     </div>
 
                 </div>
