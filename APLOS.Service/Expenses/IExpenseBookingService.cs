@@ -41,6 +41,7 @@ namespace Library.Service.Expenses
         IEnumerable<object> GetCboCostCenterIdByEntity(string entityId);
         GridModel QueryPoatal(GridParameter parameters, string status);
         IEnumerable<object> QueryPoatal(string status);
+        IEnumerable<object> QueryPoatalPostedList();
         IEnumerable<object> QueryCheckedByPoatal(string status);
         GridModel QueryAdmin(GridParameter parameters, string status);
 

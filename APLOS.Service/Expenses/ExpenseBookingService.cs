@@ -786,6 +786,37 @@ namespace Library.Service.Expenses
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public IEnumerable<object> QueryPoatalPostedList()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"SELECT EB.Id,EB.CompanyGroupId,EB.EmployeeId,EB.PlantId,EB.EntityId,EB.CurrencyId,EB.InvoiceNumber,REPLACE(CONVERT(VARCHAR(11), EB.InvoiceDate, 106), ' ', '-') AS InvoiceDate
+										,EB.ApprovalStatus,EB.Remarks,EB.Archive,EB.AddedBy,EB.AddedDate,EB.AddedFromIP,EB.CompanyId,EB.IsPosted,EB.ResponsiblePersonId,EB.PartyId,EB.PartyPlantId
+										,EB.BeneficiaryType,EB.VoucherId,V.VoucherNo,EB.AppliedBy,EB.[FileName],EB.CashMasterId, C.Code AS CurrencyCode,EI.EmployeeCode+' - '+EI.EmployeeName AS [EmployeeName], EIR.EmployeeName AS ResponsiblePersonName
+                                        , EBD.Amount, P.UserName AS PartyName,EIRA.EmployeeName AddedByName,EIA.EmployeeName ApprovedBy
+										FROM [TRN].[ExpenseBooking] AS EB
+                                        JOIN [SCS].[Currency] AS C ON C.Id=EB.CurrencyId
+										LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EB.EmployeeId
+										LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=EB.ResponsiblePersonId
+                                        LEFT JOIN [dbo].[EmployeeInformation] AS EIRA ON EIRA.SystemId=EB.AddedBy
+										LEFT JOIN [HKP].[Party] AS P ON P.Id=EB.PartyId
+										LEFT JOIN (SELECT ExpenseBookingId,sum(Amount) AS Amount  FROM [TRN].[ExpenseBookingDetail] GROUP BY ExpenseBookingId) AS EBD ON EBD.ExpenseBookingId=EB.Id
+                                        left JOIN (SELECT distinct ExpenseBookingId,EmployeeId,ApprovalStatus FROM TRN.ExpenseBookingApprovalHistory WHERE  ApprovalStatus='Approved' ) 
+										EBAH ON EBAH.ExpenseBookingId=EB.Id AND EB.ApprovalStatus=EBAH.ApprovalStatus
+										left join dbo.EmployeeInformation EIA on EIA.SystemId=EBAH.EmployeeId
+                                        LEFT JOIN TRN.Voucher V ON V.Id=EB.VoucherId
+                                WHERE EB.Archive=0 AND EB.EmployeeId='" + identity.EmployeeId + @"' AND EB.ApprovalStatus='Approved'  AND EB.IsPosted=1 AND EB.AppliedBy!='Entity' AND EB.VoucherId<>''
+                                ORDER BY EB.InvoiceDate DESC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public IEnumerable<object> QueryCheckedByPoatal(string status)
         {
             try

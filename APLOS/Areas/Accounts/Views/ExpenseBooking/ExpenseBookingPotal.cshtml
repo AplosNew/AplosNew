@@ -322,6 +322,7 @@
                     <li role="presentation" ng-class="{ active: isSetApprovedHold(5) }"><a ng-click="setTabApprovedHold(5)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved Hold</a></li>
                     <li role="presentation" ng-class="{ active: isSetApprovedReject(6) }"><a ng-click="setTabApprovedReject(6)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved Reject</a></li>
                     <li role="presentation" ng-class="{ active: isSetApproved(7) }"><a ng-click="setTabApproved(7)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved</a></li>
+                    <li role="presentation" ng-class="{ active: isSetPosted(8) }"><a ng-click="setTabPosted(8)" href="" aria-controls="address" role="tab" data-toggle="tab">Posted</a></li>
                 </ul>
             </div>
 
@@ -529,6 +530,36 @@
                                         <div e-column e-field="ResponsiblePersonName" e-headertext="Checked By" e-width="80"></div>
                                         <div e-column e-headertext="PDF" e-commands="PdfPrintApproved" e-isunbound=true e-textalign="center" e-width="50"></div>
                                         <div e-column e-headertext="Excel" e-commands="ExcelPrintApproved" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPosted(8), active: isSetPosted(8) }">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Posted </span></legend>
+                        <div>
+                            <div class="content-container-fluid" style="color:black;">
+                                <div style="color:black;" id="GridPosted" ej-grid e-datasource="PostedDataList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                     @*e-recorddoubleclick="Get"*@ e-filtersettings-filterType="excel"
+                                     e-enabletouch="true" e-allowselection="true"
+                                     e-scrollsettings="scroll">
+                                    <div e-columns>
+                                        <div e-column e-field="InvoiceNumber" e-headertext="Transaction Id" e-width="100"></div>
+                                        <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                                        <div e-column e-field="BeneficiaryType" e-headertext="Beneficiary" e-width="80"></div>
+                                        <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                        <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="80"></div>
+                                        <div e-column e-field="Amount" e-headertext="Amount" textAlign='Right' e-width="60"></div>
+                                        <div e-column e-field="ApprovalStatus" e-headertext="Status" e-width="60"></div>
+                                        <div e-column e-field="AddedByName" e-headertext="Prepared By" e-width="100"></div>
+                                        <div e-column e-field="ResponsiblePersonName" e-headertext="Checked By" e-width="100"></div>
+                                        <div e-column e-headertext="PDF" e-commands="PdfPrintPosted" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                        <div e-column e-headertext="Excel" e-commands="ExcelPrintPosted" e-isunbound=true e-textalign="center" e-width="50"></div>
                                     </div>
 
                                 </div>
