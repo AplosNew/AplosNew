@@ -126,7 +126,7 @@ namespace Aplos.Areas.Productions.Controllers
                         dr["SMV"] = clsStaticInfo.dbl(DailyTargetData[i]["SMV"]);
                         dr["TotalHour"] = clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]);
                         dr["QuantityPerHour"] = clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]);
-                        dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["Quantity"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
+                        dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
                         dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
                         dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
 
@@ -159,7 +159,7 @@ namespace Aplos.Areas.Productions.Controllers
                             dr["SMV"] = clsStaticInfo.dbl(DailyTargetData[i]["SMV"]);
                             dr["TotalHour"] = clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]);
                             dr["QuantityPerHour"] = clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]);
-                            dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["Quantity"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
+                            dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
                             dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
                             dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
 
@@ -193,7 +193,7 @@ namespace Aplos.Areas.Productions.Controllers
                             dr["SMV"] = clsStaticInfo.dbl(DailyTargetData[i]["SMV"]);
                             dr["TotalHour"] = clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]);
                             dr["QuantityPerHour"] = clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]);
-                            dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["Quantity"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
+                            dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
                             dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
                             dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
 
