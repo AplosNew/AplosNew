@@ -152,7 +152,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	//		$scope.PrintTabId = data.JWContractId;
 			$scope.IssueId = data.Id;
 			var reportFormat = "Excel";
-			window.open('JobWork/JobWorkIssueReturn/GetIIPrintReport?reportFormat=' + reportFormat + '&IssueId=' + $scope.IssueId, '_blank');
+			window.open('JobWork/OSIssueReturn/GetIIPrintReport?reportFormat=' + reportFormat + '&IssueId=' + $scope.IssueId, '_blank');
 
 		} catch (e) {
 

@@ -1774,8 +1774,10 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 						else {
 							ShowResult(response.data.Message, 'success');
 							$scope.ReceiptTransformation.Id = response.data.entity.Id;
+							$scope.setStatus = 'Selected';
+							$scope.setTabGRNList(1);
 							$scope.GRNListDetails();
-							$scope.detailgrid();
+						//	$scope.detailgrid();
 							//$scope.SaveButtonDisable = true;
 							//$scope.setTabGRNList(1);
 							//$scope.getDataList();
@@ -2440,7 +2442,8 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 							if ($scope.inventoryMaterialList[i].JWTCDetailId == data.JWTCDetailId) {
 								$scope.inventoryMaterialList[i].TrnAmount = ($scope.inventoryMaterialList[i].NetQty * $scope.inventoryMaterialList[i].TransactionRate).toFixed(2);
 								$scope.inventoryMaterialList[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * 100 + Number.EPSILON) / 100;
-								$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.ReceiptTransformation.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
+						//		$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.ReceiptTransformation.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
+								$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax))) * 100 + Number.EPSILON) / 100;
 
 							}
 						}
@@ -2448,7 +2451,8 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 							if ($scope.inventoryMaterialList[i].OSTransformationPODetailId == data.OSTransformationPODetailId) {
 								$scope.inventoryMaterialList[i].TrnAmount = Math.round(($scope.inventoryMaterialList[i].NetQty * $scope.inventoryMaterialList[i].TransactionRate) * 100 + Number.EPSILON) / 100;
 								$scope.inventoryMaterialList[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * 100 + Number.EPSILON) / 100;
-								$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.ReceiptTransformation.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
+						//		$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge)) * $scope.ReceiptTransformation.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
+								$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.ServiceCharge))) * 100 + Number.EPSILON) / 100;
 							}
 						}
 					}

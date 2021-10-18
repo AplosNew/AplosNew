@@ -1102,6 +1102,14 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
         return $scope.tab === tabNum;
     };
 
+    $scope.setTabPosted = function (newTab) {
+        $scope.tab = newTab;
+        $scope.GetPostedExBooking();
+    };
+    $scope.isSetPosted = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
 
     $scope.ApprovedHoldDataList = [];
     $scope.GetApprovedHoldExBooking = function () {
@@ -1135,6 +1143,18 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
             $scope.ApprovedDataList = response.data;
         });
     }
+
+    $scope.PostedDataList = [];
+    $scope.GetPostedExBooking = function () {
+        $scope.PostedDataList = [];
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetPotalPostedList"
+        }).then(function successCallback(response) {
+            $scope.PostedDataList = response.data;
+        });
+    }
+
     //#endregion my task hend here 
 
     $scope.onClickPdfPrint = function (args) {
@@ -1378,4 +1398,38 @@ function expenseBookingPotalController(cboService, commonMessage, $scope, $rootS
         }
     }];
 
+
+    $scope.onClickPdfPrintPosted = function (args) {
+        var gridObj = $("#GridPosted").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
+    };
+    $scope.PdfPrintPosted = [{
+
+        type: "details",
+        buttonOptions: {
+            text: "PDF",
+            width: "50",
+            height: "20",
+            click: $scope.onClickPdfPrintPosted
+        }
+    }];
+
+
+    $scope.onClickExcelPrintPosted = function (args) {
+        var gridObj = $("#GridPosted").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');        $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
+    };
+    $scope.ExcelPrintPosted = [{
+
+        type: "details", buttonOptions: {
+            text: "Excel",
+            width: "50",
+            height: "20",
+            click: $scope.onClickExcelPrintPosted
+        }
+    }];
 }

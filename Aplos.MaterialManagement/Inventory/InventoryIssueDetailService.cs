@@ -462,7 +462,7 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN [HKP].[Characteristics] AS CH3 ON IM.ThirdCharacteristicsId=CH3.Id
                         LEFT JOIN [HKP].[CharacteristicsValue] AS CHV3 ON IM.ThirdCharacteristicsValueId=CHV3.Id
 						LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IID.CostCenterId
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON IID.BaseUOMId=UoM.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON IID.TransactionUoMId=UoM.Id
                         LEFT Join scs.country C On C.Id=IM.CountryId
                         WHERE IID.InventoryIssueId='" + issueId + "'";
                 return _sqlRepository.GetDataCollection(sql);
