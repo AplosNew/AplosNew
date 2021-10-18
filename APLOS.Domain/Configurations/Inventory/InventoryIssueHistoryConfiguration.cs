@@ -11,6 +11,7 @@ namespace Library.Model.Configurations.Inventory
             HasKey(t => t.Id);
             Property(t => t.Qty).HasPrecision(18, 10);
             Property(t => t.Rate).HasPrecision(18, 4);
+            Property(t => t.BooksCurrencyBaseRate).HasPrecision(18, 4);
             ToTable(nameof(InventoryIssueHistory), DbSchema.Transaction);
             Ignore(r => r.ModelState);
         }
