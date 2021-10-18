@@ -877,7 +877,7 @@ namespace Library.MaterialManagement.Inventory
                                     AvgRate = Math.Round(Convert.ToDecimal(invMaterial.AvgRate), 4),
                                     Policy = "N/A",
 
-									TransactionQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
+									TransactionQty = stockList.Sum(r => r.RequisitionQty),//Math.Round(Convert.ToDecimal(totalGRNQty), 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
 
 									PolicyRate = Math.Round((Convert.ToDecimal(detailtrnAmount / totalGRNQty)), 4),
 									PolicyAmount = Math.Round(Convert.ToDecimal(detailtrnAmount), 2),
