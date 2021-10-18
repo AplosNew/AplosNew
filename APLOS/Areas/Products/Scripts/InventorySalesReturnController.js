@@ -69,6 +69,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
     $scope.getUpdateData = function (data) {
         $scope.product = data.data;
         $scope.product.InventorySalesId = data.data.InventorySalesId;
+        $scope.product.InventoryReceiveId = data.data.InventoryReceiveId;
         $scope.product.Id = data.data.Id;
         $scope.product.SalesDate = data.data.SalesDateNew;
         $scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
