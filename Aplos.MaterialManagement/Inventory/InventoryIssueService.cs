@@ -11698,9 +11698,9 @@ namespace Library.MaterialManagement.Inventory
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
-
-                AuditService.UpdatedLog(inventoryIssue);
-                _InventorySalesReturnRepository.Update(inventoryIssue);
+                var inventorySaleReturn = _InventorySalesReturnRepository.Find(inventoryIssue.Id);
+                AuditService.UpdatedLog(inventorySaleReturn);
+                _InventorySalesReturnRepository.Update(inventorySaleReturn);
 
                
                 var inventoryreceive = _inventoryReveiveService.Find(inventoryIssue.InventoryReceiveId);
@@ -11985,9 +11985,9 @@ namespace Library.MaterialManagement.Inventory
                                 InventorySalesServiceId = salesServiceVM.InventorySalesServiceId,
                                 ServiceMasterId = salesServiceVM.ServiceMasterId,
                                 TotalTaxAmount = salesServiceVM.TotalTaxAmount,
-                                UpdatedBy = inventoryIssue.UpdatedBy,
-                                UpdatedDate = inventoryIssue.UpdatedDate,
-                                UpdatedFromIP = inventoryIssue.UpdatedFromIP
+                                UpdatedBy = inventorySaleReturn.UpdatedBy,
+                                UpdatedDate = inventorySaleReturn.UpdatedDate,
+                                UpdatedFromIP = inventorySaleReturn.UpdatedFromIP
                             };
                             _InventorySalesReturnServiceRepository.Update(salesService);
 
@@ -12015,7 +12015,7 @@ namespace Library.MaterialManagement.Inventory
                                             UpdatedDate = salesService.UpdatedDate,
                                             UpdatedFromIP = salesService.UpdatedFromIP
                                         };
-                                        _InventorySalesReturnTaxRepository.Insert(salesTax);
+                                        _InventorySalesReturnTaxRepository.Update(salesTax);
                                     }
                                     else
                                     {
