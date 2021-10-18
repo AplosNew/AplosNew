@@ -1774,8 +1774,10 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 						else {
 							ShowResult(response.data.Message, 'success');
 							$scope.ReceiptTransformation.Id = response.data.entity.Id;
+							$scope.setStatus = 'Selected';
+							$scope.setTabGRNList(1);
 							$scope.GRNListDetails();
-							$scope.detailgrid();
+						//	$scope.detailgrid();
 							//$scope.SaveButtonDisable = true;
 							//$scope.setTabGRNList(1);
 							//$scope.getDataList();
