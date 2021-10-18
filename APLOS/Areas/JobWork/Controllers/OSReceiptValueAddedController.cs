@@ -292,9 +292,9 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
-                        left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.JWTCMId
+                        left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.OSTransformationPOId
 						from TRN.InventoryReceive IR left join TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
-						group by IRD.JWTCMId) TT on TT.JWTCMId=IR.Id
+						group by IRD.OSTransformationPOId) TT on TT.OSTransformationPOId=IR.Id
 						WHERE " + strkey + @" and  IR.PlantId='" + identity.PlantId + @"' 
                         --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
@@ -377,9 +377,9 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
-                        left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.JWTCMId
+                        left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.OSTransformationPOId
 						from TRN.InventoryReceive IR left join TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
-						group by IRD.JWTCMId) TT on TT.JWTCMId=IR.Id
+						group by IRD.OSTransformationPOId) TT on TT.OSTransformationPOId=IR.Id
 						Where " + strkey + @" and IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
@@ -463,9 +463,9 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
-                        left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.JWTCMId
+                        left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.OSTransformationPOId
 						from TRN.InventoryReceive IR left join TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
-						group by IRD.JWTCMId) TT on TT.JWTCMId=IR.Id
+						group by IRD.OSTransformationPOId) TT on TT.OSTransformationPOId=IR.Id
 						Where " + strkey + @" and IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
 						And IR.PlantId='" + identity.PlantId + @"' 
@@ -562,9 +562,9 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
-                         left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.JWTCMId
+                         left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.OSTransformationPOId
 						from TRN.InventoryReceive IR left join TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
-						group by IRD.JWTCMId) TT on TT.JWTCMId=IR.Id
+						group by IRD.OSTransformationPOId) TT on TT.OSTransformationPOId=IR.Id
 						WHERE " + strkey + @" and  IR.PlantId='" + identity.PlantId + @"' 
                         --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
@@ -647,9 +647,9 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
-                        left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.JWTCMId
+                        left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.OSTransformationPOId
 						from TRN.InventoryReceive IR left join TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
-						group by IRD.JWTCMId) TT on TT.JWTCMId=IR.Id
+						group by IRD.OSTransformationPOId) TT on TT.OSTransformationPOId=IR.Id
 						Where " + strkey + @" and IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
@@ -733,9 +733,9 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
-                        left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.JWTCMId
+                        left join (Select SUM(IRD.TransactionQty) as ReceivedQty, SUM(IRD.TotalMaterialBooksCurrencyAmount) as TotalAmt,IRD.OSTransformationPOId
 						from TRN.InventoryReceive IR left join TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
-						group by IRD.JWTCMId) TT on TT.JWTCMId=IR.Id
+						group by IRD.OSTransformationPOId) TT on TT.OSTransformationPOId=IR.Id
 						Where " + strkey + @" and IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
 						And IR.PlantId='" + identity.PlantId + @"' 

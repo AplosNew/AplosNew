@@ -18,7 +18,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
     $scope.path = 'Products/InventoryIssue/';
     $scope.getListUrl = $scope.path + 'GetDataByInventoryIssue';
     $scope.saveUrl = 'Products/InventorySalesReturn/Create';
-    $scope.updateUrl = $scope.path + 'edit';
+    $scope.updateUrl = 'Products/InventorySalesReturn/Update';
     $scope.deleteUrl = $scope.path + 'DeleteSalesDetail/';
     $scope.sreviceSaveUrl = $scope.path + 'SalesServiceChargesCreate/';
     $scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
@@ -86,7 +86,9 @@ function InventorySalesReturnController(accountService, $window, cboService, com
         //$scope.getTaxCodeByTaxYearWithhold($scope.productNew.SalesDate);
 
         $scope.Action = 'Update';
-        $scope.closeGRNPopUp();
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
     };
 
 
@@ -617,7 +619,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
             data.TaxAmount = 0;
             for (var i = 0; i < $scope.materialtaxCategoryListSavedData.length; i++) {
                 if ($scope.materialtaxCategoryListSavedData[i].InventorySalesDetailId == data.InventorySalesDetailId) {
-                    $scope.materialtaxCategoryListSavedData[i].TaxAmount = ($scope.materialtaxCategoryListSavedData[i].SalesTax / data.TransactionQty) * data.ReturnQty
+                    $scope.materialtaxCategoryListSavedData[i].TaxAmount = Math.round((($scope.materialtaxCategoryListSavedData[i].SalesTax / data.TransactionQty) * data.ReturnQty) * 100 + Number.EPSILON) / 100;
                     data.TaxAmount += Math.round((($scope.materialtaxCategoryListSavedData[i].SalesTax / data.TransactionQty) * data.ReturnQty) * 100 + Number.EPSILON) / 100;
                 }
             }
@@ -790,7 +792,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
             $scope.serviceUrl = 'Products/InventorySalesReturn/GetServiceChargeList?inventorySalesId=' + $scope.productNew.InventorySalesId
         }
         else {
-            $scope.serviceUrl = 'Products/InventorySalesReturn/GetServiceChargeForUpdateList?salesReturnId=' + $scope.productNew.Id +'&inventorySalesId=' + $scope.productNew.InventorySalesId
+            $scope.serviceUrl = 'Products/InventorySalesReturn/GetServiceChargeForUpdateList?salesReturnId=' + $scope.productNew.Id + '&inventorySalesId=' + $scope.productNew.InventorySalesId
         }
         $scope.chargesList = [];
         $http.get($scope.serviceUrl)
@@ -880,7 +882,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 
     $scope.calculateServiceAmount = function (data) {
         try {
-           
+
             if (data.ReturnAmount == 'NaN')
                 data.ReturnAmount = 0;
             if (data.ReturnAmount > data.BalanceAmount) {
@@ -1280,76 +1282,62 @@ function InventorySalesReturnController(accountService, $window, cboService, com
         var UIStatus = $("#SlipAssetIssueUI").val();
         $scope.productNew.IssueRequestMasterId = $scope.issueId;
         $scope.productNew.CustomerId = $scope.productNew.PartyId;
-        //if ($scope.Action === "Save") {
-        $http({
-            method: 'POST'
-            , url: $scope.saveUrl
-            , data: {
-                inventoryIssue: $scope.productNew
-                , entities: $scope.detailList
-                , 'salesReturnTaxList': $scope.materialtaxCategoryListSavedData
-                , 'salesServiceVMList': $scope.chargesList
-            }
-            , dataType: 'JSON'
-        }).then(function (response) {
-            if (response.data.Error === true)
+        if ($scope.Action === "Save") {
+            $http({
+                method: 'POST'
+                , url: $scope.saveUrl
+                , data: {
+                    inventoryIssue: $scope.productNew
+                    , entities: $scope.detailList
+                    , 'salesReturnTaxList': $scope.materialtaxCategoryListSavedData
+                    , 'salesServiceVMList': $scope.chargesList
+                }
+                , dataType: 'JSON'
+            }).then(function (response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                    $scope.Action = 'Update';
+                    $scope.productNew.Id = response.data.inventoryIssue.Id;
+                    $scope.getdataInventorySales();
+                    $scope.SalesDetails();
+                    $scope.getData();
+                    $scope.Clear();
+                }
+            }), function (response) {
                 ShowResult(response.data.Message, 'failure');
-            else {
-                ShowResult(response.data.Message, 'success');
+            };
+        }
+        else if ($scope.Action === "Update") {
+            $http({
+                method: 'POST'
+                , url: $scope.updateUrl
+                , data: {
+                    inventoryIssue: $scope.productNew
+                    , entities: $scope.detailList
+                    , 'salesReturnTaxList': $scope.materialtaxCategoryListSavedData
+                    , 'salesServiceVMList': $scope.chargesList
+                }
+                , dataType: 'JSON'
+            }).then(function (response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
 
-                $scope.Action = 'Update';
-                $scope.productNew.Id = response.data.inventoryIssue.Id;
-                $scope.getdataInventorySales();
-                $scope.SalesDetails();
-                $scope.getData();
-                $scope.Clear();
-            }
-        }), function (response) {
-            ShowResult(response.data.Message, 'failure');
-        };
-        //}
-        //else if ($scope.Action === "Update") {
-
-        //	var getRowdetailList = $filter("filter")($scope.detailList, { "Id": null });
-        //	if (getRowdetailList.length === 0) {
-        //		ShowResult("Nothing to update", 'failure');
-        //		return false;
-        //	}
-        //	$scope.detailList = [];
-        //	for (var j1 = 0; j1 < getRowdetailList.length; j1++) {
-
-        //		$scope.detailList.push(getRowdetailList[j1]);
-        //		$scope.detailList[j1].MaterialStorageId = $scope.productNew.MaterialStorageId;
-        //	}
-
-        //	$http({
-        //		method: 'POST'
-        //		, url: $scope.saveUrl
-        //		, data: {
-        //			entities: $scope.detailList
-        //			, specificStockList: $scope.specificStockList
-        //			//, inventoryIssue: $scope.productNew
-        //			, IssueTypeStatus: UIStatus,
-        //			'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
-        //			'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
-        //			'taxCategoryList': $scope.materialtaxCategoryListRes,
-        //			'productNewId': $scope.productNew.Id
-        //		}
-        //		, dataType: 'JSON'
-        //	}).then(function (response) {
-        //		if (response.data.Error === true)
-        //			ShowResult(response.data.Message, 'failure');
-        //		else {
-        //			ShowResult(response.data.Message, 'success');
-        //			getIssueDetailList();
-
-        //		}
-        //	}), function (response) {
-        //		ShowResult(response.data.Message, 'failure');
-        //	};
-        //}
-
-        //else ShowResult('Please issue material', 'failure');
+                    $scope.Action = 'Update';
+                    $scope.productNew.Id = response.data.inventoryIssue.Id;
+                    $scope.getdataInventorySales();
+                    $scope.SalesDetails();
+                    $scope.getData();
+                    $scope.Clear();
+                }
+            }), function (response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        }
     };
 
 

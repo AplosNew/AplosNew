@@ -8519,6 +8519,27 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 			var cmdText = "";
 			//if (fromDate != "" && toDate != "")
 			//{
+			String Sku = "";
+
+			if (Sku1==null && Sku2 == null && Sku3 == null)
+            {
+				 Sku = @"Order By IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueDate DESC";
+			}
+			else if(Sku != null && Sku2 == null && Sku3 == null)
+            {
+				Sku = @"and isnull(IM.FirstCharacteristicsValueId,'')='" + Sku1 + @"'
+						
+						Order By IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueDate DESC";
+			}
+			else if(Sku != null && Sku2 != null && Sku3 == null)
+            {
+				Sku = @"and isnull(IM.FirstCharacteristicsValueId,'')='" + Sku1 + @"'
+						and isnull(IM.SecondCharacteristicsValueId,'')='" + Sku2 + @"'
+						
+						Order By IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueDate DESC";
+			}
+           
+			
 
 
 			cmdText = @"select 						
@@ -8751,10 +8772,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      )main on main.InventoryReceiveDetailId=IRD.Id		
                                      									 
 						where  	IM.PlantId='" + plantId + @"' AND MM.Id='" + MaterialId + @"' AND Art.Id='" + ArticleId + @"' AND 
-						Convert(date ,IR.GRNDate) between '"+fromDate+@"' AND '"+toDate+ @"' and isnull(IM.FirstCharacteristicsValueId,'')='" + Sku1 + @"'
-						and isnull(IM.SecondCharacteristicsValueId,'')='" + Sku2 + @"'
-						and isnull(IM.ThirdCharacteristicsValueId,'')='" + Sku3 + @"'
-						Order By IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueDate DESC";
+						Convert(date ,IR.GRNDate) between '"+fromDate+@"' AND '"+toDate+ @"'  
+                        " + Sku + @" ";
 
 
 			var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);

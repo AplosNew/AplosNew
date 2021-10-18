@@ -30,11 +30,31 @@ namespace Library.Service.Productions.ProductionBooking
                 DataTable dtPlanData = new DataTable();
 
                 dtPlanData = _sqlRepository.GetDataTable(@"--without bulletin
-                                        SELECT e.PlantId,FORMAT(ppt.ProductionDate,'dd-MMM-yyyy') AS ProductionDate, ppt.ProductionOrderID, ppt.MaterialMasterId,art.ArticleId,ppt.isBuildUp,ppt.WorkCenterMasterId,
-                                            ppt.Quantity,t.SPT,T.NoOfWorkStation AS Manpower,ppt.ProductionHours
-                                          FROM ProductionPlanningType1 AS ppt
+                                         SELECT e.PlantId,FORMAT(ppt.ProductionDate,'dd-MMM-yyyy') AS ProductionDate, ppt.ProductionOrderID, ppt.MaterialMasterId,art.ArticleId,ppt.isBuildUp,ppt.WorkCenterMasterId,
+                                            ppt.Quantity,t.SPT,T.NoOfWorkStation AS Manpower,ppt.ProductionHours,
+                                            WithMachine =CASE WHEN ISNULL(BUL.ProductionOrderId,'')<>'' then WithMachine ELSE T.NoOfWorkStation  end,
+                                            WithoutMachine =CASE WHEN ISNULL(BUL.ProductionOrderId,'')<>'' then WithoutMachine ELSE 0  end
+				
+										FROM ProductionPlanningType1 AS ppt
+                                          LEFT JOIN trn.ProductionOrderProcessSet AS PPS ON pps.ProductionOrderId=ppt.ProductionOrderID AND pps.IsBaseProcess=1
                                           LEFT JOIN org.Entity AS e ON e.Id=ppt.EntityID
                                           LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS T ON t.ProductionOrderID=ppt.ProductionOrderID
+                                         LEFT JOIN (
+                                           select
+													pbt.ProductionOrderId ,pbt.Id ProductionBulletinTemplateId,pbtm.ProcessId,
+													pbtm.PlannedHoursPerDay ,pbtm.RequiredStdTarget ,
+													WithMachine = SUM(case when  isnull(pbtd.MachineVarientId,'')<>'' then AllotedManpower else 0 end),
+													WithoutMachine = SUM(case when  isnull(pbtd.MachineVarientId,'')='' then AllotedManpower else 0 end),
+													sum (pbtd.TotalSPT) TotalSPT
+													,sum(pbtd.AllotedManpower)AllotedManpower,sum(pbtd.RequiredManPower) RequiredManPower,sum(pbtd.AllotedWorkstation) AllotedWorkstation
+													,sum(pbtd.OperationTargetPerHr) OperationTargetPerHr
+													from trn.ProductionBulletinTemplate as pbt
+													left join trn.ProductionBulletinTemplateMaster pbtm on pbtm.ProductionBulletinTemplateId=pbt.Id
+													left join trn.ProductionBulletinTemplateDetail pbtd on pbtd.ProductionBulletinTemplateMasterId=pbtm.Id
+			
+													group by pbt.Id,pbt.ProductionOrderId,pbtm.ProcessId ,pbtm.PlannedHoursPerDay,pbtm.RequiredStdTarget	
+                                           ) BUL ON BUL.ProductionOrderId=ppt.ProductionOrderID AND bul.ProcessId=ppt.ProcessID
+                                         
                                           LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,moi.ArticleId
 					                                          FROM trn.ProductionOrderDetail AS pod
 					                                          INNER JOIN trn.SalesOrder AS so ON so.id=pod.SalesOrderId
@@ -48,9 +68,19 @@ namespace Library.Service.Productions.ProductionBooking
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.getDataSet("SELECT * FROM trn.DailyProductionTarget AS dpt WHERE dpt.TargetDate>='" + date + "'", out DataSet dsLocal);
+                dsLocal.Tables[0].DefaultView.RowFilter = "isnull(isManual,0)=0";
+                while (dsLocal.Tables[0].DefaultView.Count > 0)
+                    dsLocal.Tables[0].DefaultView[0].Delete();
+
+                dsLocal.Tables[0].DefaultView.RowFilter = null;
+                DataRow item = null;
                 Dictionary<string, DataRow> dicTargetData = new Dictionary<string, DataRow>();
-                foreach (DataRow item in dsLocal.Tables[0].Rows)
+                for (int i = 0; i < dsLocal.Tables[0].DefaultView.Count; i++)
+                {
+                    item = dsLocal.Tables[0].DefaultView[i].Row;
                     dicTargetData.Add(MakeKey(item["TargetDate"].ToString(), item["WorkCenterMasterID"].ToString(), item["ProductionOrderId"].ToString()), item);
+
+                }
 
 
 
@@ -85,13 +115,24 @@ namespace Library.Service.Productions.ProductionBooking
                         dr["TargetDate"] = dtPlanData.Rows[i]["ProductionDate"].ToString();
                         dr["Quantity"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
                         dr["QuantityPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
+                        dr["QuantityPerHourPlanning"] = 0;
+                        if (clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString()) > 0)
+                        {
+                            dr["QuantityPerHour"] = (int)(clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString()) / clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString()));
+                            dr["QuantityPerHourPlanning"] = (int)(clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString()) / clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString()));
+                        }
                         dr["SMV"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["SPT"].ToString());
                         dr["SMVPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["SPT"].ToString());
 
-                        dr["ManPowerWithMachine"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Manpower"].ToString());
-                        dr["ManPowerWithHand"] = 0;
-                        dr["Manpower"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Manpower"].ToString());
-                        dr["ManpowerPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Manpower"].ToString());
+
+                        dr["ManPowerWithMachine"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString());
+                        dr["ManPowerWithHand"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
+
+                        dr["ManPowerWithMachinePlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString());
+                        dr["ManPowerWithHandPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
+                        dr["Manpower"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString()) + clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
+                        dr["ManpowerPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString()) + clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
+
                         dr["TotalHour"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString());
                         dr["TotalHourPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString());
 
@@ -136,7 +177,21 @@ namespace Library.Service.Productions.ProductionBooking
 
                         if (dr["Quantity"].ToString() == dr["QuantityPlanning"].ToString())
                             dr["Quantity"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
+
                         dr["QuantityPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
+                        dr["QuantityPerHourPlanning"] = 0;
+                        if (clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString()) > 0)
+                        {
+                            dr["QuantityPerHour"] = (int)(clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString()) / clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString()));
+                            dr["QuantityPerHourPlanning"] = (int)(clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString()) / clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString()));
+                        }
+                        if (dr["QuantityPerHour"].ToString() == dr["QuantityPerHourPlanning"].ToString())
+                        {
+                            if (clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString()) > 0)
+                            {
+                                dr["QuantityPerHour"] = (int)clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString()) / clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString());
+                            }
+                        }
 
                         if (dr["SMV"].ToString() == dr["SMVPlanning"].ToString())
                             dr["SMV"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["SPT"].ToString());
@@ -144,12 +199,16 @@ namespace Library.Service.Productions.ProductionBooking
 
                         if (dr["Manpower"].ToString() == dr["ManpowerPlanning"].ToString())
                         {
-                            dr["Manpower"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Manpower"].ToString());
-                            dr["ManPowerWithMachine"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Manpower"].ToString());
-                            dr["ManPowerWithHand"] = 0;
-                        }
 
-                        dr["ManpowerPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Manpower"].ToString());
+                            dr["Manpower"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString()) + clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
+                            dr["ManPowerWithMachine"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString());
+                            dr["ManPowerWithHand"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
+
+                        }
+                        dr["ManPowerWithMachinePlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString());
+                        dr["ManPowerWithHandPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
+
+                        dr["ManpowerPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString()) + clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
 
                         if (dr["TotalHour"].ToString() == dr["TotalHourPlanning"].ToString())
                             dr["TotalHour"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString());
@@ -167,12 +226,13 @@ namespace Library.Service.Productions.ProductionBooking
 
 
                 dtPlanData = _sqlRepository.GetDataTable(@"--with bulletin
-                                         SELECT e.PlantId, ppt.ProductionOrderID,FORMAT(ppt.ProductionDate,'dd-MMM-yyyy') AS ProductionDate, ppt.MaterialMasterId,art.ArticleId,ppt.isBuildUp,ppt.WorkCenterMasterId,bul.RequiredStdTarget AS Quantity,
+                                         SELECT e.PlantId, ppt.ProductionOrderID,FORMAT(ppt.ProductionDate,'dd-MMM-yyyy') AS ProductionDate, ppt.MaterialMasterId,art.ArticleId,ppt.isBuildUp,ppt.WorkCenterMasterId,bul.RequiredStdTarget AS QuantityPerHour,
+                                            bul.RequiredStdTarget*bul.PlannedHoursPerDay AS Quantity,
                                            bul.TotalSPT AS SPT,bul.AllotedManpower AS Manpower,bul.PlannedHoursPerDay AS ProductionHours,bul.WithMachine,bul.WithoutMachine
                                               FROM ProductionPlanningType1 AS ppt
                                               LEFT JOIN org.Entity AS e ON e.Id=ppt.EntityID
                                            
-                                           LEFT JOIN (
+                                           JOIN (
                                            select
 													pbt.ProductionOrderId ,pbt.Id ProductionBulletinTemplateId,pbtm.ProcessId,
 													pbtm.PlannedHoursPerDay ,pbtm.RequiredStdTarget ,
@@ -238,7 +298,17 @@ namespace Library.Service.Productions.ProductionBooking
                         dr["ManPowerWithMachine"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString());
                         dr["ManPowerWithHand"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
 
+
+
                         dr["TotalHour"] = MaxValue(dr["TotalHourBulletin"].ToString(), dr["TotalHourPlanning"].ToString());//clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString());
+                        dr["ManPowerWithMachineBulletin"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString());
+                        dr["ManPowerWithHandBulletin"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
+
+
+                        dr["QuantityPerHour"] = (int)clsStaticInfo.dbl(dr["QuantityPerHour"].ToString());
+                        dr["QuantityPerHourBulletin"] = (int)clsStaticInfo.dbl(dr["QuantityPerHour"].ToString());
+
+
 
                         dr["AddedBy"] = "System";
                         dr["AddedDate"] = System.DateTime.Now;
@@ -280,6 +350,8 @@ namespace Library.Service.Productions.ProductionBooking
                         //if (dr["Quantity"].ToString() == dr["QuantityPlanning"].ToString())
                         //    dr["Quantity"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
                         dr["QuantityBulletin"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
+                        dr["QuantityPerHour"] = (int)clsStaticInfo.dbl(dr["QuantityPerHour"].ToString());
+                        dr["QuantityPerHourBulletin"] = (int)clsStaticInfo.dbl(dr["QuantityPerHour"].ToString());
 
                         //if (dr["SMV"].ToString() == dr["SMVPlanning"].ToString())
                         //    dr["SMV"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["SPT"].ToString());
@@ -299,9 +371,17 @@ namespace Library.Service.Productions.ProductionBooking
                         //dr["Manpower"] = MaxValue(dr["ManpowerBulletin"].ToString(), dr["ManpowerPlanning"].ToString());// clsStaticInfo.dbl(dtPlanData.Rows[i]["Manpower"].ToString());
                         dr["TotalHour"] = MaxValue(dr["TotalHourBulletin"].ToString(), dr["TotalHourPlanning"].ToString());//clsStaticInfo.dbl(dtPlanData.Rows[i]["ProductionHours"].ToString());
 
+
                         dr["Manpower"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Manpower"].ToString());
                         dr["ManPowerWithMachine"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString());
                         dr["ManPowerWithHand"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
+
+                        dr["ManPowerWithMachineBulletin"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithMachine"].ToString());
+                        dr["ManPowerWithHandBulletin"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["WithoutMachine"].ToString());
+
+                        dr["QuantityPerHour"] = (int)clsStaticInfo.dbl(dr["QuantityPerHour"].ToString());
+                        dr["QuantityPerHourBulletin"] = (int)clsStaticInfo.dbl(dr["QuantityPerHour"].ToString());
+
 
                         dr["UpdatedDate"] = System.DateTime.Now;
                         dr["UpdatedBy"] = "System";
