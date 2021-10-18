@@ -5271,20 +5271,28 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             //int ColRequiredQuantity = MPChildCOL;
             //MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issued Quantity", 12, ExcelHAlign.HAlignLeft);
-            int ColTIRCTotalQty = MPChildCOL;
-            MPChildCOL++;
+            //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issued Quantity", 12, ExcelHAlign.HAlignLeft);
+            //int ColTIRCTotalQty = MPChildCOL;
+            //MPChildCOL++;
 
             //report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Balance To Issue", 12, ExcelHAlign.HAlignLeft);
             //int ColBalanceToIssue = MPChildCOL;
             //MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issue UoM", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Transaction UoM", 12, ExcelHAlign.HAlignLeft);
             int ColJWIssueUoM = MPChildCOL;
             MPChildCOL++;
 
-            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Issue Quantity", 10, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Transaction Quantity", 10, ExcelHAlign.HAlignLeft);
             int ColTIRCQty = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Base UoM", 12, ExcelHAlign.HAlignLeft);
+            int ColBaseeUoM = MPChildCOL;
+            MPChildCOL++;
+
+            report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Base Quantity", 10, ExcelHAlign.HAlignLeft);
+            int ColBaseeQty = MPChildCOL;
             MPChildCOL++;
 
             report.SetHeaderText(ref sheet, MPChildROW, MPChildCOL, "Average Issue Rate", 12, ExcelHAlign.HAlignLeft);
@@ -5331,8 +5339,10 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet[MPChildROW, ColArticle].Text = IIChilddata.Rows[i]["Article"].ToString();
                 //       sheet[MPChildROW, ColBalanceToIssue].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BalanceToIssue"].ToString());
                 //       sheet[MPChildROW, ColRequiredQuantity].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["RequiredQuantity"].ToString());
-                sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(IIChilddata.Rows[i]["TotalIssuedQty"].ToString());
+                //sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(IIChilddata.Rows[i]["TotalIssuedQty"].ToString());
                 sheet[MPChildROW, ColTIRCQty].Number = clsStaticInfo.dbl(IIChilddata.Rows[i]["TransactionQty"].ToString());
+                sheet[MPChildROW, ColBaseeUoM].Text = IIChilddata.Rows[i]["BaseUoM"].ToString();
+                sheet[MPChildROW, ColBaseeQty].Number = clsStaticInfo.dbl(IIChilddata.Rows[i]["BaseQty"].ToString());
 
                 sheet[MPChildROW, ColAvgRate].Number = clsStaticInfo.dbl(IIChilddata.Rows[i]["AveRateeee"].ToString());
 
@@ -5340,7 +5350,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
                 sheet[MPChildROW, ColAvgAmount].Number = clsStaticInfo.dbl(IIChilddata.Rows[i]["AverageAmount"].ToString());
 
-                sheet[MPChildROW, ColJWIssueUoM].Text = IIChilddata.Rows[i]["IssueUoM"].ToString();
+                sheet[MPChildROW, ColJWIssueUoM].Text = IIChilddata.Rows[i]["TransactionUoM"].ToString();
 
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderAround(ExcelLineStyle.Hair);
@@ -5355,7 +5365,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             //       MPChildROW++;
 
             // SUM OF TOTAL ISSUED QUANTITY
-            int ColTotalIssQty = 7;
+            int ColTotalIssQty = 6;
             decimal p = 0;
             decimal q = 0;
             decimal r = 0;
@@ -5369,8 +5379,20 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet.Range[MPChildROW, ColTotalIssQty].CellStyle.Font.Bold = true;
             }
 
+            decimal ppp = 0;
+            decimal qq = 0;
+            decimal rrr = 0;
+            for (int j = 0; j < IIChilddata.Rows.Count; j++)
+            {
+
+                ppp = Convert.ToDecimal(IIChilddata.Rows[j]["TransactionQty"]);
+                rrr = ppp + qq;
+                qq = rrr;
+                sheet[MPChildROW, ColBaseeQty].Number = clsStaticInfo.dbl(qq);
+                sheet.Range[MPChildROW, ColBaseeQty].CellStyle.Font.Bold = true;
+            }
             // SUM OF TOTAL Amount
-            int ColTotalRecQty = 9;
+            int ColTotalRecQty = 10;
             decimal x = 0;
             decimal y = 0;
             decimal z = 0;
@@ -5718,6 +5740,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
         private DataTable GetIIIssueReturnChildDataById(string IssueId)
         {
+            #region --Commented Part--
 
             //      var sql = @"select distinct IID.Id,IID.InventoryIssueId,kk.TotalIssuedQty,IID.InventoryMaterialId ,kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article--, mp.Id as JWOutputId
             //                  -- , jwi.UserName as JWOutputItem
@@ -5791,60 +5814,116 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             //				,IID.InventoryMaterialId,IID.Id
             //                                  order by IID.Id";
 
-            var sql = @"select distinct IID.Id,IID.InventoryIssueId,kk.TotalIssuedQty,IID.InventoryMaterialId ,kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article
-                        ,IID.TransactionQty
-						 ,uom.UserName as IssueUoM
-					--	 ,BB.TotalAmt as AverageAmount
-						 ,round(IID.PolicyAmount,2) as AverageAmount
-					--	 ,AveRateeee=(BB.TotalAmt/IID.TransactionQty)
-						 ,round(IID.PolicyRate,4) as AveRateeee
-                        from TRN.InventoryIssueDetail IID left join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
-                        left join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
-                                    left join(select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article
-                                    , IM.ArticleId,IID.InventoryMaterialId
-                                   -- ,IID.OSTransformationPOId                                       
-                                    from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id = IID.InventoryIssueId
-                                        left join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
-                                        left join MST.MaterialMaster mm on mm.Id = IM.MaterialMasterId
-                                        left join MST.MaterialMasterArticle mma on mma.Id = IM.ArticleId
+            //       var sql = @"select distinct IID.Id,IID.InventoryIssueId,kk.TotalIssuedQty,IID.InventoryMaterialId ,kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article
+            //                   ,IID.TransactionQty
+            //	 ,uom.UserName as IssueUoM
+            //--	 ,BB.TotalAmt as AverageAmount
+            //	 ,round(IID.PolicyAmount,2) as AverageAmount
+            //--	 ,AveRateeee=(BB.TotalAmt/IID.TransactionQty)
+            //	 ,round(IID.PolicyRate,4) as AveRateeee
+            //                   from TRN.InventoryIssueDetail IID left join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
+            //                   left join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
+            //                               left join(select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article
+            //                               , IM.ArticleId,IID.InventoryMaterialId
+            //                              -- ,IID.OSTransformationPOId                                       
+            //                               from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id = IID.InventoryIssueId
+            //                                   left join TRN.InventoryMaterial IM on IM.Id = IID.InventoryMaterialId
+            //                                   left join MST.MaterialMaster mm on mm.Id = IM.MaterialMasterId
+            //                                   left join MST.MaterialMasterArticle mma on mma.Id = IM.ArticleId
 
-                                      --  where --II.JWContractId = 'undefined' --and 
-									--	IID.InventoryIssueId='20211912'
-                                        group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName)
-										kk on kk.InventoryMaterialId = IM.Id
-						--				left join (select Sum(x.TotalAmount) as TotalAmt,x.MaterialId,x.JWInputMaterial,x.ArticleId,x.JWInputArticle--,x.Id
-						--				,x.InventoryMaterialId 
-						--				from (
-      --                  select --om.Id,
-						--IIH.Qty as GRNIssueQty,IID.InventoryMaterialId,mm.Id as MaterialId,mm.UserName as JWInputMaterial,mma.Id as ArticleId, mma.StandardName as JWInputArticle
-      --                     ,TotalAmount=round(((IIH.Rate/86) * IR.ToCurrencyRate * IIH.Qty),2)
-      --                  from TRN.InventoryIssue II
-						--left join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
-      --                  left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
-      --                  left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
-      --                  left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
-      --                  left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
-      --                  left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
-      --                  left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
-      --                  where IID.InventoryIssueId='20211912' 
-						--) x
-						--group by x.JWInputMaterial,x.ArticleId--,x.Id
-						--,x.MaterialId,x.JWInputArticle,x.InventoryMaterialId
-						--)
-						--BB on
-						--BB.InventoryMaterialId=IM.Id
+            //                                 --  where --II.JWContractId = 'undefined' --and 
+            //				--	IID.InventoryIssueId='20211912'
+            //                                   group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName)
+            //					kk on kk.InventoryMaterialId = IM.Id
+            //	--				left join (select Sum(x.TotalAmount) as TotalAmt,x.MaterialId,x.JWInputMaterial,x.ArticleId,x.JWInputArticle--,x.Id
+            //	--				,x.InventoryMaterialId 
+            //	--				from (
+            // --                  select --om.Id,
+            //	--IIH.Qty as GRNIssueQty,IID.InventoryMaterialId,mm.Id as MaterialId,mm.UserName as JWInputMaterial,mma.Id as ArticleId, mma.StandardName as JWInputArticle
+            // --                     ,TotalAmount=round(((IIH.Rate/86) * IR.ToCurrencyRate * IIH.Qty),2)
+            // --                  from TRN.InventoryIssue II
+            //	--left join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+            // --                  left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
+            // --                  left join TRN.InventoryReceiveDetail IRD on IRD.Id=IIH.InventoryReceiveDetailId
+            // --                  left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+            // --                  left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
+            // --                  left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
+            // --                  left join TRN.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
+            // --                  where IID.InventoryIssueId='20211912' 
+            //	--) x
+            //	--group by x.JWInputMaterial,x.ArticleId--,x.Id
+            //	--,x.MaterialId,x.JWInputArticle,x.InventoryMaterialId
+            //	--)
+            //	--BB on
+            //	--BB.InventoryMaterialId=IM.Id
 
-                                        left join SCS.UnitOfMeasurement uom on uom.Id=IID.TransactionUoMId
+            //                                   left join SCS.UnitOfMeasurement uom on uom.Id=IID.TransactionUoMId
 
-                                        where
-										II.Id = '" + IssueId + @"'
-                                        group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article--, mp.Id
-										,IID.TransactionQty
-                                        ,uom.UserName
-								--		,BB.TotalAmt
-										,IID.InventoryMaterialId,IID.Id
-										,IID.PolicyAmount,IID.PolicyRate
-                                        order by IID.Id";
+            //                                   where
+            //					II.Id = '" + IssueId + @"'
+            //                                   group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article--, mp.Id
+            //					,IID.TransactionQty
+            //                                   ,uom.UserName
+            //			--		,BB.TotalAmt
+            //					,IID.InventoryMaterialId,IID.Id
+            //					,IID.PolicyAmount,IID.PolicyRate
+            //                                   order by IID.Id";
+            #endregion
+
+            var sql = @"SELECT DISTINCT IID.Id
+                            	,IID.InventoryIssueId
+                            	,kk.TotalIssuedQty
+                            	,IID.InventoryMaterialId
+                            	,kk.MaterialMasterId
+                            	,kk.Material
+                            	,kk.ArticleId
+                            	,kk.Article
+                            	,IID.TransactionQty
+                            	,IId.BaseQty
+                            	,uom.UserName AS BaseUoM
+                            	,tuom.UserName AS TransactionUoM
+                            	,round(IID.PolicyAmount, 2) AS AverageAmount
+                            	,round(IID.PolicyRate, 4) AS AveRateeee
+                            FROM TRN.InventoryIssueDetail IID
+                            LEFT JOIN TRN.InventoryIssue II ON II.Id = IID.InventoryIssueId
+                            LEFT JOIN TRN.InventoryMaterial IM ON IM.Id = IID.InventoryMaterialId
+                            LEFT JOIN (
+                            	SELECT Sum(IID.TransactionQty) AS TotalIssuedQty
+                            		,IM.MaterialMasterId
+                            		,mm.UserName AS Material
+                            		,mma.StandardName AS Article
+                            		,IM.ArticleId
+                            		,IID.InventoryMaterialId
+                            	-- ,IID.OSTransformationPOId                                       
+                            	FROM TRN.InventoryIssue II
+                            	INNER JOIN TRN.InventoryIssueDetail IID ON II.Id = IID.InventoryIssueId
+                            	LEFT JOIN TRN.InventoryMaterial IM ON IM.Id = IID.InventoryMaterialId
+                            	LEFT JOIN MST.MaterialMaster mm ON mm.Id = IM.MaterialMasterId
+                            	LEFT JOIN MST.MaterialMasterArticle mma ON mma.Id = IM.ArticleId
+                            	GROUP BY IM.MaterialMasterId
+                            		,IM.ArticleId
+                            		,IID.InventoryMaterialId
+                            		,mm.UserName
+                            		,mma.StandardName
+                            	) kk ON kk.InventoryMaterialId = IM.Id
+                            LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id = IID.BaseUOMId
+                            LEFT JOIN SCS.UnitOfMeasurement tuom ON tuom.Id = IID.TransactionUoMId
+                            WHERE II.Id = '" + IssueId + @"'
+                            GROUP BY IID.InventoryIssueId
+                            	,kk.TotalIssuedQty
+                            	,kk.MaterialMasterId
+                            	,kk.Material
+                            	,kk.ArticleId
+                            	,kk.Article
+                            	,IID.TransactionQty
+                            	,uom.UserName
+                            	,IID.InventoryMaterialId
+                            	,IID.Id
+                            	,IID.PolicyAmount
+                            	,IID.PolicyRate
+                            	,IId.BaseQty
+                            	,tuom.UserName
+                            ORDER BY IID.Id";
 
             return _sqlRepository.GetDataTable(sql);
         }

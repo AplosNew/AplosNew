@@ -216,47 +216,47 @@ namespace Library.MaterialManagement.Inventory
             {
 
 
-                var GRNCalculateList = new List<InventoryIssueHistory>();
-                if (entities.IsNotNull())
-                {
-                    _unitOfWork.BeginTransaction();
-                    flag = true;
-                    var _pk = GetPK();
-                    var inventoryMaterialList = _inventoryMaterialService.GetInventoryMaterialListByUpToSku(entities, inventoryIssue.CompanyId, inventoryIssue.PlantId);
-                    var currencyId = _companyRepository.Find(inventoryIssue.CompanyId).BaseCurrencyId;
-                    foreach (var item in entities)// update view model (inventory material field)
-                    {
-                        var im = inventoryMaterialList.FirstOrDefault(t => t.MaterialMasterId == item.MaterialMasterId && t.ArticleId == item.ArticleId
-                                //&& t.FirstCharacteristicsId == item.FirstCharacteristicsId 
-                                && t.FirstCharacteristicsValueId == item.FirstCharacteristicsValueId
-                                //&& t.SecondCharacteristicsId == item.SecondCharacteristicsId 
-                                && t.SecondCharacteristicsValueId == item.SecondCharacteristicsValueId
-                                //&& t.ThirdCharacteristicsId == item.ThirdCharacteristicsId 
-                                && t.ThirdCharacteristicsValueId == item.ThirdCharacteristicsValueId
-                                && t.CountryId == item.CountryId
-                                && t.CompanyId == inventoryIssue.CompanyId && t.PlantId == inventoryIssue.PlantId // && t.CountryId == item.CountryId
-                               );
-                        if (im.IsNotNull())
-                        {
-
-                            if (im.TotalQty < item.BaseQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
-                            item.InventoryIssueId = _pk;
-                            item.InventoryMaterialId = im.Id;
-                            item.CompanyGroupId = im.CompanyGroupId;
-                            item.CompanyId = inventoryIssue.CompanyId;
-                            item.PlantId = inventoryIssue.PlantId;
-                            item.CurrencyId = currencyId;
-                            item.MaterialStorageId = null;
-                            item.MaterialMasterId = im.MaterialMasterId;
-                            item.ArticleId = im.ArticleId;
-                            item.FirstCharacteristicsId = im.FirstCharacteristicsId;
-                            item.FirstCharacteristicsValueId = im.FirstCharacteristicsValueId;
-                            item.SecondCharacteristicsId = im.SecondCharacteristicsId;
-                            item.SecondCharacteristicsValueId = im.SecondCharacteristicsValueId;
-                            item.ThirdCharacteristicsId = im.ThirdCharacteristicsId;
-                            item.ThirdCharacteristicsValueId = im.ThirdCharacteristicsValueId;
-                            item.TotalQty = im.TotalQty;
-                            item.AvgRate = im.AvgRate;
+				var GRNCalculateList = new List<InventoryIssueHistory>();
+				if (entities.IsNotNull())
+				{
+					_unitOfWork.BeginTransaction();
+					flag = true;
+					var _pk = GetPK();
+					var inventoryMaterialList = _inventoryMaterialService.GetInventoryMaterialListByUpToSku(entities, inventoryIssue.CompanyId, inventoryIssue.PlantId);
+					var currencyId = _companyRepository.Find(inventoryIssue.CompanyId).BaseCurrencyId;
+					foreach (var item in entities)// update view model (inventory material field)
+					{
+						var im = inventoryMaterialList.FirstOrDefault(t => t.MaterialMasterId == item.MaterialMasterId && t.ArticleId == item.ArticleId
+								//&& t.FirstCharacteristicsId == item.FirstCharacteristicsId 
+								&& t.FirstCharacteristicsValueId == item.FirstCharacteristicsValueId
+								//&& t.SecondCharacteristicsId == item.SecondCharacteristicsId 
+								&& t.SecondCharacteristicsValueId == item.SecondCharacteristicsValueId
+								//&& t.ThirdCharacteristicsId == item.ThirdCharacteristicsId 
+								&& t.ThirdCharacteristicsValueId == item.ThirdCharacteristicsValueId
+								&& t.CountryId == item.CountryId
+								&& t.CompanyId == inventoryIssue.CompanyId && t.PlantId == inventoryIssue.PlantId // && t.CountryId == item.CountryId
+							   );
+						if (im.IsNotNull())
+						{
+							
+							if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
+							item.InventoryIssueId = _pk;
+							item.InventoryMaterialId = im.Id;
+							item.CompanyGroupId = im.CompanyGroupId;
+							item.CompanyId = inventoryIssue.CompanyId;
+							item.PlantId = inventoryIssue.PlantId;
+							item.CurrencyId = currencyId;
+							item.MaterialStorageId = null;
+							item.MaterialMasterId = im.MaterialMasterId;
+							item.ArticleId = im.ArticleId;
+							item.FirstCharacteristicsId = im.FirstCharacteristicsId;
+							item.FirstCharacteristicsValueId = im.FirstCharacteristicsValueId;
+							item.SecondCharacteristicsId = im.SecondCharacteristicsId;
+							item.SecondCharacteristicsValueId = im.SecondCharacteristicsValueId;
+							item.ThirdCharacteristicsId = im.ThirdCharacteristicsId;
+							item.ThirdCharacteristicsValueId = im.ThirdCharacteristicsValueId;
+							item.TotalQty = im.TotalQty;
+							item.AvgRate = im.AvgRate;
 
 
 
@@ -877,18 +877,18 @@ namespace Library.MaterialManagement.Inventory
                                     AvgRate = Math.Round(Convert.ToDecimal(invMaterial.AvgRate), 4),
                                     Policy = "N/A",
 
-                                    TransactionQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
+									TransactionQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
 
-                                    PolicyRate = Math.Round((Convert.ToDecimal(detailtrnAmount / totalGRNQty)), 4),
-                                    PolicyAmount = Math.Round(Convert.ToDecimal(detailtrnAmount), 2),
-                                    BaseQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2),//stockList.Sum(r => r.RequisitionQty),
-                                    AvgAmount = Math.Round((Convert.ToDecimal(totalGRNQty * invMaterial.AvgRate)), 2),
-                                    BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
-                                    ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
-                                    CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
-                                    Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
-                                    ModelState = ModelState.Added
-                                };
+									PolicyRate = Math.Round((Convert.ToDecimal(detailtrnAmount / totalGRNQty)), 4),
+									PolicyAmount = Math.Round(Convert.ToDecimal(detailtrnAmount), 2),
+									BaseQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2),//stockList.Sum(r => r.RequisitionQty),
+									AvgAmount = Math.Round((Convert.ToDecimal(totalGRNQty * invMaterial.AvgRate)), 2),
+									BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
+									ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
+									CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
+									Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
+									ModelState = ModelState.Added
+								};
 
                                 var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
                                 foreach (var item in stockList)
