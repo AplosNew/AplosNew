@@ -49,7 +49,7 @@
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridDailyTargetList" ej-grid e-datasource="DailyTargetList" e-templaterefresh="DailyTargetAllCheck"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-rowdatabound="rowDataBound">
         <div e-columns>
             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="5"></div>
             <div e-column e-field="Line" e-headertext="Work Center" e-width="15"></div>
@@ -64,7 +64,8 @@
             <div e-column e-template="#templateManPowerWithHand" e-headertext="Manpower Without MC" e-width="15"></div>
             <div e-column e-template="#templateSMV" e-headertext="SPT" e-width="15"></div>
             <div e-column e-template="#templateTotalHour" e-headertext="Target Hours" e-width="15"></div>
-            <div e-column e-template="#templateQuantity" e-headertext="Target For The Day" e-width="15"></div>
+            <div e-column e-template="#templateQuantity" e-headertext="Target Per Hour" e-width="15"></div>
+            <div e-column e-field="Quantity" e-headertext="Quantity" e-width="10"></div>
 
         </div>
     </div>
@@ -86,7 +87,7 @@
 
     </script>
     <script type="text/template" id="templateQuantity">
-        <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="0" e-minValue="0" e-enablertl="false" e-value="data.Quantity" e-width="100%" />
+        <input type="text" class="form-control" e-focusout="$parent.CalculateTotalQuantity" ej-numerictextbox e-decimalplaces="0" e-minValue="0" e-enablertl="false" e-value="data.QuantityPerHour" e-width="100%" />
 
     </script>
     <script type="text/x-jsrender" id="headerTemplate">
