@@ -462,9 +462,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
 
                 //New
-                //ap.ManualScheduler(data[0].PlantID, RowsEdits);
                 clsStaticInfo _infos = new clsStaticInfo();
                 _infos.SaveDataSets(dsRem);
+
+                ap.ManualScheduler(data[0].PlantID, RowsEdits);
+                
             }
             catch (Exception ex)
             {
