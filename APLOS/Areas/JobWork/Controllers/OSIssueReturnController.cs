@@ -4410,7 +4410,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                         ,IID.TransactionQty
 						 ,uom.UserName as IssueUoM
 						 ,AverageAmount=round(DD.AverageAmount,2) 
-						 ,AveRateeee= ROUND(DD.AverageRate,4)
+					--	 ,AveRateeee= ROUND(DD.AverageRate,4)
+                          ,AveRateeee= ROUND((DD.AverageRate / IID.TransactionQty),4)
                         from TRN.InventoryIssueDetail IID left
                         join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
                         left
@@ -5553,7 +5554,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 						 ,IssueUoM=case when IID.TransactionUoMId is not null then uom.UserName else uomm.UserName End
 
 						 ,AverageAmount=round(DD.AverageAmount,2) 
-						 ,AveRateeee= ROUND(DD.AverageRate,4)
+						-- ,AveRateeee= ROUND(DD.AverageRate,4)
+                          ,AveRateeee= ROUND((DD.AverageRate / IID.TransactionQty),4)
                         from TRN.InventoryIssueDetail IID left
                         join TRN.InventoryIssue II on II.Id = IID.InventoryIssueId
                         left
