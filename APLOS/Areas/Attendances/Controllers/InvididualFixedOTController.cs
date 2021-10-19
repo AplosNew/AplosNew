@@ -82,6 +82,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                     for (int i = 0; i < IndividualFixedOT.Count; i++)
                     {
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         ReturnType r = obj.SaveTotal(identity.PlantId, IndividualFixedOT[i].WorkDate.ToString("dd-MMM-yyyy"), item.EmpSystemID, false);
                     }
 

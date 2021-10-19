@@ -1016,6 +1016,7 @@ namespace Aplos.HumanResource
                             DateTime ToDate = DateTime.Now;
                             while (FromDate <= ToDate)
                             {
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                                 objAttdn.SaveTotal(para.PlantId, FromDate.ToString("dd-MMM-yyyy"), EmpId, false);
                                 FromDate = FromDate.AddDays(1);
                             }

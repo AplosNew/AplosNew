@@ -270,8 +270,38 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN Trn.InventoryReceiveDetail IRD ON IR.Id=IRD.InventoryReceiveId
 						LEFT JOIN hkp.Party P On P.Id=IR.PartyId
 						WHERE IRD.TransferedFromGrnId is not null
+
+                        Union all
+						SELECT FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
+						,'FixedAssetSales' GatePassFor,p.UserName VendorNameOrCuetomerName 
+						,null PlantId
+						FROM Trn.FixedAssetRegisterDisposed FARD
+						LEFT JOIN hkp.Party P On P.Id=FARD.PartyId
+                        Where FARD.Status='Sales' and 
+						FARD.Id not in (Select FixedAssetSalesId from trn.InOutGatePassMaster where FixedAssetSalesId is not null)
+
+                        Union all
+						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
+						,'FixedAssetScrap' GatePassFor,p.UserName VendorNameOrCuetomerName 
+						,null PlantId
+						FROM Trn.FixedAssetRegisterDisposed FARD
+						LEFT JOIN hkp.Party P On P.Id=FARD.PartyId
+                        Where FARD.Status='Scrap' and 
+						FARD.Id not in (Select FixedAssetSalesId from trn.InOutGatePassMaster where FixedAssetSalesId is not null)
+
+						Union all
+						SELECT distinct FARD.Id ComId, REPLACE(CONVERT(CHAR(11), FARD.AddedDate, 106), ' ', '-') AS  CreatedDate
+						,'FixedAssetCompensateByEmployee' GatePassFor,p.UserName VendorNameOrCuetomerName 
+						,null PlantId
+						FROM Trn.FixedAssetRegisterDisposed FARD
+						LEFT JOIN hkp.Party P On P.Id=FARD.PartyId
+                        Where FARD.Status='CompensateByEmployee' and 
+						FARD.Id not in (Select FixedAssetSalesId from trn.InOutGatePassMaster where FixedAssetSalesId is not null)
+
+
+
 				)x
-				where x.PlantId='" + identity.PlantId+ "'";
+				--where x.PlantId='" + identity.PlantId+ "'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -330,7 +360,82 @@ namespace Library.MaterialManagement.InventoryManagements
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
 			}
 		}
-		private string GetPK()
+
+        #region FA register
+        public List<Dictionary<string, object>> GetFixedAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fixedAssetRegisterDisposeId)
+        {
+            var sql = @"SELECT top 100 FR.SerialNo, FR.Id AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
+                , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
+                , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
+                --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
+                --, FAM.FixedAssetSubCategoryId, FAM.AssetType
+				,PC.Code PurchaseCurrency
+				,BC.Code BaseCurrency
+				,FR.Quantity
+                ,isnull( FR.Price,0 )PurchasePrice
+				,isnull( FR.FABaseAmount,0)FABaseAmount
+				,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
+
+				,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
+				,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
+				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsBaseAmount
+
+                ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
+                ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
+                --, FR.IsFinanciali
+                ,P.UserName VendorName
+                ,FR.[LifeTime]
+                ,C.UserName OriginName
+                ,FR.YearOfInstallation,FR.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId
+                ,IR.Id GRNNo,IR.POId PONo , FADR.Description DepreciationRules
+			    ,fardd.FixedAssetRegisterDisposedId
+				,fardd.Id FixedAssetRegisterDisposedDetailId
+				,fardd.FixedAssetRegisterId
+
+
+                FROM [TRN].[FixedAssetRegister] FR
+                LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
+                LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
+                LEFT JOIN MST.BudgetMaster BM ON MM.BudgetMasterId = BM.Id
+                LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMT ON BM.Id=FAMT.BudgetMasterId AND MM.BudgetMasterId=FAMT.BudgetMasterId
+                LEFT JOIN [MST].[FixedAssetMaster] FAM ON FR.FixedAssetMasterId= FAM.Id
+                LEFT JOIN HKP.FixedAssetCategory FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                LEFT JOIN HKP.FixedAssetSubCategory FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                LEFT JOIN HKP.Party P ON P.Id=FR.VendorId
+                LEFT JOIN SCS.Country C ON C.Id=FR.CountryOfOriginId
+                LEFT JOIN TRN.FixedAssetRegisterDetail FRD ON FRD.CapitalizeRegisterNo=FR.CapitalizeRegisterNo
+                LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
+                LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+                LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+				left join scs.Currency PC on PC.Id= FR.CurrencyId
+				left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
+				left join mst.FixedAssetDepreciationRule FADR ON FADR.Id = FR.DepreciationRuleId
+		        left join [TRN].[FixedAssetRegisterDisposedDetail]  fardd on fardd.FixedAssetRegisterId = FR.Id
+	
+                LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount * CapitalizationRate,0)) SubAssetAmount 
+				FROM TRN.SubFixedAssetRegister 
+				group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+
+               left join ORG.Entity E on E.Id= FR.EntityId
+			   left join ORG.Department D on D.Id = FR.DepartmentId
+                --WHERE FR.CompanyId='" + companyId + @"' and FR.Archive=0 and FR.IsAUC=0
+               -- AND FR.Id NOT IN(' ')
+
+                     WHERE FR.CompanyGroupId='" + companyGroupId + "'and FR.CompanyId='" + companyId + "' AND FR.PlantId='" + plantId + @"'
+                                    and FR.Archive=0 and FR.IsAUC=0
+                                    AND fardd.FixedAssetRegisterDisposedId ='"+fixedAssetRegisterDisposeId+@"'
+				                     --and FR.MaterialMasterId in
+					               --  and FR.VendorId in  
+                                     --AND MM.IsAsset in ()";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+
+
+
+        #endregion FA register
+
+        private string GetPK()
 		{
 			string sID = string.Empty;
 			bplib.clsGenID objGenID = new bplib.clsGenID();

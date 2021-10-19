@@ -134,7 +134,7 @@ function InOutGatePassController(accountService, addressService, $location, $win
 		}
 		else if ($scope.productNew.GatePassType === 'FixedAssetSales') {
 			$scope.SelectType = 'Select FixedAsset Sales';
-			$scope.getFixedAssetSalesData();
+			$scope.getFixedAssetSalesData($scope.productNew.ChallanItemTypeId);
 		}
 		else if ($scope.productNew.GatePassType === 'FixedAssetScrap') {
 			$scope.SelectType = 'Select FixedAsset Scrap';
@@ -1089,26 +1089,63 @@ function InOutGatePassController(accountService, addressService, $location, $win
 		else if (data.GatePassFor === 'MaterialTransfer') {
 			$scope.SelectType = 'Select Material Transfer';
 			$scope.getMaterialTransferData();
+			$scope.productNew.ChallanItemTypeId = data.ComId;
 		}
 		else if (data.GatePassFor === 'InventorySales') {
 			$scope.SelectType = 'Select Inventory Sales';
+			$scope.productNew.ChallanItemTypeId = data.ComId;
 			$scope.getInventorySalesData();
+
 		}
 		else if (data.GatePassFor === 'InventoryScrap') {
 			$scope.SelectType = 'Select Inventory Scrap';
+			$scope.productNew.ChallanItemTypeId = data.ComId;
 			$scope.getInventoryScrapData();
 		}
 		else if (data.GatePassFor === 'FixedAssetSales') {
 			$scope.SelectType = 'Select FixedAsset Sales';
+			$scope.productNew.GatePassType = 'FixedAssetSales';
+			$scope.productNew.GatePassStatus = 'NonReturnable';
+			$scope.productNew.PartyName = data.VendorNameOrCuetomerName;
+			$scope.productNew.ChallanItemTypeId = data.ComId;
 			$scope.getFixedAssetSalesData();
+			$scope.GetFixedAssetRegisterElasticSearchData(data.ComId)
 		}
 		else if (data.GatePassFor === 'FixedAssetScrap') {
 			$scope.SelectType = 'Select FixedAsset Scrap';
+			$scope.productNew.ChallanItemTypeId = data.ComId;
 			$scope.getFixedAssetScrapData();
 		}
 		$scope.Action = 'Save';
 		if (!$rootScope.isCollapsed) $rootScope.toggle();
 	};
+
+	$scope.FixedAssetRegisterElasticSearchList = [];
+	$scope.GetFixedAssetRegisterElasticSearchData = function (fardId) {
+		//$scope.getFixedAssetSalesData(fardId);
+		try {
+			$http({
+				method: 'POST',
+				url: 'Products/GateentryToken/GetFixedAssetRegisterElasticSearchDataList',
+				data: {
+					fixedAssetRegisterDisposeId: fardId
+				},
+				dataType: 'JSON'
+			}).then(function successCallback(response) {
+				$scope.FixedAssetRegisterElasticSearchList = response.data.DATA;
+			}),
+				function errorCallBack(response) {
+					ShowResult(response.data.Message, 'failure');
+				}
+		}
+		catch (e) {
+
+		}
+	}
+	$scope.GetFixedAssetRegisterElasticSearchData();
+
+
+
 	$scope.recorddoubleclick = function ($event) {
 		//debugger;
 		var gridObj = $("#GridGatePass2").data("ejGrid");
@@ -1262,7 +1299,7 @@ function InOutGatePassController(accountService, addressService, $location, $win
 		}
 		else if ($scope.productNew.GatePassType === 'FixedAssetSales') {
 			$scope.SelectType = 'Select FixedAsset Sales';
-			$scope.getFixedAssetSalesData();
+			$scope.getFixedAssetSalesData(data.ComId);
 		}
 		else if ($scope.productNew.GatePassType === 'FixedAssetScrap') {
 			$scope.SelectType = 'Select FixedAsset Scrap';

@@ -206,6 +206,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 try
                 {
                     clsAttendance.AttendanceProcessAplos obj = new clsAttendance.AttendanceProcessAplos();
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                     ReturnType r = obj.SaveTotal(identity.PlantId, workdate, "'" + employeeid + "'", false);//laila
 
 

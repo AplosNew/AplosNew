@@ -756,6 +756,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             objSetInOut.SetRawINOUTonShiftAssignment(identity.PlantId, identity.CompanyGroupId, data[i].WorkDate, "'" + data[i].Id + "'");
                         }
                         clsAttendance.AttendanceProcessAplos obj = new clsAttendance.AttendanceProcessAplos();
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         ReturnType r = obj.SaveTotal(identity.PlantId, data[i].WorkDate, "'" + data[i].Id + "'", false);//laila
 
 

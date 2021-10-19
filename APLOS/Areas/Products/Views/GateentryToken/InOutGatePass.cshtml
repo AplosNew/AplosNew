@@ -802,10 +802,10 @@
             <div ng-form="tabForm1">
                 @*<ul class="col-md-6 common-btn list-inline text-left">
 
-                        <li><button ng-click="detailPopUp();" class="btn" ng-disabled="productNew.Id===null ||  productNew.Id===''"><i class="glyphicon glyphicon-plus"></i> Add Material</button></li>
+                    <li><button ng-click="detailPopUp();" class="btn" ng-disabled="productNew.Id===null ||  productNew.Id===''"><i class="glyphicon glyphicon-plus"></i> Add Material</button></li>
                     </ul>
 
-                    <div class="clearfix"></div>*@
+                 <div class="clearfix"></div>*@
                 <div class="table-responsive modal-table" ng-show="inventoryMaterialList.length>0">
                     <table class="table table-striped">
                         <thead>
@@ -818,13 +818,13 @@
                                 <th>Sku2</th>
                                 <th>Sku3</th>
                                 @*<th>Activity Name</th>
-                                    <th>Budget Type</th>*@
+                        <th>Budget Type</th>*@
                                 @*<th style="width:500px;">Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
 
                                 @*<th>IsReturnable</th>
-                                    <th>Required Date</th>
-                                    <th>IsMutilated</th>
-                                    <th>Remarks</th>*@
+                        <th>Required Date</th>
+                        <th>IsMutilated</th>
+                        <th>Remarks</th>*@
                                 <th>UOM</th>
                                 <th>Qty</th>
                                 @*<th class="col-sm-1"></th>*@
@@ -841,48 +841,83 @@
                                 <td>{{x.SecondCharacteristicsValue}}</td>
                                 <td>{{x.ThirdCharacteristicsValue}}</td>
                                 @*<td>{{x.ActivityName}}</td>
-                                    <td>{{x.BudgetType}}</td>*@
+                        <td>{{x.BudgetType}}</td>*@
                                 @*<td>
-                                        {{x.MaterialDetail}}
-                                    </td>
+                            {{x.MaterialDetail}}
+                        </td>
 
-                                    <td>{{x.IsReturnable}}</td>
-                                    <td>{{x.ReturnableDate| dateFiltering}}</td>
-                                    <td>{{x.IsMutilated}}</td>
-                                    <td>{{x.Remarks}}</td>*@
+                        <td>{{x.IsReturnable}}</td>
+                        <td>{{x.ReturnableDate| dateFiltering}}</td>
+                        <td>{{x.IsMutilated}}</td>
+                        <td>{{x.Remarks}}</td>*@
                                 <td class="text-right">{{x.UOM}}</td>
                                 <td class="text-right">{{x.TransactionQty}}</td>
 
 
                                 @*<td class="text-right">
-                                        <ul class="list-inline action-list">
-                                            <li><button ng-click="EditDataDisplay(x.MaterialReqqusitionMasterId,$index)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
-                                                <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                            <li><button ng-click="valuePassInDelModal(x.MaterialReqqusitionMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-                                        </ul>
-                                    </td>*@
+                            <ul class="list-inline action-list">
+                                <li><button ng-click="EditDataDisplay(x.MaterialReqqusitionMasterId,$index)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
+                                    <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                <li><button ng-click="valuePassInDelModal(x.MaterialReqqusitionMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                            </ul>
+                        </td>*@
                             </tr>
                             <tr>
                                 <td colspan="8" class="text-right"><strong>Total : </strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TransactionQty' }}</strong></td>
                                 @*<td class="text-right" ng-hide="sumORnot"></td>*@
                                 @*<td class="text-right">
-                                        <ul class="list-inline action-list">
-                                                <li><button ng-click="getTotalReceiveTaxList(inventoryMaterialList | sumByKey : 'TrnAmount',true)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                            </ul>
-                                    </td>*@
+                            <ul class="list-inline action-list">
+                                    <li><button ng-click="getTotalReceiveTaxList(inventoryMaterialList | sumByKey : 'TrnAmount',true)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                </ul>
+                        </td>*@
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 @*<div class="clearfix"></div>
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li><button ng-click="detailPopUpEdit();" class="btn" ng-show="inventoryMaterialList.length>0"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
-                        </ul>
-                    </div>*@
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="detailPopUpEdit();" class="btn" ng-show="inventoryMaterialList.length>0"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+                    </ul>
+                </div>*@
+
+                        <div class="content-container-fluid" ng-show="FixedAssetRegisterElasticSearchList.length>0" style="color:black;overflow:scroll">
+                            <div style="color:black;" id="dddd" ej-grid e-datasource="FixedAssetRegisterElasticSearchList" e-recorddoubleclick="getdata" @*e-templaterefresh="refreshTemplateEntityandDepartment"*@
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" @*e-summaryrows="TotalFARegisterSummaryAmount"*@
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                                <div e-columns>
+                                    <div e-column e-field="MaterialMasterName" e-headertext="Material Master" e-width="90"></div>
+                                    <div e-column e-type="text" e-field="Article" e-headertext="Article" e-width="90" style="height: 20px;"></div>
+
+                                    <div e-column e-type="text" e-field="FixedAssetMasterName" e-headertext="Asset Master" e-width="90" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="VendorName" e-headertext="Party" e-width="90" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="IsAsset" e-headertext="Asset" e-width="20" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="Machine" e-headertext="Machine" e-width="20" style="height: 20px;"></div>
+                                    <div e-column e-type="text" e-field="FACount" e-headertext="FA Count" e-width="30" e-textalign="right" style="height: 20px;"></div>
+
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="FABaseAmount" e-headertext="FA Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SubAssetAmount" e-headertext="Sub Asset Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalBaseAmount" e-headertext="Total Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ADBaseAmount" e-headertext="AD Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetFixedAssetsAmount" e-headertext="Net Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                                </div>
+                            </div>
+
+
+                        </div>
+              
+
+
+
+                   
+                
             </div>
+
+
         </div>
+
+       
 
     </div>
 
