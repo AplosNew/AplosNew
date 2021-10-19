@@ -83,7 +83,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public RTx Save(List<AttendanceProcessNewProcess> data)
+        public RTx Save(List<AttendanceProcessNewProcess> data , string Remarks)
         {
             try
             {
@@ -125,7 +125,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     return new RTx { data = DataToBeSaved, IsError = true, msg = "Error occured" };
                 }
                 
-                saveData(DataToBeSaved);
+                saveData(DataToBeSaved, Remarks);
 
                 return new RTx { data = data, IsError = false, msg = "Manual Shift Updated Successfully" };
                
@@ -137,7 +137,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
-        private void saveData(List<AttendanceProcessNewProcess> data)
+        private void saveData(List<AttendanceProcessNewProcess> data, string Remarks)
         {
             ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
             try
@@ -147,13 +147,18 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 string man = "''";
                 NewAttendanceProcessService ap = new NewAttendanceProcessService();
-               
-                
+
+                DataSet dsRem;
+                ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                conn.OpenDataSetThroughAdapter(@"Select * from dbo.ManualEntryRemarks where 1 = 2", out dsRem, false, "1");
+
+
 
 
                 DataSet shiftchange = null;
                 for (int i = 0; i < data.Count; i++)
                 {
+                    int kk = 0;
                     if (data[i].ShiftSystemID != data[i].ShiftSystemIDOriginal)
                     {
                         #region change shift
@@ -182,13 +187,33 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0]["IsOTComfirm"] = false;
                             shiftchange.Tables[0].Rows[0].EndEdit();
                             ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
+                            kk = 1;
                         }
                         #endregion change shift
 
                     }
                     SaveDataSets(shiftchange);
 
+                    string _Id = "";
+                    if(kk == 1)
+                    {
+                        DataRow dr = dsRem.Tables[0].NewRow();
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.ManualEntryRemarks", out _Id);
+                        dr["Id"] = _Id;
+                        dr["RowId"] = shiftchange.Tables[0].Rows[0]["RowId"].ToString();
+                        dr["Remarks"] = Remarks;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["Screen"] = "/manual-shift-new";
+                        dsRem.Tables[0].Rows.Add(dr);
+
+                    }
                 }
+
+                clsStaticInfo _infos = new clsStaticInfo();
+                _infos.SaveDataSets(dsRem);
 
                 ap.ManualScheduler(identity.PlantId, man);
             }
@@ -297,7 +322,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
         // For In/Out Entry Screen
-        public RTx Savex(List<AttendanceProcessNewProcess> data)
+        public RTx Savex(List<AttendanceProcessNewProcess> data , string Remarks)
         {
             try
             {
@@ -375,7 +400,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     return new RTx { data = DataToBeSaved, IsError = true, msg = "Error occured" };
                 }
                
-                saveDatax(DataToBeSaved);
+                saveDatax(DataToBeSaved , Remarks);
 
 
                 return new RTx { data = data, IsError = false, msg = "Manual Entry Done Successfully" };
@@ -388,7 +413,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
 
         }
-        private void saveDatax(List<AttendanceProcessNewProcess> data)
+        private void saveDatax(List<AttendanceProcessNewProcess> data , string Remarks)
         {
             ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
             try
@@ -398,7 +423,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 string man = "''";
                 NewAttendanceProcessService ap = new NewAttendanceProcessService();
-                
+                DataSet dsRem;
+                ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                conn.OpenDataSetThroughAdapter(@"Select * from dbo.ManualEntryRemarks where 1 = 2", out dsRem, false, "1");
 
 
                 DataSet shiftchange = null ;
@@ -409,7 +436,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     con.BeginTransaction();
                     con.getDataSet(@"SELECT * FROM AttdnProcessData  WHERE EmpSystemID = '" + data[i].Id + "' AND WorkDate = '" + data[i].WorkDate + "' ", out shiftchange);
                     con.CommitTransaction();
-
+                    int kk = 0;
                     if (data[i].ShiftSystemID != data[i].ShiftSystemIDOriginal)
                     {
                         #region change shift
@@ -432,6 +459,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             shiftchange.Tables[0].Rows[0].EndEdit();
 
                             ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
+                            kk++;
                         }
                         #endregion change shift
                     }
@@ -494,6 +522,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 dr.EndEdit();
 
                                 ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
+                                kk++;
                             }
                             
                         }
@@ -502,8 +531,25 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     
                     SaveDataSets(shiftchange);
-                    
+                    string _Id = "";
+                    if(kk>0)
+                    {
+                        DataRow dr = dsRem.Tables[0].NewRow();
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.ManualEntryRemarks", out _Id);
+                        dr["Id"] = _Id;
+                        dr["RowId"] = shiftchange.Tables[0].Rows[0]["RowId"].ToString();
+                        dr["Remarks"] = Remarks;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["Screen"] = "/attendance-process-data-new";
+                        dsRem.Tables[0].Rows.Add(dr);
+                    }
                 }
+
+                clsStaticInfo _infos = new clsStaticInfo();
+                _infos.SaveDataSets(dsRem);
 
                 ap.ManualScheduler(identity.PlantId, man);
             }
