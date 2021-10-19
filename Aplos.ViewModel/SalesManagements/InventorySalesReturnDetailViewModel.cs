@@ -29,6 +29,7 @@ namespace Library.ViewModel.SalesManagements
         public decimal IssueQty { get; set; }
         public decimal BaseIssueQty { get; set; }
         public decimal TransactionQty { get; set; }
+        public decimal TempReturnQty { get; set; }
         public decimal StockQty { get; set; }
         public string TransactionUoMId { get; set; }
         public decimal? BaseQty { get; set; }

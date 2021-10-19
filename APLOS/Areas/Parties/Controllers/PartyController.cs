@@ -132,7 +132,8 @@ namespace Aplos.Areas.Parties.Controllers
         {
             try
             {
-                parameters.CmdText = @"SELECT  P.Id AS PartyId, P.Code AS PartyCode, P.UserName AS PartyName, P.Id, P.Code, P.UserName, CP.PartyType, CP.PartyAccountGroupId, PAG.Code AS PartyAccountGroupCode, PAG.UserName AS PartyAccountGroupName, CP.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName
+                parameters.CmdText = @"
+                                    SELECT top(300) P.Id AS PartyId, P.Code AS PartyCode, P.UserName AS PartyName, P.Id, P.Code, P.UserName, CP.PartyType, CP.PartyAccountGroupId, PAG.Code AS PartyAccountGroupCode, PAG.UserName AS PartyAccountGroupName, CP.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName
                                     , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
                                     , NULL AS InvoicingPartyPlantId, NULL AS DeliveryPartyPlantId, CO.Code AS CountryCode, CO.UserName AS CountryName, S.Code AS StateCode, S.UserName AS StateName
                                     , RGL.ReconciliationGLId, RGL.ReconciliationGLCode, RGL.ReconciliationGLName
@@ -191,6 +192,7 @@ namespace Aplos.Areas.Parties.Controllers
                 // If this params null will return all customer and vendor list either specific.
                 if (!string.IsNullOrEmpty(customerVendor))
                     parameters.CmdText += " AND CP.PartyType='" + customerVendor + "'";
+
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

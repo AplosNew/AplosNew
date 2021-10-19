@@ -8,6 +8,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
     $scope.path = 'HumanResource/AdminAttendanceControl/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
+    $scope.RemarksEmps = null;
 
     $scope.ModelNew = {
         CompanyId: null,
@@ -344,6 +345,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
             if (args == "refresh" || args.requestType == "refresh") {
                 var scrollerwidth = 0;
                 var gridObj = null;
+                $scope.RemarksEmps = null;
                 try {
                     gridObj = $("#GridAttendanceControl").ejGrid("instance");
                     scrollerwidth = $("#Tab").width();//Obtain the width of the container
@@ -363,7 +365,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
             if (args == "refresh" || args.requestType == "refresh") {
                 var scrollerwidth = 0;
                 var gridObj = null;
-
+                $scope.RemarksEmps = null;
                 try {
                     gridObj = $("#GridAttendanceControlBySingleDate").ejGrid("instance");
                     scrollerwidth = $("#TabEmployee").width();//Obtain the width of the container
@@ -469,7 +471,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': DataToBeSaved },
+            data: { 'data': DataToBeSaved , 'Remarks': $scope.RemarksEmps },
             url: $scope.path + 'SaveSingleEmployee'
 
         }).then(function successCallback(response) {
@@ -593,7 +595,7 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': DataToBeSaved },
+            data: { 'data': DataToBeSaved, 'Remarks': $scope.RemarksEmps},
             url: $scope.path + 'SaveSingleEmployee'
 
         }).then(function successCallback(response) {
@@ -623,7 +625,12 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
     //
     //
     // For the Update Tab
+    //
+    ///
+    ////
+    //
 
+    $scope.RemarksUpload = null;
 
     //For the Employee Selection Modal
     $scope.EmpList = [];
@@ -778,13 +785,16 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
     //Save the File Data
     $scope.saveFileList = function () {
 
-
+        if (angular.isUndefinedOrNull($scope.RemarksUpload)) {
+            ShowResult("Filling the Remarks are mandatory!!");
+            throw ("Invalid Request!!");
+        }
 
 
         $http({
             method: 'POST',
             url: $scope.path + 'SaveFileList',
-            data: { 'data': $scope.ExcelUploadData, 'FD': $scope.UpFromDate, 'TD': $scope.UpToDate, 'PlId': $scope.UpPlantId, 'Emps': EmpSelList, }
+            data: { 'data': $scope.ExcelUploadData, 'FD': $scope.UpFromDate, 'TD': $scope.UpToDate, 'PlId': $scope.UpPlantId, 'Emps': EmpSelList, 'Remarks' : $scope.RemarksUpload }
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, "failure");

@@ -38,9 +38,12 @@ namespace Aplos.Areas.TaskManagement.Controllers
         #endregion Constructor
 
 
-       
+
         public ActionResult Aplos()
         {
+
+            Library.Service.Productions.ProductionBooking.ProductionServices production = new Library.Service.Productions.ProductionBooking.ProductionServices(_sqlRepository);
+            production.UpdateDailyTarget(System.DateTime.Now.ToString("dd-MMM-yyyy"), "20202");
             return View();
         }
 
@@ -78,7 +81,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-               
+
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where FLAG='" + Flag + "' AND Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same code already exists!!!");

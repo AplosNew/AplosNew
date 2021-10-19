@@ -96,7 +96,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
                 $scope.Sequence = $scope.listFromProcessOrSFGInventory[i].Sequence - 1;
                 break;
             }
-        }        
+        }
     };
 
     $scope.DailyTargetList = [];
@@ -124,7 +124,7 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         } catch (e) {
             ShowResult(e, 'failure');
         }
-        
+
     }
 
 
@@ -241,5 +241,20 @@ function DailyTargetController(cboService, commonMessage, $scope, $rootScope, ba
         gridObj.refreshContent();
         gridObj.refreshTemplate();
     }
+    $scope.CalculateTotalQuantity = function (args) {
+        for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+            $scope.DailyTargetList[i].Quantity = (dbl($scope.DailyTargetList[i].QuantityPerHour) * dbl($scope.DailyTargetList[i].TotalHour)).toFixed(0);
 
+        }
+        var gridObj = $("#GridDailyTargetList").data("ejGrid");
+        gridObj.refreshContent();
+        //gridObj.refreshTemplate();
+    }
+    $scope.rowDataBound = function rowDataBound(e) {
+
+        if (e.data.IsManual == true)
+            e.row.css("background-color", '#d1e5ff');
+
+
+    }
 }

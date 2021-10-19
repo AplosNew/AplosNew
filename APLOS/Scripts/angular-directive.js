@@ -8,7 +8,12 @@
         }
     };
 }
+function dbl(val) {
+    if (!isNaN(parseFloat(val)) && isFinite(val))
+        return parseFloat(val);
 
+    return 0;
+}
 function ngFileSelectMultiple() {
     return {
         link: function ($scope, el) {

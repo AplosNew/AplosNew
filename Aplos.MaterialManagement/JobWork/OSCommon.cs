@@ -35,12 +35,12 @@ using Library.MaterialManagement.Inventory;
 
 namespace Library.MaterialManagement.JobWork
 {
-    public class JobWorkCommon
+    public class OSCommon
     {
         private readonly SqlRepository _sqlRepository = new SqlRepository();
-        string TableName = "JWTransformationPurchaseOrder";
+        string TableName = "OSTransformationPO";
 
-        public JobWorkCommon()
+        public OSCommon()
         {
             _sqlRepository = new SqlRepository();
         }
@@ -109,9 +109,6 @@ namespace Library.MaterialManagement.JobWork
 									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
 									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-									, IR.FixedAssetOrInventory, IR.PODepended
-									--, IR.AlongwithInvoice
-									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
 									,ROUND(IRD.BaseAmount, 2) BaseAmount
@@ -135,10 +132,10 @@ namespace Library.MaterialManagement.JobWork
 									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
-						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -163,10 +160,10 @@ namespace Library.MaterialManagement.JobWork
 						left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
-									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
-						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
-									WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
+									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
+									WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -190,9 +187,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
 									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-									, IR.FixedAssetOrInventory, IR.PODepended
-									--, IR.AlongwithInvoice
-									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
 									,ROUND(IRD.BaseAmount, 2) BaseAmount
@@ -216,10 +210,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
-						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -244,10 +238,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
-									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
-						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
-									WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
+									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
+									WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -273,9 +267,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
 									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-									, IR.FixedAssetOrInventory, IR.PODepended
-									--, IR.AlongwithInvoice
-									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
 									,ROUND(IRD.BaseAmount, 2) BaseAmount
@@ -299,10 +290,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
-						,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+						FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                          --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
@@ -326,10 +317,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
-									JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
-						LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
-									WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+						LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
+									JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
+						LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
+									WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
@@ -340,7 +331,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         AND isnull(IR.IsClosed,0)=0 
 						) x
 						--Order by PODate DESC
-                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPurchaseOrder) BD ON BD.Id=x.Id 
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.OSTransformationPO) BD ON BD.Id=x.Id 
 						ORDER BY CONVERT(int,Col) desc";
                 }
                 else if (POTypeStatus == "CheckedHoldRej")
@@ -356,9 +347,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                     --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
                                     , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-	                                , IR.FixedAssetOrInventory, IR.PODepended
-                                    --, IR.AlongwithInvoice
-                                    --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount,ROUND(IRD.BaseAmount, 2) BaseAmount
                                     , IR.ToCurrencyRate
@@ -385,10 +373,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
-                        ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        ,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-                        FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -416,14 +404,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=Cn.MasterLCId
 						LEFT JOIN [HKP].[Party] AS Par ON Cn.CustomerId=Par.Id 
 						left join dbo.PurchaseLC PLC on PLC.Id=IR.PurchaseLCId
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
-		                            JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
-		                            WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
+		                            JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
+		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
                         left join ORG.Entity E on E.Id=IR.EntityId
-                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPurchaseOrder) BD ON BD.Id=IR.Id 
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.OSTransformationPO) BD ON BD.Id=IR.Id 
                         WHERE  IR.PlantId='" + plantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' 
                         --AND IR.POType='OSTransformationPO' 
                         AND IR.PlantId='"+ plantId + @"'   AND isnull(IR.IsClosed,0)=0 
@@ -444,9 +432,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                     --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
                                     , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-	                                , IR.FixedAssetOrInventory, IR.PODepended
-                                    --, IR.AlongwithInvoice
-                                    --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount,ROUND(IRD.BaseAmount, 2) BaseAmount
                                     , IR.ToCurrencyRate
@@ -474,10 +459,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
-                         ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                         ,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-                        FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -506,14 +491,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                         LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
-		                            JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
-		                            WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
+		                            JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
+		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
                         left join ORG.Entity E on E.Id=IR.EntityId
-                         JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPurchaseOrder) BD ON BD.Id=IR.Id
+                         JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.OSTransformationPO) BD ON BD.Id=IR.Id
                          WHERE IR.PlantId='" + plantId + @"' 
                          AND IR.CheckedBy IS NOT NULL 
                          AND IR.AuthorizedBy IS NOT NULL  
@@ -557,9 +542,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                     --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
                                     , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-	                                , IR.FixedAssetOrInventory, IR.PODepended
-                                    --, IR.AlongwithInvoice
-                                    --, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount,ROUND(IRD.BaseAmount, 2) BaseAmount
                                     , IR.ToCurrencyRate
@@ -582,10 +564,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
-                         ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                         ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-                        FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -609,16 +591,16 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                         LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
-		                            JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
-		                            WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
+		                            JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
+		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
                         left join ORG.Entity E on E.Id=IR.EntityId
 											WHERE  
                                             --IR.POType='OSTransformationPO' AND 
-                                            IR.PlantId='"+ plantId + @"' 
+                                            IR.PlantId='" + plantId + @"' 
 											AND IR.Id in(Select distinct POId from trn.InventoryReceive where POId is not null)--and RequisitionId='110232'
 											AND IR.CheckedByStatus IS NULL
 											AND IR.AuthorizedByStatus IS NULL
@@ -661,10 +643,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
-                         ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                         ,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-                        FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -688,14 +670,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                         LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
-		                            JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
-		                            WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
+		                            JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
+		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
                         left join ORG.Entity E on E.Id=IR.EntityId
-											WHERE IR.PlantId='"+ plantId + @"' 
+											WHERE IR.PlantId='" + plantId + @"' 
 											AND IR.CheckedByStatus  Is null
 											AND IR.AuthorizedByStatus='Approved'
 											AND isnull(IR.IsClosed,0)=0 
@@ -737,10 +719,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
-                         ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                         ,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-                        FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -764,14 +746,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                         LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
-		                            JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
-		                            WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
+		                            JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
+		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
                         left join ORG.Entity E on E.Id=IR.EntityId
-											WHERE IR.PlantId='"+ plantId + @"' 
+											WHERE IR.PlantId='" + plantId + @"' 
 											AND IR.CheckedByStatus  Is null
 											AND IR.AuthorizedByStatus Is null
 											AND isnull(IR.IsClosed,0)=0 
@@ -812,10 +794,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
-                         ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                         ,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-                        FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -839,14 +821,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                         LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
-		                            JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
-		                            WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
+		                            JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
+		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
                         left join ORG.Entity E on E.Id=IR.EntityId
-											WHERE IR.PlantId='"+ plantId + @"' 
+											WHERE IR.PlantId='" + plantId + @"' 
 											AND IR.CheckedByStatus='Checked'
 											AND IR.AuthorizedByStatus='Approved'
 											AND isnull(IR.IsClosed,0)=0 
@@ -890,10 +872,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
-                         ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                         ,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
                         FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
 						,IR.ContractStatus, IR.Remarks,IR.POType
-                        FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        FROM OSTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
@@ -917,10 +899,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                         LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.JobWorkTransformationContractChild AS A
-		                            JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId) AS IRD ON IRD.JobWorkTransformationContractMasterId=IR.Id
-                        LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, A.TransactionUoMId FROM dbo.JobWorkTransformationContractChild AS A JOIN JWTransformationPurchaseOrder AS B ON A.JobWorkTransformationContractMasterId=B.Id
-		                            WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JobWorkTransformationContractMasterId, A.TransactionUoMId HAVING COUNT(A.JobWorkTransformationContractMasterId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JobWorkTransformationContractMasterId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM(A.Quantity * A.RatePerUnit) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM dbo.OSTransformationPODetail AS A
+		                            JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId) AS IRD ON IRD.OSTransformationPOId=IR.Id
+                        LEFT JOIN (SELECT A.OSTransformationPOId, A.TransactionUoMId FROM dbo.OSTransformationPODetail AS A JOIN OSTransformationPO AS B ON A.OSTransformationPOId=B.Id
+		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.OSTransformationPOId, A.TransactionUoMId HAVING COUNT(A.OSTransformationPOId)> COUNT(A.TransactionUoMId)) AS TU ON TU.OSTransformationPOId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
                         left join ORG.Entity E on E.Id=IR.EntityId
@@ -948,8 +930,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             {
                 string strSql = "";
 
-                //strSql = @"SELECT * FROM JWTransformationPurchaseOrderDetail WHERE JWTransformationPurchaseOrderId = '" + JWPOId + @"'";
-                strSql = @"SELECT * FROM dbo.JobWorkTransformationContractChild WHERE JobWorkTransformationContractMasterId = '" + JWPOId + @"'";
+                //strSql = @"SELECT * FROM OSTransformationPODetail WHERE OSTransformationPOId = '" + JWPOId + @"'";
+                strSql = @"SELECT * FROM dbo.OSTransformationPODetail WHERE OSTransformationPOId = '" + JWPOId + @"'";
 
                 dtJWPODetail = _sqlRepository.GetDataTable(strSql);
 
@@ -1034,24 +1016,24 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
 									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
 									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN  dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									LEFT JOIN  dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
                                     left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId
-                                          from dbo.JWPOBOQMAP boqmap left join dbo.JobWorkTransformationContractChild om on om.Id=boqmap.JWPODetailId
+                                          from dbo.JWPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id=boqmap.JWPODetailId
                                           left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
                                           left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
-                                          left join dbo.JWTransformationPurchaseOrder po on po.Id=om.JobWorkTransformationContractMasterId
+                                          left join dbo.OSTransformationPO po on po.Id=om.OSTransformationPOId
 										  where po.POType='OSTransformationPO'
                                           group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId)
@@ -1207,24 +1189,24 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
 									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
 									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN  dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									LEFT JOIN  dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
                                     left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId
-                                          from dbo.JWPOBOQMAP boqmap left join dbo.JobWorkTransformationContractChild om on om.Id=boqmap.JWPODetailId
+                                          from dbo.JWPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id=boqmap.JWPODetailId
                                           left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
                                           left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
-                                          left join dbo.JWTransformationPurchaseOrder po on po.Id=om.JobWorkTransformationContractMasterId
+                                          left join dbo.OSTransformationPO po on po.Id=om.OSTransformationPOId
 										  where po.POType='OSValueAddedPO'
                                           group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId)
@@ -1372,8 +1354,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                     FROM JWPOBOQMAP POBOQMAP1
 									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
 									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
-                                    LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+                                    LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									where POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
@@ -1382,8 +1364,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                     FROM JWPOBOQMAP POBOQMAP1
 									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
 									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
-                                    LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+                                    LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									where POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
@@ -1468,8 +1450,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
 									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
                                     FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									where POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
@@ -1478,8 +1460,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
 									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
                                     FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									where POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
@@ -1509,8 +1491,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             {
                 string strSql = "";
 
-                //strSql = @"SELECT * FROM JWTransformationPurchaseOrderDetail WHERE JWTransformationPurchaseOrderId = '" + JWPOId + @"' AND Id = '" + JWPODId + @"'";
-                strSql = @"SELECT* FROM dbo.JobWorkTransformationContractChild WHERE JobWorkTransformationContractMasterId = '" + JWPOId + @"' AND Id = '" + JWPODId + @"'";
+                //strSql = @"SELECT * FROM JWTransformationPurchaseOrderDetail WHERE OSTransformationPOId = '" + JWPOId + @"' AND Id = '" + JWPODId + @"'";
+                strSql = @"SELECT* FROM dbo.OSTransformationPODetail WHERE OSTransformationPOId = '" + JWPOId + @"' AND Id = '" + JWPODId + @"'";
 
                 dtJWPODetail = _sqlRepository.GetDataTable(strSql);
 
@@ -1587,25 +1569,25 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     //LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.TransactionQty) TransactionQty,JWPPOD.RatePerUnit,JWPPOD.ServiceId
                     //					FROM JWPOBOQMAP POBOQMAP1
                     //			--LEFT JOIN JWTransformationPurchaseOrderDetail JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
-                    //			--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JWTransformationPurchaseOrderId
+                    //			--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.OSTransformationPOId
 
                     //                              LEFT JOIN dbo.JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
-                    //			LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
+                    //			LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.OSTransformationPOId
                     //			where POM.Id ='" + JWPOId + @"'
                     //			GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit,JWPPOD.ServiceId					
                     //			)POMAP ON POMAP.BOQDetailId=b.Id
                     //LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.POBOQQty) TransactionQty,JWPPOD.RatePerUnit
                     //					FROM JWPOBOQMAP POBOQMAP1
                     //			--LEFT JOIN JWTransformationPurchaseOrderDetail JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
-                    //			--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JWTransformationPurchaseOrderId
+                    //			--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.OSTransformationPOId
                     //                              LEFT JOIN JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
-                    //			LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
+                    //			LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.OSTransformationPOId
                     //			where POM.Id !='" + JWPOId + @"'
                     //			GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit
                     //		) OtherPOData ON OtherPOData.BOQDetailId=b.Id
                     //                  LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
-                    //                  --LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JWTransformationPurchaseOrderDetail where JWTransformationPurchaseOrderId='" + JWPOId + @"')
-                    //                    LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JobWorkTransformationContractChild where JobWorkTransformationContractMasterId='" + JWPOId + @"')
+                    //                  --LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JWTransformationPurchaseOrderDetail where OSTransformationPOId='" + JWPOId + @"')
+                    //                    LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JobWorkTransformationContractChild where OSTransformationPOId='" + JWPOId + @"')
                     //--LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
                     //WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
                     //  --AND  b.id in(select ParentId from BOQ where ISNULL(ParentId,'')<>'' and ProcessId IN (Select ProcessId from JWActivity where Id IN (" + jwActivityId + @"))) --and isChild=0
@@ -1688,14 +1670,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						//					FROM JWPOBOQMAP POBOQMAP1
 
       //                              LEFT JOIN dbo.JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
-						//			LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
+						//			LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.OSTransformationPOId
 						//			where POM.Id ='" + JWPOId + @"'
 						//			GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit,JWPPOD.ServiceId					
 						//			)POMAP ON POMAP.BOQDetailId=b.Id
 						//LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.POBOQQty) TransactionQty,JWPPOD.RatePerUnit
 						//					FROM JWPOBOQMAP POBOQMAP1
       //                              LEFT JOIN JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
-						//			LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
+						//			LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.OSTransformationPOId
 						//			where POM.Id !='"+ JWPOId + @"'
 						//			GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit
 						//		) OtherPOData ON OtherPOData.BOQDetailId=b.Id
@@ -1708,7 +1690,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
       //                                    ,B.ThirdCharacteristicsValueId)
 						//				  kk on kk.SalesOrderId=so.Id
       //                  LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
-      //                    LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JobWorkTransformationContractChild where JobWorkTransformationContractMasterId='" + JWPOId + @"')
+      //                    LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JobWorkTransformationContractChild where OSTransformationPOId='" + JWPOId + @"')
 						//WHERE moi.ContractId='"+ ContractId + @"' AND (b.VendorId='"+ VendorId + @"' OR b.VendorId is null)
       //                   AND  b.id in(select ParentId from BOQ where ISNULL(ParentId,'')<>'' 
 						//) 
@@ -1850,9 +1832,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,sum(POBOQMAP1.TransactionQty) TransactionQty--,JWPPOD.RatePerUnit,JWPPOD.ServiceId
                                             FROM JWPOBOQMAP POBOQMAP1
 
-                                    LEFT JOIN dbo.JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id = POBOQMAP1.JWPODetailId
+                                    LEFT JOIN dbo.OSTransformationPODetail JWPPOD ON JWPPOD.Id = POBOQMAP1.JWPODetailId
 
-                                    LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id = JWPPOD.JobWorkTransformationContractMasterId
+                                    LEFT JOIN OSTransformationPO POM ON POM.Id = JWPPOD.OSTransformationPOId
 
                                     where POM.Id = '" + JWPOId + @"'
 
@@ -1862,9 +1844,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         LEFT JOIN(SELECT POBOQMAP1.BOQDetailId--,JWPPOD.Id
 						,sum(POBOQMAP1.POBOQQty) TransactionQty--,JWPPOD.RatePerUnit
                                             FROM JWPOBOQMAP POBOQMAP1
-                                    LEFT JOIN JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id = POBOQMAP1.JWPODetailId
+                                    LEFT JOIN OSTransformationPODetail JWPPOD ON JWPPOD.Id = POBOQMAP1.JWPODetailId
 
-                                    LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id = JWPPOD.JobWorkTransformationContractMasterId
+                                    LEFT JOIN OSTransformationPO POM ON POM.Id = JWPPOD.OSTransformationPOId
 
                                     where POM.Id != '" + JWPOId + @"'
 
@@ -1873,20 +1855,20 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 								) OtherPOData ON OtherPOData.BOQDetailId = b.Id
                                           left join(select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId
-                                          from dbo.JWPOBOQMAP boqmap left join dbo.JobWorkTransformationContractChild om on om.Id = boqmap.JWPODetailId
+                                          from dbo.JWPOBOQMAP boqmap left join dbo.OSTransformationPODetail om on om.Id = boqmap.JWPODetailId
                                           left join dbo.BOQ B on B.Id = boqmap.BOQDetailId
                                           left join trn.SalesOrder SO on SO.Id = B.SalesOrderId
                                           group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
                                           ,B.ThirdCharacteristicsValueId,boqmap.BOQDetailId)
 										  kk on kk.SalesOrderId = so.Id and kk.BOQDetailId = b.Id
 
-                                          left join(Select outm.RatePerUnit, outm.ServiceId, boqm.BOQDetailId from dbo.JobWorkTransformationContractChild outm
+                                          left join(Select outm.RatePerUnit, outm.ServiceId, boqm.BOQDetailId from dbo.OSTransformationPODetail outm
 
-                                          left join dbo.JWPOBOQMAP boqm on boqm.JWPODetailId= outm.Id  where outm.Id= '"+ JWPODId + @"')
+                                          left join dbo.JWPOBOQMAP boqm on boqm.JWPODetailId= outm.Id  where outm.Id= '" + JWPODId + @"')
 
                                           OtM on OtM.BOQDetailId = b.Id
                         LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId = mm.Id
-                          LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId = b.Id AND JWPOBOQMAP.JWPODetailId= '" + JWPODId + @"' --IN(select Id from JobWorkTransformationContractChild where JobWorkTransformationContractMasterId = '" + JWPOId + @"')
+                          LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId = b.Id AND JWPOBOQMAP.JWPODetailId= '" + JWPODId + @"' --IN(select Id from OSTransformationPODetail where OSTransformationPOId = '" + JWPOId + @"')
 
                         WHERE moi.ContractId = '" + ContractId + @"' AND(b.VendorId = '"+VendorId + @"' OR b.VendorId is null)
                          AND b.id in(select ParentId from BOQ where ISNULL(ParentId, '') <> ''
@@ -2075,8 +2057,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
 									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
                                     FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									where POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
@@ -2085,8 +2067,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
 									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
                                     FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									where POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
@@ -2170,18 +2152,18 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
 									FROM JWPOBOQMAP POBOQMAP1
 									--LEFT JOIN  JWTransformationPurchaseOrderDetail POD ON POD.Id=POBOQMAP1.JWPODetailId
-									--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JWTransformationPurchaseOrderId
-                                    LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.OSTransformationPOId
+                                    LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
 									FROM JWPOBOQMAP POBOQMAP1
 									--LEFT JOIN  JWTransformationPurchaseOrderDetail POD ON POD.Id=POBOQMAP1.JWPODetailId
-									--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JWTransformationPurchaseOrderId
-                                    LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
+									--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.OSTransformationPOId
+                                    LEFT JOIN dbo.OSTransformationPODetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
@@ -2259,14 +2241,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
 									FROM JWPOBOQMAP POBOQMAP1
 									LEFT JOIN  JWTransformationPurchaseOrderDetail POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JWTransformationPurchaseOrderId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
 									FROM JWPOBOQMAP POBOQMAP1
 									LEFT JOIN  JWTransformationPurchaseOrderDetail POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JWTransformationPurchaseOrderId
+									LEFT JOIN OSTransformationPO POM ON POM.Id=POD.OSTransformationPOId
 									WHERE POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
@@ -2646,7 +2628,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             string JWPOId = "";
             DataSet dsMaster;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-            con.OpenDataSetThroughAdapter("SELECT * FROM JWTransformationPurchaseOrder WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM OSTransformationPO WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
             if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
             {
                 CheckedByStatusForNoti = "False";
@@ -2766,7 +2748,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 string sql = "";
                 string _activityId = "";
                 DataSet dsActivity = null;
-                sql = "SELECT * FROM JWTransformationPOActivity WHERE JWTransformationPurchaseOrderId='" + JWPOId + "'";
+                sql = "SELECT * FROM JWTransformationPOActivity WHERE OSTransformationPOId='" + JWPOId + "'";
                 con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter(sql, out dsActivity, false, "1");
 
@@ -2799,7 +2781,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             DataRow dr = dsActivity.Tables[0].NewRow();
                             dr["Id"] = _activityId + "-" + (i + 1).ToString();
 
-                            dr["JWTransformationPurchaseOrderId"] = JWPOId;
+                            dr["OSTransformationPOId"] = JWPOId;
 
                             dr["JWActivityId"] = ActivityList[i];
 
@@ -2832,7 +2814,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 #region Item              
                 //string sqlItem = "";
                 //string _itemId = "";
-                //sql = "SELECT * FROM JWTransformationPOActivity WHERE JWTransformationPurchaseOrderId='" + JWPOId + "'";
+                //sql = "SELECT * FROM JWTransformationPOActivity WHERE OSTransformationPOId='" + JWPOId + "'";
                 //con = new ConnectionManager.DAL.ConManager("1");
                 //con.OpenDataSetThroughAdapter(sql, out dsActivity, false, "1");
 
@@ -2916,7 +2898,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             string JWPOId = "";
             DataSet dsMaster;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-            con.OpenDataSetThroughAdapter("SELECT * FROM JWTransformationPurchaseOrder WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM OSTransformationPO WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
             if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
             {
                 CheckedByStatusForNoti = "False";
@@ -2930,7 +2912,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID("JWPurchaseOrder", out _Id);
-                    data["Id"] = "JWP" + _Id;
+                    data["Id"] = "OSP" + _Id;
                     JWPOId = data["Id"].ToString();
 
                     data["CompanyGroupId"] = identity.CompanyGroupId;
@@ -2977,9 +2959,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                     
                     data["IsClosed"] = false;
-                    data["IsClosed"] = null;
-
-                    data["EmployeeId"] = identity.EmployeeId;
 
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -3031,9 +3010,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                     
                     data["IsClosed"] = false;
-                    data["IsClosed"] = null;
-
-                    data["EmployeeId"] = identity.EmployeeId;
 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
@@ -3068,7 +3044,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                 if (!string.IsNullOrEmpty(id))
                 {
-                    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where JobWorkTransformationContractMasterId='" + id + "' ", out dsMaster, false, "1");
+                    con2.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPODetail where OSTransformationPOId='" + id + "' ", out dsMaster, false, "1");
                     if (dsMaster.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("First Delete Material Output Data");
@@ -3080,8 +3056,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                 
 
-                //   con.executeQuery("delete from JWTransformationPurchaseOrderDetail where JWTransformationPurchaseOrderId='" + id + "'");
-                con.executeQuery("delete from JWTransformationPurchaseOrder where Id='" + id + "'");
+                //   con.executeQuery("delete from JWTransformationPurchaseOrderDetail where OSTransformationPOId='" + id + "'");
+                con.executeQuery("delete from OSTransformationPO where Id='" + id + "'");
 
                 con.CommitTransaction();
 
@@ -3134,25 +3110,25 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                     }
 
-                    //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                    //con.executeQuery("DELETE OSTransformationPOTax where OSTransformationPODetailId = '" + id + "'");
                     //con.executeQuery("DELETE JWPOBOQMAP where JWPODetailId = '" + id + "'");
                     //con.executeQuery("DELETE JWTransformationPurchaseOrderChildMaterial where JWPODetailId = '" + id + "'");
-                    //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                    //con.executeQuery("DELETE OSTransformationPOTax where OSTransformationPODetailId = '" + id + "'");
                     //con.executeQuery("DELETE JWTransformationPurchaseOrderInputChildMaterial where JWPODetailId = '" + id + "'");
                     //con.executeQuery("DELETE JWTransformationPurchaseOrderByProductChildMaterial where JWPODetailId = '" + id + "'");
 
-                    //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                    //con.executeQuery("DELETE OSTransformationPOTax where OSTransformationPODetailId = '" + id + "'");
                     //con.executeQuery("DELETE from  JWTransformationPurchaseOrderDetail where id='" + id + "'");
 
-                    con.executeQuery("delete from dbo.JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId='" + id + @"' ");
-                    con.executeQuery("delete from dbo.JobWorkTransformationContractChild where Id='" + id + "' ");
+                    con.executeQuery("delete from dbo.OSTransformationPOTax where OSTransformationPODetailId='" + id + @"' ");
+                    con.executeQuery("delete from dbo.OSTransformationPODetail where Id='" + id + "' ");
                 }
                 else
                 {
                     con.executeQuery("delete from dbo.JWPOBOQMAP where JWPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + @"' ");
-                    con.executeQuery("delete from dbo.JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId='" + id + @"' ");
-                    con.executeQuery("delete from dbo.JobWorkTransformationContractChild where Id='" + id + "' ");
+                    con.executeQuery("delete from dbo.OSTransformationPOTax where OSTransformationPODetailId='" + id + @"' ");
+                    con.executeQuery("delete from dbo.OSTransformationPODetail where Id='" + id + "' ");
                 }
 
              
@@ -3177,7 +3153,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             string JWPODSId = "";
             DataSet dsMaster;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-            con.OpenDataSetThroughAdapter("SELECT * FROM JWTransformationPurchaseOrderService WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM OSTransformationPOService WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
             try
             {
@@ -3186,8 +3162,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("JWTransformationPurchaseOrderService", out _Id);
-                    data["Id"] = "JPOS" + _Id;
+                    genid.GenID("OSTransformationPOService", out _Id);
+                    data["Id"] = "OPS" + _Id;
                     JWPODSId = data["Id"].ToString();
                     //dr["JWTransformationPurchaseOrderServiceId"] = data["ServiceMasterId"];
                     AddNewRow(dsMaster.Tables[0], data);
@@ -3201,14 +3177,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 string sql = "";
                 string _activityId = "";
                 DataSet dsTax = null;
-                sql = "SELECT * FROM JWTransformationPurchaseOrderTax WHERE JWTransformationPurchaseOrderId='" + data["JWTransformationPurchaseOrderId"] + "' and  JWTransformationPurchaseOrderDetailId='" + data["Id"] + "'";
+                sql = "SELECT * FROM OSTransformationPOTax WHERE OSTransformationPOId='" + data["OSTransformationPOId"] + "' and  OSTransformationPODetailId='" + data["Id"] + "'";
                 con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter(sql, out dsTax, false, "1");
                 if (TaxList != null)
                 {
                     for (int i = 0; i < dsTax.Tables[0].Rows.Count; i++)
                     {
-                        var k = TaxList.Where(ee => ee["JWTransformationPurchaseOrderDetailId"].ToString() == dsTax.Tables[0].Rows[i]["JWTransformationPurchaseOrderId"].ToString()).ToList();
+                        var k = TaxList.Where(ee => ee["OSTransformationPODetailId"].ToString() == dsTax.Tables[0].Rows[i]["OSTransformationPOId"].ToString()).ToList();
                         if (k.Count == 0)
                         {
                             dsTax.Tables[0].Rows[i].Delete();
@@ -3217,7 +3193,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                     for (int i = 0; i < TaxList.Count; i++)
                     {
-                        dsTax.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderDetailId='" + TaxList[i]["JWTransformationPurchaseOrderDetailId"] + "'";
+                        dsTax.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + TaxList[i]["OSTransformationPODetailId"] + "'";
 
 
                         if (dsTax.Tables[0].DefaultView.Count == 0)
@@ -3226,13 +3202,13 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             if (_activityId == "")
                             {
                                 bplib.clsGenID id = new bplib.clsGenID();
-                                id.GenID("JWTransformationPurchaseOrderTax", out _activityId);
+                                id.GenID("OSTransformationPOTax", out _activityId);
                                 _activityId = "JTX" + _activityId;
                             }
                             DataRow dr = dsTax.Tables[0].NewRow();
                             dr["Id"] = _activityId + "-" + (i + 1).ToString();
 
-                            dr["JWTransformationPurchaseOrderId"] = data["JWTransformationPurchaseOrderId"];
+                            dr["OSTransformationPOId"] = data["OSTransformationPOId"];
                             dr["ServiceMasterId"] = data["ServiceMasterId"];
 
 
@@ -3260,7 +3236,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                             dr.BeginEdit();
 
-                            dr["JWTransformationPurchaseOrderId"] = data["JWTransformationPurchaseOrderId"];
+                            dr["OSTransformationPOId"] = data["OSTransformationPOId"];
 
                             dr["ServiceMasterId"] = data["ServiceMasterId"];
                             dr["TaxCategoryId"] = TaxList[i]["TaxCategoryId"];
@@ -3307,16 +3283,16 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         //    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
         //    if (String.IsNullOrEmpty(JWPurchaseOrderId))
         //    {
-        //        JWPurchaseOrderId = data[0]["JWTransformationPurchaseOrderId"].ToString();
+        //        JWPurchaseOrderId = data[0]["OSTransformationPOId"].ToString();
         //    }
 
-        //    con.OpenDataSetThroughAdapter("SELECT * FROM JWTransformationPurchaseOrderDetail WHERE JWTransformationPurchaseOrderId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
+        //    con.OpenDataSetThroughAdapter("SELECT * FROM JWTransformationPurchaseOrderDetail WHERE OSTransformationPOId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
 
         //    List<Dictionary<string, object>> dataBoq = new List<Dictionary<string, object>>();
         //    //List<Dictionary<string, object>> dataDetail = new List<Dictionary<string, object>>();
 
         //    DataSet dsTax = null;
-        //    sql = "SELECT * FROM JWTransformationPurchaseOrderTax WHERE JWTransformationPurchaseOrderId='" + JWPurchaseOrderId + "'";
+        //    sql = "SELECT * FROM OSTransformationPOTax WHERE OSTransformationPOId='" + JWPurchaseOrderId + "'";
         //    con = new ConnectionManager.DAL.ConManager("1");
         //    con.OpenDataSetThroughAdapter(sql, out dsTax, false, "1");
 
@@ -3370,7 +3346,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         //                    genid.GenID("JWTransformationPurchaseOrderDetail", out _Id);
         //                    data[i]["Id"] = "JWPD" + _Id;
         //                    JWPODId = data[i]["Id"].ToString();
-        //                    data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+        //                    data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
         //                    if (OrderSpecific == "Yes")
         //                    {
         //                        data[i]["ReferenceNo"] = data[i]["ReferenceNoM"];
@@ -3383,7 +3359,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         //                else
         //                {
 
-        //                    data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+        //                    data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
 
         //                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
         //                }
@@ -3414,7 +3390,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         //                    genid.GenID("JWTransformationPurchaseOrderDetail", out _Id);
         //                    data[i]["Id"] = "JWPD" + _Id;
         //                    JWPODId = data[i]["Id"].ToString();
-        //                    data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+        //                    data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
 
         //                    AddNewRow(dsMaster.Tables[0], data[i]);
 
@@ -3423,7 +3399,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         //                else
         //                {
 
-        //                    data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+        //                    data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
 
         //                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
         //                }
@@ -3497,17 +3473,17 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
             if (String.IsNullOrEmpty(JWPurchaseOrderId))
             {
-                JWPurchaseOrderId = data[0]["JWTransformationPurchaseOrderId"].ToString();
+                JWPurchaseOrderId = data[0]["OSTransformationPOId"].ToString();
             }
             if (type != "BOQ" && type != "PODETAILLIST")
             {
-                //con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where JobActivityId='" + data[0]["JobActivityId"] + "' and JobWorkItemMasterId='" + data[0]["JobWorkItemMasterId"] + "' and ArticleId='" + data[0]["ArticleId"] + "' and MaterialMasterId='" + data[0]["MaterialMasterId"] + "' and JobWorkTransformationContractMasterId='" + data[0]["JWTransformationPurchaseOrderId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
+                //con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where JobActivityId='" + data[0]["JobActivityId"] + "' and JobWorkItemMasterId='" + data[0]["JobWorkItemMasterId"] + "' and ArticleId='" + data[0]["ArticleId"] + "' and MaterialMasterId='" + data[0]["MaterialMasterId"] + "' and OSTransformationPOId='" + data[0]["OSTransformationPOId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
                 //if (dsMaster.Tables[0].Rows.Count > 0)
                 //{
                 //    throw new Exception("Same Activity, JW Output Item, Material and Article already exist.");
                 //}
 
-                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where ArticleId='" + data[0]["ArticleId"] + "' and MaterialMasterId='" + data[0]["MaterialMasterId"] + "' and JobWorkTransformationContractMasterId='" + data[0]["JWTransformationPurchaseOrderId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPODetail where ArticleId='" + data[0]["ArticleId"] + "' and MaterialMasterId='" + data[0]["MaterialMasterId"] + "' and OSTransformationPOId='" + data[0]["OSTransformationPOId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     throw new Exception("Same Material and Article already exist.");
@@ -3515,14 +3491,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             }
             
 
-            con.OpenDataSetThroughAdapter("SELECT * FROM JobWorkTransformationContractChild WHERE JobWorkTransformationContractMasterId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM OSTransformationPODetail WHERE OSTransformationPOId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
 
             List<Dictionary<string, object>> dataBoq = new List<Dictionary<string, object>>();
             List<Dictionary<string, object>> detailBoq = new List<Dictionary<string, object>>();
             //List<Dictionary<string, object>> dataDetail = new List<Dictionary<string, object>>();
 
             DataSet dsTax = null;
-            sql = "SELECT * FROM JWTransformationPurchaseOrderTax WHERE JWTransformationPurchaseOrderId='" + JWPurchaseOrderId + "'";
+            sql = "SELECT * FROM OSTransformationPOTax WHERE OSTransformationPOId='" + JWPurchaseOrderId + "'";
             con = new ConnectionManager.DAL.ConManager("1");
             con.OpenDataSetThroughAdapter(sql, out dsTax, false, "1");
 
@@ -3582,10 +3558,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         if (dsMaster.Tables[0].DefaultView.Count == 0)
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID("JobWorkTransformationContractChild", out _Id);
+                            genid.GenID("OSTransformationPODetail", out _Id);
                             data[i]["Id"] = "JWPD" + _Id;
                             JWPODId = data[i]["Id"].ToString();
-                            data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                            data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["RatePerUnit"] = data[i]["TransactionRate"];
                             data[i]["ServiceId"] = data[i]["ServiceId"];
@@ -3641,14 +3617,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         else
                         {
 
-                            //data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                            //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                             //data[i]["Quantity"] = data[i]["TransactionQty"];
                             //data[i]["RatePerUnit"] = data[i]["TransactionRate"];
                             //data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
                             //data[i]["TaxAmount"] = data[i]["TaxAmount"];
                             //    data[i]["TaxAmount"] = data[i]["JWTaxAmount"];
 
-                            data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                            data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["RatePerUnit"] = data[i]["TransactionRate"];
                             data[i]["ServiceId"] = data[i]["ServiceId"];
@@ -3738,7 +3714,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
 
                         dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
-                        dsTax.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderDetailId='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
+                        dsTax.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
                        // dsTax.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
 
                         string _Id = "";
@@ -3751,14 +3727,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             //}
 
                             bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID("JobWorkTransformationContractChild", out _Id);
+                            genid.GenID("OSTransformationPODetail", out _Id);
                             data[i]["Id"] = "JWPD" + _Id;
                             JWPODId = data[i]["Id"].ToString();
-                            //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                            //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["TransactionUoMId"] = data[i]["OutputMaterialUOMId"];
                             data[i]["BaseUOMId"] = data[i]["OutputMaterialUOMId"];
 
-                            data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                            data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["TaxAmount"] = SumTax;
 
@@ -3790,11 +3766,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         else
                         {
 
-                            //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                            //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["TransactionUoMId"] = data[i]["OutputMaterialUOMId"];
                             data[i]["BaseUOMId"] = data[i]["OutputMaterialUOMId"];
 
-                            data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                            data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["TaxAmount"] = SumTax;
 
@@ -3831,12 +3807,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 
 
                                 bplib.clsGenID genid = new bplib.clsGenID();
-                                genid.GenID("JWTransformationPurchaseOrderTax", out _Id);
+                                genid.GenID("OSTransformationPOTax", out _Id);
                                 taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
                                 //JWPODId = taxCategoryList[i1]["Id"].ToString();
-                                //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
-                                taxCategoryList[i1]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
-                                taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+                                //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
                                 //data[i]["Quantity"] = data[i]["TransactionQty"];
 
                                 AddNewRow(dsTax.Tables[0], taxCategoryList[i1]);
@@ -3851,9 +3827,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
 
 
-                                //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
-                                //taxCategoryList[i1]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
-                                //taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+                                //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                //taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                //taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
 
                                 //taxCategoryList[i1]["TaxCategoryId"] = dsTax.Tables[0].Rows[i1][""];
                                 //taxCategoryList[i1]["Percentage"] = DetailIdid;
@@ -3867,10 +3843,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 if(dsTax.Tables[0].DefaultView.Count == 0)
                                 {
                                     bplib.clsGenID genid = new bplib.clsGenID();
-                                    genid.GenID("JWTransformationPurchaseOrderTax", out _Id);
+                                    genid.GenID("OSTransformationPOTax", out _Id);
                                     taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
-                                    taxCategoryList[i1]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
-                                    taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+                                    taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                    taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
 
                                     AddNewRow(dsTax.Tables[0], taxCategoryList[i1]);
                                 }
@@ -3879,8 +3855,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                     DataRow dr = dsTax.Tables[0].DefaultView[0].Row;
 
                                     dr.BeginEdit();
-                                    dr["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
-                                    dr["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+                                    dr["OSTransformationPOId"] = JWPurchaseOrderId;
+                                    dr["OSTransformationPODetailId"] = DetailIdid;
                                     dr["TaxCategoryId"] = taxCategoryList[i1]["TaxCategoryId"];
                                     dr["Percentage"] = taxCategoryList[i1]["Percentage"];
                                     dr["TaxAmount"] = taxCategoryList[i1]["TaxAmount"];
@@ -4116,7 +4092,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWTransformationPurchaseOrderTax", out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSTransformationPOTax", out sID);
             return sID;
         }
 
@@ -4133,8 +4109,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 DataSet JWOutMatExist;
                 string hsnCodeId = "";
 
-                con.OpenDataSetThroughAdapter("select * from dbo.JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderId='"+ JWPurchaseOrderId + @"' and JWTransformationPurchaseOrderDetailId='"+ JWOutId + @"'  ", out JWTaxExist, false, "1");
-                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where Id='"+ JWOutId + @"' ", out JWOutMatExist, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOTax where OSTransformationPOId='"+ JWPurchaseOrderId + @"' and OSTransformationPODetailId='"+ JWOutId + @"'  ", out JWTaxExist, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPODetail where Id='" + JWOutId + @"' ", out JWOutMatExist, false, "1");
                 //for (var i = 0; i < JWBOQ.Tables[0].DefaultView.Count; i++)
                 //{
                 //    JWBOQChildId += ",'" + JWBOQ.Tables[0].Rows[i]["Id"];
@@ -4148,9 +4124,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                   , @plantId varchar(30)='" + identity.PlantId + @"'
                                   , @hsnCodeId varchar(30)='" + hsnCodeId + @"'
                     SET @partyCountry =(SELECT AM.CountryId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
-                                                    JOIN JWTransformationPurchaseOrder AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+                                                    JOIN OSTransformationPO AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
                     SET @partyState =(SELECT AM.StateId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
-                                    JOIN JWTransformationPurchaseOrder AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+                                    JOIN OSTransformationPO AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
 
                     SET @plantState =(SELECT AD.StateId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
                     SET @plantCountry =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
@@ -4202,7 +4178,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                     //decimal GrossConsumption = (Consumption * (1 + (WastagePer / 100)));
 
-                    JWTaxExist.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderId='"+ JWPurchaseOrderId + "' and JWTransformationPurchaseOrderDetailId ='" + JWOutId + "' and TaxCategoryId='" + bplib.clsWebLib.RetValidLen(JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"]).ToString() + "' ";
+                    JWTaxExist.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='"+ JWPurchaseOrderId + "' and OSTransformationPODetailId ='" + JWOutId + "' and TaxCategoryId='" + bplib.clsWebLib.RetValidLen(JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"]).ToString() + "' ";
 
 
                     if (JWTaxExist.Tables[0].DefaultView.Count == 0)
@@ -4210,9 +4186,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         DataRow dr = JWTaxExist.Tables[0].NewRow();
                         dr["Id"] = "JTX" + GetJWTaxesPK();
 
-                        dr["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                        dr["OSTransformationPOId"] = JWPurchaseOrderId;
 
-                        dr["JWTransformationPurchaseOrderDetailId"] = JWOutId;
+                        dr["OSTransformationPODetailId"] = JWOutId;
 
                         dr["TaxCategoryId"] = JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"].ToString();
                         //dr["HSNCodeId"] = JWGetSerTaxes.Tables[0].Rows[j]["HSNCodeId"].ToString();
@@ -4229,16 +4205,16 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     {
                         //edit
 
-                        JWTaxExist.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderId='" + JWPurchaseOrderId + "' and JWTransformationPurchaseOrderDetailId ='" + JWOutId + "' and TaxCategoryId='" + bplib.clsWebLib.RetValidLen(JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"]).ToString() + "' ";
+                        JWTaxExist.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + JWPurchaseOrderId + "' and OSTransformationPODetailId ='" + JWOutId + "' and TaxCategoryId='" + bplib.clsWebLib.RetValidLen(JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"]).ToString() + "' ";
 
                         if (JWTaxExist.Tables[0].DefaultView.Count == 0)
                         {
                             DataRow drr = JWTaxExist.Tables[0].NewRow();
                             drr["Id"] = "JTX" + GetJWTaxesPK();
 
-                            drr["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                            drr["OSTransformationPOId"] = JWPurchaseOrderId;
 
-                            drr["JWTransformationPurchaseOrderDetailId"] = JWOutId;
+                            drr["OSTransformationPODetailId"] = JWOutId;
 
                             drr["TaxCategoryId"] = JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"].ToString();
                             //drr["HSNCodeId"] = JWGetSerTaxes.Tables[0].Rows[j]["HSNCodeId"].ToString();
@@ -4257,9 +4233,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                             drr.BeginEdit();
 
-                            drr["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                            drr["OSTransformationPOId"] = JWPurchaseOrderId;
 
-                            drr["JWTransformationPurchaseOrderDetailId"] = JWOutId;
+                            drr["OSTransformationPODetailId"] = JWOutId;
 
                             drr["TaxCategoryId"] = JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"].ToString();
                             //drr["HSNCodeId"] = JWGetSerTaxes.Tables[0].Rows[j]["HSNCodeId"].ToString();
@@ -4328,9 +4304,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             string sql2 = "";
 
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-            //sql = "SELECT * FROM JWTransformationPurchaseOrderTax WHERE JWTransformationPurchaseOrderId='" + data[0]["JWTransformationPurchaseOrderId"] + "'";
-            sql = "SELECT * FROM JWTransformationPurchaseOrderTax WHERE JWTransformationPurchaseOrderDetailId='" + data[0]["Id"] + "'";
-            sql2 = "SELECT * FROM dbo.JobWorkTransformationContractChild WHERE Id='" + data[0]["Id"] + "'";
+            //sql = "SELECT * FROM OSTransformationPOTax WHERE OSTransformationPOId='" + data[0]["OSTransformationPOId"] + "'";
+            sql = "SELECT * FROM OSTransformationPOTax WHERE OSTransformationPODetailId='" + data[0]["Id"] + "'";
+            sql2 = "SELECT * FROM dbo.OSTransformationPODetail WHERE Id='" + data[0]["Id"] + "'";
 
             con = new ConnectionManager.DAL.ConManager("1");
             con.OpenDataSetThroughAdapter(sql, out dsTax, false, "1");
@@ -4344,7 +4320,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     for (int tc = 0; tc < dsTax.Tables[0].Rows.Count; tc++)
                     {
 
-                        var k = TaxList.Where(ee => ee["JWTransformationPurchaseOrderDetailId"].ToString() == dsTax.Tables[0].Rows[tc]["JWTransformationPurchaseOrderDetailId"].ToString() && ee["Id"].ToString() == dsTax.Tables[0].Rows[tc]["Id"].ToString()).ToList();
+                        var k = TaxList.Where(ee => ee["OSTransformationPODetailId"].ToString() == dsTax.Tables[0].Rows[tc]["OSTransformationPODetailId"].ToString() && ee["Id"].ToString() == dsTax.Tables[0].Rows[tc]["Id"].ToString()).ToList();
 
                         if (k.Count == 0)
                         {
@@ -4373,7 +4349,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         #endregion
 
 
-                        dsTax.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderDetailId='" + TaxList[t]["JWTransformationPurchaseOrderDetailId"] + "' and Id = '" + TaxList[t]["Id"] + "'  ";
+                        dsTax.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + TaxList[t]["OSTransformationPODetailId"] + "' and Id = '" + TaxList[t]["Id"] + "'  ";
                         OutputMat.Tables[0].DefaultView.RowFilter = "Id='" + data[0]["Id"] + "' ";
 
                         if (dsTax.Tables[0].DefaultView.Count == 0)
@@ -4382,14 +4358,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             if (_taxId == "")
                             {
                                 bplib.clsGenID id = new bplib.clsGenID();
-                                id.GenID("JWTransformationPurchaseOrderTax", out _taxId);
+                                id.GenID("OSTransformationPOTax", out _taxId);
                                 _taxId = "JTX" + _taxId;
                             }
                             DataRow dr = dsTax.Tables[0].NewRow();
                             dr["Id"] = _taxId + "-" + (t + 1).ToString();
 
-                            dr["JWTransformationPurchaseOrderId"] = data[0]["JobWorkTransformationContractMasterId"];
-                            dr["JWTransformationPurchaseOrderDetailId"] = data[0]["Id"];
+                            dr["OSTransformationPOId"] = data[0]["OSTransformationPOId"];
+                            dr["OSTransformationPODetailId"] = data[0]["Id"];
                             dr["TaxCategoryId"] = TaxList[t]["TaxCategoryId"];
                             if (TaxList[t].ContainsKey("HSNCodeId"))
                             {
@@ -4430,8 +4406,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                             dr.BeginEdit();
 
-                            dr["JWTransformationPurchaseOrderId"] = TaxList[t]["JWTransformationPurchaseOrderId"];
-                            dr["JWTransformationPurchaseOrderDetailId"] = TaxList[t]["JWTransformationPurchaseOrderDetailId"];
+                            dr["OSTransformationPOId"] = TaxList[t]["OSTransformationPOId"];
+                            dr["OSTransformationPODetailId"] = TaxList[t]["OSTransformationPODetailId"];
                             if (TaxList[t].ContainsKey("HSNCodeId"))
                             {
                                 if (TaxList[t]["HSNCodeId"] == null)
@@ -4712,9 +4688,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
             //                        LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTPD.CurrencyId
 
-            //                     LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax  where  JWTransformationPurchaseOrderId = 'JWP17' GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
-            //ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JWTransformationPurchaseOrderId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
-            //                   WHERE " + strkey + "  and JWTPD.JWTransformationPurchaseOrderId = '" + jwpoId + @"'";
+            //                     LEFT JOIN (select Sum(TaxAmount) TaxAmount,OSTransformationPODetailId,OSTransformationPOId from OSTransformationPOTax  where  OSTransformationPOId = 'JWP17' GROUP BY OSTransformationPOId, OSTransformationPODetailId ) jwtax 
+            //ON jwtax.OSTransformationPOId  = JWTPD.OSTransformationPOId and  jwtax.OSTransformationPODetailId  = JWTPD.Id 
+            //                   WHERE " + strkey + "  and JWTPD.OSTransformationPOId = '" + jwpoId + @"'";
             string sql = @"SELECT JWA.Id JobWorkActivityId, JWA.UserName JobWorkActivity,JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM,MM.Code as MaterialCode
                           -- ,MM.Id MaterialMasterId 
 						   ,ISNULL(MM.UserName,'') MaterialMasterName
@@ -4740,8 +4716,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             ,MS.Id MaterialStorageId,MS.UserName MaterialStorage,EEI.EmployeeName ResponsiblePerson ,ISNULL(MM.UserName,'') MaterialName
                             ,SerM.UserName as JWService, NULL as BOQId
                             --,FORMAT(JWTPD.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
-                            FROM JobWorkTransformationContractChild JWTPD      
-                            left JOIN [dbo].[JWTransformationPurchaseOrder] PO On PO.Id=JWTPD.JobWorkTransformationContractMasterId
+                            FROM OSTransformationPODetail JWTPD      
+                            left JOIN [dbo].[OSTransformationPO] PO On PO.Id=JWTPD.OSTransformationPOId
                             LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
                             LEFT JOIN HKP.JobWorkActivity JWA ON JWA.Id = JWTPD.JobActivityId
                             LEFT JOIN SCS.UnitOfMeasurement JWItemUOM  ON JWItemUOM.Id = JWTPD.OutputMaterialUOMId
@@ -4761,12 +4737,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                            
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTPD.CurrencyId
     
-                            LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax  where  JWTransformationPurchaseOrderId = '" + jwpoId + @"' GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
-                            ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
+                            LEFT JOIN (select Sum(TaxAmount) TaxAmount,OSTransformationPODetailId,OSTransformationPOId from OSTransformationPOTax  where  OSTransformationPOId = '" + jwpoId + @"' GROUP BY OSTransformationPOId, OSTransformationPODetailId ) jwtax 
+                            ON jwtax.OSTransformationPOId  = JWTPD.OSTransformationPOId and  jwtax.OSTransformationPODetailId  = JWTPD.Id 
                             left join HKP.JobWorkLocation JL on JL.Id=JWTPD.MaterialLocationId
 							left join hkp.MaterialStorage MS ON MS.Id=JL.StoreLocationId
                             left join hkp.ServiceMaster SerM on SerM.Id=JWTPD.ServiceId
-                            WHERE " + strkey + "  and JWTPD.JobWorkTransformationContractMasterId = '" + jwpoId + @"'";
+                            WHERE " + strkey + "  and JWTPD.OSTransformationPOId = '" + jwpoId + @"'";
             return sql;
 		}
 
@@ -4841,8 +4817,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             //                        LEFT JOIN [HKP].[Process] Process  oN Process.Id = JWTM.ProcessId
             //                        LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTM.CurrencyId
             //                        Left Join HKP.ServiceMaster SM ON JWA.ServiceId = SM.Id
-            //                     LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax   GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
-            //on jwtax.JWTransformationPurchaseOrderId  = JWTPD.JWTransformationPurchaseOrderId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
+            //                     LEFT JOIN (select Sum(TaxAmount) TaxAmount,OSTransformationPODetailId,OSTransformationPOId from OSTransformationPOTax   GROUP BY OSTransformationPOId, OSTransformationPODetailId ) jwtax 
+            //on jwtax.OSTransformationPOId  = JWTPD.OSTransformationPOId and  jwtax.OSTransformationPODetailId  = JWTPD.Id 
             //                     WHERE " + strkey + "  ";
 
 
@@ -4890,8 +4866,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             //                        --LEFT JOIN [HKP].[Process] Process  oN Process.Id = JWTM.ProcessId
             //                        LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTPD.CurrencyId
             //                        Left Join HKP.ServiceMaster SM ON JWTPD.ServiceId = SM.Id
-            //                     LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax   GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
-            //on jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
+            //                     LEFT JOIN (select Sum(TaxAmount) TaxAmount,OSTransformationPODetailId,OSTransformationPOId from OSTransformationPOTax   GROUP BY OSTransformationPOId, OSTransformationPODetailId ) jwtax 
+            //on jwtax.OSTransformationPOId  = JWTPD.OSTransformationPOId and  jwtax.OSTransformationPODetailId  = JWTPD.Id 
             //                     WHERE  " + strkey + " ";
 
             string sql = @"SELECT JWA.Id JobWorkActivityId, JWA.UserName JobWorkActivity,JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM ,MM.Id MaterialMasterId ,ISNULL(MM.UserName,'') MaterialMasterName
@@ -4914,8 +4890,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
                             , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
                             ,MS.Id MaterialStorageId,MS.UserName MaterialStorage,EEI.EmployeeName ResponsiblePerson ,ISNULL(MM.UserName,'') MaterialName
-                            FROM JobWorkTransformationContractChild JWTPD      
-                            left JOIN [dbo].[JWTransformationPurchaseOrder] PO On PO.Id=JWTPD.JobWorkTransformationContractMasterId
+                            FROM OSTransformationPODetail JWTPD      
+                            left JOIN [dbo].[OSTransformationPO] PO On PO.Id=JWTPD.OSTransformationPOId
                             LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
                             LEFT JOIN HKP.JobWorkActivity JWA ON JWA.Id = JWTPD.JobActivityId
                             LEFT JOIN SCS.UnitOfMeasurement JWItemUOM  ON JWItemUOM.Id = JWTPD.OutputMaterialUOMId
@@ -4935,8 +4911,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                            
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTPD.CurrencyId
     
-                            LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
-                            ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
+                            LEFT JOIN (select Sum(TaxAmount) TaxAmount,OSTransformationPODetailId,OSTransformationPOId from OSTransformationPOTax GROUP BY OSTransformationPOId, OSTransformationPODetailId ) jwtax 
+                            ON jwtax.OSTransformationPOId  = JWTPD.OSTransformationPOId and  jwtax.OSTransformationPODetailId  = JWTPD.Id 
                             left join hkp.MaterialStorage MS ON MS.Id=JWTPD.MaterialLocationId
                             WHERE " + strkey + " ";
 
@@ -4977,7 +4953,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
 
             string sql = @" SELECT A.Id
-                        , A.JWTransformationPurchaseOrderId
+                        , A.OSTransformationPOId
                         , A.ServiceMasterId
                         , B.UserName AS ServiceMasterName
                          ,A.Amount
@@ -4986,10 +4962,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         --, A.TotalTaxAmount
                         ,A.POID
 						,A.POServiceId,IRT.TaxAmount TotalTaxAmount
-                        FROM [TRN].[JWTransformationPurchaseOrderService] AS A 
+                        FROM [TRN].[OSTransformationPOService] AS A 
                         JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
                         left JOIN (select Id, Amount from TRN.POService) AS POT on A.POServiceId=POT.Id
-                        left join ( Select JWTransformationPurchaseOrderId, sum(TaxAmount) TaxAmount FROM  JWTransformationPurchaseOrderTax group by ServiceMasterId where JWTransformationPurchaseOrderDetailId is null) IRT On IRT.JWTransformationPurchaseOrderId=A.Id
+                        left join ( Select OSTransformationPOId, sum(TaxAmount) TaxAmount FROM  OSTransformationPOTax group by ServiceMasterId where OSTransformationPODetailId is null) IRT On IRT.OSTransformationPOId=A.Id
                         WHERE A.InventoryReceiveId='" + jwpoId + "'";
 
             return sql;
@@ -5080,9 +5056,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                   , @plantId varchar(30)='" + plantId + @"'
                                   , @hsnCodeId varchar(30)='" + hsnCodeId + @"'
                     SET @partyCountry =(SELECT AM.CountryId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
-                                                    JOIN JWTransformationPurchaseOrder AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+                                                    JOIN OSTransformationPO AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
                     SET @partyState =(SELECT AM.StateId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
-                                    JOIN JWTransformationPurchaseOrder AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+                                    JOIN OSTransformationPO AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
 
                     SET @plantState =(SELECT AD.StateId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
                     SET @plantCountry =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
@@ -5114,7 +5090,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
         public string GetServiceChargeList(string jwpoId)
         {
-            var sql = @"SELECT A.Id, A.JWTransformationPurchaseOrderId  InventoryReceiveId
+            var sql = @"SELECT A.Id, A.OSTransformationPOId  InventoryReceiveId
                             , A.ServiceMasterId
                             , B.UserName AS ServiceMasterName
                             , A.TransactionAmount
@@ -5124,19 +5100,19 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             ,null ChargeTaxList
                             ,A.Description 
                             FROM 
-                           JWTransformationPurchaseOrderService AS A 
+                           OSTransformationPOService AS A 
                             INner JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
-                            left JOIN (SELECT ServiceMasterId,Sum(TaxAmount) as TaxAmount  from JWTransformationPurchaseOrderTax 
-                            WHERE  ISNULL(JWTransformationPurchaseOrderId,'') ='" + jwpoId + @"' group by ServiceMasterId
+                            left JOIN (SELECT ServiceMasterId,Sum(TaxAmount) as TaxAmount  from OSTransformationPOTax 
+                            WHERE  ISNULL(OSTransformationPOId,'') ='" + jwpoId + @"' group by ServiceMasterId
                             ) AS POT on A.ServiceMasterId=POT.ServiceMasterId
-                            WHERE A.JWTransformationPurchaseOrderId='" + jwpoId + @"' ";
+                            WHERE A.OSTransformationPOId='" + jwpoId + @"' ";
 
             return sql;//.Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         public string GetPODetailServiceChargeList(string jwpoId, string jwpodId)
         {
-            var sql = @"SELECT A.Id, A.JWTransformationPurchaseOrderId  InventoryReceiveId
+            var sql = @"SELECT A.Id, A.OSTransformationPOId  InventoryReceiveId
                             , A.ServiceMasterId
                             , B.UserName AS ServiceMasterName
                             , A.TransactionAmount
@@ -5146,12 +5122,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             ,null ChargeTaxList
                             ,A.Description 
                             FROM 
-                           JWTransformationPurchaseOrderService AS A 
+                           OSTransformationPOService AS A 
                             INner JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
-                            left JOIN (select ServiceMasterId InventoryServiceId,Sum(TaxAmount) as TaxAmount  from JWTransformationPurchaseOrderTax group by ServiceMasterId 
-                            where ISNULL(JWTransformationPurchaseOrderDetailId,'') = '" + jwpodId + @"' and ISNULL(JWTransformationPurchaseOrderId,'') ='" + jwpoId + @"' 
+                            left JOIN (select ServiceMasterId InventoryServiceId,Sum(TaxAmount) as TaxAmount  from OSTransformationPOTax group by ServiceMasterId 
+                            where ISNULL(OSTransformationPODetailId,'') = '" + jwpodId + @"' and ISNULL(OSTransformationPOId,'') ='" + jwpoId + @"' 
                              ) AS POT on A.id=POT.InventoryServiceId
-                            WHERE A.JWTransformationPurchaseOrderId='" + jwpoId + @"'";
+                            WHERE A.OSTransformationPOId='" + jwpoId + @"'";
 
             return sql;
         }
@@ -5160,10 +5136,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         {
             try
             {
-                var sql = @"SELECT A.Id,A.JWTransformationPurchaseOrderId,A.JWTransformationPurchaseOrderDetailId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount
-                            FROM JWTransformationPurchaseOrderTax AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
+                var sql = @"SELECT A.Id,A.OSTransformationPOId,A.OSTransformationPODetailId, A.TaxCategoryId, TC.UserName AS TaxCategory, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount
+                            FROM OSTransformationPOTax AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                             LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
-                            WHERE A.JWTransformationPurchaseOrderId='" + serviceId + @"' AND A.JWTransformationPurchaseOrderDetailId IS NULL ORDER BY TC.[Sequence]";
+                            WHERE A.OSTransformationPOId='" + serviceId + @"' AND A.OSTransformationPODetailId IS NULL ORDER BY TC.[Sequence]";
                 return sql;
             }
             catch (Exception ex)
@@ -5178,10 +5154,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         {
             try
             {
-                var sql = @"SELECT A.Id,A.JWTransformationPurchaseOrderId,A.JWTransformationPurchaseOrderDetailId, A.TaxCategoryId, TC.UserName, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount
-                            FROM JWTransformationPurchaseOrderTax AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
+                var sql = @"SELECT A.Id,A.OSTransformationPOId,A.OSTransformationPODetailId, A.TaxCategoryId, TC.UserName, A.HSNCodeId, HN.Code AS HSNCode, A.[Percentage], A.TaxAmount
+                            FROM OSTransformationPOTax AS A JOIN [MST].[TaxCategory] AS TC ON A.TaxCategoryId=TC.Id
                             LEFT JOIN [HKP].[HSNCode] AS HN ON A.HSNCodeId=HN.Id
-                            WHERE A.JWTransformationPurchaseOrderId='" + jwPOId + @"' AND A.JWTransformationPurchaseOrderDetailId = '" + jwPoDetailId + @"' ORDER BY TC.[Sequence]";
+                            WHERE A.OSTransformationPOId='" + jwPOId + @"' AND A.OSTransformationPODetailId = '" + jwPoDetailId + @"' ORDER BY TC.[Sequence]";
                 return sql;
 
             }
@@ -5437,7 +5413,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 sql = @" select Distinct SM.UserName ServiceName,SM.Id from JWTransformationPOActivity JWPA 
 							 left join JWActivity JWA ON JWA.Id = JWPA.JWActivityId
 							 left join HKP.ServiceMaster SM ON JWA.ServiceId = SM.Id
-							 where JWPA.JWTransformationPurchaseOrderId = '" + JWPODId + @"' ";
+							 where JWPA.OSTransformationPOId = '" + JWPODId + @"' ";
 
                 var Data = _sqlRepository.GetDataCollection(sql);
 
@@ -5716,7 +5692,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     ,PO.UpdatedBy
                     ,PO.UpdatedDate
                     ,PO.IsApproved
-                    ,PO.PartyType
                     ,PO.PartyId
                    -- ,POD.RefferenceNo
 				    --,POD.ReferenceNo as RefferenceNo
@@ -5766,7 +5741,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     SELECT SUM(TotalTaxAmount)
                     FROM [TRN].[POService]
                    -- WHERE InventoryReceiveId = POD.InventoryReceiveId
-				   WHERE InventoryReceiveId = POD.JobWorkTransformationContractMasterId
+				   WHERE InventoryReceiveId = POD.OSTransformationPOId
                     )
                     --,POD.Description
 					,Description=case when POD.Description is not null then POD.Description else POD.MaterialSpecification End
@@ -5792,7 +5767,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     when PO.AuthorizedByStatus='Approved' Then 'Approved'
                     else ''
                     END
-                    FROM dbo.JWTransformationPurchaseOrder PO --TRN.PurchaseOrder PO
+                    FROM dbo.OSTransformationPO PO --TRN.PurchaseOrder PO
                     LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = PO.CompanyGroupId
                  --   LEFT JOIN ORG.Company Cmp ON Cmp.Id = PO.CompanyId
                     LEFT JOIN ORG.Plant Plant ON Plant.Id = PO.PlantId
@@ -5802,7 +5777,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = PO.InvoicingPartyPlantId
                     LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = PO.DeliveryPartyPlantId
                 --    LEFT JOIN TRN.PurchaseOrderDetail POD ON PO.Id = POD.InventoryReceiveId
-				   LEFT JOIN dbo.JobWorkTransformationContractChild POD ON PO.Id = POD.JobWorkTransformationContractMasterId
+				   LEFT JOIN dbo.OSTransformationPODetail POD ON PO.Id = POD.OSTransformationPOId
 					LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
 					LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	               -- LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
@@ -5850,9 +5825,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 strSQL = @"SELECT POS.Id ServiceId,SM.UserName  Service , POS.Description--, POS.Amount
                              ,POS.TransactionAmount as Amount
                             ,POS.TotalTaxAmount,Pos.AddedBy,pos.AddedDate,pos.UpdatedBy,pos.UpdatedDate 
-                            FROM dbo.JWTransformationPurchaseOrder PO --TRN.PurchaseOrder PO
+                            FROM dbo.OSTransformationPO PO --TRN.PurchaseOrder PO
                             --INNER join TRN.POService POS ON POS.InventoryReceiveId = PO.Id
-							left join dbo.JWTransformationPurchaseOrderService POS ON POS.JWTransformationPurchaseOrderId = PO.Id
+							left join dbo.OSTransformationPOService POS ON POS.OSTransformationPOId = PO.Id
                             left JOIN HKP.ServiceMaster SM ON POS.ServiceMasterId = SM.Id 
                             where PO.Id = '" + purchaseOrderId + @"'";
 
@@ -5877,15 +5852,15 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             {
                 strSQL = @"select   PODT.ServiceMasterId InventoryServiceId,
                             PO.Id PurchaseOrderId,POD.Id PurchaseOrderDetailId,tg.Code AS TaxCode,PODT.Percentage, PODT.TaxAmount 
-                            from dbo.JWTransformationPurchaseOrder PO --TRN.PurchaseOrder PO
+                            from dbo.OSTransformationPO PO --TRN.PurchaseOrder PO
                             --INNER JOIN TRN.PurchaseOrderDetail POD ON POD.InventoryReceiveId = PO.Id
-							left JOIN dbo.JobWorkTransformationContractChild POD ON POD.JobWorkTransformationContractMasterId = PO.Id
+							left JOIN dbo.OSTransformationPODetail POD ON POD.OSTransformationPOId = PO.Id
                             --Inner join TRN.PurchaseOrderTax PODT ON PODT.InventoryReceiveId = PO.Id and PODT.InventoryReceiveDetailId = POD.Id
-							LEFT join dbo.JWTransformationPurchaseOrderTax PODT ON PODT.JWTransformationPurchaseOrderId = PO.Id and PODT.JWTransformationPurchaseOrderDetailId = POD.Id
+							LEFT join dbo.OSTransformationPOTax PODT ON PODT.OSTransformationPOId = PO.Id and PODT.OSTransformationPODetailId = POD.Id
                             LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=PODT.TaxCategoryId
-                            WHERE PO.Id='"+ purchaseOrderId + @"' 
+                            WHERE PO.Id='" + purchaseOrderId + @"' 
 							--and InventoryReceiveDetailId  is not null and  InventoryServiceId is null AND PODT.Percentage > 0 
-							and PODT.JWTransformationPurchaseOrderDetailId  is not null and PODT.ServiceMasterId is null 
+							and PODT.OSTransformationPODetailId  is not null and PODT.ServiceMasterId is null 
 							AND PODT.Percentage > 0 
 							ORDER BY tg.[Sequence] ";
                 return _sqlRepository.GetDataTable(strSQL);
@@ -6555,18 +6530,18 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                 strSQL = @"SELECT PODT.ServiceMasterId InventoryServiceId,
                             PO.Id PurchaseOrderId,tg.Code AS TaxCode,PODT.Percentage, PODT.TaxAmount 
-                            from dbo.JWTransformationPurchaseOrder PO --TRN.PurchaseOrder PO
+                            from dbo.OSTransformationPO PO --TRN.PurchaseOrder PO
                             --INNER JOIN TRN.POService POS ON POS.InventoryReceiveId = PO.Id
-							left JOIN dbo.JWTransformationPurchaseOrderService POS ON POS.JWTransformationPurchaseOrderId = PO.Id
+							left JOIN dbo.OSTransformationPOService POS ON POS.OSTransformationPOId = PO.Id
                             --INNER JOIN TRN.PurchaseOrderTax PODT ON PODT.InventoryReceiveId = PO.Id and PODT.InventoryServiceId = POS.Id
-							left JOIN dbo.JobWorkTransformationContractChild POD ON POD.JobWorkTransformationContractMasterId = PO.Id
-							 LEFT JOIN dbo.JWTransformationPurchaseOrderTax PODT ON PODT.JWTransformationPurchaseOrderId = PO.Id and PODT.JWTransformationPurchaseOrderDetailId = POD.Id
+							left JOIN dbo.OSTransformationPODetail POD ON POD.OSTransformationPOId = PO.Id
+							 LEFT JOIN dbo.OSTransformationPOTax PODT ON PODT.OSTransformationPOId = PO.Id and PODT.OSTransformationPODetailId = POD.Id
                               LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=PODT.TaxCategoryId
-                                WHERE PO.Id='"+ purchaseOrderId + @"' 
+                                WHERE PO.Id='" + purchaseOrderId + @"' 
 								--AND InventoryServiceId   IS NOT NULL 
 								-- and InventoryReceiveDetailId is null
 								AND PODT.ServiceMasterId   IS NOT NULL 
-								AND  PODT.JWTransformationPurchaseOrderDetailId IS NULL 
+								AND  PODT.OSTransformationPODetailId IS NULL 
 								 ORDER BY tg.[Sequence] ";
 
 
@@ -6584,11 +6559,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
         // DOCUMENT SAVE
 
-        private string JWPODocumentMap()
+        private string OSPODocumentMap()
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(JWPODocumentMap), out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(OSPODocumentMap), out sID);
             return sID;
         }
 
@@ -6598,7 +6573,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                string sql = "SELECT * FROM [dbo].[JWPODocumentMap] WHERE Id='" + entity.Id + "'";
+                string sql = "SELECT * FROM [dbo].[OSPODocumentMap] WHERE Id='" + entity.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");
 
@@ -6606,7 +6581,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 {
                     DataRow dr = dsMaster.Tables[0].NewRow();
 
-                    dr["Id"] = entity.POId + "-" + JWPODocumentMap();
+                    dr["Id"] = entity.POId + "-" + OSPODocumentMap();
                     var createdId = dr["Id"];
                     dr["POId"] = entity.POId;
 
@@ -6671,7 +6646,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 							  ,UpdatedBy
 							  ,UpdatedDate
 							  ,UpdatedFromIP
-						  FROM dbo.JWPODocumentMap 
+						  FROM dbo.OSPODocumentMap 
 							where POId='" + POID + @"'
 							ORDER BY UserFilename";
                 return _sqlRepository.GetDataCollection(_sql);
@@ -6688,7 +6663,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         {
             try
             {
-                var _sql = @" Delete from [dbo].[JWPODocumentMap] where Id='" + Id + @"'";
+                var _sql = @" Delete from [dbo].[OSPODocumentMap] where Id='" + Id + @"'";
                 return _sqlRepository.GetDataCollection(_sql);
             }
             catch (Exception ex)
@@ -6711,7 +6686,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 							--  FROM [TRN].[GRNDocumentMap] 	 WHERE GRNId = t.GRNId FOR XML path('')
 							--),1,1,' ') UserFilename
 							FROM (select Id,CompanyGroupId	,POId,UserFilename ,SystemFileName,Description,Remarks,AddedBy,AddedDate,AddedFromIP,UpdatedBy,UpdatedDate,UpdatedFromIP 
-							FROM [dbo].[JWPODocumentMap] )t
+							FROM [dbo].[OSPODocumentMap] )t
 							ORDER BY t.UserFilename";
                 return _sqlRepository.GetDataCollection(_sql);
             }
@@ -6753,7 +6728,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                                 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                                 left join SCS.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                                left join dbo.JobWorkTransformationContractChild om on om.Id=mi.JobWorkTransformationContractChildMasterId
+                                left join dbo.OSTransformationPODetail om on om.Id=mi.JobWorkTransformationContractChildMasterId
 								left join (Select ArticleId,SUM(BOQRequiredQuantity) as BOQReqQty, Sum(NetConsumption) as NetConsumption, Sum(Rejection) as Rejection
 								,Sum(ValueLoss) ValueLoss, Sum(GrossConsumption) GrossConsumption from dbo.JobWorkTransformationContractChild3 group by ArticleId)
 								KK on KK.ArticleId=mma.Id

@@ -39,10 +39,10 @@ namespace Library.Accounting.Accounts
 							,ActivityName = A.UserName 
 							, SUM(JRBD.Amount) AS Dr, NULL Cr
 							, SUM(JRBD.Amount) AS Amount
-						FROM   dbo.JWReceiveBillingDetail JRBD 
-						LEFT JOIN [dbo].[JWReceiveBilling] JRB ON  JRBD.JWReceiveBillingId=JRB.Id
-						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=JRBD.JWTransformationContractChildId
-						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.JWTCMDId=JWTCC.Id
+						FROM   dbo.OSReceiveBillingDetail JRBD 
+						LEFT JOIN [dbo].[OSReceiveBilling] JRB ON  JRBD.OSReceiveBillingId=JRB.Id
+						LEFT JOIN dbo.OSTransformationPODetail JWTCC ON JWTCC.Id=JRBD.OSTransformationPODetailId
+						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.OSTransformationPODetailId=JWTCC.Id
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
@@ -75,10 +75,10 @@ namespace Library.Accounting.Accounts
 							,ActivityName = AF.UserName 
 							, NULL Dr, SUM(JRBD.Amount) AS Cr
 							, SUM(JRBD.Amount) AS Amount
-						FROM   dbo.JWReceiveBillingDetail JRBD 
-						LEFT JOIN [dbo].[JWReceiveBilling] JRB ON  JRBD.JWReceiveBillingId=JRB.Id
-						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=JRBD.JWTransformationContractChildId
-						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.JWTCMDId=JWTCC.Id
+						FROM   dbo.OSReceiveBillingDetail JRBD 
+						LEFT JOIN [dbo].[OSReceiveBilling] JRB ON  JRBD.OSReceiveBillingId=JRB.Id
+						LEFT JOIN dbo.OSTransformationPODetail JWTCC ON JWTCC.Id=JRBD.OSTransformationPODetailId
+						LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.OSTransformationPODetailId=JWTCC.Id
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId

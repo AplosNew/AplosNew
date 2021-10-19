@@ -162,10 +162,10 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
         [HttpPost]
-        public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data)
+        public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data , string Remarks)
         {
             AdminAttendanceControlService mau = new AdminAttendanceControlService();
-            RTx _rt = mau.Savex(data);
+            RTx _rt = mau.Savex(data , Remarks);
 
             if (_rt.IsError)
             {
@@ -428,12 +428,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveFileList(List<Dictionary<string, object>> data, string PlId, string FD, string TD, string Emps)
+        public ActionResult SaveFileList(List<Dictionary<string, object>> data, string PlId, string FD, string TD, string Emps , string Remarks)
         {
             try
             {
                 AdminAttendanceControlService mau = new AdminAttendanceControlService();
-                mau.SaveFileList(data, PlId, FD, TD, Emps);
+                mau.SaveFileList(data, PlId, FD, TD, Emps, Remarks);
                 return Json(new { Error = false, Message = AplosMessage.Success });
             }
             catch (Exception ex)

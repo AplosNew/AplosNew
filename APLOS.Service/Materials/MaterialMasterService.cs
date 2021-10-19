@@ -8492,7 +8492,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
 
-		public IWorkbook CreateMaterialStoreLedger(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId)
+		public IWorkbook CreateMaterialStoreLedger(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId,string Sku1, string Sku2, string Sku3)
 		{
 			try
 			{
@@ -8503,7 +8503,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 				var sheet2 = workbook.Worksheets[1];
 				var Head = "";
 				Head = "Material Store Ledger ";//Material Store Ledger as on"+ " " + toDate;
-				CreateMaterialStoreLedger(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, MaterialId, ArticleId);
+				CreateMaterialStoreLedger(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, MaterialId, ArticleId,Sku1,Sku2,Sku3);
 				workbook.Version = ExcelVersion.Excel2016;
 				return workbook;
 			}
@@ -8513,12 +8513,33 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 			}
 		}
 
-		private void CreateMaterialStoreLedger(ref IWorksheet sheet1, ref IWorksheet sheet2, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId)
+		private void CreateMaterialStoreLedger(ref IWorksheet sheet1, ref IWorksheet sheet2, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId, string Sku1, String Sku2, String Sku3)
 		{
 
 			var cmdText = "";
 			//if (fromDate != "" && toDate != "")
 			//{
+			String Sku = "";
+
+			if (Sku1==null && Sku2 == null && Sku3 == null)
+            {
+				 Sku = @"Order By IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueDate DESC";
+			}
+			else if(Sku != null && Sku2 == null && Sku3 == null)
+            {
+				Sku = @"and isnull(IM.FirstCharacteristicsValueId,'')='" + Sku1 + @"'
+						
+						Order By IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueDate DESC";
+			}
+			else if(Sku != null && Sku2 != null && Sku3 == null)
+            {
+				Sku = @"and isnull(IM.FirstCharacteristicsValueId,'')='" + Sku1 + @"'
+						and isnull(IM.SecondCharacteristicsValueId,'')='" + Sku2 + @"'
+						
+						Order By IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueDate DESC";
+			}
+           
+			
 
 
 			cmdText = @"select 						
@@ -8751,8 +8772,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      )main on main.InventoryReceiveDetailId=IRD.Id		
                                      									 
 						where  	IM.PlantId='" + plantId + @"' AND MM.Id='" + MaterialId + @"' AND Art.Id='" + ArticleId + @"' AND 
-						Convert(date ,IR.GRNDate) between '"+fromDate+@"' AND '"+toDate+@"'
-						Order By IR.GRNDate, IR.AddedDate,IRD.Id ,main.IssueDate DESC";
+						Convert(date ,IR.GRNDate) between '"+fromDate+@"' AND '"+toDate+ @"'  
+                        " + Sku + @" ";
 
 
 			var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
@@ -8819,6 +8840,32 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 			sheet1.Range[_row, 2, _row, 5].Merge();
 			sheet1.Range[_row, 1, _row, 5].BorderAround(ExcelLineStyle.Thin);
 			sheet1.Range[_row, 1, _row, 2].BorderInside(ExcelLineStyle.Thin);
+
+			sheet1[_row, 6].Text = "Sku1:";
+			sheet1[_row, 6].CellStyle.Font.Size = 10;
+			sheet1[_row, 6].CellStyle.Font.Bold = true;
+			sheet1[_row, 7].Text = inventoryMaterialList.Rows[0]["FirstCharacteristicsValue"].ToString();
+			sheet1.Range[_row, 7, _row, 8].Merge();
+			sheet1.Range[_row, 6, _row, 8].BorderAround(ExcelLineStyle.Thin);
+			sheet1.Range[_row, 6, _row, 8].BorderInside(ExcelLineStyle.Thin);
+
+			sheet1[_row, 9].Text = "Sku2:";
+			sheet1[_row, 9].CellStyle.Font.Size = 10;
+			sheet1[_row, 9].CellStyle.Font.Bold = true;
+			sheet1[_row, 10].Text = inventoryMaterialList.Rows[0]["SecondCharacteristicsValue"].ToString();
+			sheet1.Range[_row, 10, _row, 11].Merge();
+			sheet1.Range[_row, 9, _row, 11].BorderAround(ExcelLineStyle.Thin);
+			sheet1.Range[_row, 9, _row, 11].BorderInside(ExcelLineStyle.Thin);
+
+			sheet1[_row, 12].Text = "Sku3:";
+			sheet1[_row, 12].CellStyle.Font.Size = 10;
+			sheet1[_row, 12].CellStyle.Font.Bold = true;
+			sheet1[_row, 13].Text = inventoryMaterialList.Rows[0]["ThirdCharacteristicsValue"].ToString();
+			sheet1.Range[_row, 13, _row, 14].Merge();
+			sheet1.Range[_row, 12, _row, 14].BorderAround(ExcelLineStyle.Thin);
+			sheet1.Range[_row, 12, _row, 14].BorderInside(ExcelLineStyle.Thin);
+
+
 
 			_row++;
 			sheet1[_row, 1].Text = "UOM";
@@ -9714,8 +9761,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
 			#endregion sumCalc
-
-
+	
+			sheet1["A" + 11].FreezePanes();
 			sheet1.Name = sheet1Name;
 			sheet1.UsedRange.WrapText = true;
 			//sheet1.UsedRange.CellStyle.Font.Size = 8;

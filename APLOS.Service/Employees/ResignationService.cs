@@ -993,6 +993,7 @@ namespace Library.Service.Employees
                     if (db != null && db.ApprovalStatus == "Approved")
                     {
                         DateTime ed = (DateTime)item.ApprovedEffectiveDate;
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         obj.SaveTotal(_plantId, ed.ToString("dd-MMM-yyyy"), item.EmployeeId, false);//Main Function for attendace Process
                     }
                 }
@@ -1169,6 +1170,7 @@ namespace Library.Service.Employees
                 for (int i = 0; i < entities.Count; i++)
                 {
                     _plantId = entities[i]["PlantId"].ToString();
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                     obj.SaveTotal(_plantId, entities[i]["ApprovedEffectiveDate"].ToString(), "'"+entities[i]["EmployeeId"]+"'", false, true);
                 }
 

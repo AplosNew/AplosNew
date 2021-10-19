@@ -23,13 +23,13 @@ namespace Aplos.Areas.Attendances.Controllers
     public class AttendanceRawDataDeleteController : BaseController
     {
         #region Constructor
-      
+
         private readonly ISqlRepository _sqlRepository;
         public AttendanceRawDataDeleteController(
                ISqlRepository sqlRepository
             )
         {
-            
+
             _sqlRepository = sqlRepository;
         }
         #endregion
@@ -85,9 +85,9 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
         [HttpGet, Authorize]
-        public ActionResult GetAttendanceRawDataEmployeeWise(string FromDate,string ToDate,string EmpSystemId)
-        
-{
+        public ActionResult GetAttendanceRawDataEmployeeWise(string FromDate, string ToDate, string EmpSystemId)
+
+        {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT [CheckBoxSelect] = Convert(BIT, 'False')
@@ -185,8 +185,8 @@ namespace Aplos.Areas.Attendances.Controllers
                 {
 
                     throw ex;
-                }                       
-                    
+                }
+
 
                 strSQL1 = @"SELECT * FROM AttdnRawData WHERE Id IN (" + AttendanceRawDataId + ") AND PlantID='" + identity.PlantId + @"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -263,7 +263,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 while (FromDate <= ToDate)
                 {
-                   
+
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                     ReturnType r = obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), EmpSytemId, false);//laila                 
                     FromDate = FromDate.AddDays(1);
                 }
@@ -304,11 +305,11 @@ namespace Aplos.Areas.Attendances.Controllers
             string strSQL;
             string strSQL1;
             string strSQL2;
-           
+
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-               
+
                 for (int i = 0; i < AttendanceRawData.Count; i++)
                 {
                     if (AttendanceRawDataId == "")
@@ -403,6 +404,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
 
+                AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                 ReturnType r = obj.SaveTotal(identity.PlantId, ToDate.ToString("dd-MMM-yyyy"), EmpSytemId, false);//laila                 
 
 
@@ -474,7 +476,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
             json.MaxJsonLength = int.MaxValue;
             return json;
-        } 
+        }
         #endregion
 
 
@@ -488,7 +490,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
-                IsTransactionStarted = true;  
+                IsTransactionStarted = true;
                 objCon.ExecuteNonQueryWrapper("DELETE FROM AttdnRawData WHERE Id IN (" + AttendanceRawDataId + ")", true, "1");
                 int i = 0;
                 foreach (DataSet value in dsRef)
@@ -527,7 +529,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }//End Function
     }
-    
+
     public class AttendanceRawDataVM
     {
         public bool CheckBoxSelect { get; set; }
@@ -548,5 +550,5 @@ namespace Aplos.Areas.Attendances.Controllers
         public string Section { get; set; }
         public string SubSection { get; set; }
         public string Line { get; set; }
-    }						
+    }
 }

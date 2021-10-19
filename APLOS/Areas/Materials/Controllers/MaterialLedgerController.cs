@@ -248,12 +248,18 @@ namespace Aplos.Areas.Materials.Controllers
         #region Material-Store-Ledger
 
         [Authorize, HttpGet]
-        public ActionResult MaterialStoreLedgerReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId)
+        public ActionResult MaterialStoreLedgerReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId,string Sku1,string Sku2,string Sku3)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             plantId = identity.PlantId;
+            if (string.IsNullOrEmpty(Sku1) || Sku1 == "undefined")
+                Sku1 = null;
+            if (string.IsNullOrEmpty(Sku2) || Sku2 == "undefined")
+                Sku2 = null;
+            if (string.IsNullOrEmpty(Sku3) || Sku3 == "undefined" )
+                Sku3 = null;
             var reportFileName = "Material Store Ledger" + fromDate + "To" + toDate + "";
-            var workbook = _materialMasterService.CreateMaterialStoreLedger(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue,  MaterialId,  ArticleId);
+            var workbook = _materialMasterService.CreateMaterialStoreLedger(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue,  MaterialId,  ArticleId,Sku1,Sku2,Sku3);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

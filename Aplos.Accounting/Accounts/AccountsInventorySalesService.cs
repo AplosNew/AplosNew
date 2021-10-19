@@ -565,7 +565,7 @@ namespace Library.Accounting.Accounts
 		{
 			try
 			{
-				string sql = @"SELECT NULL HistotyId,ISRD.Id,IID.Id InventorySalesDetailId, IID.InventorySalesId InventoryIssueId, IID.InventoryMaterialId, II.MaterialStorageId
+				string sql = @"SELECT NULL HistotyId,ISRD.Id, ISRD.InventoryReceiveDetailId, IID.Id InventorySalesDetailId, IID.InventorySalesId InventoryIssueId, IID.InventoryMaterialId, II.MaterialStorageId
 		                        , IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
 		                        , IM.FirstCharacteristicsId, CH1.UserName AS FirstCharacteristics, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicText--FirstCharacteristicsValue
 		                        , IM.SecondCharacteristicsId, CH2.UserName AS SecondCharacteristics, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicText--SecondCharacteristicsValue
@@ -577,7 +577,7 @@ namespace Library.Accounting.Accounts
 								,(IID.TransactionQty-isnull(ISR.OtherQty,0)) BalanceQty,(IID.TransactionQty-isnull(ISR.OtherQty,0)) CurrentBalanceQty
 								,ISD.TotalAmount,IST.TaxAmount SalesTaxAmount
 								,ISRD.TransactionQty ReturnQty,ISRD.TotalSalesAmount ReturnAmount,ISRT.TaxAmount TaxAmount,NULL TaxList
-                        
+								, ISRD.TransactionQty TempReturnQty
 						FROM [TRN].InventorySalesReturnDetail ISRD
 						LEFT JOIN ( SELECT InventorySalesReturnDetailId,SUM(TaxAmount) TaxAmount FROM TRN.InventorySalesReturnTax GROUP BY InventorySalesReturnDetailId ) ISRT ON ISRT.InventorySalesReturnDetailId=ISRD.Id
 						LEFT JOIN [TRN].[InventorySalesDetail] AS IID ON IID.Id=ISRD.InventorySalesDetailId
@@ -615,14 +615,14 @@ namespace Library.Accounting.Accounts
             try
             {
                 string CmdText = @"SELECT E.UserName AS Entity , II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
-                                , MS.UserName AS MaterialStorage,SUM(IID.TransactionQty) Qty,II.Remarks,II.InventorySalesId
+                                , MS.UserName AS MaterialStorage,SUM(IID.TransactionQty) Qty,II.Remarks,II.InventorySalesId,II.InventoryReceiveId
                                 FROM [TRN].[InventorySalesReturn] AS II
                                 JOIN TRN.InventorySalesReturnDetail AS IID ON IID.InventorySalesReturnId=II.Id
                                 JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId=MS.Id
                                 Left JOIN [ORG].[Entity] E On E.id=II.EntityId
                                 WHERE II.PlantId='" + plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' 
                                 GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
-                                , MS.UserName,E.UserName,II.Remarks,II.Id,II.InventorySalesId";
+                                , MS.UserName,E.UserName,II.Remarks,II.Id,II.InventorySalesId,II.InventoryReceiveId";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)

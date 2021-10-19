@@ -3585,7 +3585,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
             try
             {
                 parameters.CmdText =
-                        @"SELECT  V.VoucherNo,II.VoucherId,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
+						@"SELECT  V.VoucherNo,II.VoucherId,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
 						,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
 						,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName ,V.IsPark
                         FROM TRN.InventoryIssue II 
@@ -3594,7 +3594,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                         FROM TRN.InventoryIssueDetail ID JOIN TRN.InventoryIssue II ON II.Id=ID.InventoryIssueId
 						GROUP BY II.VoucherId,II.IssueDate,II.Id) AS IID ON IID.VoucherId=V.Id
 						LEFT JOIN HKP.MaterialStorage AS MS ON MS.Id=II.MaterialStorageId
-						LEFT JOIN [dbo].[JWTransformationPurchaseOrder] JW ON JW.Id=II.JWContractId
+						LEFT JOIN [dbo].[OSTransformationPO] JW ON JW.Id=II.JWContractId
 						LEFT join dbo.[Contract] CN ON CN.Id=JW.ContractId
 						LEFT JOIN dbo.MasterLC LC ON LC.Id=CN.MasterLCId
 						LEFT JOIN HKP.Party P ON P.Id=LC.CustomerId
@@ -3840,7 +3840,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                     LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                     WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.IsPaymentHold=0 AND IR.PlantId='" + plantId + @"' AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL 
 					--AND IR.IsApproved=1 AND IR.RequiredPosting=1 
-					AND IR.GRNType='GRNBYJW'
+					AND IR.GRNType='GRNBYPO'
                     order by IR.GRNDate desc";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -4122,8 +4122,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Amount
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
-						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.JWTCMDId
+						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.OSTransformationPOId
+						LEFT JOIN dbo.OSTransformationPODetail JWTCC ON JWTCC.Id=IRD.OSTransformationPODetailId
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
 						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id
@@ -4152,8 +4152,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Amount
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
-						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.JWTCMDId
+						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.OSTransformationPOId
+						LEFT JOIN dbo.OSTransformationPODetail JWTCC ON JWTCC.Id=IRD.OSTransformationPODetailId
 						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
 						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id

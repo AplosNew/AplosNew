@@ -720,7 +720,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 DateTime ToDate = Convert.ToDateTime(pToDate);
                 while (FromDate <= ToDate)
                 {
-
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                     ReturnType r = obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), EmpIdLoop, false);//laila                 
                     FromDate = FromDate.AddDays(1);
                 }

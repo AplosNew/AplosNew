@@ -125,6 +125,16 @@ namespace Aplos.Areas.Products.Controllers
             return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public JsonResult Update(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities, IEnumerable<SalesReturnTaxViewModel> salesReturnTaxList, IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
+            inventoryIssue.CompanyId = identity.CompanyId;
+            inventoryIssue.PlantId = identity.PlantId;
+            _inventoryIssueService.SalesReturnUpdate(inventoryIssue, entities, salesReturnTaxList, salesServiceVMList);
+            return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
+        }
 
         #endregion
     }

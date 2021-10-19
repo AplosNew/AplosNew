@@ -1879,7 +1879,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						 --where  IR.PlantId='20181'  AND convert(Date,IR.GRNDate) BETWEEN  '01-OCT-2020' AND '31-OCT-2020' --ORDER BY IR.GRNDate ASC
 						 where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
                          --and IR.Id='20211740'
-						AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW' AND IR.GRNType<>'InventorySalesReturn'
+						AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 
 							UNION ALL
 
@@ -2116,7 +2116,7 @@ namespace Library.MaterialManagement.InventoryManagements
 			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 			where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'  --and IR.Id='20211740'
 			--AND IRT.InventoryServiceId is not null
-			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYJW' AND IR.GRNType<>'InventorySalesReturn'
+			AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 			)x
 			Order By X.GRNEntryDate ASC";
 
@@ -4065,7 +4065,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					,sum(((((((((isnull(x.OpeningBalance,0)-isnull(x.OpeningIssueQty,0) + isnull(x.ReceivedForThePeriod,0))-isnull(x.IssueForThePeriod,0)) + isnull(x.IssueReturnQtyForThePeriod,0))  - ISNULL(x.PurchaseReturnQtyForThePeriod,0))- isnull(x.AdjustmentQtyForThePeriod,0))-isnull(x.InventorySalesQtyForThePeriod,0))-isnull(x.InventoryScrapQtyForThePeriod,0))-Isnull(InventoryTransferQtyForThePeriod,0))- ISNULL(x.PurchaseReturnOpeningQty,0)) Closing 
 					,sum((((((((isnull(x.OpeningBalanceAmount,0)-isnull(x.PolicyAmount,0) + isnull(x.ReceivedForThePeriodAmount,0))-isnull(x.IssueForThePeriodAmount,0)-isnull(x.AdjustmentForThePeriodAmount,0))-isnull(x.PurchaseReturnForThePeriodAmount,0))+isnull(x.IssueReturnForThePeriodAmount,0)-isnull(x.InventorySalesForThePeriodAmount,0))-isnull(x.InventoryScrapForThePeriodAmount,0))-isnull(x.InventoryTransferForThePeriodAmount,0))-isnull(PurchaseReturnOpeningAmount,0))) ClosingAmount
 
-
+					,x.InventorySalesReturnQtyForThePeriod 
+					,x.InventorySalesReturnForThePeriodAmount
 
 
 					FROM (
@@ -4129,6 +4130,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 							
 
 					from TRN.InventoryMaterial AS IM
@@ -4228,7 +4232,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+											--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4315,7 +4321,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-						
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4404,7 +4412,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+						--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4495,6 +4505,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 							
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4580,7 +4593,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+											--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4668,7 +4683,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4755,7 +4772,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -4845,6 +4864,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 							
 
 					from TRN.InventoryMaterial AS IM
@@ -4934,7 +4956,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-						
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -5020,6 +5044,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,InventoryTransferData.InventoryTransferDataQty InventoryTransferQtyForThePeriod	
 					,InventoryTransferData.InventoryTransferAmount InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 							
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -5063,6 +5090,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					--,x.MaterialStorageLocation
 					--,x.InventoryMaterialId
 					--,x.GRNDate
+
+					,x.InventorySalesReturnQtyForThePeriod 
+					,x.InventorySalesReturnForThePeriodAmount
 					";
 				}
 				else if (Asset == "false" && Inventory == "true" && Country == "false")
@@ -5252,7 +5282,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=opbal.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  opbal.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					--------------------------Opening Issued-----------------------
 					UNION All
@@ -5349,7 +5379,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=IFD3.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  IFD3.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					-----------------------------Received--------------------------------------
 
@@ -5449,7 +5479,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=opbal2.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  opbal2.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					---------------------------------Issue--------------------------------------
 
@@ -5549,7 +5579,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=IFD1.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  IFD1.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					-------------------------------Issue Return-------------------------------------
 
@@ -5644,7 +5674,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=IssueReturnData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  IssueReturnData.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					-----------------Opening Purchase Return ------------------------------
 					
@@ -5838,7 +5868,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=PurchaseReturnData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  PurchaseReturnData.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 
 					---------------------------------- Adjustment-------------------------------
@@ -5937,7 +5967,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=AdjustmentData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  AdjustmentData.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					--------------------------------- InventorySales----------------------------------
 
@@ -6035,7 +6065,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=InventorySalesData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  InventorySalesData.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					--------------------------------- InventoryScrap----------------------------------------
 
@@ -6133,7 +6163,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=InventoryScrapData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  InventoryScrapData.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					---------------------------------------------- Inventory Transfer----------------------------
 
@@ -6227,7 +6257,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=InventoryTransferData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  InventoryTransferData.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 
 					--------------------------------- InventorySales Opening----------------------------------
@@ -6328,7 +6358,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=InventorySalesData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  InventorySalesData.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 					-----------------------------------------------------------------------------------
 					-----------------------------Inventory Sales Return--------------------------------------
 
@@ -6425,7 +6455,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=InventorySalesData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  InventorySalesReturnData.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					-----------------------------Inventory Sales Return Opening--------------------------------------
 
@@ -6523,7 +6553,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=InventorySalesData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  InventorySalesReturnDataOpening.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					)x
 					where not
@@ -6592,7 +6622,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,sum(((((((((isnull(x.OpeningBalance,0)-isnull(x.OpeningIssueQty,0) + isnull(x.ReceivedForThePeriod,0))-isnull(x.IssueForThePeriod,0)) + isnull(x.IssueReturnQtyForThePeriod,0))  - ISNULL(x.PurchaseReturnQtyForThePeriod,0))- isnull(x.AdjustmentQtyForThePeriod,0))-isnull(x.InventorySalesQtyForThePeriod,0))-isnull(x.InventoryScrapQtyForThePeriod,0))-Isnull(InventoryTransferQtyForThePeriod,0))- ISNULL(x.PurchaseReturnOpeningQty,0)) Closing 
 					,sum((((((((isnull(x.OpeningBalanceAmount,0)-isnull(x.PolicyAmount,0) + isnull(x.ReceivedForThePeriodAmount,0))-isnull(x.IssueForThePeriodAmount,0)-isnull(x.AdjustmentForThePeriodAmount,0))-isnull(x.PurchaseReturnForThePeriodAmount,0))+isnull(x.IssueReturnForThePeriodAmount,0)-isnull(x.InventorySalesForThePeriodAmount,0))-isnull(x.InventoryScrapForThePeriodAmount,0))-isnull(x.InventoryTransferForThePeriodAmount,0))-isnull(PurchaseReturnOpeningAmount,0))) ClosingAmount
 
-
+							--Inventory Sales Return Data
+					,x.InventorySalesReturnQtyForThePeriod	
+					,x.InventorySalesReturnForThePeriodAmount
 
 
 					FROM (
@@ -6654,7 +6686,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+						
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -6692,7 +6727,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=opbal.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  opbal.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					-----------------------------Opening Issued----------------------------------
 
@@ -6752,7 +6787,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+						
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -6780,7 +6818,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=IFD3.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  IFD3.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					---------------------------------Received------------------------------------------
 
@@ -6841,6 +6879,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferForThePeriodAmount
 
 						
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -6869,7 +6910,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=opbal2.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  opbal2.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					--------------------------------------Issue-------------------------------------------
 
@@ -6928,7 +6969,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+					
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount		
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -6959,7 +7003,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=IFD1.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  IFD1.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					-----------------------------------Issue Return-----------------------------------------
 
@@ -7018,6 +7062,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
+
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount
 							
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -7043,7 +7091,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=IssueReturnData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  IssueReturnData.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					-----------------Opening Purchase Return ------------------------------
 					
@@ -7104,6 +7152,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferForThePeriodAmount
 
 							
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -7189,6 +7240,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount
 							
 
 					from TRN.InventoryMaterial AS IM
@@ -7215,7 +7269,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=PurchaseReturnData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  PurchaseReturnData.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					-------------------------------------- Adjustment-----------------------------------
 
@@ -7277,6 +7331,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferForThePeriodAmount
 
 							
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -7304,7 +7361,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=AdjustmentData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  AdjustmentData.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					------------------------------------ InventorySales-------------------------------
 
@@ -7365,7 +7422,10 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
-							
+						
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount	
 
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -7393,7 +7453,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=InventorySalesData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=1 AND IM.PlantId='202034' AND MM.UserName is not null
+					where  InventorySalesData.IsAsset=1 AND IM.PlantId='202034' AND MM.UserName is not null
 
 					----------------------------------- InventoryScrap--------------------------------
 
@@ -7454,6 +7514,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 InventoryTransferQtyForThePeriod	
 					,0 InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount
 						
 
 					from TRN.InventoryMaterial AS IM
@@ -7481,7 +7544,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=InventoryScrapData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  InventoryScrapData.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					---------------------------- Inventory Transfer--------------------------------------------
 
@@ -7542,6 +7605,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					,InventoryTransferData.InventoryTransferDataQty InventoryTransferQtyForThePeriod	
 					,InventoryTransferData.InventoryTransferAmount InventoryTransferForThePeriodAmount
 
+					--Inventory Sales Return Data
+					,0 InventorySalesReturnQtyForThePeriod	
+					,0 InventorySalesReturnForThePeriodAmount
 							
 					from TRN.InventoryMaterial AS IM
 					left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -7566,7 +7632,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					--left join [HKP].[MaterialStorage] MS on ms.id=InventoryTransferData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
-					where  MM.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
+					where  InventoryTransferData.IsAsset=1 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 					)x
 					where not
 					(ISNULL(OpeningBalance,0)=0
@@ -7585,6 +7651,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					--,x.MaterialStorageLocation
 					--,x.InventoryMaterialId
 					--,x.GRNDate
+					,x.InventorySalesReturnQtyForThePeriod	
+					,x.InventorySalesReturnForThePeriodAmount
+
 					";
 
 
@@ -8105,7 +8174,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 					, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue --,MS.UserName MaterialStorageLocation	
 					, TUoM.UserName UOM, PurchaseReturnDataOpening.IsAsset--,PurchaseReturnData.InventoryMaterialId,PurchaseReturnData.GRNDate
-							
+					,C.UserName CountryName		
 					--Opening Balance
 					,0 As OpeningBalance	
 					,0 AS OpeningBalanceAmount
@@ -8175,7 +8244,9 @@ namespace Library.MaterialManagement.InventoryManagements
                         
 					--left join [HKP].[MaterialStorage] MS on ms.id=PurchaseReturnData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
+					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id		
+					Left JOIN SCS.Country C On C.Id=IM.CountryId
+
 					where IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					----------------------------------Purchase return-----------------------------
@@ -9148,7 +9219,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 					, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue --,MS.UserName MaterialStorageLocation	
 					, TUoM.UserName UOM, PurchaseReturnDataOpening.IsAsset--,PurchaseReturnData.InventoryMaterialId,PurchaseReturnData.GRNDate
-							
+						,C.UserName CountryName	
+
 					--Opening Balance
 					,0 As OpeningBalance	
 					,0 AS OpeningBalanceAmount
@@ -9218,7 +9290,8 @@ namespace Library.MaterialManagement.InventoryManagements
                         
 					--left join [HKP].[MaterialStorage] MS on ms.id=PurchaseReturnData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
+					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id	
+					Left JOIN SCS.Country C On C.Id=IM.CountryId
 					where IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					--------------------------Purchase return----------------------------
@@ -9472,7 +9545,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						Left join [TRN].[InventorySales] Ins on Ins.Id=ISD.InventorySalesId
 						Left join trn.InventoryReceiveDetail IRD ON IRD.Id=ISH.InventoryReceiveDetailId
 						LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-						WHERE convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND Ins.PlantId='" + plantId + @"'
+						WHERE convert(Date,Ins.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND Ins.PlantId='" + plantId + @"'
 						GROUP BY ISD.InventoryMaterialId,IRD.IsAsset--,IRD.MaterialStorageId,IR.GRNDate
 					)InventorySalesData ON InventorySalesData.InventoryMaterialId=IM.Id    
                                 
@@ -10179,7 +10252,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
 					, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue --,MS.UserName MaterialStorageLocation	
 					, TUoM.UserName UOM, PurchaseReturnDataOpening.IsAsset--,PurchaseReturnData.InventoryMaterialId,PurchaseReturnData.GRNDate
-							
+							,C.UserName CountryName	
 					--Opening Balance
 					,0 As OpeningBalance	
 					,0 AS OpeningBalanceAmount
@@ -10249,7 +10322,8 @@ namespace Library.MaterialManagement.InventoryManagements
                         
 					--left join [HKP].[MaterialStorage] MS on ms.id=PurchaseReturnData.MaterialStorageId
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id						   
+					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId=TUoM.Id	
+					Left JOIN SCS.Country C On C.Id=IM.CountryId
 					where IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					--------------------------------------------Purchase return-----------------------------
@@ -17253,7 +17327,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW' and IR.TransformationContractId='" + POId + @"'
+                        and IR.GRNType='GRNBYPO' and IR.TransformationContractId='" + POId + @"'
                         Union All
                         SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
@@ -17389,7 +17463,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW' and IR.TransformationContractId='" + POId + @"'
+                        and IR.GRNType='GRNBYPO' and IR.TransformationContractId='" + POId + @"'
                          Union All
                         SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
@@ -17525,7 +17599,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         AND IR.OpeningBalanceId IS NULL 
                         AND IR.EmployeeId IS NULL 
                         And IR.IsApproved = 1 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW' and IR.TransformationContractId='" + POId + @"'
+                        and IR.GRNType='GRNBYPO' and IR.TransformationContractId='" + POId + @"'
                         )x
                         --where x.TransformationContractId=' " + POId + @"'
                         order by GRNDate DESC";
@@ -17663,7 +17737,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                         WHERE IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 --And IR.POId Is not NULL 
-                        and IR.GRNType='GRNBYJW'
+                        and IR.GRNType='GRNBYPO'
                 order by IR.GRNDate ASC";
 				}
 
@@ -17697,8 +17771,6 @@ namespace Library.MaterialManagement.InventoryManagements
                         ,IRD.GRNQTY,IRD.GRNValue,IRD.Shortageqty,IRD.ShortageRatePercent,IRD.ShortageValue
 									,IRD.RejectionQty,IRD.RejectRatePercent,IRD.RejectionValue,IRD.RejectClamPercent,IRD.ServiceTranAmount,IRD.ServiceTaxTranAmount,IRD.MaterialTaxAmount
 						,PO.UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank,ISNULL(Pr.UserName ,'') CustomerName
-						,EI2.EmployeeName ByWhomName
-									,EI2.SystemId ByWhomEmployeeId
 						FROM [TRN].[InventoryReceive] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -17800,7 +17872,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                         WHERE  IR.CheckedByStatus='Checked'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 --And IR.POId Is not NULL  
-                         and IR.GRNType='GRNBYJW'  order by IR.GRNDate ASC";
+                         and IR.GRNType='GRNBYPO'  order by IR.GRNDate ASC";
 
 
 				}
@@ -18172,7 +18244,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
 								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                         WHERE IR.PlantId='" + plantId + @"'  --AND ISNULL(IR.[Status],'')='Posting' 
-And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='" + contractId + "'";
+And IR.IsApproved = 1 and IR.GRNType='GRNBYPO' AND IR.TransformationContractId='" + contractId + "'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -18417,8 +18489,8 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='
 				,ISNULL(PUoM.Id,'') POUoMId
 				,ISNULL(PUoM.UserName,'') POUoM
 				,ISNULL(Boq.SalesOrderId,'') SalesOrderId
-				,ISNULL(IRD.JWTCMId,'') POId
-				,ISNULL(IRD.JWTCMDId,'') PODetailsId 
+				,ISNULL(IRD.OSTransformationPOId,'') POId
+				,ISNULL(IRD.OSTransformationPODetailId,'') PODetailsId 
 
 				,IM.MaterialMasterId
 				,MM.UserName MaterialMasterName
@@ -18440,7 +18512,7 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='
 				, BaseUOMFactor=CASE WHEN MaA.BaseUOMFactor IS null then 1 else MaA.BaseUOMFactor end
 				FROM trn.InventoryReceive IR
 				Left JOIN TRN.InventoryReceiveDetail IRD on IR.Id=IRD.InventoryReceiveId
-				left join [dbo].[JWPOBOQMAP] POBOQMAP ON POBOQMAP.JWPODetailId =IRD.JWTCMDId
+				left join [dbo].[JWPOBOQMAP] POBOQMAP ON POBOQMAP.JWPODetailId =IRD.OSTransformationPODetailId
 				left join BOQ Boq on Boq.Id=POBOQMAP.BOQDetailId
 				LEFT JOIN SCS.UnitOfMeasurement TUoM ON TUoM.Id=IRD.TransactionUoMId
 				LEFT JOIN SCS.UnitOfMeasurement BUoM ON BUoM.Id=IRD.BaseUOMId
@@ -18460,7 +18532,7 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYJW' AND IR.TransformationContractId='
 						  from trn.GRNPORequisitionAllocation 
 						  group by InventoryReceiveDetailId
 						  )AlreadyAllo ON AlreadyAllo.InventoryReceiveDetailId=IRD.Id
-				WHERE IR.GRNType='GRNBYJW' and Boq.SalesOrderId IS NOT NULL Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
+				WHERE IR.GRNType='GRNBYPO' and Boq.SalesOrderId IS NOT NULL Order by IRD.Id ASC";// ,MMAU.BaseUOMFactor
 				return _sqlRepository.GetDataCollection(sql);
 
 			}

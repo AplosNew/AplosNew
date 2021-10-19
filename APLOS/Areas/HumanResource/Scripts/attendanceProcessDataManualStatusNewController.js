@@ -11,6 +11,9 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
     $scope.FromDate = '';
     $scope.ToDate = '';
 
+    $scope.Remarks = null;
+    $scope.RemarksT = null;
+
     function nullrecorder(val) {
         if (baseService.isUndefinedOrNull(val))
             return "";
@@ -298,7 +301,7 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': DataToBeSaved },
+            data: { 'data': DataToBeSaved , 'Remarks':$scope.Remarks},
             url: $scope.path + 'SaveSingleEmployee'
 
         }).then(function successCallback(response) {
@@ -351,7 +354,7 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': DataToBeSaved },
+            data: { 'data': DataToBeSaved ,'Remarks':$scope.RemarksT},
             url: $scope.path + 'SaveSingleEmployee'
 
         }).then(function successCallback(response) {

@@ -1843,12 +1843,12 @@ namespace Library.MaterialManagement.Inventory
                         from(
 		              SELECT TotalQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
-                    JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                    LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+                    LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                    JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
-                    JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
-                    JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                    LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+                    LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"' 
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"'
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
@@ -2561,7 +2561,7 @@ namespace Library.MaterialManagement.Inventory
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.IsApproved=1
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
-                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
+                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.FromMaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + "' AS DATE) ORDER BY CAST(IRD.AddedDate AS DATE)";
 				return _sqlRepository.GetDataCollection(sql);
@@ -2606,7 +2606,7 @@ namespace Library.MaterialManagement.Inventory
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.IsApproved=1
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
-                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
+                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.FromMaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
                     AND CAST(IR.GRNDate AS DATE) > CAST('" + issueDate + "' AS DATE) ORDER BY CAST(IRD.AddedDate AS DATE)";
 				return _sqlRepository.GetDataCollection(sql);
@@ -2655,7 +2655,7 @@ namespace Library.MaterialManagement.Inventory
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.IsApproved=0
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
-                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + @"' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
+                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + @"' AND IRD.MaterialStorageId='" + entity.FromMaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + "' AS DATE) ORDER BY CAST(IRD.AddedDate AS DATE)";
 				return _sqlRepository.GetDataCollection(sql);
@@ -2701,7 +2701,7 @@ namespace Library.MaterialManagement.Inventory
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.IsApproved=0
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
-                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
+                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.FromMaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
                     AND CAST(IR.GRNDate AS DATE)> CAST('" + issueDate + "' AS DATE) ORDER BY CAST(IRD.AddedDate AS DATE)";
 				return _sqlRepository.GetDataCollection(sql);
@@ -2753,7 +2753,7 @@ namespace Library.MaterialManagement.Inventory
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.[Status]='Posting' 
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
-                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
+                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.FromMaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
 					AND IRD.BaseQty !=IRD.BaseIssueQty
                     AND CAST(IR.GRNDate AS DATE)<=CAST('" + issueDate + "' AS DATE) ORDER BY CAST(IRD.AddedDate AS DATE)";
@@ -2802,7 +2802,7 @@ namespace Library.MaterialManagement.Inventory
                     WHERE IM.CompanyGroupId='" + entity.CompanyGroupId + "' AND IM.CompanyId='" + entity.CompanyId + "' AND IM.PlantId='" + entity.PlantId + @"'
                     AND IM.MaterialMasterId='" + entity.MaterialMasterId + @"' AND IR.[Status]='Posting' 
                     AND ISNULL(IM.ArticleId,'')='" + entity.ArticleId + "' AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + entity.FirstCharacteristicsValueId + "' AND  ISNULL(IM.SecondCharacteristicsValueId,'')='" + entity.SecondCharacteristicsValueId + @"'
-                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.MaterialStorageId + @"' 
+                    AND ISNULL(IM.ThirdCharacteristicsValueId,'')='" + entity.ThirdCharacteristicsValueId + "' AND IRD.MaterialStorageId='" + entity.FromMaterialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
                     AND CAST(IR.GRNDate AS DATE) <= CAST('" + issueDate + "' AS DATE) ORDER BY CAST(IRD.AddedDate AS DATE)";
 				return _sqlRepository.GetDataCollection(sql);
@@ -3963,8 +3963,8 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
                                   SET @totalServiceAmount=(SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=@inventoryReceiveId)
                                   SET @totalSvcTaxAmount=(SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=@inventoryReceiveId AND InventoryServiceId<>'')
                                   SELECT IM.Id, IRD.Id AS InventoryReceiveDetailId,IRD.id as RCBDetailsID,IRD.PODetailsId,IRD.POId
-										,tc1.Id JWTCMId
-										,mp.Id JWTCMDId
+										,tc1.Id OSTransformationPOId
+										,mp.Id OSTransformationPODetailId
 										,jwi.UserName as JWOutputItem
 										,jwa.UserName as JobWorkActivity
                                       
@@ -4013,9 +4013,9 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
                                   LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
                                   LEFT jOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id and ird.InventoryReceiveId='" + inveReveiveId + @"'
                                   LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId   
-                                  LEFT JOIN (select JWTCMDId,  Sum(TransactionQty) as GRNRcvQty 
+                                  LEFT JOIN (select OSTransformationPODetailId,  Sum(TransactionQty) as GRNRcvQty 
                                   from trn.InventoryReceiveDetail where InventoryReceiveId not in('" + inveReveiveId + @"') 
-                                  Group By JWTCMDId) AS Pre on pre.JWTCMDId=IRD.JWTCMDId
+                                  Group By OSTransformationPODetailId) AS Pre on pre.OSTransformationPODetailId=IRD.OSTransformationPODetailId
 
 								JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 								JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -4023,7 +4023,7 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
 								LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.ID=PID.RequisitionDetailId
 								left join scs.country C ON C.Id=IM.CountryId 
 								LEFT JOIN  [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
-								Left JOIN dbo.JobWorkTransformationContractChild mp On mp.Id=IRD.JWTCMDId 
+								Left JOIN dbo.JobWorkTransformationContractChild mp On mp.Id=IRD.OSTransformationPODetailId 
 								left join dbo.JobWorkTransformationContract tc1 on tc1.Id=mp.JobWorkTransformationContractMasterId
 								left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
 								left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
@@ -4049,8 +4049,8 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
                                   SET @totalServiceAmount=(SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=@inventoryReceiveId)
                                   SET @totalSvcTaxAmount=(SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=@inventoryReceiveId AND InventoryServiceId<>'')
                                   SELECT IM.Id, IRD.Id AS InventoryReceiveDetailId,IRD.id as RCBDetailsID,IRD.PODetailsId,IRD.POId
-										,mi.Id JWTCMByProductId
-										,tbp.Id JWTCMDByProductId
+										,mi.Id OSTransformationPOInputMaterialId
+										,tbp.Id OSTransformationPOByProductId
 										,jwit.UserName as JWOutputItem
 										,jwi.UserName as ByProductItem
                                       
@@ -4099,9 +4099,9 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
                                   LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
                                   LEFT jOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id and ird.InventoryReceiveId='" + inveReveiveId + @"'
                                   LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId   
-                                  LEFT JOIN (select JWTCMDByProductId,  Sum(TransactionQty) as GRNRcvQty 
+                                  LEFT JOIN (select OSTransformationPOByProductId,  Sum(TransactionQty) as GRNRcvQty 
                                   from trn.InventoryReceiveDetail where InventoryReceiveId not in('" + inveReveiveId + @"') 
-                                  Group By JWTCMDByProductId) AS Pre on pre.JWTCMDByProductId=IRD.JWTCMDByProductId
+                                  Group By OSTransformationPOByProductId) AS Pre on pre.OSTransformationPOByProductId=IRD.OSTransformationPOByProductId
 
 								JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 								JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -4109,7 +4109,7 @@ FROM [TRN].[InventoryReceiveDetail] AS IRD
 								LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.ID=PID.RequisitionDetailId
 								left join scs.country C ON C.Id=IM.CountryId 
 								LEFT JOIN  [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
-								LEFT JOIN dbo.JobWorkTransformationContractChild4 tbp ON tbp.Id=IRD.JWTCMDByProductId  
+								LEFT JOIN dbo.JobWorkTransformationContractChild4 tbp ON tbp.Id=IRD.OSTransformationPOByProductId  
                                 left join HKP.JobWorkItem jwi on jwi.Id=tbp.JobWorkItemId
                                 left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tbp.JobWorkTransformationContractChild3MasterId
                                 left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId

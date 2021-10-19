@@ -186,6 +186,7 @@ namespace Library.Service.HumanResources
                     while (FromDate <= ToDate)
                     {
 
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         ob.SaveTotal(identity.PlantId, Convert.ToDateTime(entity.AttendanceRestDate).ToString("dd-MMM-yyyy"), empSystemIds, false);
                         FromDate = FromDate.AddDays(1);
                     }
