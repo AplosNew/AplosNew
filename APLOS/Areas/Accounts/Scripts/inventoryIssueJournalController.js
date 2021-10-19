@@ -889,4 +889,12 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
+
+    $scope.downloadIssue = function () {
+        location.href = "Products/InventoryIssue/IssueReport?grnId=" + $scope.modelNew.Id;
+    };
+    $scope.downloadIssueExcel = function () {
+        var reportFormat = "Excel";
+        location.href = "JobWork/OSIssueReturn/GetIIPrintReport?reportFormat=" + reportFormat + '&IssueId=' + $scope.modelNew.Id;
+    };
 } 
