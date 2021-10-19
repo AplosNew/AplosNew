@@ -4,7 +4,7 @@ function onDutyApprovalNewController(commonMessage, $scope, $rootScope, baseServ
     $rootScope.title = 'On Duty Approval';
     $scope.index = -1;
     $scope.maternityLeaveTransactions = [];
-    $scope.path = 'Leave/OnDutyApproval/';
+    $scope.path = 'Leave/OnDutyApprovalNew/';
     $scope.processUrl = $scope.path + 'Process';
     $scope.Action = 'Approve';
 
@@ -89,7 +89,7 @@ function onDutyApprovalNewController(commonMessage, $scope, $rootScope, baseServ
     
     $scope.ondutyapprovalList = [];
     $scope.getListData = function () {
-        $http.get('Leave/OnDutyApproval/getlist')
+        $http.get('Leave/OnDutyApprovalNew/getlist')
             .then(
                 function successCallback(response) {
                    // $scope.ondutyapprovalList = [];
