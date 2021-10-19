@@ -4454,7 +4454,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.FromSKU2List = response.data;
         });
     }
-
+    $scope.char1Id = '';
     $scope.ToSKU1List = [];
     $scope.GetToItemMaterialSKU1 = function (materialId) {
         $http({
@@ -4462,9 +4462,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             url: 'OrderManagements/MasterOrder/GetItemMaterialSKUData?materialMasterId=' + materialId + '&sequence=' + '1'
         }).then(function successCallback(response) {
             $scope.ToSKU1List = response.data;
+            $scope.char1Id = response.data[0].CharacteristicsId;
         });
     }
-
+    $scope.char2Id = '';
     $scope.ToSKU2List = [];
     $scope.GetToItemMaterialSKU2 = function (materialId) {
         $http({
@@ -4472,30 +4473,50 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             url: 'OrderManagements/MasterOrder/GetItemMaterialSKUData?materialMasterId=' + materialId + '&sequence=' + '2'
         }).then(function successCallback(response) {
             $scope.ToSKU2List = response.data;
+            $scope.char2Id = response.data[0].CharacteristicsId;
         });
     }
 
     $scope.CopySObyMOI = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'CopySOByMOI',
-            data: { 'MasterId': $scope.ToMasterOrderItemId, 'masterItemId': $scope.FromMasterOrderItemId, 'SKU1List': $scope.FromSKU1List, 'SKU2List': $scope.FromSKU2List },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
+        try {
+            if (baseService.arrayLength($scope.FromSKU1List)>0) {
+                for (var i = 0; i < $scope.FromSKU1List.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU1Id)) {
+                        throw "Select SKU1";
+                    }
+                }
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                angular.element(document.querySelector('#SKUsPopUp')).modal('hide');
-                getSalesOrderList();
-                $scope.getMasterItemList();
+            if (baseService.arrayLength($scope.FromSKU1List) > 0) {
+                for (var i = 0; i < $scope.FromSKU1List.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU2Id)) {
+                        throw "Select SKU2";
+                    }
+                }
+            }
 
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
+            $http({
+                method: 'POST',
+                url: $scope.path + 'CopySOByMOI',
+                data: { 'MasterId': $scope.ToMasterOrderItemId, 'masterItemId': $scope.FromMasterOrderItemId, 'SKU1List': $scope.FromSKU1List, 'SKU2List': $scope.FromSKU2List },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    angular.element(document.querySelector('#SKUsPopUp')).modal('hide');
+                    getSalesOrderList();
+                    $scope.getMasterItemList();
+
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     //#endregion
@@ -4516,23 +4537,19 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.state = state;
 
         if ($scope.state == '1st') {
-            $scope.charId = $scope.rmchar1.CharacteristicsId;
-            $scope.SKU = $scope.rmchar1.Name;
-            $scope.SKULevel = $scope.rmchar1.ValueAssignmentLevel;
+            $scope.charId = $scope.char1Id;
+            //$scope.SKU = $scope.rmchar1.Name;
+            $scope.SKULevel = 'Specific';
         }
         if ($scope.state == '2nd') {
-            $scope.charId = $scope.rmchar2.CharacteristicsId;
-            $scope.SKU = $scope.rmchar2.Name;
-            $scope.SKULevel = $scope.rmchar2.ValueAssignmentLevel;
+            $scope.charId = $scope.char2Id;
+          //  $scope.SKU = $scope.rmchar2.Name;
+            $scope.SKULevel = 'Specific';
         }
-        if ($scope.state == '3rd') {
-            $scope.charId = $scope.rmchar3.CharacteristicsId;
-            $scope.SKU = $scope.rmchar3.Name;
-            $scope.SKULevel = $scope.rmchar3.ValueAssignmentLevel;
-        }
+       
         $scope.characteristicsValue = {
             Id: baseService.pk()
-            , MaterialMasterId: $scope.bomDetailNew.RMMaterialMasterId
+            , MaterialMasterId: $scope.ToMaterialMasterId
             , CharacteristicsId: $scope.charId
             , Sequence: null
             , Code: null
@@ -4551,7 +4568,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     }
 
     $scope.GetMaterialMasterCharacteristicsValueSequence = function () {
-        $http.get('Materials/characteristicsvalue/getautosequence?characteristicsId=' + $scope.charId + '&materialId=' + $scope.bomDetailNew.RMMaterialMasterId)
+        $http.get('Materials/characteristicsvalue/getautosequence?characteristicsId=' + $scope.charId + '&materialId=' + $scope.ToMaterialMasterId)
             .then(function (response) {
                 $scope.characteristicsvalueNew.Sequence = response.data;
             });
@@ -4560,21 +4577,16 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.SaveBOMSKUState = function () {
         if ($scope.state == '1st') {
-            $scope.characteristicsvalueNew.SourceType = $scope.rmchar1.ValueAssignmentLevel;
+            $scope.characteristicsvalueNew.SourceType = 'Specific';
         }
         if ($scope.state == '2nd') {
-            $scope.characteristicsvalueNew.SourceType = $scope.rmchar2.ValueAssignmentLevel;
+            $scope.characteristicsvalueNew.SourceType = 'Specific';
         }
-        if ($scope.characteristicsvalueNew.SourceType === 'General') {
-            $scope.characteristicsvalueNew.MaterialMasterId = null;
-        }
+        
         if (baseService.isUndefinedOrNull($scope.name)) {
             $scope.SaveBOMSKU();
         }
-        if ($scope.name == 'mat') {
-
-            $scope.SaveBOMSKUMatrix();
-        }
+        
     }
 
     $scope.SaveBOMSKU = function () {
@@ -4593,33 +4605,29 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     else {
                         ShowResult(response.data.Message, 'success', 'SKUpopup');
 
-                        if ($scope.state == '1st') {
-                            $scope.bomDetailNew.FirstCharacteristicsId = $scope.charId;
-                            $scope.rmchar1.FreeText = response.data.CharacteristicsValue.UserName;
-                            $scope.bomDetailNew.FirstCharacteristicsValueId = response.data.CharacteristicsValue.Id;
+                       
+                     
 
-                            $scope.rmchar1.CharacteristicsId = $scope.bomDetailNew.FirstCharacteristicsId;
-                            $scope.rmchar1.CharacteristicsValueId = $scope.bomDetailNew.FirstCharacteristicsValueId;
+                        if ($scope.state == '1st') {
+                            $scope.GetToItemMaterialSKU1($scope.ToMaterialMasterId);
+                            //$scope.bomDetailNew.FirstCharacteristicsId = $scope.charId;
+                            //$scope.rmchar1.FreeText = response.data.CharacteristicsValue.UserName;
+                            //$scope.bomDetailNew.FirstCharacteristicsValueId = response.data.CharacteristicsValue.Id;
+
+                            //$scope.rmchar1.CharacteristicsId = $scope.bomDetailNew.FirstCharacteristicsId;
+                            //$scope.rmchar1.CharacteristicsValueId = $scope.bomDetailNew.FirstCharacteristicsValueId;
                         }
                         if ($scope.state == '2nd') {
-                            $scope.bomDetailNew.SecondCharacteristicsId = $scope.charId;
-                            $scope.rmchar2.FreeText = response.data.CharacteristicsValue.UserName;
-                            $scope.bomDetailNew.SecondCharacteristicsValueId = response.data.CharacteristicsValue.Id;
+                            $scope.GetToItemMaterialSKU2($scope.ToMaterialMasterId);
+                            //$scope.bomDetailNew.SecondCharacteristicsId = $scope.charId;
+                            //$scope.rmchar2.FreeText = response.data.CharacteristicsValue.UserName;
+                            //$scope.bomDetailNew.SecondCharacteristicsValueId = response.data.CharacteristicsValue.Id;
 
-                            $scope.rmchar2.CharacteristicsId = $scope.bomDetailNew.SecondCharacteristicsId;
-                            $scope.rmchar2.CharacteristicsValueId = $scope.bomDetailNew.SecondCharacteristicsValueId;
-                        }
-                        if ($scope.state == '3rd') {
-                            $scope.bomDetailNew.ThirdCharacteristicsId = $scope.charId;
-                            $scope.rmchar3.FreeText = response.data.CharacteristicsValue.UserName;
-                            $scope.bomDetailNew.ThirdCharacteristicsValueId = response.data.CharacteristicsValue.Id;
-
-                            $scope.rmchar3.CharacteristicsId = $scope.bomDetailNew.ThirdCharacteristicsId;
-                            $scope.rmchar3.CharacteristicsValueId = $scope.bomDetailNew.ThirdCharacteristicsValueId;
+                            //$scope.rmchar2.CharacteristicsId = $scope.bomDetailNew.SecondCharacteristicsId;
+                            //$scope.rmchar2.CharacteristicsValueId = $scope.bomDetailNew.SecondCharacteristicsValueId;
                         }
 
-
-                        $scope.clearMasterCharacteristicsValue();
+                       // $scope.clearMasterCharacteristicsValue();
                         angular.element(document.querySelector('#SKUpopup')).modal('hide');
                     }
                 }), function errorCallBack(response) {
@@ -4639,7 +4647,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.characteristicsValue = {};
         $scope.characteristicsvalueNew = {
             Id: baseService.pk()
-            , MaterialMasterId: $scope.bomDetailNew.RMMaterialMasterId
+            , MaterialMasterId: $scope.ToMaterialMasterId
             , CharacteristicsId: $scope.charId
             , Sequence: 0, Active: true, IsDefault: false
         };
