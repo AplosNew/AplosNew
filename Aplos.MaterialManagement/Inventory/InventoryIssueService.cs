@@ -2275,7 +2275,7 @@ namespace Library.MaterialManagement.Inventory
 							, MS.UserName AS MaterialStorage 
 							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
 							,SUM(IIH.qty) Qty
-							,SUM(Round(IIH.qty*IIH.Rate,2)) Amount
+							,IIh.TotalAmount Amount
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
 							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
@@ -2284,7 +2284,7 @@ namespace Library.MaterialManagement.Inventory
 							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-							left join (Select InventoryIssueDetailId,IssueRequestDetailId,qty, Rate from trn.InventoryIssueHistory ) IIH ON IIH.InventoryIssueDetailId=IID.Id
+							left join (Select InventoryIssueDetailId,IssueRequestDetailId,qty, Rate,TotalAmount from trn.InventoryIssueHistory ) IIH ON IIH.InventoryIssueDetailId=IID.Id
 							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
 							left JOIN SCS.Country c ON C.Id=IR.CountryId
 							left join dbo.Contract Con On Con.Id=II.ContractId
@@ -2292,7 +2292,7 @@ namespace Library.MaterialManagement.Inventory
 						GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 						,II.IssueDate, MS.UserName
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
-						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo
+						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,IIH.TotalAmount
 						Order BY II.IssueDate DESC";
                 return _sqlRepository.GetDataCollection(sql);
             }

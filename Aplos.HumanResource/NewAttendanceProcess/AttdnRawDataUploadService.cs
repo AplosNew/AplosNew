@@ -104,6 +104,18 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public string SaveSingleDataWithEmpId(AttdnRawData DataToSave)
+        {
+            if(DataToSave==null)
+            {
+                return "Data not Found";
+            }
+
+            List<AttdnRawData> data = new List<AttdnRawData>();
+            data.Add(DataToSave);
+            return SaveDataWithEmpId(data);
+                 
+        }
         public string SaveDataWithCardNumber(List<AttdnRawData> DataToSave)
         {
             try
