@@ -621,6 +621,10 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 					}
 				}
 			}
+			if (baseService.isUndefinedOrNull($scope.detailModel.TransactionUoMId)) {
+						ShowResult('Please select UOM', 'failure', 'detailPopUp');
+						return false;
+			}
 			$scope.detailModel.TransactionQty = baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) === true ? 0 : parseFloat($scope.detailModel.TransactionQty);
 			if ($scope.detailModel.TransactionQty === 0)
 				throw 'Please insert issue qty.';
