@@ -70,30 +70,49 @@ namespace Aplos.Areas.Leave.Controllers
                     }
                 }
 
+                string ManualTrigger = "''";
+
                 string sql = @"update [dbo].[EmployeeOnDuty] set IsApproved=1 where EmpSystemId in(" + EmpIdLoop + @") ";
                 ExecuteRawSQL(sql);
 
                 foreach (var item in EmpList)
                 {
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                    clsAttendance.AttendanceProcessAplos obj = new clsAttendance.AttendanceProcessAplos();
                     DateTime FromDate = Convert.ToDateTime(item.FromDate);
                     DateTime ToDate = Convert.ToDateTime(item.ToDate);
                     while (FromDate <= ToDate)
                     {
+                        string newformat = Convert.ToDateTime(FromDate).ToString("yyyyMMdd");
+                        ManualTrigger = ManualTrigger + ",'" + newformat + item.EmpSystemId + "'";
 
-                        ReturnType r = obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), item.EmpSystemId, false);
+                        DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["IsOD"] = 1;
+                        dr["IsManualDayStatus"] = true;
+                        dr["ManualDayStatus"] = "OD";
+                        dr["ManualEntryTime"] = Convert.ToDateTime(DateTime.Now);
+                        dr["LockedDate"] = DBNull.Value;
+                        dr["ManualByWhom"] = identity.Name;
+                        dr["LockedBy"] = DBNull.Value;
+                        dr["ManualFlag"] = true;
+                        dr["isLock"] = false;
+                        dr["OTComfirmBy"] = DBNull.Value;
+                        dr["DateOTComfirm"] = DBNull.Value;
+                        dr["IsOTComfirm"] = false;
+                        dr.EndEdit();
+
+                       // ReturnType r = obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), item.EmpSystemId, false);
                         FromDate = FromDate.AddDays(1);
                     } 
                 }
-                #region Attendance process
+                
 
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            #endregion
+          
             return Json(new { Message = "Approve completed!!!" }, JsonRequestBehavior.AllowGet);
         }
 
@@ -167,6 +186,7 @@ namespace Aplos.Areas.Leave.Controllers
             public string FromDate { get;set; }
             public string ToDate { get;set; }
         }
+
         #endregion -- Operations  
     }
 }
