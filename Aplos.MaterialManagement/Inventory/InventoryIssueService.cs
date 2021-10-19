@@ -877,7 +877,7 @@ namespace Library.MaterialManagement.Inventory
                                     AvgRate = Math.Round(Convert.ToDecimal(invMaterial.AvgRate), 4),
                                     Policy = "N/A",
 
-									TransactionQty = Math.Round(Convert.ToDecimal(totalGRNQty), 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
+									TransactionQty = stockList.Sum(r => r.RequisitionQty),//Math.Round(Convert.ToDecimal(totalGRNQty), 2), //stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
 
 									PolicyRate = Math.Round((Convert.ToDecimal(detailtrnAmount / totalGRNQty)), 4),
 									PolicyAmount = Math.Round(Convert.ToDecimal(detailtrnAmount), 2),
@@ -11698,14 +11698,14 @@ namespace Library.MaterialManagement.Inventory
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
-
-                AuditService.UpdatedLog(inventoryIssue);
-                _InventorySalesReturnRepository.Update(inventoryIssue);
+                var inventorySaleReturn = _InventorySalesReturnRepository.Find(inventoryIssue.Id);
+                AuditService.UpdatedLog(inventorySaleReturn);
+                _InventorySalesReturnRepository.Update(inventorySaleReturn);
 
                
                 var inventoryreceive = _inventoryReveiveService.Find(inventoryIssue.InventoryReceiveId);
-                AuditService.UpdatedLog(inventoryreceive);
-                _inventoryReveiveService.Update(inventoryreceive);
+                //AuditService.UpdatedLog(inventoryreceive);
+                //_inventoryReveiveService.Update(inventoryreceive);
 
                 var currentId = _InventorySalesReturnDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventorySalesReturnDetail] WHERE InventorySalesReturnId='{inventoryIssue.Id}'").First();
                 var receiveDetailcurrentId = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail]  WHERE InventoryReceiveId ='{inventoryreceive.Id}'").First();
@@ -11754,10 +11754,11 @@ namespace Library.MaterialManagement.Inventory
                         {
                             if (inventoryMaterial != null)
                             {
-                                inventoryMaterial.TotalQty += issue.TransactionQty;
+                                inventoryMaterial.TotalQty += issue.TransactionQty-issue.TempReturnQty;
                                 inventoryMaterial.ModelState = ModelState.Modified;
                                 _inventoryMaterialService.UpdateGraph(inventoryMaterial);
                             }
+                            detail.Id = issue.Id;
                             _InventorySalesReturnDetailRepository.Update(detail);
                           var invdetail=  _receiveDetailRepository.Find(issue.InventoryReceiveDetailId);
                             invdetail.TransactionQty = issue.TransactionQty;
@@ -11787,6 +11788,7 @@ namespace Library.MaterialManagement.Inventory
 
                                         var salesTax = new InventorySalesReturnTax
                                         {
+                                            Id=taxVM.Id,
                                             TaxAmount = taxVM.TaxAmount,
                                             BooksCurrencyTaxAmount = Math.Round(taxVM.TaxAmount * inventoryIssue.ToCurrencyRate, 2),
                                             HSNCodeId = taxVM.HSNCodeId,
@@ -11975,6 +11977,7 @@ namespace Library.MaterialManagement.Inventory
                         {
                             var salesService = new InventorySalesReturnService
                             {
+                                Id= salesServiceVM.Id,
                                 Amount = salesServiceVM.Amount,
                                 BooksCurrencyTransactionAmount = Math.Round(salesServiceVM.Amount * inventoryIssue.ToCurrencyRate, 2),
                                 ModelState = ModelState.Modified,
@@ -11982,9 +11985,9 @@ namespace Library.MaterialManagement.Inventory
                                 InventorySalesServiceId = salesServiceVM.InventorySalesServiceId,
                                 ServiceMasterId = salesServiceVM.ServiceMasterId,
                                 TotalTaxAmount = salesServiceVM.TotalTaxAmount,
-                                UpdatedBy = inventoryIssue.UpdatedBy,
-                                UpdatedDate = inventoryIssue.UpdatedDate,
-                                UpdatedFromIP = inventoryIssue.UpdatedFromIP
+                                UpdatedBy = inventorySaleReturn.UpdatedBy,
+                                UpdatedDate = inventorySaleReturn.UpdatedDate,
+                                UpdatedFromIP = inventorySaleReturn.UpdatedFromIP
                             };
                             _InventorySalesReturnServiceRepository.Update(salesService);
 
@@ -11998,6 +12001,7 @@ namespace Library.MaterialManagement.Inventory
                                     {
                                         var salesTax = new InventorySalesReturnTax
                                         {
+                                            Id= taxVM.Id,
                                             TaxAmount = taxVM.TaxAmount,
                                             BooksCurrencyTaxAmount = Math.Round(taxVM.TaxAmount * inventoryIssue.ToCurrencyRate, 2),
                                             HSNCodeId = taxVM.HSNCodeId,
@@ -12011,7 +12015,7 @@ namespace Library.MaterialManagement.Inventory
                                             UpdatedDate = salesService.UpdatedDate,
                                             UpdatedFromIP = salesService.UpdatedFromIP
                                         };
-                                        _InventorySalesReturnTaxRepository.Insert(salesTax);
+                                        _InventorySalesReturnTaxRepository.Update(salesTax);
                                     }
                                     else
                                     {

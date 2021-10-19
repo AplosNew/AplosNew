@@ -7,6 +7,8 @@ function ManualShiftNewController(fileReader, cboService, commonMessage, $scope,
     $scope.preRecruitmentEmployees = [];
     $scope.path = 'HumanResource/ManualShiftNew/';
 
+    $scope.Remarks = null;
+    $scope.RemarksT = null;
     $scope.FromDateSingleDate = '';
     $scope.FromDate = '';
     $scope.ToDate = '';
@@ -349,7 +351,7 @@ function ManualShiftNewController(fileReader, cboService, commonMessage, $scope,
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': DataToBeSaved },
+            data: { 'data': DataToBeSaved , 'Remarks': $scope.Remarks},
             url: $scope.path + 'SaveSingleEmployee'
 
         }).then(function successCallback(response) {
@@ -439,7 +441,7 @@ function ManualShiftNewController(fileReader, cboService, commonMessage, $scope,
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': DataToBeSaved },
+            data: { 'data': DataToBeSaved ,'Remarks':$scope.RemarksT},
             url: $scope.path + 'SaveSingleEmployee'
 
         }).then(function successCallback(response) {

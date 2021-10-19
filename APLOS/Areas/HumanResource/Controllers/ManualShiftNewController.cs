@@ -143,11 +143,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data)
+        public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data, string Remarks)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
-            RTx _rt = mau.Save(data);
+            RTx _rt = mau.Save(data, Remarks);
 
             if (_rt.IsError)
             {

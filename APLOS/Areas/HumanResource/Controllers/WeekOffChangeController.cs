@@ -304,6 +304,7 @@ Emp.SystemID AS Id,
                     do
                     {
                         clsAttendance.AttendanceProcessAplos obj = new clsAttendance.AttendanceProcessAplos();
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         ReturnType r = obj.SaveTotal(identity.PlantId, dtProcessDate.ToString("dd-MMM-yyyy"), "'" + employeeWeek.EmpSystemID + "'", false);//laila
                         dtProcessDate = dtProcessDate.AddDays(1);
                     } while (dtProcessDate <= System.DateTime.Now);

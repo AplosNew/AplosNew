@@ -518,6 +518,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             objsetinout.SetRawINOUTonShiftAssignment(identity.PlantId, identity.CompanyGroupId, data[i].WorkDate, "'" + data[i].Id + "'");
                         }
 
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         ReturnType r = obj.SaveTotal(identity.PlantId, data[i].WorkDate, "'" + data[i].Id + "'", false);//laila
 
                         //AttendanceEarlyOut objEarlyOut = new AttendanceEarlyOut();

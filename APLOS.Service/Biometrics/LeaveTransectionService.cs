@@ -2279,6 +2279,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 while (FromDate <= ToDate)
                 {
 
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                     obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"),"'"+ from_db.EmpSystemID+"'", true);
                     FromDate = FromDate.AddDays(1);
                 }

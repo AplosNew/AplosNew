@@ -6115,7 +6115,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IR.IsNonCreditable
                             ,IR.CurrencyId
                             ,CRNC.Code AS CurrencyName
-                            ,IR.ToCurrencyRate
+                           ,CONVERT(NUMERIC(10,4),IR.ToCurrencyRate) ToCurrencyRate 
                             ,BASECRNC.Code AS BaseCurrencyName
                             ,PayTerm.UserName PaymentTerm
                             ,MM.UserName MaterialMaster
@@ -6309,7 +6309,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IR.IsNonCreditable
                             ,IR.CurrencyId
                             ,CRNC.Code AS CurrencyName
-                            ,IR.ToCurrencyRate
+                            ,CONVERT(NUMERIC(10,4),IR.ToCurrencyRate) ToCurrencyRate 
                             ,BASECRNC.Code AS BaseCurrencyName
                             ,PayTerm.UserName PaymentTerm
                             ,'-' MaterialMaster
@@ -6628,7 +6628,7 @@ ORDER BY tg.[Sequence]";
             dsOrderItems = loadOrderMasterItems(grnId);
             dsTax = loadOrderMasterTax(grnId);
 
-			int LasColumnIndex = 16;
+			int LasColumnIndex = 15;
 			Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
 			DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
 			if (dv.Count > 0)
@@ -6660,21 +6660,21 @@ ORDER BY tg.[Sequence]";
             int colRo = COL; COL++;
             wTable.Rows[ROW].Cells[colRo].Width = 30;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("RowId");
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Row Id");
 			range.ApplyCharacterFormat(FontBold);
 			int colRowId = COL; COL++;
-			//wTable.Rows[ROW].Cells[colRowId].Width = 50;
+			wTable.Rows[ROW].Cells[colRowId].Width = 50;
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
 			range.ApplyCharacterFormat(FontBold);
 			int colMaterialGroup = COL; COL++;
-			wTable.Rows[ROW].Cells[colMaterialGroup].Width = 70;
+			wTable.Rows[ROW].Cells[colMaterialGroup].Width = 80;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article ");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 70;
+            wTable.Rows[ROW].Cells[colArticle].Width = 80;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
@@ -6694,7 +6694,7 @@ ORDER BY tg.[Sequence]";
             wTable.Rows[ROW].Cells[colChar3].Width = 36;
 
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN No");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN Code");
             range.ApplyCharacterFormat(FontBold);
             int colHSNCode = COL; COL++;
             wTable.Rows[ROW].Cells[colHSNCode].Width = 35;
@@ -6721,36 +6721,33 @@ ORDER BY tg.[Sequence]";
 			range.ApplyCharacterFormat(FontBold);
 			int colQty = COL; COL++;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No.");
 			range.ApplyCharacterFormat(FontBold);
 			int colLotNo = COL; COL++;
+            wTable.Rows[ROW].Cells[colHSNCode].Width = 30;
 
 
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
 			range.ApplyCharacterFormat(FontBold);
 			int colRate = COL; COL++;
-			wTable.Rows[ROW].Cells[colRate].Width = 55;
+			wTable.Rows[ROW].Cells[colRate].Width = 45;
 
 
 			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
 			range.ApplyCharacterFormat(FontBold);
 			int colUoM = COL; COL++;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Exchange Rate");
-            range.ApplyCharacterFormat(FontBold);
-            int colExchangerate = COL; COL++;
-
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Quality Status");
 			range.ApplyCharacterFormat(FontBold);
 			int colQualityStatus = COL; COL++;
 
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GrossAmount");
+			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Gross Amount");
 			range.ApplyCharacterFormat(FontBold);
 			int colGrossAmount = COL; COL++;
+            wTable.Rows[ROW].Cells[colGrossAmount].Width = 50;
 
-
-			range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("DiscountAmount");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Discount Amount");
 			range.ApplyCharacterFormat(FontBold);
 			int colDiscountAmount = COL;
 
@@ -6760,7 +6757,7 @@ ORDER BY tg.[Sequence]";
 				COL++;
 				colTotalTaxableAmount = COL;
 				range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount");
-				wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 65;
+				wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 60;
 				range.ApplyCharacterFormat(FontBold);
 				//COL++;
 				for (int i = 0; i < dv.Count; i++)
@@ -6880,7 +6877,7 @@ ORDER BY tg.[Sequence]";
 				TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
 				TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
 				TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-                TROW.Cells[colExchangerate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["ToCurrencyRate"].ToString()).ToString("#,##0.0000"));
+                //TROW.Cells[colExchangerate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["ToCurrencyRate"].ToString()).ToString("#,##0.0000"));
 
                 TROW.Cells[colQualityStatus].AddParagraph().AppendText(dsOrderMaster.Rows[i]["QualityStatus"].ToString().ToString());
 				TROW.Cells[colGrossAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossAmount"].ToString()).ToString("#,##0.00"));

@@ -483,6 +483,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 //}
                 foreach (AttendanceProcessDataVM item in AttendanceProcessData)
                 {
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                     ReturnType r = obj.SaveTotal(identity.PlantId, item.WorkDate, EmpSytemId, false);//laila    
                 }
 
@@ -785,7 +786,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         DataView dvSaveSummary = new DataView(dsSaveddataRef.Tables[0]);
                         DataView dvAttdnRawData = new DataView(dsGetdataRef.Tables[0]);
                         dvAttdnRawData.RowFilter = " LogDownLoadNum ='" + AttendanceProcessData[i].SystemId.ToString() + "'  AND PDate = '" + WDate + @"'";
-                        if (dvAttdnRawData.Count>0)
+                        if (dvAttdnRawData.Count > 0)
                         {
                             for (int j = 0; j < dvAttdnRawData.Count; j++)
                             {
@@ -838,7 +839,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
 
-                        
+
                         //SaveAttendanceRawDataBackupDataSetsAndDelete(AttendanceRawDataId, dsSaveddataRef);
 
                     }
@@ -954,6 +955,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     objsave.SaveDataSets(dsManualAttanData, dsHourlyOTData);
                 else
                     SaveAttendanceRawDataBackupDataSetsAndDelete(DeleteEmpSytemId, WDate, dsManualAttanData, dsHourlyOTData, dsSaveddataRef);
+                AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                 ReturnType r = obj.SaveTotal(identity.PlantId, ToDate.ToString("dd-MMM-yyyy"), EmpSytemId, false);//laila                 
 
 
