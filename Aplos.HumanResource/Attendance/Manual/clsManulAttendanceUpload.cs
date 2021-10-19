@@ -379,6 +379,7 @@ namespace Library.HumanResource.Attendance.Manual
 
 
                         clsAttendance.AttendanceProcessAplos obj = new clsAttendance.AttendanceProcessAplos();
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         ReturnType r = obj.SaveTotal(identity.PlantId, data[i].WorkDate, "'" + data[i].Id + "'", false);//laila
 
 
@@ -752,6 +753,7 @@ namespace Library.HumanResource.Attendance.Manual
                         }
 
 
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         clsAttendance.AttendanceProcessAplos obj = new clsAttendance.AttendanceProcessAplos();
                         ReturnType r = obj.SaveTotal(identity.PlantId, data[i].WorkDate, "'" + data[i].Id + "'", false);//laila
 
