@@ -631,7 +631,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 					$scope.detailModel.BaseQty = $scope.detailModel.TransactionQty;
 				}
 				else {
-					var tQty = parseFloat($scope.detailModel.TransactionQty) * parseFloat($.grep($scope.uoMList, function (item) { return item.Value === $scope.detailModel.TransactionUoMId; })[0].BaseUoMFactor);
+					var tQty = Math.round(parseFloat($scope.detailModel.TransactionQty) * parseFloat($.grep($scope.uoMList, function (item) { return item.Value === $scope.detailModel.TransactionUoMId; })[0].BaseUoMFactor) * 10000 + Number.EPSILON) / 10000;
 					if (tQty > parseFloat($scope.detailModel.PostingQuantity))
 						throw 'Issue qty must be less than or equal Ready for Issue Qty.';
 					$scope.detailModel.BaseQty = tQty;
