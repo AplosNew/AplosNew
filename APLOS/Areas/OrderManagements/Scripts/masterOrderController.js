@@ -4479,20 +4479,20 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.CopySObyMOI = function () {
         try {
-            if (baseService.arrayLength($scope.FromSKU1List)>0) {
-                for (var i = 0; i < $scope.FromSKU1List.length; i++) {
-                    if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU1Id)) {
-                        throw "Select SKU1";
-                    }
-                }
-            }
-            if (baseService.arrayLength($scope.FromSKU1List) > 0) {
-                for (var i = 0; i < $scope.FromSKU1List.length; i++) {
-                    if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU2Id)) {
-                        throw "Select SKU2";
-                    }
-                }
-            }
+            //if (baseService.arrayLength($scope.FromSKU1List)>0) {
+            //    for (var i = 0; i < $scope.FromSKU1List.length; i++) {
+            //        if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU1Id)) {
+            //            throw "Select SKU1";
+            //        }
+            //    }
+            //}
+            //if (baseService.arrayLength($scope.FromSKU1List) > 0) {
+            //    for (var i = 0; i < $scope.FromSKU1List.length; i++) {
+            //        if (baseService.isUndefinedOrNull($scope.FromSKU1List[i].ToSKU2Id)) {
+            //            throw "Select SKU2";
+            //        }
+            //    }
+            //}
 
             $http({
                 method: 'POST',
