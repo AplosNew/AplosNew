@@ -5564,8 +5564,8 @@ namespace Library.Service.Invoices
                         //     AuditService.UpdatedLog(inventorySalesDetail);
                         //     _inventorySalesDetailRepository.Update(inventorySalesDetail);
                         // }
-                        currentVoucherDetaiRecord++;
-                        _voucherService.InsertVoucherDetail(invvoucher, invvoucherDr, currentVoucherDetaiRecord);
+                        invcurrentVoucherDetaiRecord++;
+                        _voucherService.InsertVoucherDetail(invvoucher, invvoucherDr, invcurrentVoucherDetaiRecord);
                         var invvoucherDetailCurrencydb = new VoucherDetailCurrency
                         {
                             ToCurrencyRate = voucherVM.ToCurrencyRate,
