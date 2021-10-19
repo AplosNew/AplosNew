@@ -3418,18 +3418,28 @@
                                         <div e-stackedheaderrow>
                                             <div e-stackedheadercolumns>
                                                 <div e-stackedheadercolumn e-headertext="Source" e-text-align="center" e-column="CharacteristicsValueId,CharacteristicsValueName"></div>
-                                                <div e-stackedheadercolumn e-headertext="Destination" e-text-align="center" e-column="SKUC1"></div>
+                                                <div e-stackedheadercolumn e-headertext="Destination" e-text-align="center" e-column="SKUC1,SKUCC1"></div>
                                             </div>
                                         </div>
                                     </div>
                                     <div e-columns>
                                         <div e-column e-type="string" e-field="CharacteristicsValueId" e-headertext="Id" e-width="20" e-visible="false"></div>
                                         <div e-column e-type="Text" e-field="CharacteristicsValueName" e-headertext="Colour" e-width="60"></div>
-                                        <div e-column e-field="SKUC1" e-template="#SKU1" e-headertext="Colour" e-width="80" style="height: 20px;"></div>
+                                        <div e-column e-field="SKUC1" e-template="#SKU1" e-headertext="Colour" e-width="60" style="height: 20px;"></div>
+                                        <div e-column e-field="SKUCC1" e-template="#SKUC1" e-headertext="Add New" e-width="10" style="height: 20px;"></div>
                                     </div>
                                 </div>
                                 <script type="text/template" id="SKU1">
                                     <input ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="$parent.ToSKU1List" ng-model="data.ToSKU1Id" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                    
+                                </script>
+                                <script type="text/template" id="SKUC1">
+                                    @*<button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-plus-sign" ng-click="$parent.AddSKU('1st','mat');" style="margin: -6px;"></i></button>*@
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="$parent.AddSKU('1st','mat');" title="Add SKU" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
+                                        </ul>
+                                    </div>
                                 </script>
                             </div>
                         </div>
@@ -3440,7 +3450,7 @@
                                         <div e-stackedheaderrow>
                                             <div e-stackedheadercolumns>
                                                 <div e-stackedheadercolumn e-headertext="Source" e-text-align="center" e-column="CharacteristicsValueId,CharacteristicsValueName"></div>
-                                                <div e-stackedheadercolumn e-headertext="Destination" e-text-align="center" e-column="SKUC2"></div>
+                                                <div e-stackedheadercolumn e-headertext="Destination" e-text-align="center" e-column="SKUC2,SKUCC2"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -3448,12 +3458,19 @@
                                         <div e-column e-type="string" e-field="CharacteristicsValueId" e-headertext="Id" e-width="20" e-visible="false"></div>
                                         <div e-column e-type="Text" e-field="CharacteristicsValueName" e-headertext="Size" e-width="60"></div>
                                         <div e-column e-field="SKUC2" e-template="#SKU2" e-headertext="Size" e-width="60" style="height: 20px;"></div>
+                                        <div e-column e-field="SKUCC2" e-template="#SKUC2" e-headertext="Add New" e-width="10" style="height: 20px;"></div>
                                     </div>
                                 </div>
                                 <script type="text/template" id="SKU2">
                                     <input ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="$parent.ToSKU2List" ng-model="data.ToSKU2Id" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                                 </script>
-
+                                <script type="text/template" id="SKUC2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="$parent.AddSKU('2nd','mat');" title="Add SKU" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -3542,7 +3559,7 @@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li><button ng-click="SaveBOMSKUState();" class="btn" tabindex="38"><i class="glyphicon glyphicon-plus"></i> Save</button></li>
+                            <li><button ng-click="SaveBOMSKU();" class="btn" tabindex="38"><i class="glyphicon glyphicon-plus"></i> Save</button></li>
                             <li><button ng-click="clearMasterCharacteristicsValue();" class="btn" tabindex="39"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             <li><button ng-click="CloseCharacteristicsValuePopUp();" class="btn" tabindex="40"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                         </ul>
