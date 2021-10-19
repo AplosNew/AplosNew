@@ -180,7 +180,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data)
+        public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data , string Remarks)
         {
             try
             {
@@ -259,7 +259,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     return Json(new { Error = true, Message = "Error occured", Data = DataToBeSaved }, JsonRequestBehavior.AllowGet);
                 }
                 //operations
-                saveData(DataToBeSaved);
+                saveData(DataToBeSaved , Remarks);
 
 
 
@@ -280,7 +280,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
-        private void saveData(List<AttendanceProcessNewProcess> data)
+        private void saveData(List<AttendanceProcessNewProcess> data , string Remarks)
         {
             ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
             try
@@ -292,6 +292,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 string man = "''";
                 NewAttendanceProcessService ap = new NewAttendanceProcessService();
 
+                DataSet dsRem;
+                ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                conn.OpenDataSetThroughAdapter(@"Select * from dbo.ManualEntryRemarks where 1 = 2", out dsRem, false, "1");
 
                 DataSet shiftchange = null;
                 for (int i = 0; i < data.Count; i++)
@@ -300,6 +303,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                     con.BeginTransaction();
                     con.getDataSet(@"SELECT * FROM AttdnProcessData  WHERE EmpSystemID = '" + data[i].Id + "' AND WorkDate = '" + data[i].WorkDate + "' ", out shiftchange);
                     con.CommitTransaction();
+
+                    int kk = 0;
 
                     if (data[i].ShiftSystemID != data[i].ShiftSystemIDOriginal)
                     {
@@ -323,7 +328,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
                             shiftchange.Tables[0].Rows[0].EndEdit();
                             ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
-
+                            kk++;
                         }
                         #endregion change shift
                     }
@@ -386,17 +391,37 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 dr["IsOTComfirm"] = false;
                                 dr.EndEdit();
                                 ap.CheckerFunction(ref man, shiftchange.Tables[0].Rows[0]["RowId"].ToString());
-
+                                kk++;
                             }
 
                         }
                     }
                     #endregion 
                    
-                   objStatic.SaveDataSets(shiftchange);                  
+                   objStatic.SaveDataSets(shiftchange);
 
+                    string _Id = "";
+                    if(kk>0)
+                    {
+
+                        DataRow dr = dsRem.Tables[0].NewRow();
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.ManualEntryRemarks", out _Id);
+                        dr["Id"] = _Id;
+                        dr["RowId"] = shiftchange.Tables[0].Rows[0]["RowId"].ToString();
+                        dr["Remarks"] = Remarks;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["Screen"] = "/attendance-process-data-entity-new";
+                        dsRem.Tables[0].Rows.Add(dr);
+
+                    }
 
                 }
+                clsStaticInfo _infos = new clsStaticInfo();
+                _infos.SaveDataSets(dsRem);
+
                 ap.ManualScheduler(identity.PlantId, man);
 
             }

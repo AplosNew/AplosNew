@@ -4053,6 +4053,19 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 
 		}
 
+		#region FA register
+		[HttpPost, Authorize]
+		public ActionResult GetFixedAssetRegisterElasticSearchDataList(string fixedAssetRegisterDisposeId)
+		{
+			//FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+			Library.MaterialManagement.InventoryManagements.GatePassAndGateEntryService obj = new Library.MaterialManagement.InventoryManagements.GatePassAndGateEntryService();
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			return Json(new { DATA = obj.GetFixedAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,fixedAssetRegisterDisposeId), Error = false }, JsonRequestBehavior.AllowGet);
+		}
+		#endregion FA register
+
+
 		[Authorize, HttpPost]
 		public ActionResult createInOutGatePass(InOutGatePassMaster inOutGatePassMasterModel)
 		{
@@ -4120,6 +4133,7 @@ where gpm.GatePassEntryDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 					inOutGatePassMasterModel.FixedAssetSalesId = null;
 					inOutGatePassMasterModel.FixedAssetScrapId = inOutGatePassMasterModel.ChallanItemTypeId;
 				}
+
 				obj.createInOutGatePass(inOutGatePassMasterModel);
 				return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
 			}
