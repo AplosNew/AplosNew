@@ -2492,10 +2492,11 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                             ,TC.UserName ThirdChar
                             ,ROUND(IRD.TransactionQty, 2) POTransactionQty
                              -- ,ROUND(IRD.MaterialTranRate, 2) TransactionRate
-						    ,ROUND(IRD.MaterialTranRate * IR.ToCurrencyRate, 4) TransactionRate
+                             ,ROUND(IRD.MaterialTranRate, 4) TransactionRate
+						   -- ,ROUND(IRD.MaterialTranRate * IR.ToCurrencyRate, 4) TransactionRate
                             --,ROUND((IRD.TransactionQty * IRD.MaterialTranRate), 2) AS TrnAmount
-							--,TrnAmount=(IRD.GrossAmount-IRD.DiscountAmount)
-							,TrnAmount=((IRD.GrossAmount-IRD.DiscountAmount) * IR.ToCurrencyRate)
+							,TrnAmount=(IRD.GrossAmount-IRD.DiscountAmount)
+							--,TrnAmount=((IRD.GrossAmount-IRD.DiscountAmount) * IR.ToCurrencyRate)
                             ,IRD.TotalMaterialTranAmount BaseAmount
                             ,IRD.TotalTaxAmount AS BaseTaxAmount
                             ,TaxAmount = (
@@ -2540,8 +2541,8 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 								when IR.CheckedByStatus Is null and IR.AuthorizedByStatus Is null Then 'Approved'
                             else ''
                             END
-							,IRD.LotNo , IRD.QualityStatus --, IRD.GrossAmount ,IRD.DiscountAmount
-							,GrossAmount=(IRD.GrossAmount * IR.ToCurrencyRate) ,DiscountAmount=(IRD.DiscountAmount * IR.ToCurrencyRate)
+							,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount
+							--,GrossAmount=(IRD.GrossAmount * IR.ToCurrencyRate) ,DiscountAmount=(IRD.DiscountAmount * IR.ToCurrencyRate)
                             FROM TRN.InventoryReceive IR
                             LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                             LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -2669,9 +2670,10 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                             ,'' ThirdChar
                             ,ROUND(IRD.TransactionQty, 2) POTransactionQty
                              -- ,ROUND(IRD.MaterialTranRate, 2) TransactionRate
-						    ,ROUND(IRD.MaterialTranRate * IR.ToCurrencyRate, 4) TransactionRate
-                           --,TrnAmount=(IRD.GrossAmount-IRD.DiscountAmount)
-							,TrnAmount=((IRD.GrossAmount-IRD.DiscountAmount) * IR.ToCurrencyRate)
+                              ,ROUND(IRD.MaterialTranRate, 4) TransactionRate
+						   -- ,ROUND(IRD.MaterialTranRate * IR.ToCurrencyRate, 4) TransactionRate
+                           ,TrnAmount=(IRD.GrossAmount-IRD.DiscountAmount)
+							--,TrnAmount=((IRD.GrossAmount-IRD.DiscountAmount) * IR.ToCurrencyRate)
                             ,IRD.TotalMaterialTranAmount BaseAmount
                             ,IRD.TotalTaxAmount AS BaseTaxAmount
                             ,TaxAmount = (

@@ -941,6 +941,7 @@ namespace Library.Service.Attendances
                     DateTime ToDate = Convert.ToDateTime(sMaxEffectiveDate.Trim());
                     while (FromDate <= ToDate)
                     {
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         objAttdn.SaveTotal(plantid, FromDate.ToString("dd-MMM-yyyy"), lblEmpSystemId, false);
                         FromDate = FromDate.AddDays(1);
                     }
@@ -1277,6 +1278,7 @@ namespace Library.Service.Attendances
                             //spf.ShiftProcess(ss.PlantId, FromDate.ToString("dd-MMM-yyyy"),ss.GroupId,ss.EmpSystemIDs);
                             //spr.ShiftProcessStart(ss.PlantId, FromDate.ToString("dd-MMM-yyyy"), ss.GroupId, ss.EmpSystemIDs);
                             //------------
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                             objAttdn.SaveTotal(ss.PlantId, FromDate.ToString("dd-MMM-yyyy"), ss.EmpSystemIDs, false, true);
                             FromDate = FromDate.AddDays(1);
                         }

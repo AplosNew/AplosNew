@@ -453,6 +453,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 //}
                 foreach (AttendanceProcessDataVM item in AttendanceProcessData)
                 {
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                     ReturnType r = obj.SaveTotal(identity.PlantId, item.WorkDate, EmpSytemId, false);//laila    
                 }
 
@@ -1022,6 +1023,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
 
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                 ReturnType r = obj.SaveTotal(identity.PlantId, ToDate.ToString("dd-MMM-yyyy"), EmpSytemId, false);//laila                 
 
 

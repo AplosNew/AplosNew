@@ -849,6 +849,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 DateTime td = Convert.ToDateTime(ToDate);
                 while (fd <= td)
                 {
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                     ReturnType r = obj.SaveTotal(identity.PlantId, fd.ToString("dd-MMM-yyyy"), EmpSytemId, false);
                     fd = fd.AddDays(1);
                 }
@@ -2160,6 +2161,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 //}
                 foreach (AttendanceProcessDataVM item in AttendanceProcessData)
                 {
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                     ReturnType r = obj.SaveTotal(identity.PlantId, item.WorkDate, EmpSytemId, false);//laila    
                 }
 
@@ -2589,6 +2591,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     objsave.SaveDataSets(dsManualAttanData, dsHourlyOTData);
                 else
                     SaveAttendanceRawDataBackupDataSetsAndDelete(DeleteEmpSytemId, WDate, dsManualAttanData, dsHourlyOTData, dsSaveddataRef);
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                 ReturnType r = obj.SaveTotal(identity.PlantId, ToDate.ToString("dd-MMM-yyyy"), EmpSytemId, false);//laila                 
 
 

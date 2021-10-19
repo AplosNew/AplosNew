@@ -967,6 +967,7 @@ namespace Library.Service.Leave
                         while (FromDate <= ToDate)
                         {
                             clsAttendance.AttendanceProcessAplos obj = new clsAttendance.AttendanceProcessAplos();
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                             obj.SaveTotal(para.PlantId, FromDate.ToString("dd-MMM-yyyy"), empids, true);
                             FromDate = FromDate.AddDays(1);
                         }

@@ -5316,6 +5316,7 @@ namespace Library.Service.Employees
                     DateTime ToDate = DateTime.Now;
                     while (FromDate <= ToDate)
                     {
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), SystemId, false,true);//Main Function for attendace Process
                         FromDate = FromDate.AddDays(1);
                     }
