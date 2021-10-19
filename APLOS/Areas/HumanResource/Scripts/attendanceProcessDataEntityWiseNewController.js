@@ -141,18 +141,19 @@ function attendanceProcessDataEntityWiseNewController(fileReader, cboService, co
     $window.onload = function (event) {
         $scope.actionCompleteSingleEmployee("refresh");
         $scope.actionCompleteSingleDay("refresh");
-
+        $scope.Remarks = null;
     }
     $window.onresize = function (event) {
         $scope.actionCompleteSingleEmployee("refresh");
         $scope.actionCompleteSingleDay("refresh");
-
+        $scope.Remarks = null;
     }
     $scope.actionCompleteSingleEmployee = function (args) {
         try {
             if (args == "refresh" || args.requestType == "refresh") {
                 var scrollerwidth = 0;
                 var gridObj = null;
+                $scope.Remarks = null;
                 try {
                     gridObj = $("#GridChangeAttendance").ejGrid("instance");
                     scrollerwidth = $("#TabEmployee").width();//Obtain the width of the container
@@ -172,7 +173,7 @@ function attendanceProcessDataEntityWiseNewController(fileReader, cboService, co
             if (args == "refresh" || args.requestType == "refresh") {
                 var scrollerwidth = 0;
                 var gridObj = null;
-
+                $scope.Remarks = null;
                 try {
                     gridObj = $("#GridChangeAttendanceBySingleDate").ejGrid("instance");
                     scrollerwidth = $("#TabEmployee").width();//Obtain the width of the container
@@ -278,7 +279,7 @@ function attendanceProcessDataEntityWiseNewController(fileReader, cboService, co
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': DataToBeSaved },
+            data: { 'data': DataToBeSaved , 'Remarks':$scope.Remarks},
             url: $scope.path + 'SaveSingleEmployee'
 
         }).then(function successCallback(response) {
@@ -336,7 +337,7 @@ function attendanceProcessDataEntityWiseNewController(fileReader, cboService, co
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': DataToBeSaved },
+            data: { 'data': DataToBeSaved , 'Remarks' : $scope.Remarks},
             url: $scope.path + 'SaveSingleEmployee'
 
         }).then(function successCallback(response) {

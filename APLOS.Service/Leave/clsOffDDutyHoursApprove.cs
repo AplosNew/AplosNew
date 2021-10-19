@@ -168,7 +168,7 @@ namespace Library.Service.Leave
                 //DataSet dsShift = GetShiftCode(EmpIdLoop);
                 //DataView dvShift = new DataView(dsShift.Tables[0]);
 
-          
+
 
                 if (data == null || data.Count == 0)
                     throw new Exception("Nothing to save");
@@ -184,7 +184,7 @@ namespace Library.Service.Leave
                         //{
                         //    continue;
                         //}                      
-                        
+
                         DataSet dsLeave = null, dsAttendanceProcessData = null;
                         con = new ConnectionManager.DAL.ConManager("1");
                         con.OpenDataSetThroughAdapter("SELECT * FROM LeaveTransaction AS lt where 1=2", out dsLeave, false, "1");
@@ -203,7 +203,7 @@ namespace Library.Service.Leave
                         //dr["LeaveDays"] = GetDuration(dvShift, data[i].Duration.ToString());
                         dr["LeaveDays"] = data[i].DurationInHours;
                         dr["LeaveDayType"] = "Hourly Off Duty";
-                        dr["LvReason"] = GetLeaveReason(data[i].EmpSystemId, data[i].HourlyLeaveReasonId,data[i].WorkDate.ToString());
+                        dr["LvReason"] = GetLeaveReason(data[i].EmpSystemId, data[i].HourlyLeaveReasonId, data[i].WorkDate.ToString());
                         dr["AppliedDate"] = DateTime.Now.ToString("dd-MMM-yyyy");
                         dr["LeaveStatus"] = "Approved";
                         dr["UpdatedBy"] = identity.Name;
@@ -245,6 +245,7 @@ namespace Library.Service.Leave
                         #region Attendance process
                         clsAttendance.AttendanceProcessAplos obj = new AttendanceProcessAplos();
                         DateTime ed = data[i].WorkDate;
+                        AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                         obj.SaveTotal(identity.PlantId, ed.ToString("dd-MMM-yyyy"), data[i].EmpSystemId, false, true);//Main Function for attendace Process
                         #endregion
                     }
@@ -311,7 +312,7 @@ namespace Library.Service.Leave
         //        throw;
         //    }
         //}
-    
+
         private DataSet GetShiftCode(string EmpIdLoop)
         {
             //string wd = Convert.ToDateTime(WorkDate).ToString("dd-MMM-yyyy");
@@ -354,7 +355,7 @@ namespace Library.Service.Leave
             return dsRef;
         }//End Function
 
-        private string GetLeaveReason(string EmpSystemId ,string HourlyLeaveReasonId, string WorkDate)
+        private string GetLeaveReason(string EmpSystemId, string HourlyLeaveReasonId, string WorkDate)
         {
             string result = string.Empty;
             string wd = Convert.ToDateTime(WorkDate).ToString("dd-MMM-yyyy");
@@ -365,10 +366,10 @@ namespace Library.Service.Leave
                 strSQL = @" select hl.UserName
                              from  HourlyOffDuty h
                             left join [HKP].[HourlyLeaveReason] hl on hl.Id=h.HourlyLeaveReasonId
-                            where h.EmpSystemId='"+ EmpSystemId + "' AND h.HourlyLeaveReasonId='"+HourlyLeaveReasonId+ "'  AND h.WorkDate='"+ wd + "' ";
+                            where h.EmpSystemId='" + EmpSystemId + "' AND h.HourlyLeaveReasonId='" + HourlyLeaveReasonId + "'  AND h.WorkDate='" + wd + "' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
-                if (dsRef.Tables[0].Rows.Count>0)
+                if (dsRef.Tables[0].Rows.Count > 0)
                 {
                     result = dsRef.Tables[0].Rows[0]["UserName"].ToString();
                 }

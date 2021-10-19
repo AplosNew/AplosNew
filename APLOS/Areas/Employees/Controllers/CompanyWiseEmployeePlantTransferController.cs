@@ -677,6 +677,7 @@ namespace Aplos.Areas.Employees.Controllers
                 while (FromDateAttdn <= ToDateAttdn)
                 {
 
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                     objAttdn.SaveTotal(ss.PlantId, FromDateAttdn.ToString("dd-MMM-yyyy"), ss.EmpSystemIDs, false, true);
                     FromDateAttdn = FromDateAttdn.AddDays(1);
                 }

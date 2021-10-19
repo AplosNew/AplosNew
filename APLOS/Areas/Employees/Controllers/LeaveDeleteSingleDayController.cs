@@ -128,6 +128,7 @@ namespace Aplos.Areas.Employees.Controllers
                 p.DeleteLeave(ID, Update, _isFromDate, _isToDate, _fd.ToString("dd-MMM-yyyy"),_td.ToString("dd-MMM-yyyy"));
                 string strSQL = string.Empty;
                 clsAttendance.AttendanceProcessAplos objAttdn = new clsAttendance.AttendanceProcessAplos();
+                    AttendanceLog.Log.SaveLog(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name + "\\" + System.Reflection.MethodBase.GetCurrentMethod().Name);
                 objAttdn.SaveTotal(identity.PlantId, workdate, EmpId, false);
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
