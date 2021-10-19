@@ -271,6 +271,7 @@ var upanelApp = angular
     .controller("normalJournalController", normalJournalController)
     .controller("oDDeleteController", oDDeleteController)
     .controller("onDutyApprovalController", onDutyApprovalController)
+    .controller("onDutyApprovalNewController", onDutyApprovalNewController)
     .controller("onDutyTransactionController", onDutyTransactionController)
     .controller("openingBalanceReportController", openingBalanceReportController)
     .controller("operationController", OperationController)
