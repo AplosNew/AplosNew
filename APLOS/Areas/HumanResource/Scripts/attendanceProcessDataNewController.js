@@ -7,6 +7,9 @@ function attendanceProcessDataNewController(fileReader, cboService, commonMessag
     $scope.preRecruitmentEmployees = [];
     $scope.path = 'HumanResource/attendanceProcessDataNew/';
 
+
+    $scope.Remarks = null;
+    $scope.RemarksT = null;
     $scope.FromDateSingleDate = '';
     $scope.FromDate = '';
     $scope.ToDate = '';
@@ -347,7 +350,7 @@ function attendanceProcessDataNewController(fileReader, cboService, commonMessag
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': DataToBeSaved },
+            data: { 'data': DataToBeSaved , 'Remarks' : $scope.Remarks},
             url: $scope.path + 'SaveSingleEmployee'
 
         }).then(function successCallback(response) {
@@ -437,7 +440,7 @@ function attendanceProcessDataNewController(fileReader, cboService, commonMessag
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': DataToBeSaved },
+            data: { 'data': DataToBeSaved , 'Remarks' : $scope.RemarksT},
             url: $scope.path + 'SaveSingleEmployee'
 
         }).then(function successCallback(response) {
