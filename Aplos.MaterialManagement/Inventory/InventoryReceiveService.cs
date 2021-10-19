@@ -9713,7 +9713,7 @@ ORDER BY tg.[Sequence]";
                                     ,IRD.TransactionQty
                                 	,ROUND(IIH.Qty, 2) POTransactionQty
                                 	,ROUND(IIH.Rate, 2) TransactionRate
-                                	,ROUND((IIH.Qty * IIH.Rate), 2) AS TrnAmount
+                                	,ROUND((IIH.TrnAmount), 2) AS TrnAmount
                                 	--,ROUND((IIH.Qty*IRD.PolicyRate), 2) AS TrnAmount
                                 	,NULL BaseAmount
                                 	,NULL AS BaseTaxAmount
@@ -9754,7 +9754,7 @@ ORDER BY tg.[Sequence]";
                                 	SELECT InventoryIssueDetailId
                                 		,Sum(Qty) Qty
                                 		,sum(qty * rate) / Sum(Qty) Rate
-                                		,sum(qty * rate) TrnAmount
+                                		,sum(TotalAmount) TrnAmount
                                 	FROM trn.InventoryIssueHistory
                                 	GROUP BY InventoryIssueDetailId
                                 	) IIH ON IIH.InventoryIssueDetailId = IRD.Id
