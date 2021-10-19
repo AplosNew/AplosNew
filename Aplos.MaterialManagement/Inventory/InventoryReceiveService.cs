@@ -9745,6 +9745,8 @@ ORDER BY tg.[Sequence]";
                                 	,p.UserName ProcessName
                                 	,PO.ProductionOrder ProductionOrderNo
                                 	,PO.SalesOrderId
+                                    ,IRD.BaseQty
+                                    ,BUoM.UserName AS BaseUoM
                                 FROM TRN.InventoryIssue IR
                                 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                                 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -9773,6 +9775,7 @@ ORDER BY tg.[Sequence]";
                                 LEFT JOIN [ORG].[Entity] E ON E.id = IR.EntityId
                                 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId = IR.EmployeeId
                                 LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
+                                LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.TransactionUoMId = BUoM.Id
                                 LEFT JOIN [ORG].[CostCenter] AS CC ON CC.Id = IRD.CostCenterId
                                 LEFT JOIN dbo.Contract Con ON Con.Id = IR.ContractId
                                 LEFT JOIN [TRN].[IssueRequestMasterProcessMap] IRMPM ON IRMPM.IssueRequestMasterId = IR.IssueRequestMasterId
@@ -9912,7 +9915,7 @@ ORDER BY tg.[Sequence]";
             dsOrderItems = loadIssueOrderMasterItems(grnId);
             dsTax = loadIssueOrderMasterTax(grnId);
 
-            int LasColumnIndex = 9;
+            int LasColumnIndex = 10;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             DataView dv = new DataView(dsTax.DefaultView.ToTable(true, "TaxCode"));
 
@@ -9989,20 +9992,30 @@ ORDER BY tg.[Sequence]";
             int colcomments = COL; COL++;
             //wTable.Rows[ROW].Cells[colChar3].Width = 52;
 
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Trn. UOM");
+            range.ApplyCharacterFormat(FontBold);
+            int colUoM = COL; COL++;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Trn. Qty");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
             wTable.Rows[ROW].Cells[colQty].CellFormat.VerticalAlignment = VerticalAlignment.Middle;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UOM");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base UOM");
             range.ApplyCharacterFormat(FontBold);
-            int colUoM = COL; COL++;
+            int colBaseUoM = COL; COL++;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Base Qty");
+            range.ApplyCharacterFormat(FontBold);
+            int colBaseQty = COL; COL++;
+            wTable.Rows[ROW].Cells[colBaseQty].CellFormat.VerticalAlignment = VerticalAlignment.Middle;
+
+
             //wTable.Rows[ROW].Cells[colUoM].Width = 30;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
-            range.ApplyCharacterFormat(FontBold);
-            int colRate = COL;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colRate = COL;
 
 
 
@@ -10033,7 +10046,7 @@ ORDER BY tg.[Sequence]";
             }
             else
             {
-                COL++;
+                //COL++;
 
                 colTotalTaxableAmount = COL;
                 range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Value (" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + ")");
@@ -10097,8 +10110,10 @@ ORDER BY tg.[Sequence]";
                 //TROW.Cells[colHSNCODE].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colcomments].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Comments"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionQty"].ToString()).ToString("F2"));
+                TROW.Cells[colBaseQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["BaseQty"].ToString()).ToString("F2"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString().ToString());
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
+                TROW.Cells[colBaseUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BaseUoM"].ToString().ToString());
+                //TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("F2"));
 
                 TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("F2"));
 
@@ -10133,7 +10148,7 @@ ORDER BY tg.[Sequence]";
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colRate || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colcomments || C == colQty || C == colRate || C == colUoM || C == colMaterialGroup || dicTaxes.ContainsValue(C))
+                if (/*C == colRate ||*/ C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colcomments || C == colQty || /*C == colRate ||*/ C == colUoM || C == colMaterialGroup || dicTaxes.ContainsValue(C) || C== colBaseQty ||C== colBaseUoM)
                     continue;
 
                 double value = 0;
@@ -10145,7 +10160,7 @@ ORDER BY tg.[Sequence]";
                         value += clsStdLib.dbl(item.Text);
                     }
                 }
-                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.000")).ApplyCharacterFormat(FontBold);
+                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
             }
             #endregion Total
 
