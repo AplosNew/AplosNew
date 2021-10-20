@@ -527,19 +527,19 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
-                    #region Original Date Compensatory Check
+                    #region Compensatory Logic
                     DataSet OriginalDateComp;
                     OriginalDateData(Date, out OriginalDateComp, PlantValue);
                     if (OriginalDateComp.Tables[0].Rows.Count > 0)
                     {
-                        string OWCompensatory = "", OHCompensatory = "";
-                        // Holiday or Weekoff But Employee is Working (Compensatory Logic)
+                        // Getting DayCode from Screen and flagging it 
+                        string OCompensatory = "",DayCode="";
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
 
                         string WkDate = OriginalDateComp.Tables[0].Rows[0][@"WkDate"].ToString();
                         string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
 
-                        var sqlx = @"SELECT * FROM AttdnProcessData where (WeeklyStatus='W' or HolidayStatus='H') and 
+                        var sqlx = @"SELECT * FROM AttdnProcessData where 
                                    WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
@@ -549,47 +549,26 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
                             string Plant = OriginalDateComp.Tables[0].Rows[i][@"PlantId"].ToString();
                             string ForEntirePlant = clsWebLib.GetBoolData(OriginalDateComp.Tables[0].Rows[i][@"ForEntirePlant"]).ToString();
-                            string Type = clsWebLib.RetValidLen(OriginalDateComp.Tables[0].Rows[i][@"Type"]).ToString();
+                            DayCode = clsWebLib.GetBoolData(OriginalDateComp.Tables[0].Rows[i][@"DayCode"]).ToString();
                             string EmpId = clsWebLib.RetValidLen(OriginalDateComp.Tables[0].Rows[i][@"EmpSystemId"]).ToString();
 
-                            if (ForEntirePlant == "1")
+                            if (ForEntirePlant == "True")
                             {
-                                if (Type == "W")
-                                {
-                                    OWCompensatory = "1";
-                                }
-                                if (Type == "H")
-                                {
-                                    OHCompensatory = "1";
-                                }
+                                OCompensatory = "1";
+                             
                             }
                             else
                             {
-                                // Employee Wise
-                                if (Type == "H")
+                                if (DayCode != "")
                                 {
-                                    // On Holiday
                                     dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                                     if (dsRef.Tables[0].DefaultView.Count > 0)
                                     {
                                         DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
-                                        dr["HolidayStatus"] = "NH"; // On Holiday Employee is Working
-                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                        dr.EndEdit();
-                                    }
-                                }
-                                if (Type == "W")
-                                {
-                                    // On WeekOff
-                                    dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                                    if (dsRef.Tables[0].DefaultView.Count > 0)
-                                    {
-                                        DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                        dr.BeginEdit();
-                                        dr["UpdatedBy"] = "Schedule";
-                                        dr["WeeklyStatus"] = "WW"; // On WeekOff Employee is Working
+                                        dr["ManualDayStatus"] = DayCode;
+                                        dr["IsManualDayStatus"] = 1;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                     }
@@ -599,170 +578,34 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         SaveDataSets(dsRef);
 
                         #region Entire Plant Flagging Exceptional Case
-                        if (OWCompensatory == "1")
+                        if (OCompensatory == "1")
                         {
-                            // If Entire Plant Working on WeekOff Then WeeklyStatus Updated to WW 
-                            var sql = @"Update AttdnProcessData Set WeeklyStatus='WW'    
-                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus='W' AND " +
+                            if (DayCode != "")
+                            {
+                                // If Entire Plant on Compensatory
+                                var sql = @"Update AttdnProcessData Set IsManualDayStatus=1,ManualDayStatus='" + DayCode + @"'    
+                                             WHERE WorkDate='" + WkDate + "' AND " +
                               "isnull(EmpSystemID,'') IN" +
                               " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
                               "  ei WHERE  ei.PlantId ='" + PlantValue + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
 
 
-                            ConnectionManager.DAL.ConManager objCone = null;
-                            objCone = new ConnectionManager.DAL.ConManager("1");
-                            objCone.OpenConnection("1");
-                            objCone.BeginTransaction();
+                                ConnectionManager.DAL.ConManager objCone = null;
+                                objCone = new ConnectionManager.DAL.ConManager("1");
+                                objCone.OpenConnection("1");
+                                objCone.BeginTransaction();
 
-                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                            objCone.CommitTransaction();
-
-                        }
-                        if (OHCompensatory == "1")
-                        {
-                            // If Entire Plant Working on Holiday HolidayStaus Updated to NH
-                            var sql = @"Update AttdnProcessData Set HolidayStatus='NH'  
-                                                         WHERE WorkDate='" + WkDate + "' AND HolidayStatus='H' AND " +
-                              "isnull(EmpSystemID,'') IN" +
-                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' AND ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-
-                            ConnectionManager.DAL.ConManager objCone = null;
-                            objCone = new ConnectionManager.DAL.ConManager("1");
-                            objCone.OpenConnection("1");
-                            objCone.BeginTransaction();
-
-                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                            objCone.CommitTransaction();
+                                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                                objCone.CommitTransaction();
+                            }
 
                         }
+                      
                         #endregion
 
                     }
                     #endregion
-
-                    #region Compensatory Date Compensatory Check
-                    DataSet CompensatoryDateComp;
-                    CompensatoryData(Date, out CompensatoryDateComp, PlantValue);
-                    if (CompensatoryDateComp.Tables[0].Rows.Count > 0)
-                    {
-                        string WCompenstory = "", HCompenstory = "";
-
-                        // Date of Normal Working Day Taken Compensatory
-                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-
-                        string WkDate = CompensatoryDateComp.Tables[0].Rows[0][@"WkDate"].ToString();
-                        string newformat = Convert.ToDateTime(WkDate).ToString("yyyyMMdd");
-
-                        var sqlx = @"SELECT * FROM AttdnProcessData where (ISNULL(WeeklyStatus,'')!='W' and 
-                               ISNULL(HolidayStatus,'')!='H')	and WorkDate='" + WkDate + "' and PlantID='" + PlantValue + "'";
-
-                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
-
-
-                        for (int i = 0; i < CompensatoryDateComp.Tables[0].Rows.Count; i++)
-                        {
-                            string Plant = CompensatoryDateComp.Tables[0].Rows[i][@"PlantId"].ToString();
-                            string ForEntirePlant = clsWebLib.GetBoolData(CompensatoryDateComp.Tables[0].Rows[i][@"ForEntirePlant"]).ToString();
-                            string Type = clsWebLib.RetValidLen(CompensatoryDateComp.Tables[0].Rows[i][@"Type"]).ToString();
-                            string EmpId = clsWebLib.RetValidLen(CompensatoryDateComp.Tables[0].Rows[i][@"EmpSystemId"]).ToString();
-
-                            if (ForEntirePlant == "1")
-                            {
-                                if (Type == "W")
-                                {
-                                    WCompenstory = "1";
-                                }
-                                if (Type == "H")
-                                {
-                                    HCompenstory = "1";
-                                }
-                            }
-                            else
-                            {
-                                // Employee Wise
-                                if (Type == "H")
-                                {
-                                    // On Holiday
-                                    dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                                    if (dsRef.Tables[0].DefaultView.Count > 0)
-                                    {
-                                        DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                        dr.BeginEdit();
-                                        dr["UpdatedBy"] = "Schedule";
-                                        dr["ManualDayStatus"] = "AH"; // On Holiday Compensatory Given
-                                        dr["IsManualDayStatus"] = 1;
-                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                        dr.EndEdit();
-                                    }
-                                }
-                                if (Type == "W")
-                                {
-                                    // On WeekOff
-                                    dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
-                                    if (dsRef.Tables[0].DefaultView.Count > 0)
-                                    {
-                                        DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                        dr.BeginEdit();
-                                        dr["UpdatedBy"] = "Schedule";
-                                        dr["IsManualDayStatus"] = 1;
-                                        dr["ManualDayStatus"] = "CW"; // On WeekOff Compensatory Given
-                                        dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                        dr.EndEdit();
-                                    }
-                                }
-                            }
-                        }
-                        SaveDataSets(dsRef);
-
-                        #region Entire Plant Flagging Exceptional Case
-                        if (WCompenstory == "1")
-                        {
-                            // If Entire Plant taken Compensatory on WeekOff
-                            // Then ManualDayStatus Updated to CW 
-
-                            var sql = @"Update AttdnProcessData Set ManualDayStatus='CW',IsManualDayStatus=1   
-                                             WHERE WorkDate='" + WkDate + "' AND WeeklyStatus!='W' AND " +
-                              "isnull(EmpSystemID,'') IN" +
-                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-                            ConnectionManager.DAL.ConManager objCone = null;
-                            objCone = new ConnectionManager.DAL.ConManager("1");
-                            objCone.OpenConnection("1");
-                            objCone.BeginTransaction();
-
-                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                            objCone.CommitTransaction();
-
-                        }
-
-                        if (HCompenstory == "1")
-                        {
-                            // If Entire Plant taken Compensatory on Holiday
-                            // Then ManualDayStatus Updated to AH 
-
-                            var sql = @"Update AttdnProcessData Set ManualDayStatus='AH',IsManualDayStatus=1  
-                                             WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
-                              "isnull(EmpSystemID,'') IN" +
-                              " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
-                              "  ei WHERE  ei.PlantId ='" + PlantValue + "' and ei.DOJ <= '" + Date + "' AND (ei.DOS >= '" + Date + "' OR ISNULL(ei.DOS,'') = '' OR ei.DOS = '01/01/1901'))";
-
-
-                            ConnectionManager.DAL.ConManager objCone = null;
-                            objCone = new ConnectionManager.DAL.ConManager("1");
-                            objCone.OpenConnection("1");
-                            objCone.BeginTransaction();
-
-                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                            objCone.CommitTransaction();
-
-                        }
-                        #endregion
-                    }
-                    #endregion
-
+                    
                     #region OTEligibleData Flagging
                     DataSet OTElgbEmp;
                     OTEligibleEmp(Date, out OTElgbEmp, PlantValue); // OT Eligible DataSet Generation
@@ -1150,37 +993,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                // Holiday or Weekoff But Employee is Working (Compensatory Logic)
+                // Getting DayCode and applying the Logic
 
                 var sql = @"select Format(co.OriginalDate,'yyyy-MMM-dd')WkDate,
-                co.CompensatoryDateTreatmentType as Type,co.PlantId,
+                co.CompensatoryDateTreatmentType as Type,co.PlantId,co.DayCode,
 				co.ForEntirePlant,coel.EmpSystemId
 				from mst.CompensatoryOff AS co 
 				left join mst.CompensatoryOffEmpList AS coel on coel.CompensatoryOffId=co.Id
 				where co.plantId='" + Plant + @"'
 				and co.OriginalDate='" + Date + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-        public void CompensatoryData(string Date, out DataSet ds, string Plant)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-
-                // Date of Normal Working Day but taken Compensatory
-                var sql = @"select Format(co.CompensatoryDate,'yyyy-MMM-dd')WkDate,
-				co.CompensatoryDateTreatmentType as Type,co.PlantId,
-				co.ForEntirePlant,coel.EmpSystemId
-				from mst.CompensatoryOff AS co 
-				left join mst.CompensatoryOffEmpList AS coel on coel.CompensatoryOffId=co.Id
-				where co.plantId='" + Plant + @"'
-				and co.CompensatoryDate='" + Date + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -3938,7 +3759,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr.EndEdit();
 
 
-                                if (PrevDaySandwich == "2")
+                                if (PrevDaySandwich == "2" || PrevDaySandwich == "4")
                                 {
                                     if (ToDaySandwich == "1")
                                     {
@@ -3950,7 +3771,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                             from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=2 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' 
+                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
                                             var RowData = _sqlRepository.GetDataTable(sqly);
@@ -3975,7 +3796,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                              from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=2 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' 
+                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
                                         var RowData = _sqlRepository.GetDataTable(sqly);
@@ -3991,7 +3812,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     }
                                 }
 
-                                else if (PrevDaySandwich == "3")
+                                else if (PrevDaySandwich == "3" || PrevDaySandwich == "4")
                                 {
                                     if (ToDaySandwich == "1")
                                     {
@@ -4003,7 +3824,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                             from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=3 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' 
+                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
 
                                             var RowData = _sqlRepository.GetDataTable(sqly);
@@ -4028,7 +3849,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                              from AttdnProcessData where WorkDate <= '" + SandwichPrevDay + @"'--considering this date has flag=3 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' 
+                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
 
                                         var RowData = _sqlRepository.GetDataTable(sqly);
@@ -5802,7 +5623,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             dr.EndEdit();
                             CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
 
-                            if (PrevDaySandwich == "2")
+                            if (PrevDaySandwich == "2" || PrevDaySandwich == "4")
                             {
                                 if (TodaySandwich == "1" && PrevWkDate != "")
                                 {
@@ -5814,7 +5635,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                             from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=2 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' 
+                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
                                         var RowData = _sqlRepository.GetDataTable(sqly);
@@ -5841,7 +5662,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                             from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=2 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' 
+                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,3)";
 
                                     var RowData = _sqlRepository.GetDataTable(sqly);
@@ -5857,7 +5678,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                             }
 
-                            else if (PrevDaySandwich == "3")
+                            else if (PrevDaySandwich == "3" || PrevDaySandwich == "4")
                             {
                                 if (TodaySandwich == "1" && PrevWkDate != "")
                                 {
@@ -5869,7 +5690,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                             from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=3 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' 
+                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
 
                                         var RowData = _sqlRepository.GetDataTable(sqly);
@@ -5896,7 +5717,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID,SandwichFlag ORDER BY WorkDate DESC,SandwichFlag) AS RNKFlag,
                                             DENSE_RANK() OVER (PARTITION BY EmpSystemID ORDER BY WorkDate DESC) AS RNKEmp
                                             from AttdnProcessData where WorkDate <= '" + PrevWkDate + @"'--considering this date has flag=3 (starting point)
-                                            and EmpSystemID='" + EmpId + @"' 
+                                            and EmpSystemID='" + EmpId + @"' and SandwichFlag !='4'
                                             ) AS K WHERE RNKFlag=RNKEmp AND K.SandwichFlag NOT IN (0,1,2)";
 
                                     var RowData = _sqlRepository.GetDataTable(sqly);

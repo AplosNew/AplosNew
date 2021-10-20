@@ -874,7 +874,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                             LEFT JOIN HKP.ComplianceDocument CD ON CD.Id=ED.ComplianceDocumentId Where CD.ProfileType='TIN') DC ON DC.EmpSystemID=C.EmpInfoSystemID
                             --WHERE S.FromDate between '" + para.FromDate + @"' and '" + para.ToDate + @"'
                             --and C.PlantID = '" + para.PlantId + @"' AND ISNULL(c.SystemID,'')<>''
-                                ) A ORDER BY CONVERT(INT, A.EmployeeCode)";
+                                ) A WHERE (A.HeadCategoryT='Tax' OR A.HeadCategoryA='Advance') ORDER BY CONVERT(INT, A.EmployeeCode)";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
