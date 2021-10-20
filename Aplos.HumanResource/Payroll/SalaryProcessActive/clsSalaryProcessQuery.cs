@@ -547,7 +547,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
             }
         }//End Function
 
-        public void GetAttdnDataForMonthlyProc(string wc, out DataSet dsRef)
+        public void GetAttdnDataForMonthlyProc(string wc, FunctionPara Parameters, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -579,7 +579,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                                 ,WeekoffDays =STUFF((select distinct ','+CONCAT(DATEPART(DAY, apdX.WorkDate),'-',FORMAT(apdx.WorkDate,'ddd'))from 
 																			AttdnProcessData AS apdX                                              
 							                                where apdX.EmpSystemID=A.EmpSystemID  
-							                                AND apdx.WorkDate BETWEEN '01-Sep-2021' AND '30-Sep-2021'
+							                                AND apdx.WorkDate BETWEEN '" + Parameters.FromDate + @"' AND '" + Parameters.ToDate + @"'
 							                                AND apdx.WeekOffValue>0	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                 FROM (SELECT EmpSystemID, WorkDate,WorkingDayValue,ActualWorkingDayValue ,PayDayValue,NonPayDayValue,
 										TotalPresent = PresentValue,

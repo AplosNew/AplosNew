@@ -11,7 +11,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label" id="fDate">From Date<sup>*</sup></label>
             <div class="col-sm-8  show-message">
@@ -98,12 +98,12 @@
             </div>
         </script>
         @*<script type="text/template" id="ShowActionButtons">
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li><button style="margin-left: 5px;" ng-click="$parent.GetCostingItemDetailData(this);" class="btn"><i class="glyphicon glyphicon-list" style="top:1px"></i></button></li>
-                </ul>
-            </div>
-        </script>*@
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button style="margin-left: 5px;" ng-click="$parent.GetCostingItemDetailData(this);" class="btn"><i class="glyphicon glyphicon-list" style="top:1px"></i></button></li>
+                    </ul>
+                </div>
+            </script>*@
     </div>
 
     <div class="clearfix"></div>
@@ -129,6 +129,38 @@
                 <div e-column e-field="Currency" e-headertext="Currency" e-width="30" e-type="string"></div>
                 <div e-column e-field="Description" e-headertext="Description" e-width="60" e-type="string"></div>
                 <div e-column e-field="GRNNo" e-headertext="FGInventory" e-width="80" e-type="string"></div>
+                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="25"></div>
+            </div>
+        </div>
+        <script type="text/template" id="ShowActionButtonsBOM">
+            <button style="color: #f3f3ec;background-color: #1c1f32; " title="FGGRN PoPUp" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetRawMaterialDetail(this);" @*style="width: 50px;"*@></i></button>
+        </script>
+    </div>
+</div>
+<div class="modal site-modal in" id="FGInventoryRegisterPopup" role="dialog" data-backdrop="static">
+    <div class="row">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">FG GRN<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body text-center">
+                    <div style="color:black;" id="GridGRNID6" ej-grid e-datasource="FGInventoryRegisterPoPUpList" e-allowscrolling="true" e-allowResizing="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="Actions" e-width="70">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridGRNID6');" style="margin: -6px;"></i></button>
+                            </div>
+                            <div e-column e-field="Id" e-headertext="GRN No." e-width="100" textAlign='Left'></div>
+                            <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="100"></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                            <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100"></div>
+                            <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="FixedAssetOrInventory" e-headertext="FixedAssetOrInventory" e-width="100"></div>
+                            <div e-column e-field="Status" e-headertext="Status" e-width="50"></div>
+                            <div e-column e-field="GRNType" e-headertext="GRN Type" e-width="50"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

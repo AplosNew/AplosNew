@@ -308,7 +308,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 ,WeekoffDays =STUFF((select distinct ','+CONCAT(DATEPART(DAY, apdX.WorkDate),'-',FORMAT(apdx.WorkDate,'ddd'))from 
 																			AttdnProcessData AS apdX                                              
 							                                where apdX.EmpSystemID=A.EmpSystemID  
-							                                AND apdx.WorkDate BETWEEN '01-Sep-2021' AND '30-Sep-2021'
+							                                AND apdx.WorkDate BETWEEN '" + sfrmDate + @"' AND '" + sToDate + @"'
 							                                AND apdx.WeekOffValue>0	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '') 
                             FROM (SELECT EmpSystemID, WorkDate,WorkingDayValue,ActualWorkingDayValue,PayDayValue,NonPayDayValue,
 										TotalPresent = PresentValue,
