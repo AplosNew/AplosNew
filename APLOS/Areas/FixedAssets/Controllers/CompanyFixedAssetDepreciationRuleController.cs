@@ -101,8 +101,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
                     }
                 }
 
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id in (" + IdList + ") ", out dsMaster, false, "1");
+                if (IdList != "")
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id in (" + IdList + ") ", out dsMaster, false, "1");
+                else
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2 ", out dsMaster, false, "1");
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 bplib.clsGenID objGenID = new bplib.clsGenID();
@@ -111,11 +113,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 int i = 0;
                 foreach (var item in data)
                 {
-                    
+
                     if (item["DepreciationRuleId"] != null)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + item["Id"] + "'";
-                        if (dsMaster.Tables[0].DefaultView.Count == 0 )
+                        if (dsMaster.Tables[0].DefaultView.Count == 0)
                         {
                             DataRow drCompanyFADepRule = dsMaster.Tables[0].NewRow();
                             i++;
@@ -143,7 +145,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
                             dr.EndEdit();
                         }
-                       
+
 
                     }
                 }

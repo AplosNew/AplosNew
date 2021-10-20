@@ -6556,7 +6556,9 @@ namespace Library.MaterialManagement.InventoryManagements
 					where  InventorySalesReturnDataOpening.IsAsset=0 AND IM.PlantId='" + plantId + @"' AND MM.UserName is not null
 
 					)x
-					where not
+					where 
+					--x.ArticleId='593' and 
+						not
 					(ISNULL(OpeningBalance,0)=0
 				    and  ISNULL(OpeningIssueQty,0)=0
 					and  ISNULL(ReceivedForThePeriod,0)=0
@@ -12746,24 +12748,6 @@ namespace Library.MaterialManagement.InventoryManagements
 					sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 					sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-					sheet1headreColIndex++;
-
-
-					//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Qty";
-					//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-					//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-					//sheet1headreColIndex++;
-
-					////report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Amount");
-
-					//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Amount";
-					//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-					//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-					//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-
 
 					sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 					sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
