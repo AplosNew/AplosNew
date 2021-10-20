@@ -43,7 +43,7 @@ function onDutyApprovalNewController(commonMessage, $scope, $rootScope, baseServ
                 }                             
             }
             
-            var data = ej.DataManager($scope.EmployeeListNew).executeLocal(ej.Query().select(["FromDate", "ToDate","EmpSystemId","MinDate","MaxDate"]));
+            var data = ej.DataManager($scope.EmployeeListNew).executeLocal(ej.Query().select(["FromDate", "ToDate","EmpSystemId"]));
 
 
             if ($scope.EmployeeListNew.length == 0) {
